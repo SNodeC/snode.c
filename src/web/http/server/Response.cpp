@@ -253,17 +253,22 @@ namespace web::http::server {
             std::string socketContextUpgradeName;
 
             if (request != nullptr) {
-                semantic::httpServerLog().debug()
-                    << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
-                    << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
-                    << httputils::toString(request->method,
-                                           request->url,
-                                           "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
-                                           request->queries,
-                                           request->headers,
-                                           {},
-                                           request->cookies,
-                                           std::vector<char>());
+                auto log = semantic::httpServerLog();
+                if (log.enabled(logger::LogLevel::Debug)) {
+                    const std::string prefix = connectionName + " HTTP: Initiating upgrade: " + request->method + " " + request->url +
+                                               " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) + "\n";
+                    const auto formatted = httputils::toStringPresentation(request->method,
+                                                                           request->url,
+                                                                           "HTTP/" + std::to_string(request->httpMajor) + "." +
+                                                                               std::to_string(request->httpMinor),
+                                                                           request->queries,
+                                                                           request->headers,
+                                                                           {},
+                                                                           request->cookies,
+                                                                           std::vector<char>());
+                    log.emit(logger::LogLevel::Debug,
+                             logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+                }
                 if (web::http::ciContains(request->get("connection"), "Upgrade")) {
                     SocketContextUpgradeFactory* socketContextUpgradeFactory =
                         SocketContextUpgradeFactorySelector::instance()->select(*request, *this);
@@ -282,15 +287,22 @@ namespace web::http::server {
                             semantic::httpServerLog().debug()
                                 << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
 
-                            semantic::httpServerLog().debug()
-                                << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
-                                << request->url << " " << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
-                                << httputils::toString("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
-                                                       std::to_string(statusCode),
-                                                       StatusCode::reason(statusCode),
-                                                       headers,
-                                                       cookies,
-                                                       {});
+                            auto responseLog = semantic::httpServerLog();
+                            if (responseLog.enabled(logger::LogLevel::Debug)) {
+                                const std::string prefix =
+                                    connectionName + " HTTP upgrade: Response to upgrade request: " + request->method + " " + request->url +
+                                    " HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor) + "\n";
+                                const auto formatted =
+                                    httputils::toStringPresentation("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                                                    std::to_string(statusCode),
+                                                                    StatusCode::reason(statusCode),
+                                                                    headers,
+                                                                    cookies,
+                                                                    {});
+                                responseLog.emit(
+                                    logger::LogLevel::Debug,
+                                    logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+                            }
 
                             socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {

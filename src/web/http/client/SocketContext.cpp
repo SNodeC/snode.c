@@ -135,14 +135,16 @@ namespace web::http::client {
 
             auto log = frameworkLog();
             if (log.enabled(logger::LogLevel::Trace)) {
-                log.trace() << httputils::toString(request->method,
-                                                   request->url,
-                                                   "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
-                                                   request->getQueries(),
-                                                   request->getHeaders(),
-                                                   request->getTrailer(),
-                                                   request->getCookies(),
-                                                   {});
+                const auto formatted =
+                    httputils::toStringPresentation(request->method,
+                                                    request->url,
+                                                    "HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor),
+                                                    request->getQueries(),
+                                                    request->getHeaders(),
+                                                    request->getTrailer(),
+                                                    request->getCookies(),
+                                                    {});
+                log.emit(logger::LogLevel::Trace, logger::PresentedMessage{.plain = formatted.plain, .terminal = formatted.terminal});
             }
         }
     }

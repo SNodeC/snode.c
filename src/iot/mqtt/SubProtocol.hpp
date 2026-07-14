@@ -43,6 +43,7 @@
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/SubProtocol.h"
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"
 
@@ -125,8 +126,12 @@ namespace iot::mqtt {
 
         auto log = iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection());
         if (log.enabled(logger::LogLevel::Debug)) {
-            log.debug() << "WsMqtt: Frame Data:\n"
-                        << std::string(32, ' ').append(utils::hexDump(std::vector<char>(chunk, chunk + chunkLen), 32));
+            const auto dump = utils::hexDumpPresentation(std::vector<char>(chunk, chunk + chunkLen), 32);
+            const std::string prefix = "WsMqtt: Frame Data:\n";
+            const std::string indentation(32, ' ');
+            log.emit(
+                logger::LogLevel::Debug,
+                logger::PresentedMessage{.plain = prefix + indentation + dump.plain, .terminal = prefix + indentation + dump.terminal});
         }
     }
 

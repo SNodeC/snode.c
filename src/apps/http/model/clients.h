@@ -59,6 +59,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "web/http/http_utils.h"
 
 #if (STREAM_TYPE == TLS) // tls
@@ -72,18 +73,22 @@
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
     auto log = snode::semantic::appLog();
     if (log.enabled(logger::LogLevel::Trace)) {
-        log.trace() << req->getConnectionName() << " HTTP response: " << req->method << " " << req->url << " HTTP/" << req->httpMajor << "."
-                    << req->httpMinor << "\n"
-                    << httputils::toString(req->method,
-                                           req->url,
-                                           "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
-                                           req->getQueries(),
-                                           req->getHeaders(),
-                                           req->getTrailer(),
-                                           req->getCookies(),
-                                           {})
-                    << "\n"
-                    << httputils::toString(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+        const std::string prefix = req->getConnectionName() + " HTTP response: " + req->method + " " + req->url + " HTTP/" +
+                                   std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor) + "\n";
+        const auto requestPresentation =
+            httputils::toStringPresentation(req->method,
+                                            req->url,
+                                            "HTTP/" + std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor),
+                                            req->getQueries(),
+                                            req->getHeaders(),
+                                            req->getTrailer(),
+                                            req->getCookies(),
+                                            {});
+        const auto responsePresentation =
+            httputils::toStringPresentation(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
+        log.emit(logger::LogLevel::Trace,
+                 logger::PresentedMessage{.plain = prefix + requestPresentation.plain + "\n" + responsePresentation.plain,
+                                          .terminal = prefix + requestPresentation.terminal + "\n" + responsePresentation.terminal});
     }
 }
 

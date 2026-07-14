@@ -365,16 +365,20 @@ namespace web::http::client {
                 [masterRequest = this->masterRequest, connectionName = this->connectionName, onResponseReceived](
                     const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response) {
                     if (!masterRequest.expired() && masterRequest.lock()->isConnected()) {
-                        semantic::httpClientLog().debug()
-                            << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " " << request->url
-                            << " "
-                            << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
-                            << httputils::toString(response->httpVersion,
-                                                   response->statusCode,
-                                                   response->reason,
-                                                   response->headers,
-                                                   response->cookies,
-                                                   response->body);
+                        auto log = semantic::httpClientLog();
+                        if (log.enabled(logger::LogLevel::Debug)) {
+                            const std::string prefix = connectionName + " HTTP upgrade: Response to upgrade request: " + request->method +
+                                                       " " + request->url + " HTTP/" + std::to_string(request->httpMajor) + "." +
+                                                       std::to_string(request->httpMinor) + "\n";
+                            const auto formatted = httputils::toStringPresentation(response->httpVersion,
+                                                                                   response->statusCode,
+                                                                                   response->reason,
+                                                                                   response->headers,
+                                                                                   response->cookies,
+                                                                                   response->body);
+                            log.emit(logger::LogLevel::Debug,
+                                     logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+                        }
 
                         std::string socketContextUpgradeName;
 
@@ -636,15 +640,20 @@ namespace web::http::client {
                                               << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
         }
 
-        semantic::httpClientLog().debug() << connectionName << " HTTP: Upgrade request:\n"
-                                          << httputils::toString(method,
-                                                                 url,
-                                                                 "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
-                                                                 queries,
-                                                                 headers,
-                                                                 trailer,
-                                                                 cookies,
-                                                                 std::vector<char>());
+        auto upgradeRequestLog = semantic::httpClientLog();
+        if (upgradeRequestLog.enabled(logger::LogLevel::Debug)) {
+            const std::string prefix = connectionName + " HTTP: Upgrade request:\n";
+            const auto formatted = httputils::toStringPresentation(method,
+                                                                   url,
+                                                                   "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
+                                                                   queries,
+                                                                   headers,
+                                                                   trailer,
+                                                                   cookies,
+                                                                   std::vector<char>());
+            upgradeRequestLog.emit(logger::LogLevel::Debug,
+                                   logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+        }
 
         onStatus(socketContextUpgradeFactory != nullptr);
 

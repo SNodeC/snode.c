@@ -48,6 +48,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "web/http/http_utils.h"
 
 #include <string>
@@ -58,17 +59,21 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use("/", [details] MIDDLEWARE(req, res, next) {
-            snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection()).debug()
-                << "Express VerboseMiddleware: " << req->method << " " << req->url << " " << req->httpVersion << "\n"
-                << httputils::toString(
-                       req->method,
-                       req->url,
-                       req->httpVersion,
-                       (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : std::map<std::string, std::string>(),
-                       (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
-                       (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
-                       (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
-                       (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
+            auto log = snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection());
+            if (log.enabled(logger::LogLevel::Debug)) {
+                const std::string prefix = "Express VerboseMiddleware: " + req->method + " " + req->url + " " + req->httpVersion + "\n";
+                const auto formatted = httputils::toStringPresentation(
+                    req->method,
+                    req->url,
+                    req->httpVersion,
+                    (details & Details::W_QUERIES) == Details::W_QUERIES ? req->queries : std::map<std::string, std::string>(),
+                    (details & Details::W_HEADERS) == Details::W_HEADERS ? req->headers : web::http::CiStringMap<std::string>(),
+                    (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
+                    (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
+                    (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
+                log.emit(logger::LogLevel::Debug,
+                         logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+            }
 
             next();
         });

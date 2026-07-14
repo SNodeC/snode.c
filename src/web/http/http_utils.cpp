@@ -54,8 +54,8 @@
 #include <charconv>
 #include <iomanip>
 #include <sstream>
-#include <system_error>
 #include <sys/stat.h>
+#include <system_error>
 #include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -111,7 +111,6 @@ namespace httputils {
 
         return text;
     }
-
 
     std::vector<std::string> splitCommaSeparatedTokens(const std::string& value) {
         std::vector<std::string> tokens;
@@ -258,6 +257,160 @@ namespace httputils {
         return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
     }
 
+    namespace {
+        std::string renderRequest(const std::string& method,
+                                  const std::string& url,
+                                  const std::string& version,
+                                  const std::map<std::string, std::string>& queries,
+                                  const web::http::CiStringMap<std::string>& header,
+                                  const web::http::CiStringMap<std::string>& trailer,
+                                  const web::http::CiStringMap<std::string>& cookies,
+                                  const std::vector<char>& body,
+                                  const utils::HexDumpPalette& palette) {
+            const int prefixLength = 9;
+            int keyLength = 0;
+
+            for (const auto& [key, value] : queries) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+            for (const auto& [key, value] : header) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+            for (const auto& [key, value] : trailer) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+            for (const auto& [key, value] : cookies) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+
+            std::stringstream requestStream;
+
+            requestStream << std::setw(prefixLength) << "Request"
+                          << ": " << std::setw(keyLength) << "Method"
+                          << " : " << method << "\n";
+            requestStream << std::setw(prefixLength) << ""
+                          << ": " << std::setw(keyLength) << "Url"
+                          << " : " << url << "\n";
+            requestStream << std::setw(prefixLength) << ""
+                          << ": " << std::setw(keyLength) << "Version"
+                          << " : " << version << "\n";
+
+            std::string prefix;
+
+            if (!queries.empty()) {
+                prefix = "Queries";
+                for (const auto& [query, value] : queries) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << query << " : " << value << "\n";
+                    prefix = "";
+                }
+            }
+
+            if (!header.empty()) {
+                prefix = "Header";
+                for (const auto& [field, value] : header) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                    prefix = "";
+                }
+            }
+
+            if (!trailer.empty()) {
+                prefix = "Trailer";
+                for (const auto& [field, value] : trailer) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                    prefix = "";
+                }
+            }
+
+            if (!cookies.empty()) {
+                prefix = "Cookies";
+                for (const auto& [cookie, value] : cookies) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : " << value << "\n";
+                    prefix = "";
+                }
+            }
+
+            if (!body.empty()) {
+                prefix = "Body";
+                requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body.data(), body.size(), prefixLength, false, palette)
+                              << "\n";
+            }
+
+            std::string string = requestStream.str();
+            if (!string.empty()) {
+                string.pop_back();
+            }
+
+            return string;
+        }
+
+        std::string renderResponse(const std::string& version,
+                                   const std::string& statusCode,
+                                   const std::string& reason,
+                                   const web::http::CiStringMap<std::string>& header,
+                                   const web::http::CiStringMap<web::http::CookieOptions>& cookies,
+                                   const std::vector<char>& body,
+                                   const utils::HexDumpPalette& palette) {
+            const int prefixLength = 9;
+            int keyLength = 0;
+
+            for (const auto& [key, value] : header) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+            for (const auto& [key, value] : cookies) {
+                keyLength = std::max(keyLength, static_cast<int>(key.size()));
+            }
+
+            std::stringstream requestStream;
+
+            requestStream << std::setw(prefixLength) << "Response"
+                          << ": " << std::setw(keyLength) << "Version"
+                          << " : " << version << "\n";
+            requestStream << std::setw(prefixLength) << ""
+                          << ": " << std::setw(keyLength) << "Status"
+                          << " : " << statusCode << "\n";
+            requestStream << std::setw(prefixLength) << ""
+                          << ": " << std::setw(keyLength) << "Reason"
+                          << " : " << reason << "\n";
+
+            std::string prefix;
+
+            if (!header.empty()) {
+                prefix = "Header";
+                for (const auto& [field, value] : header) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
+                    prefix = "";
+                }
+            }
+
+            if (!cookies.empty()) {
+                prefix = "Cookies";
+                for (const auto& [cookie, options] : cookies) {
+                    requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : "
+                                  << options.getValue() << "\n";
+                    for (const auto& [optionKey, optionValue] : options.getOptions()) {
+                        requestStream << std::setw(prefixLength) << ""
+                                      << ":" << std::setw(keyLength) << ""
+                                      << " : " << optionKey << "=" << optionValue << "\n";
+                    }
+                    prefix = "";
+                }
+            }
+
+            if (!body.empty()) {
+                prefix = "Body";
+                requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body.data(), body.size(), prefixLength, false, palette)
+                              << "\n";
+            }
+
+            std::string string = requestStream.str();
+            if (!string.empty()) {
+                string.pop_back();
+            }
+
+            return string;
+        }
+    } // namespace
+
     std::string toString(const std::string& method,
                          const std::string& url,
                          const std::string& version,
@@ -266,79 +419,19 @@ namespace httputils {
                          const web::http::CiStringMap<std::string>& trailer,
                          const web::http::CiStringMap<std::string>& cookies,
                          const std::vector<char>& body) {
-        const int prefixLength = 9;
-        int keyLength = 0;
+        return renderRequest(method, url, version, queries, header, trailer, cookies, body, utils::plainHexDumpPalette);
+    }
 
-        for (const auto& [key, value] : queries) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-        for (const auto& [key, value] : header) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-        for (const auto& [key, value] : trailer) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-        for (const auto& [key, value] : cookies) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-
-        std::stringstream requestStream;
-
-        requestStream << std::setw(prefixLength) << "Request"
-                      << ": " << std::setw(keyLength) << "Method"
-                      << " : " << method << "\n";
-        requestStream << std::setw(prefixLength) << ""
-                      << ": " << std::setw(keyLength) << "Url"
-                      << " : " << url << "\n";
-        requestStream << std::setw(prefixLength) << ""
-                      << ": " << std::setw(keyLength) << "Version"
-                      << " : " << version << "\n";
-
-        std::string prefix;
-
-        if (!queries.empty()) {
-            prefix = "Queries";
-            for (const auto& [query, value] : queries) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << query << " : " << value << "\n";
-                prefix = "";
-            }
-        }
-
-        if (!header.empty()) {
-            prefix = "Header";
-            for (const auto& [field, value] : header) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
-                prefix = "";
-            }
-        }
-
-        if (!trailer.empty()) {
-            prefix = "Trailer";
-            for (const auto& [field, value] : trailer) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
-                prefix = "";
-            }
-        }
-
-        if (!cookies.empty()) {
-            prefix = "Cookies";
-            for (const auto& [cookie, value] : cookies) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : " << value << "\n";
-                prefix = "";
-            }
-        }
-
-        if (!body.empty()) {
-            prefix = "Body";
-            requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body, prefixLength) << "\n";
-        }
-
-        std::string string = requestStream.str();
-        if (!string.empty()) {
-            string.pop_back();
-        }
-
-        return string;
+    MessagePresentation toStringPresentation(const std::string& method,
+                                             const std::string& url,
+                                             const std::string& version,
+                                             const std::map<std::string, std::string>& queries,
+                                             const web::http::CiStringMap<std::string>& header,
+                                             const web::http::CiStringMap<std::string>& trailer,
+                                             const web::http::CiStringMap<std::string>& cookies,
+                                             const std::vector<char>& body) {
+        return {renderRequest(method, url, version, queries, header, trailer, cookies, body, utils::plainHexDumpPalette),
+                renderRequest(method, url, version, queries, header, trailer, cookies, body, utils::terminalHexDumpPalette)};
     }
 
     std::string toString(const std::string& version,
@@ -347,63 +440,17 @@ namespace httputils {
                          const web::http::CiStringMap<std::string>& header,
                          const web::http::CiStringMap<web::http::CookieOptions>& cookies,
                          const std::vector<char>& body) {
-        const int prefixLength = 9;
-        int keyLength = 0;
+        return renderResponse(version, statusCode, reason, header, cookies, body, utils::plainHexDumpPalette);
+    }
 
-        for (const auto& [key, value] : header) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-        for (const auto& [key, value] : cookies) {
-            keyLength = std::max(keyLength, static_cast<int>(key.size()));
-        }
-
-        std::stringstream requestStream;
-
-        requestStream << std::setw(prefixLength) << "Response"
-                      << ": " << std::setw(keyLength) << "Version"
-                      << " : " << version << "\n";
-        requestStream << std::setw(prefixLength) << ""
-                      << ": " << std::setw(keyLength) << "Status"
-                      << " : " << statusCode << "\n";
-        requestStream << std::setw(prefixLength) << ""
-                      << ": " << std::setw(keyLength) << "Reason"
-                      << " : " << reason << "\n";
-
-        std::string prefix;
-
-        if (!header.empty()) {
-            prefix = "Header";
-            for (const auto& [field, value] : header) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << field << " : " << value << "\n";
-                prefix = "";
-            }
-        }
-
-        if (!cookies.empty()) {
-            prefix = "Cookies";
-            for (const auto& [cookie, options] : cookies) {
-                requestStream << std::setw(prefixLength) << prefix << ": " << std::setw(keyLength) << cookie << " : " << options.getValue()
-                              << "\n";
-                for (const auto& [optionKey, optionValue] : options.getOptions()) {
-                    requestStream << std::setw(prefixLength) << ""
-                                  << ":" << std::setw(keyLength) << ""
-                                  << " : " << optionKey << "=" << optionValue << "\n";
-                }
-                prefix = "";
-            }
-        }
-
-        if (!body.empty()) {
-            prefix = "Body";
-            requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body, prefixLength) << "\n";
-        }
-
-        std::string string = requestStream.str();
-        if (!string.empty()) {
-            string.pop_back();
-        }
-
-        return string;
+    MessagePresentation toStringPresentation(const std::string& version,
+                                             const std::string& statusCode,
+                                             const std::string& reason,
+                                             const web::http::CiStringMap<std::string>& header,
+                                             const web::http::CiStringMap<web::http::CookieOptions>& cookies,
+                                             const std::vector<char>& body) {
+        return {renderResponse(version, statusCode, reason, header, cookies, body, utils::plainHexDumpPalette),
+                renderResponse(version, statusCode, reason, header, cookies, body, utils::terminalHexDumpPalette)};
     }
 
 } // namespace httputils
