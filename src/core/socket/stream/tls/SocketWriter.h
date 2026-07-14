@@ -47,6 +47,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstdio>
 #include <functional>
 #include <openssl/types.h>
@@ -55,6 +56,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
+
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
 
     class SocketWriter : public core::socket::stream::SocketWriter {
     private:
@@ -77,6 +82,8 @@ namespace core::socket::stream::tls {
         ssize_t write(const char* chunk, std::size_t chunkLen) override;
 
     protected:
+        virtual void onTlsFatalError(int errnum) { errno = errnum; }
+
         virtual bool doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
@@ -85,6 +92,8 @@ namespace core::socket::stream::tls {
 
     private:
         logger::LogScopeOwner logScope;
+
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

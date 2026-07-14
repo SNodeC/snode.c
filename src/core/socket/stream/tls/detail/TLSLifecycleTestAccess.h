@@ -3,6 +3,8 @@
 
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/SocketConnection.h"
+#include "core/socket/stream/tls/SocketReader.h"
+#include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #include <cerrno>
@@ -56,8 +58,13 @@ namespace core::socket::stream::tls::detail::test {
         TLSShutdown* last = nullptr;
     };
 
+    struct IoState : HelperStateBase {
+    };
+
     HandshakeState& handshakeState();
     ShutdownState& shutdownState();
+    IoState& readerState();
+    IoState& writerState();
 
 } // namespace core::socket::stream::tls::detail::test
 
@@ -66,14 +73,20 @@ namespace core::socket::stream::tls::detail {
     struct TLSLifecycleTestAccess {
         static void resetHandshake() { test::handshakeState().reset(); }
         static void resetShutdown() { test::shutdownState().reset(); }
+        static void resetReader() { test::readerState().reset(); }
+        static void resetWriter() { test::writerState().reset(); }
 
         static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
         static void enqueueHandshakeResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::handshakeState().operations.push_back({ret, sslError, systemError, openSslError}); }
         static void enqueueShutdown(int sslError, int systemError = 0) { test::shutdownState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
         static void enqueueShutdownResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::shutdownState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueReaderResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::readerState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueWriterResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::writerState().operations.push_back({ret, sslError, systemError, openSslError}); }
 
         static test::Counters handshakeCounters() { return test::handshakeState().counters; }
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }
+        static test::Counters readerCounters() { return test::readerState().counters; }
+        static test::Counters writerCounters() { return test::writerState().counters; }
 
         static TLSHandshake* lastHandshake() { return test::handshakeState().last; }
         static TLSShutdown* lastShutdown() { return test::shutdownState().last; }
@@ -125,6 +138,9 @@ namespace core::socket::stream::tls::detail {
         static bool writeSuspended(TLSShutdown* helper) { return helper->WriteEventReceiver::isSuspended(); }
         static bool completed(TLSShutdown* helper) { return helper->completed; }
 
+        static ssize_t tlsRead(SocketReader& reader, char* chunk, std::size_t chunkLen) { return reader.read(chunk, chunkLen); }
+        static ssize_t tlsWrite(SocketWriter& writer, const char* chunk, std::size_t chunkLen) { return writer.write(chunk, chunkLen); }
+
         template <typename PhysicalSocket, typename Config>
         static SSL* startSSL(SocketConnection<PhysicalSocket, Config>& connection, int fd, SSL_CTX* ctx) {
             return connection.startSSL(fd, ctx);
@@ -156,6 +172,11 @@ namespace core::socket::stream::tls::detail {
         template <typename PhysicalSocket, typename Config>
         static bool shutdownGuardActive(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.sslShutdownInProgress != nullptr && *connection.sslShutdownInProgress;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool tlsFatalError(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsFatalError;
         }
     };
 

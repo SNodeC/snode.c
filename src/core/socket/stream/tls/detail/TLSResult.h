@@ -39,9 +39,17 @@ namespace core::socket::stream::tls::detail {
         FullShutdownComplete
     };
 
-    using TlsHandshakeResult = std::variant<TlsHandshakeSuccess, TlsStatusInfo>;
-    using TlsIoResult = std::variant<TlsIoSuccess, TlsStatusInfo>;
-    using TlsShutdownResult = std::variant<TlsShutdownSuccess, TlsStatusInfo>;
+    struct TlsHandshakeResult {
+        std::variant<TlsHandshakeSuccess, TlsStatusInfo> value;
+    };
+
+    struct TlsIoResult {
+        std::variant<TlsIoSuccess, TlsStatusInfo> value;
+    };
+
+    struct TlsShutdownResult {
+        std::variant<TlsShutdownSuccess, TlsStatusInfo> value;
+    };
 
     inline bool isUnexpectedEofReason(unsigned long openSslError) {
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)

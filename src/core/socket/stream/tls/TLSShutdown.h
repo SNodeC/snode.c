@@ -44,7 +44,6 @@
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
-#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -68,6 +67,7 @@ namespace core::socket::stream::tls {
 
     namespace detail {
         struct TLSLifecycleTestAccess;
+        struct TlsShutdownResult;
     }
 
     template <typename PhysicalSocketT, typename ConfigT>

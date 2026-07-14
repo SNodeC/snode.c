@@ -98,6 +98,8 @@ namespace core::socket::stream::tls {
 
         void onReadShutdown() final;
 
+        void onTlsFatalError(int errnum) final;
+
         void doWriteShutdown(const std::function<void()>& onShutdown) final;
 
         SSL* ssl = nullptr;
@@ -105,6 +107,7 @@ namespace core::socket::stream::tls {
         utils::Timeval sslInitTimeout;
         utils::Timeval sslShutdownTimeout;
         bool closeNotifyIsEOF;
+        bool tlsFatalError = false;
         std::shared_ptr<bool> sslHandshakeInProgress;
         std::shared_ptr<bool> sslShutdownInProgress;
 

@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/TLSShutdown.h"
+#include "core/socket/stream/tls/detail/TLSResult.h"
 
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
@@ -132,8 +133,8 @@ namespace core::socket::stream::tls {
 
         const detail::TlsShutdownResult result = performOperation();
 
-        if (std::holds_alternative<detail::TlsShutdownSuccess>(result)) {
-            switch (std::get<detail::TlsShutdownSuccess>(result)) {
+        if (std::holds_alternative<detail::TlsShutdownSuccess>(result.value)) {
+            switch (std::get<detail::TlsShutdownSuccess>(result.value)) {
                 case detail::TlsShutdownSuccess::CloseNotifySent:
                 case detail::TlsShutdownSuccess::FullShutdownComplete:
                     finishSuccess();
@@ -142,7 +143,7 @@ namespace core::socket::stream::tls {
             return;
         }
 
-        const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result);
+        const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result.value);
         switch (status.status) {
             case detail::TlsStatus::WantRead:
                 awaitRead();
@@ -164,7 +165,7 @@ namespace core::socket::stream::tls {
 
     detail::TlsShutdownResult TLSShutdown::performOperation() {
         if (completed) {
-            return detail::TlsShutdownSuccess::FullShutdownComplete;
+            return detail::TlsShutdownResult{detail::TlsShutdownSuccess::FullShutdownComplete};
         }
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -175,9 +176,9 @@ namespace core::socket::stream::tls {
             state.operations.pop_front();
             errno = result.systemError;
             if (result.sslError == SSL_ERROR_NONE) {
-                return result.returnValue == 0 ? detail::TlsShutdownSuccess::CloseNotifySent : detail::TlsShutdownSuccess::FullShutdownComplete;
+                return detail::TlsShutdownResult{result.returnValue == 0 ? detail::TlsShutdownSuccess::CloseNotifySent : detail::TlsShutdownSuccess::FullShutdownComplete};
             }
-            return detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError);
+            return detail::TlsShutdownResult{detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
         }
 #endif
 
@@ -187,16 +188,16 @@ namespace core::socket::stream::tls {
         const int savedErrno = errno;
         if (ret == 0) {
             errno = savedErrno;
-            return detail::TlsShutdownSuccess::CloseNotifySent;
+            return detail::TlsShutdownResult{detail::TlsShutdownSuccess::CloseNotifySent};
         }
         if (ret == 1) {
             errno = savedErrno;
-            return detail::TlsShutdownSuccess::FullShutdownComplete;
+            return detail::TlsShutdownResult{detail::TlsShutdownSuccess::FullShutdownComplete};
         }
         const int sslErr = SSL_get_error(ssl, ret);
         const unsigned long openSslError = ERR_peek_last_error();
         errno = savedErrno;
-        return detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError);
+        return detail::TlsShutdownResult{detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError)};
     }
 
     void TLSShutdown::awaitRead() {

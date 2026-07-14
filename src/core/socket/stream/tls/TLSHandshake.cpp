@@ -133,12 +133,12 @@ namespace core::socket::stream::tls {
 
         const detail::TlsHandshakeResult result = performOperation();
 
-        if (std::holds_alternative<detail::TlsHandshakeSuccess>(result)) {
+        if (std::holds_alternative<detail::TlsHandshakeSuccess>(result.value)) {
             finishSuccess();
             return;
         }
 
-        const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result);
+        const detail::TlsStatusInfo& status = std::get<detail::TlsStatusInfo>(result.value);
         switch (status.status) {
             case detail::TlsStatus::WantRead:
                 awaitRead();
@@ -158,7 +158,7 @@ namespace core::socket::stream::tls {
 
     detail::TlsHandshakeResult TLSHandshake::performOperation() {
         if (completed) {
-            return detail::TlsHandshakeSuccess{};
+            return detail::TlsHandshakeResult{detail::TlsHandshakeSuccess{}};
         }
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -169,9 +169,9 @@ namespace core::socket::stream::tls {
             state.operations.pop_front();
             errno = result.systemError;
             if (result.sslError == SSL_ERROR_NONE) {
-                return detail::TlsHandshakeSuccess{};
+                return detail::TlsHandshakeResult{detail::TlsHandshakeSuccess{}};
             }
-            return detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError);
+            return detail::TlsHandshakeResult{detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
         }
 #endif
 
@@ -181,12 +181,12 @@ namespace core::socket::stream::tls {
         const int savedErrno = errno;
         if (ret == 1) {
             errno = savedErrno;
-            return detail::TlsHandshakeSuccess{};
+            return detail::TlsHandshakeResult{detail::TlsHandshakeSuccess{}};
         }
         const int sslErr = SSL_get_error(ssl, ret);
         const unsigned long openSslError = ERR_peek_last_error();
         errno = savedErrno;
-        return detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError);
+        return detail::TlsHandshakeResult{detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError)};
     }
 
     void TLSHandshake::awaitRead() {

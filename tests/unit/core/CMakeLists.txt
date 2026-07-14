@@ -52,6 +52,13 @@ target_link_libraries(TLSResultClassificationTest PRIVATE snodec-test-support sn
 target_compile_features(TLSResultClassificationTest PRIVATE cxx_std_20)
 set_tests_properties(TLSResultClassificationTest PROPERTIES LABELS "unit;core;tls;classification" TIMEOUT 5)
 
+snodec_add_test(TLSIoFatalPathTest TLSIoFatalPathTest.cpp)
+target_include_directories(TLSIoFatalPathTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
+target_link_libraries(TLSIoFatalPathTest PRIVATE snodec-test-support snodec::core-socket-stream-tls)
+target_compile_features(TLSIoFatalPathTest PRIVATE cxx_std_20)
+target_compile_definitions(TLSIoFatalPathTest PRIVATE SNODEC_BUILD_TESTS)
+set_tests_properties(TLSIoFatalPathTest PROPERTIES LABELS "unit;core;tls;io;fatal" TIMEOUT 5)
+
 snodec_add_test(TLSLifecycleHelperOwnershipTest TLSLifecycleHelperOwnershipTest.cpp)
 
 target_include_directories(TLSLifecycleHelperOwnershipTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
