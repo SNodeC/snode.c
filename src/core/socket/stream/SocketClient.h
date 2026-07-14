@@ -42,6 +42,7 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCLIENT_H
 #define CORE_SOCKET_STREAM_SOCKETCLIENT_H
 
+#include "core/EventLoop.h"
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h"                      // IWYU pragma: export
@@ -59,6 +60,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional> // IWYU pragma: export
+#include <memory>
 #include <optional>
 #include <type_traits> // IWYU pragma: export
 
@@ -121,6 +123,15 @@ namespace core::socket::stream {
                           flowController.getRetryCount(),
                           flowController.getReconnectCount());
             }
+
+            void emitTerminationSummaryOnce() {
+                if (!terminationSummaryEmitted) {
+                    terminationSummaryEmitted = true;
+                    emitTerminationSummary();
+                }
+            }
+
+            bool terminationSummaryEmitted{false};
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -186,6 +197,12 @@ namespace core::socket::stream {
                           onDisconnect(socketConnection);
                       }
                   })) {
+            const std::weak_ptr<Context> weakContext = sharedContext;
+            core::EventLoop::addPreShutdownCallback([weakContext] {
+                if (const auto context = weakContext.lock()) {
+                    context->emitTerminationSummaryOnce();
+                }
+            });
         }
 
         SocketClient(const std::function<void(SocketConnection*)>& onConnect,
@@ -240,7 +257,7 @@ namespace core::socket::stream {
                                             });
                                     } else if (core::eventLoopState() == core::State::RUNNING &&
                                                sharedContext->flowController.terminateFlow()) {
-                                        sharedContext->emitTerminationSummary();
+                                        sharedContext->emitTerminationSummaryOnce();
                                     }
                                 },
                                 [sharedContext](core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
@@ -290,7 +307,7 @@ namespace core::socket::stream {
                                     } else if (retryFlag &&
                                                (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
                                                core::SNodeC::state() == core::State::RUNNING && sharedContext->flowController.terminateFlow()) {
-                                        sharedContext->emitTerminationSummary();
+                                        sharedContext->emitTerminationSummaryOnce();
                                     }
                                 },
                                 [sharedContext]() {

@@ -320,8 +320,16 @@ it. `reconnects` counts reconnect attempts that were actually dispatched after
 an established client connection disconnected; arming or cancelling a reconnect
 timer does not increment it.
 
-A server or client instance summary is emitted only when normal runtime
-continuation is rejected by policy: a terminal listen/connect failure that
-cannot continue by retry, or a client disconnect during `RUNNING` that cannot
-continue by reconnect. Framework shutdown, destructor paths, and explicit
-termination calls do not produce this lifetime summary.
+A server or client instance summary is emitted exactly once when either normal
+runtime continuation is rejected by policy or the EventLoop performs graceful
+shutdown. Rejected continuation covers terminal listen/connect failure that
+cannot continue by retry, and client disconnect during `RUNNING` that cannot
+continue by reconnect. Graceful shutdown covers the normal EventLoop shutdown
+path, including SIGINT, SIGTERM, SIGHUP, and `SNodeC::stop()`.
+
+The summary is emitted by the shared endpoint Context. The same Context-owned
+exactly-once guard covers both rejected-continuation and graceful-shutdown paths,
+so a summary emitted by policy rejection is not emitted again during
+`EventLoop::free()`. SIGKILL, crashes, aborts, and immediate process termination
+cannot guarantee a final endpoint summary. Destructor paths do not emit this
+lifetime summary.
