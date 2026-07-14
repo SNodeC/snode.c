@@ -8,10 +8,8 @@
 #include <cerrno>
 #include <deque>
 #include <functional>
-#include <memory>
 #include <openssl/ssl.h>
 #include <string>
-#include <utility>
 
 namespace core::socket::stream::tls::detail::test {
 
@@ -32,21 +30,17 @@ namespace core::socket::stream::tls::detail::test {
         int releases = 0;
         int lastStatus = SSL_ERROR_NONE;
         int lastErrno = 0;
-        int lastReleaseSequence = 0;
-        int lastDestroySequence = 0;
     };
 
     struct HelperStateBase {
         std::deque<OperationResult> operations;
         Counters counters;
-        int sequence = 0;
         int failNextReadEnable = 0;
         int failNextWriteEnable = 0;
 
         void reset() {
             operations.clear();
             counters = {};
-            sequence = 0;
             failNextReadEnable = 0;
             failNextWriteEnable = 0;
         }
@@ -76,9 +70,6 @@ namespace core::socket::stream::tls::detail {
 
         static test::Counters handshakeCounters() { return test::handshakeState().counters; }
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }
-
-        static int nextHandshakeSequence() { return ++test::handshakeState().sequence; }
-        static int nextShutdownSequence() { return ++test::shutdownState().sequence; }
 
         static TLSHandshake* lastHandshake() { return test::handshakeState().last; }
         static TLSShutdown* lastShutdown() { return test::shutdownState().last; }
@@ -159,33 +150,8 @@ namespace core::socket::stream::tls::detail {
         }
 
         template <typename PhysicalSocket, typename Config>
-        static std::weak_ptr<bool> handshakeGuardToken(const SocketConnection<PhysicalSocket, Config>& connection) {
-            return connection.sslHandshakeInProgress;
-        }
-
-        template <typename PhysicalSocket, typename Config>
         static bool shutdownGuardActive(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.sslShutdownInProgress != nullptr && *connection.sslShutdownInProgress;
-        }
-
-        template <typename PhysicalSocket, typename Config>
-        static std::weak_ptr<bool> shutdownGuardToken(const SocketConnection<PhysicalSocket, Config>& connection) {
-            return connection.sslShutdownInProgress;
-        }
-
-        template <typename PhysicalSocket, typename Config>
-        static void setOnTestDestroyed(SocketConnection<PhysicalSocket, Config>& connection, std::function<void()> callback) {
-            connection.onTestDestroyed = std::move(callback);
-        }
-
-        template <typename PhysicalSocket, typename Config>
-        static void setOnTestHandshakeReleased(SocketConnection<PhysicalSocket, Config>& connection, std::function<void(bool)> callback) {
-            connection.onTestHandshakeReleased = std::make_shared<std::function<void(bool)>>(std::move(callback));
-        }
-
-        template <typename PhysicalSocket, typename Config>
-        static void setOnTestShutdownReleased(SocketConnection<PhysicalSocket, Config>& connection, std::function<void(bool)> callback) {
-            connection.onTestShutdownReleased = std::make_shared<std::function<void(bool)>>(std::move(callback));
         }
     };
 

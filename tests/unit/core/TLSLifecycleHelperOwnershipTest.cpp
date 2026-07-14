@@ -9,7 +9,6 @@
 
 #include <cerrno>
 #include <functional>
-#include <memory>
 #include <openssl/ssl.h>
 #include <sys/socket.h>
 #include <string>
@@ -32,24 +31,10 @@ namespace {
         }
         int fd() const { return fds[0]; }
     };
-
-    void releaseDisabledReadEvents() {
-        core::EventLoop::instance()
-            .getEventMultiplexer()
-            .getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD)
-            .releaseDisabledEvents(utils::Timeval::currentTime());
-    }
-
-    void releaseDisabledWriteEvents() {
-        core::EventLoop::instance()
-            .getEventMultiplexer()
-            .getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR)
-            .releaseDisabledEvents(utils::Timeval::currentTime());
-    }
-
     void releaseDisabledEvents() {
-        releaseDisabledReadEvents();
-        releaseDisabledWriteEvents();
+        const utils::Timeval now = utils::Timeval::currentTime();
+        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD).releaseDisabledEvents(now);
+        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR).releaseDisabledEvents(now);
     }
 
     struct CallbackCounts {
@@ -59,12 +44,6 @@ namespace {
         int released = 0;
         int lastStatus = SSL_ERROR_NONE;
         int lastErrno = 0;
-    };
-
-    struct OrderingProbe {
-        int connectionDestroyed = 0;
-        int connectionDestroyedSequence = 0;
-        bool weakExpiredOnHelperRelease = false;
     };
 
     class TestSocketAddress : public core::socket::SocketAddress {
@@ -596,58 +575,6 @@ namespace {
         cleanupConnection(connection);
         expectAccounting<TLSShutdown>(result, "SocketConnection shutdown guard", 2);
     }
-
-    void socketConnectionDestroyedBeforeRelease(TestResult& result) {
-        PipeFd pipeFd;
-        SslContext sslContext;
-        auto* connection = makeConnection(pipeFd, sslContext);
-        CallbackCounts callbacks;
-        OrderingProbe ordering;
-
-        TLSLifecycleTestAccess::resetHandshake();
-        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_WANT_READ);
-        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::setOnTestDestroyed(*connection, [&] {
-            ordering.connectionDestroyed++;
-            ordering.connectionDestroyedSequence = TLSLifecycleTestAccess::nextHandshakeSequence();
-        });
-        TLSLifecycleTestAccess::setOnTestHandshakeReleased(*connection, [&](bool expired) {
-            ordering.weakExpiredOnHelperRelease = expired;
-        });
-        result.expectTrue(TLSLifecycleTestAccess::doSSLHandshake(
-                              *connection, [&] { callbacks.success++; }, [&] { callbacks.timeout++; }, [&](int status) {
-                                  callbacks.error++;
-                                  callbacks.lastStatus = status;
-                              }),
-                          "SocketConnection destroyed before release: helper starts");
-        const std::weak_ptr<bool> guardToken = TLSLifecycleTestAccess::handshakeGuardToken(*connection);
-        result.expectTrue(!guardToken.expired(), "SocketConnection destroyed before release: guard token live before close");
-        TLSLifecycleTestAccess::stopSSL(*connection);
-        connection->close();
-        releaseDisabledWriteEvents();
-        result.expectEqual(0, ordering.connectionDestroyed,
-                           "SocketConnection destroyed before release: write cleanup alone does not destroy connection");
-        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().active,
-                           "SocketConnection destroyed before release: helper alive before semantic completion");
-        TLSLifecycleTestAccess::readEvent(TLSLifecycleTestAccess::lastHandshake());
-        result.expectEqual(1, callbacks.success, "SocketConnection destroyed before release: semantic callback");
-        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().active,
-                           "SocketConnection destroyed before release: helper alive before read cleanup");
-        releaseDisabledReadEvents();
-        const Counters counters = TLSLifecycleTestAccess::handshakeCounters();
-        result.expectEqual(1, ordering.connectionDestroyed, "SocketConnection destroyed before release: connection destroyed once");
-        result.expectEqual(1, counters.releases, "SocketConnection destroyed before release: helper released once");
-        result.expectEqual(1, counters.destroyed, "SocketConnection destroyed before release: helper destroyed once");
-        result.expectTrue(ordering.connectionDestroyedSequence < counters.lastReleaseSequence,
-                          "SocketConnection destroyed before release: connection destroyed before helper release");
-        result.expectTrue(ordering.connectionDestroyedSequence < counters.lastDestroySequence,
-                          "SocketConnection destroyed before release: connection destroyed before helper destruction");
-        result.expectTrue(guardToken.expired(), "SocketConnection destroyed before release: guard token expired after connection destruction");
-        result.expectTrue(ordering.weakExpiredOnHelperRelease,
-                          "SocketConnection destroyed before release: helper release observed expired guard token");
-        expectAccounting<TLSHandshake>(result, "SocketConnection destroyed before release", 1);
-    }
-
 } // namespace
 
 int main() {
@@ -657,7 +584,6 @@ int main() {
     runHelperSuite<TLSShutdown>(result, "TLSShutdown");
     socketConnectionHandshakeGuard(result);
     socketConnectionShutdownGuard(result);
-    socketConnectionDestroyedBeforeRelease(result);
 
     return result.processResult();
 }

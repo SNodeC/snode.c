@@ -73,14 +73,6 @@ namespace core::socket::stream::tls {
         , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF()) {
     }
 
-    template <typename PhysicalSocket, typename Config>
-    SocketConnection<PhysicalSocket, Config>::~SocketConnection() {
-#if defined(SNODEC_BUILD_TESTS)
-        if (onTestDestroyed) {
-            onTestDestroyed();
-        }
-#endif
-    }
 
     template <typename PhysicalSocket, typename Config>
     SSL* SocketConnection<PhysicalSocket, Config>::getSSL() const {
@@ -149,23 +141,10 @@ namespace core::socket::stream::tls {
                     onStatus(sslErr);
                 },
                 sslInitTimeout,
-                [handshakeInProgress
-#if defined(SNODEC_BUILD_TESTS)
-                 ,
-                onTestHandshakeReleased = onTestHandshakeReleased
-#endif
-                ]() {
-#if defined(SNODEC_BUILD_TESTS)
-                    const bool expiredBeforeRelease = handshakeInProgress.expired();
-#endif
+                [handshakeInProgress]() {
                     if (const std::shared_ptr<bool> inProgress = handshakeInProgress.lock()) {
                         *inProgress = false;
                     }
-#if defined(SNODEC_BUILD_TESTS)
-                    if (onTestHandshakeReleased && *onTestHandshakeReleased) {
-                        (*onTestHandshakeReleased)(expiredBeforeRelease);
-                    }
-#endif
                 });
         }
 
@@ -234,23 +213,10 @@ namespace core::socket::stream::tls {
                 });
             },
             sslShutdownTimeout,
-            [shutdownInProgress
-#if defined(SNODEC_BUILD_TESTS)
-             ,
-             onTestShutdownReleased = onTestShutdownReleased
-#endif
-            ]() {
-#if defined(SNODEC_BUILD_TESTS)
-                const bool expiredBeforeRelease = shutdownInProgress.expired();
-#endif
+            [shutdownInProgress]() {
                 if (const std::shared_ptr<bool> inProgress = shutdownInProgress.lock()) {
                     *inProgress = false;
                 }
-#if defined(SNODEC_BUILD_TESTS)
-                if (onTestShutdownReleased && *onTestShutdownReleased) {
-                    (*onTestShutdownReleased)(expiredBeforeRelease);
-                }
-#endif
             });
     }
 

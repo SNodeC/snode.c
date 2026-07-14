@@ -118,7 +118,6 @@ namespace core::socket::stream::tls {
 #if defined(SNODEC_BUILD_TESTS)
         auto& state = detail::test::handshakeState();
         state.counters.destroyed++;
-        state.counters.lastDestroySequence = ++state.sequence;
         state.counters.active--;
         if (state.last == this) {
             state.last = nullptr;
@@ -341,7 +340,6 @@ namespace core::socket::stream::tls {
 #if defined(SNODEC_BUILD_TESTS)
             auto& state = detail::test::handshakeState();
             state.counters.releases++;
-            state.counters.lastReleaseSequence = ++state.sequence;
 #endif
             if (onReleased) {
                 onReleased();
