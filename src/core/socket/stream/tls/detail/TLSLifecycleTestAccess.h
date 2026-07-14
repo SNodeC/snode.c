@@ -2,6 +2,7 @@
 #define CORE_SOCKET_STREAM_TLS_DETAIL_TLSLIFECYCLETESTACCESS_H
 
 #include "core/socket/stream/tls/TLSHandshake.h"
+#include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #include <cerrno>
@@ -117,6 +118,39 @@ namespace core::socket::stream::tls::detail {
         static bool readSuspended(TLSShutdown* helper) { return helper->ReadEventReceiver::isSuspended(); }
         static bool writeSuspended(TLSShutdown* helper) { return helper->WriteEventReceiver::isSuspended(); }
         static bool completed(TLSShutdown* helper) { return helper->completed; }
+
+        template <typename PhysicalSocket, typename Config>
+        static SSL* startSSL(SocketConnection<PhysicalSocket, Config>& connection, int fd, SSL_CTX* ctx) {
+            return connection.startSSL(fd, ctx);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void stopSSL(SocketConnection<PhysicalSocket, Config>& connection) {
+            connection.stopSSL();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool doSSLHandshake(SocketConnection<PhysicalSocket, Config>& connection,
+                                   const std::function<void()>& onSuccess,
+                                   const std::function<void()>& onTimeout,
+                                   const std::function<void(int)>& onStatus) {
+            return connection.doSSLHandshake(onSuccess, onTimeout, onStatus);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void doSSLShutdown(SocketConnection<PhysicalSocket, Config>& connection) {
+            connection.doSSLShutdown();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool handshakeGuardActive(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.sslHandshakeInProgress != nullptr && *connection.sslHandshakeInProgress;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool shutdownGuardActive(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.sslShutdownInProgress != nullptr && *connection.sslShutdownInProgress;
+        }
     };
 
 } // namespace core::socket::stream::tls::detail

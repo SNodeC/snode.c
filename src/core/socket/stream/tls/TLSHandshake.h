@@ -129,7 +129,6 @@ namespace core::socket::stream::tls {
         void finishSuccess();
         void finishTimeout();
         void finishError(int sslErr, int systemErr = 0);
-        void releaseAndDestroy();
         void disableRegisteredReceivers();
         void notifyReleased();
 

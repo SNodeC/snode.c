@@ -268,13 +268,17 @@ namespace core::socket::stream::tls {
             return;
         }
         completed = true;
+        const bool destroyImmediately = !everObserved;
 #if defined(SNODEC_BUILD_TESTS)
         detail::test::shutdownState().counters.successes++;
 #endif
         const auto callback = onSuccess;
         disableRegisteredReceivers();
         callback();
-        releaseAndDestroy();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
     }
 
     void TLSShutdown::finishTimeout() {
@@ -282,13 +286,17 @@ namespace core::socket::stream::tls {
             return;
         }
         completed = true;
+        const bool destroyImmediately = !everObserved;
 #if defined(SNODEC_BUILD_TESTS)
         detail::test::shutdownState().counters.timeouts++;
 #endif
         const auto callback = onTimeout;
         disableRegisteredReceivers();
         callback();
-        releaseAndDestroy();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
     }
 
     void TLSShutdown::finishError(int sslErr, int systemErr) {
@@ -296,6 +304,7 @@ namespace core::socket::stream::tls {
             return;
         }
         completed = true;
+        const bool destroyImmediately = !everObserved;
 #if defined(SNODEC_BUILD_TESTS)
         auto& state = detail::test::shutdownState();
         state.counters.errors++;
@@ -308,7 +317,10 @@ namespace core::socket::stream::tls {
             errno = systemErr;
         }
         callback(sslErr);
-        releaseAndDestroy();
+        if (destroyImmediately) {
+            notifyReleased();
+            delete this;
+        }
     }
 
     void TLSShutdown::readTimeout() {
@@ -343,13 +355,6 @@ namespace core::socket::stream::tls {
             if (onReleased) {
                 onReleased();
             }
-        }
-    }
-
-    void TLSShutdown::releaseAndDestroy() {
-        if (!everObserved) {
-            notifyReleased();
-            delete this;
         }
     }
 

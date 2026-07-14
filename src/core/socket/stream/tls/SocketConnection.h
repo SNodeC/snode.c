@@ -57,6 +57,10 @@
 
 namespace core::socket::stream::tls {
 
+    namespace detail {
+        struct TLSLifecycleTestAccess;
+    }
+
     template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection final
         : public core::socket::stream::SocketConnectionT<PhysicalSocketT,
@@ -109,6 +113,8 @@ namespace core::socket::stream::tls {
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketConnector;
+
+        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

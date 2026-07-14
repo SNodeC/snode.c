@@ -1,12 +1,17 @@
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
+#include "core/socket/SocketAddress.h"
 #include "core/DescriptorEventPublisher.h"
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
+#include "core/socket/stream/tls/SocketConnection.hpp"
+#include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
 
 #include <cerrno>
 #include <functional>
+#include <memory>
 #include <openssl/ssl.h>
+#include <sys/socket.h>
 #include <string>
 #include <unistd.h>
 
@@ -43,6 +48,131 @@ namespace {
         int lastErrno = 0;
     };
 
+    class TestSocketAddress : public core::socket::SocketAddress {
+    public:
+        using SockAddr = sockaddr_storage;
+        using SockLen = socklen_t;
+
+        std::string toString(bool = true) const override {
+            return "tls-lifecycle-test-address";
+        }
+    };
+
+    class TestPhysicalSocket {
+    public:
+        using SocketAddress = TestSocketAddress;
+        enum class SHUT { RD, WR, RDWR };
+
+        explicit TestPhysicalSocket(int fd)
+            : fd(fd) {
+        }
+
+        TestPhysicalSocket(TestPhysicalSocket&& other) noexcept
+            : fd(other.fd) {
+            other.fd = -1;
+        }
+
+        TestPhysicalSocket& operator=(TestPhysicalSocket&& other) noexcept {
+            fd = other.fd;
+            other.fd = -1;
+            return *this;
+        }
+
+        ~TestPhysicalSocket() = default;
+
+        int getFd() const {
+            return fd;
+        }
+
+        int getSockName(sockaddr_storage&, socklen_t& len) {
+            len = sizeof(sockaddr_storage);
+            return 0;
+        }
+
+        int getPeerName(sockaddr_storage&, socklen_t& len) {
+            len = sizeof(sockaddr_storage);
+            return 0;
+        }
+
+        const TestSocketAddress& getBindAddress() const {
+            return address;
+        }
+
+        int shutdown(SHUT) {
+            return 0;
+        }
+
+    private:
+        int fd = -1;
+        TestSocketAddress address;
+    };
+
+    struct TestLocalConfig {
+        static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) {
+            return {};
+        }
+    };
+
+    struct TestRemoteConfig {
+        static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) {
+            return {};
+        }
+    };
+
+    class TestConfig
+        : public net::config::ConfigInstance
+        , public TestLocalConfig
+        , public TestRemoteConfig {
+    public:
+        using Local = TestLocalConfig;
+        using Remote = TestRemoteConfig;
+
+        TestConfig()
+            : ConfigInstance("tls-lifecycle-connection", Role::CLIENT) {
+        }
+
+        utils::Timeval getInitTimeout() const {
+            return {1, 0};
+        }
+
+        utils::Timeval getShutdownTimeout() const {
+            return {1, 0};
+        }
+
+        bool getNoCloseNotifyIsEOF() const {
+            return false;
+        }
+
+        utils::Timeval getReadTimeout() const {
+            return {1, 0};
+        }
+
+        utils::Timeval getWriteTimeout() const {
+            return {1, 0};
+        }
+
+        utils::Timeval getTerminateTimeout() const {
+            return {1, 0};
+        }
+
+        std::size_t getReadBlockSize() const {
+            return 1024;
+        }
+
+        std::size_t getWriteBlockSize() const {
+            return 1024;
+        }
+    };
+
+    using TestConnection = core::socket::stream::tls::SocketConnection<TestPhysicalSocket, TestConfig>;
+
+    struct SslContext {
+        SSL_CTX* ctx = SSL_CTX_new(TLS_method());
+        ~SslContext() {
+            SSL_CTX_free(ctx);
+        }
+    };
+
     template <typename Helper>
     struct HelperOps;
 
@@ -56,6 +186,13 @@ namespace {
             TLSLifecycleTestAccess::doHandshakeForTest(
                 "test", fd, [&] { callbacks.success++; }, [&] { callbacks.timeout++; },
                 [&](int status) { callbacks.error++; callbacks.lastStatus = status; callbacks.lastErrno = errno; }, {1, 0}, [&] { callbacks.released++; });
+        }
+        static void startWithCallbacks(int fd,
+                                       const std::function<void()>& onSuccess,
+                                       const std::function<void()>& onTimeout,
+                                       const std::function<void(int)>& onStatus,
+                                       const std::function<void()>& onReleased) {
+            TLSLifecycleTestAccess::doHandshakeForTest("test", fd, onSuccess, onTimeout, onStatus, {1, 0}, onReleased);
         }
         static void readEvent(TLSHandshake* helper) { TLSLifecycleTestAccess::readEvent(helper); }
         static void writeEvent(TLSHandshake* helper) { TLSLifecycleTestAccess::writeEvent(helper); }
@@ -79,6 +216,13 @@ namespace {
             TLSLifecycleTestAccess::doShutdownForTest(
                 "test", fd, [&] { callbacks.success++; }, [&] { callbacks.timeout++; },
                 [&](int status) { callbacks.error++; callbacks.lastStatus = status; callbacks.lastErrno = errno; }, {1, 0}, [&] { callbacks.released++; });
+        }
+        static void startWithCallbacks(int fd,
+                                       const std::function<void()>& onSuccess,
+                                       const std::function<void()>& onTimeout,
+                                       const std::function<void(int)>& onStatus,
+                                       const std::function<void()>& onReleased) {
+            TLSLifecycleTestAccess::doShutdownForTest("test", fd, onSuccess, onTimeout, onStatus, {1, 0}, onReleased);
         }
         static void readEvent(TLSShutdown* helper) { TLSLifecycleTestAccess::readEvent(helper); }
         static void writeEvent(TLSShutdown* helper) { TLSLifecycleTestAccess::writeEvent(helper); }
@@ -256,6 +400,44 @@ namespace {
     }
 
     template <typename Helper>
+    void callbackReentrantCleanup(TestResult& result, bool timeoutPath, const std::string& name) {
+        PipeFd pipeFd;
+        CallbackCounts callbacks;
+        HelperOps<Helper>::reset();
+        HelperOps<Helper>::enqueue(SSL_ERROR_WANT_READ);
+        if (!timeoutPath) {
+            HelperOps<Helper>::enqueue(SSL_ERROR_NONE);
+        }
+        HelperOps<Helper>::startWithCallbacks(
+            pipeFd.fd(),
+            [&] {
+                callbacks.success++;
+                releaseDisabledEvents();
+            },
+            [&] {
+                callbacks.timeout++;
+                releaseDisabledEvents();
+            },
+            [&](int status) {
+                callbacks.error++;
+                callbacks.lastStatus = status;
+                callbacks.lastErrno = errno;
+                releaseDisabledEvents();
+            },
+            [&] { callbacks.released++; });
+        auto* helper = HelperOps<Helper>::last();
+        if (timeoutPath) {
+            HelperOps<Helper>::readTimeout(helper);
+            result.expectEqual(1, callbacks.timeout, name + ": timeout callback once");
+        } else {
+            HelperOps<Helper>::readEvent(helper);
+            result.expectEqual(1, callbacks.success, name + ": success callback once");
+        }
+        result.expectEqual(1, callbacks.released, name + ": release during callback cleanup");
+        expectAccounting<Helper>(result, name, 1);
+    }
+
+    template <typename Helper>
     void sequentialGuard(TestResult& result, const std::string& name) {
         PipeFd pipeFd;
         CallbackCounts first;
@@ -293,7 +475,132 @@ namespace {
         registrationFailure<Helper>(result, false, name + " registration failure before observation");
         registrationFailure<Helper>(result, true, name + " partial registration failure after observation");
         queuedEventAfterCompletion<Helper>(result, name + " queued event after completion");
+        callbackReentrantCleanup<Helper>(result, false, name + " callback-reentrant success cleanup");
+        callbackReentrantCleanup<Helper>(result, true, name + " callback-reentrant timeout cleanup");
         sequentialGuard<Helper>(result, name + " sequential helper after release");
+    }
+
+    TestConnection* makeConnection(PipeFd& pipeFd, SslContext& sslContext) {
+        auto config = std::make_shared<TestConfig>();
+        auto* connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, config);
+        TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), sslContext.ctx);
+        return connection;
+    }
+
+    void cleanupConnection(TestConnection* connection) {
+        if (connection != nullptr) {
+            TLSLifecycleTestAccess::stopSSL(*connection);
+            connection->close();
+            releaseDisabledEvents();
+        }
+    }
+
+    void socketConnectionHandshakeGuard(TestResult& result) {
+        PipeFd pipeFd;
+        SslContext sslContext;
+        auto* connection = makeConnection(pipeFd, sslContext);
+        CallbackCounts callbacks;
+
+        TLSLifecycleTestAccess::resetHandshake();
+        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_NONE);
+        const bool firstStarted = TLSLifecycleTestAccess::doSSLHandshake(
+            *connection, [&] { callbacks.success++; }, [&] { callbacks.timeout++; }, [&](int status) {
+                callbacks.error++;
+                callbacks.lastStatus = status;
+            });
+        result.expectTrue(firstStarted, "SocketConnection handshake guard: first helper starts");
+        result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*connection),
+                          "SocketConnection handshake guard: active after first start");
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed,
+                           "SocketConnection handshake guard: one helper constructed");
+        result.expectTrue(!TLSLifecycleTestAccess::doSSLHandshake(*connection, [] {}, [] {}, [](int) {}),
+                          "SocketConnection handshake guard: concurrent request rejected");
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed,
+                           "SocketConnection handshake guard: no second helper while observed");
+
+        TLSLifecycleTestAccess::readEvent(TLSLifecycleTestAccess::lastHandshake());
+        result.expectEqual(1, callbacks.success, "SocketConnection handshake guard: first helper completed semantically");
+        result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*connection),
+                          "SocketConnection handshake guard: still active before deferred cleanup");
+        result.expectTrue(!TLSLifecycleTestAccess::doSSLHandshake(*connection, [] {}, [] {}, [](int) {}),
+                          "SocketConnection handshake guard: pre-release request rejected");
+        releaseDisabledEvents();
+        result.expectTrue(!TLSLifecycleTestAccess::handshakeGuardActive(*connection),
+                          "SocketConnection handshake guard: released after publisher cleanup");
+
+        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_NONE);
+        CallbackCounts second;
+        result.expectTrue(TLSLifecycleTestAccess::doSSLHandshake(
+                              *connection, [&] { second.success++; }, [&] { second.timeout++; }, [&](int status) {
+                                  second.error++;
+                                  second.lastStatus = status;
+                              }),
+                          "SocketConnection handshake guard: sequential helper starts after release");
+        result.expectEqual(2, TLSLifecycleTestAccess::handshakeCounters().constructed,
+                           "SocketConnection handshake guard: sequential helper constructed");
+        cleanupConnection(connection);
+        expectAccounting<TLSHandshake>(result, "SocketConnection handshake guard", 2);
+    }
+
+    void socketConnectionShutdownGuard(TestResult& result) {
+        PipeFd pipeFd;
+        SslContext sslContext;
+        auto* connection = makeConnection(pipeFd, sslContext);
+
+        TLSLifecycleTestAccess::resetShutdown();
+        TLSLifecycleTestAccess::enqueueShutdown(SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::enqueueShutdown(SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::doSSLShutdown(*connection);
+        result.expectTrue(TLSLifecycleTestAccess::shutdownGuardActive(*connection),
+                          "SocketConnection shutdown guard: active after first start");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed,
+                           "SocketConnection shutdown guard: one helper constructed");
+        TLSLifecycleTestAccess::doSSLShutdown(*connection);
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed,
+                           "SocketConnection shutdown guard: concurrent request rejected");
+
+        TLSLifecycleTestAccess::readEvent(TLSLifecycleTestAccess::lastShutdown());
+        result.expectTrue(TLSLifecycleTestAccess::shutdownGuardActive(*connection),
+                          "SocketConnection shutdown guard: still active before deferred cleanup");
+        TLSLifecycleTestAccess::doSSLShutdown(*connection);
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed,
+                           "SocketConnection shutdown guard: pre-release request rejected");
+        releaseDisabledEvents();
+        result.expectTrue(!TLSLifecycleTestAccess::shutdownGuardActive(*connection),
+                          "SocketConnection shutdown guard: released after publisher cleanup");
+
+        TLSLifecycleTestAccess::enqueueShutdown(SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::doSSLShutdown(*connection);
+        result.expectEqual(2, TLSLifecycleTestAccess::shutdownCounters().constructed,
+                           "SocketConnection shutdown guard: sequential helper constructed");
+        cleanupConnection(connection);
+        expectAccounting<TLSShutdown>(result, "SocketConnection shutdown guard", 2);
+    }
+
+    void socketConnectionDestroyedBeforeRelease(TestResult& result) {
+        PipeFd pipeFd;
+        SslContext sslContext;
+        auto* connection = makeConnection(pipeFd, sslContext);
+        CallbackCounts callbacks;
+
+        TLSLifecycleTestAccess::resetHandshake();
+        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::enqueueHandshake(SSL_ERROR_NONE);
+        result.expectTrue(TLSLifecycleTestAccess::doSSLHandshake(
+                              *connection, [&] { callbacks.success++; }, [&] { callbacks.timeout++; }, [&](int status) {
+                                  callbacks.error++;
+                                  callbacks.lastStatus = status;
+                              }),
+                          "SocketConnection destroyed before release: helper starts");
+        TLSLifecycleTestAccess::readEvent(TLSLifecycleTestAccess::lastHandshake());
+        result.expectEqual(1, callbacks.success, "SocketConnection destroyed before release: semantic callback");
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().active,
+                           "SocketConnection destroyed before release: helper alive before cleanup");
+        TLSLifecycleTestAccess::stopSSL(*connection);
+        connection->close();
+        releaseDisabledEvents();
+        expectAccounting<TLSHandshake>(result, "SocketConnection destroyed before release", 1);
     }
 
 } // namespace
@@ -303,6 +610,9 @@ int main() {
 
     runHelperSuite<TLSHandshake>(result, "TLSHandshake");
     runHelperSuite<TLSShutdown>(result, "TLSShutdown");
+    socketConnectionHandshakeGuard(result);
+    socketConnectionShutdownGuard(result);
+    socketConnectionDestroyedBeforeRelease(result);
 
     return result.processResult();
 }
