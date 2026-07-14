@@ -28,7 +28,7 @@ namespace {
     class TestSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit TestSocketConnection(const std::string& instanceName)
-            : SocketConnection(7, instanceName, nullptr) {
+            : SocketConnection(7, 7, instanceName, nullptr) {
         }
         ~TestSocketConnection() override = default;
 
@@ -153,7 +153,7 @@ int main() {
     result.expectTrue(connectionRecords[0].component == "core.socket.stream", "SocketConnection log uses stream component");
     result.expectTrue(connectionRecords[0].instance && *connectionRecords[0].instance == "round4-instance",
                       "SocketConnection log owns instance identity");
-    result.expectTrue(connectionRecords[0].connection && *connectionRecords[0].connection == "[7] round4-instance",
+    result.expectTrue(connectionRecords[0].connection && *connectionRecords[0].connection == "7",
                       "SocketConnection log owns connection identity");
 
     TestSocketContext context(&connection);
@@ -183,7 +183,7 @@ int main() {
                       "SocketContext logs use context component");
     result.expectTrue(contextRecords[0].instance && *contextRecords[0].instance == "round4-instance",
                       "SocketContext log owns instance identity");
-    result.expectTrue(contextRecords[0].connection && *contextRecords[0].connection == "[7] round4-instance",
+    result.expectTrue(contextRecords[0].connection && *contextRecords[0].connection == "7",
                       "SocketContext log owns connection identity");
 
     return result.processResult();

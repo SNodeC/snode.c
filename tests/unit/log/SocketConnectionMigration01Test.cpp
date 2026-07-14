@@ -63,7 +63,7 @@ namespace {
     class TestSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit TestSocketConnection(const std::string& instanceName)
-            : SocketConnection(11, instanceName, nullptr) {
+            : SocketConnection(11, 23, instanceName, nullptr) {
         }
         ~TestSocketConnection() override = default;
 
@@ -137,6 +137,33 @@ int main() {
                       "migrated non-error SocketConnection.hpp call emits semantically when enabled");
     result.expectTrue(enabledLog.find(" framework/connection core.socket.stream ") != std::string::npos,
                       "migrated call carries framework/connection core.socket.stream scope");
+    result.expectTrue(enabledLog.find("inst=migration01-instance conn=23") != std::string::npos,
+                      "text output uses the numeric connection ID rather than fd/display identity");
+    result.expectTrue(enabledLog.find("conn=\"[11] migration01-instance\"") == std::string::npos,
+                      "text output never uses the display connectionName as semantic conn");
+
+    TestSocketConnection identityConnection("migration01-instance");
+    result.expectEqual(11, identityConnection.getFd(), "discriminating identity test uses fd 11");
+    result.expectEqual(static_cast<std::uint64_t>(23), identityConnection.getConnectionId(),
+                       "discriminating identity test uses connectionId 23");
+    result.expectTrue(identityConnection.getConnectionName() == "[11] migration01-instance",
+                      "connectionName remains the fd/instance display value");
+    std::vector<logger::LogRecord> identityRecords;
+    identityConnection.log([&](logger::LogRecord record) {
+        identityRecords.push_back(std::move(record));
+    }).info("identity record");
+    result.expectTrue(identityRecords.size() == 1 && identityRecords[0].instance == "migration01-instance" &&
+                          identityRecords[0].connection == "23",
+                      "semantic record carries instance and numeric connection ID");
+
+    TestSocketConnection anonymousConnection("<anonymous>");
+    std::vector<logger::LogRecord> anonymousRecords;
+    anonymousConnection.log([&](logger::LogRecord record) {
+        anonymousRecords.push_back(std::move(record));
+    }).info("anonymous identity");
+    result.expectTrue(anonymousRecords.size() == 1 && anonymousRecords[0].instance == "<anonymous>" &&
+                          anonymousRecords[0].connection == "23",
+                      "anonymous framework instance behavior emits inst=<anonymous> with numeric conn");
 
     const auto managerFilterPath = tempLogPath("snodec-migration01-manager-filter.log");
     {
@@ -174,6 +201,9 @@ int main() {
     result.expectTrue(jsonLog.find("{\"v\":1") != std::string::npos &&
                           jsonLog.find("\"message\":\"SocketConnection: switch completed\"") != std::string::npos,
                       "migrated call respects JSON format selection");
+    result.expectTrue(jsonLog.find("\"connection\":\"23\"") != std::string::npos &&
+                          jsonLog.find("\"connection\":\"[11] migration01-instance\"") == std::string::npos,
+                      "JSON output uses numeric connection ID and not connectionName");
 
     std::vector<logger::LogRecord> sysErrorRecords;
     TestSocketConnection sysErrorConnection("migration01-instance");

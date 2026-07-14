@@ -48,6 +48,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <cstdint>
 #include <iomanip>
 #include <string>
 #include <utility>
@@ -65,6 +66,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+        const std::function<std::uint64_t()>& allocateConnectionId,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " SocketConnector", 0)
         , onConnect(onConnect)
@@ -72,6 +74,7 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onInitState(onInitState)
         , onStatus(onStatus)
+        , allocateConnectionId(allocateConnectionId)
         , logScope(makeLogScope(config->getInstanceName()))
         , config(config) {
     }
@@ -86,6 +89,7 @@ namespace core::socket::stream {
         , onDisconnect(socketConnector.onDisconnect)
         , onInitState(socketConnector.onInitState)
         , onStatus(socketConnector.onStatus)
+        , allocateConnectionId(socketConnector.allocateConnectionId)
         , logScope(socketConnector.logScope)
         , config(socketConnector.config) {
     }
@@ -208,7 +212,7 @@ namespace core::socket::stream {
                                     }
                                 } else {
                                     SocketConnection* socketConnection =
-                                        new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
+                                        new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
                                     snode::semantic::coreSocketLog().debug()
                                         << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
@@ -264,7 +268,7 @@ namespace core::socket::stream {
             const int errnum = cErrno;
 
             if (errnum == 0) {
-                SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, config);
+                SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
                 snode::semantic::coreSocketLog().debug()
                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";

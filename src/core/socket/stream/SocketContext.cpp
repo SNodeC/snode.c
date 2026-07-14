@@ -67,14 +67,14 @@ namespace core::socket::stream {
                               socketConnection->getInstanceName().empty() ? std::nullopt
                                                                           : std::optional<std::string>(socketConnection->getInstanceName()),
                               std::nullopt,
-                              socketConnection->getConnectionName())
+                              std::to_string(socketConnection->getConnectionId()))
         , frameworkLogScope(logger::LogOrigin::Framework,
                             logger::LogBoundary::Context,
                             "core.socket.context",
                             socketConnection->getInstanceName().empty() ? std::nullopt
                                                                         : std::optional<std::string>(socketConnection->getInstanceName()),
                             std::nullopt,
-                            socketConnection->getConnectionName())
+                            std::to_string(socketConnection->getConnectionId()))
         , onlineSinceTimePoint(std::chrono::system_clock::now()) {
     }
 

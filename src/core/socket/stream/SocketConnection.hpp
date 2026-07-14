@@ -109,8 +109,9 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::SocketConnectionT(PhysicalSocket&& physicalSocket,
                                                                                              const std::function<void()>& onDisconnect,
+                                                                                             std::uint64_t connectionId,
                                                                                              const std::shared_ptr<Config>& config)
-        : SocketConnection(physicalSocket.getFd(), config->getInstanceName(), config.get())
+        : SocketConnection(physicalSocket.getFd(), connectionId, config->getInstanceName(), config.get())
         , SocketReader(
               Super::getConnectionName(),
               [this](int errnum) {

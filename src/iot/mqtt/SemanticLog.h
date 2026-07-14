@@ -58,7 +58,7 @@ namespace iot::mqtt::semantic {
                                      connection.getInstanceName().empty() ? std::nullopt
                                                                           : std::optional<std::string>(connection.getInstanceName()),
                                      std::nullopt,
-                                     connection.getConnectionName());
+                                     std::to_string(connection.getConnectionId()));
     }
 
 #define IOT_MQTT_SEMANTIC_HELPER(name)                                                                                                     \

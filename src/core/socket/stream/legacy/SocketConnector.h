@@ -51,6 +51,8 @@ namespace core::socket::stream::legacy {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::legacy {
@@ -72,6 +74,7 @@ namespace core::socket::stream::legacy {
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+                        const std::function<std::uint64_t()>& allocateConnectionId,
                         const std::shared_ptr<Config>& config);
 
         SocketConnector(const SocketConnector& socketConnector);

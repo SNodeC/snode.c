@@ -54,6 +54,8 @@ namespace core::socket::stream::tls {
 using SSL_CTX = struct ssl_ctx_st;
 using SSL = struct ssl_st;
 
+#include <cstdint>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream::tls {
@@ -77,6 +79,7 @@ namespace core::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+                       const std::function<std::uint64_t()>& allocateConnectionId,
                        const std::shared_ptr<Config>& config);
 
         SocketAcceptor(const SocketAcceptor& socketAcceptor);

@@ -32,6 +32,10 @@ namespace core::socket::stream {
         return reconnectEnabled;
     }
 
+    std::uint64_t ClientFlowController::getReconnectCount() const noexcept {
+        return reconnectCount;
+    }
+
     ClientFlowController* ClientFlowController::setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback) {
         const std::function<void(ClientFlowController*)> oldCallback = onFlowReconnectCallback;
         onFlowReconnectCallback = [oldCallback, callback](ClientFlowController* flowController) {
@@ -43,6 +47,7 @@ namespace core::socket::stream {
     }
 
     void ClientFlowController::reportFlowReconnect() {
+        ++reconnectCount;
         onFlowReconnectCallback(this);
     }
 

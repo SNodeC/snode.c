@@ -21,7 +21,7 @@ namespace snode::semantic {
     inline LogIdentity logIdentity(const core::socket::stream::SocketConnection& connection) {
         return {connection.getInstanceName().empty() ? std::nullopt : std::optional<std::string>(connection.getInstanceName()),
                 std::nullopt,
-                connection.getConnectionName()};
+                std::to_string(connection.getConnectionId())};
     }
 
     inline logger::BoundaryLogger scopedLog(const logger::LogOrigin origin,

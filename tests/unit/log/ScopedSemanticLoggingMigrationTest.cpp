@@ -15,7 +15,7 @@ namespace {
     class FakeSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit FakeSocketConnection(int fd, std::string instance)
-            : SocketConnection(fd, instance, nullptr) {
+            : SocketConnection(fd, static_cast<std::uint64_t>(fd), instance, nullptr) {
         }
 
         ~FakeSocketConnection() override = default;
@@ -126,18 +126,18 @@ int main() {
     iot::mqtt::semantic::mqttWebSocketLog(collect).debug() << "mqtt websocket unscoped compatibility";
     snode::semantic::expressLog(collect).debug() << "express unscoped compatibility";
 
-    std::string retainedExpressConnectionName;
-    auto retainedExpressLogger = [&collect, &retainedExpressConnectionName]() {
+    std::string retainedExpressConnectionId;
+    auto retainedExpressLogger = [&collect, &retainedExpressConnectionId]() {
         FakeSocketConnection temporary(303, "temporary-instance");
-        retainedExpressConnectionName = temporary.getConnectionName();
+        retainedExpressConnectionId = std::to_string(temporary.getConnectionId());
         return snode::semantic::expressLog(temporary, collect);
     }();
     retainedExpressLogger.info() << "after connection destruction";
 
-    std::string retainedWebSocketConnectionName;
-    auto retainedWebSocketLogger = [&collect, &retainedWebSocketConnectionName]() {
+    std::string retainedWebSocketConnectionId;
+    auto retainedWebSocketLogger = [&collect, &retainedWebSocketConnectionId]() {
         FakeSocketConnection temporary(404, "temporary-websocket-instance");
-        retainedWebSocketConnectionName = temporary.getConnectionName();
+        retainedWebSocketConnectionId = std::to_string(temporary.getConnectionId());
         return web::websocket::semantic::webSocketSubProtocolLog(temporary, collect);
     }();
     retainedWebSocketLogger.info() << "websocket after connection destruction";
@@ -149,7 +149,7 @@ int main() {
                           records[webSocketScoped].boundary == logger::LogBoundary::Connection &&
                           records[webSocketScoped].component == "web.websocket.subprotocol" &&
                           records[webSocketScoped].instance == "inst-a" &&
-                          records[webSocketScoped].connection == first.getConnectionName() &&
+                          records[webSocketScoped].connection == std::to_string(first.getConnectionId()) &&
                           records[webSocketScoped].message == "Subprotocol 'chat': start" &&
                           records[webSocketScoped].message.rfind(first.getConnectionName(), 0) != 0,
                       "WebSocket scoped helper preserves full category and adds active inst/conn before removing text identity");
@@ -157,33 +157,33 @@ int main() {
                           records[webSocketIndependentScoped].boundary == logger::LogBoundary::Connection &&
                           records[webSocketIndependentScoped].component == "web.websocket.subprotocol" &&
                           records[webSocketIndependentScoped].instance == "inst-b" &&
-                          records[webSocketIndependentScoped].connection == second.getConnectionName() &&
+                          records[webSocketIndependentScoped].connection == std::to_string(second.getConnectionId()) &&
                           records[webSocketIndependentScoped].message == "WebSocketContext: Subprotocol 'mqtt' close confirmed from peer",
                       "independent WebSocket connections do not cross-contaminate scoped identity");
     result.expectTrue(
         records[mqttScoped].origin == logger::LogOrigin::Framework && records[mqttScoped].boundary == logger::LogBoundary::Connection &&
             records[mqttScoped].component == "iot.mqtt.websocket" && records[mqttScoped].instance == "inst-a" &&
-            records[mqttScoped].connection == first.getConnectionName() && records[mqttScoped].message == "WsMqtt: connected:",
+            records[mqttScoped].connection == std::to_string(first.getConnectionId()) && records[mqttScoped].message == "WsMqtt: connected:",
         "MQTT-over-WebSocket scoped helper preserves full category and message content without duplicated identity");
     result.expectTrue(records[mqttMultilineScoped].origin == logger::LogOrigin::Framework &&
                           records[mqttMultilineScoped].boundary == logger::LogBoundary::Connection &&
                           records[mqttMultilineScoped].component == "iot.mqtt.websocket" &&
                           records[mqttMultilineScoped].instance == "inst-a" &&
-                          records[mqttMultilineScoped].connection == first.getConnectionName() &&
+                          records[mqttMultilineScoped].connection == std::to_string(first.getConnectionId()) &&
                           records[mqttMultilineScoped].message == "WsMqtt: Frame Data:\n                                payload-hex",
                       "MQTT-over-WebSocket multiline frame-data content is preserved after identity removal");
     result.expectTrue(
         records[expressDispatcherScoped].origin == logger::LogOrigin::Framework &&
             records[expressDispatcherScoped].boundary == logger::LogBoundary::Application &&
             records[expressDispatcherScoped].component == "express" && records[expressDispatcherScoped].instance == "inst-b" &&
-            records[expressDispatcherScoped].connection == second.getConnectionName() &&
+            records[expressDispatcherScoped].connection == std::to_string(second.getConnectionId()) &&
             records[expressDispatcherScoped].message == "Router dispatch",
         "Express dispatcher scoped helper adds active inst/conn and replaces identity-only message with non-empty operation text");
     result.expectTrue(records[expressMiddlewareScoped].origin == logger::LogOrigin::Framework &&
                           records[expressMiddlewareScoped].boundary == logger::LogBoundary::Application &&
                           records[expressMiddlewareScoped].component == "express" &&
                           records[expressMiddlewareScoped].instance == "inst-b" &&
-                          records[expressMiddlewareScoped].connection == second.getConnectionName() &&
+                          records[expressMiddlewareScoped].connection == std::to_string(second.getConnectionId()) &&
                           records[expressMiddlewareScoped].message == "Express VerboseMiddleware: GET / HTTP/1.1" &&
                           records[expressMiddlewareScoped].message.rfind(second.getConnectionName(), 0) != 0,
                       "Express middleware scoped helper preserves full category and exact message without duplicated identity");
@@ -209,20 +209,20 @@ int main() {
                           records[retainedExpressScoped].boundary == logger::LogBoundary::Application &&
                           records[retainedExpressScoped].component == "express" &&
                           records[retainedExpressScoped].instance == "temporary-instance" &&
-                          records[retainedExpressScoped].connection == retainedExpressConnectionName &&
+                          records[retainedExpressScoped].connection == retainedExpressConnectionId &&
                           records[retainedExpressScoped].message == "after connection destruction",
                       "Express scoped logger owns copied identity and remains valid after source connection destruction");
     result.expectTrue(records[retainedWebSocketScoped].origin == logger::LogOrigin::Framework &&
                           records[retainedWebSocketScoped].boundary == logger::LogBoundary::Connection &&
                           records[retainedWebSocketScoped].component == "web.websocket.subprotocol" &&
                           records[retainedWebSocketScoped].instance == "temporary-websocket-instance" &&
-                          records[retainedWebSocketScoped].connection == retainedWebSocketConnectionName &&
+                          records[retainedWebSocketScoped].connection == retainedWebSocketConnectionId &&
                           records[retainedWebSocketScoped].message == "websocket after connection destruction",
                       "WebSocket scoped logger owns copied identity and remains valid after source connection destruction");
 
     const std::string json = logger::formatJsonV1(records[webSocketScoped]);
     result.expectTrue(json.find("\"instance\":\"inst-a\"") != std::string::npos &&
-                          json.find("\"connection\":\"" + first.getConnectionName() + "\"") != std::string::npos,
+                          json.find("\"connection\":\"" + std::to_string(first.getConnectionId()) + "\"") != std::string::npos,
                       "existing JSON path contains structured scoped identity");
     result.expectTrue(noAnsi(logger::formatText(records[webSocketScoped])) && noAnsi(json),
                       "scoped semantic logging introduces no ANSI color text");
