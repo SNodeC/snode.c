@@ -43,8 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <iomanip>
@@ -53,6 +51,9 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
+
+    const HexDumpPalette plainHexDumpPalette{"", "", "", ""};
+    const HexDumpPalette terminalHexDumpPalette{"\033[34m", "\033[32m", "\033[33m", "\033[39m"};
 
     // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
     std::string hexDump(const std::vector<char>& bytes, int prefixLength, bool prefixAtFirstLine) {
@@ -64,6 +65,10 @@ namespace utils {
     }
 
     std::string hexDump(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine) {
+        return hexDump(bytes, length, prefixLength, prefixAtFirstLine, plainHexDumpPalette);
+    }
+
+    std::string hexDump(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine, const HexDumpPalette& palette) {
         std::stringstream hexStream;
 
         if (length > 0) {
@@ -81,20 +86,20 @@ namespace utils {
                 if ((i % 16) == 0) {
                     // Just don't print ASCII for the zeroth line.
                     if (i != 0) {
-                        hexStream << "  " << Color::Code::FG_YELLOW << buff << Color::Code::FG_DEFAULT << std::endl;
+                        hexStream << "  " << palette.ascii << buff << palette.reset << std::endl;
                     }
 
                     // Output the offset.
-                    hexStream << Color::Code::FG_BLUE;
+                    hexStream << palette.offset;
                     hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
                               << ": " << std::setw(8) << std::setfill('0') << static_cast<unsigned int>(i);
-                    hexStream << Color::Code::FG_DEFAULT << " ";
+                    hexStream << palette.reset << " ";
                 }
 
                 // Now the hex code for the specific character.
-                hexStream << Color::Code::FG_GREEN;
+                hexStream << palette.byte;
                 hexStream << " " << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(bytes[i]));
-                hexStream << Color::Code::FG_DEFAULT;
+                hexStream << palette.reset;
 
                 // And store a printable ASCII character for later.
                 if ((bytes[i] < 0x20) || (bytes[i] > 0x7e)) {
@@ -116,10 +121,23 @@ namespace utils {
             }
 
             // And print the final ASCII bit.
-            hexStream << "  " << Color::Code::FG_YELLOW << buff << Color::Code::FG_DEFAULT;
+            hexStream << "  " << palette.ascii << buff << palette.reset;
         }
 
         return hexStream.str();
+    }
+
+    HexDumpPresentation hexDumpPresentation(const std::vector<char>& bytes, int prefixLength, bool prefixAtFirstLine) {
+        return hexDumpPresentation(bytes.data(), bytes.size(), prefixLength, prefixAtFirstLine);
+    }
+
+    HexDumpPresentation hexDumpPresentation(const std::string& string, int prefixLength, bool prefixAtFirstLine) {
+        return hexDumpPresentation(string.data(), string.length(), prefixLength, prefixAtFirstLine);
+    }
+
+    HexDumpPresentation hexDumpPresentation(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine) {
+        return {hexDump(bytes, length, prefixLength, prefixAtFirstLine, plainHexDumpPalette),
+                hexDump(bytes, length, prefixLength, prefixAtFirstLine, terminalHexDumpPalette)};
     }
 
 } // namespace utils

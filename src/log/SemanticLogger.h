@@ -91,8 +91,14 @@ namespace logger {
         std::optional<std::string> connection;
         std::optional<std::string> event;
         std::string message;
+        std::optional<std::string> terminalMessage;
         std::optional<LogError> error;
         std::optional<LogSource> source;
+    };
+
+    struct PresentedMessage {
+        std::string plain;
+        std::string terminal;
     };
 
     struct LogRecordOptions {
@@ -245,6 +251,7 @@ namespace logger {
         }
 
         void emit(LogLevel level, std::string message, LogRecordOptions options = {}) const;
+        void emit(LogLevel level, PresentedMessage message, LogRecordOptions options = {}) const;
 
     private:
         BoundaryLogger(OwnedLogScope scope, Sink sink, LogLevel threshold, Clock clock);

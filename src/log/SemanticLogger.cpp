@@ -215,19 +215,62 @@ namespace logger {
             return out.str();
         }
 
-        std::vector<std::string> sanitizeMessageLines(const std::string& message) {
+        bool consumeAllowedSgr(std::string_view text, std::size_t& i) {
+            constexpr std::string_view allowed[] = {"\033[32m", "\033[33m", "\033[34m", "\033[39m", "\033[0m"};
+            for (const std::string_view sgr : allowed) {
+                if (text.substr(i, sgr.size()) == sgr) {
+                    i += sgr.size();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        std::optional<std::string> validatedTerminalMessage(const LogRecord& record) {
+            if (!record.terminalMessage) {
+                return std::nullopt;
+            }
+            std::string stripped;
+            stripped.reserve(record.terminalMessage->size());
+            for (std::size_t i = 0; i < record.terminalMessage->size();) {
+                const unsigned char ch = static_cast<unsigned char>((*record.terminalMessage)[i]);
+                if (ch == 0x1B) {
+                    if (!consumeAllowedSgr(*record.terminalMessage, i)) {
+                        return std::nullopt;
+                    }
+                } else {
+                    stripped.push_back(static_cast<char>(ch));
+                    ++i;
+                }
+            }
+            if (stripped != record.message) {
+                return std::nullopt;
+            }
+            return *record.terminalMessage;
+        }
+
+        std::vector<std::string> sanitizeMessageLines(const std::string& message, bool preserveAllowedSgr = false) {
             std::vector<std::string> lines(1);
-            for (std::size_t i = 0; i < message.size(); ++i) {
+            for (std::size_t i = 0; i < message.size();) {
                 const unsigned char ch = static_cast<unsigned char>(message[i]);
+                if (preserveAllowedSgr && ch == 0x1B) {
+                    const std::size_t sgrStart = i;
+                    if (consumeAllowedSgr(message, i)) {
+                        lines.back() += message.substr(sgrStart, i - sgrStart);
+                        continue;
+                    }
+                }
                 if (ch == '\r' && i + 1 < message.size() && message[i + 1] == '\n') {
                     lines.emplace_back();
-                    ++i;
+                    i += 2;
                 } else if (ch == '\n') {
                     lines.emplace_back();
+                    ++i;
                 } else {
                     std::ostringstream escaped;
                     appendEscapedByte(escaped, ch, false);
                     lines.back() += escaped.str();
+                    ++i;
                 }
             }
             return lines;
@@ -516,8 +559,10 @@ namespace logger {
             }
             appendOptional(out, "src", source);
         }
-        if (!record.message.empty()) {
-            const auto lines = sanitizeMessageLines(record.message);
+        const auto terminalMessage = colorEnabled ? validatedTerminalMessage(record) : std::nullopt;
+        const std::string& message = terminalMessage ? *terminalMessage : record.message;
+        if (!message.empty()) {
+            const auto lines = sanitizeMessageLines(message, terminalMessage.has_value());
             out << " — " << lines.front();
             for (std::size_t i = 1; i < lines.size(); ++i) {
                 out << '\n' << styled("│ ", dim) << lines[i];
@@ -619,6 +664,17 @@ namespace logger {
             options.ts = clock ? clock() : std::chrono::system_clock::now();
         }
         sink(materialize(viewLogScope(scope), level, std::move(message), std::move(options)));
+    }
+
+    void BoundaryLogger::emit(LogLevel level, PresentedMessage message, LogRecordOptions options) const {
+        if (!enabled(level) || !sink)
+            return;
+        if (options.ts == std::chrono::system_clock::time_point{}) {
+            options.ts = clock ? clock() : std::chrono::system_clock::now();
+        }
+        LogRecord record = materialize(viewLogScope(scope), level, std::move(message.plain), std::move(options));
+        record.terminalMessage = std::move(message.terminal);
+        sink(std::move(record));
     }
 
 } // namespace logger
