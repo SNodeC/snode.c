@@ -44,6 +44,9 @@ namespace {
         void onReadShutdown() override {
         }
 
+        void onTlsFatalError(int) override {
+        }
+
         bool
         doSSLHandshake(const std::function<void()>& onSuccess, const std::function<void()>&, const std::function<void(int)>&) override {
             onSuccess();
@@ -73,6 +76,9 @@ namespace {
 
         void doWriteShutdown(const std::function<void()>& onShutdown) override {
             onShutdown();
+        }
+
+        void onTlsFatalError(int) override {
         }
 
         bool

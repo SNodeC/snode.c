@@ -71,13 +71,14 @@ namespace core::socket::stream::tls {
         , sslInitTimeout(config->getInitTimeout())
         , sslShutdownTimeout(config->getShutdownTimeout())
         , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF()) {
-        const auto onFatalTlsError = [this](int errnum) {
-            tlsFatalError = true;
-            errno = errnum;
-            SocketConnection::close();
-        };
-        SocketReader::setTlsFatalErrorCallback(onFatalTlsError);
-        SocketWriter::setTlsFatalErrorCallback(onFatalTlsError);
+    }
+
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::onTlsFatalError(int errnum) {
+        tlsFatalError = true;
+        errno = errnum;
+        SocketConnection::close();
     }
 
 

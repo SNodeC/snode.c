@@ -87,12 +87,11 @@ namespace core::socket::stream::tls {
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onStatus) = 0;
 
-        void setTlsFatalErrorCallback(std::function<void(int)> callback);
+        virtual void onTlsFatalError(int errnum) = 0;
 
         SSL* ssl = nullptr;
 
     private:
-        std::function<void(int)> onTlsFatalError;
         logger::LogScopeOwner logScope;
 
         friend struct detail::TLSLifecycleTestAccess;

@@ -236,6 +236,35 @@ namespace {
         resetTlsState();
         {
             ConnectionFixture fixture;
+            TLSLifecycleTestAccess::enqueueReaderResult(-1, SSL_ERROR_WANT_WRITE);
+            TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE));
+            TLSLifecycleTestAccess::triggerReadEvent(*fixture.connection);
+            result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "reader later handshake fatal constructed");
+            result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().errors, "reader later handshake fatal callback");
+            result.expectTrue(!TLSLifecycleTestAccess::readEnabled(*fixture.connection), "reader later handshake fatal closes read");
+            result.expectTrue(!TLSLifecycleTestAccess::writeEnabled(*fixture.connection), "reader later handshake fatal closes write");
+            releaseDisabledEvents();
+            fixture.connection = nullptr;
+        }
+        resetTlsState();
+        {
+            ConnectionFixture fixture;
+            TLSLifecycleTestAccess::enqueueWriterResult(-1, SSL_ERROR_WANT_READ);
+            TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+            fixture.connection->sendToPeer("x", 1);
+            TLSLifecycleTestAccess::triggerWriteEvent(*fixture.connection);
+            result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "writer later handshake timeout constructed");
+            result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*fixture.connection), "writer later handshake timeout guard active");
+            TLSLifecycleTestAccess::readTimeout(TLSLifecycleTestAccess::lastHandshake());
+            result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().timeouts, "writer later handshake timeout callback");
+            result.expectTrue(!TLSLifecycleTestAccess::readEnabled(*fixture.connection), "writer later handshake timeout closes read");
+            result.expectTrue(!TLSLifecycleTestAccess::writeEnabled(*fixture.connection), "writer later handshake timeout closes write");
+            releaseDisabledEvents();
+            fixture.connection = nullptr;
+        }
+        resetTlsState();
+        {
+            ConnectionFixture fixture;
             TLSLifecycleTestAccess::enqueueWriterResult(-1, SSL_ERROR_WANT_READ);
             TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE));
             fixture.connection->sendToPeer("x", 1);
