@@ -33,7 +33,7 @@ namespace {
             logger::Logger::init();
             logger::LogManager::init();
             logger::Logger::setLogLevel(6);
-            logger::Logger::setVerboseLevel(0);
+            logger::Logger::setVerboseLevel(6);
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
             logger::Logger::setTickResolver([]() {
@@ -484,6 +484,13 @@ namespace {
     bool hasSummaryScope(const std::string& log, const std::string& role, const std::string& instance) {
         return log.find(" INF framework/instance core.socket.stream role=" + role + " inst=" + instance + " ") != std::string::npos;
     }
+
+    bool summaryAppearsBeforeShutdown(const std::string& log) {
+        const auto summary = log.find("Instance terminated:");
+        const auto config = log.find("Core: Shutdown config system");
+        const auto bye = log.find("SNode.C: Ended ... BYE");
+        return summary != std::string::npos && (config == std::string::npos || summary < config) && (bye == std::string::npos || summary < bye);
+    }
 } // namespace
 
 int main(int argc, char* argv[]) {
@@ -501,6 +508,9 @@ int main(int argc, char* argv[]) {
         "client-disconnect-stopping",
         "server-sequence",
         "client-sequence",
+        "expired-weak-context",
+        "callback-reset-first",
+        "callback-reset-second",
     };
 
     if (argc == 1) {
@@ -532,6 +542,7 @@ int main(int argc, char* argv[]) {
         result.expectTrue(hasSummaryScope(log, "server", "endpoint-server-terminal"),
                           "server summary is Info framework/instance core.socket.stream with server role and instance");
         result.expectTrue(log.find("conn=") == std::string::npos, "server instance summary has no connection field");
+        result.expectTrue(summaryAppearsBeforeShutdown(log), "server terminal summary remains before shutdown logs and is not repeated by free");
     }
 
     if (scenario == "server-retry") {
@@ -552,7 +563,7 @@ int main(int argc, char* argv[]) {
         result.expectEqual(1, static_cast<int>(server.getFlowController()->getRetryCount()),
                            "real server retry dispatch increments retryCount once");
         result.expectEqual(1, static_cast<int>(retrySeenByObserver), "server retry observer sees incremented retryCount");
-        result.expectTrue(log.find("Instance terminated:") == std::string::npos, "accepted server retry emits no summary");
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=1")), "accepted server retry emits graceful shutdown summary with accumulated counter");
     }
 
     if (scenario == "server-no-retry") {
@@ -565,8 +576,9 @@ int main(int argc, char* argv[]) {
         server.listen([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
-                          "server NO_RETRY address fallback emits no summary");
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0")),
+                           "server NO_RETRY address fallback emits graceful shutdown summary");
     }
 
     if (scenario == "server-shutdown") {
@@ -579,8 +591,10 @@ int main(int argc, char* argv[]) {
         server.listen([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
-                          "server framework shutdown emits no summary");
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0")),
+                           "server graceful shutdown emits exactly one summary");
+        result.expectTrue(summaryAppearsBeforeShutdown(log), "server graceful summary appears before config shutdown and BYE");
     }
 
     if (scenario == "client-terminal") {
@@ -600,6 +614,7 @@ int main(int argc, char* argv[]) {
         result.expectTrue(hasSummaryScope(log, "client", "endpoint-client-terminal"),
                           "client connect summary is Info framework/instance core.socket.stream with client role and instance");
         result.expectTrue(log.find("conn=") == std::string::npos, "client connect instance summary has no connection field");
+        result.expectTrue(summaryAppearsBeforeShutdown(log), "client terminal summary remains before shutdown logs and is not repeated by free");
     }
 
     if (scenario == "client-retry") {
@@ -620,7 +635,7 @@ int main(int argc, char* argv[]) {
         result.expectEqual(1, static_cast<int>(client.getFlowController()->getRetryCount()),
                            "real client retry dispatch increments retryCount once");
         result.expectEqual(1, static_cast<int>(retrySeenByObserver), "client retry observer sees incremented retryCount");
-        result.expectTrue(log.find("Instance terminated:") == std::string::npos, "accepted client retry emits no summary");
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=1 reconnects=0")), "accepted client retry emits graceful shutdown summary with accumulated counter");
     }
 
     if (scenario == "client-no-retry") {
@@ -633,8 +648,9 @@ int main(int argc, char* argv[]) {
         client.connect([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
-                          "client NO_RETRY address fallback emits no summary");
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0 reconnects=0")),
+                           "client NO_RETRY address fallback emits graceful shutdown summary");
     }
 
     if (scenario == "client-shutdown") {
@@ -647,8 +663,10 @@ int main(int argc, char* argv[]) {
         client.connect([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
-                          "client framework shutdown during connect emits no summary");
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0 reconnects=0")),
+                           "client graceful shutdown emits exactly one summary");
+        result.expectTrue(summaryAppearsBeforeShutdown(log), "client graceful summary appears before config shutdown and BYE");
     }
 
     if (scenario == "client-disconnect-terminal") {
@@ -694,7 +712,7 @@ int main(int argc, char* argv[]) {
         result.expectEqual(1, static_cast<int>(reconnectSeenByObserver), "reconnect observer sees incremented reconnectCount");
         result.expectTrue(connectionIds.size() == 2 && connectionIds[0] == 1 && connectionIds[1] == 2,
                           "reconnect-created client connections continue the same shared sequence");
-        result.expectTrue(log.find("Instance terminated:") == std::string::npos, "accepted client reconnect emits no summary");
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=2 retries=0 reconnects=1")), "accepted client reconnect emits graceful shutdown summary with accumulated counters");
     }
 
     if (scenario == "client-disconnect-stopping") {
@@ -707,8 +725,9 @@ int main(int argc, char* argv[]) {
         client.connect([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
-                          "client disconnect while STOPPING emits no summary");
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=1 retries=0 reconnects=0")),
+                           "client disconnect while STOPPING emits graceful shutdown summary");
     }
 
     if (scenario == "server-sequence") {
@@ -737,6 +756,34 @@ int main(int argc, char* argv[]) {
         runLoopOnce();
         result.expectTrue(clientConnectionIds.size() == 1 && clientConnectionIds[0] == 1,
                           "real client connector allocator starts its independent sequence at conn=1");
+    }
+
+    if (scenario == "expired-weak-context") {
+        const auto logPath = tempLogPath("snodec-endpoint-expired-weak-context.log");
+        LoggerStateGuard loggerGuard(logPath.string());
+        SNodeCGuard snodeGuard;
+        {
+            TestSocketServer server("endpoint-expired-server");
+            TestSocketClient client("endpoint-expired-client");
+        }
+        runLoopOnce();
+        logger::Logger::disableLogToFile();
+        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
+                          "expired weak endpoint contexts are ignored safely");
+    }
+
+    if (scenario == "callback-reset-first" || scenario == "callback-reset-second") {
+        const auto logPath = tempLogPath("snodec-endpoint-" + scenario + ".log");
+        LoggerStateGuard loggerGuard(logPath.string());
+        SNodeCGuard snodeGuard;
+        TestAcceptEventReceiver::reset({ServerAction::ErrorThenStopBeforePolicy});
+        TestSocketServer server("endpoint-" + scenario);
+        server.listen([](const TestSocketAddress&, core::socket::State) {});
+        runLoopOnce();
+        logger::Logger::disableLogToFile();
+        const auto log = readFile(logPath);
+        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated:")),
+                           scenario + " emits one summary without retained callbacks from earlier runs");
     }
 
     TestAcceptEventReceiver::cleanup();

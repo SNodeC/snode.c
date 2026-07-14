@@ -47,6 +47,8 @@
 #include "log/LogScopeOwner.h"
 #include "log/SemanticLogger.h"
 
+#include <functional>
+
 namespace core {
     class EventMultiplexer;
 } // namespace core
@@ -63,6 +65,8 @@ namespace core {
 
     class EventLoop {
     public:
+        using PreShutdownCallback = std::function<void()>;
+
         EventLoop(const EventLoop& eventLoop) = delete;
 
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
@@ -83,6 +87,8 @@ namespace core {
                                    logger::BoundaryLogger::Clock clock = {}) const;
 
         static core::State getEventLoopState();
+
+        static void addPreShutdownCallback(PreShutdownCallback callback);
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
