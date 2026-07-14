@@ -480,7 +480,7 @@ namespace {
 
     TestConnection* makeConnection(PipeFd& pipeFd, SslContext& sslContext) {
         auto config = std::make_shared<TestConfig>();
-        auto* connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, config);
+        auto* connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, 1, config);
         TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), sslContext.ctx);
         return connection;
     }

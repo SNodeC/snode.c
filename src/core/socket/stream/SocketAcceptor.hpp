@@ -48,6 +48,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <cstdint>
 #include <iomanip>
 #include <string>
 #include <utility>
@@ -65,6 +66,7 @@ namespace core::socket::stream {
         const std::function<void(SocketConnection*)>& onDisconnect,
         const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+        const std::function<std::uint64_t()>& allocateConnectionId,
         const std::shared_ptr<Config>& config)
         : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor", 0)
         , onConnect(onConnect)
@@ -72,6 +74,7 @@ namespace core::socket::stream {
         , onDisconnect(onDisconnect)
         , onInitState(onInitState)
         , onStatus(onStatus)
+        , allocateConnectionId(allocateConnectionId)
         , logScope(makeLogScope(config->getInstanceName()))
         , config(config) {
     }
@@ -86,6 +89,7 @@ namespace core::socket::stream {
         , onDisconnect(socketAcceptor.onDisconnect)
         , onInitState(socketAcceptor.onInitState)
         , onStatus(socketAcceptor.onStatus)
+        , allocateConnectionId(socketAcceptor.allocateConnectionId)
         , logScope(socketAcceptor.logScope)
         , config(socketAcceptor.config) {
     }
@@ -233,7 +237,9 @@ namespace core::socket::stream {
                 const int errnum = errno;
 
                 if (connectedPhysicalSocket.isValid()) {
-                    SocketConnection* socketConnection = new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, config);
+                    const std::uint64_t connectionId = allocateConnectionId();
+                    SocketConnection* socketConnection =
+                        new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, connectionId, config);
 
                     snode::semantic::coreSocketLog().debug()
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";

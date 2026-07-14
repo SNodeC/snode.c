@@ -60,15 +60,19 @@ struct tm;
 
 namespace core::socket::stream {
 
-    SocketConnection::SocketConnection(int fd, const std::string& instanceName, const net::config::ConfigInstance* config)
+    SocketConnection::SocketConnection(int fd,
+                                           std::uint64_t connectionId,
+                                           const std::string& instanceName,
+                                           const net::config::ConfigInstance* config)
         : instanceName(instanceName)
+        , connectionId(connectionId)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " + instanceName : ""))
         , logScope(logger::LogOrigin::Framework,
                    logger::LogBoundary::Connection,
                    "core.socket.stream",
                    instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
                    std::nullopt,
-                   connectionName)
+                   std::to_string(connectionId))
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {
     }
@@ -118,6 +122,10 @@ namespace core::socket::stream {
 
     const std::string& SocketConnection::getConnectionName() const {
         return connectionName;
+    }
+
+    std::uint64_t SocketConnection::getConnectionId() const noexcept {
+        return connectionId;
     }
 
     logger::BoundaryLogger SocketConnection::log() const {

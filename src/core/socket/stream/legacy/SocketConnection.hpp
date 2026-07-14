@@ -53,12 +53,14 @@ namespace core::socket::stream::legacy {
     template <typename PhysicalSocket, typename Config>
     SocketConnection<PhysicalSocket, Config>::SocketConnection(PhysicalSocket&& physicalSocket,
                                                                const std::function<void(SocketConnection*)>& onDisconnect,
+                                                               std::uint64_t connectionId,
                                                                const std::shared_ptr<Config>& config)
         : Super(
               std::move(physicalSocket),
               [onDisconnect, this]() {
                   onDisconnect(this);
               },
+              connectionId,
               config) {
     }
 

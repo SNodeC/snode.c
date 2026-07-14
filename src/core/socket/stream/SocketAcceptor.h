@@ -54,6 +54,7 @@ namespace core::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -86,6 +87,7 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+                       const std::function<std::uint64_t()>& allocateConnectionId,
                        const std::shared_ptr<Config>& config);
 
         SocketAcceptor(const SocketAcceptor& socketAcceptor);
@@ -130,6 +132,7 @@ namespace core::socket::stream {
         std::function<void(core::eventreceiver::AcceptEventReceiver*)> onInitState;
 
         std::function<void(const SocketAddress&, core::socket::State)> onStatus = nullptr;
+        std::function<std::uint64_t()> allocateConnectionId;
 
         static logger::LogScopeOwner makeLogScope(const std::string& instanceName) {
             return logger::LogScopeOwner(logger::LogOrigin::Framework,

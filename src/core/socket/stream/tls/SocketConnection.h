@@ -81,6 +81,7 @@ namespace core::socket::stream::tls {
 
         SocketConnection(PhysicalSocket&& physicalSocket,
                          const std::function<void(SocketConnection*)>& onDisconnect,
+                         std::uint64_t connectionId,
                          const std::shared_ptr<Config>& config);
 
         SSL* getSSL() const;

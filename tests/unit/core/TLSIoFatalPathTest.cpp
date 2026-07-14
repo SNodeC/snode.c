@@ -9,6 +9,7 @@
 #include "tests/support/TestResult.h"
 
 #include <cerrno>
+#include <cstdint>
 #include <functional>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -139,7 +140,7 @@ namespace {
 
         ConnectionFixture() {
             auto config = std::make_shared<TestConfig>();
-            connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, config);
+            connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, std::uint64_t{1}, config);
             TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), sslContext.ctx);
             context = new CountingContext(connection);
             connection->setSocketContext(context);

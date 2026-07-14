@@ -40,7 +40,7 @@ namespace {
     class BufferSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit BufferSocketConnection(std::string input)
-            : SocketConnection(-1, "HttpMessageParserTest", nullptr)
+            : SocketConnection(-1, 1, "HttpMessageParserTest", nullptr)
             , input(std::move(input)) {
         }
 

@@ -77,6 +77,7 @@ namespace core::socket::stream {
 
         void stopReconnect();
         bool isReconnectEnabled() const;
+        std::uint64_t getReconnectCount() const noexcept;
 
         ClientFlowController* setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
@@ -90,6 +91,8 @@ namespace core::socket::stream {
         void terminateAsyncSubFlow() override;
 
         void cancelReconnectTimer();
+
+        std::uint64_t reconnectCount{0};
 
         bool reconnectEnabled{true};
 

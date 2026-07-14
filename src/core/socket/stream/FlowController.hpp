@@ -112,6 +112,11 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
+    std::uint64_t FlowController<ConcreteFlowController>::getRetryCount() const noexcept {
+        return retryCount;
+    }
+
+    template <typename ConcreteFlowController>
     ConcreteFlowController*
     FlowController<ConcreteFlowController>::setOnFlowRetry(const std::function<void(ConcreteFlowController*)>& callback) {
         const std::function<void(ConcreteFlowController*)> oldCallback = onFlowRetryCallback;
@@ -156,6 +161,7 @@ namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::reportFlowRetry() {
+        ++retryCount;
         onFlowRetryCallback(dynamic_cast<ConcreteFlowController*>(this));
     }
 

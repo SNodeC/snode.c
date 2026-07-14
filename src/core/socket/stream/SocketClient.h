@@ -57,6 +57,7 @@
 #include "utils/Random.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <functional> // IWYU pragma: export
 #include <optional>
 #include <type_traits> // IWYU pragma: export
@@ -98,6 +99,7 @@ namespace core::socket::stream {
                                          callback();
                                      });
                                  })
+                , logScope(makeLogScope(config->getInstanceName()))
                 , socketContextFactory(socketContextFactory)
                 , onConnect(onConnect)
                 , onConnected(onConnected)
@@ -105,6 +107,20 @@ namespace core::socket::stream {
             }
 
             ClientFlowController flowController;
+            logger::LogScopeOwner logScope;
+            std::uint64_t connectionsCreated{0};
+
+            std::uint64_t allocateConnectionId() noexcept {
+                return ++connectionsCreated;
+            }
+
+            void emitTerminationSummary() const {
+                logScope.logger(logger::Logger::semanticSink())
+                    .info("Instance terminated: connections={} retries={} reconnects={}",
+                          connectionsCreated,
+                          flowController.getRetryCount(),
+                          flowController.getReconnectCount());
+            }
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -222,6 +238,9 @@ namespace core::socket::stream {
                                                     log.info("Reconnect disabled during wait");
                                                 }
                                             });
+                                    } else if (core::eventLoopState() == core::State::RUNNING &&
+                                               sharedContext->flowController.terminateFlow()) {
+                                        sharedContext->emitTerminationSummary();
                                     }
                                 },
                                 [sharedContext](core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
@@ -268,7 +287,14 @@ namespace core::socket::stream {
                                                     log.info("Retry connect disabled during wait");
                                                 }
                                             });
+                                    } else if (retryFlag &&
+                                               (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
+                                               core::SNodeC::state() == core::State::RUNNING && sharedContext->flowController.terminateFlow()) {
+                                        sharedContext->emitTerminationSummary();
                                     }
+                                },
+                                [sharedContext]() {
+                                    return sharedContext->allocateConnectionId();
                                 },
                                 config);
                         }
