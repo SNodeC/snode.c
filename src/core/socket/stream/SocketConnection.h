@@ -85,7 +85,7 @@ namespace core::socket::stream {
 
     class SocketConnection {
     public:
-        SocketConnection(int fd, const std::string& instanceName, const net::config::ConfigInstance* config);
+        SocketConnection(int fd, std::uint64_t connectionId, const std::string& instanceName, const net::config::ConfigInstance* config);
         SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;
@@ -113,6 +113,7 @@ namespace core::socket::stream {
 
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
+        std::uint64_t getConnectionId() const noexcept;
 
         logger::BoundaryLogger log() const;
         logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
@@ -153,6 +154,7 @@ namespace core::socket::stream {
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 
         std::string instanceName;
+        const std::uint64_t connectionId;
         std::string connectionName;
         logger::LogScopeOwner logScope;
         mutable std::optional<logger::BoundaryLogger> cachedLog_;
@@ -186,6 +188,7 @@ namespace core::socket::stream {
     protected:
         SocketConnectionT(PhysicalSocket&& physicalSocket,
                           const std::function<void()>& onDisconnect,
+                          std::uint64_t connectionId,
                           const std::shared_ptr<Config>& config);
 
         ~SocketConnectionT() override;

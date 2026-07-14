@@ -34,7 +34,7 @@ namespace web::websocket::semantic {
                                      connection.getInstanceName().empty() ? std::nullopt
                                                                           : std::optional<std::string>(connection.getInstanceName()),
                                      std::nullopt,
-                                     connection.getConnectionName());
+                                     std::to_string(connection.getConnectionId()));
     }
 
     inline const logger::LogScopeOwner& webSocketFactoryLogScope() {

@@ -33,7 +33,7 @@ namespace {
     class BufferSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit BufferSocketConnection(std::string input)
-            : SocketConnection(-1, "HttpMessageTargetQueryEdgeTest", nullptr)
+            : SocketConnection(-1, 1, "HttpMessageTargetQueryEdgeTest", nullptr)
             , input(std::move(input)) {
         }
 

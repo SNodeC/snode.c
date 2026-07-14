@@ -76,6 +76,7 @@ namespace core::socket::stream::legacy {
 
         SocketConnection(PhysicalSocket&& physicalSocket,
                          const std::function<void(SocketConnection*)>& onDisconnect,
+                         std::uint64_t connectionId,
                          const std::shared_ptr<Config>& config);
 
         template <typename PhysicalSocket, typename Config>

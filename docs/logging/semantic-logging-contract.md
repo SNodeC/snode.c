@@ -293,3 +293,33 @@ For this round, the branch and draft PR are:
 ```text
 codex/implement-logging-roadmap-round-1
 ```
+
+## Endpoint lifetime connection identity and summaries
+
+For stream socket connection records, the semantic `conn` field is a decimal
+per-endpoint connection sequence. The sequence is scoped by the semantic
+`inst` value: two different named endpoint instances may each emit `conn=1`,
+and the complete stable connection identity is the pair `(inst, conn)`. The
+sequence starts at `1` for each newly constructed shared server or client
+endpoint context, increases monotonically, is not reused during that context's
+lifetime, and is not process-global. It is also not the operating-system file
+descriptor.
+
+`SocketConnection::getConnectionName()` remains a separate human-readable
+compatibility/display value, currently shaped like `[fd] instance`. It may
+continue to appear in legacy messages, reader/writer labels, OpenSSL diagnostic
+labels, and compatibility APIs, but semantic connection identity uses the
+numeric connection sequence.
+
+Endpoint lifetime summaries report dispatched continuation attempts. `retries`
+counts retry attempts that were actually dispatched after the initial
+listen/connect attempt; arming or cancelling a retry timer does not increment
+it. `reconnects` counts reconnect attempts that were actually dispatched after
+an established client connection disconnected; arming or cancelling a reconnect
+timer does not increment it.
+
+A server or client instance summary is emitted only when normal runtime
+continuation is rejected by policy: a terminal listen/connect failure that
+cannot continue by retry, or a client disconnect during `RUNNING` that cannot
+continue by reconnect. Framework shutdown, destructor paths, and explicit
+termination calls do not produce this lifetime summary.

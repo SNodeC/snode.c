@@ -80,7 +80,7 @@ namespace {
     class TestSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit TestSocketConnection(const std::string& instanceName)
-            : SocketConnection(7, instanceName, nullptr) {
+            : SocketConnection(7, 7, instanceName, nullptr) {
         }
         ~TestSocketConnection() override = default;
 

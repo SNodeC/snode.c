@@ -28,12 +28,12 @@ Subsequent logical lines start with `│ `, preserving blank and trailing contin
 
 ```text
 2026-07-05T12:34:56.789Z INF application/application app
-2026-07-05T12:34:56.789Z INF framework/connection core.socket role=server inst=mqtt-broker conn="[7] mqtt" — Connected
+2026-07-05T12:34:56.789Z INF framework/connection core.socket role=server inst=mqtt-broker conn=7 — Connected
 2026-07-05T12:34:56.789Z ERR framework/system core.runtime error="5:Input/output error" src=Runtime.cpp:42:tick — failed
 2026-07-05T12:34:56.789Z TRC framework/connection web.http — GET / HTTP/1.1
 │ Request:
 │   Method: GET
-2026-07-05T12:34:56.789Z INF application/application app inst="has spaces" conn="[7] mqtt client" — quoted
+2026-07-05T12:34:56.789Z INF application/application app inst="has spaces" conn=7 — quoted
 ```
 
 ## Color and routing

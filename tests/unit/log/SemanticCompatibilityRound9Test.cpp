@@ -74,7 +74,7 @@ namespace {
     class TestSocketConnection : public core::socket::stream::SocketConnection {
     public:
         explicit TestSocketConnection(const std::string& instanceName)
-            : SocketConnection(9, instanceName, nullptr) {
+            : SocketConnection(9, 9, instanceName, nullptr) {
         }
         ~TestSocketConnection() override = default;
         using core::socket::stream::SocketConnection::setSocketContext;
