@@ -230,16 +230,17 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        semantic::webSocketSubProtocolLog(*getSocketConnection()).info()
-            << "WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
+            << "WebSocket: context attached with subprotocol '" << subProtocol->name << "'";
         subProtocol->attach();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->detach();
-        semantic::webSocketSubProtocolLog(*getSocketConnection()).info()
-            << "WebSocketContext:  Subprotocol '" << subProtocol->name << "' disconnected";
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
+            << "WebSocket: context detached with subprotocol '" << subProtocol->name << "' for "
+            << (this->getDetachReason() == core::socket::stream::SocketContext::DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     template <typename SubProtocol, typename Request, typename Response>

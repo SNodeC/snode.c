@@ -328,7 +328,7 @@ namespace web::http::client {
     }
 
     void SocketContext::onConnected() {
-        frameworkLog().debug() << "HTTP: Connected";
+        frameworkLog().debug() << "HTTP: context attached";
 
         onHttpConnected(masterRequest);
     }
@@ -362,12 +362,11 @@ namespace web::http::client {
         masterRequest->disconnect();
         onHttpDisconnected(masterRequest);
 
-        frameworkLog().info() << "HTTP: Received disconnect";
+        frameworkLog().debug() << (getDetachReason() == DetachReason::ContextSwitch ? "HTTP: context detached for context switch"
+                                                                                     : "HTTP: context detached for connection close");
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {
-        frameworkLog().info() << "HTTP: Received signal " << signum;
-
         return true;
     }
 

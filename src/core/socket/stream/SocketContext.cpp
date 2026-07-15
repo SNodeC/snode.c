@@ -199,24 +199,30 @@ namespace core::socket::stream {
         shutdownWrite();
     }
 
+    SocketContext::DetachReason SocketContext::getDetachReason() const noexcept {
+        return currentDetachReason;
+    }
+
     void SocketContext::attach() {
         alreadyTotalQueued = socketConnection->getTotalQueued();
         alreadyTotalProcessed = socketConnection->getTotalProcessed();
 
+        frameworkLog().debug("Context attached");
         onConnected();
     }
 
     void SocketContext::detach(DetachReason reason) {
+        currentDetachReason = reason;
         onDisconnected();
 
         if (reason == DetachReason::ContextSwitch) {
-            frameworkLog().debug("SocketContext: detached for context switch");
+            frameworkLog().debug("Context detached for context switch");
             frameworkLog().debug("  Context Online Since: {}", getOnlineSince());
             frameworkLog().debug("  Context Online Duration: {}", getOnlineDuration());
             frameworkLog().debug("  Context Total Queued: {}", getTotalQueued());
             frameworkLog().debug("  Context Total Processed: {}", getTotalProcessed());
         } else {
-            frameworkLog().debug("SocketContext: detached for connection close");
+            frameworkLog().debug("Context detached for connection close");
         }
 
         delete this;

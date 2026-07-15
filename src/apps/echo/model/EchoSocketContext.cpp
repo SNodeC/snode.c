@@ -59,7 +59,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onConnected() {
-        snode::semantic::appLog().debug() << "Echo connected";
+        log().debug("Echo: context attached");
 
         if (role == Role::CLIENT) {
             sendToPeer("Hello peer! Nice to see you!!!");
@@ -67,7 +67,9 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onDisconnected() {
-        snode::semantic::appLog().debug() << "Echo disconnected";
+        log().debug(
+            "Echo: context detached for {}",
+            getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {
