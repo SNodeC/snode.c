@@ -144,6 +144,13 @@ function(snodec_set_source_policy_test_properties test_name labels)
         ENVIRONMENT "SNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
 endfunction()
 
+
+snodec_add_test(ContextLifecyclePhase1Test ContextLifecyclePhase1Test.cpp)
+target_compile_features(ContextLifecyclePhase1Test PRIVATE cxx_std_20)
+target_include_directories(ContextLifecyclePhase1Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(ContextLifecyclePhase1Test PRIVATE snodec-test-support snodec::core-socket-stream snodec::logger)
+set_tests_properties(ContextLifecyclePhase1Test PROPERTIES LABELS "unit;log;socketcontext;lifecycle")
+
 snodec_add_test(SocketContextDetachPolicyTest SocketContextDetachPolicyTest.cpp)
 target_compile_features(SocketContextDetachPolicyTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(SocketContextDetachPolicyTest "unit;log;socketcontext")

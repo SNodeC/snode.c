@@ -27,7 +27,7 @@ namespace apps::tlslegacy {
     }
 
     void TlsLegacySocketContext::onConnected() {
-        snode::semantic::appLog().debug() << "TLS legacy: context attached";
+        log().debug("TLS legacy: context attached");
 
         if (role == Role::CLIENT) {
             sendToPeer(TLS_HELLO);
@@ -37,7 +37,9 @@ namespace apps::tlslegacy {
 
     void TlsLegacySocketContext::onDisconnected() {
         legacyRetryTimer.cancel();
-        snode::semantic::appLog().debug() << "TLS legacy: context detached for connection close";
+        log().debug(
+            "TLS legacy: context detached for {}",
+            getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     bool TlsLegacySocketContext::onSignal([[maybe_unused]] int signum) {
