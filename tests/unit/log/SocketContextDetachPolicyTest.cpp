@@ -52,15 +52,17 @@ int main() {
     ok &= requireContains(socketContextHeader, "enum class DetachReason", socketContextHeaderPath);
     ok &= requireContains(socketContextHeader, "ContextSwitch", socketContextHeaderPath);
     ok &= requireContains(socketContextHeader, "ConnectionClose", socketContextHeaderPath);
+    ok &= requireContains(socketContextHeader, "DetachReason getDetachReason() const noexcept", socketContextHeaderPath);
     ok &= requireContains(socketContextHeader, "detach(DetachReason reason)", socketContextHeaderPath);
 
+    ok &= requireContains(socketContextSource, "currentDetachReason = reason;", socketContextSourcePath);
     ok &= requireContains(socketContextSource, "if (reason == DetachReason::ContextSwitch)", socketContextSourcePath);
-    ok &= requireContains(socketContextSource, "SocketContext: detached for context switch", socketContextSourcePath);
+    ok &= requireContains(socketContextSource, "Context detached for context switch", socketContextSourcePath);
     ok &= requireContains(socketContextSource, "Context Online Since", socketContextSourcePath);
     ok &= requireContains(socketContextSource, "Context Online Duration", socketContextSourcePath);
     ok &= requireContains(socketContextSource, "Context Total Queued", socketContextSourcePath);
     ok &= requireContains(socketContextSource, "Context Total Processed", socketContextSourcePath);
-    ok &= requireContains(socketContextSource, "SocketContext: detached for connection close", socketContextSourcePath);
+    ok &= requireContains(socketContextSource, "Context detached for connection close", socketContextSourcePath);
     ok &= requireNotContains(socketContextSource, "Total Sent: {}", socketContextSourcePath);
     const std::string misleadingQueuedAsSent = std::string{"Total "} + "Sent: {}\", " + "getTotalQueued()";
     ok &= requireNotContains(socketContextSource, misleadingQueuedAsSent, socketContextSourcePath);

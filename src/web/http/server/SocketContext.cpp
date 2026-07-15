@@ -212,7 +212,7 @@ namespace web::http::server {
     }
 
     void SocketContext::onConnected() {
-        frameworkLog().debug() << "HTTP: Connected";
+        frameworkLog().debug() << "HTTP: context attached";
 
         for (const auto& onConnectEventReceiver : onConnectEventReceiverList) {
             onConnectEventReceiver();
@@ -232,16 +232,15 @@ namespace web::http::server {
     void SocketContext::onDisconnected() {
         masterResponse->disconnect();
 
-        frameworkLog().info() << "HTTP: Received disconnect";
+        frameworkLog().debug() << (getDetachReason() == DetachReason::ContextSwitch ? "HTTP: context detached for context switch"
+                                                                                     : "HTTP: context detached for connection close");
 
         for (const auto& onDisconnectEventReceiver : onDisconnectEventReceiverList) {
             onDisconnectEventReceiver();
         }
     }
 
-    bool SocketContext::onSignal(int signum) {
-        frameworkLog().info() << "HTTP: Received signal " << signum;
-
+    bool SocketContext::onSignal([[maybe_unused]] int signum) {
         return true;
     }
 

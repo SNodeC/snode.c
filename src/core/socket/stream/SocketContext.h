@@ -109,6 +109,10 @@ namespace core::socket::stream {
                                             logger::BoundaryLogger::Clock clock = {}) const;
 
     protected:
+        enum class DetachReason { ContextSwitch, ConnectionClose };
+
+        DetachReason getDetachReason() const noexcept;
+
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 
@@ -117,8 +121,6 @@ namespace core::socket::stream {
     private:
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
-
-        enum class DetachReason { ContextSwitch, ConnectionClose };
 
         virtual void attach();
         virtual void detach(DetachReason reason);
@@ -141,6 +143,7 @@ namespace core::socket::stream {
         std::size_t alreadyTotalProcessed = 0;
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
+        DetachReason currentDetachReason = DetachReason::ConnectionClose;
 
         template <typename PhysicalSocketT, class SocketReaderT, class SocketWriterT, typename ConfigT>
         friend class SocketConnectionT;

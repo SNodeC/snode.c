@@ -139,12 +139,12 @@ int main() {
     std::vector<logger::LogRecord> subProtocolRecords;
     web::websocket::semantic::webSocketSubProtocolLog([&](logger::LogRecord record) {
         subProtocolRecords.push_back(std::move(record));
-    }).info("{} WebSocketContext: Subprotocol '{}' connect / disconnected", "ws-conn-07c", "chat");
+    }).debug("{} WebSocket: context attached with subprotocol '{}' / context detached with subprotocol '{}' for connection close", "ws-conn-07c", "chat", "chat");
     result.expectTrue(subProtocolRecords.size() == 1 && subProtocolRecords[0].component == "web.websocket.subprotocol" &&
-                          subProtocolRecords[0].message.find("ws-conn-07c WebSocketContext: Subprotocol 'chat' connect") !=
+                          subProtocolRecords[0].message.find("ws-conn-07c WebSocket: context attached with subprotocol 'chat'") !=
                               std::string::npos &&
-                          subProtocolRecords[0].message.find("disconnected") != std::string::npos,
-                      "representative subprotocol connect/disconnect payload preservation is covered");
+                          subProtocolRecords[0].message.find("context detached with subprotocol 'chat' for connection close") != std::string::npos,
+                      "representative WebSocket context attach/detach payload preservation is covered");
 
     std::vector<logger::LogRecord> frameRecords;
     web::websocket::semantic::webSocketFrameLog([&](logger::LogRecord record) {
