@@ -43,13 +43,13 @@ The virtual callback names `onConnected()` and `onDisconnected()` remain unchang
 
 `SocketContext::attach()` and `SocketContext::detach()` remain private production lifecycle operations. A test subclass of `SocketConnection` cannot call them because friendship is not inherited, and widening them to public or protected would expose lifecycle controls that are not part of the runtime API.
 
-Phase 1 therefore adds `core::socket::stream::detail::ContextLifecycleTestAccess`, a narrow internal friend helper modeled on the established `core::socket::stream::tls::detail::TLSLifecycleTestAccess` precedent. The helper has pointer-based signatures because `detach()` ends with `delete this`:
+Phase 1 keeps only a forward declaration and friend declaration for `core::socket::stream::detail::ContextLifecycleTestAccess` in `SocketContext.h`. The helper definition exists only inside `ContextLifecyclePhase1Test.cpp`, modeled on the established `core::socket::stream::tls::detail::TLSLifecycleTestAccess` precedent, so no test-access header is installed or exported. The local helper has pointer-based signatures because `detach()` ends with `delete this`:
 
 - `attach(SocketContext*)`
 - `detachForContextSwitch(SocketContext*)`
 - `detachForConnectionClose(SocketContext*)`
 
-The helper only invokes the real private production methods and does not expose arbitrary internals. Test contexts passed to detach are heap-allocated, are never dereferenced after detach returns, and write callback observations into externally owned state before self-deletion.
+The test-local helper only invokes the real private production methods and does not expose arbitrary internals. Private `attach()` and `detach()` remain private, and production runtime behavior is unchanged. Test contexts passed to detach are heap-allocated, are never dereferenced after detach returns, and write callback observations into externally owned state before self-deletion.
 
 ## Runtime lifecycle test
 

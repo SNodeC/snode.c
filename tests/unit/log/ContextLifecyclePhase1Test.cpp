@@ -1,7 +1,6 @@
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
-#include "core/socket/stream/detail/ContextLifecycleTestAccess.h"
 #include "log/Logger.h"
 #include "tests/support/TestResult.h"
 
@@ -16,6 +15,24 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+namespace core::socket::stream::detail {
+
+    struct ContextLifecycleTestAccess {
+        static void attach(SocketContext* context) {
+            context->attach();
+        }
+
+        static void detachForContextSwitch(SocketContext* context) {
+            context->detach(SocketContext::DetachReason::ContextSwitch);
+        }
+
+        static void detachForConnectionClose(SocketContext* context) {
+            context->detach(SocketContext::DetachReason::ConnectionClose);
+        }
+    };
+
+} // namespace core::socket::stream::detail
 
 namespace {
 
