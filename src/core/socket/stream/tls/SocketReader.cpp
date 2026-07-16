@@ -201,7 +201,7 @@ namespace core::socket::stream::tls {
                         break;
                     }
                     case detail::TlsStatus::UnknownError: {
-                        const int errnum = EIO;
+                        const int errnum = detail::fatalTlsStatusToErrno(status);
                         ssl_log(getName() + " SSL/TLS: Unknown read failure", status.sslError);
                         errno = errnum;
                         onTlsFatalError(errnum);

@@ -63,7 +63,7 @@ int main() {
                  EPROTO);
 #endif
     expectStatus(result, "ssl protocol", -1, SSL_ERROR_SSL, 0, makeReason(SSL_R_BAD_RECORD_TYPE), TlsStatus::SslProtocolError, EPROTO);
-    expectStatus(result, "unknown", -1, 12345, 0, 0, TlsStatus::UnknownError, EIO);
+    expectStatus(result, "unknown", -1, 12345, 0, 0, TlsStatus::UnknownError, EPROTO);
 
     return result.processResult();
 }

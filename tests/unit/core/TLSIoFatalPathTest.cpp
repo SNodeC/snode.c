@@ -348,7 +348,7 @@ int main() {
 #endif
     expectFatalRead(result, "reader reset", -1, SSL_ERROR_SYSCALL, ECONNRESET, 0, ECONNRESET);
     expectFatalRead(result, "reader protocol", -1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE), EPROTO);
-    expectFatalRead(result, "reader unknown", -1, 12345, 0, 0, EIO);
+    expectFatalRead(result, "reader unknown", -1, 12345, 0, 0, EPROTO);
 
     expectFatalWrite(result, "writer epipe", -1, SSL_ERROR_SYSCALL, EPIPE, 0, EPIPE);
     expectFatalWrite(result, "writer reset", -1, SSL_ERROR_SYSCALL, ECONNRESET, 0, ECONNRESET);
@@ -357,7 +357,7 @@ int main() {
     expectFatalWrite(result, "writer 3 eof", -1, SSL_ERROR_SSL, 0, unexpectedEof, EPROTO);
 #endif
     expectFatalWrite(result, "writer protocol", -1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE), EPROTO);
-    expectFatalWrite(result, "writer unknown", -1, 12345, 0, 0, EIO);
+    expectFatalWrite(result, "writer unknown", -1, 12345, 0, 0, EPROTO);
 
     laterHandshakePaths(result);
 
@@ -368,7 +368,7 @@ int main() {
 #endif
     handshakeErrorResult(result, "handshake reset", -1, SSL_ERROR_SYSCALL, ECONNRESET, 0, ECONNRESET);
     handshakeErrorResult(result, "handshake protocol", -1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE), EPROTO);
-    handshakeErrorResult(result, "handshake unknown", -1, 12345, 0, 0, EIO);
+    handshakeErrorResult(result, "handshake unknown", -1, 12345, 0, 0, EPROTO);
 
     shutdownSuccessResults(result);
 

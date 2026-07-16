@@ -101,7 +101,7 @@ namespace core::socket::stream::tls::detail {
             case TlsStatus::SyscallError:
                 return info.systemError == 0 ? EIO : info.systemError;
             case TlsStatus::UnknownError:
-                return EIO;
+                return EPROTO;
             case TlsStatus::WantRead:
             case TlsStatus::WantWrite:
             case TlsStatus::CleanPeerShutdown:

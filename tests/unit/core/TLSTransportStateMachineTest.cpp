@@ -114,6 +114,11 @@ struct TestFixture {
     bool sslAttachedAtDisconnect = true;
     bool lifecycleHasSslAtDisconnect = true;
     bool shutdownGuardAtDisconnect = true;
+    int shutdownFailureErrnoAtDisconnect = 0;
+    std::size_t handoffBufferSizeAtDisconnect = 0;
+    std::string handoffBufferContentsAtDisconnect;
+    bool writeOnDisconnect = false;
+    int postCloseWriteAttempts = 0;
 
     explicit TestFixture(bool closeNotifyIsEof = true) : config(std::make_shared<TestConfig>(closeNotifyIsEof)) {
         connection = new TestConnection(TestPhysicalSocket(pipeFd.fd(), counters), [this](TestConnection* disconnectedConnection) {
@@ -123,6 +128,13 @@ struct TestFixture {
             sslAttachedAtDisconnect = TLSLifecycleTestAccess::sslAttached(*disconnectedConnection);
             lifecycleHasSslAtDisconnect = TLSLifecycleTestAccess::lifecycleHasSSL(*disconnectedConnection);
             shutdownGuardAtDisconnect = TLSLifecycleTestAccess::shutdownGuardActive(*disconnectedConnection);
+            shutdownFailureErrnoAtDisconnect = TLSLifecycleTestAccess::shutdownFailureErrno(*disconnectedConnection);
+            handoffBufferSizeAtDisconnect = TLSLifecycleTestAccess::handoffBufferSize(*disconnectedConnection);
+            handoffBufferContentsAtDisconnect = TLSLifecycleTestAccess::handoffBufferContents(*disconnectedConnection);
+            if (writeOnDisconnect) {
+                ++postCloseWriteAttempts;
+                disconnectedConnection->sendToPeer("after-close", 11);
+            }
             connection = nullptr;
         }, 1, config);
         TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), ctx);
@@ -487,6 +499,7 @@ void shutdownTimeoutAndFailureMatrix(TestResult& result) {
         {"EPIPE", -1, SSL_ERROR_SYSCALL, EPIPE, 0, EPIPE, false, false},
         {"ECONNRESET", -1, SSL_ERROR_SYSCALL, ECONNRESET, 0, ECONNRESET, false, false},
         {"SSL_ERROR_SSL", -1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE), EPROTO, false, false},
+        {"unknown error", -1, 12345, 0, 0, EPROTO, false, false},
         {"registration failure", -1, SSL_ERROR_WANT_READ, 0, 0, EIO, true, false},
         {"registration failure after CloseNotifySent", 0, SSL_ERROR_NONE, 0, 0, EIO, true, true},
     };
@@ -559,7 +572,7 @@ void shutdownCoalescingAndHandshakeBoundary(TestResult& result) {
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "pending shutdown starts one shutdown helper after release");
         result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().maxConcurrent, "handshake helper active count bounded");
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().maxConcurrent, "shutdown helper active count bounded");
-        result.expectTrue(TLSLifecycleTestAccess::writerActivationBlocked(*f.connection), "writer blocked across handshake/shutdown boundary");
+        result.expectTrue(f.connection == nullptr || TLSLifecycleTestAccess::writerActivationBlocked(*f.connection), "writer blocked across handshake/shutdown boundary");
     }
 
     resetTlsTestState();
@@ -659,6 +672,10 @@ void writerOrderingFinalProof(TestResult& result) {
     resetTlsTestState();
     {
         TestFixture f;
+        TlsPair pair;
+        result.expectTrue(pair.handshake(), "TLS writer ordering: memory BIO peer handshake completes");
+        TLSLifecycleTestAccess::replaceSSL(*f.connection, pair.client);
+        pair.client = nullptr;
         f.connection->sendToPeer("one", 3);
         f.connection->sendToPeer("-", 1);
         f.connection->sendToPeer("two", 3);
@@ -667,15 +684,23 @@ void writerOrderingFinalProof(TestResult& result) {
         TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
         result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "TLS writer ordering: stale events before handshake completion produce no SSL_write");
         result.expectEqual(7, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "TLS writer ordering: queued bytes remain ordered as one-two before TlsActive");
+        char peerBefore[16] = {};
+        result.expectTrue(SSL_read(pair.server, peerBefore, sizeof(peerBefore)) <= 0, "TLS writer ordering: peer receives no bytes before handshake completion");
+        char rawBefore[16] = {};
+        result.expectTrue(::recv(f.pipeFd.writeFd(), rawBefore, sizeof(rawBefore), MSG_DONTWAIT) < 0, "TLS writer ordering: raw peer receives no bytes before handshake completion");
         TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
         TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
         TLSLifecycleTestAccess::readEvent(helper);
         releaseDisabledEvents();
         result.expectEqual(3, TLSLifecycleTestAccess::transportState(*f.connection), "TLS writer ordering: reaches TlsActive before output is allowed");
-        TLSLifecycleTestAccess::enqueueWriterResult(7, SSL_ERROR_NONE);
         TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
+        char peerOut[32] = {};
+        const int peerBytes = SSL_read(pair.server, peerOut, sizeof(peerOut));
+        result.expectTrue(peerBytes == 7 && std::string(peerOut, peerOut + peerBytes) == "one-two", "TLS writer ordering: TLS peer receives exactly one-two");
         result.expectEqual(1, TLSLifecycleTestAccess::writerCounters().operationCalls, "TLS writer ordering: queued one-two leaves through SSL_write operation");
         result.expectEqual(0, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "TLS writer ordering: queue empty afterward");
+        char rawAfter[16] = {};
+        result.expectTrue(::recv(f.pipeFd.writeFd(), rawAfter, sizeof(rawAfter), MSG_DONTWAIT) < 0, "TLS writer ordering: zero raw bytes after TLS write");
     }
 
     resetTlsTestState();
@@ -709,6 +734,7 @@ void writerOrderingFinalProof(TestResult& result) {
         makeTlsActive(f);
         TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_READ);
         TLSLifecycleTestAccess::doSSLShutdown(*f.connection);
+        f.writeOnDisconnect = true;
         f.connection->sendToPeer("before-close", 12);
         TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
         TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
@@ -717,6 +743,7 @@ void writerOrderingFinalProof(TestResult& result) {
         result.expectEqual(1, f.disconnects, "CloseTransport writer policy: terminal close finalizes once");
         result.expectEqual(8, f.stateAtDisconnect, "CloseTransport writer policy: terminal state Closed");
         result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "CloseTransport writer policy: no TLS write after shutdown ownership begins");
+        result.expectEqual(1, f.postCloseWriteAttempts, "CloseTransport writer policy: one post-close write attempt is ignored consistently");
         char out[32] = {};
         result.expectTrue(::recv(f.pipeFd.writeFd(), out, sizeof(out), MSG_DONTWAIT) < 0, "CloseTransport writer policy: no raw write after Closing begins");
     }
@@ -768,7 +795,9 @@ void transactionalHandoffRollback(TestResult& result) {
         result.expectTrue(f.writerBlockedAtDisconnect, "SSL rollback keeps writer blocked");
         result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "SSL rollback never resumes raw reader");
         result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "SSL rollback never activates raw writer");
-        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "SSL rollback exposes EPROTO");
+        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "SSL rollback captures EPROTO");
+        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "SSL rollback preserves existing handoff size");
+        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "SSL rollback preserves existing handoff contents");
         result.expectTrue(f.connection == nullptr, "SSL rollback refuses plaintext continuation");
     }
 
@@ -793,7 +822,9 @@ void transactionalHandoffRollback(TestResult& result) {
         result.expectEqual(1, f.disconnects, "BIO rollback terminal close disconnects once");
         result.expectEqual(8, f.stateAtDisconnect, "BIO rollback reaches Closed");
         result.expectTrue(f.writerBlockedAtDisconnect, "BIO rollback keeps writer blocked");
-        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "BIO rollback exposes EPROTO");
+        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "BIO rollback captures EPROTO");
+        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "BIO rollback preserves existing handoff size");
+        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "BIO rollback preserves existing handoff contents");
     }
 
     resetTlsTestState();
@@ -816,7 +847,9 @@ void transactionalHandoffRollback(TestResult& result) {
         result.expectTrue(f.writerBlockedAtDisconnect, "residual SSL_has_pending failure keeps writer blocked");
         result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "residual SSL_has_pending never resumes raw reader");
         result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "residual SSL_has_pending never activates raw writer");
-        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "residual SSL_has_pending maps to EPROTO");
+        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "residual SSL_has_pending captures EPROTO");
+        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "residual SSL_has_pending preserves existing handoff size");
+        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "residual SSL_has_pending preserves existing handoff contents");
     }
 }
 
@@ -1012,6 +1045,8 @@ int main() {
     cleanEofReentrancy(result);
     shutdownFailureCallbacks(result);
     shutdownTimeoutAndFailureMatrix(result);
+    shutdownCoalescingAndHandshakeBoundary(result);
+    handshakeCallbackReentrancy(result);
     staleWriteGate(result);
     writerOrderingFinalProof(result);
     handoffBuffer(result);

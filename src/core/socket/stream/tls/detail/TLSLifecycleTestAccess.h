@@ -261,6 +261,12 @@ namespace core::socket::stream::tls::detail {
         }
 
         template <typename PhysicalSocket, typename Config>
+        static std::string handoffBufferContents(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return {connection.SocketReader::handoffBuffer.begin() + static_cast<std::ptrdiff_t>(connection.SocketReader::handoffCursor),
+                    connection.SocketReader::handoffBuffer.end()};
+        }
+
+        template <typename PhysicalSocket, typename Config>
         static std::size_t queuedWriteBytes(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.SocketWriter::writePuffer.size();
         }
