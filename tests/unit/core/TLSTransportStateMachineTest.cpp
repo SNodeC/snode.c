@@ -305,7 +305,6 @@ void resetTlsTestState() {
     TLSLifecycleTestAccess::resetShutdown();
     TLSLifecycleTestAccess::resetReader();
     TLSLifecycleTestAccess::resetWriter();
-    TLSLifecycleTestAccess::resetHandoff();
 }
 
 void handshakeLifetime(TestResult& result) {
@@ -773,86 +772,6 @@ std::string readAvailable(TestConnection& connection, std::size_t maxBytes = 64)
     return out;
 }
 
-void transactionalHandoffRollback(TestResult& result) {
-    resetTlsTestState();
-    {
-        TestFixture f(false);
-        makeTlsActive(f);
-        const std::string existing = "existing";
-        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
-        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(1);
-        TLSLifecycleTestAccess::enqueueHandoffSslReadFailure();
-        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-        releaseDisabledEvents();
-        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "SSL rollback test accumulated candidate TLS bytes before failure");
-        result.expectEqual(1, f.disconnects, "SSL rollback terminal close disconnects once");
-        result.expectEqual(8, f.stateAtDisconnect, "SSL rollback reaches Closed");
-        result.expectEqual(1, f.counters->shutdownWr, "SSL rollback performs one terminal SHUT_WR");
-        result.expectTrue(!f.sslAttachedAtDisconnect, "SSL rollback releases SSL through terminal cleanup");
-        result.expectTrue(f.writerBlockedAtDisconnect, "SSL rollback keeps writer blocked");
-        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "SSL rollback never resumes raw reader");
-        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "SSL rollback never activates raw writer");
-        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "SSL rollback captures EPROTO");
-        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "SSL rollback preserves existing handoff size");
-        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "SSL rollback preserves existing handoff contents");
-        result.expectTrue(f.connection == nullptr, "SSL rollback refuses plaintext continuation");
-    }
-
-    resetTlsTestState();
-    {
-        TestFixture f(false);
-        makeTlsActive(f);
-        const std::string existing = "existing";
-        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
-        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(0);
-        TLSLifecycleTestAccess::enqueueHandoffBioPending(2);
-        TLSLifecycleTestAccess::enqueueHandoffBioRead("-b");
-        TLSLifecycleTestAccess::enqueueHandoffBioPending(2);
-        TLSLifecycleTestAccess::enqueueHandoffBioReadFailure();
-        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-        releaseDisabledEvents();
-        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "BIO rollback test accumulated TLS candidate bytes");
-        result.expectEqual(2, TLSLifecycleTestAccess::handoffBioReadBytes(), "BIO rollback test accumulated partial BIO candidate bytes");
-        result.expectEqual(1, f.disconnects, "BIO rollback terminal close disconnects once");
-        result.expectEqual(8, f.stateAtDisconnect, "BIO rollback reaches Closed");
-        result.expectTrue(f.writerBlockedAtDisconnect, "BIO rollback keeps writer blocked");
-        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "BIO rollback captures EPROTO");
-        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "BIO rollback preserves existing handoff size");
-        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "BIO rollback preserves existing handoff contents");
-    }
-
-    resetTlsTestState();
-    {
-        TestFixture f(false);
-        makeTlsActive(f);
-        const std::string existing = "existing";
-        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
-        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
-        TLSLifecycleTestAccess::enqueueHandoffSslPending(0);
-        TLSLifecycleTestAccess::enqueueHandoffBioPending(0);
-        TLSLifecycleTestAccess::setHandoffSslHasPending(1);
-        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-        releaseDisabledEvents();
-        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "residual SSL_has_pending test accumulated candidate bytes");
-        result.expectEqual(1, f.disconnects, "residual SSL_has_pending failure closes terminally");
-        result.expectEqual(8, f.stateAtDisconnect, "residual SSL_has_pending failure reaches Closed");
-        result.expectTrue(f.writerBlockedAtDisconnect, "residual SSL_has_pending failure keeps writer blocked");
-        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "residual SSL_has_pending never resumes raw reader");
-        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "residual SSL_has_pending never activates raw writer");
-        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "residual SSL_has_pending captures EPROTO");
-        result.expectEqual(static_cast<int>(existing.size()), static_cast<int>(f.handoffBufferSizeAtDisconnect), "residual SSL_has_pending preserves existing handoff size");
-        result.expectTrue(f.handoffBufferContentsAtDisconnect == existing, "residual SSL_has_pending preserves existing handoff contents");
-    }
-}
-
 void transitionMatrix(TestResult& result) {
     resetTlsTestState();
     TestFixture f;
@@ -964,72 +883,29 @@ void realHandoff(TestResult& result) {
     resetTlsTestState();
     {
         TestFixture f(false);
-        makeTlsActive(f);
-        const std::string bioBytes = "bio";
-        BIO* bio = BIO_new_mem_buf(bioBytes.data(), static_cast<int>(bioBytes.size()));
-        result.expectEqual(0, SSL_pending(f.connection->getSSL()), "BIO-only handoff starts with no decrypted TLS data");
-        TLSLifecycleTestAccess::setReadBio(*f.connection, bio);
+        TlsPair pair;
+        result.expectTrue(pair.handshake(), "tls-raw TLS handshake completes");
+        result.expectTrue(pair.writeFromServer("tls"), "tls-raw server writes real TLS payload");
+        char tlsBuffer[4] = {};
+        const int tlsRead = SSL_read(pair.client, tlsBuffer, 3);
+        result.expectTrue(tlsRead == 3 && std::string("tls") == std::string(tlsBuffer, tlsBuffer + tlsRead), "TLS payload tls received through SSL_read");
+        TLSLifecycleTestAccess::replaceSSL(*f.connection, pair.client);
+        pair.client = nullptr;
         TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
         TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-        char out[8] = {};
-        const ssize_t n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, sizeof(out));
-        result.expectTrue(n == 3 && std::string("bio") == std::string(out, out + n), "BIO handoff bytes preserve exact order");
-    }
-
-    resetTlsTestState();
-    {
-        TestFixture f(false);
-        TlsPair pair;
-        result.expectTrue(pair.handshake(), "memory BIO TLS handshake completes");
-        result.expectTrue(pair.writeFromServer("tls"), "server writes real TLS payload");
-        result.expectTrue(pair.makeClientPending(), "SSL_pending(receiverSsl) is greater than zero before handoff");
-        const int pendingBefore = SSL_pending(pair.client);
-        TLSLifecycleTestAccess::replaceSSL(*f.connection, pair.client);
-        pair.client = nullptr;
-        result.expectTrue(TLSLifecycleTestAccess::preserveTlsHandoffBytes(*f.connection), "real SSL_pending handoff succeeds");
-        result.expectTrue(pendingBefore > 0, "real decrypted data was pending");
-        SSL* attached = f.connection->getSSL();
-        result.expectTrue(attached != nullptr, "SSL remains attached for pending-drain assertion");
-        if (attached != nullptr) {
-            result.expectEqual(0, SSL_pending(attached), "SSL_pending drained after handoff");
-        }
-        char out[8] = {};
-        const ssize_t n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, sizeof(out));
-        result.expectTrue(n == 3 && std::string("tls") == std::string(out, out + n), "SocketReader returns decrypted TLS payload");
-        TLSLifecycleTestAccess::stopSSL(*f.connection);
-    }
-
-    resetTlsTestState();
-    {
-        TestFixture f(false);
-        TlsPair pair;
-        result.expectTrue(pair.handshake(), "ordering TLS handshake completes");
-        result.expectTrue(pair.writeFromServer("tls"), "ordering server writes TLS payload");
-        result.expectTrue(pair.makeClientPending(), "ordering SSL_pending is greater than zero");
-        BIO_write(pair.serverToClient, "-bio", 4);
-        TLSLifecycleTestAccess::replaceSSL(*f.connection, pair.client);
-        pair.client = nullptr;
-        result.expectTrue(TLSLifecycleTestAccess::preserveTlsHandoffBytes(*f.connection), "combined TLS/BIO handoff succeeds");
-        TLSLifecycleTestAccess::stopSSL(*f.connection);
-        TLSLifecycleTestAccess::transitionTo(*f.connection, 0);
+        releaseDisabledEvents();
+        result.expectTrue(!TLSLifecycleTestAccess::sslAttached(*f.connection), "raw read waits until SSL release");
         const std::string rawBytes = "-raw";
         ::write(f.pipeFd.writeFd(), rawBytes.data(), rawBytes.size());
-        std::string accumulated;
+        std::string accumulated = "tls";
         char out[8] = {};
         ssize_t n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 2);
+        result.expectTrue(n == 2 && std::string("-r") == std::string(out, out + n), "first raw partial handoff read returns -r after tls");
         accumulated.append(out, out + n);
-        result.expectTrue(n == 2 && std::string("tl") == std::string(out, out + n), "first partial handoff read returns tl");
-        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 1);
+        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 2);
+        result.expectTrue(n == 2 && std::string("aw") == std::string(out, out + n), "second raw partial handoff read returns aw");
         accumulated.append(out, out + n);
-        result.expectTrue(n == 1 && std::string("s") == std::string(out, out + n), "second partial handoff read returns s before BIO/raw");
-        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 4);
-        accumulated.append(out, out + n);
-        result.expectTrue(n == 4 && std::string("-bio") == std::string(out, out + n), "BIO bytes follow decrypted TLS bytes");
-        result.expectEqual(0, static_cast<int>(TLSLifecycleTestAccess::handoffBufferSize(*f.connection)), "handoff buffer is empty before raw read");
-        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, sizeof(out));
-        accumulated.append(out, out + n);
-        result.expectTrue(n == 4 && std::string("-raw") == std::string(out, out + n), "raw socket bytes follow handoff bytes");
-        result.expectTrue(accumulated == "tls-bio-raw", "complete stream is tls-bio-raw without loss or duplication");
+        result.expectTrue(accumulated == "tls-raw", "complete stream is tls-raw without loss or duplication");
         TLSLifecycleTestAccess::stopSSL(*f.connection);
     }
 }
@@ -1051,7 +927,6 @@ int main() {
     writerOrderingFinalProof(result);
     handoffBuffer(result);
     transitionMatrix(result);
-    transactionalHandoffRollback(result);
     realHandoff(result);
     return result.processResult();
 }

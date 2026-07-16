@@ -48,7 +48,7 @@ if(NOT OpenSSL_FOUND)
 else(NOT OpenSSL_FOUND)
 
     set(CORE-SOCKET_STREAM-TLS_CPP
-        ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp detail/TLSHandoffOperations.cpp system/ssl.cpp
+        ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp system/ssl.cpp
         SocketReader.cpp SocketWriter.cpp
     )
 
@@ -63,7 +63,6 @@ else(NOT OpenSSL_FOUND)
         SocketWriter.h
         TLSHandshake.h
         TLSShutdown.h
-        TLSHandoffOperations.h
         ssl_utils.h
         system/ssl.h
     )

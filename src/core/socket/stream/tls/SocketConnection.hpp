@@ -43,14 +43,12 @@
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
-#include "core/socket/stream/tls/TLSHandoffOperations.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
-#include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <algorithm>
 #include <array>
@@ -182,6 +180,7 @@ namespace core::socket::stream::tls {
             if (ssl != nullptr) {
                 SSL_set_ex_data(ssl, 0, const_cast<std::string*>(&Super::getConnectionName()));
 
+                // Match the context default explicitly: the transport may continue in plaintext after complete TLS shutdown.
                 SSL_set_read_ahead(ssl, 0);
                 if (SSL_set_fd(ssl, fd) == 1 && SSL_get_read_ahead(ssl) == 0) {
                     tlsFatalError = false;
@@ -321,30 +320,21 @@ namespace core::socket::stream::tls {
             return true;
         }
 
-        // Safe TLS-to-plaintext handoff assumes OpenSSL read-ahead is disabled for this SSL and that all extractable
-        // decrypted data is visible via SSL_pending(), while transport bytes already consumed into the read BIO are
-        // visible via BIO_ctrl_pending()/BIO_read().  If SSL_has_pending() still reports opaque buffered records after
-        // those drains, plaintext continuation is refused to avoid silent byte loss.
+        // Safe TLS-to-plaintext handoff relies on read-ahead being disabled on both the context and this SSL object:
+        // the same transport may continue in plaintext after complete TLS shutdown, so only decrypted application data
+        // that OpenSSL exposes through SSL_read() may be transferred into the raw reader handoff buffer.
         std::array<char, 4096> buffer{};
         std::vector<char> candidateHandoff;
-        while (detail::tlsHandoffSslPending(ssl) > 0) {
-            const int ret = detail::tlsHandoffSslRead(ssl, buffer.data(), buffer.size());
+        while (SSL_pending(ssl) > 0) {
+            const int ret = SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
             if (ret <= 0) {
                 return false;
             }
             candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
         }
 
-        BIO* rbio = SSL_get_rbio(ssl);
-        while (detail::tlsHandoffBioPending(rbio) > 0) {
-            const int ret = detail::tlsHandoffBioRead(rbio, buffer.data(), buffer.size());
-            if (ret <= 0) {
-                return false;
-            }
-            candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
-        }
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
-        if (detail::tlsHandoffSslHasPending(ssl) != 0) {
+        if (SSL_has_pending(ssl) != 0) {
             return false;
         }
 #endif
