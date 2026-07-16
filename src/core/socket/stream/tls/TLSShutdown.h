@@ -54,6 +54,7 @@ namespace utils {
 #include <functional>
 #include <openssl/opensslv.h>
 #include <string>
+#include <cstddef>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>
@@ -110,7 +111,8 @@ namespace core::socket::stream::tls {
                                                const std::function<void(int)>& onStatus,
                                                const utils::Timeval& timeout,
                                                const std::function<void(void)>& onReleased,
-                                               CompletionRequirement completionRequirement = CompletionRequirement::RequireFullShutdown);
+                                               CompletionRequirement completionRequirement = CompletionRequirement::RequireFullShutdown,
+                                               const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
 
 
         TLSShutdown(const std::string& instanceName,
@@ -120,7 +122,8 @@ namespace core::socket::stream::tls {
                     const std::function<void(int)>& onStatus,
                     const utils::Timeval& timeout,
                     const std::function<void(void)>& onReleased,
-                    int fd);
+                    int fd,
+                    const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
 
         ~TLSShutdown() override;
 
@@ -134,7 +137,15 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
+        enum class ShutdownPhase {
+            SendLocalCloseNotify,
+            ReadPeerApplicationDataUntilCloseNotify,
+            FinalizeFullShutdown
+        };
+
         detail::TlsShutdownResult performOperation();
+        detail::TlsShutdownResult performShutdownOperation();
+        detail::TlsShutdownResult readPeerApplicationData();
         void awaitRead();
         void awaitWrite();
         void finishSuccess();
@@ -156,6 +167,8 @@ namespace core::socket::stream::tls {
         bool writeRegistered = false;
         TypedSuccess lastSuccess = TypedSuccess::FullShutdownComplete;
         CompletionRequirement completionRequirement = CompletionRequirement::CloseNotifySentIsEnough;
+        ShutdownPhase shutdownPhase = ShutdownPhase::SendLocalCloseNotify;
+        std::function<bool(const char*, std::size_t)> onApplicationData;
 
         int fd = -1;
 

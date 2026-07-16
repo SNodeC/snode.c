@@ -50,6 +50,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -108,8 +109,9 @@ namespace core::socket::stream::tls {
                                                  const std::function<void(int)>& onStatus,
                                                  const utils::Timeval& timeout,
                                                  const std::function<void(void)>& onReleased,
-                                                 CompletionRequirement completionRequirement) {
-        auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+                                                 CompletionRequirement completionRequirement,
+                                                 const std::function<bool(const char*, std::size_t)>& onApplicationData) {
+        auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl), onApplicationData);
         helper->completionRequirement = completionRequirement;
         helper->start();
     }
@@ -121,7 +123,8 @@ namespace core::socket::stream::tls {
                              const std::function<void(int)>& onStatus,
                              const utils::Timeval& timeout,
                              const std::function<void(void)>& onReleased,
-                             int fd)
+                             int fd,
+                             const std::function<bool(const char*, std::size_t)>& onApplicationData)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
@@ -129,6 +132,7 @@ namespace core::socket::stream::tls {
         , onTimeout(onTimeout)
         , onStatus(onStatus)
         , onReleased(onReleased)
+        , onApplicationData(onApplicationData)
         , fd(fd) {
 #if defined(SNODEC_BUILD_TESTS)
         auto& state = detail::test::shutdownState();
@@ -165,6 +169,7 @@ namespace core::socket::stream::tls {
                     detail::test::shutdownState().lastSuccess = detail::TlsShutdownSuccess::CloseNotifySent;
 #endif
                     if (completionRequirement == CompletionRequirement::RequireFullShutdown) {
+                        shutdownPhase = ShutdownPhase::ReadPeerApplicationDataUntilCloseNotify;
                         awaitRead();
                     } else {
                         finishSuccess();
@@ -190,7 +195,13 @@ namespace core::socket::stream::tls {
                 awaitWrite();
                 break;
             case detail::TlsStatus::CleanPeerShutdown:
-                finishError(status.sslError, EPROTO);
+                if (completionRequirement == CompletionRequirement::RequireFullShutdown &&
+                    shutdownPhase == ShutdownPhase::ReadPeerApplicationDataUntilCloseNotify) {
+                    shutdownPhase = ShutdownPhase::FinalizeFullShutdown;
+                    start();
+                } else {
+                    finishError(status.sslError, EPROTO);
+                }
                 break;
             case detail::TlsStatus::UncleanEofWithoutCloseNotify:
             case detail::TlsStatus::SyscallError:
@@ -224,12 +235,23 @@ namespace core::socket::stream::tls {
         }
 #endif
 
+        if (completionRequirement == CompletionRequirement::CloseNotifySentIsEnough || shutdownPhase == ShutdownPhase::SendLocalCloseNotify ||
+            shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
+            return performShutdownOperation();
+        }
+        return readPeerApplicationData();
+    }
+
+    detail::TlsShutdownResult TLSShutdown::performShutdownOperation() {
         ERR_clear_error();
         errno = 0;
         const int ret = SSL_shutdown(ssl);
         const int savedErrno = errno;
         if (ret == 0) {
             errno = savedErrno;
+            if (completionRequirement == CompletionRequirement::RequireFullShutdown && shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
+                shutdownPhase = ShutdownPhase::ReadPeerApplicationDataUntilCloseNotify;
+            }
             return detail::TlsShutdownResult{detail::TlsShutdownSuccess::CloseNotifySent};
         }
         if (ret == 1) {
@@ -240,6 +262,35 @@ namespace core::socket::stream::tls {
         const unsigned long openSslError = ERR_peek_last_error();
         errno = savedErrno;
         return detail::TlsShutdownResult{detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError)};
+    }
+
+    detail::TlsShutdownResult TLSShutdown::readPeerApplicationData() {
+        std::array<char, 4096> buffer{};
+        for (;;) {
+            ERR_clear_error();
+            errno = 0;
+            const int ret = SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
+            const int savedErrno = errno;
+            if (ret > 0) {
+                if (onApplicationData && !onApplicationData(buffer.data(), static_cast<std::size_t>(ret))) {
+                    errno = EPROTO;
+                    return detail::TlsShutdownResult{detail::classifyOpenSslFailure(-1, SSL_ERROR_SSL, EPROTO, 0)};
+                }
+                if (SSL_pending(ssl) > 0) {
+                    continue;
+                }
+            }
+            if (ret <= 0) {
+                const int sslErr = SSL_get_error(ssl, ret);
+                if (sslErr == SSL_ERROR_ZERO_RETURN) {
+                    shutdownPhase = ShutdownPhase::FinalizeFullShutdown;
+                    return performShutdownOperation();
+                }
+                const unsigned long openSslError = ERR_peek_last_error();
+                errno = savedErrno;
+                return detail::TlsShutdownResult{detail::classifyOpenSslFailure(ret, sslErr, savedErrno, openSslError)};
+            }
+        }
     }
 
     void TLSShutdown::awaitRead() {

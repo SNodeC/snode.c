@@ -131,7 +131,10 @@ namespace core::socket::stream::tls {
         void completeTlsShutdownAfterRelease();
         void finalizeTlsCloseTransport(bool reportCleanEof);
         void markTlsShutdownFailure(int errnum);
-        bool preserveTlsHandoffBytes();
+        bool collectTlsShutdownApplicationData(const char* data, std::size_t size);
+        void discardTlsShutdownHandoff();
+        bool commitTlsShutdownHandoff();
+        std::size_t tlsShutdownHandoffLimit() const;
         void releaseSSLNow();
         void detachSSL();
         bool isLegalTlsTransition(TlsTransportState from, TlsTransportState to) const;
@@ -160,6 +163,7 @@ namespace core::socket::stream::tls {
         int tlsShutdownFailureErrno = 0;
         bool tlsCloseEofPending = false;
         bool tlsCloseFinalizationInProgress = false;
+        std::vector<char> tlsShutdownHandoffCandidate;
         std::vector<std::function<void()>> tlsShutdownCompletionCallbacks;
         std::shared_ptr<TlsLifecycleControl> tlsLifecycle;
         std::shared_ptr<bool> sslHandshakeInProgress;

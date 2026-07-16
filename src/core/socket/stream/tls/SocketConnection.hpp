@@ -315,32 +315,51 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
-    bool SocketConnection<PhysicalSocket, Config>::preserveTlsHandoffBytes() {
+    std::size_t SocketConnection<PhysicalSocket, Config>::tlsShutdownHandoffLimit() const {
+        const std::size_t readBlockSize = Super::getConfig()->getReadBlockSize();
+        return readBlockSize == 0 ? 4096 : readBlockSize;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    bool SocketConnection<PhysicalSocket, Config>::collectTlsShutdownApplicationData(const char* data, std::size_t size) {
+        const std::size_t limit = tlsShutdownHandoffLimit();
+        if (size > limit || tlsShutdownHandoffCandidate.size() > limit - size) {
+            discardTlsShutdownHandoff();
+            return false;
+        }
+        tlsShutdownHandoffCandidate.insert(tlsShutdownHandoffCandidate.end(), data, data + size);
+        return true;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::discardTlsShutdownHandoff() {
+        tlsShutdownHandoffCandidate.clear();
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    bool SocketConnection<PhysicalSocket, Config>::commitTlsShutdownHandoff() {
         if (ssl == nullptr) {
+            discardTlsShutdownHandoff();
             return true;
         }
-
-        // Safe TLS-to-plaintext handoff relies on read-ahead being disabled on both the context and this SSL object:
-        // the same transport may continue in plaintext after complete TLS shutdown, so only decrypted application data
-        // that OpenSSL exposes through SSL_read() may be transferred into the raw reader handoff buffer.
-        std::array<char, 4096> buffer{};
-        std::vector<char> candidateHandoff;
-        while (SSL_pending(ssl) > 0) {
-            const int ret = SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
-            if (ret <= 0) {
-                return false;
-            }
-            candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
+        if (tlsShutdownHandoffCandidate.size() > tlsShutdownHandoffLimit()) {
+            discardTlsShutdownHandoff();
+            return false;
         }
-
+        if (SSL_pending(ssl) != 0) {
+            discardTlsShutdownHandoff();
+            return false;
+        }
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
         if (SSL_has_pending(ssl) != 0) {
+            discardTlsShutdownHandoff();
             return false;
         }
 #endif
-        if (!candidateHandoff.empty()) {
-            SocketReader::appendHandoffBytes(candidateHandoff.data(), candidateHandoff.size());
+        if (!tlsShutdownHandoffCandidate.empty()) {
+            SocketReader::appendHandoffBytes(tlsShutdownHandoffCandidate.data(), tlsShutdownHandoffCandidate.size());
         }
+        discardTlsShutdownHandoff();
         return true;
     }
 
@@ -358,11 +377,12 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::completeTlsShutdownAfterRelease() {
         if (tlsShutdownFailurePending) {
+            discardTlsShutdownHandoff();
             finalizeTlsCloseTransport(tlsCloseEofPending);
             return;
         }
         if (tlsShutdownIntent == TlsShutdownIntent::ContinuePlaintext && tlsShutdownFullComplete) {
-            if (!preserveTlsHandoffBytes()) {
+            if (!commitTlsShutdownHandoff()) {
                 markTlsShutdownFailure(EPROTO);
                 finalizeTlsCloseTransport(false);
                 return;
@@ -385,6 +405,7 @@ namespace core::socket::stream::tls {
         tlsCloseFinalizationInProgress = true;
         SocketWriter::shutdownInProgress = true;
         SocketWriter::markShutdown = false;
+        discardTlsShutdownHandoff();
         transitionTo(TlsTransportState::Closing);
         releaseSSLNow();
         const std::shared_ptr<TlsLifecycleControl> lifecycle = tlsLifecycle;
@@ -417,6 +438,7 @@ namespace core::socket::stream::tls {
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::markTlsShutdownFailure(int errnum) {
+        discardTlsShutdownHandoff();
         tlsShutdownFailurePending = true;
         tlsShutdownFailureErrno = errnum;
         tlsFatalError = true;
@@ -456,6 +478,7 @@ namespace core::socket::stream::tls {
         }
 
         tlsShutdownPending = false;
+        discardTlsShutdownHandoff();
         transitionTo(TlsTransportState::ShutdownInProgress);
         tlsShutdownSemanticComplete = false;
         tlsShutdownFullComplete = false;
@@ -515,7 +538,11 @@ namespace core::socket::stream::tls {
                     owner->completeTlsShutdownAfterRelease();
                 }
             },
-            TLSShutdown::CompletionRequirement::RequireFullShutdown);
+            TLSShutdown::CompletionRequirement::RequireFullShutdown,
+            [lifecycle](const char* data, std::size_t size) {
+                auto* owner = lifecycle->owner;
+                return owner != nullptr && owner->collectTlsShutdownApplicationData(data, size);
+            });
     }
 
     template <typename PhysicalSocket, typename Config>

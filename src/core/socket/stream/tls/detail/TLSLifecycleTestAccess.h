@@ -272,10 +272,6 @@ namespace core::socket::stream::tls::detail {
             connection.doWriteShutdown(onShutdown);
         }
 
-        template <typename PhysicalSocket, typename Config>
-        static bool preserveTlsHandoffBytes(SocketConnection<PhysicalSocket, Config>& connection) {
-            return connection.preserveTlsHandoffBytes();
-        }
 
         template <typename PhysicalSocket, typename Config>
         static ssize_t readFromConnection(SocketConnection<PhysicalSocket, Config>& connection, char* data, std::size_t size) {

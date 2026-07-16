@@ -16,6 +16,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <string>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -257,6 +258,108 @@ struct TlsPair {
         return ret == 1 && SSL_pending(client) > 0;
     }
 };
+
+struct SocketPeerTls {
+    SSL_CTX* ctx = SSL_CTX_new(TLS_method());
+    SSL* ssl = nullptr;
+    explicit SocketPeerTls(int fd) {
+        EVP_PKEY* pkey = makeKey();
+        X509* cert = makeCert(pkey);
+        SSL_CTX_use_certificate(ctx, cert);
+        SSL_CTX_use_PrivateKey(ctx, pkey);
+        X509_free(cert);
+        EVP_PKEY_free(pkey);
+        ssl = SSL_new(ctx);
+        SSL_set_fd(ssl, fd);
+        SSL_set_accept_state(ssl);
+        SSL_set_read_ahead(ssl, 0);
+    }
+    ~SocketPeerTls() {
+        SSL_free(ssl);
+        SSL_CTX_free(ctx);
+    }
+};
+
+void makeNonBlocking(int fd) {
+    const int flags = fcntl(fd, F_GETFL, 0);
+    if (flags >= 0) {
+        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    }
+}
+
+bool driveProductionHandshake(TestFixture& f, SSL* peerSsl, int& callbacks) {
+    SSL* connectionSsl = f.connection->getSSL();
+    SSL_set_connect_state(connectionSsl);
+    bool peerDone = false;
+    bool connectionDone = false;
+    if (!TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [&] { ++callbacks; connectionDone = true; }, [] {}, [](int) {})) {
+        return false;
+    }
+    for (int i = 0; i < 1000 && (!peerDone || !connectionDone || TLSLifecycleTestAccess::handshakeGuardActive(*f.connection)); ++i) {
+        if (!peerDone) {
+            const int ret = SSL_do_handshake(peerSsl);
+            if (ret == 1) {
+                peerDone = true;
+            } else {
+                const int err = SSL_get_error(peerSsl, ret);
+                if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+                    return false;
+                }
+            }
+        }
+        TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+        if (helper != nullptr) {
+            TLSLifecycleTestAccess::readEvent(helper);
+            TLSLifecycleTestAccess::writeEvent(helper);
+        }
+        releaseDisabledEvents();
+    }
+    return peerDone && connectionDone && callbacks == 1 && !TLSLifecycleTestAccess::handshakeGuardActive(*f.connection);
+}
+
+bool sslWriteAll(SSL* ssl, const char* data, int size) {
+    int written = 0;
+    for (int i = 0; i < 1000 && written < size; ++i) {
+        const int ret = SSL_write(ssl, data + written, size - written);
+        if (ret > 0) {
+            written += ret;
+            continue;
+        }
+        const int err = SSL_get_error(ssl, ret);
+        if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+            return false;
+        }
+    }
+    return written == size;
+}
+
+bool drivePeerCloseNotifySent(SSL* peerSsl) {
+    for (int i = 0; i < 1000; ++i) {
+        const int ret = SSL_shutdown(peerSsl);
+        if (ret == 1 || ret == 0 || (SSL_get_shutdown(peerSsl) & SSL_SENT_SHUTDOWN) != 0) {
+            return (SSL_get_shutdown(peerSsl) & SSL_SENT_SHUTDOWN) != 0;
+        }
+        const int err = SSL_get_error(peerSsl, ret);
+        if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool driveProductionShutdown(TestFixture& f) {
+    TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+    for (int i = 0; i < 1000 && TLSLifecycleTestAccess::shutdownGuardActive(*f.connection); ++i) {
+        TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
+        if (helper != nullptr) {
+            TLSLifecycleTestAccess::readEvent(helper);
+            TLSLifecycleTestAccess::writeEvent(helper);
+        }
+        releaseDisabledEvents();
+    }
+    releaseDisabledEvents();
+    return !TLSLifecycleTestAccess::shutdownGuardActive(*f.connection);
+}
 
 struct CleanEofState {
     int cleanEof = 0;
@@ -883,32 +986,68 @@ void realHandoff(TestResult& result) {
     resetTlsTestState();
     {
         TestFixture f(false);
-        TlsPair pair;
-        result.expectTrue(pair.handshake(), "tls-raw TLS handshake completes");
-        result.expectTrue(pair.writeFromServer("tls"), "tls-raw server writes real TLS payload");
-        char tlsBuffer[4] = {};
-        const int tlsRead = SSL_read(pair.client, tlsBuffer, 3);
-        result.expectTrue(tlsRead == 3 && std::string("tls") == std::string(tlsBuffer, tlsBuffer + tlsRead), "TLS payload tls received through SSL_read");
-        TLSLifecycleTestAccess::replaceSSL(*f.connection, pair.client);
-        pair.client = nullptr;
-        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-        releaseDisabledEvents();
-        result.expectTrue(!TLSLifecycleTestAccess::sslAttached(*f.connection), "raw read waits until SSL release");
+        makeNonBlocking(f.pipeFd.fd());
+        makeNonBlocking(f.pipeFd.writeFd());
+        SocketPeerTls peer(f.pipeFd.writeFd());
+        SSL* connectionSsl = f.connection->getSSL();
+        result.expectTrue(connectionSsl != nullptr, "connection SSL exists for same-socket proof");
+        result.expectEqual(f.pipeFd.fd(), SSL_get_fd(connectionSsl), "connection SSL uses fixture socket fd");
+        result.expectEqual(f.pipeFd.writeFd(), SSL_get_fd(peer.ssl), "peer SSL uses fixture peer fd");
+        int handshakeCallbacks = 0;
+        result.expectTrue(driveProductionHandshake(f, peer.ssl, handshakeCallbacks), "same-socket production TLS handshake completes");
+        result.expectEqual(1, handshakeCallbacks, "connection handshake callback occurs once");
+        result.expectEqual(3, TLSLifecycleTestAccess::transportState(*f.connection), "connection is TlsActive after real handshake");
+        result.expectTrue(TLSLifecycleTestAccess::sslAttached(*f.connection), "SSL remains attached after real handshake");
+        const std::string tlsVersion = SSL_get_version(connectionSsl);
+        result.expectTrue(!tlsVersion.empty(), "negotiated TLS version recorded");
+
+        result.expectTrue(sslWriteAll(peer.ssl, "tls", 3), "peer writes TLS payload tls");
+        char firstTlsByte = 0;
+        int firstTlsRead = -1;
+        for (int i = 0; i < 1000 && firstTlsRead != 1; ++i) {
+            firstTlsRead = SSL_read(connectionSsl, &firstTlsByte, 1);
+            if (firstTlsRead <= 0) {
+                const int err = SSL_get_error(connectionSsl, firstTlsRead);
+                if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+                    break;
+                }
+            }
+        }
+        result.expectEqual(1, firstTlsRead, "first TLS byte read through connection SSL");
+        result.expectTrue(firstTlsByte == 't', "first observed TLS byte is t");
+        result.expectEqual(2, SSL_pending(connectionSsl), "two decrypted TLS bytes are pending before shutdown");
+
+        result.expectTrue(drivePeerCloseNotifySent(peer.ssl), "peer close_notify sent on same socket");
+        result.expectTrue((SSL_get_shutdown(peer.ssl) & SSL_SENT_SHUTDOWN) != 0, "peer SSL_SENT_SHUTDOWN flag is set");
         const std::string rawBytes = "-raw";
-        ::write(f.pipeFd.writeFd(), rawBytes.data(), rawBytes.size());
-        std::string accumulated = "tls";
+        result.expectTrue(::write(f.pipeFd.writeFd(), rawBytes.data(), rawBytes.size()) == static_cast<ssize_t>(rawBytes.size()), "raw bytes queued on same peer fd");
+
+        result.expectTrue(driveProductionShutdown(f), "production ContinuePlaintext shutdown completes");
+        result.expectEqual(0, TLSLifecycleTestAccess::transportState(*f.connection), "connection returns to Plaintext after helper release");
+        result.expectTrue(!TLSLifecycleTestAccess::sslAttached(*f.connection), "SSL detached after helper release");
+        result.expectTrue(!TLSLifecycleTestAccess::shutdownGuardActive(*f.connection), "shutdown helper guard released");
+        result.expectEqual(2, static_cast<int>(TLSLifecycleTestAccess::handoffBufferSize(*f.connection)), "handoff committed exactly two decrypted TLS bytes");
+        result.expectTrue(TLSLifecycleTestAccess::handoffBufferContents(*f.connection) == "ls", "handoff contains exactly ls");
+
+        std::string connectionOutput;
         char out[8] = {};
-        ssize_t n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 2);
-        result.expectTrue(n == 2 && std::string("-r") == std::string(out, out + n), "first raw partial handoff read returns -r after tls");
-        accumulated.append(out, out + n);
-        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 2);
-        result.expectTrue(n == 2 && std::string("aw") == std::string(out, out + n), "second raw partial handoff read returns aw");
-        accumulated.append(out, out + n);
-        result.expectTrue(accumulated == "tls-raw", "complete stream is tls-raw without loss or duplication");
-        TLSLifecycleTestAccess::stopSSL(*f.connection);
+        ssize_t n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 1);
+        result.expectTrue(n == 1 && std::string("l") == std::string(out, out + n), "first connection read returns l");
+        if (n > 0) connectionOutput.append(out, out + n);
+        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 1);
+        result.expectTrue(n == 1 && std::string("s") == std::string(out, out + n), "second connection read returns s");
+        if (n > 0) connectionOutput.append(out, out + n);
+        n = TLSLifecycleTestAccess::readFromConnection(*f.connection, out, 4);
+        result.expectTrue(n == 4 && std::string("-raw") == std::string(out, out + n), "third connection read returns -raw");
+        if (n > 0) connectionOutput.append(out, out + n);
+        result.expectTrue(connectionOutput == "ls-raw", "connection output is ls-raw");
+        std::string observedStream;
+        observedStream.push_back(firstTlsByte);
+        observedStream += connectionOutput;
+        result.expectTrue(observedStream == "tls-raw", "observed complete stream is tls-raw");
     }
 }
+
 
 } // namespace
 
