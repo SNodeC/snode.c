@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/TLSShutdown.h"
+
 #include "core/socket/stream/tls/detail/TLSResult.h"
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -85,22 +86,32 @@ namespace core::socket::stream::tls::detail::test {
 namespace core::socket::stream::tls {
 
     void TLSShutdown::doShutdown(const std::string& instanceName,
-                                   SSL* ssl,
-                                   const std::function<void(void)>& onSuccess,
-                                   const std::function<void(void)>& onTimeout,
-                                   const std::function<void(int)>& onStatus,
-                                   const utils::Timeval& timeout) {
+                                 SSL* ssl,
+                                 const std::function<void(void)>& onSuccess,
+                                 const std::function<void(void)>& onTimeout,
+                                 const std::function<void(int)>& onStatus,
+                                 const utils::Timeval& timeout) {
         doShutdownWithRelease(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {});
     }
 
     void TLSShutdown::doShutdownWithRelease(const std::string& instanceName,
-                                              SSL* ssl,
-                                              const std::function<void(void)>& onSuccess,
-                                              const std::function<void(void)>& onTimeout,
-                                              const std::function<void(int)>& onStatus,
-                                              const utils::Timeval& timeout,
-                                              const std::function<void(void)>& onReleased) {
-        auto* helper = new TLSShutdown(instanceName, ssl, [onSuccess](TypedSuccess) { onSuccess(); }, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+                                            SSL* ssl,
+                                            const std::function<void(void)>& onSuccess,
+                                            const std::function<void(void)>& onTimeout,
+                                            const std::function<void(int)>& onStatus,
+                                            const utils::Timeval& timeout,
+                                            const std::function<void(void)>& onReleased) {
+        auto* helper = new TLSShutdown(
+            instanceName,
+            ssl,
+            [onSuccess](TypedSuccess) {
+                onSuccess();
+            },
+            onTimeout,
+            onStatus,
+            timeout,
+            onReleased,
+            SSL_get_fd(ssl));
         helper->start();
     }
 
@@ -117,15 +128,14 @@ namespace core::socket::stream::tls {
         helper->start();
     }
 
-
     TLSShutdown::TLSShutdown(const std::string& instanceName,
-                               SSL* ssl,
-                               const std::function<void(TypedSuccess)>& onSuccess,
-                               const std::function<void(void)>& onTimeout,
-                               const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout,
-                               const std::function<void(void)>& onReleased,
-                               int fd)
+                             SSL* ssl,
+                             const std::function<void(TypedSuccess)>& onSuccess,
+                             const std::function<void(void)>& onTimeout,
+                             const std::function<void(int)>& onStatus,
+                             const utils::Timeval& timeout,
+                             const std::function<void(void)>& onReleased,
+                             int fd)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
@@ -199,8 +209,10 @@ namespace core::socket::stream::tls {
             case detail::TlsStatus::UncleanEofWithoutCloseNotify:
             case detail::TlsStatus::SyscallError:
             case detail::TlsStatus::SslProtocolError:
-            case detail::TlsStatus::UnknownError:
                 finishError(status.sslError, detail::fatalTlsStatusToErrno(status));
+                break;
+            case detail::TlsStatus::UnknownError:
+                finishError(status.sslError, EPROTO);
                 break;
         }
     }
@@ -218,9 +230,11 @@ namespace core::socket::stream::tls {
             state.operations.pop_front();
             errno = result.systemError;
             if (result.sslError == SSL_ERROR_NONE) {
-                return detail::TlsShutdownResult{result.returnValue == 0 ? detail::TlsShutdownSuccess::CloseNotifySent : detail::TlsShutdownSuccess::FullShutdownComplete};
+                return detail::TlsShutdownResult{result.returnValue == 0 ? detail::TlsShutdownSuccess::CloseNotifySent
+                                                                         : detail::TlsShutdownSuccess::FullShutdownComplete};
             }
-            return detail::TlsShutdownResult{detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
+            return detail::TlsShutdownResult{
+                detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
         }
 #endif
 

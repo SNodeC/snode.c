@@ -9,7 +9,7 @@ namespace core::socket::stream::tls::detail {
 
     int tlsHandoffSslPending(SSL* ssl);
     int tlsHandoffSslRead(SSL* ssl, char* buffer, std::size_t size);
-    long tlsHandoffBioPending(BIO* bio);
+    std::size_t tlsHandoffBioPending(BIO* bio);
     int tlsHandoffBioRead(BIO* bio, char* buffer, std::size_t size);
     int tlsHandoffSslHasPending(SSL* ssl);
 

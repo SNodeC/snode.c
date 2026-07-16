@@ -99,7 +99,7 @@ namespace core::socket::stream::tls::detail {
         static void enqueueHandoffSslPending(int pending) { test::handoffState().sslPending.push_back(pending); }
         static void enqueueHandoffSslRead(const std::string& bytes) { test::handoffState().sslReads.push_back({static_cast<int>(bytes.size())}); test::handoffPayloads().push_back(bytes); }
         static void enqueueHandoffSslReadFailure() { test::handoffState().sslReads.push_back({-1}); }
-        static void enqueueHandoffBioPending(long pending) { test::handoffState().bioPending.push_back(pending); }
+        static void enqueueHandoffBioPending(std::size_t pending) { test::handoffState().bioPending.push_back(pending); }
         static void enqueueHandoffBioRead(const std::string& bytes) { test::handoffState().bioReads.push_back({static_cast<int>(bytes.size())}); test::handoffBioPayloads().push_back(bytes); }
         static void enqueueHandoffBioReadFailure() { test::handoffState().bioReads.push_back({-1}); }
         static void setHandoffSslHasPending(int pending) { test::handoffState().sslHasPending = pending; }

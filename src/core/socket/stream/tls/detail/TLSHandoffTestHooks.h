@@ -15,7 +15,7 @@ namespace core::socket::stream::tls::detail::test {
     struct HandoffState {
         std::deque<int> sslPending;
         std::deque<HandoffOperation> sslReads;
-        std::deque<long> bioPending;
+        std::deque<std::size_t> bioPending;
         std::deque<HandoffOperation> bioReads;
         std::optional<int> sslHasPending;
         int sslReadBytes = 0;

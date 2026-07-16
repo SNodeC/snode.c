@@ -30,7 +30,8 @@ namespace core::socket::stream::tls::detail {
             if (result.returnValue > 0) {
                 const std::string payload = test::handoffPayloads().front();
                 test::handoffPayloads().pop_front();
-                std::copy(payload.begin(), payload.begin() + std::min<std::size_t>(payload.size(), size), buffer);
+                const std::size_t copySize = std::min(payload.size(), size);
+                std::copy_n(payload.begin(), copySize, buffer);
                 state.sslReadBytes += result.returnValue;
             }
             return result.returnValue;
@@ -39,11 +40,11 @@ namespace core::socket::stream::tls::detail {
         return SSL_read(ssl, buffer, static_cast<int>(size));
     }
 
-    long tlsHandoffBioPending(BIO* bio) {
+    std::size_t tlsHandoffBioPending(BIO* bio) {
 #if defined(SNODEC_BUILD_TESTS)
         auto& state = test::handoffState();
         if (!state.bioPending.empty()) {
-            const long pending = state.bioPending.front();
+            const std::size_t pending = state.bioPending.front();
             state.bioPending.pop_front();
             return pending;
         }
@@ -60,7 +61,8 @@ namespace core::socket::stream::tls::detail {
             if (result.returnValue > 0) {
                 const std::string payload = test::handoffBioPayloads().front();
                 test::handoffBioPayloads().pop_front();
-                std::copy(payload.begin(), payload.begin() + std::min<std::size_t>(payload.size(), size), buffer);
+                const std::size_t copySize = std::min(payload.size(), size);
+                std::copy_n(payload.begin(), copySize, buffer);
                 state.bioReadBytes += result.returnValue;
             }
             return result.returnValue;

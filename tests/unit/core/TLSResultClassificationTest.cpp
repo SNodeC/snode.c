@@ -1,14 +1,13 @@
 #include "core/socket/stream/tls/detail/TLSResult.h"
-
 #include "support/TestResult.h"
 
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
-using core::socket::stream::tls::detail::TlsStatus;
 using core::socket::stream::tls::detail::classifyOpenSslFailure;
 using core::socket::stream::tls::detail::fatalTlsStatusToErrno;
+using core::socket::stream::tls::detail::TlsStatus;
 
 namespace {
 
@@ -51,7 +50,14 @@ int main() {
     expectStatus(result, "syscall EPIPE", -1, SSL_ERROR_SYSCALL, EPIPE, 0, TlsStatus::SyscallError, EPIPE);
     expectStatus(result, "syscall ETIMEDOUT", -1, SSL_ERROR_SYSCALL, ETIMEDOUT, 0, TlsStatus::SyscallError, ETIMEDOUT);
     expectStatus(result, "openssl 111 eof", 0, SSL_ERROR_SYSCALL, 0, 0, TlsStatus::UncleanEofWithoutCloseNotify, EPROTO);
-    expectStatus(result, "ambiguous syscall with queue", -1, SSL_ERROR_SYSCALL, 0, makeReason(SSL_R_BAD_RECORD_TYPE), TlsStatus::SslProtocolError, EPROTO);
+    expectStatus(result,
+                 "ambiguous syscall with queue",
+                 -1,
+                 SSL_ERROR_SYSCALL,
+                 0,
+                 makeReason(SSL_R_BAD_RECORD_TYPE),
+                 TlsStatus::SslProtocolError,
+                 EPROTO);
 #if defined(SSL_R_UNEXPECTED_EOF_WHILE_READING)
     expectStatus(result,
                  "openssl 3 eof",
@@ -63,7 +69,7 @@ int main() {
                  EPROTO);
 #endif
     expectStatus(result, "ssl protocol", -1, SSL_ERROR_SSL, 0, makeReason(SSL_R_BAD_RECORD_TYPE), TlsStatus::SslProtocolError, EPROTO);
-    expectStatus(result, "unknown", -1, 12345, 0, 0, TlsStatus::UnknownError, EPROTO);
+    expectStatus(result, "unknown", -1, 12345, 0, 0, TlsStatus::UnknownError, EIO);
 
     return result.processResult();
 }
