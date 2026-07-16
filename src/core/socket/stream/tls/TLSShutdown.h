@@ -93,10 +93,29 @@ namespace core::socket::stream::tls {
                                         const utils::Timeval& timeout,
                                         const std::function<void(void)>& onReleased);
 
+        enum class TypedSuccess {
+            CloseNotifySent,
+            FullShutdownComplete
+        };
+
+        enum class CompletionRequirement {
+            CloseNotifySentIsEnough,
+            RequireFullShutdown
+        };
+
+        static void doShutdownTypedWithRelease(const std::string& instanceName,
+                                               SSL* ssl,
+                                               const std::function<void(TypedSuccess)>& onSuccess,
+                                               const std::function<void(void)>& onTimeout,
+                                               const std::function<void(int)>& onStatus,
+                                               const utils::Timeval& timeout,
+                                               const std::function<void(void)>& onReleased,
+                                               CompletionRequirement completionRequirement = CompletionRequirement::RequireFullShutdown);
+
 
         TLSShutdown(const std::string& instanceName,
                     SSL* ssl,
-                    const std::function<void(void)>& onSuccess,
+                    const std::function<void(TypedSuccess)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
                     const std::function<void(int)>& onStatus,
                     const utils::Timeval& timeout,
@@ -125,7 +144,7 @@ namespace core::socket::stream::tls {
         void notifyReleased();
 
         SSL* ssl = nullptr;
-        std::function<void(void)> onSuccess;
+        std::function<void(TypedSuccess)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int)> onStatus;
         std::function<void(void)> onReleased;
@@ -135,6 +154,8 @@ namespace core::socket::stream::tls {
         bool releaseNotified = false;
         bool readRegistered = false;
         bool writeRegistered = false;
+        TypedSuccess lastSuccess = TypedSuccess::FullShutdownComplete;
+        CompletionRequirement completionRequirement = CompletionRequirement::CloseNotifySentIsEnough;
 
         int fd = -1;
 

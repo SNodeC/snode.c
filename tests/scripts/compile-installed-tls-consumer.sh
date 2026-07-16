@@ -21,6 +21,7 @@ fi
 tmp_dir=$(mktemp -d)
 trap 'rm -rf "${tmp_dir}"' EXIT
 cat > "${tmp_dir}/consumer.cpp" <<'CPP'
+#include <core/socket/stream/tls/SocketConnection.hpp>
 #include <core/socket/stream/tls/TLSHandshake.h>
 #include <core/socket/stream/tls/TLSShutdown.h>
 

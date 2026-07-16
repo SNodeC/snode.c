@@ -140,8 +140,13 @@ namespace {
 
         ConnectionFixture() {
             auto config = std::make_shared<TestConfig>();
-            connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, std::uint64_t{1}, config);
+            connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [this](TestConnection*) {
+                connection = nullptr;
+                context = nullptr;
+            }, std::uint64_t{1}, config);
             TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), sslContext.ctx);
+            TLSLifecycleTestAccess::transitionTo(*connection, 2);
+            TLSLifecycleTestAccess::transitionTo(*connection, 3);
             context = new CountingContext(connection);
             connection->setSocketContext(context);
         }
@@ -150,6 +155,11 @@ namespace {
                 TLSLifecycleTestAccess::stopSSL(*connection);
                 connection->close();
                 releaseDisabledEvents();
+                if (connection != nullptr) {
+                    delete connection;
+                    connection = nullptr;
+                    context = nullptr;
+                }
             }
         }
     };
@@ -214,6 +224,7 @@ namespace {
             TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
             TLSLifecycleTestAccess::triggerReadEvent(*fixture.connection);
             result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "reader WANT_WRITE starts one handshake");
+            TLSLifecycleTestAccess::readTimeout(TLSLifecycleTestAccess::lastHandshake());
             releaseDisabledEvents();
         }
     }

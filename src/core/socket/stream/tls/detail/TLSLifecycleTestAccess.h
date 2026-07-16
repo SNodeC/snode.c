@@ -124,7 +124,7 @@ namespace core::socket::stream::tls::detail {
                                       const std::function<void(int)>& onStatus,
                                       const utils::Timeval& timeout,
                                       const std::function<void()>& onReleased) {
-            auto* helper = new TLSShutdown(instanceName, nullptr, onSuccess, onTimeout, onStatus, timeout, onReleased, fd);
+            auto* helper = new TLSShutdown(instanceName, nullptr, [onSuccess](TLSShutdown::TypedSuccess) { onSuccess(); }, onTimeout, onStatus, timeout, onReleased, fd);
             helper->start();
         }
 
@@ -184,6 +184,120 @@ namespace core::socket::stream::tls::detail {
         template <typename PhysicalSocket, typename Config>
         static bool tlsFatalError(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.tlsFatalError;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static int transportState(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<int>(connection.tlsTransportState);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static int shutdownIntent(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return static_cast<int>(connection.tlsShutdownIntent);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool writerActivationBlocked(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.SocketWriter::isWriteActivationBlocked();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool pendingTlsShutdown(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsShutdownPending;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool pendingStopSSL(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsLifecycle != nullptr && connection.tlsLifecycle->releaseRequested;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool shutdownFailurePending(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsShutdownFailurePending;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool closeEofPending(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsCloseEofPending;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool sslAttached(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.ssl != nullptr || connection.SocketReader::ssl != nullptr || connection.SocketWriter::ssl != nullptr;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool lifecycleHasSSL(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsLifecycle != nullptr && connection.tlsLifecycle->ssl != nullptr;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static std::size_t handoffBufferSize(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.SocketReader::handoffBuffer.size() - connection.SocketReader::handoffCursor;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static std::size_t queuedWriteBytes(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.SocketWriter::writePuffer.size();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void appendHandoffBytes(SocketConnection<PhysicalSocket, Config>& connection, const char* data, std::size_t size) {
+            connection.SocketReader::appendHandoffBytes(data, size);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void onReadShutdown(SocketConnection<PhysicalSocket, Config>& connection) {
+            connection.onReadShutdown();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void doWriteShutdown(SocketConnection<PhysicalSocket, Config>& connection, const std::function<void()>& onShutdown) {
+            connection.doWriteShutdown(onShutdown);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool preserveTlsHandoffBytes(SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.preserveTlsHandoffBytes();
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static ssize_t readFromConnection(SocketConnection<PhysicalSocket, Config>& connection, char* data, std::size_t size) {
+            return connection.SocketReader::read(data, size);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void setReadBio(SocketConnection<PhysicalSocket, Config>& connection, BIO* bio) {
+            SSL_set0_rbio(connection.ssl, bio);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static void replaceSSL(SocketConnection<PhysicalSocket, Config>& connection, SSL* replacement) {
+            connection.releaseSSLNow();
+            connection.ssl = replacement;
+            connection.tlsLifecycle->ssl = replacement;
+            connection.tlsLifecycle->releaseRequested = false;
+            connection.SocketReader::ssl = replacement;
+            connection.SocketWriter::ssl = replacement;
+            connection.transitionTo(SocketConnection<PhysicalSocket, Config>::TlsTransportState::TlsPrepared);
+            connection.transitionTo(SocketConnection<PhysicalSocket, Config>::TlsTransportState::Handshaking);
+            connection.transitionTo(SocketConnection<PhysicalSocket, Config>::TlsTransportState::TlsActive);
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool transitionTo(SocketConnection<PhysicalSocket, Config>& connection, int state) {
+            const auto next = static_cast<typename SocketConnection<PhysicalSocket, Config>::TlsTransportState>(state);
+            if (!connection.isLegalTlsTransition(connection.tlsTransportState, next)) {
+                return false;
+            }
+            connection.transitionTo(next);
+            return true;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static bool isLegalTransition(const SocketConnection<PhysicalSocket, Config>& connection, int from, int to) {
+            return connection.isLegalTlsTransition(static_cast<typename SocketConnection<PhysicalSocket, Config>::TlsTransportState>(from),
+                                                   static_cast<typename SocketConnection<PhysicalSocket, Config>::TlsTransportState>(to));
         }
 
         template <typename PhysicalSocket, typename Config>

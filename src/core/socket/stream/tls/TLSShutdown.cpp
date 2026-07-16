@@ -85,14 +85,27 @@ namespace core::socket::stream::tls {
                                               const std::function<void(int)>& onStatus,
                                               const utils::Timeval& timeout,
                                               const std::function<void(void)>& onReleased) {
+        auto* helper = new TLSShutdown(instanceName, ssl, [onSuccess](TypedSuccess) { onSuccess(); }, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+        helper->start();
+    }
+
+    void TLSShutdown::doShutdownTypedWithRelease(const std::string& instanceName,
+                                                 SSL* ssl,
+                                                 const std::function<void(TypedSuccess)>& onSuccess,
+                                                 const std::function<void(void)>& onTimeout,
+                                                 const std::function<void(int)>& onStatus,
+                                                 const utils::Timeval& timeout,
+                                                 const std::function<void(void)>& onReleased,
+                                                 CompletionRequirement completionRequirement) {
         auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+        helper->completionRequirement = completionRequirement;
         helper->start();
     }
 
 
     TLSShutdown::TLSShutdown(const std::string& instanceName,
                                SSL* ssl,
-                               const std::function<void(void)>& onSuccess,
+                               const std::function<void(TypedSuccess)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
@@ -136,9 +149,20 @@ namespace core::socket::stream::tls {
         if (std::holds_alternative<detail::TlsShutdownSuccess>(result.value)) {
             switch (std::get<detail::TlsShutdownSuccess>(result.value)) {
                 case detail::TlsShutdownSuccess::CloseNotifySent:
-                case detail::TlsShutdownSuccess::FullShutdownComplete:
+                    lastSuccess = TypedSuccess::CloseNotifySent;
 #if defined(SNODEC_BUILD_TESTS)
-                    detail::test::shutdownState().lastSuccess = std::get<detail::TlsShutdownSuccess>(result.value);
+                    detail::test::shutdownState().lastSuccess = detail::TlsShutdownSuccess::CloseNotifySent;
+#endif
+                    if (completionRequirement == CompletionRequirement::RequireFullShutdown) {
+                        awaitRead();
+                    } else {
+                        finishSuccess();
+                    }
+                    break;
+                case detail::TlsShutdownSuccess::FullShutdownComplete:
+                    lastSuccess = TypedSuccess::FullShutdownComplete;
+#if defined(SNODEC_BUILD_TESTS)
+                    detail::test::shutdownState().lastSuccess = detail::TlsShutdownSuccess::FullShutdownComplete;
 #endif
                     finishSuccess();
                     break;
@@ -287,8 +311,9 @@ namespace core::socket::stream::tls {
         detail::test::shutdownState().counters.successes++;
 #endif
         const auto callback = onSuccess;
+        const auto success = lastSuccess;
         disableRegisteredReceivers();
-        callback();
+        callback(success);
         if (destroyImmediately) {
             notifyReleased();
             delete this;

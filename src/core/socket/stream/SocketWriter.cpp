@@ -74,6 +74,12 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::writeEvent() {
+        if (writeActivationBlocked) {
+            if (isEnabled() && !isSuspended()) {
+                suspend();
+            }
+            return;
+        }
         doWrite();
     }
 
@@ -132,12 +138,14 @@ namespace core::socket::stream {
     void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
         if (!shutdownInProgress && !markShutdown) {
             if (isEnabled()) {
-                if (writePuffer.empty()) {
-                    resume();
-                }
+                const bool wasEmpty = writePuffer.empty();
 
                 writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
                 totalQueued += chunkLen;
+
+                if (wasEmpty && !writeActivationBlocked) {
+                    resume();
+                }
 
                 if (source != nullptr && writePuffer.size() > 5 * blockSize) {
                     source->suspend();
@@ -177,6 +185,25 @@ namespace core::socket::stream {
     void SocketWriter::streamEof() {
         snode::semantic::coreSocketLog().trace() << getName() << ": Stream EOF";
         this->source = nullptr;
+    }
+
+    void SocketWriter::blockWriteActivation() {
+        writeActivationBlocked = true;
+        if (isEnabled() && !isSuspended()) {
+            suspend();
+        }
+    }
+
+    void SocketWriter::unblockWriteActivation() {
+        writeActivationBlocked = false;
+        if (isEnabled() && !writePuffer.empty()) {
+            resume();
+            span();
+        }
+    }
+
+    bool SocketWriter::isWriteActivationBlocked() const {
+        return writeActivationBlocked;
     }
 
     void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {

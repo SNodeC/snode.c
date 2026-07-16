@@ -99,6 +99,10 @@ namespace core::socket::stream {
 
         void shutdownWrite(const std::function<void()>& onShutdown);
 
+        void blockWriteActivation();
+        void unblockWriteActivation();
+        bool isWriteActivationBlocked() const;
+
         bool markShutdown = false;
 
     private:
@@ -110,6 +114,7 @@ namespace core::socket::stream {
         std::vector<char> writePuffer;
 
         bool shutdownInProgress = false;
+        bool writeActivationBlocked = false;
 
     private:
         core::pipe::Source* source = nullptr;

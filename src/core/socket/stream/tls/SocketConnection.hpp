@@ -49,10 +49,16 @@
 #include "core/socket/stream/tls/ssl_utils.h"
 #include "log/Logger.h"
 
+#include <openssl/bio.h>
 #include <openssl/ssl.h>
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cerrno>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -72,13 +78,84 @@ namespace core::socket::stream::tls {
               config)
         , sslInitTimeout(config->getInitTimeout())
         , sslShutdownTimeout(config->getShutdownTimeout())
-        , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF()) {
+        , closeNotifyIsEOF(!config->getNoCloseNotifyIsEOF())
+        , tlsLifecycle(std::make_shared<TlsLifecycleControl>()) {
+        tlsLifecycle->owner = this;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    SocketConnection<PhysicalSocket, Config>::~SocketConnection() {
+        if (tlsLifecycle != nullptr) {
+            tlsLifecycle->owner = nullptr;
+            tlsLifecycle->releaseRequested = true;
+        }
+        detachSSL();
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    SocketConnection<PhysicalSocket, Config>::TlsLifecycleControl::~TlsLifecycleControl() {
+        if (ssl != nullptr) {
+            SSL_free(ssl);
+            ssl = nullptr;
+        }
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    bool SocketConnection<PhysicalSocket, Config>::isLegalTlsTransition(TlsTransportState from, TlsTransportState to) const {
+        if (from == to) {
+            return true;
+        }
+        switch (from) {
+            case TlsTransportState::Plaintext:
+                return to == TlsTransportState::TlsPrepared || to == TlsTransportState::Closing || to == TlsTransportState::Closed;
+            case TlsTransportState::TlsPrepared:
+                return to == TlsTransportState::Plaintext || to == TlsTransportState::Handshaking || to == TlsTransportState::ShutdownInProgress ||
+                       to == TlsTransportState::Closing || to == TlsTransportState::Fatal;
+            case TlsTransportState::Handshaking:
+                return to == TlsTransportState::TlsActive || to == TlsTransportState::Fatal || to == TlsTransportState::Closing;
+            case TlsTransportState::TlsActive:
+                return to == TlsTransportState::Handshaking || to == TlsTransportState::ShutdownInProgress || to == TlsTransportState::Fatal ||
+                       to == TlsTransportState::Plaintext || to == TlsTransportState::Closing;
+            case TlsTransportState::ShutdownInProgress:
+                return to == TlsTransportState::ShutdownCompleteAwaitingRelease || to == TlsTransportState::Fatal || to == TlsTransportState::Closing;
+            case TlsTransportState::ShutdownCompleteAwaitingRelease:
+                return to == TlsTransportState::Plaintext || to == TlsTransportState::Closing || to == TlsTransportState::Fatal;
+            case TlsTransportState::Closing:
+                return to == TlsTransportState::Closed || to == TlsTransportState::Fatal;
+            case TlsTransportState::Fatal:
+                return to == TlsTransportState::Closing || to == TlsTransportState::Closed;
+            case TlsTransportState::Closed:
+                return false;
+        }
+        return false;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::transitionTo(TlsTransportState next) {
+        assert(isLegalTlsTransition(tlsTransportState, next));
+        tlsTransportState = next;
+        switch (next) {
+            case TlsTransportState::Plaintext:
+            case TlsTransportState::TlsActive:
+                SocketWriter::unblockWriteActivation();
+                break;
+            case TlsTransportState::TlsPrepared:
+            case TlsTransportState::Handshaking:
+            case TlsTransportState::ShutdownInProgress:
+            case TlsTransportState::ShutdownCompleteAwaitingRelease:
+            case TlsTransportState::Closing:
+            case TlsTransportState::Fatal:
+            case TlsTransportState::Closed:
+                SocketWriter::blockWriteActivation();
+                break;
+        }
     }
 
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::onTlsFatalError(int errnum) {
         tlsFatalError = true;
+        transitionTo(TlsTransportState::Fatal);
         errno = errnum;
         SocketConnection::close();
     }
@@ -92,18 +169,29 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocket, typename Config>
     SSL* SocketConnection<PhysicalSocket, Config>::startSSL(int fd, SSL_CTX* ctx) {
         if (ctx != nullptr) {
+            if (tlsLifecycle == nullptr) {
+                tlsLifecycle = std::make_shared<TlsLifecycleControl>();
+                tlsLifecycle->owner = this;
+            }
+            releaseSSLNow();
             ssl = SSL_new(ctx);
+            tlsLifecycle->ssl = ssl;
+            tlsLifecycle->releaseRequested = false;
 
             if (ssl != nullptr) {
                 SSL_set_ex_data(ssl, 0, const_cast<std::string*>(&Super::getConnectionName()));
 
-                if (SSL_set_fd(ssl, fd) == 1) {
+                SSL_set_read_ahead(ssl, 0);
+                if (SSL_set_fd(ssl, fd) == 1 && SSL_get_read_ahead(ssl) == 0) {
                     tlsFatalError = false;
+                    transitionTo(TlsTransportState::TlsPrepared);
                     SocketReader::ssl = ssl;
                     SocketWriter::ssl = ssl;
                 } else {
+                    tlsLifecycle->ssl = nullptr;
                     SSL_free(ssl);
                     ssl = nullptr;
+                    transitionTo(TlsTransportState::Plaintext);
                 }
             }
         }
@@ -112,13 +200,43 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
-    void SocketConnection<PhysicalSocket, Config>::stopSSL() {
-        if (ssl != nullptr) {
-            SSL_free(ssl);
+    void SocketConnection<PhysicalSocket, Config>::detachSSL() {
+        ssl = nullptr;
+        SocketReader::ssl = nullptr;
+        SocketWriter::ssl = nullptr;
+    }
 
-            ssl = nullptr;
-            SocketReader::ssl = nullptr;
-            SocketWriter::ssl = nullptr;
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::releaseSSLNow() {
+        detachSSL();
+        if (tlsLifecycle != nullptr) {
+            if (tlsLifecycle->ssl != nullptr) {
+                SSL_free(tlsLifecycle->ssl);
+                tlsLifecycle->ssl = nullptr;
+            }
+            tlsLifecycle->releaseRequested = false;
+        }
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::stopSSL() {
+        if (tlsLifecycle != nullptr) {
+            tlsLifecycle->releaseRequested = true;
+        }
+        if (sslHandshakeInProgress != nullptr && *sslHandshakeInProgress) {
+            transitionTo(TlsTransportState::Closing);
+            detachSSL();
+            return;
+        }
+        if (sslShutdownInProgress != nullptr && *sslShutdownInProgress) {
+            tlsShutdownIntent = TlsShutdownIntent::CloseTransport;
+            tlsCloseEofPending = false;
+            detachSSL();
+            return;
+        }
+        releaseSSLNow();
+        if (tlsTransportState != TlsTransportState::Closed && tlsTransportState != TlsTransportState::Fatal && tlsTransportState != TlsTransportState::Closing) {
+            transitionTo(TlsTransportState::Plaintext);
         }
     }
 
@@ -127,10 +245,12 @@ namespace core::socket::stream::tls {
                                                                   const std::function<void()>& onTimeout,
                                                                   const std::function<void(int)>& onStatus) {
         bool started = false;
-        if (ssl != nullptr && (sslHandshakeInProgress == nullptr || !*sslHandshakeInProgress)) {
+        if (ssl != nullptr && (sslHandshakeInProgress == nullptr || !*sslHandshakeInProgress) && tlsTransportState != TlsTransportState::ShutdownInProgress && tlsTransportState != TlsTransportState::ShutdownCompleteAwaitingRelease && tlsTransportState != TlsTransportState::Fatal && tlsTransportState != TlsTransportState::Closing && tlsTransportState != TlsTransportState::Closed) {
             started = true;
+            transitionTo(TlsTransportState::Handshaking);
             sslHandshakeInProgress = std::make_shared<bool>(true);
             const std::weak_ptr<bool> handshakeInProgress = sslHandshakeInProgress;
+            const std::shared_ptr<TlsLifecycleControl> lifecycle = tlsLifecycle;
             if (!SocketReader::isSuspended()) {
                 SocketReader::suspend();
             }
@@ -140,23 +260,53 @@ namespace core::socket::stream::tls {
 
             TLSHandshake::doHandshakeWithRelease(
                 Super::getConnectionName(),
-                ssl,
-                [onSuccess, this]() { // onSuccess
-                    SocketReader::span();
+                lifecycle->ssl,
+                [lifecycle, onSuccess]() { // onSuccess
+                    auto* owner = lifecycle->owner;
+                    if (owner == nullptr) {
+                        return;
+                    }
+                    if (lifecycle->releaseRequested || owner->tlsTransportState == TlsTransportState::Closing) {
+                        return;
+                    }
+                    owner->transitionTo(TlsTransportState::TlsActive);
+                    owner->SocketReader::span();
                     onSuccess();
                 },
-                [onTimeout, this]() { // onTimeout
+                [lifecycle, onTimeout]() { // onTimeout
+                    auto* owner = lifecycle->owner;
+                    if (owner == nullptr) {
+                        return;
+                    }
+                    owner->transitionTo(TlsTransportState::Fatal);
+                    owner->SocketConnection::close();
                     onTimeout();
-                    SocketConnection::close();
                 },
-                [onStatus, this](int sslErr) { // onStatus
+                [lifecycle, onStatus](int sslErr) { // onStatus
+                    auto* owner = lifecycle->owner;
+                    if (owner == nullptr) {
+                        return;
+                    }
+                    owner->transitionTo(TlsTransportState::Fatal);
+                    owner->SocketConnection::close();
                     onStatus(sslErr);
-                    SocketConnection::close();
                 },
                 sslInitTimeout,
-                [handshakeInProgress]() {
+                [handshakeInProgress, lifecycle]() {
                     if (const std::shared_ptr<bool> inProgress = handshakeInProgress.lock()) {
                         *inProgress = false;
+                    }
+                    auto* owner = lifecycle->owner;
+                    if (owner == nullptr) {
+                        return;
+                    }
+                    if (lifecycle->releaseRequested) {
+                        owner->releaseSSLNow();
+                        return;
+                    }
+                    if (owner->pendingShutdownAfterHandshake && owner->tlsTransportState == TlsTransportState::TlsActive) {
+                        owner->pendingShutdownAfterHandshake = false;
+                        owner->startPendingTlsShutdown();
                     }
                 });
         }
@@ -165,110 +315,244 @@ namespace core::socket::stream::tls {
     }
 
     template <typename PhysicalSocket, typename Config>
-    void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
-        if (ssl == nullptr || (sslShutdownInProgress != nullptr && *sslShutdownInProgress)) {
+    bool SocketConnection<PhysicalSocket, Config>::preserveTlsHandoffBytes() {
+        if (ssl == nullptr) {
+            return true;
+        }
+
+        // Safe TLS-to-plaintext handoff assumes OpenSSL read-ahead is disabled for this SSL and that all extractable
+        // decrypted data is visible via SSL_pending(), while transport bytes already consumed into the read BIO are
+        // visible via BIO_ctrl_pending()/BIO_read().  If SSL_has_pending() still reports opaque buffered records after
+        // those drains, plaintext continuation is refused to avoid silent byte loss.
+        std::array<char, 4096> buffer{};
+        std::vector<char> candidateHandoff;
+        while (SSL_pending(ssl) > 0) {
+            const int ret = SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
+            if (ret <= 0) {
+                return false;
+            }
+            candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
+        }
+
+        BIO* rbio = SSL_get_rbio(ssl);
+        while (rbio != nullptr && BIO_ctrl_pending(rbio) > 0) {
+            const int ret = BIO_read(rbio, buffer.data(), static_cast<int>(buffer.size()));
+            if (ret <= 0) {
+                return false;
+            }
+            candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
+        }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        if (SSL_has_pending(ssl) != 0) {
+            return false;
+        }
+#endif
+        if (!candidateHandoff.empty()) {
+            SocketReader::appendHandoffBytes(candidateHandoff.data(), candidateHandoff.size());
+        }
+        return true;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::drainTlsShutdownCallbacks() {
+        auto callbacks = std::move(tlsShutdownCompletionCallbacks);
+        tlsShutdownCompletionCallbacks.clear();
+        for (const auto& callback : callbacks) {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::completeTlsShutdownAfterRelease() {
+        if (tlsShutdownFailurePending) {
+            finalizeTlsCloseTransport(tlsCloseEofPending);
             return;
         }
+        if (tlsShutdownIntent == TlsShutdownIntent::ContinuePlaintext && tlsShutdownFullComplete) {
+            if (!preserveTlsHandoffBytes()) {
+                transitionTo(TlsTransportState::Fatal);
+                tlsFatalError = true;
+                errno = EPROTO;
+                SocketConnection::close();
+                return;
+            }
+            releaseSSLNow();
+            transitionTo(TlsTransportState::Plaintext);
+            SocketReader::resume();
+            drainTlsShutdownCallbacks();
+            return;
+        }
+
+        finalizeTlsCloseTransport(tlsCloseEofPending);
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::finalizeTlsCloseTransport(bool reportCleanEof) {
+        if (tlsCloseFinalizationInProgress) {
+            return;
+        }
+        tlsCloseFinalizationInProgress = true;
+        SocketWriter::shutdownInProgress = true;
+        SocketWriter::markShutdown = false;
+        transitionTo(TlsTransportState::Closing);
+        releaseSSLNow();
+        const std::shared_ptr<TlsLifecycleControl> lifecycle = tlsLifecycle;
+        Super::doWriteShutdown([lifecycle, reportCleanEof]() {
+            auto* owner = lifecycle->owner;
+            if (owner == nullptr) {
+                return;
+            }
+            owner->SocketWriter::shutdownInProgress = true;
+            owner->transitionTo(TlsTransportState::Closed);
+            owner->SocketConnection::close();
+            auto callbacks = std::exchange(owner->tlsShutdownCompletionCallbacks, {});
+            const bool emitEof = reportCleanEof && owner->getSocketContext() != nullptr;
+            owner->tlsCloseEofPending = false;
+
+            for (const auto& callback : callbacks) {
+                if (callback) {
+                    callback();
+                }
+            }
+
+            if (emitEof) {
+                auto* currentOwner = lifecycle->owner;
+                if (currentOwner != nullptr) {
+                    currentOwner->onReadError(0);
+                }
+            }
+        });
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::markTlsShutdownFailure(int errnum) {
+        tlsShutdownFailurePending = true;
+        tlsShutdownFailureErrno = errnum;
+        tlsFatalError = true;
+        errno = errnum;
+        transitionTo(TlsTransportState::Fatal);
+        tlsShutdownIntent = TlsShutdownIntent::CloseTransport;
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::requestTlsShutdown(TlsShutdownIntent intent, const std::function<void()>& onComplete) {
+        if (tlsTransportState == TlsTransportState::Fatal || tlsTransportState == TlsTransportState::Closing || tlsTransportState == TlsTransportState::Closed) {
+            return;
+        }
+        if (onComplete) {
+            tlsShutdownCompletionCallbacks.push_back(onComplete);
+        }
+        if (intent == TlsShutdownIntent::CloseTransport) {
+            tlsShutdownIntent = TlsShutdownIntent::CloseTransport;
+        } else if (tlsShutdownIntent != TlsShutdownIntent::CloseTransport) {
+            tlsShutdownIntent = TlsShutdownIntent::ContinuePlaintext;
+        }
+        tlsShutdownPending = true;
+        startPendingTlsShutdown();
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::startPendingTlsShutdown() {
+        if (!tlsShutdownPending || ssl == nullptr || tlsTransportState == TlsTransportState::Fatal || tlsTransportState == TlsTransportState::Closing || tlsTransportState == TlsTransportState::Closed) {
+            return;
+        }
+        if (sslHandshakeInProgress != nullptr && *sslHandshakeInProgress) {
+            pendingShutdownAfterHandshake = true;
+            return;
+        }
+        if (sslShutdownInProgress != nullptr && *sslShutdownInProgress) {
+            return;
+        }
+
+        tlsShutdownPending = false;
+        transitionTo(TlsTransportState::ShutdownInProgress);
+        tlsShutdownSemanticComplete = false;
+        tlsShutdownFullComplete = false;
         sslShutdownInProgress = std::make_shared<bool>(true);
         const std::weak_ptr<bool> shutdownInProgress = sslShutdownInProgress;
-
-        bool resumeSocketReader = false;
-        bool resumeSocketWriter = false;
+        const std::shared_ptr<TlsLifecycleControl> lifecycle = tlsLifecycle;
 
         if (!SocketReader::isSuspended()) {
             SocketReader::suspend();
-            resumeSocketReader = true;
         }
 
-        if (!SocketWriter::isSuspended()) {
-            SocketWriter::suspend();
-            resumeSocketWriter = true;
-        }
-
-        TLSShutdown::doShutdownWithRelease(
+        TLSShutdown::doShutdownTypedWithRelease(
             Super::getConnectionName(),
-            ssl,
-            [this, resumeSocketReader, resumeSocketWriter]() { // onSuccess
-                if (resumeSocketReader) {
-                    SocketReader::resume();
+            lifecycle->ssl,
+            [lifecycle](TLSShutdown::TypedSuccess success) {
+                auto* owner = lifecycle->owner;
+                if (owner == nullptr) {
+                    return;
                 }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
-                if (SSL_get_shutdown(ssl) == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) {
-                    core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received and sent");
-                } else {
-                    core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent");
-                }
+                owner->tlsShutdownSemanticComplete = true;
+                owner->tlsShutdownFullComplete = success == TLSShutdown::TypedSuccess::FullShutdownComplete;
+                owner->transitionTo(TlsTransportState::ShutdownCompleteAwaitingRelease);
             },
-            [this, resumeSocketReader, resumeSocketWriter]() { // onTimeout
-                if (resumeSocketReader) {
-                    SocketReader::resume();
+            [lifecycle]() {
+                auto* owner = lifecycle->owner;
+                if (owner == nullptr) {
+                    return;
                 }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
-                core::socket::stream::SocketConnection::log().error("SSL/TLS: Shutdown handshake timed out");
-                Super::doWriteShutdown([this]() {
-                    SocketConnection::close();
-                });
+                owner->markTlsShutdownFailure(ETIMEDOUT);
             },
-            [this, resumeSocketReader, resumeSocketWriter](int sslErr) { // onStatus
-                if (resumeSocketReader) {
-                    SocketReader::resume();
+            [lifecycle](int sslErr) {
+                auto* owner = lifecycle->owner;
+                if (owner == nullptr) {
+                    return;
                 }
-                if (resumeSocketWriter) {
-                    SocketWriter::resume();
-                }
-                ssl_log(Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
-                Super::doWriteShutdown([this]() {
-                    SocketConnection::close();
-                });
+                ssl_log(owner->Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
+                owner->markTlsShutdownFailure(errno != 0 ? errno : EPROTO);
             },
             sslShutdownTimeout,
-            [shutdownInProgress]() {
+            [shutdownInProgress, lifecycle]() {
                 if (const std::shared_ptr<bool> inProgress = shutdownInProgress.lock()) {
                     *inProgress = false;
                 }
-            });
+                auto* owner = lifecycle->owner;
+                if (owner == nullptr) {
+                    return;
+                }
+                if (owner->tlsShutdownFailurePending) {
+                    owner->completeTlsShutdownAfterRelease();
+                    return;
+                }
+                if (lifecycle->releaseRequested && owner->tlsTransportState != TlsTransportState::ShutdownCompleteAwaitingRelease) {
+                    owner->releaseSSLNow();
+                    return;
+                }
+                if (owner->tlsTransportState == TlsTransportState::ShutdownCompleteAwaitingRelease) {
+                    owner->completeTlsShutdownAfterRelease();
+                }
+            },
+            TLSShutdown::CompletionRequirement::RequireFullShutdown);
+    }
+
+    template <typename PhysicalSocket, typename Config>
+    void SocketConnection<PhysicalSocket, Config>::doSSLShutdown() {
+        requestTlsShutdown(TlsShutdownIntent::CloseTransport);
     }
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::onReadShutdown() {
-        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
-            if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
-                core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active close_notify sent and received");
-                SocketWriter::shutdownInProgress = false;
-
-                if (closeNotifyIsEOF) {
-                    this->onReadError(0);
-                }
-            } else {
-                core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received, answering with close_notify");
-
-                doSSLShutdown();
-            }
+        core::socket::stream::SocketConnection::log().debug("SSL/TLS: Passive close_notify received, requesting connection-owned TLS shutdown");
+        const TlsShutdownIntent intent = closeNotifyIsEOF ? TlsShutdownIntent::CloseTransport : TlsShutdownIntent::ContinuePlaintext;
+        if (intent == TlsShutdownIntent::CloseTransport) {
+            tlsCloseEofPending = true;
+            requestTlsShutdown(intent);
         } else {
-            core::socket::stream::SocketConnection::log().error("SSL/TLS: Unexpected EOF without close_notify");
-
-            SocketWriter::shutdownInProgress = false;
-            tlsFatalError = true;
-            errno = EPROTO;
-            this->onReadError(EPROTO);
-            SocketConnection::close();
+            requestTlsShutdown(intent);
         }
     }
 
     template <typename PhysicalSocket, typename Config>
     void SocketConnection<PhysicalSocket, Config>::doWriteShutdown(const std::function<void()>& onShutdown) {
-        if (tlsFatalError) {
+        if (tlsFatalError || ssl == nullptr) {
             Super::doWriteShutdown(onShutdown);
-        } else if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) == 0) {
-            core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active send close_notify");
-
-            doSSLShutdown();
         } else {
-            Super::doWriteShutdown(onShutdown);
+            core::socket::stream::SocketConnection::log().debug("SSL/TLS: Active send close_notify");
+            requestTlsShutdown(TlsShutdownIntent::CloseTransport, onShutdown);
         }
     }
 

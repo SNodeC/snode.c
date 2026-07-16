@@ -67,6 +67,13 @@ target_compile_features(TLSLifecycleHelperOwnershipTest PRIVATE cxx_std_20)
 target_compile_definitions(TLSLifecycleHelperOwnershipTest PRIVATE SNODEC_BUILD_TESTS)
 set_tests_properties(TLSLifecycleHelperOwnershipTest PROPERTIES LABELS "unit;core;tls;lifecycle;ownership" TIMEOUT 5)
 
+snodec_add_test(TLSTransportStateMachineTest TLSTransportStateMachineTest.cpp)
+target_include_directories(TLSTransportStateMachineTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
+target_link_libraries(TLSTransportStateMachineTest PRIVATE snodec-test-support snodec::core-socket-stream-tls snodec::net)
+target_compile_features(TLSTransportStateMachineTest PRIVATE cxx_std_20)
+target_compile_definitions(TLSTransportStateMachineTest PRIVATE SNODEC_BUILD_TESTS)
+set_tests_properties(TLSTransportStateMachineTest PROPERTIES LABELS "unit;core;tls;state-machine" TIMEOUT 5)
+
 
 snodec_add_test(TLSLifecycleAbiSourceCompatibilityTest TLSLifecycleAbiSourceCompatibilityTest.cpp)
 target_link_libraries(TLSLifecycleAbiSourceCompatibilityTest PRIVATE snodec::core-socket-stream-tls)

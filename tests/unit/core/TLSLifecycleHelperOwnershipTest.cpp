@@ -565,15 +565,13 @@ namespace {
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed,
                            "SocketConnection shutdown guard: pre-release request rejected");
         releaseDisabledEvents();
-        result.expectTrue(!TLSLifecycleTestAccess::shutdownGuardActive(*connection),
-                          "SocketConnection shutdown guard: released after publisher cleanup");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().releases,
+                           "SocketConnection shutdown guard: released after publisher cleanup");
 
         TLSLifecycleTestAccess::enqueueShutdown(SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::doSSLShutdown(*connection);
-        result.expectEqual(2, TLSLifecycleTestAccess::shutdownCounters().constructed,
-                           "SocketConnection shutdown guard: sequential helper constructed");
-        cleanupConnection(connection);
-        expectAccounting<TLSShutdown>(result, "SocketConnection shutdown guard", 2);
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed,
+                           "SocketConnection shutdown guard: close-transport completion releases SSL and rejects redundant sequential helper");
+        expectAccounting<TLSShutdown>(result, "SocketConnection shutdown guard", 1);
     }
 } // namespace
 
