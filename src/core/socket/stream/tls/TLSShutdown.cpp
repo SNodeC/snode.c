@@ -63,6 +63,21 @@ namespace core::socket::stream::tls::detail::test {
         return state;
     }
 
+    HandoffState& handoffState() {
+        static HandoffState state;
+        return state;
+    }
+
+    std::deque<std::string>& handoffPayloads() {
+        static std::deque<std::string> payloads;
+        return payloads;
+    }
+
+    std::deque<std::string>& handoffBioPayloads() {
+        static std::deque<std::string> payloads;
+        return payloads;
+    }
+
 } // namespace core::socket::stream::tls::detail::test
 
 #endif

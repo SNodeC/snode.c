@@ -43,6 +43,9 @@
 #include "core/socket/stream/tls/SocketConnection.h"
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
+#if defined(SNODEC_BUILD_TESTS)
+#include "core/socket/stream/tls/detail/TLSHandoffTestHooks.h"
+#endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -326,8 +329,36 @@ namespace core::socket::stream::tls {
         // those drains, plaintext continuation is refused to avoid silent byte loss.
         std::array<char, 4096> buffer{};
         std::vector<char> candidateHandoff;
-        while (SSL_pending(ssl) > 0) {
-            const int ret = SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
+        auto sslPending = [this]() {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handoffState();
+            if (!state.sslPending.empty()) {
+                const int pending = state.sslPending.front();
+                state.sslPending.pop_front();
+                return pending;
+            }
+#endif
+            return SSL_pending(ssl);
+        };
+        auto sslRead = [this, &buffer]() {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handoffState();
+            if (!state.sslReads.empty()) {
+                const auto result = state.sslReads.front();
+                state.sslReads.pop_front();
+                if (result.returnValue > 0) {
+                    const std::string payload = detail::test::handoffPayloads().front();
+                    detail::test::handoffPayloads().pop_front();
+                    std::copy(payload.begin(), payload.end(), buffer.begin());
+                    state.sslReadBytes += result.returnValue;
+                }
+                return result.returnValue;
+            }
+#endif
+            return SSL_read(ssl, buffer.data(), static_cast<int>(buffer.size()));
+        };
+        while (sslPending() > 0) {
+            const int ret = sslRead();
             if (ret <= 0) {
                 return false;
             }
@@ -335,17 +366,52 @@ namespace core::socket::stream::tls {
         }
 
         BIO* rbio = SSL_get_rbio(ssl);
-        while (rbio != nullptr && BIO_ctrl_pending(rbio) > 0) {
-            const int ret = BIO_read(rbio, buffer.data(), static_cast<int>(buffer.size()));
+        auto bioPending = [rbio]() -> long {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handoffState();
+            if (!state.bioPending.empty()) {
+                const long pending = state.bioPending.front();
+                state.bioPending.pop_front();
+                return pending;
+            }
+#endif
+            return rbio == nullptr ? 0 : BIO_ctrl_pending(rbio);
+        };
+        auto bioRead = [rbio, &buffer]() {
+#if defined(SNODEC_BUILD_TESTS)
+            auto& state = detail::test::handoffState();
+            if (!state.bioReads.empty()) {
+                const auto result = state.bioReads.front();
+                state.bioReads.pop_front();
+                if (result.returnValue > 0) {
+                    const std::string payload = detail::test::handoffBioPayloads().front();
+                    detail::test::handoffBioPayloads().pop_front();
+                    std::copy(payload.begin(), payload.end(), buffer.begin());
+                    state.bioReadBytes += result.returnValue;
+                }
+                return result.returnValue;
+            }
+#endif
+            return BIO_read(rbio, buffer.data(), static_cast<int>(buffer.size()));
+        };
+        while (bioPending() > 0) {
+            const int ret = bioRead();
             if (ret <= 0) {
                 return false;
             }
             candidateHandoff.insert(candidateHandoff.end(), buffer.data(), buffer.data() + ret);
         }
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#if defined(SNODEC_BUILD_TESTS)
+        auto& handoffState = detail::test::handoffState();
+        if (handoffState.sslHasPending.value_or(SSL_has_pending(ssl)) != 0) {
+            return false;
+        }
+#else
         if (SSL_has_pending(ssl) != 0) {
             return false;
         }
+#endif
 #endif
         if (!candidateHandoff.empty()) {
             SocketReader::appendHandoffBytes(candidateHandoff.data(), candidateHandoff.size());
@@ -372,10 +438,8 @@ namespace core::socket::stream::tls {
         }
         if (tlsShutdownIntent == TlsShutdownIntent::ContinuePlaintext && tlsShutdownFullComplete) {
             if (!preserveTlsHandoffBytes()) {
-                transitionTo(TlsTransportState::Fatal);
-                tlsFatalError = true;
-                errno = EPROTO;
-                SocketConnection::close();
+                markTlsShutdownFailure(EPROTO);
+                finalizeTlsCloseTransport(false);
                 return;
             }
             releaseSSLNow();

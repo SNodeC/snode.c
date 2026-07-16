@@ -293,6 +293,7 @@ void resetTlsTestState() {
     TLSLifecycleTestAccess::resetShutdown();
     TLSLifecycleTestAccess::resetReader();
     TLSLifecycleTestAccess::resetWriter();
+    TLSLifecycleTestAccess::resetHandoff();
 }
 
 void handshakeLifetime(TestResult& result) {
@@ -452,6 +453,178 @@ void shutdownFailureCallbacks(TestResult& result) {
     }
 }
 
+void shutdownTimeoutAndFailureMatrix(TestResult& result) {
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        makeTlsActive(f);
+        int callbackCount = 0;
+        TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doWriteShutdown(*f.connection, [&] { ++callbackCount; });
+        TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "timeout finalization constructs one TLSShutdown helper");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().maxConcurrent, "timeout finalization max active shutdown helper is one");
+        result.expectTrue(TLSLifecycleTestAccess::shutdownGuardActive(*f.connection), "timeout finalization guard active while helper waits");
+        result.expectTrue(TLSLifecycleTestAccess::lifecycleHasSSL(*f.connection), "timeout finalization retains SSL until helper release");
+        TLSLifecycleTestAccess::readTimeout(helper);
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().timeouts, "timeout finalization records one semantic timeout");
+        result.expectTrue(TLSLifecycleTestAccess::shutdownGuardActive(*f.connection), "timeout finalization guard remains active before release");
+        releaseDisabledEvents();
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().releases, "timeout finalization releases helper once");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().destroyed, "timeout finalization destroys helper once");
+        result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().active, "timeout finalization returns active helper count to zero");
+        result.expectEqual(1, f.counters->shutdownWr, "timeout finalization performs one physical SHUT_WR");
+        result.expectEqual(1, callbackCount, "timeout finalization drains completion callback once");
+        result.expectEqual(1, f.disconnects, "timeout finalization closes once");
+        result.expectEqual(8, f.stateAtDisconnect, "timeout finalization terminal state Closed");
+        result.expectTrue(f.writerBlockedAtDisconnect, "timeout finalization leaves writer blocked");
+        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "timeout finalization performs no raw read");
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "timeout finalization performs no raw write");
+    }
+
+    struct FailureCase { const char* name; int ret; int sslError; int systemError; unsigned long openSslError; int expectedErrno; bool failRegistration; bool afterCloseNotify; };
+    const FailureCase cases[] = {
+        {"EPIPE", -1, SSL_ERROR_SYSCALL, EPIPE, 0, EPIPE, false, false},
+        {"ECONNRESET", -1, SSL_ERROR_SYSCALL, ECONNRESET, 0, ECONNRESET, false, false},
+        {"SSL_ERROR_SSL", -1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE), EPROTO, false, false},
+        {"registration failure", -1, SSL_ERROR_WANT_READ, 0, 0, EIO, true, false},
+        {"registration failure after CloseNotifySent", 0, SSL_ERROR_NONE, 0, 0, EIO, true, true},
+    };
+    for (const auto& testCase : cases) {
+        resetTlsTestState();
+        TestFixture f(true);
+        makeTlsActive(f);
+        int callbackCount = 0;
+        if (testCase.afterCloseNotify) {
+            TLSLifecycleTestAccess::enqueueShutdownResult(0, SSL_ERROR_NONE);
+            TLSLifecycleTestAccess::failNextShutdownReadEnable(testCase.expectedErrno);
+        } else if (testCase.failRegistration) {
+            TLSLifecycleTestAccess::enqueueShutdownResult(testCase.ret, testCase.sslError, testCase.systemError, testCase.openSslError);
+            TLSLifecycleTestAccess::failNextShutdownReadEnable(testCase.expectedErrno);
+        } else {
+            TLSLifecycleTestAccess::enqueueShutdownResult(testCase.ret, testCase.sslError, testCase.systemError, testCase.openSslError);
+        }
+        TLSLifecycleTestAccess::doWriteShutdown(*f.connection, [&] { ++callbackCount; });
+        releaseDisabledEvents();
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, std::string(testCase.name) + ": one helper constructed");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().errors, std::string(testCase.name) + ": one semantic failure");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().releases, std::string(testCase.name) + ": one release");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().destroyed, std::string(testCase.name) + ": one destruction");
+        result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().active, std::string(testCase.name) + ": zero active helpers afterward");
+        result.expectEqual(1, f.counters->shutdownWr, std::string(testCase.name) + ": one physical SHUT_WR");
+        result.expectEqual(8, f.stateAtDisconnect, std::string(testCase.name) + ": terminal Closed state");
+        result.expectEqual(testCase.expectedErrno, TLSLifecycleTestAccess::shutdownCounters().lastErrno, std::string(testCase.name) + ": correct errno preserved");
+        result.expectEqual(1, callbackCount, std::string(testCase.name) + ": callback executes exactly once");
+        result.expectEqual(1, f.disconnects, std::string(testCase.name) + ": no duplicate close");
+    }
+}
+
+void shutdownCoalescingAndHandshakeBoundary(TestResult& result) {
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        makeTlsActive(f);
+        std::string order;
+        TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+        TLSLifecycleTestAccess::doWriteShutdown(*f.connection, [&] { order += 'A'; });
+        TLSLifecycleTestAccess::doWriteShutdown(*f.connection, [&] { order += 'B'; });
+        TLSLifecycleTestAccess::doSSLShutdown(*f.connection);
+        TLSLifecycleTestAccess::doWriteShutdown(*f.connection, [&] { order += 'C'; });
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "callback coalescing uses one helper");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownIntent(*f.connection), "callback coalescing escalates to CloseTransport");
+        TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::readEvent(helper);
+        releaseDisabledEvents();
+        result.expectTrue(order == "ABC", "callback coalescing preserves callback order A, B, C");
+        result.expectEqual(1, f.counters->shutdownWr, "callback coalescing performs one SHUT_WR");
+        result.expectEqual(8, f.stateAtDisconnect, "callback coalescing terminal Closed");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [] {}, [] {}, [](int) {});
+        TLSHandshake* handshake = TLSLifecycleTestAccess::lastHandshake();
+        TLSLifecycleTestAccess::doSSLShutdown(*f.connection);
+        result.expectTrue(TLSLifecycleTestAccess::pendingShutdownAfterHandshake(*f.connection), "pending shutdown after handshake is recorded");
+        result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().constructed, "shutdown helper does not start while handshake helper is active");
+        TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::readEvent(handshake);
+        result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().constructed, "shutdown helper still waits until handshake helper release");
+        releaseDisabledEvents();
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "pending shutdown boundary used one handshake helper");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "pending shutdown starts one shutdown helper after release");
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().maxConcurrent, "handshake helper active count bounded");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().maxConcurrent, "shutdown helper active count bounded");
+        result.expectTrue(TLSLifecycleTestAccess::writerActivationBlocked(*f.connection), "writer blocked across handshake/shutdown boundary");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [] {}, [] {}, [](int) {});
+        TLSHandshake* handshake = TLSLifecycleTestAccess::lastHandshake();
+        TLSLifecycleTestAccess::doSSLShutdown(*f.connection);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE));
+        TLSLifecycleTestAccess::readEvent(handshake);
+        releaseDisabledEvents();
+        result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().constructed, "handshake failure with pending shutdown starts no shutdown helper");
+        result.expectEqual(1, f.disconnects, "handshake failure with pending shutdown closes once");
+    }
+}
+
+void handshakeCallbackReentrancy(TestResult& result) {
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
+        int callbacks = 0;
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [&] { ++callbacks; f.connection->close(); }, [] {}, [](int) {});
+        releaseDisabledEvents();
+        result.expectEqual(1, callbacks, "handshake-success close reentrancy callback once");
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "handshake-success close reentrancy no duplicate helper");
+        result.expectEqual(1, f.disconnects, "handshake-success close reentrancy no duplicate close");
+    }
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
+        int callbacks = 0;
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [&] { ++callbacks; f.connection->shutdownWrite(); }, [] {}, [](int) {});
+        releaseDisabledEvents();
+        result.expectEqual(1, callbacks, "handshake-success shutdownWrite reentrancy callback once");
+        result.expectTrue(TLSLifecycleTestAccess::shutdownCounters().constructed <= 1, "handshake-success shutdownWrite reentrancy no duplicate shutdown helper");
+        result.expectTrue(f.counters->shutdownWr <= 1, "handshake-success shutdownWrite reentrancy no duplicate SHUT_WR");
+    }
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [] {}, [&] { f.connection->close(); }, [](int) {});
+        TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+        TLSLifecycleTestAccess::readTimeout(helper);
+        releaseDisabledEvents();
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().timeouts, "handshake-timeout close reentrancy callback once");
+        result.expectEqual(1, f.disconnects, "handshake-timeout close reentrancy no duplicate close");
+    }
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [] {}, [] {}, [&](int) { f.connection->close(); });
+        TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_SSL, 0, ERR_PACK(ERR_LIB_SSL, 0, SSL_R_BAD_RECORD_TYPE));
+        TLSLifecycleTestAccess::readEvent(helper);
+        releaseDisabledEvents();
+        result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().errors, "handshake-error close reentrancy callback once");
+        result.expectEqual(1, f.disconnects, "handshake-error close reentrancy no duplicate close");
+    }
+}
+
 void staleWriteGate(TestResult& result) {
     resetTlsTestState();
     {
@@ -482,12 +655,169 @@ void staleWriteGate(TestResult& result) {
     }
 }
 
+void writerOrderingFinalProof(TestResult& result) {
+    resetTlsTestState();
+    {
+        TestFixture f;
+        f.connection->sendToPeer("one", 3);
+        f.connection->sendToPeer("-", 1);
+        f.connection->sendToPeer("two", 3);
+        TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLHandshake(*f.connection, [] {}, [] {}, [](int) {});
+        TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "TLS writer ordering: stale events before handshake completion produce no SSL_write");
+        result.expectEqual(7, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "TLS writer ordering: queued bytes remain ordered as one-two before TlsActive");
+        TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+        TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::readEvent(helper);
+        releaseDisabledEvents();
+        result.expectEqual(3, TLSLifecycleTestAccess::transportState(*f.connection), "TLS writer ordering: reaches TlsActive before output is allowed");
+        TLSLifecycleTestAccess::enqueueWriterResult(7, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
+        result.expectEqual(1, TLSLifecycleTestAccess::writerCounters().operationCalls, "TLS writer ordering: queued one-two leaves through SSL_write operation");
+        result.expectEqual(0, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "TLS writer ordering: queue empty afterward");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(false);
+        makeTlsActive(f);
+        TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+        f.connection->sendToPeer("plain", 5);
+        f.connection->sendToPeer("-", 1);
+        f.connection->sendToPeer("after", 5);
+        TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "plaintext writer ordering: no SSL_write after shutdown ownership starts");
+        result.expectEqual(11, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "plaintext writer ordering: queue remains intact during shutdown");
+        char early[16] = {};
+        result.expectTrue(::recv(f.pipeFd.writeFd(), early, sizeof(early), MSG_DONTWAIT) < 0, "plaintext writer ordering: no raw byte before SSL release");
+        TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::readEvent(helper);
+        releaseDisabledEvents();
+        TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
+        char out[32] = {};
+        const ssize_t n = ::recv(f.pipeFd.writeFd(), out, sizeof(out), MSG_DONTWAIT);
+        result.expectTrue(n == 11 && std::string(out, out + n) == "plain-after", "plaintext writer ordering: raw peer receives exactly plain-after after SSL release");
+        result.expectEqual(0, static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)), "plaintext writer ordering: queue empty afterward");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(true);
+        makeTlsActive(f);
+        TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_READ);
+        TLSLifecycleTestAccess::doSSLShutdown(*f.connection);
+        f.connection->sendToPeer("before-close", 12);
+        TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::readEvent(helper);
+        releaseDisabledEvents();
+        result.expectEqual(1, f.disconnects, "CloseTransport writer policy: terminal close finalizes once");
+        result.expectEqual(8, f.stateAtDisconnect, "CloseTransport writer policy: terminal state Closed");
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "CloseTransport writer policy: no TLS write after shutdown ownership begins");
+        char out[32] = {};
+        result.expectTrue(::recv(f.pipeFd.writeFd(), out, sizeof(out), MSG_DONTWAIT) < 0, "CloseTransport writer policy: no raw write after Closing begins");
+    }
+}
+
 void handoffBuffer(TestResult& result) {
     resetTlsTestState();
     TestFixture f(false);
     const std::string handoff = "abcdef";
     TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, handoff.data(), handoff.size());
     result.expectEqual(6, static_cast<int>(TLSLifecycleTestAccess::handoffBufferSize(*f.connection)), "handoff buffer records bytes");
+}
+
+std::string readAvailable(TestConnection& connection, std::size_t maxBytes = 64) {
+    std::string out;
+    std::array<char, 16> buffer{};
+    while (out.size() < maxBytes) {
+        const ssize_t n = TLSLifecycleTestAccess::readFromConnection(connection, buffer.data(), buffer.size());
+        if (n <= 0) {
+            break;
+        }
+        out.append(buffer.data(), buffer.data() + n);
+        if (static_cast<std::size_t>(n) < buffer.size()) {
+            break;
+        }
+    }
+    return out;
+}
+
+void transactionalHandoffRollback(TestResult& result) {
+    resetTlsTestState();
+    {
+        TestFixture f(false);
+        makeTlsActive(f);
+        const std::string existing = "existing";
+        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
+        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(1);
+        TLSLifecycleTestAccess::enqueueHandoffSslReadFailure();
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+        releaseDisabledEvents();
+        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "SSL rollback test accumulated candidate TLS bytes before failure");
+        result.expectEqual(1, f.disconnects, "SSL rollback terminal close disconnects once");
+        result.expectEqual(8, f.stateAtDisconnect, "SSL rollback reaches Closed");
+        result.expectEqual(1, f.counters->shutdownWr, "SSL rollback performs one terminal SHUT_WR");
+        result.expectTrue(!f.sslAttachedAtDisconnect, "SSL rollback releases SSL through terminal cleanup");
+        result.expectTrue(f.writerBlockedAtDisconnect, "SSL rollback keeps writer blocked");
+        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "SSL rollback never resumes raw reader");
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "SSL rollback never activates raw writer");
+        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "SSL rollback exposes EPROTO");
+        result.expectTrue(f.connection == nullptr, "SSL rollback refuses plaintext continuation");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(false);
+        makeTlsActive(f);
+        const std::string existing = "existing";
+        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
+        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(0);
+        TLSLifecycleTestAccess::enqueueHandoffBioPending(2);
+        TLSLifecycleTestAccess::enqueueHandoffBioRead("-b");
+        TLSLifecycleTestAccess::enqueueHandoffBioPending(2);
+        TLSLifecycleTestAccess::enqueueHandoffBioReadFailure();
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+        releaseDisabledEvents();
+        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "BIO rollback test accumulated TLS candidate bytes");
+        result.expectEqual(2, TLSLifecycleTestAccess::handoffBioReadBytes(), "BIO rollback test accumulated partial BIO candidate bytes");
+        result.expectEqual(1, f.disconnects, "BIO rollback terminal close disconnects once");
+        result.expectEqual(8, f.stateAtDisconnect, "BIO rollback reaches Closed");
+        result.expectTrue(f.writerBlockedAtDisconnect, "BIO rollback keeps writer blocked");
+        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "BIO rollback exposes EPROTO");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(false);
+        makeTlsActive(f);
+        const std::string existing = "existing";
+        TLSLifecycleTestAccess::appendHandoffBytes(*f.connection, existing.data(), existing.size());
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(3);
+        TLSLifecycleTestAccess::enqueueHandoffSslRead("tls");
+        TLSLifecycleTestAccess::enqueueHandoffSslPending(0);
+        TLSLifecycleTestAccess::enqueueHandoffBioPending(0);
+        TLSLifecycleTestAccess::setHandoffSslHasPending(1);
+        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::onReadShutdown(*f.connection);
+        releaseDisabledEvents();
+        result.expectEqual(3, TLSLifecycleTestAccess::handoffSslReadBytes(), "residual SSL_has_pending test accumulated candidate bytes");
+        result.expectEqual(1, f.disconnects, "residual SSL_has_pending failure closes terminally");
+        result.expectEqual(8, f.stateAtDisconnect, "residual SSL_has_pending failure reaches Closed");
+        result.expectTrue(f.writerBlockedAtDisconnect, "residual SSL_has_pending failure keeps writer blocked");
+        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "residual SSL_has_pending never resumes raw reader");
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "residual SSL_has_pending never activates raw writer");
+        result.expectEqual(EPROTO, f.connection == nullptr ? EPROTO : TLSLifecycleTestAccess::shutdownFailureErrno(*f.connection), "residual SSL_has_pending maps to EPROTO");
+    }
 }
 
 void transitionMatrix(TestResult& result) {
@@ -681,9 +1011,12 @@ int main() {
     shutdownFinalization(result);
     cleanEofReentrancy(result);
     shutdownFailureCallbacks(result);
+    shutdownTimeoutAndFailureMatrix(result);
     staleWriteGate(result);
+    writerOrderingFinalProof(result);
     handoffBuffer(result);
     transitionMatrix(result);
+    transactionalHandoffRollback(result);
     realHandoff(result);
     return result.processResult();
 }

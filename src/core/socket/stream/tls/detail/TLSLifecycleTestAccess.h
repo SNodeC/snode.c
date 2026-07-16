@@ -7,6 +7,7 @@
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "core/socket/stream/tls/detail/TLSHandoffTestHooks.h"
 
 #include <cerrno>
 #include <deque>
@@ -74,6 +75,9 @@ namespace core::socket::stream::tls::detail::test {
     ShutdownState& shutdownState();
     IoState& readerState();
     IoState& writerState();
+    HandoffState& handoffState();
+    std::deque<std::string>& handoffPayloads();
+    std::deque<std::string>& handoffBioPayloads();
 
 } // namespace core::socket::stream::tls::detail::test
 
@@ -84,6 +88,7 @@ namespace core::socket::stream::tls::detail {
         static void resetShutdown() { test::shutdownState().reset(); }
         static void resetReader() { test::readerState().reset(); }
         static void resetWriter() { test::writerState().reset(); }
+        static void resetHandoff() { test::handoffState().reset(); }
 
         static void enqueueHandshake(int sslError, int systemError = 0) { test::handshakeState().operations.push_back({sslError == SSL_ERROR_NONE ? 1 : -1, sslError, systemError, 0}); }
         static void enqueueHandshakeResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::handshakeState().operations.push_back({ret, sslError, systemError, openSslError}); }
@@ -91,6 +96,15 @@ namespace core::socket::stream::tls::detail {
         static void enqueueShutdownResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::shutdownState().operations.push_back({ret, sslError, systemError, openSslError}); }
         static void enqueueReaderResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::readerState().operations.push_back({ret, sslError, systemError, openSslError}); }
         static void enqueueWriterResult(int ret, int sslError, int systemError = 0, unsigned long openSslError = 0) { test::writerState().operations.push_back({ret, sslError, systemError, openSslError}); }
+        static void enqueueHandoffSslPending(int pending) { test::handoffState().sslPending.push_back(pending); }
+        static void enqueueHandoffSslRead(const std::string& bytes) { test::handoffState().sslReads.push_back({static_cast<int>(bytes.size())}); test::handoffPayloads().push_back(bytes); }
+        static void enqueueHandoffSslReadFailure() { test::handoffState().sslReads.push_back({-1}); }
+        static void enqueueHandoffBioPending(long pending) { test::handoffState().bioPending.push_back(pending); }
+        static void enqueueHandoffBioRead(const std::string& bytes) { test::handoffState().bioReads.push_back({static_cast<int>(bytes.size())}); test::handoffBioPayloads().push_back(bytes); }
+        static void enqueueHandoffBioReadFailure() { test::handoffState().bioReads.push_back({-1}); }
+        static void setHandoffSslHasPending(int pending) { test::handoffState().sslHasPending = pending; }
+        static int handoffSslReadBytes() { return test::handoffState().sslReadBytes; }
+        static int handoffBioReadBytes() { return test::handoffState().bioReadBytes; }
 
         static test::Counters handshakeCounters() { return test::handshakeState().counters; }
         static test::Counters shutdownCounters() { return test::shutdownState().counters; }
@@ -207,6 +221,11 @@ namespace core::socket::stream::tls::detail {
         }
 
         template <typename PhysicalSocket, typename Config>
+        static bool pendingShutdownAfterHandshake(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.pendingShutdownAfterHandshake;
+        }
+
+        template <typename PhysicalSocket, typename Config>
         static bool pendingStopSSL(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.tlsLifecycle != nullptr && connection.tlsLifecycle->releaseRequested;
         }
@@ -214,6 +233,11 @@ namespace core::socket::stream::tls::detail {
         template <typename PhysicalSocket, typename Config>
         static bool shutdownFailurePending(const SocketConnection<PhysicalSocket, Config>& connection) {
             return connection.tlsShutdownFailurePending;
+        }
+
+        template <typename PhysicalSocket, typename Config>
+        static int shutdownFailureErrno(const SocketConnection<PhysicalSocket, Config>& connection) {
+            return connection.tlsShutdownFailureErrno;
         }
 
         template <typename PhysicalSocket, typename Config>
