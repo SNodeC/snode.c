@@ -51,6 +51,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <limits>
 #include <openssl/err.h>
@@ -96,9 +97,20 @@ namespace core::socket::stream::tls {
 
 
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
+        if (handoffCursor < handoffBuffer.size()) {
+            const std::size_t available = std::min(chunkLen, handoffBuffer.size() - handoffCursor);
+            std::copy(handoffBuffer.data() + handoffCursor, handoffBuffer.data() + handoffCursor + available, chunk);
+            handoffCursor += available;
+            if (handoffCursor == handoffBuffer.size()) {
+                handoffBuffer.clear();
+                handoffCursor = 0;
+            }
+            return static_cast<ssize_t>(available);
+        }
+
         ssize_t ret = 0;
 
-        if ((SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) != 0) {
+        if (ssl == nullptr) {
             ret = Super::read(chunk, chunkLen);
         } else {
             chunkLen = chunkLen > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max() : chunkLen;
@@ -189,7 +201,7 @@ namespace core::socket::stream::tls {
                         break;
                     }
                     case detail::TlsStatus::UnknownError: {
-                        const int errnum = EIO;
+                        const int errnum = detail::fatalTlsStatusToErrno(status);
                         ssl_log(getName() + " SSL/TLS: Unknown read failure", status.sslError);
                         errno = errnum;
                         onTlsFatalError(errnum);
@@ -202,6 +214,12 @@ namespace core::socket::stream::tls {
         }
 
         return ret;
+    }
+
+    void SocketReader::appendHandoffBytes(const char* data, std::size_t size) {
+        if (data != nullptr && size > 0) {
+            handoffBuffer.insert(handoffBuffer.end(), data, data + size);
+        }
     }
 
 } // namespace core::socket::stream::tls

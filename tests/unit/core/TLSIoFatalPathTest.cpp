@@ -1,6 +1,6 @@
+#include "core/DescriptorEventPublisher.h"
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
-#include "core/DescriptorEventPublisher.h"
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/tls/SocketConnection.hpp"
@@ -27,25 +27,39 @@ namespace {
 
     struct PipeFd {
         int fds[2] = {-1, -1};
-        PipeFd() { pipe(fds); }
-        ~PipeFd() {
-            if (fds[0] >= 0) close(fds[0]);
-            if (fds[1] >= 0) close(fds[1]);
+        PipeFd() {
+            pipe(fds);
         }
-        int fd() const { return fds[0]; }
+        ~PipeFd() {
+            if (fds[0] >= 0)
+                close(fds[0]);
+            if (fds[1] >= 0)
+                close(fds[1]);
+        }
+        int fd() const {
+            return fds[0];
+        }
     };
 
     void releaseDisabledEvents() {
         const utils::Timeval now = utils::Timeval::currentTime();
-        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD).releaseDisabledEvents(now);
-        core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR).releaseDisabledEvents(now);
+        core::EventLoop::instance()
+            .getEventMultiplexer()
+            .getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD)
+            .releaseDisabledEvents(now);
+        core::EventLoop::instance()
+            .getEventMultiplexer()
+            .getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR)
+            .releaseDisabledEvents(now);
     }
 
     class TestSocketAddress : public core::socket::SocketAddress {
     public:
         using SockAddr = sockaddr_storage;
         using SockLen = socklen_t;
-        std::string toString(bool = true) const override { return "tls-io-fatal-test-address"; }
+        std::string toString(bool = true) const override {
+            return "tls-io-fatal-test-address";
+        }
     };
 
     class TestPhysicalSocket {
@@ -53,55 +67,101 @@ namespace {
         using SocketAddress = TestSocketAddress;
         enum class SHUT { RD, WR, RDWR };
         explicit TestPhysicalSocket(int fd)
-            : fd(fd) {}
+            : fd(fd) {
+        }
         TestPhysicalSocket(TestPhysicalSocket&& other) noexcept
-            : fd(other.fd) { other.fd = -1; }
+            : fd(other.fd) {
+            other.fd = -1;
+        }
         TestPhysicalSocket& operator=(TestPhysicalSocket&& other) noexcept {
             fd = other.fd;
             other.fd = -1;
             return *this;
         }
-        int getFd() const { return fd; }
-        int getSockName(sockaddr_storage&, socklen_t& len) { len = sizeof(sockaddr_storage); return 0; }
-        int getPeerName(sockaddr_storage&, socklen_t& len) { len = sizeof(sockaddr_storage); return 0; }
-        const TestSocketAddress& getBindAddress() const { return address; }
-        int shutdown(SHUT) { return 0; }
+        int getFd() const {
+            return fd;
+        }
+        int getSockName(sockaddr_storage&, socklen_t& len) {
+            len = sizeof(sockaddr_storage);
+            return 0;
+        }
+        int getPeerName(sockaddr_storage&, socklen_t& len) {
+            len = sizeof(sockaddr_storage);
+            return 0;
+        }
+        const TestSocketAddress& getBindAddress() const {
+            return address;
+        }
+        int shutdown(SHUT) {
+            return 0;
+        }
 
     private:
         int fd = -1;
         TestSocketAddress address;
     };
 
-    struct TestLocalConfig { static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) { return {}; } };
-    struct TestRemoteConfig { static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) { return {}; } };
+    struct TestLocalConfig {
+        static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) {
+            return {};
+        }
+    };
+    struct TestRemoteConfig {
+        static TestSocketAddress getSocketAddress(const sockaddr_storage&, socklen_t) {
+            return {};
+        }
+    };
 
-    class TestConfig : public net::config::ConfigInstance, public TestLocalConfig, public TestRemoteConfig {
+    class TestConfig
+        : public net::config::ConfigInstance
+        , public TestLocalConfig
+        , public TestRemoteConfig {
     public:
         using Local = TestLocalConfig;
         using Remote = TestRemoteConfig;
         TestConfig()
-            : ConfigInstance("tls-io-fatal-connection", Role::CLIENT) {}
-        utils::Timeval getInitTimeout() const { return {1, 0}; }
-        utils::Timeval getShutdownTimeout() const { return {1, 0}; }
-        bool getNoCloseNotifyIsEOF() const { return false; }
-        utils::Timeval getReadTimeout() const { return {1, 0}; }
-        utils::Timeval getWriteTimeout() const { return {1, 0}; }
-        utils::Timeval getTerminateTimeout() const { return {1, 0}; }
-        std::size_t getReadBlockSize() const { return 1024; }
-        std::size_t getWriteBlockSize() const { return 1024; }
+            : ConfigInstance("tls-io-fatal-connection", Role::CLIENT) {
+        }
+        utils::Timeval getInitTimeout() const {
+            return {1, 0};
+        }
+        utils::Timeval getShutdownTimeout() const {
+            return {1, 0};
+        }
+        bool getNoCloseNotifyIsEOF() const {
+            return false;
+        }
+        utils::Timeval getReadTimeout() const {
+            return {1, 0};
+        }
+        utils::Timeval getWriteTimeout() const {
+            return {1, 0};
+        }
+        utils::Timeval getTerminateTimeout() const {
+            return {1, 0};
+        }
+        std::size_t getReadBlockSize() const {
+            return 1024;
+        }
+        std::size_t getWriteBlockSize() const {
+            return 1024;
+        }
     };
 
     using TestConnection = core::socket::stream::tls::SocketConnection<TestPhysicalSocket, TestConfig>;
 
     struct SslContext {
         SSL_CTX* ctx = SSL_CTX_new(TLS_method());
-        ~SslContext() { SSL_CTX_free(ctx); }
+        ~SslContext() {
+            SSL_CTX_free(ctx);
+        }
     };
 
     class CountingContext : public core::socket::stream::SocketContext {
     public:
         explicit CountingContext(TestConnection* connection)
-            : core::socket::stream::SocketContext(connection) {}
+            : core::socket::stream::SocketContext(connection) {
+        }
 
         int readErrors = 0;
         int writeErrors = 0;
@@ -112,14 +172,20 @@ namespace {
         int received = 0;
 
     private:
-        void onConnected() override { connected++; }
-        void onDisconnected() override { disconnected++; }
+        void onConnected() override {
+            connected++;
+        }
+        void onDisconnected() override {
+            disconnected++;
+        }
         std::size_t onReceivedFromPeer() override {
             received++;
             char buffer[32] = {};
             return readFromPeer(buffer, sizeof(buffer));
         }
-        bool onSignal(int) override { return false; }
+        bool onSignal(int) override {
+            return false;
+        }
         void onReadError(int errnum) override {
             readErrors++;
             lastReadError = errnum;
@@ -140,8 +206,17 @@ namespace {
 
         ConnectionFixture() {
             auto config = std::make_shared<TestConfig>();
-            connection = new TestConnection(TestPhysicalSocket(pipeFd.fd()), [](TestConnection*) {}, std::uint64_t{1}, config);
+            connection = new TestConnection(
+                TestPhysicalSocket(pipeFd.fd()),
+                [this](TestConnection*) {
+                    connection = nullptr;
+                    context = nullptr;
+                },
+                std::uint64_t{1},
+                config);
             TLSLifecycleTestAccess::startSSL(*connection, pipeFd.fd(), sslContext.ctx);
+            TLSLifecycleTestAccess::transitionTo(*connection, 2);
+            TLSLifecycleTestAccess::transitionTo(*connection, 3);
             context = new CountingContext(connection);
             connection->setSocketContext(context);
         }
@@ -150,6 +225,11 @@ namespace {
                 TLSLifecycleTestAccess::stopSSL(*connection);
                 connection->close();
                 releaseDisabledEvents();
+                if (connection != nullptr) {
+                    delete connection;
+                    connection = nullptr;
+                    context = nullptr;
+                }
             }
         }
     };
@@ -161,7 +241,13 @@ namespace {
         TLSLifecycleTestAccess::resetShutdown();
     }
 
-    void expectFatalRead(TestResult& result, const std::string& name, int ret, int sslError, int systemError, unsigned long openSslError, int expectedErrno) {
+    void expectFatalRead(TestResult& result,
+                         const std::string& name,
+                         int ret,
+                         int sslError,
+                         int systemError,
+                         unsigned long openSslError,
+                         int expectedErrno) {
         resetTlsState();
         ConnectionFixture fixture;
         TLSLifecycleTestAccess::enqueueReaderResult(ret, sslError, systemError, openSslError);
@@ -176,7 +262,13 @@ namespace {
         result.expectEqual(0, SSL_get_shutdown(fixture.connection->getSSL()), name + ": no fake shutdown bits");
     }
 
-    void expectFatalWrite(TestResult& result, const std::string& name, int ret, int sslError, int systemError, unsigned long openSslError, int expectedErrno) {
+    void expectFatalWrite(TestResult& result,
+                          const std::string& name,
+                          int ret,
+                          int sslError,
+                          int systemError,
+                          unsigned long openSslError,
+                          int expectedErrno) {
         resetTlsState();
         ConnectionFixture fixture;
         fixture.connection->sendToPeer("x", 1);
@@ -214,6 +306,7 @@ namespace {
             TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
             TLSLifecycleTestAccess::triggerReadEvent(*fixture.connection);
             result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "reader WANT_WRITE starts one handshake");
+            TLSLifecycleTestAccess::readTimeout(TLSLifecycleTestAccess::lastHandshake());
             releaseDisabledEvents();
         }
     }
@@ -255,7 +348,8 @@ namespace {
             fixture.connection->sendToPeer("x", 1);
             TLSLifecycleTestAccess::triggerWriteEvent(*fixture.connection);
             result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().constructed, "writer later handshake timeout constructed");
-            result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*fixture.connection), "writer later handshake timeout guard active");
+            result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*fixture.connection),
+                              "writer later handshake timeout guard active");
             TLSLifecycleTestAccess::readTimeout(TLSLifecycleTestAccess::lastHandshake());
             result.expectEqual(1, TLSLifecycleTestAccess::handshakeCounters().timeouts, "writer later handshake timeout callback");
             result.expectTrue(!TLSLifecycleTestAccess::readEnabled(*fixture.connection), "writer later handshake timeout closes read");
@@ -287,16 +381,34 @@ namespace {
         int lastErrno = 0;
     };
 
-    void handshakeErrorResult(TestResult& result, const std::string& name, int ret, int sslError, int systemError, unsigned long openSslError, int expectedErrno) {
+    void handshakeErrorResult(TestResult& result,
+                              const std::string& name,
+                              int ret,
+                              int sslError,
+                              int systemError,
+                              unsigned long openSslError,
+                              int expectedErrno) {
         PipeFd pipeFd;
         HelperCallbacks callbacks;
         TLSLifecycleTestAccess::resetHandshake();
         TLSLifecycleTestAccess::enqueueHandshakeResult(ret, sslError, systemError, openSslError);
-        TLSLifecycleTestAccess::doHandshakeForTest("handshake-test", pipeFd.fd(), [&] { callbacks.success++; }, [] {}, [&](int status) {
-            callbacks.error++;
-            callbacks.lastStatus = status;
-            callbacks.lastErrno = errno;
-        }, {1, 0}, [&] { callbacks.released++; });
+        TLSLifecycleTestAccess::doHandshakeForTest(
+            "handshake-test",
+            pipeFd.fd(),
+            [&] {
+                callbacks.success++;
+            },
+            [] {
+            },
+            [&](int status) {
+                callbacks.error++;
+                callbacks.lastStatus = status;
+                callbacks.lastErrno = errno;
+            },
+            {1, 0},
+            [&] {
+                callbacks.released++;
+            });
         result.expectEqual(0, callbacks.success, name + ": no success");
         result.expectEqual(1, callbacks.error, name + ": error once");
         result.expectEqual(sslError, callbacks.lastStatus, name + ": original ssl error");
@@ -309,18 +421,48 @@ namespace {
         HelperCallbacks callbacks;
         TLSLifecycleTestAccess::resetShutdown();
         TLSLifecycleTestAccess::enqueueShutdownResult(0, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::doShutdownForTest("shutdown-test", pipeFd.fd(), [&] { callbacks.success++; }, [] {}, [&](int) { callbacks.error++; }, {1, 0}, [&] { callbacks.released++; });
+        TLSLifecycleTestAccess::doShutdownForTest(
+            "shutdown-test",
+            pipeFd.fd(),
+            [&] {
+                callbacks.success++;
+            },
+            [] {
+            },
+            [&](int) {
+                callbacks.error++;
+            },
+            {1, 0},
+            [&] {
+                callbacks.released++;
+            });
         result.expectEqual(1, callbacks.success, "shutdown ret 0 success callback");
         result.expectTrue(TLSLifecycleTestAccess::lastShutdownSuccess().has_value(), "shutdown ret 0 success captured");
-        result.expectTrue(*TLSLifecycleTestAccess::lastShutdownSuccess() == TlsShutdownSuccess::CloseNotifySent, "shutdown ret 0 CloseNotifySent");
+        result.expectTrue(*TLSLifecycleTestAccess::lastShutdownSuccess() == TlsShutdownSuccess::CloseNotifySent,
+                          "shutdown ret 0 CloseNotifySent");
 
         callbacks = {};
         TLSLifecycleTestAccess::resetShutdown();
         TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        TLSLifecycleTestAccess::doShutdownForTest("shutdown-test", pipeFd.fd(), [&] { callbacks.success++; }, [] {}, [&](int) { callbacks.error++; }, {1, 0}, [&] { callbacks.released++; });
+        TLSLifecycleTestAccess::doShutdownForTest(
+            "shutdown-test",
+            pipeFd.fd(),
+            [&] {
+                callbacks.success++;
+            },
+            [] {
+            },
+            [&](int) {
+                callbacks.error++;
+            },
+            {1, 0},
+            [&] {
+                callbacks.released++;
+            });
         result.expectEqual(1, callbacks.success, "shutdown ret 1 success callback");
         result.expectTrue(TLSLifecycleTestAccess::lastShutdownSuccess().has_value(), "shutdown ret 1 success captured");
-        result.expectTrue(*TLSLifecycleTestAccess::lastShutdownSuccess() == TlsShutdownSuccess::FullShutdownComplete, "shutdown ret 1 FullShutdownComplete");
+        result.expectTrue(*TLSLifecycleTestAccess::lastShutdownSuccess() == TlsShutdownSuccess::FullShutdownComplete,
+                          "shutdown ret 1 FullShutdownComplete");
     }
 
 } // namespace

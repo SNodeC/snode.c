@@ -54,6 +54,7 @@ namespace utils {
 #include <functional>
 #include <openssl/opensslv.h>
 #include <string>
+#include <cstddef>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>
@@ -93,15 +94,36 @@ namespace core::socket::stream::tls {
                                         const utils::Timeval& timeout,
                                         const std::function<void(void)>& onReleased);
 
+        enum class TypedSuccess {
+            CloseNotifySent,
+            FullShutdownComplete
+        };
+
+        enum class CompletionRequirement {
+            CloseNotifySentIsEnough,
+            RequireFullShutdown
+        };
+
+        static void doShutdownTypedWithRelease(const std::string& instanceName,
+                                               SSL* ssl,
+                                               const std::function<void(TypedSuccess)>& onSuccess,
+                                               const std::function<void(void)>& onTimeout,
+                                               const std::function<void(int)>& onStatus,
+                                               const utils::Timeval& timeout,
+                                               const std::function<void(void)>& onReleased,
+                                               CompletionRequirement completionRequirement = CompletionRequirement::RequireFullShutdown,
+                                               const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
+
 
         TLSShutdown(const std::string& instanceName,
                     SSL* ssl,
-                    const std::function<void(void)>& onSuccess,
+                    const std::function<void(TypedSuccess)>& onSuccess,
                     const std::function<void(void)>& onTimeout,
                     const std::function<void(int)>& onStatus,
                     const utils::Timeval& timeout,
                     const std::function<void(void)>& onReleased,
-                    int fd);
+                    int fd,
+                    const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
 
         ~TLSShutdown() override;
 
@@ -115,7 +137,15 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
+        enum class ShutdownPhase {
+            SendLocalCloseNotify,
+            ReadPeerApplicationDataUntilCloseNotify,
+            FinalizeFullShutdown
+        };
+
         detail::TlsShutdownResult performOperation();
+        detail::TlsShutdownResult performShutdownOperation();
+        detail::TlsShutdownResult readPeerApplicationData();
         void awaitRead();
         void awaitWrite();
         void finishSuccess();
@@ -125,7 +155,7 @@ namespace core::socket::stream::tls {
         void notifyReleased();
 
         SSL* ssl = nullptr;
-        std::function<void(void)> onSuccess;
+        std::function<void(TypedSuccess)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int)> onStatus;
         std::function<void(void)> onReleased;
@@ -135,6 +165,10 @@ namespace core::socket::stream::tls {
         bool releaseNotified = false;
         bool readRegistered = false;
         bool writeRegistered = false;
+        TypedSuccess lastSuccess = TypedSuccess::FullShutdownComplete;
+        CompletionRequirement completionRequirement = CompletionRequirement::CloseNotifySentIsEnough;
+        ShutdownPhase shutdownPhase = ShutdownPhase::SendLocalCloseNotify;
+        std::function<bool(const char*, std::size_t)> onApplicationData;
 
         int fd = -1;
 

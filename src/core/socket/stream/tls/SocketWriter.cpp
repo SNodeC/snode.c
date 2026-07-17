@@ -97,7 +97,7 @@ namespace core::socket::stream::tls {
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         ssize_t ret = 0;
 
-        if ((SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0) {
+        if (ssl == nullptr) {
             ret = Super::write(chunk, chunkLen);
         } else {
             detail::TlsIoResult result;
@@ -185,7 +185,7 @@ namespace core::socket::stream::tls {
                         break;
                     }
                     case detail::TlsStatus::UnknownError: {
-                        const int errnum = EIO;
+                        const int errnum = detail::fatalTlsStatusToErrno(status);
                         ssl_log(getName() + " SSL/TLS: Unknown write failure", status.sslError);
                         errno = errnum;
                         onTlsFatalError(errnum);

@@ -51,7 +51,9 @@
 #include "utils/Timeval.h"
 
 #include <cstddef>
+#include <functional>
 #include <memory>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -84,6 +86,8 @@ namespace core::socket::stream::tls {
                          std::uint64_t connectionId,
                          const std::shared_ptr<Config>& config);
 
+        ~SocketConnection() override;
+
         SSL* getSSL() const;
 
     private:
@@ -97,6 +101,46 @@ namespace core::socket::stream::tls {
 
         void doSSLShutdown();
 
+        enum class TlsTransportState {
+            Plaintext,
+            TlsPrepared,
+            Handshaking,
+            TlsActive,
+            ShutdownInProgress,
+            ShutdownCompleteAwaitingRelease,
+            Closing,
+            Fatal,
+            Closed
+        };
+
+        enum class TlsShutdownIntent {
+            ContinuePlaintext,
+            CloseTransport
+        };
+
+        struct TlsLifecycleControl {
+            SocketConnection* owner = nullptr;
+            SSL* ssl = nullptr;
+            bool releaseRequested = false;
+
+            ~TlsLifecycleControl();
+        };
+
+        void requestTlsShutdown(TlsShutdownIntent intent, const std::function<void()>& onComplete = {});
+        void startPendingTlsShutdown();
+        void completeTlsShutdownAfterRelease();
+        void finalizeTlsCloseTransport(bool reportCleanEof);
+        void markTlsShutdownFailure(int errnum);
+        bool collectTlsShutdownApplicationData(const char* data, std::size_t size);
+        void discardTlsShutdownHandoff();
+        bool commitTlsShutdownHandoff();
+        std::size_t tlsShutdownHandoffLimit() const;
+        void releaseSSLNow();
+        void detachSSL();
+        bool isLegalTlsTransition(TlsTransportState from, TlsTransportState to) const;
+        void transitionTo(TlsTransportState next);
+        void drainTlsShutdownCallbacks();
+
         void onReadShutdown() final;
 
         void onTlsFatalError(int errnum) final;
@@ -109,6 +153,19 @@ namespace core::socket::stream::tls {
         utils::Timeval sslShutdownTimeout;
         bool closeNotifyIsEOF;
         bool tlsFatalError = false;
+        TlsTransportState tlsTransportState = TlsTransportState::Plaintext;
+        TlsShutdownIntent tlsShutdownIntent = TlsShutdownIntent::ContinuePlaintext;
+        bool tlsShutdownSemanticComplete = false;
+        bool tlsShutdownFullComplete = false;
+        bool pendingShutdownAfterHandshake = false;
+        bool tlsShutdownPending = false;
+        bool tlsShutdownFailurePending = false;
+        int tlsShutdownFailureErrno = 0;
+        bool tlsCloseEofPending = false;
+        bool tlsCloseFinalizationInProgress = false;
+        std::vector<char> tlsShutdownHandoffCandidate;
+        std::vector<std::function<void()>> tlsShutdownCompletionCallbacks;
+        std::shared_ptr<TlsLifecycleControl> tlsLifecycle;
         std::shared_ptr<bool> sslHandshakeInProgress;
         std::shared_ptr<bool> sslShutdownInProgress;
 

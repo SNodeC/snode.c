@@ -51,6 +51,7 @@
 #include <functional>
 #include <openssl/types.h>
 #include <sys/types.h>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -89,9 +90,14 @@ namespace core::socket::stream::tls {
 
         virtual void onTlsFatalError(int errnum) = 0;
 
+        void appendHandoffBytes(const char* data, std::size_t size);
+
         SSL* ssl = nullptr;
 
     private:
+        std::vector<char> handoffBuffer;
+        std::size_t handoffCursor = 0;
+
         logger::LogScopeOwner logScope;
 
         friend struct detail::TLSLifecycleTestAccess;
