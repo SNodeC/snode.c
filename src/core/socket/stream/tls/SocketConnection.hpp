@@ -340,7 +340,7 @@ namespace core::socket::stream::tls {
     bool SocketConnection<PhysicalSocket, Config>::commitTlsShutdownHandoff() {
         if (ssl == nullptr) {
             discardTlsShutdownHandoff();
-            return true;
+            return false;
         }
         if (tlsShutdownHandoffCandidate.size() > tlsShutdownHandoffLimit()) {
             discardTlsShutdownHandoff();

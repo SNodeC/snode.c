@@ -84,14 +84,17 @@ class TestConfig : public net::config::ConfigInstance, public TestLocalConfig, p
 public:
     using Local = TestLocalConfig;
     using Remote = TestRemoteConfig;
-    explicit TestConfig(bool closeNotifyIsEof = true) : ConfigInstance(nextInstanceName(), Role::CLIENT), closeNotifyIsEof(closeNotifyIsEof) {}
+    explicit TestConfig(bool closeNotifyIsEof = true, std::size_t readBlockSize = 1024)
+        : ConfigInstance(nextInstanceName(), Role::CLIENT)
+        , closeNotifyIsEof(closeNotifyIsEof)
+        , readBlockSize(readBlockSize) {}
     utils::Timeval getInitTimeout() const { return {1, 0}; }
     utils::Timeval getShutdownTimeout() const { return {1, 0}; }
     bool getNoCloseNotifyIsEOF() const { return !closeNotifyIsEof; }
     utils::Timeval getReadTimeout() const { return {1, 0}; }
     utils::Timeval getWriteTimeout() const { return {1, 0}; }
     utils::Timeval getTerminateTimeout() const { return {1, 0}; }
-    std::size_t getReadBlockSize() const { return 1024; }
+    std::size_t getReadBlockSize() const { return readBlockSize; }
     std::size_t getWriteBlockSize() const { return 1024; }
 private:
     static std::string nextInstanceName() {
@@ -99,6 +102,7 @@ private:
         return "tls-transport-state-machine-" + std::to_string(++nextId);
     }
     bool closeNotifyIsEof = true;
+    std::size_t readBlockSize = 1024;
 };
 
 using TestConnection = core::socket::stream::tls::SocketConnection<TestPhysicalSocket, TestConfig>;
@@ -121,7 +125,8 @@ struct TestFixture {
     bool writeOnDisconnect = false;
     int postCloseWriteAttempts = 0;
 
-    explicit TestFixture(bool closeNotifyIsEof = true) : config(std::make_shared<TestConfig>(closeNotifyIsEof)) {
+    explicit TestFixture(bool closeNotifyIsEof = true, std::size_t readBlockSize = 1024)
+        : config(std::make_shared<TestConfig>(closeNotifyIsEof, readBlockSize)) {
         connection = new TestConnection(TestPhysicalSocket(pipeFd.fd(), counters), [this](TestConnection* disconnectedConnection) {
             ++disconnects;
             stateAtDisconnect = TLSLifecycleTestAccess::transportState(*disconnectedConnection);
@@ -349,7 +354,7 @@ bool drivePeerCloseNotifySent(SSL* peerSsl) {
 
 bool driveProductionShutdown(TestFixture& f) {
     TLSLifecycleTestAccess::onReadShutdown(*f.connection);
-    for (int i = 0; i < 1000 && TLSLifecycleTestAccess::shutdownGuardActive(*f.connection); ++i) {
+    for (int i = 0; i < 1000 && f.connection != nullptr && TLSLifecycleTestAccess::shutdownGuardActive(*f.connection); ++i) {
         TLSShutdown* helper = TLSLifecycleTestAccess::lastShutdown();
         if (helper != nullptr) {
             TLSLifecycleTestAccess::readEvent(helper);
@@ -358,7 +363,7 @@ bool driveProductionShutdown(TestFixture& f) {
         releaseDisabledEvents();
     }
     releaseDisabledEvents();
-    return !TLSLifecycleTestAccess::shutdownGuardActive(*f.connection);
+    return f.connection == nullptr || !TLSLifecycleTestAccess::shutdownGuardActive(*f.connection);
 }
 
 struct CleanEofState {
@@ -985,7 +990,8 @@ void realHandoff(TestResult& result) {
 
     resetTlsTestState();
     {
-        TestFixture f(false);
+        TestFixture f(false, 2);
+        result.expectEqual(2, static_cast<int>(f.config->getReadBlockSize()), "same-socket handoff uses a two-byte candidate limit");
         makeNonBlocking(f.pipeFd.fd());
         makeNonBlocking(f.pipeFd.writeFd());
         SocketPeerTls peer(f.pipeFd.writeFd());
@@ -1015,7 +1021,7 @@ void realHandoff(TestResult& result) {
         }
         result.expectEqual(1, firstTlsRead, "first TLS byte read through connection SSL");
         result.expectTrue(firstTlsByte == 't', "first observed TLS byte is t");
-        result.expectEqual(2, SSL_pending(connectionSsl), "two decrypted TLS bytes are pending before shutdown");
+        result.expectEqual(2, SSL_pending(connectionSsl), "candidate exactly at the configured limit is pending before shutdown");
 
         result.expectTrue(drivePeerCloseNotifySent(peer.ssl), "peer close_notify sent on same socket");
         result.expectTrue((SSL_get_shutdown(peer.ssl) & SSL_SENT_SHUTDOWN) != 0, "peer SSL_SENT_SHUTDOWN flag is set");
@@ -1045,6 +1051,54 @@ void realHandoff(TestResult& result) {
         observedStream.push_back(firstTlsByte);
         observedStream += connectionOutput;
         result.expectTrue(observedStream == "tls-raw", "observed complete stream is tls-raw");
+        result.expectTrue(TLSLifecycleTestAccess::transportState(*f.connection) == 0, "candidate exactly at the configured limit succeeds");
+    }
+
+    resetTlsTestState();
+    {
+        TestFixture f(false, 1);
+        result.expectEqual(1, static_cast<int>(f.config->getReadBlockSize()), "overflow proof uses a one-byte candidate limit");
+        makeNonBlocking(f.pipeFd.fd());
+        makeNonBlocking(f.pipeFd.writeFd());
+        SocketPeerTls peer(f.pipeFd.writeFd());
+        SSL* connectionSsl = f.connection->getSSL();
+        result.expectTrue(connectionSsl != nullptr, "overflow proof connection SSL exists");
+        result.expectEqual(f.pipeFd.fd(), SSL_get_fd(connectionSsl), "overflow proof connection SSL uses fixture socket fd");
+        result.expectEqual(f.pipeFd.writeFd(), SSL_get_fd(peer.ssl), "overflow proof peer SSL uses fixture peer fd");
+        int handshakeCallbacks = 0;
+        result.expectTrue(driveProductionHandshake(f, peer.ssl, handshakeCallbacks), "overflow proof real TLS handshake completes");
+        result.expectEqual(1, handshakeCallbacks, "overflow proof handshake callback occurs once");
+        result.expectTrue(sslWriteAll(peer.ssl, "tls", 3), "overflow proof peer writes TLS payload tls");
+        char firstTlsByte = 0;
+        int firstTlsRead = -1;
+        for (int i = 0; i < 1000 && firstTlsRead != 1; ++i) {
+            firstTlsRead = SSL_read(connectionSsl, &firstTlsByte, 1);
+            if (firstTlsRead <= 0) {
+                const int err = SSL_get_error(connectionSsl, firstTlsRead);
+                if (err != SSL_ERROR_WANT_READ && err != SSL_ERROR_WANT_WRITE) {
+                    break;
+                }
+            }
+        }
+        result.expectEqual(1, firstTlsRead, "overflow proof first TLS byte read through connection SSL");
+        result.expectTrue(firstTlsByte == 't', "overflow proof first observed TLS byte is t");
+        result.expectEqual(2, SSL_pending(connectionSsl), "overflow proof has two real decrypted bytes pending before shutdown");
+        result.expectEqual(2, SSL_pending(connectionSsl), "two pending bytes exceed the candidate limit by one");
+        result.expectTrue(drivePeerCloseNotifySent(peer.ssl), "overflow proof peer close_notify sent on same socket");
+        const std::string rawBytes = "-raw";
+        result.expectTrue(::write(f.pipeFd.writeFd(), rawBytes.data(), rawBytes.size()) == static_cast<ssize_t>(rawBytes.size()), "overflow proof raw bytes queued but never exposed");
+        result.expectTrue(driveProductionShutdown(f), "overflow proof production shutdown reaches terminal cleanup");
+        result.expectEqual(1, f.disconnects, "candidate overflow closes the transport exactly once");
+        result.expectEqual(8, f.stateAtDisconnect, "candidate overflow reaches Closed");
+        result.expectEqual(EPROTO, f.shutdownFailureErrnoAtDisconnect, "candidate overflow fails with EPROTO");
+        result.expectEqual(0, static_cast<int>(f.handoffBufferSizeAtDisconnect), "candidate overflow commits no handoff bytes");
+        result.expectTrue(f.handoffBufferContentsAtDisconnect.empty(), "candidate overflow exposes no partial handoff contents");
+        result.expectTrue(f.writerBlockedAtDisconnect, "candidate overflow never enables raw writing");
+        result.expectTrue(!f.sslAttachedAtDisconnect, "candidate overflow releases attached SSL");
+        result.expectTrue(!f.lifecycleHasSslAtDisconnect, "candidate overflow releases lifecycle SSL after helper release");
+        result.expectEqual(0, TLSLifecycleTestAccess::readerCounters().operationCalls, "candidate overflow never enables raw reading");
+        result.expectEqual(0, TLSLifecycleTestAccess::writerCounters().operationCalls, "candidate overflow performs no raw write");
+        result.expectTrue(f.counters->shutdownWr <= 1, "candidate overflow performs at most one terminal write shutdown");
     }
 }
 
