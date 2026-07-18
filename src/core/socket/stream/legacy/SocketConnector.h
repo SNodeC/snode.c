@@ -75,7 +75,8 @@ namespace core::socket::stream::legacy {
                         const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
                         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                         const std::function<std::uint64_t()>& allocateConnectionId,
-                        const std::shared_ptr<Config>& config);
+                        const std::shared_ptr<Config>& config,
+                        const std::function<void()>& shutdownCallback = {});
 
         SocketConnector(const SocketConnector& socketConnector);
 

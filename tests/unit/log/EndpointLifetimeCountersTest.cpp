@@ -294,8 +294,10 @@ namespace {
                                 const std::function<void(core::eventreceiver::AcceptEventReceiver*)>&,
                                 const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                 const std::function<std::uint64_t()>& allocateConnectionId,
-                                const std::shared_ptr<Config>& config)
-            : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " TestAcceptEventReceiver", 0) {
+                                const std::shared_ptr<Config>& config,
+                                const std::function<void()>& shutdownCallback = {})
+            : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " TestAcceptEventReceiver", 0)
+            , shutdownCallback(shutdownCallback) {
             liveAcceptors.push_back(this);
             const ServerAction action = nextAction();
             if (action == ServerAction::TwoAcceptedConnectionsStop) {
@@ -339,6 +341,12 @@ namespace {
         void unobservedEvent() override {
         }
 
+        void onShutdown() override {
+            if (shutdownCallback) {
+                shutdownCallback();
+            }
+        }
+
         static ServerAction nextAction() {
             if (queuedActions.empty()) {
                 return ServerAction::OkStop;
@@ -364,6 +372,7 @@ namespace {
         }
 
         TestSocketAddress address;
+        std::function<void()> shutdownCallback;
         static std::vector<ServerAction> queuedActions;
         static std::vector<std::unique_ptr<SocketConnection>> acceptedConnections;
         static std::vector<TestAcceptEventReceiver*> liveAcceptors;
@@ -386,8 +395,10 @@ namespace {
                                  const std::function<void(core::eventreceiver::ConnectEventReceiver*)>&,
                                  const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                  const std::function<std::uint64_t()>& allocateConnectionId,
-                                 const std::shared_ptr<Config>& config)
-            : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " TestConnectEventReceiver", 0) {
+                                 const std::shared_ptr<Config>& config,
+                                 const std::function<void()>& shutdownCallback = {})
+            : core::eventreceiver::ConnectEventReceiver(config->getInstanceName() + " TestConnectEventReceiver", 0)
+            , shutdownCallback(shutdownCallback) {
             liveConnectors.push_back(this);
             const ClientAction action = nextAction();
             if (action == ClientAction::ConnectedThenDisconnect || action == ClientAction::ConnectedThenDisconnectStopping ||
@@ -466,6 +477,7 @@ namespace {
         }
 
         TestSocketAddress address;
+        std::function<void()> shutdownCallback;
         static std::vector<ClientAction> queuedActions;
         static std::vector<std::unique_ptr<SocketConnection>> connectedConnections;
         static std::vector<TestConnectEventReceiver*> liveConnectors;
@@ -770,24 +782,6 @@ int main(int argc, char* argv[]) {
         logger::Logger::disableLogToFile();
         result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
                           "expired weak endpoint contexts are ignored safely");
-    }
-
-    if (scenario == "pre-shutdown-snapshot") {
-        int callbackInvocations = 0;
-        {
-            SNodeCGuard snodeGuard;
-            core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
-                ++callbackInvocations;
-                core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
-                    ++callbackInvocations;
-                });
-            });
-            runLoopOnce();
-            result.expectEqual(1, callbackInvocations,
-                               "callbacks registered during pre-shutdown dispatch are not invoked in the same shutdown");
-        }
-        result.expectEqual(1, callbackInvocations,
-                           "callbacks registered during pre-shutdown dispatch are cleared before a later free call");
     }
 
     TestAcceptEventReceiver::cleanup();

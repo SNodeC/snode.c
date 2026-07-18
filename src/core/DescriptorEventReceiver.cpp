@@ -186,6 +186,16 @@ namespace core {
         signalEvent(signum);
     }
 
+    void DescriptorEventReceiver::onShutdown() {
+    }
+
+    void DescriptorEventReceiver::shutdown() {
+        if (!shutdownNotified) {
+            shutdownNotified = true;
+            onShutdown();
+        }
+    }
+
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {
         lastTriggered = currentTime;
     }

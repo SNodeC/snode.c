@@ -47,3 +47,7 @@ include(AddSNodeCTest)
 add_subdirectory(support)
 add_subdirectory(unit)
 add_subdirectory(component)
+
+add_test(NAME InstalledEndpointConsumerCompileTest
+         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/compile-installed-endpoint-consumer.sh ${CMAKE_BINARY_DIR})
+set_tests_properties(InstalledEndpointConsumerCompileTest PROPERTIES LABELS "install;consumer;endpoint")

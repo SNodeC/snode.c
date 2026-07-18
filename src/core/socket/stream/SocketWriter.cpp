@@ -91,6 +91,13 @@ namespace core::socket::stream {
         }
     }
 
+    void SocketWriter::onShutdown() {
+        shutdownEvent();
+    }
+
+    void SocketWriter::shutdownEvent() {
+    }
+
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }
@@ -124,7 +131,7 @@ namespace core::socket::stream {
 
             if (markShutdown) {
                 snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown restart";
-                doWriteShutdown(onShutdown);
+                doWriteShutdown(shutdownCallback);
             } else if (source != nullptr) {
                 source->resume();
             }
@@ -210,7 +217,7 @@ namespace core::socket::stream {
         if (!shutdownInProgress) {
             shutdownInProgress = true;
 
-            SocketWriter::onShutdown = onShutdown;
+            SocketWriter::shutdownCallback = onShutdown;
             if (writePuffer.empty()) {
                 snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown start";
                 doWriteShutdown(onShutdown);

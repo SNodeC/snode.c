@@ -117,6 +117,9 @@ namespace core {
 
     void EventMultiplexer::terminate() {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
+            descriptorEventPublisher->shutdown();
+        }
+        for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
             descriptorEventPublisher->disable();
         }
         timerEventPublisher->stop();

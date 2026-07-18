@@ -88,6 +88,7 @@ namespace core {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
         void signal(int sigNum);
+        void shutdown();
         void disable();
 
         const std::string& getName() const;

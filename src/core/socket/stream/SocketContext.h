@@ -125,6 +125,7 @@ namespace core::socket::stream {
     private:
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
+        virtual void onShutdown();
 
         virtual void attach();
         virtual void detach(DetachReason reason);

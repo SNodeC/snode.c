@@ -111,6 +111,8 @@ namespace core::socket::stream {
         virtual void shutdownRead() = 0;
         virtual void shutdownWrite() = 0;
 
+        virtual void onShutdown();
+
         const std::string& getInstanceName() const;
         const std::string& getConnectionName() const;
         std::uint64_t getConnectionId() const noexcept;
@@ -161,6 +163,8 @@ namespace core::socket::stream {
         mutable unsigned long cachedLogGeneration_ = 0;
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
+
+        bool shutdownNotified = false;
 
     private:
         const net::config::ConfigInstance* config;
@@ -238,6 +242,7 @@ namespace core::socket::stream {
 
         void readTimeout() final;
         void writeTimeout() final;
+        void shutdownEvent() final;
         void unobservedEvent() final;
 
         PhysicalSocket physicalSocket;

@@ -82,10 +82,12 @@ namespace core::socket::stream {
     private:
         void writeEvent() final;
         void signalEvent(int sigNum) final;
+        void onShutdown() final;
 
         void doWrite();
 
         virtual bool onSignal(int sigNum) = 0;
+        virtual void shutdownEvent();
         virtual void doWriteShutdown(const std::function<void()>& onShutdown) = 0;
 
     protected:
@@ -109,7 +111,7 @@ namespace core::socket::stream {
         std::function<void(int)> onStatus;
 
     protected:
-        std::function<void()> onShutdown;
+        std::function<void()> shutdownCallback;
 
         std::vector<char> writePuffer;
 

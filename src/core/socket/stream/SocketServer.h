@@ -42,7 +42,6 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define CORE_SOCKET_STREAM_SOCKETSERVERNEW_H
 
-#include "core/EventLoop.h"
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/Socket.h"                      // IWYU pragma: export
@@ -123,6 +122,10 @@ namespace core::socket::stream {
                 }
             }
 
+            void onShutdown() {
+                emitTerminationSummaryOnce();
+            }
+
             bool terminationSummaryEmitted{false};
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
@@ -189,12 +192,6 @@ namespace core::socket::stream {
                           onDisconnect(socketConnection);
                       }
                   })) {
-            const std::weak_ptr<Context> weakContext = sharedContext;
-            core::EventLoop::addPreShutdownCallback([weakContext] {
-                if (const auto context = weakContext.lock()) {
-                    context->emitTerminationSummaryOnce();
-                }
-            });
         }
 
         SocketServer(const std::function<void(SocketConnection*)>& onConnect,
@@ -275,7 +272,10 @@ namespace core::socket::stream {
                                 [sharedContext]() {
                                     return sharedContext->allocateConnectionId();
                                 },
-                                config);
+                                config,
+                                [sharedContext]() {
+                                    sharedContext->onShutdown();
+                                });
                         }
                     } else {
                         log.critical("required");
