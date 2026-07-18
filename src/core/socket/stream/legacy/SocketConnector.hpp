@@ -59,8 +59,7 @@ namespace core::socket::stream::legacy {
         const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::function<std::uint64_t()>& allocateConnectionId,
-        const std::shared_ptr<Config>& config,
-        const std::function<void()>& shutdownCallback)
+        const std::shared_ptr<Config>& config)
         : Super(
               onConnect,
               [socketContextFactory, onConnected](SocketConnection* socketConnection) {
@@ -72,8 +71,7 @@ namespace core::socket::stream::legacy {
               onInitState,
               onStatus,
               allocateConnectionId,
-              config,
-              shutdownCallback) {
+              config) {
         if (core::eventLoopState() == core::State::RUNNING) {
             Super::init();
         } else {

@@ -123,10 +123,6 @@ namespace core::socket::stream {
                           flowController.getReconnectCount());
             }
 
-            void onShutdown() {
-                emitTerminationSummaryOnce();
-            }
-
             void emitTerminationSummaryOnce() {
                 if (!terminationSummaryEmitted) {
                     terminationSummaryEmitted = true;
@@ -227,20 +223,7 @@ namespace core::socket::stream {
                         log.debug("Initiating connect");
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                            auto shutdownCallback = [sharedContext]() {
-                                sharedContext->onShutdown();
-                            };
-                            if constexpr (std::is_constructible_v<SocketConnector,
-                                                                      decltype(sharedContext->socketContextFactory),
-                                                                      decltype(sharedContext->onConnect),
-                                                                      decltype(sharedContext->onConnected),
-                                                                      std::function<void(SocketConnection*)>,
-                                                                      std::function<void(core::eventreceiver::ConnectEventReceiver*)>,
-                                                                      std::function<void(const SocketAddress&, core::socket::State)>,
-                                                                      std::function<std::uint64_t()>,
-                                                                      decltype(config),
-                                                                      decltype(shutdownCallback)>) {
-                                new SocketConnector(
+                            new SocketConnector(
                                 sharedContext->socketContextFactory,
                                 sharedContext->onConnect,
                                 sharedContext->onConnected,
@@ -323,29 +306,7 @@ namespace core::socket::stream {
                                 [sharedContext]() {
                                     return sharedContext->allocateConnectionId();
                                 },
-                                config,
-                                shutdownCallback);
-                            } else {
-                                new SocketConnector(
-                                sharedContext->socketContextFactory,
-                                sharedContext->onConnect,
-                                sharedContext->onConnected,
-                                [config, sharedContext, log, onStatus](SocketConnection* socketConnection) { sharedContext->onDisconnect(socketConnection); },
-                                [sharedContext](core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
-                                    sharedContext->flowController.observeConnectEventReceiver(connectEventReceiver);
-                                },
-                                [config, sharedContext, log, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress, core::socket::State state) {
-                                    const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
-                                    state &= ~core::socket::State::NO_RETRY;
-                                    onStatus(socketAddress, state);
-                                    if (retryFlag && (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
-                                        core::SNodeC::state() == core::State::RUNNING && sharedContext->flowController.terminateFlow()) {
-                                        sharedContext->emitTerminationSummaryOnce();
-                                    }
-                                },
-                                [sharedContext]() { return sharedContext->allocateConnectionId(); },
                                 config);
-                            }
                         }
                     } else {
                         log.critical("required");

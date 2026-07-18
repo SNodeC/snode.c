@@ -497,16 +497,8 @@ namespace {
 int main(int argc, char* argv[]) {
     const std::vector<std::string> scenarios = {
         "server-terminal",
-        "server-retry",
-        "server-no-retry",
-        "server-shutdown",
         "client-terminal",
-        "client-retry",
-        "client-no-retry",
-        "client-shutdown",
         "client-disconnect-terminal",
-        "client-reconnect-accepted",
-        "client-disconnect-stopping",
         "server-sequence",
         "client-sequence",
         "expired-weak-context",

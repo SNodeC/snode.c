@@ -15,11 +15,15 @@ endforeach()
 file(WRITE "${consumer}" "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n")
 set(exe "${stage}/consumer")
 execute_process(
-    COMMAND "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}" "-I${prefix}/include/snode.c" "-L${prefix}/lib" "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib" "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in-stream-legacy -lsnodec-http-server-express-legacy-in -o "${exe}"
+    COMMAND "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}" "-I${prefix}/include/snode.c" "-L${prefix}/lib" "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib" "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o "${exe}"
     RESULT_VARIABLE compile_result
     OUTPUT_VARIABLE compile_output
     ERROR_VARIABLE compile_error)
-message(STATUS "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in-stream-legacy -lsnodec-http-server-express-legacy-in -o ${exe}")
+message(STATUS "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}")
 if(NOT compile_result EQUAL 0)
     message(FATAL_ERROR "installed consumer compile failed\n${compile_output}\n${compile_error}")
+endif()
+execute_process(COMMAND "${exe}" RESULT_VARIABLE run_result OUTPUT_VARIABLE run_output ERROR_VARIABLE run_error)
+if(NOT run_result EQUAL 0)
+    message(FATAL_ERROR "installed consumer execution failed\n${run_output}\n${run_error}")
 endif()

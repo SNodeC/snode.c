@@ -115,10 +115,6 @@ namespace core::socket::stream {
                     .info("Instance terminated: connections={} retries={}", connectionsCreated, flowController.getRetryCount());
             }
 
-            void onShutdown() {
-                emitTerminationSummaryOnce();
-            }
-
             void emitTerminationSummaryOnce() {
                 if (!terminationSummaryEmitted) {
                     terminationSummaryEmitted = true;
@@ -219,20 +215,7 @@ namespace core::socket::stream {
                         log.debug("Initiating listen");
 
                         if (core::SNodeC::state() == core::State::RUNNING || core::SNodeC::state() == core::State::INITIALIZED) {
-                            auto shutdownCallback = [sharedContext]() {
-                                sharedContext->onShutdown();
-                            };
-                            if constexpr (std::is_constructible_v<SocketAcceptor,
-                                                                      decltype(sharedContext->socketContextFactory),
-                                                                      decltype(sharedContext->onConnect),
-                                                                      decltype(sharedContext->onConnected),
-                                                                      decltype(sharedContext->onDisconnect),
-                                                                      std::function<void(core::eventreceiver::AcceptEventReceiver*)>,
-                                                                      std::function<void(const SocketAddress&, core::socket::State)>,
-                                                                      std::function<std::uint64_t()>,
-                                                                      decltype(config),
-                                                                      decltype(shutdownCallback)>) {
-                                new SocketAcceptor(
+                            new SocketAcceptor(
                                 sharedContext->socketContextFactory,
                                 sharedContext->onConnect,
                                 sharedContext->onConnected,
@@ -285,42 +268,7 @@ namespace core::socket::stream {
                                 [sharedContext]() {
                                     return sharedContext->allocateConnectionId();
                                 },
-                                config,
-                                shutdownCallback);
-                            } else {
-                                new SocketAcceptor(
-                                sharedContext->socketContextFactory,
-                                sharedContext->onConnect,
-                                sharedContext->onConnected,
-                                sharedContext->onDisconnect,
-                                [sharedContext](core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
-                                    sharedContext->flowController.observeAcceptEventReceiver(acceptEventReceiver);
-                                },
-                                [config, sharedContext, log, onStatus, tries, retryTimeoutScale](const SocketAddress& socketAddress,
-                                                                                                 core::socket::State state) {
-                                    const bool retryFlag = (state & core::socket::State::NO_RETRY) == 0;
-                                    state &= ~core::socket::State::NO_RETRY;
-                                    onStatus(socketAddress, state);
-                                    if (retryFlag && config->getRetry() && sharedContext->flowController.isRetryEnabled() &&
-                                        (config->getRetryTries() == 0 || tries < config->getRetryTries()) &&
-                                        (state == core::socket::State::ERROR || (state == core::socket::State::FATAL && config->getRetryOnFatal()))) {
-                                        const double relativeRetryTimeout = config->getRetryTimeout() * retryTimeoutScale;
-                                        sharedContext->flowController.armRetryTimer(relativeRetryTimeout, [config, sharedContext, log, onStatus, tries, retryTimeoutScale]() {
-                                            if (sharedContext->flowController.isRetryEnabled() && config->getRetry()) {
-                                                sharedContext->flowController.reportFlowRetry();
-                                                SocketServer(config, sharedContext).realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
-                                            }
-                                        });
-                                    } else if (retryFlag && (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
-                                               core::SNodeC::state() == core::State::RUNNING && sharedContext->flowController.terminateFlow()) {
-                                        sharedContext->emitTerminationSummaryOnce();
-                                    }
-                                },
-                                [sharedContext]() {
-                                    return sharedContext->allocateConnectionId();
-                                },
                                 config);
-                            }
                         }
                     } else {
                         log.critical("required");

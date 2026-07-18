@@ -122,8 +122,6 @@ namespace core::socket::stream {
 
         SocketContext* getSocketContext() const;
 
-        virtual void onShutdown();
-
         virtual const core::socket::SocketAddress& getBindAddress() const = 0;
         virtual const core::socket::SocketAddress& getLocalAddress() const = 0;
         virtual const core::socket::SocketAddress& getRemoteAddress() const = 0;
@@ -163,7 +161,6 @@ namespace core::socket::stream {
         mutable unsigned long cachedLogGeneration_ = 0;
 
         std::chrono::time_point<std::chrono::system_clock> onlineSinceTimePoint;
-        bool shutdownNotified = false;
 
     private:
         const net::config::ConfigInstance* config;
@@ -236,8 +233,6 @@ namespace core::socket::stream {
 
     private:
         void onReceivedFromPeer(std::size_t available) final;
-
-        void onShutdown() override;
 
         bool onSignal(int signum) final;
 

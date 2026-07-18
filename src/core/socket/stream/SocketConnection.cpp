@@ -152,15 +152,6 @@ namespace core::socket::stream {
         return socketContext;
     }
 
-    void SocketConnection::onShutdown() {
-        if (!shutdownNotified) {
-            shutdownNotified = true;
-            if (socketContext != nullptr) {
-                socketContext->onShutdown();
-            }
-        }
-    }
-
     std::string SocketConnection::getOnlineSince() const {
         return timePointToString(onlineSinceTimePoint);
     }

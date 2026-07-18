@@ -157,17 +157,6 @@ namespace core {
         }
     }
 
-    void DescriptorEventPublisher::shutdown() {
-        for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
-            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                if (!eventReceiver->shutdownNotified) {
-                    eventReceiver->shutdownNotified = true;
-                    eventReceiver->onShutdown();
-                }
-            }
-        }
-    }
-
     void DescriptorEventPublisher::disable() {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {

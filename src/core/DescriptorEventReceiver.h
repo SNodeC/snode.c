@@ -118,7 +118,6 @@ namespace core {
     private:
         void onEvent(const utils::Timeval& currentTime) final;
         void onSignal(int signum);
-        virtual void onShutdown();
 
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
@@ -141,7 +140,6 @@ namespace core {
         const utils::Timeval initialTimeout;
 
         int eventCounter = 0;
-        bool shutdownNotified = false;
 
         friend class DescriptorEventPublisher;
     };
