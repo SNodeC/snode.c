@@ -199,6 +199,9 @@ namespace core::socket::stream {
         shutdownWrite();
     }
 
+    void SocketContext::onShutdown() {
+    }
+
     SocketContext::DetachReason SocketContext::getDetachReason() const noexcept {
         return currentDetachReason;
     }

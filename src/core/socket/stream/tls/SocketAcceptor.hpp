@@ -64,7 +64,8 @@ namespace core::socket::stream::tls {
         const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::function<std::uint64_t()>& allocateConnectionId,
-        const std::shared_ptr<Config>& config)
+        const std::shared_ptr<Config>& config,
+        const std::function<void()>& shutdownCallback)
         : Super(
               [onConnect, this](SocketConnection* socketConnection) { // onConnect
                   onConnect(socketConnection);
@@ -111,7 +112,8 @@ namespace core::socket::stream::tls {
               onInitState,
               onStatus,
               allocateConnectionId,
-              config) {
+              config,
+              shutdownCallback) {
         if (core::eventLoopState() == core::State::RUNNING) {
             init();
         } else {

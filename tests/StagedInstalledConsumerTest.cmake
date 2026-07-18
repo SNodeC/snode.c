@@ -1,0 +1,25 @@
+set(stage "${SNODEC_BUILD_DIR}/staged-installed-consumer")
+set(prefix "${stage}/prefix")
+set(consumer "${stage}/consumer.cpp")
+file(REMOVE_RECURSE "${stage}")
+file(MAKE_DIRECTORY "${stage}")
+execute_process(COMMAND "${CMAKE_COMMAND}" --install "${SNODEC_BUILD_DIR}" --prefix "${prefix}" RESULT_VARIABLE install_result)
+if(NOT install_result EQUAL 0)
+    message(FATAL_ERROR "staged install failed")
+endif()
+foreach(private_header IN ITEMS core/EventLoop.h core/EventMultiplexer.h core/DescriptorEventPublisher.h core/TimerEventPublisher.h)
+    if(EXISTS "${prefix}/include/snode.c/${private_header}")
+        message(FATAL_ERROR "private header installed: ${private_header}")
+    endif()
+endforeach()
+file(WRITE "${consumer}" "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n")
+set(exe "${stage}/consumer")
+execute_process(
+    COMMAND "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}" "-I${prefix}/include/snode.c" "-L${prefix}/lib" "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib" "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in-stream-legacy -lsnodec-http-server-express-legacy-in -o "${exe}"
+    RESULT_VARIABLE compile_result
+    OUTPUT_VARIABLE compile_output
+    ERROR_VARIABLE compile_error)
+message(STATUS "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in-stream-legacy -lsnodec-http-server-express-legacy-in -o ${exe}")
+if(NOT compile_result EQUAL 0)
+    message(FATAL_ERROR "installed consumer compile failed\n${compile_output}\n${compile_error}")
+endif()

@@ -68,6 +68,21 @@ namespace core::socket::stream {
         const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
         const std::function<std::uint64_t()>& allocateConnectionId,
         const std::shared_ptr<Config>& config)
+        : SocketAcceptor(onConnect, onConnected, onDisconnect, onInitState, onStatus, allocateConnectionId, config, {}) {
+    }
+
+    template <typename PhysicalSocketServer,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
+    SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(
+        const std::function<void(SocketConnection*)>& onConnect,
+        const std::function<void(SocketConnection*)>& onConnected,
+        const std::function<void(SocketConnection*)>& onDisconnect,
+        const std::function<void(core::eventreceiver::AcceptEventReceiver*)>& onInitState,
+        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+        const std::function<std::uint64_t()>& allocateConnectionId,
+        const std::shared_ptr<Config>& config,
+        const std::function<void()>& shutdownCallback)
         : core::eventreceiver::AcceptEventReceiver(config->getInstanceName() + " SocketAcceptor", 0)
         , onConnect(onConnect)
         , onConnected(onConnected)
@@ -75,6 +90,7 @@ namespace core::socket::stream {
         , onInitState(onInitState)
         , onStatus(onStatus)
         , allocateConnectionId(allocateConnectionId)
+        , shutdownCallback(shutdownCallback)
         , logScope(makeLogScope(config->getInstanceName()))
         , config(config) {
     }
@@ -90,6 +106,7 @@ namespace core::socket::stream {
         , onInitState(socketAcceptor.onInitState)
         , onStatus(socketAcceptor.onStatus)
         , allocateConnectionId(socketAcceptor.allocateConnectionId)
+        , shutdownCallback(socketAcceptor.shutdownCallback)
         , logScope(socketAcceptor.logScope)
         , config(socketAcceptor.config) {
     }
@@ -98,6 +115,15 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::~SocketAcceptor() {
+    }
+
+    template <typename PhysicalSocketServer,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
+    void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::onShutdown() {
+        if (shutdownCallback) {
+            shutdownCallback();
+        }
     }
 
     template <typename PhysicalSocketServer,

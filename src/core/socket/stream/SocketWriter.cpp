@@ -124,7 +124,7 @@ namespace core::socket::stream {
 
             if (markShutdown) {
                 snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown restart";
-                doWriteShutdown(onShutdown);
+                doWriteShutdown(shutdownCallback);
             } else if (source != nullptr) {
                 source->resume();
             }
@@ -206,14 +206,14 @@ namespace core::socket::stream {
         return writeActivationBlocked;
     }
 
-    void SocketWriter::shutdownWrite(const std::function<void()>& onShutdown) {
+    void SocketWriter::shutdownWrite(const std::function<void()>& writeShutdownCallback) {
         if (!shutdownInProgress) {
             shutdownInProgress = true;
 
-            SocketWriter::onShutdown = onShutdown;
+            SocketWriter::shutdownCallback = writeShutdownCallback;
             if (writePuffer.empty()) {
                 snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown start";
-                doWriteShutdown(onShutdown);
+                doWriteShutdown(shutdownCallback);
             } else {
                 markShutdown = true;
                 snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown delayed due to queued data";

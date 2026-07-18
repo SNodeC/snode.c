@@ -97,7 +97,7 @@ namespace core::socket::stream {
         bool streamToPeer(core::pipe::Source* source);
         void streamEof();
 
-        void shutdownWrite(const std::function<void()>& onShutdown);
+        void shutdownWrite(const std::function<void()>& writeShutdownCallback);
 
         void blockWriteActivation();
         void unblockWriteActivation();
@@ -109,7 +109,7 @@ namespace core::socket::stream {
         std::function<void(int)> onStatus;
 
     protected:
-        std::function<void()> onShutdown;
+        std::function<void()> shutdownCallback;
 
         std::vector<char> writePuffer;
 

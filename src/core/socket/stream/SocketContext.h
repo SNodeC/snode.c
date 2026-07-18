@@ -117,6 +117,8 @@ namespace core::socket::stream {
 
         DetachReason getDetachReason() const noexcept;
 
+        virtual void onShutdown();
+
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 

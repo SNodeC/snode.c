@@ -342,6 +342,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onShutdown() {
+        Super::onShutdown();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onSignal(int signum) {
         switch (signum) {
             case SIGINT:

@@ -85,9 +85,20 @@ namespace core::socket::stream {
                         const std::function<std::uint64_t()>& allocateConnectionId,
                         const std::shared_ptr<Config>& config);
 
+        SocketConnector(const std::function<void(SocketConnection*)>& onConnect,
+                        const std::function<void(SocketConnection*)>& onConnected,
+                        const std::function<void(SocketConnection*)>& onDisconnect,
+                        const std::function<void(core::eventreceiver::ConnectEventReceiver*)>& onInitState,
+                        const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
+                        const std::function<std::uint64_t()>& allocateConnectionId,
+                        const std::shared_ptr<Config>& config,
+                        const std::function<void()>& shutdownCallback);
+
         SocketConnector(const SocketConnector& socketConnector);
 
         ~SocketConnector() override;
+
+        void onShutdown() override;
 
         virtual void init();
 
@@ -129,6 +140,7 @@ namespace core::socket::stream {
 
         std::function<void(const SocketAddress&, core::socket::State)> onStatus;
         std::function<std::uint64_t()> allocateConnectionId;
+        std::function<void()> shutdownCallback;
 
         static logger::LogScopeOwner makeLogScope(const std::string& instanceName) {
             return logger::LogScopeOwner(logger::LogOrigin::Framework,
