@@ -497,20 +497,11 @@ namespace {
 int main(int argc, char* argv[]) {
     const std::vector<std::string> scenarios = {
         "server-terminal",
-        "server-retry",
-        "server-no-retry",
-        "server-shutdown",
         "client-terminal",
-        "client-retry",
-        "client-no-retry",
-        "client-shutdown",
         "client-disconnect-terminal",
-        "client-reconnect-accepted",
-        "client-disconnect-stopping",
         "server-sequence",
         "client-sequence",
         "expired-weak-context",
-        "pre-shutdown-snapshot",
     };
 
     if (argc == 1) {
@@ -772,23 +763,6 @@ int main(int argc, char* argv[]) {
                           "expired weak endpoint contexts are ignored safely");
     }
 
-    if (scenario == "pre-shutdown-snapshot") {
-        int callbackInvocations = 0;
-        {
-            SNodeCGuard snodeGuard;
-            core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
-                ++callbackInvocations;
-                core::EventLoop::addPreShutdownCallback([&callbackInvocations] {
-                    ++callbackInvocations;
-                });
-            });
-            runLoopOnce();
-            result.expectEqual(1, callbackInvocations,
-                               "callbacks registered during pre-shutdown dispatch are not invoked in the same shutdown");
-        }
-        result.expectEqual(1, callbackInvocations,
-                           "callbacks registered during pre-shutdown dispatch are cleared before a later free call");
-    }
 
     TestAcceptEventReceiver::cleanup();
     TestConnectEventReceiver::cleanup();

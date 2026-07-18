@@ -64,7 +64,6 @@ namespace core {
     core::State EventLoop::eventLoopState = State::LOADED;
 
     namespace {
-        std::vector<EventLoop::PreShutdownCallback> preShutdownCallbacks;
 
         std::string signalName(int signum) {
             std::string signal = "SIG" + utils::system::sigabbrev_np(signum);
@@ -156,10 +155,6 @@ namespace core {
 
     State EventLoop::getEventLoopState() {
         return eventLoopState;
-    }
-
-    void EventLoop::addPreShutdownCallback(PreShutdownCallback callback) {
-        preShutdownCallbacks.push_back(std::move(callback));
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -359,16 +354,6 @@ namespace core {
 
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
-
-        auto callbacks = std::exchange(preShutdownCallbacks, std::vector<PreShutdownCallback>{});
-
-        for (PreShutdownCallback& callback : callbacks) {
-            if (callback) {
-                callback();
-            }
-        }
-
-        preShutdownCallbacks.clear();
 
         EventLoop::instance().log().trace("Core: Shutdown config system");
 

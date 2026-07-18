@@ -47,3 +47,10 @@ include(AddSNodeCTest)
 add_subdirectory(support)
 add_subdirectory(unit)
 add_subdirectory(component)
+
+add_test(NAME StagedInstalledConsumerTest
+         COMMAND ${CMAKE_COMMAND}
+                 -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                 -P ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake)
+set_tests_properties(StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT 120)
