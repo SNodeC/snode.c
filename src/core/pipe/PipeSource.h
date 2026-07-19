@@ -46,6 +46,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <cstddef>
 #include <functional>
 #include <string>
@@ -57,18 +59,28 @@ namespace core::pipe {
 
     class PipeSource : public core::eventreceiver::WriteEventReceiver {
     public:
+        static constexpr std::size_t DEFAULT_MAX_QUEUED_BYTES = 1024 * 1024;
+
         PipeSource(const PipeSource&) = delete;
 
         PipeSource& operator=(const PipeSource&) = delete;
 
-        explicit PipeSource(int fd);
+        explicit PipeSource(int fd,
+                            std::size_t maxQueuedBytes = DEFAULT_MAX_QUEUED_BYTES,
+                            const utils::Timeval& timeout = utils::Timeval({60, 0}));
         ~PipeSource() override;
 
+        bool trySend(const char* chunk, std::size_t chunkLen);
+        bool trySend(const std::string& data);
         void send(const char* chunk, std::size_t chunkLen);
         void send(const std::string& data);
         void eof();
+        void close();
+
+        std::size_t getQueuedBytes() const noexcept;
 
         void setOnError(const std::function<void(int)>& onError);
+        void setOnClosed(const std::function<void()>& onClosed);
 
     protected:
         void writeEvent() override;
@@ -76,8 +88,12 @@ namespace core::pipe {
 
     private:
         std::function<void(int errnum)> onError;
+        std::function<void()> onClosed;
 
         std::vector<char> writeBuffer;
+        std::size_t writeOffset = 0;
+        std::size_t maxQueuedBytes;
+        bool closeWhenDrained = false;
     };
 
 } // namespace core::pipe

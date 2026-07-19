@@ -44,8 +44,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "utils/Timeval.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <string>
 
@@ -57,28 +57,55 @@
 
 namespace core::pipe {
 
-    PipeSource::PipeSource(int fd)
-        : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), 60) {
-        if (!WriteEventReceiver::enable(fd)) {
-            delete this;
-        } else {
-            WriteEventReceiver::suspend();
-        }
+    namespace {
+        constexpr std::size_t MAX_BYTES_PER_EVENT = 256 * 1024;
+    }
+
+    PipeSource::PipeSource(int fd, std::size_t maxQueuedBytes, const utils::Timeval& timeout)
+        : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), timeout)
+        , maxQueuedBytes(maxQueuedBytes) {
+        WriteEventReceiver::enable(fd);
+        WriteEventReceiver::suspend();
     }
 
     PipeSource::~PipeSource() {
-        close(getRegisteredFd());
+        core::system::close(getRegisteredFd());
     }
 
     void PipeSource::setOnError(const std::function<void(int)>& onError) {
         this->onError = onError;
     }
 
-    void PipeSource::send(const char* chunk, std::size_t chunkLen) {
+    void PipeSource::setOnClosed(const std::function<void()>& onClosed) {
+        this->onClosed = onClosed;
+    }
+
+    bool PipeSource::trySend(const char* chunk, std::size_t chunkLen) {
+        if (closeWhenDrained || !WriteEventReceiver::isEnabled() || chunkLen > maxQueuedBytes - getQueuedBytes()) {
+            return false;
+        }
+
+        if (writeOffset > 0 && (writeOffset == writeBuffer.size() || writeOffset >= writeBuffer.size() / 2)) {
+            writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + static_cast<std::ptrdiff_t>(writeOffset));
+            writeOffset = 0;
+        }
+
         writeBuffer.insert(writeBuffer.end(), chunk, chunk + chunkLen);
 
-        if (WriteEventReceiver::isSuspended()) {
+        if (chunkLen > 0 && WriteEventReceiver::isSuspended()) {
             WriteEventReceiver::resume();
+        }
+
+        return true;
+    }
+
+    bool PipeSource::trySend(const std::string& data) {
+        return trySend(data.data(), data.size());
+    }
+
+    void PipeSource::send(const char* chunk, std::size_t chunkLen) {
+        if (!trySend(chunk, chunkLen) && onError) {
+            onError(ENOBUFS);
         }
     }
 
@@ -87,29 +114,64 @@ namespace core::pipe {
     }
 
     void PipeSource::eof() {
-        WriteEventReceiver::disable();
+        closeWhenDrained = true;
+        if (getQueuedBytes() == 0) {
+            close();
+        }
+    }
+
+    void PipeSource::close() {
+        if (WriteEventReceiver::isEnabled()) {
+            WriteEventReceiver::disable();
+        }
+    }
+
+    std::size_t PipeSource::getQueuedBytes() const noexcept {
+        return writeBuffer.size() - writeOffset;
     }
 
     void PipeSource::writeEvent() {
-        const ssize_t ret = core::system::write(
-            getRegisteredFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_CHUNKSIZE) ? writeBuffer.size() : MAX_SEND_CHUNKSIZE);
+        std::size_t bytesWritten = 0;
 
-        if (ret > 0) {
-            writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
+        while (getQueuedBytes() > 0 && bytesWritten < MAX_BYTES_PER_EVENT) {
+            const std::size_t writeSize =
+                std::min({getQueuedBytes(), static_cast<std::size_t>(MAX_SEND_CHUNKSIZE), MAX_BYTES_PER_EVENT - bytesWritten});
+            const ssize_t ret = core::system::write(getRegisteredFd(), writeBuffer.data() + writeOffset, writeSize);
 
-            if (writeBuffer.empty()) {
-                WriteEventReceiver::suspend();
+            if (ret > 0) {
+                const std::size_t written = static_cast<std::size_t>(ret);
+                writeOffset += written;
+                bytesWritten += written;
+            } else if (ret == 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
+                return;
+            } else if (errno == EINTR) {
+                continue;
+            } else {
+                const int errnum = errno;
+                WriteEventReceiver::disable();
+
+                if (onError) {
+                    onError(errnum);
+                }
+                return;
             }
-        } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            WriteEventReceiver::disable();
+        }
 
-            if (onError) {
-                onError(errno);
+        if (getQueuedBytes() == 0) {
+            writeBuffer.clear();
+            writeOffset = 0;
+            if (closeWhenDrained) {
+                WriteEventReceiver::disable();
+            } else {
+                WriteEventReceiver::suspend();
             }
         }
     }
 
     void PipeSource::unobservedEvent() {
+        if (onClosed) {
+            onClosed();
+        }
         delete this;
     }
 

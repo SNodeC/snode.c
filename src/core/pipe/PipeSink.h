@@ -46,6 +46,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <cstddef>
 #include <functional>
 
@@ -55,16 +57,23 @@ namespace core::pipe {
 
     class PipeSink : public core::eventreceiver::ReadEventReceiver {
     public:
+        static constexpr std::size_t DEFAULT_MAX_BYTES_PER_EVENT = 256 * 1024;
+
         PipeSink(const PipeSink&) = delete;
 
         PipeSink& operator=(const PipeSink&) = delete;
 
-        explicit PipeSink(int fd);
+        explicit PipeSink(int fd,
+                          std::size_t maxBytesPerEvent = DEFAULT_MAX_BYTES_PER_EVENT,
+                          const utils::Timeval& timeout = utils::Timeval({60, 0}));
         ~PipeSink() override;
+
+        void close();
 
         void setOnData(const std::function<void(const char*, std::size_t)>& onData);
         void setOnEof(const std::function<void()>& onEof);
         void setOnError(const std::function<void(int)>& onError);
+        void setOnClosed(const std::function<void()>& onClosed);
 
     private:
         void readEvent() override;
@@ -73,6 +82,9 @@ namespace core::pipe {
         std::function<void(const char*, std::size_t)> onData;
         std::function<void()> onEof;
         std::function<void(int errnum)> onError;
+        std::function<void()> onClosed;
+
+        std::size_t maxBytesPerEvent;
     };
 
 } // namespace core::pipe

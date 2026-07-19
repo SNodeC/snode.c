@@ -44,8 +44,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "utils/Timeval.h"
 
+#include <algorithm>
+#include <array>
 #include <cerrno>
 #include <string>
 
@@ -57,39 +58,62 @@
 
 namespace core::pipe {
 
-    PipeSink::PipeSink(int fd)
-        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), 60) {
-        if (!ReadEventReceiver::enable(fd)) {
-            delete this;
-        }
+    PipeSink::PipeSink(int fd, std::size_t maxBytesPerEvent, const utils::Timeval& timeout)
+        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), timeout)
+        , maxBytesPerEvent(std::max<std::size_t>(maxBytesPerEvent, 1)) {
+        ReadEventReceiver::enable(fd);
     }
 
     PipeSink::~PipeSink() {
-        close(getRegisteredFd());
+        core::system::close(getRegisteredFd());
     }
 
     void PipeSink::readEvent() {
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static char chunk[MAX_READ_CHUNKSIZE];
+        std::array<char, MAX_READ_CHUNKSIZE> chunk{};
+        std::size_t bytesRead = 0;
 
-        const ssize_t ret = core::system::read(getRegisteredFd(), chunk, MAX_READ_CHUNKSIZE);
+        while (bytesRead < maxBytesPerEvent) {
+            const std::size_t bytesRemaining = maxBytesPerEvent - bytesRead;
+            const std::size_t readSize = std::min(chunk.size(), bytesRemaining);
+            const ssize_t ret = core::system::read(getRegisteredFd(), chunk.data(), readSize);
 
-        if (ret > 0) {
-            if (onData) {
-                onData(chunk, static_cast<std::size_t>(ret));
-            }
-        } else {
-            ReadEventReceiver::disable();
+            if (ret > 0) {
+                const std::size_t chunkLength = static_cast<std::size_t>(ret);
+                bytesRead += chunkLength;
 
-            if (ret == 0) {
+                if (onData) {
+                    onData(chunk.data(), chunkLength);
+                }
+
+                if (!ReadEventReceiver::isEnabled()) {
+                    return;
+                }
+            } else if (ret == 0) {
+                ReadEventReceiver::disable();
+
                 if (onEof) {
                     onEof();
                 }
+                return;
+            } else if (errno == EINTR) {
+                continue;
+            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                return;
             } else {
+                const int errnum = errno;
+                ReadEventReceiver::disable();
+
                 if (onError) {
-                    onError(errno);
+                    onError(errnum);
                 }
+                return;
             }
+        }
+    }
+
+    void PipeSink::close() {
+        if (ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
         }
     }
 
@@ -105,7 +129,14 @@ namespace core::pipe {
         this->onError = onError;
     }
 
+    void PipeSink::setOnClosed(const std::function<void()>& onClosed) {
+        this->onClosed = onClosed;
+    }
+
     void PipeSink::unobservedEvent() {
+        if (onClosed) {
+            onClosed();
+        }
         delete this;
     }
 
