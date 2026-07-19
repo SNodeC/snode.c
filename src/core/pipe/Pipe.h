@@ -47,8 +47,13 @@ namespace core::pipe {
     class PipeSource;
 } // namespace core::pipe
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -57,14 +62,41 @@ namespace core::pipe {
 
     class Pipe {
     public:
-        Pipe(const Pipe& pipe) = delete;
+        Pipe() noexcept;
+        explicit Pipe(int flags) noexcept;
 
-        Pipe& operator=(const Pipe& pipe) = delete;
+        Pipe(const Pipe&) = delete;
+        Pipe(Pipe&& pipe) noexcept;
+
+        ~Pipe();
+
+        Pipe& operator=(const Pipe&) = delete;
+        Pipe& operator=(Pipe&& pipe) noexcept;
 
         Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError);
 
+        bool isValid() const noexcept;
+        int getError() const noexcept;
+
+        int getReadFd() const noexcept;
+        int getWriteFd() const noexcept;
+
+        int releaseReadFd() noexcept;
+        int releaseWriteFd() noexcept;
+
+        void closeRead() noexcept;
+        void closeWrite() noexcept;
+
+        PipeSink* releaseReadAsSink();
+        PipeSink* releaseReadAsSink(std::size_t maxBytesPerEvent, const utils::Timeval& timeout);
+
+        PipeSource* releaseWriteAsSource();
+        PipeSource* releaseWriteAsSource(std::size_t maxQueuedBytes, const utils::Timeval& timeout);
+
     private:
-        int pipeFd[2]{};
+        int readFd = -1;
+        int writeFd = -1;
+        int error = 0;
     };
 
 } // namespace core::pipe

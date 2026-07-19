@@ -69,7 +69,7 @@ namespace core::pipe {
     }
 
     PipeSource::~PipeSource() {
-        core::system::close(getRegisteredFd());
+        closeDescriptor();
     }
 
     void PipeSource::setOnError(const std::function<void(int)>& onError) {
@@ -80,9 +80,15 @@ namespace core::pipe {
         this->onClosed = onClosed;
     }
 
-    bool PipeSource::trySend(const char* chunk, std::size_t chunkLen) {
-        if (closeWhenDrained || !WriteEventReceiver::isEnabled() || chunkLen > maxQueuedBytes - getQueuedBytes()) {
+    bool PipeSource::send(const char* chunk, std::size_t chunkLen) {
+        const std::size_t queuedBytes = getQueuedBytes();
+        if (closeWhenDrained || !WriteEventReceiver::isEnabled() || queuedBytes > maxQueuedBytes ||
+            chunkLen > maxQueuedBytes - queuedBytes) {
             return false;
+        }
+
+        if (chunkLen == 0) {
+            return true;
         }
 
         if (writeOffset > 0 && (writeOffset == writeBuffer.size() || writeOffset >= writeBuffer.size() / 2)) {
@@ -99,18 +105,8 @@ namespace core::pipe {
         return true;
     }
 
-    bool PipeSource::trySend(const std::string& data) {
-        return trySend(data.data(), data.size());
-    }
-
-    void PipeSource::send(const char* chunk, std::size_t chunkLen) {
-        if (!trySend(chunk, chunkLen) && onError) {
-            onError(ENOBUFS);
-        }
-    }
-
-    void PipeSource::send(const std::string& data) {
-        send(data.data(), data.size());
+    bool PipeSource::send(const std::string& data) {
+        return send(data.data(), data.size());
     }
 
     void PipeSource::eof() {
@@ -121,6 +117,9 @@ namespace core::pipe {
     }
 
     void PipeSource::close() {
+        closeWhenDrained = true;
+        writeBuffer.clear();
+        writeOffset = 0;
         if (WriteEventReceiver::isEnabled()) {
             WriteEventReceiver::disable();
         }
@@ -169,10 +168,18 @@ namespace core::pipe {
     }
 
     void PipeSource::unobservedEvent() {
+        closeDescriptor();
         if (onClosed) {
             onClosed();
         }
         delete this;
+    }
+
+    void PipeSource::closeDescriptor() noexcept {
+        if (!descriptorClosed) {
+            descriptorClosed = true;
+            core::system::close(getRegisteredFd());
+        }
     }
 
 } // namespace core::pipe

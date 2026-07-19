@@ -70,10 +70,8 @@ namespace core::pipe {
                             const utils::Timeval& timeout = utils::Timeval({60, 0}));
         ~PipeSource() override;
 
-        bool trySend(const char* chunk, std::size_t chunkLen);
-        bool trySend(const std::string& data);
-        void send(const char* chunk, std::size_t chunkLen);
-        void send(const std::string& data);
+        bool send(const char* chunk, std::size_t chunkLen);
+        bool send(const std::string& data);
         void eof();
         void close();
 
@@ -87,6 +85,8 @@ namespace core::pipe {
         void unobservedEvent() override;
 
     private:
+        void closeDescriptor() noexcept;
+
         std::function<void(int errnum)> onError;
         std::function<void()> onClosed;
 
@@ -94,6 +94,7 @@ namespace core::pipe {
         std::size_t writeOffset = 0;
         std::size_t maxQueuedBytes;
         bool closeWhenDrained = false;
+        bool descriptorClosed = false;
     };
 
 } // namespace core::pipe

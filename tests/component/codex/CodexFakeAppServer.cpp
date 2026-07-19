@@ -10,6 +10,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <ctime>
+#include <fcntl.h>
 #include <string>
 #include <string_view>
 #include <unistd.h>
@@ -30,30 +31,65 @@ namespace {
         return true;
     }
 
-    bool readLine(std::string& line, bool slow = false) {
-        line.clear();
-        char buffer[1024]{};
+    class LineReader {
+    public:
+        bool readLine(std::string& line, bool slow = false) {
+            line.clear();
+            char chunk[1024]{};
 
-        while (true) {
-            const ssize_t count = ::read(STDIN_FILENO, buffer, sizeof(buffer));
-            if (count > 0) {
-                line.append(buffer, static_cast<std::size_t>(count));
-                const std::size_t newline = line.find('\n');
+            while (true) {
+                const std::size_t newline = buffer.find('\n');
                 if (newline != std::string::npos) {
-                    line.resize(newline);
+                    line.assign(buffer, 0, newline);
+                    buffer.erase(0, newline + 1);
                     return true;
                 }
-                if (slow) {
-                    timespec delay{0, 1000000};
-                    while (::nanosleep(&delay, &delay) != 0 && errno == EINTR) {
+
+                const ssize_t count = ::read(STDIN_FILENO, chunk, sizeof(chunk));
+                if (count > 0) {
+                    buffer.append(chunk, static_cast<std::size_t>(count));
+                    if (slow) {
+                        timespec delay{0, 1000000};
+                        while (::nanosleep(&delay, &delay) != 0 && errno == EINTR) {
+                        }
                     }
+                } else if (count == 0) {
+                    return false;
+                } else if (errno != EINTR) {
+                    return false;
                 }
-            } else if (count == 0) {
-                return false;
-            } else if (errno != EINTR) {
-                return false;
             }
         }
+
+        bool waitForEof(bool rejectAdditionalData = false) {
+            if (rejectAdditionalData && !buffer.empty()) {
+                return false;
+            }
+            buffer.clear();
+
+            char chunk[1024]{};
+            while (true) {
+                const ssize_t count = ::read(STDIN_FILENO, chunk, sizeof(chunk));
+                if (count == 0) {
+                    return true;
+                }
+                if (count > 0) {
+                    if (rejectAdditionalData) {
+                        return false;
+                    }
+                } else if (errno != EINTR) {
+                    return false;
+                }
+            }
+        }
+
+    private:
+        std::string buffer;
+    };
+
+    bool isBlockingDescriptor(int fd) {
+        const int flags = ::fcntl(fd, F_GETFL);
+        return flags >= 0 && (flags & O_NONBLOCK) == 0;
     }
 
     long long requestId(const std::string& request) {
@@ -86,22 +122,9 @@ namespace {
         return writeAll(STDOUT_FILENO, firstBatch) && writeAll(STDOUT_FILENO, secondBatch);
     }
 
-    bool receiveInitialized() {
+    bool receiveInitialized(LineReader& input) {
         std::string initialized;
-        return readLine(initialized) && initialized.find("\"method\":\"initialized\"") != std::string::npos;
-    }
-
-    void waitForEof() {
-        char buffer[1024]{};
-        while (true) {
-            const ssize_t count = ::read(STDIN_FILENO, buffer, sizeof(buffer));
-            if (count == 0) {
-                return;
-            }
-            if (count < 0 && errno != EINTR) {
-                return;
-            }
-        }
+        return input.readLine(initialized) && !initialized.empty() && initialized.find("\"method\":\"initialized\"") != std::string::npos;
     }
 } // namespace
 
@@ -112,40 +135,78 @@ int main(int argc, char* argv[]) {
         return 17;
     }
 
+    if (!isBlockingDescriptor(STDIN_FILENO) || !isBlockingDescriptor(STDOUT_FILENO) || !isBlockingDescriptor(STDERR_FILENO)) {
+        return 18;
+    }
+
+    LineReader input;
     std::string initialize;
-    if (!readLine(initialize, mode == "slow-stdin")) {
+    if (!input.readLine(initialize, mode == "slow-stdin") || initialize.empty() ||
+        initialize.find("\"method\":\"initialize\"") == std::string::npos) {
         return 20;
     }
 
     if (mode == "close-stdout") {
         ::close(STDOUT_FILENO);
-        waitForEof();
+        static_cast<void>(input.waitForEof());
         return 0;
     }
 
     if (mode == "hold-initialize") {
-        waitForEof();
+        static_cast<void>(input.waitForEof());
         return 0;
     }
 
-    if (mode == "initialization-error") {
+    bool rejectInitialization = mode == "initialization-error";
+    if (mode == "fail-once") {
+        if (argc < 3) {
+            return 24;
+        }
+        const int marker = ::open(argv[2], O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+        if (marker >= 0) {
+            ::close(marker);
+            rejectInitialization = true;
+        } else if (errno != EEXIST) {
+            return 25;
+        }
+    }
+
+    if (rejectInitialization) {
         const std::string response = "{\"id\":" + std::to_string(requestId(initialize)) +
                                      ",\"error\":{\"code\":-32000,\"message\":\"fake initialization rejected\"}}\n";
         writeAll(STDOUT_FILENO, response);
-        waitForEof();
+        static_cast<void>(input.waitForEof());
         return 0;
     }
 
     if (mode == "malformed-json") {
         writeAll(STDOUT_FILENO, "{not-json}\n");
-        waitForEof();
+        static_cast<void>(input.waitForEof());
         return 0;
     }
 
     if (!writeAll(STDERR_FILENO, "diagnostic one\ndiagnostic") || !writeAll(STDERR_FILENO, " two\n") ||
         !writeAll(STDERR_FILENO, "{\"id\":0,\"error\":{\"code\":99,\"message\":\"stderr only\"}}\n") ||
-        !sendNormalHandshakeResponse(requestId(initialize)) || !receiveInitialized()) {
+        !sendNormalHandshakeResponse(requestId(initialize)) || !receiveInitialized(input)) {
         return 21;
+    }
+
+    if (mode == "close-stderr") {
+        if (!writeAll(STDERR_FILENO, "trailing diagnostic without newline")) {
+            return 22;
+        }
+        ::close(STDERR_FILENO);
+        if (!writeAll(STDOUT_FILENO, "{\"method\":\"fake/afterStderrClose\",\"params\":{}}\n")) {
+            return 23;
+        }
+        return input.waitForEof() ? 0 : 26;
+    }
+
+    if (mode == "stdio-framing") {
+        if (!input.waitForEof(true)) {
+            return 27;
+        }
+        return writeAll(STDERR_FILENO, "stdio-framing-ok\n") ? 0 : 28;
     }
 
     if (!writeAll(STDERR_FILENO, mode == "slow-stdin" ? "slow-initialized\n" : "initialized-ok\n")) {
@@ -154,12 +215,11 @@ int main(int argc, char* argv[]) {
 
     if (mode == "ignore-shutdown") {
         std::signal(SIGTERM, SIG_IGN);
-        waitForEof();
+        static_cast<void>(input.waitForEof());
         while (true) {
             ::pause();
         }
     }
 
-    waitForEof();
-    return 0;
+    return input.waitForEof() ? 0 : 29;
 }

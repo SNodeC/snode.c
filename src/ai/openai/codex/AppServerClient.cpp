@@ -96,6 +96,7 @@ namespace ai::openai::codex {
             transition(State::Starting);
             schedule([this, generation]() {
                 if (state == State::Starting && generation == operationGeneration) {
+                    transportActive = true;
                     transport->start();
                 }
             });
@@ -108,11 +109,6 @@ namespace ai::openai::codex {
 
             ++operationGeneration;
             pendingInitializeId.reset();
-
-            if (state == State::Failed) {
-                transport->stop();
-                return;
-            }
 
             transition(State::Stopping);
             if (transportActive) {
@@ -255,6 +251,9 @@ namespace ai::openai::codex {
         }
 
         void transportFailed(Error error) {
+            if (state == State::Starting && error.category == Error::Category::Launch) {
+                transportActive = false;
+            }
             if (state != State::Stopping) {
                 fail(std::move(error));
             }

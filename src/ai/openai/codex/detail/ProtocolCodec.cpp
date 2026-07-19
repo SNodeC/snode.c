@@ -42,11 +42,11 @@ namespace ai::openai::codex::detail {
             {"id", id},
             {"params", {{"clientInfo", {{"name", clientInfo.name}, {"title", clientInfo.title}, {"version", clientInfo.version}}}}}};
 
-        return message.dump() + '\n';
+        return message.dump();
     }
 
     std::string ProtocolCodec::initializedNotification() {
-        return Json({{"method", "initialized"}, {"params", Json::object()}}).dump() + '\n';
+        return Json({{"method", "initialized"}, {"params", Json::object()}}).dump();
     }
 
     std::optional<ProtocolMessage> ProtocolCodec::decode(std::string_view wireMessage, std::string& errorMessage) {

@@ -10,6 +10,7 @@
 
 #include "ai/openai/codex/AppServerClient.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
+#include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
 #include "core/pipe/PipeSource.h"
 #include "core/system/unistd.h"
@@ -18,6 +19,7 @@
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <csignal>
 #include <cstring>
@@ -45,94 +47,6 @@ namespace ai::openai::codex::stdio::detail {
         const utils::Timeval CHILD_EXIT_POLL_INTERVAL = {0, 20000};
         const utils::Timeval GRACEFUL_STOP_INTERVAL = {0, 250000};
         const utils::Timeval TERMINATE_STOP_INTERVAL = {0, 250000};
-
-        class OwnedFd {
-        public:
-            OwnedFd() = default;
-
-            explicit OwnedFd(int fd)
-                : fd(fd) {
-            }
-
-            OwnedFd(const OwnedFd&) = delete;
-
-            OwnedFd(OwnedFd&& other) noexcept
-                : fd(std::exchange(other.fd, -1)) {
-            }
-
-            OwnedFd& operator=(const OwnedFd&) = delete;
-
-            OwnedFd& operator=(OwnedFd&& other) noexcept {
-                reset();
-                fd = std::exchange(other.fd, -1);
-                return *this;
-            }
-
-            ~OwnedFd() {
-                reset();
-            }
-
-            int get() const noexcept {
-                return fd;
-            }
-
-            int release() noexcept {
-                return std::exchange(fd, -1);
-            }
-
-            void reset(int replacement = -1) noexcept {
-                if (fd >= 0) {
-                    core::system::close(fd);
-                }
-                fd = replacement;
-            }
-
-        private:
-            int fd = -1;
-        };
-
-        struct PipePair {
-            OwnedFd readEnd;
-            OwnedFd writeEnd;
-        };
-
-        int normalizeDescriptor(int fd) {
-            if (fd >= STDERR_FILENO + 1) {
-                return fd;
-            }
-
-            const int replacement = ::fcntl(fd, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-            const int savedErrno = errno;
-            core::system::close(fd);
-            errno = savedErrno;
-            return replacement;
-        }
-
-        bool makePipe(PipePair& pipe, int& errnum) {
-            int descriptors[2] = {-1, -1};
-            if (core::system::pipe2(descriptors, O_CLOEXEC) != 0) {
-                errnum = errno;
-                return false;
-            }
-
-            descriptors[0] = normalizeDescriptor(descriptors[0]);
-            if (descriptors[0] < 0) {
-                errnum = errno;
-                core::system::close(descriptors[1]);
-                return false;
-            }
-
-            descriptors[1] = normalizeDescriptor(descriptors[1]);
-            if (descriptors[1] < 0) {
-                errnum = errno;
-                core::system::close(descriptors[0]);
-                return false;
-            }
-
-            pipe.readEnd.reset(descriptors[0]);
-            pipe.writeEnd.reset(descriptors[1]);
-            return true;
-        }
 
         bool setNonBlocking(int fd, int& errnum) {
             const int flags = ::fcntl(fd, F_GETFL);
@@ -247,9 +161,13 @@ namespace ai::openai::codex::stdio::detail {
 
     class StdioTransport::Session : public std::enable_shared_from_this<StdioTransport::Session> {
     public:
-        Session(std::string executable, std::vector<std::string> arguments, codex::detail::TransportCallbacks callbacks)
+        Session(std::string executable,
+                std::vector<std::string> arguments,
+                bool forceChildExitPollingForTests,
+                codex::detail::TransportCallbacks callbacks)
             : executable(std::move(executable))
             , arguments(std::move(arguments))
+            , forceChildExitPollingForTests(forceChildExitPollingForTests)
             , callbacks(std::move(callbacks))
             , logScope(logger::LogOrigin::Framework, logger::LogBoundary::Connection, "ai.openai.codex.stdio") {
         }
@@ -267,14 +185,15 @@ namespace ai::openai::codex::stdio::detail {
         }
 
         void start() {
-            PipePair stdinPipe;
-            PipePair stdoutPipe;
-            PipePair stderrPipe;
+            core::pipe::Pipe stdinPipe(O_CLOEXEC);
+            core::pipe::Pipe stdoutPipe(O_CLOEXEC);
+            core::pipe::Pipe stderrPipe(O_CLOEXEC);
             int errnum = 0;
 
-            if (!makePipe(stdinPipe, errnum) || !makePipe(stdoutPipe, errnum) || !makePipe(stderrPipe, errnum) ||
-                !setNonBlocking(stdinPipe.writeEnd.get(), errnum) || !setNonBlocking(stdoutPipe.readEnd.get(), errnum) ||
-                !setNonBlocking(stderrPipe.readEnd.get(), errnum)) {
+            if (!stdinPipe.isValid() || !stdoutPipe.isValid() || !stderrPipe.isValid()) {
+                errnum = !stdinPipe.isValid()    ? stdinPipe.getError()
+                         : !stdoutPipe.isValid() ? stdoutPipe.getError()
+                                                 : stderrPipe.getError();
                 reportError({Error::Category::Launch, errnum, errorText("unable to create app-server pipes", errnum)});
                 return;
             }
@@ -294,15 +213,34 @@ namespace ai::openai::codex::stdio::detail {
                 }
             };
 
-            addAction(posix_spawn_file_actions_adddup2(&fileActions, stdinPipe.readEnd.get(), STDIN_FILENO));
-            addAction(posix_spawn_file_actions_adddup2(&fileActions, stdoutPipe.writeEnd.get(), STDOUT_FILENO));
-            addAction(posix_spawn_file_actions_adddup2(&fileActions, stderrPipe.writeEnd.get(), STDERR_FILENO));
-            for (const int fd : {stdinPipe.readEnd.get(),
-                                 stdinPipe.writeEnd.get(),
-                                 stdoutPipe.readEnd.get(),
-                                 stdoutPipe.writeEnd.get(),
-                                 stderrPipe.readEnd.get(),
-                                 stderrPipe.writeEnd.get()}) {
+            const int childMappingBase = std::max({stdinPipe.getReadFd(),
+                                                   stdinPipe.getWriteFd(),
+                                                   stdoutPipe.getReadFd(),
+                                                   stdoutPipe.getWriteFd(),
+                                                   stderrPipe.getReadFd(),
+                                                   stderrPipe.getWriteFd()}) +
+                                         1;
+            const int childStdinFd = childMappingBase;
+            const int childStdoutFd = childMappingBase + 1;
+            const int childStderrFd = childMappingBase + 2;
+
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, stdinPipe.getReadFd(), childStdinFd));
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, stdoutPipe.getWriteFd(), childStdoutFd));
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, stderrPipe.getWriteFd(), childStderrFd));
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, childStdinFd, STDIN_FILENO));
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, childStdoutFd, STDOUT_FILENO));
+            addAction(posix_spawn_file_actions_adddup2(&fileActions, childStderrFd, STDERR_FILENO));
+            for (const int fd : {stdinPipe.getReadFd(),
+                                 stdinPipe.getWriteFd(),
+                                 stdoutPipe.getReadFd(),
+                                 stdoutPipe.getWriteFd(),
+                                 stderrPipe.getReadFd(),
+                                 stderrPipe.getWriteFd()}) {
+                if (fd > STDERR_FILENO) {
+                    addAction(posix_spawn_file_actions_addclose(&fileActions, fd));
+                }
+            }
+            for (const int fd : {childStdinFd, childStdoutFd, childStderrFd}) {
                 addAction(posix_spawn_file_actions_addclose(&fileActions, fd));
             }
 
@@ -351,14 +289,21 @@ namespace ai::openai::codex::stdio::detail {
             childPid = spawnedPid;
             selfKeepAlive = shared_from_this();
 
-            stdinPipe.readEnd.reset();
-            stdoutPipe.writeEnd.reset();
-            stderrPipe.writeEnd.reset();
+            stdinPipe.closeRead();
+            stdoutPipe.closeWrite();
+            stderrPipe.closeWrite();
+
+            if (!setNonBlocking(stdinPipe.getWriteFd(), errnum) || !setNonBlocking(stdoutPipe.getReadFd(), errnum) ||
+                !setNonBlocking(stderrPipe.getReadFd(), errnum)) {
+                observeChildExit();
+                reportError({Error::Category::Transport, errnum, errorText("unable to configure parent app-server pipes", errnum)});
+                return;
+            }
 
             const std::weak_ptr<Session> weakSession = weak_from_this();
 
-            stdinWriter = new core::pipe::PipeSource(
-                stdinPipe.writeEnd.release(), core::pipe::PipeSource::DEFAULT_MAX_QUEUED_BYTES, core::pipe::PipeSource::TIMEOUT::DISABLE);
+            stdinWriter =
+                stdinPipe.releaseWriteAsSource(core::pipe::PipeSource::DEFAULT_MAX_QUEUED_BYTES, core::pipe::PipeSource::TIMEOUT::DISABLE);
             core::pipe::PipeSource* const writer = stdinWriter;
             writer->setOnError([weakSession, writer](int errorNumber) {
                 if (const std::shared_ptr<Session> session = weakSession.lock()) {
@@ -371,8 +316,8 @@ namespace ai::openai::codex::stdio::detail {
                 }
             });
 
-            stdoutReader = new core::pipe::PipeSink(
-                stdoutPipe.readEnd.release(), core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
+            stdoutReader =
+                stdoutPipe.releaseReadAsSink(core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
             core::pipe::PipeSink* const stdoutSink = stdoutReader;
             stdoutSink->setOnData([weakSession](const char* data, std::size_t length) {
                 if (const std::shared_ptr<Session> session = weakSession.lock()) {
@@ -395,8 +340,8 @@ namespace ai::openai::codex::stdio::detail {
                 }
             });
 
-            stderrReader = new core::pipe::PipeSink(
-                stderrPipe.readEnd.release(), core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
+            stderrReader =
+                stderrPipe.releaseReadAsSink(core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
             core::pipe::PipeSink* const stderrSink = stderrReader;
             stderrSink->setOnData([weakSession](const char* data, std::size_t length) {
                 if (const std::shared_ptr<Session> session = weakSession.lock()) {
@@ -419,12 +364,7 @@ namespace ai::openai::codex::stdio::detail {
                 }
             });
 
-            const int pidfd = openPidFd(childPid);
-            if (pidfd >= 0) {
-                processObserver = new ChildExitReceiver(pidfd, shared_from_this());
-            } else {
-                scheduleChildPoll();
-            }
+            observeChildExit();
 
             logScope.logger(logger::Logger::semanticSink()).trace("Spawned codex app-server: pid={}", childPid);
             const std::function<void()> callback = callbacks.onStarted;
@@ -434,7 +374,8 @@ namespace ai::openai::codex::stdio::detail {
         }
 
         bool send(std::string message) {
-            return !stopping && stdinWriter != nullptr && stdinWriter->trySend(message);
+            message.push_back('\n');
+            return !stopping && stdinWriter != nullptr && stdinWriter->send(message);
         }
 
         void stop() {
@@ -517,6 +458,18 @@ namespace ai::openai::codex::stdio::detail {
         }
 
     private:
+        void observeChildExit() {
+            if (!forceChildExitPollingForTests) {
+                const int pidfd = openPidFd(childPid);
+                if (pidfd >= 0) {
+                    processObserver = new ChildExitReceiver(pidfd, shared_from_this());
+                    return;
+                }
+            }
+
+            scheduleChildPoll();
+        }
+
         void scheduleChildPoll() {
             if (childPid <= 0 || childPollScheduled) {
                 return;
@@ -591,7 +544,12 @@ namespace ai::openai::codex::stdio::detail {
                 framingError);
 
             if (!framed && !framingError.empty()) {
-                reportError({Error::Category::Transport, 0, "stderr " + framingError});
+                emitDiagnostic("codex app-server stderr " + framingError);
+                core::pipe::PipeSink* const reader = stderrReader;
+                stderrReader = nullptr;
+                if (reader != nullptr) {
+                    reader->close();
+                }
             }
         }
 
@@ -618,8 +576,6 @@ namespace ai::openai::codex::stdio::detail {
                 emitDiagnostic(std::move(line));
                 return !stopping;
             }));
-
-            deferUnexpectedClosure("stderr");
         }
 
         void stdoutError(core::pipe::PipeSink* reader, int errnum) {
@@ -635,9 +591,11 @@ namespace ai::openai::codex::stdio::detail {
             if (stderrReader == reader) {
                 stderrReader = nullptr;
             }
-            if (!stopping) {
-                deferErrorUntilExitCheck({Error::Category::Transport, errnum, errorText("codex app-server stderr read failed", errnum)});
-            }
+            static_cast<void>(stderrFramer.finish([this](std::string line) {
+                emitDiagnostic(std::move(line));
+                return true;
+            }));
+            emitDiagnostic(errorText("codex app-server stderr read failed", errnum));
         }
 
         void stdoutClosed(core::pipe::PipeSink* reader) {
@@ -759,6 +717,7 @@ namespace ai::openai::codex::stdio::detail {
 
         std::string executable;
         std::vector<std::string> arguments;
+        bool forceChildExitPollingForTests;
         codex::detail::TransportCallbacks callbacks;
 
         pid_t childPid = -1;
@@ -814,9 +773,10 @@ namespace ai::openai::codex::stdio::detail {
         }
     } // namespace
 
-    StdioTransport::StdioTransport(std::string executable, std::vector<std::string> arguments)
+    StdioTransport::StdioTransport(std::string executable, std::vector<std::string> arguments, bool forceChildExitPollingForTests)
         : executable(std::move(executable))
-        , arguments(std::move(arguments)) {
+        , arguments(std::move(arguments))
+        , forceChildExitPollingForTests(forceChildExitPollingForTests) {
     }
 
     StdioTransport::~StdioTransport() {
@@ -841,7 +801,7 @@ namespace ai::openai::codex::stdio::detail {
             session->stop();
         }
 
-        session = std::make_shared<Session>(executable, arguments, callbacks);
+        session = std::make_shared<Session>(executable, arguments, forceChildExitPollingForTests, callbacks);
         session->start();
     }
 

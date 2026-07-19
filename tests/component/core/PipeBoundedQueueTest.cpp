@@ -7,13 +7,15 @@
  */
 
 #include "core/SNodeC.h"
+#include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
 #include "core/pipe/PipeSource.h"
-#include "core/system/unistd.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 
+#include <cerrno>
+#include <fcntl.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -25,10 +27,9 @@ int main(int argc, char* argv[]) {
 
     core::SNodeC::init(argc, argv);
 
-    int descriptors[2] = {-1, -1};
-    const int pipeResult = core::system::pipe2(descriptors, O_NONBLOCK | O_CLOEXEC);
-    testResult.expectEqual(0, pipeResult, "nonblocking test pipe is created");
-    if (pipeResult != 0) {
+    core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC);
+    testResult.expectTrue(pipe.isValid(), "nonblocking test pipe is created");
+    if (!pipe.isValid()) {
         core::SNodeC::free();
         return testResult.processResult();
     }
@@ -36,13 +37,23 @@ int main(int argc, char* argv[]) {
     bool sourceClosed = false;
     bool sinkClosed = false;
     bool timedOut = false;
+    int sourceErrorCount = 0;
     std::string received;
 
-    auto* source = new core::pipe::PipeSource(descriptors[1], 32);
-    auto* sink = new core::pipe::PipeSink(descriptors[0]);
+    auto* source = pipe.releaseWriteAsSource(32, core::pipe::PipeSource::TIMEOUT::DISABLE);
+    auto* sink = pipe.releaseReadAsSink(core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
+    const int sourceFd = source->getRegisteredFd();
+    const int sinkFd = sink->getRegisteredFd();
+    bool sourceDescriptorClosedBeforeCallback = false;
+    bool sinkDescriptorClosedBeforeCallback = false;
 
-    source->setOnClosed([&sourceClosed]() {
+    source->setOnClosed([&sourceClosed, &sourceDescriptorClosedBeforeCallback, sourceFd]() {
         sourceClosed = true;
+        errno = 0;
+        sourceDescriptorClosedBeforeCallback = ::fcntl(sourceFd, F_GETFD) < 0 && errno == EBADF;
+    });
+    source->setOnError([&sourceErrorCount]([[maybe_unused]] int errorNumber) {
+        ++sourceErrorCount;
     });
     sink->setOnData([&received](const char* data, std::size_t length) {
         received.append(data, length);
@@ -51,13 +62,21 @@ int main(int argc, char* argv[]) {
         sinkClosed = true;
         core::SNodeC::stop();
     });
+    sink->setOnClosed([&sinkDescriptorClosedBeforeCallback, sinkFd]() {
+        errno = 0;
+        sinkDescriptorClosedBeforeCallback = ::fcntl(sinkFd, F_GETFD) < 0 && errno == EBADF;
+    });
 
-    const bool firstQueued = source->trySend("123456789012345678901234", 24);
-    const bool overflowQueued = source->trySend("abcdefghijklmnop", 16);
+    const bool emptyQueued = source->send("", 0);
+    const bool firstQueued = source->send("123456789012345678901234", 24);
+    const bool overflowQueued = source->send("abcdefghijklmnop", 16);
+    testResult.expectTrue(emptyQueued, "zero-length input is accepted while the source is open");
     testResult.expectTrue(firstQueued, "data within the queue limit is accepted");
     testResult.expectTrue(!overflowQueued, "data beyond the queue limit is rejected without growing the queue");
+    testResult.expectEqual(0, sourceErrorCount, "bounded queue rejection is reported only through the send return value");
     testResult.expectTrue(source->getQueuedBytes() == 24, "rejected data does not change the queued byte count");
     source->eof();
+    testResult.expectTrue(!source->send("rejected-after-eof"), "EOF rejects all new data");
 
     [[maybe_unused]] core::timer::Timer watchdog = core::timer::Timer::singleshotTimer(
         [&timedOut]() {
@@ -73,6 +92,8 @@ int main(int argc, char* argv[]) {
     testResult.expectTrue(received == "123456789012345678901234", "graceful EOF drains all accepted bytes");
     testResult.expectTrue(sourceClosed, "write descriptor closure is observed");
     testResult.expectTrue(sinkClosed, "read descriptor EOF is observed");
+    testResult.expectTrue(sourceDescriptorClosedBeforeCallback, "source closure callback runs after physical descriptor closure");
+    testResult.expectTrue(sinkDescriptorClosedBeforeCallback, "sink closure callback runs after physical descriptor closure");
 
     core::SNodeC::free();
     return testResult.processResult();

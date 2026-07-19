@@ -47,20 +47,147 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "utils/Timeval.h"
 
 #include <cerrno>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::pipe {
 
-    Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError) {
-        const int ret = core::system::pipe2(pipeFd, O_NONBLOCK);
+    namespace {
+        void closeDescriptor(int& fd) noexcept {
+            const int descriptor = std::exchange(fd, -1);
+            if (descriptor >= 0) {
+                const int savedErrno = errno;
+                core::system::close(descriptor);
+                errno = savedErrno;
+            }
+        }
+    } // namespace
 
-        if (ret == 0) {
-            onSuccess(*(new PipeSource(pipeFd[1])), *(new PipeSink(pipeFd[0])));
-        } else {
-            onError(errno);
+    Pipe::Pipe() noexcept
+        : Pipe(O_CLOEXEC) {
+    }
+
+    Pipe::Pipe(int flags) noexcept {
+        int descriptors[2] = {-1, -1};
+        if (core::system::pipe2(descriptors, flags) != 0) {
+            error = errno;
+            return;
+        }
+
+        readFd = descriptors[0];
+        writeFd = descriptors[1];
+    }
+
+    Pipe::Pipe(Pipe&& pipe) noexcept
+        : readFd(std::exchange(pipe.readFd, -1))
+        , writeFd(std::exchange(pipe.writeFd, -1))
+        , error(std::exchange(pipe.error, 0)) {
+    }
+
+    Pipe::~Pipe() {
+        closeRead();
+        closeWrite();
+    }
+
+    Pipe& Pipe::operator=(Pipe&& pipe) noexcept {
+        if (this != &pipe) {
+            closeRead();
+            closeWrite();
+            readFd = std::exchange(pipe.readFd, -1);
+            writeFd = std::exchange(pipe.writeFd, -1);
+            error = std::exchange(pipe.error, 0);
+        }
+        return *this;
+    }
+
+    Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError)
+        : Pipe(O_NONBLOCK | O_CLOEXEC) {
+        if (!isValid()) {
+            onError(error);
+            return;
+        }
+
+        PipeSource* pipeSource = releaseWriteAsSource();
+        PipeSink* pipeSink = nullptr;
+        try {
+            pipeSink = releaseReadAsSink();
+            onSuccess(*pipeSource, *pipeSink);
+        } catch (...) {
+            pipeSource->close();
+            if (pipeSink != nullptr) {
+                pipeSink->close();
+            }
+            throw;
+        }
+    }
+
+    bool Pipe::isValid() const noexcept {
+        return readFd >= 0 && writeFd >= 0;
+    }
+
+    int Pipe::getError() const noexcept {
+        return error;
+    }
+
+    int Pipe::getReadFd() const noexcept {
+        return readFd;
+    }
+
+    int Pipe::getWriteFd() const noexcept {
+        return writeFd;
+    }
+
+    int Pipe::releaseReadFd() noexcept {
+        return std::exchange(readFd, -1);
+    }
+
+    int Pipe::releaseWriteFd() noexcept {
+        return std::exchange(writeFd, -1);
+    }
+
+    void Pipe::closeRead() noexcept {
+        closeDescriptor(readFd);
+    }
+
+    void Pipe::closeWrite() noexcept {
+        closeDescriptor(writeFd);
+    }
+
+    PipeSink* Pipe::releaseReadAsSink() {
+        return releaseReadAsSink(PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, utils::Timeval({60, 0}));
+    }
+
+    PipeSink* Pipe::releaseReadAsSink(std::size_t maxBytesPerEvent, const utils::Timeval& timeout) {
+        const int descriptor = releaseReadFd();
+        if (descriptor < 0) {
+            return nullptr;
+        }
+        try {
+            return new PipeSink(descriptor, maxBytesPerEvent, timeout);
+        } catch (...) {
+            readFd = descriptor;
+            throw;
+        }
+    }
+
+    PipeSource* Pipe::releaseWriteAsSource() {
+        return releaseWriteAsSource(PipeSource::DEFAULT_MAX_QUEUED_BYTES, utils::Timeval({60, 0}));
+    }
+
+    PipeSource* Pipe::releaseWriteAsSource(std::size_t maxQueuedBytes, const utils::Timeval& timeout) {
+        const int descriptor = releaseWriteFd();
+        if (descriptor < 0) {
+            return nullptr;
+        }
+        try {
+            return new PipeSource(descriptor, maxQueuedBytes, timeout);
+        } catch (...) {
+            writeFd = descriptor;
+            throw;
         }
     }
 

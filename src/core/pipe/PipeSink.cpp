@@ -65,7 +65,7 @@ namespace core::pipe {
     }
 
     PipeSink::~PipeSink() {
-        core::system::close(getRegisteredFd());
+        closeDescriptor();
     }
 
     void PipeSink::readEvent() {
@@ -134,10 +134,18 @@ namespace core::pipe {
     }
 
     void PipeSink::unobservedEvent() {
+        closeDescriptor();
         if (onClosed) {
             onClosed();
         }
         delete this;
+    }
+
+    void PipeSink::closeDescriptor() noexcept {
+        if (!descriptorClosed) {
+            descriptorClosed = true;
+            core::system::close(getRegisteredFd());
+        }
     }
 
 } // namespace core::pipe

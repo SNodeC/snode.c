@@ -78,6 +78,7 @@ namespace core::pipe {
     private:
         void readEvent() override;
         void unobservedEvent() override;
+        void closeDescriptor() noexcept;
 
         std::function<void(const char*, std::size_t)> onData;
         std::function<void()> onEof;
@@ -85,6 +86,7 @@ namespace core::pipe {
         std::function<void()> onClosed;
 
         std::size_t maxBytesPerEvent;
+        bool descriptorClosed = false;
     };
 
 } // namespace core::pipe
