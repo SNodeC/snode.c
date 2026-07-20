@@ -129,7 +129,18 @@ namespace {
 } // namespace
 
 int main(int argc, char* argv[]) {
-    const std::string mode = argc > 1 ? argv[1] : "normal";
+    std::string mode = argc > 1 ? argv[1] : "normal";
+
+    if (mode.starts_with("pidfile-")) {
+        if (argc < 3) {
+            return 30;
+        }
+        const int pidFile = ::open(argv[2], O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+        if (pidFile < 0 || !writeAll(pidFile, std::to_string(::getpid())) || ::close(pidFile) != 0) {
+            return 31;
+        }
+        mode.erase(0, std::string("pidfile-").size());
+    }
 
     if (mode == "exit-before-initialize") {
         return 17;
@@ -137,6 +148,15 @@ int main(int argc, char* argv[]) {
 
     if (!isBlockingDescriptor(STDIN_FILENO) || !isBlockingDescriptor(STDOUT_FILENO) || !isBlockingDescriptor(STDERR_FILENO)) {
         return 18;
+    }
+
+    if (mode == "never-read-stdin" || mode == "never-read-stdin-ignore-term") {
+        if (mode == "never-read-stdin-ignore-term") {
+            std::signal(SIGTERM, SIG_IGN);
+        }
+        while (true) {
+            ::pause();
+        }
     }
 
     LineReader input;

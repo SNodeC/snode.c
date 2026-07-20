@@ -41,6 +41,9 @@
 snodec_add_test(SingleshotTimerTest SingleshotTimerTest.cpp)
 snodec_add_test(IntervalTimerStopableTest IntervalTimerStopableTest.cpp)
 snodec_add_test(SNodeCStopFromCallbackTest SNodeCStopFromCallbackTest.cpp)
+add_executable(
+    ShutdownReceiverNotificationTest ShutdownReceiverNotificationTest.cpp
+)
 snodec_add_test(TimerCancelBeforeFireTest TimerCancelBeforeFireTest.cpp)
 snodec_add_test(IntervalTimerCancelFromCallbackTest IntervalTimerCancelFromCallbackTest.cpp)
 snodec_add_test(PipeBoundedQueueTest PipeBoundedQueueTest.cpp)
@@ -52,6 +55,9 @@ snodec_add_test(PipeTimeoutTest PipeTimeoutTest.cpp)
 target_link_libraries(SingleshotTimerTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(IntervalTimerStopableTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(SNodeCStopFromCallbackTest PRIVATE snodec-test-support snodec::core)
+target_link_libraries(
+    ShutdownReceiverNotificationTest PRIVATE snodec-test-support snodec::core
+)
 target_link_libraries(TimerCancelBeforeFireTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(IntervalTimerCancelFromCallbackTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(PipeBoundedQueueTest PRIVATE snodec-test-support snodec::core)
@@ -63,6 +69,7 @@ target_link_libraries(PipeTimeoutTest PRIVATE snodec-test-support snodec::core)
 target_compile_features(SingleshotTimerTest PRIVATE cxx_std_20)
 target_compile_features(IntervalTimerStopableTest PRIVATE cxx_std_20)
 target_compile_features(SNodeCStopFromCallbackTest PRIVATE cxx_std_20)
+target_compile_features(ShutdownReceiverNotificationTest PRIVATE cxx_std_20)
 target_compile_features(TimerCancelBeforeFireTest PRIVATE cxx_std_20)
 target_compile_features(IntervalTimerCancelFromCallbackTest PRIVATE cxx_std_20)
 target_compile_features(PipeBoundedQueueTest PRIVATE cxx_std_20)
@@ -74,6 +81,16 @@ target_compile_features(PipeTimeoutTest PRIVATE cxx_std_20)
 set_tests_properties(SingleshotTimerTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77)
 set_tests_properties(IntervalTimerStopableTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77)
 set_tests_properties(SNodeCStopFromCallbackTest PROPERTIES LABELS "component;core;lifecycle" SKIP_RETURN_CODE 77 TIMEOUT 5)
+foreach(scenario IN ITEMS requested signal)
+    add_test(NAME ShutdownReceiverNotification_${scenario}
+             COMMAND ShutdownReceiverNotificationTest ${scenario}
+    )
+    set_tests_properties(
+        ShutdownReceiverNotification_${scenario}
+        PROPERTIES LABELS "component;core;lifecycle;shutdown" SKIP_RETURN_CODE
+                   77 TIMEOUT 5
+    )
+endforeach()
 set_tests_properties(TimerCancelBeforeFireTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77 TIMEOUT 5)
 set_tests_properties(IntervalTimerCancelFromCallbackTest PROPERTIES LABELS "component;core;timer" SKIP_RETURN_CODE 77 TIMEOUT 5)
 set_tests_properties(PipeBoundedQueueTest PROPERTIES LABELS "component;core;pipe" SKIP_RETURN_CODE 77 TIMEOUT 5)

@@ -40,6 +40,70 @@ target_compile_definitions(
 )
 add_dependencies(CodexStdioScenarioTest CodexFakeAppServer)
 
+add_executable(CodexGlobalShutdownTest CodexGlobalShutdownTest.cpp)
+target_link_libraries(
+    CodexGlobalShutdownTest PRIVATE snodec-test-support snodec::ai-openai-codex
+                                    snodec::core
+)
+target_compile_features(CodexGlobalShutdownTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexGlobalShutdownTest
+    PRIVATE CODEX_FAKE_APP_SERVER="$<TARGET_FILE:CodexFakeAppServer>"
+)
+add_dependencies(CodexGlobalShutdownTest CodexFakeAppServer)
+
+foreach(scenario IN ITEMS forced-polling-normal ignore-sigterm destroy-client)
+    string(REPLACE "-" "_" scenario_name ${scenario})
+    add_test(NAME CodexGlobalShutdown_${scenario_name}
+             COMMAND CodexGlobalShutdownTest ${scenario}
+    )
+    set_tests_properties(
+        CodexGlobalShutdown_${scenario_name}
+        PROPERTIES LABELS "component;ai;openai;codex;stdio;shutdown"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+endforeach()
+
+snodec_add_test(CodexShutdownAdmissionTest CodexShutdownAdmissionTest.cpp)
+target_link_libraries(
+    CodexShutdownAdmissionTest PRIVATE snodec-test-support
+                                       snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexShutdownAdmissionTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexShutdownAdmissionTest
+    PRIVATE CODEX_FAKE_APP_SERVER="$<TARGET_FILE:CodexFakeAppServer>"
+)
+add_dependencies(CodexShutdownAdmissionTest CodexFakeAppServer)
+set_tests_properties(
+    CodexShutdownAdmissionTest
+    PROPERTIES LABELS "component;ai;openai;codex;stdio;shutdown"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+
+add_executable(CodexDescriptorCollisionTest CodexDescriptorCollisionTest.cpp)
+target_link_libraries(
+    CodexDescriptorCollisionTest PRIVATE snodec-test-support
+                                         snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexDescriptorCollisionTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexDescriptorCollisionTest
+    PRIVATE CODEX_FAKE_APP_SERVER="$<TARGET_FILE:CodexFakeAppServer>"
+)
+add_dependencies(CodexDescriptorCollisionTest CodexFakeAppServer)
+
+foreach(scenario IN ITEMS stdin stdout stderr all)
+    add_test(NAME CodexDescriptorCollision_${scenario}
+             COMMAND CodexDescriptorCollisionTest ${scenario}
+    )
+    set_tests_properties(
+        CodexDescriptorCollision_${scenario}
+        PROPERTIES LABELS "component;ai;openai;codex;stdio;descriptor"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+endforeach()
+
 foreach(
     scenario IN
     ITEMS exit-before-initialize
@@ -47,9 +111,12 @@ foreach(
           initialization-error
           malformed-json
           launch-failure
+          post-spawn-setup-failure
           bounded-overflow
           slow-stdin
           ignore-shutdown
+          blocked-shutdown
+          blocked-ignore-shutdown
           stop-starting
           stop-initializing
           stdio-framing

@@ -39,6 +39,15 @@ namespace {
         }
     };
 
+    class SetupFailureClient final : public ai::openai::codex::AppServerClient {
+    public:
+        SetupFailureClient(std::string executable, std::vector<std::string> arguments, ai::openai::codex::ClientInfo clientInfo)
+            : AppServerClient(std::make_unique<ai::openai::codex::stdio::detail::StdioTransport>(
+                                  std::move(executable), std::move(arguments), false, true),
+                              std::move(clientInfo)) {
+        }
+    };
+
     std::size_t descriptorCount() {
         std::size_t count = 0;
         for ([[maybe_unused]] const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator("/proc/self/fd")) {
@@ -105,7 +114,12 @@ int main(int argc, char* argv[]) {
         clientInfo.title.assign(core::pipe::PipeSource::DEFAULT_MAX_QUEUED_BYTES + 1024, 'x');
     } else if (scenario == "slow-stdin") {
         clientInfo.title.assign(512 * 1024, 'x');
+    } else if (scenario == "blocked-shutdown" || scenario == "blocked-ignore-shutdown") {
+        fakeMode = scenario == "blocked-shutdown" ? "never-read-stdin" : "never-read-stdin-ignore-term";
+        clientInfo.title.assign(512 * 1024, 'x');
     } else if (scenario == "stop-starting" || scenario == "stop-initializing") {
+        fakeMode = "hold-initialize";
+    } else if (scenario == "post-spawn-setup-failure") {
         fakeMode = "hold-initialize";
     } else if (scenario == "forced-fallback-normal") {
         fakeMode = "normal";
@@ -138,6 +152,8 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<ai::openai::codex::AppServerClient> client;
     if (scenario == "forced-fallback-normal" || scenario == "forced-fallback-exit-before-initialize") {
         client = std::make_unique<ForcedPollingClient>(executable, std::move(fakeArguments), std::move(clientInfo));
+    } else if (scenario == "post-spawn-setup-failure") {
+        client = std::make_unique<SetupFailureClient>(executable, std::move(fakeArguments), std::move(clientInfo));
     } else {
         client = std::make_unique<ai::openai::codex::stdio::Client>(executable, std::move(fakeArguments), std::move(clientInfo));
     }
@@ -158,7 +174,11 @@ int main(int argc, char* argv[]) {
 
         if (scenario == "stop-starting" && stateChange.current == CodexState::Starting) {
             client->stop();
-        } else if (scenario == "stop-initializing" && stateChange.current == CodexState::Initializing) {
+        } else if ((scenario == "stop-initializing" || scenario == "blocked-shutdown" || scenario == "blocked-ignore-shutdown") &&
+                   stateChange.current == CodexState::Initializing) {
+            if (scenario == "blocked-shutdown" || scenario == "blocked-ignore-shutdown") {
+                stoppedAt = std::chrono::steady_clock::now();
+            }
             client->stop();
         } else if (scenario == "close-stderr" && stateChange.current == CodexState::Ready) {
             delayedStopTimer.emplace(core::timer::Timer::singleshotTimer(
@@ -231,6 +251,12 @@ int main(int argc, char* argv[]) {
         testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Launch,
                               "posix_spawnp failure is classified as launch failure");
         testResult.expectTrue(failureWasAsynchronous, "launch failure callback runs after start() returns");
+    } else if (scenario == "post-spawn-setup-failure") {
+        testResult.expectEqual(1, failureCount, "post-spawn parent setup failure is reported exactly once");
+        testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Transport,
+                              "post-spawn parent setup failure retains its transport category");
+        testResult.expectTrue(containsState(states, CodexState::Stopped),
+                              "post-spawn rollback kills and reaps the child before reaching Stopped");
     } else if (scenario == "bounded-overflow") {
         testResult.expectEqual(1, failureCount, "bounded queue overflow reports failure exactly once");
         testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Transport,
@@ -247,10 +273,22 @@ int main(int argc, char* argv[]) {
     } else if (scenario == "ignore-shutdown") {
         testResult.expectEqual(0, failureCount, "forced shutdown remains an expected stop");
         testResult.expectTrue(containsState(states, CodexState::Stopped), "SIGKILL escalation is observed as a completed stop");
+        testResult.expectTrue(containsDiagnostic(diagnostics, "initialized-ok"),
+                              "queued initialized output reaches the child before shutdown signaling");
         testResult.expectTrue(stoppedAt && completedAt - *stoppedAt >= std::chrono::milliseconds(450),
                               "shutdown allows EOF and SIGTERM grace intervals before SIGKILL");
         testResult.expectTrue(stoppedAt && completedAt - *stoppedAt < std::chrono::seconds(2),
                               "an uncooperative child cannot stall asynchronous stop");
+    } else if (scenario == "blocked-shutdown" || scenario == "blocked-ignore-shutdown") {
+        testResult.expectEqual(0, failureCount, "blocked stdin flush remains an expected stop");
+        testResult.expectTrue(containsState(states, CodexState::Stopped), "blocked stdin child is terminated and reaped");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt >= std::chrono::milliseconds(200),
+                              "blocked stdin observes its flush deadline before SIGTERM");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt < std::chrono::seconds(2), "blocked stdin shutdown remains bounded");
+        if (scenario == "blocked-ignore-shutdown") {
+            testResult.expectTrue(stoppedAt && completedAt - *stoppedAt >= std::chrono::milliseconds(450),
+                                  "SIGTERM-ignoring blocked child reaches SIGKILL escalation");
+        }
     } else if (scenario == "stop-starting") {
         const std::vector<CodexState> expected = {CodexState::Starting, CodexState::Stopping, CodexState::Stopped};
         testResult.expectTrue(states == expected, "stop during Starting cancels launch and preserves callback order");
