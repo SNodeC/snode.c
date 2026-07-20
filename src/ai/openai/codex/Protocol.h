@@ -71,6 +71,28 @@ namespace ai::openai::codex {
         Value id;
     };
 
+    class ServerRequestToken {
+    public:
+        ServerRequestToken() = default;
+
+        explicit ServerRequestToken(std::uint64_t value)
+            : token(value) {
+        }
+
+        std::uint64_t value() const noexcept {
+            return token;
+        }
+
+        explicit operator bool() const noexcept {
+            return token != 0;
+        }
+
+        auto operator<=>(const ServerRequestToken&) const = default;
+
+    private:
+        std::uint64_t token = 0;
+    };
+
     struct ProtocolError {
         std::int64_t code = 0;
         std::string message;
@@ -109,6 +131,7 @@ namespace ai::openai::codex {
         std::string method;
         Json params = nullptr;
         Json raw;
+        ServerRequestToken token;
     };
 
     struct UnknownMessage {

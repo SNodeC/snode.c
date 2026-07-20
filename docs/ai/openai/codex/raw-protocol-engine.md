@@ -162,11 +162,13 @@ deferred work from accessing destroyed or replaced client state. Exceptions
 escaping user protocol callbacks are caught and logged at the callback boundary
 so they cannot unwind through the event loop.
 
-## Boundary for future typed APIs
+## Boundary for typed APIs
 
 The raw engine owns envelope validation, request IDs, correlation, enqueue
 results, callback delivery, cancellation, and connection generations. It does
 not interpret method-specific parameters or results, classify server requests
 as approvals, choose models, persist backend state, or own a UI controller.
-Future typed APIs should build on this facade rather than duplicate its
-transport, framing, initialization, or request-ownership machinery.
+The typed Codex API builds on this facade without duplicating its transport,
+framing, initialization, or request-ownership machinery. See
+[`typed-api.md`](typed-api.md) for the current typed operation, event, item, and
+server-request contract.

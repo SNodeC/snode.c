@@ -19,7 +19,12 @@ foreach(
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
           ai/openai/codex/detail/ProtocolCodec.h
+          ai/openai/codex/detail/EventDecoder.h
+          ai/openai/codex/detail/ItemDecoder.h
+          ai/openai/codex/detail/ServerRequestDecoder.h
+          ai/openai/codex/detail/ThreadCodec.h
           ai/openai/codex/detail/Transport.h
+          ai/openai/codex/detail/TurnCodec.h
           ai/openai/codex/stdio/StdioTransport.h
 )
     if(EXISTS "${prefix}/include/snode.c/${private_header}")

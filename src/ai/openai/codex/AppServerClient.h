@@ -21,6 +21,13 @@ namespace ai::openai::codex::detail {
     class Transport;
 }
 
+namespace ai::openai::codex::typed {
+    class Events;
+    class Requests;
+    class Threads;
+    class Turns;
+} // namespace ai::openai::codex::typed
+
 namespace ai::openai::codex {
 
     enum class State { Stopped, Starting, Initializing, Ready, Stopping, Failed };
@@ -70,6 +77,18 @@ namespace ai::openai::codex {
         RawProtocol& raw() noexcept;
         const RawProtocol& raw() const noexcept;
 
+        typed::Threads& threads() noexcept;
+        const typed::Threads& threads() const noexcept;
+
+        typed::Turns& turns() noexcept;
+        const typed::Turns& turns() const noexcept;
+
+        typed::Events& events() noexcept;
+        const typed::Events& events() const noexcept;
+
+        typed::Requests& requests() noexcept;
+        const typed::Requests& requests() const noexcept;
+
         std::optional<InitializeResult> getInitializeResult() const;
 
         void setOnStateChanged(Callbacks::StateChanged callback);
@@ -79,6 +98,11 @@ namespace ai::openai::codex {
         AppServerClient(std::unique_ptr<detail::Transport> transport, ClientInfo clientInfo);
 
     private:
+        friend class typed::Events;
+        friend class typed::Requests;
+        friend class typed::Threads;
+        friend class typed::Turns;
+
         class Impl;
         std::unique_ptr<Impl> impl;
     };
@@ -115,8 +139,15 @@ namespace ai::openai::codex {
 
     private:
         friend class AppServerClient::Impl;
+        friend class typed::Events;
+        friend class typed::Requests;
 
         explicit RawProtocol(Impl& impl) noexcept;
+
+        void setTypedNotificationDispatcher(NotificationHandler handler);
+        void setTypedServerRequestDispatcher(ServerRequestHandler handler);
+        SendResult respondOwned(const ServerRequestId& id, ServerRequestToken token, Json result);
+        SendResult rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error);
 
         Impl* impl;
     };

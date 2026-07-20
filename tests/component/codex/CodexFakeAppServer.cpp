@@ -192,6 +192,161 @@ namespace {
                 {"cwd", "/tmp/project"}};
     }
 
+    Json threadOperationResult(const Json& thread) {
+        return {{"approvalPolicy", "on-request"},
+                {"approvalsReviewer", "user"},
+                {"cwd", "/tmp/project"},
+                {"model", "gpt-5"},
+                {"modelProvider", "openai"},
+                {"sandbox", {{"type", "readOnly"}}},
+                {"thread", thread}};
+    }
+
+    bool receiveTypedRequest(LineReader& input, std::string_view method, const Json& params, long long& id) {
+        Json request;
+        const std::optional<long long> requestIdentifier = readJson(input, request) ? integerRequestId(request) : std::nullopt;
+        if (!requestIdentifier || request.value("method", "") != method || request.value("params", Json()) != params) {
+            return false;
+        }
+        id = *requestIdentifier;
+        return true;
+    }
+
+    int runTypedFlow(LineReader& input) {
+        const Json thread = fakeThread();
+        long long id = 0;
+        if (!receiveTypedRequest(input, "thread/start", Json{{"cwd", "/tmp/project"}}, id) ||
+            !writeJson({{"id", id}, {"result", threadOperationResult(thread)}}) ||
+            !writeJson({{"method", "thread/started"}, {"params", {{"thread", thread}}}})) {
+            return 70;
+        }
+
+        if (!receiveTypedRequest(input, "thread/resume", Json{{"threadId", "thread-fake-001"}, {"cwd", "/tmp/project"}}, id) ||
+            !writeJson({{"id", id}, {"result", threadOperationResult(thread)}})) {
+            return 71;
+        }
+
+        if (!receiveTypedRequest(input, "thread/list", Json{{"cursor", "cursor-1"}, {"limit", 2}}, id) ||
+            !writeJson(
+                {{"id", id}, {"result", {{"data", Json::array({thread})}, {"nextCursor", "cursor-2"}, {"backwardsCursor", nullptr}}}})) {
+            return 72;
+        }
+
+        if (!receiveTypedRequest(input, "thread/read", Json{{"threadId", "thread-fake-001"}, {"includeTurns", true}}, id) ||
+            !writeJson({{"id", id}, {"result", {{"thread", thread}}}})) {
+            return 73;
+        }
+
+        const Json turnStartParams = {
+            {"threadId", "thread-fake-001"},
+            {"input", Json::array({Json{{"type", "text"}, {"text", "Analyse the current branch."}, {"text_elements", Json::array()}}})},
+            {"effort", "high"},
+        };
+        if (!receiveTypedRequest(input, "turn/start", turnStartParams, id)) {
+            return 74;
+        }
+
+        const Json startedTurn = fakeTurn("inProgress");
+        const Json agentItem = {{"type", "agentMessage"}, {"id", "message-fake-001"}, {"text", ""}};
+        const Json commandItem = {{"type", "commandExecution"},
+                                  {"id", "command-fake-001"},
+                                  {"command", "printf typed-flow"},
+                                  {"cwd", "/tmp/project"},
+                                  {"status", "inProgress"},
+                                  {"commandActions", Json::array()}};
+        if (!writeJson({{"id", id}, {"result", {{"turn", startedTurn}}}}) ||
+            !writeJson({{"method", "turn/started"}, {"params", {{"threadId", "thread-fake-001"}, {"turn", startedTurn}}}}) ||
+            !writeJson(
+                {{"method", "item/started"},
+                 {"params", {{"threadId", "thread-fake-001"}, {"turnId", "turn-fake-001"}, {"item", agentItem}, {"startedAtMs", 2000}}}}) ||
+            !writeJson({{"method", "item/agentMessage/delta"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"},
+                          {"turnId", "turn-fake-001"},
+                          {"itemId", "message-fake-001"},
+                          {"delta", "Analysis complete."}}}}) ||
+            !writeJson({{"method", "item/started"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"}, {"turnId", "turn-fake-001"}, {"item", commandItem}, {"startedAtMs", 2100}}}}) ||
+            !writeJson(
+                {{"method", "item/commandExecution/requestApproval"}, {"id", 800}, {"params", approvalParams("command-fake-001")}})) {
+            return 75;
+        }
+
+        if (!receiveTypedRequest(input, "turn/interrupt", Json{{"threadId", "thread-fake-001"}, {"turnId", "turn-fake-001"}}, id) ||
+            !writeJson({{"id", id}, {"result", Json::object()}})) {
+            return 76;
+        }
+
+        Json response;
+        if (!readJson(input, response) || response != Json{{"id", 800}, {"result", {{"decision", "accept"}}}}) {
+            return 77;
+        }
+
+        const Json fileApproval = {{"threadId", "thread-fake-001"},
+                                   {"turnId", "turn-fake-001"},
+                                   {"itemId", "file-fake-001"},
+                                   {"startedAtMs", 2200},
+                                   {"reason", "apply deterministic patch"}};
+        if (!writeJson({{"method", "item/fileChange/requestApproval"}, {"id", "file-801"}, {"params", fileApproval}}) ||
+            !readJson(input, response) || response != Json{{"id", "file-801"}, {"result", {{"decision", "decline"}}}}) {
+            return 78;
+        }
+
+        const Json userInput = {
+            {"threadId", "thread-fake-001"},
+            {"turnId", "turn-fake-001"},
+            {"itemId", "input-fake-001"},
+            {"questions",
+             Json::array({Json{{"id", "scope"},
+                               {"header", "Scope"},
+                               {"question", "Which scope?"},
+                               {"isOther", true},
+                               {"options", Json::array({Json{{"label", "Current"}, {"description", "Current branch"}}})}}})},
+        };
+        if (!writeJson({{"method", "item/tool/requestUserInput"}, {"id", 802}, {"params", userInput}}) || !readJson(input, response) ||
+            response != Json{{"id", 802}, {"result", {{"answers", {{"scope", {{"answers", Json::array({"Current"})}}}}}}}}) {
+            return 79;
+        }
+
+        if (!writeJson({{"method", "future/serverRequest"}, {"id", "future-803"}, {"params", {{"future", true}}}}) ||
+            !readJson(input, response) || response != Json{{"id", "future-803"}, {"result", {{"handled", true}}}}) {
+            return 80;
+        }
+
+        const Json completedCommand = {{"type", "commandExecution"},
+                                       {"id", "command-fake-001"},
+                                       {"command", "printf typed-flow"},
+                                       {"cwd", "/tmp/project"},
+                                       {"status", "completed"},
+                                       {"commandActions", Json::array()},
+                                       {"aggregatedOutput", "typed-flow"},
+                                       {"exitCode", 0}};
+        const Json completedTurn = fakeTurn("completed");
+        if (!writeJson({{"method", "future/event"}, {"params", {{"future", true}}}}) ||
+            !writeJson({{"method", "item/started"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"},
+                          {"turnId", "turn-fake-001"},
+                          {"item", {{"type", "futureItem"}, {"id", "future-item-001"}, {"future", true}}},
+                          {"startedAtMs", 2300}}}}) ||
+            !writeJson({{"method", "item/commandExecution/outputDelta"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"},
+                          {"turnId", "turn-fake-001"},
+                          {"itemId", "command-fake-001"},
+                          {"delta", "typed-flow"}}}}) ||
+            !writeJson(
+                {{"method", "item/completed"},
+                 {"params",
+                  {{"threadId", "thread-fake-001"}, {"turnId", "turn-fake-001"}, {"item", completedCommand}, {"completedAtMs", 2400}}}}) ||
+            !writeJson({{"method", "turn/completed"}, {"params", {{"threadId", "thread-fake-001"}, {"turn", completedTurn}}}})) {
+            return 81;
+        }
+
+        return input.waitForEof() ? 0 : 82;
+    }
+
     int runProtocolFlow(LineReader& input) {
         constexpr std::size_t requestCount = 8;
         std::map<std::string, long long> ids;
@@ -456,7 +611,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    if (mode == "protocol-flow" || mode == "protocol-exit-once") {
+    if (mode == "protocol-flow" || mode == "protocol-exit-once" || mode == "typed-flow") {
         if (!writeAll(STDERR_FILENO, "protocol-initialized\n") || !writeAll(STDOUT_FILENO, initializeResponse(requestId(initialize))) ||
             !receiveInitialized(input)) {
             if (protocolExitMarker >= 0) {
@@ -464,7 +619,13 @@ int main(int argc, char* argv[]) {
             }
             return 34;
         }
-        return mode == "protocol-flow" ? runProtocolFlow(input) : runProtocolExitOnce(input, argv[2], protocolExitMarker);
+        if (mode == "protocol-flow") {
+            return runProtocolFlow(input);
+        }
+        if (mode == "typed-flow") {
+            return runTypedFlow(input);
+        }
+        return runProtocolExitOnce(input, argv[2], protocolExitMarker);
     }
 
     if (!writeAll(STDERR_FILENO, "diagnostic one\ndiagnostic") || !writeAll(STDERR_FILENO, " two\n") ||
