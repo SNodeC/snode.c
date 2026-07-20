@@ -47,6 +47,7 @@
 namespace core {
     class Event;
     class DescriptorEventPublisher;
+    struct ShutdownContext;
     class TimerEventPublisher;
 } // namespace core
 
@@ -110,9 +111,10 @@ namespace core {
         void span(core::Event* event);
         void relax(core::Event* event);
 
-        void signal(int sigNum);
+        void shutdown(const ShutdownContext& context);
         void terminate();
         void clearEventQueue();
+        bool hasPendingResources();
 
         TickStatus tick(const utils::Timeval& tickTimeOut, const sigset_t& sigMask);
 

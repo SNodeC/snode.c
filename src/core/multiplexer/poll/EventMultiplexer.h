@@ -157,7 +157,7 @@ namespace core::multiplexer::poll {
 
         explicit PollFdsManager();
 
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);
+        bool muxAdd(core::DescriptorEventReceiver* eventReceiver, short event);
         void muxDel(int fd, short event);
         void muxOn(const core::DescriptorEventReceiver* eventReceiver, short event);
         void muxOff(const DescriptorEventReceiver* eventReceiver, short event);

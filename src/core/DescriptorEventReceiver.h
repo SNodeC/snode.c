@@ -43,6 +43,7 @@
 #define CORE_DESCRIPTOREVENTRECEIVER_H
 
 #include "core/EventReceiver.h" // IWYU pragma: export
+#include "core/Shutdown.h"      // IWYU pragma: export
 #include "log/LogScopeOwner.h"
 
 namespace core {
@@ -117,7 +118,7 @@ namespace core {
 
     private:
         void onEvent(const utils::Timeval& currentTime) final;
-        void onSignal(int signum);
+        void notifyShutdown(const ShutdownContext& context);
 
         void triggered(const utils::Timeval& currentTime);
         void setEnabled(const utils::Timeval& currentTime);
@@ -126,6 +127,7 @@ namespace core {
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
         virtual void signalEvent(int signum) = 0;
+        virtual void onShutdown(const ShutdownContext& context);
 
         DescriptorEventPublisher& descriptorEventPublisher;
         logger::LogScopeOwner logScope;

@@ -106,9 +106,9 @@ namespace core {
         return tickStatus;
     }
 
-    void EventMultiplexer::signal(int sigNum) {
+    void EventMultiplexer::shutdown(const ShutdownContext& context) {
         for (DescriptorEventPublisher* const descriptorEventPublisher : descriptorEventPublishers) {
-            descriptorEventPublisher->signal(sigNum);
+            descriptorEventPublisher->shutdown(context);
         }
         timerEventPublisher->stop();
 
@@ -128,13 +128,17 @@ namespace core {
         eventQueue.clear();
     }
 
+    bool EventMultiplexer::hasPendingResources() {
+        return observedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty();
+    }
+
     TickStatus EventMultiplexer::waitForEvents(const utils::Timeval& tickTimeOut,
                                                const utils::Timeval& currentTime,
                                                const sigset_t& sigMask,
                                                int& activeDescriptorCount) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        if (observedEventReceiverCount() > 0 || !timerEventPublisher->empty() || !eventQueue.empty()) {
+        if (hasPendingResources()) {
             utils::Timeval nextTimeout = std::min(getNextTimeout(currentTime), tickTimeOut);
 
             activeDescriptorCount = monitorDescriptors(nextTimeout, sigMask);

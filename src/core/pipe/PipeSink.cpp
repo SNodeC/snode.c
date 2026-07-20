@@ -44,10 +44,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
-#include "utils/Timeval.h"
 
+#include <algorithm>
+#include <array>
 #include <cerrno>
 #include <string>
+#include <system_error>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -57,39 +59,64 @@
 
 namespace core::pipe {
 
-    PipeSink::PipeSink(int fd)
-        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), 60) {
+    PipeSink::PipeSink(int fd, std::size_t maxBytesPerEvent, const utils::Timeval& timeout)
+        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), timeout)
+        , maxBytesPerEvent(std::max<std::size_t>(maxBytesPerEvent, 1)) {
         if (!ReadEventReceiver::enable(fd)) {
-            delete this;
+            throw std::system_error(errno != 0 ? errno : EIO, std::generic_category(), "unable to register PipeSink descriptor");
         }
     }
 
     PipeSink::~PipeSink() {
-        close(getRegisteredFd());
+        closeDescriptor();
     }
 
     void PipeSink::readEvent() {
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static char chunk[MAX_READ_CHUNKSIZE];
+        std::array<char, MAX_READ_CHUNKSIZE> chunk{};
+        std::size_t bytesRead = 0;
 
-        const ssize_t ret = core::system::read(getRegisteredFd(), chunk, MAX_READ_CHUNKSIZE);
+        while (bytesRead < maxBytesPerEvent) {
+            const std::size_t bytesRemaining = maxBytesPerEvent - bytesRead;
+            const std::size_t readSize = std::min(chunk.size(), bytesRemaining);
+            const ssize_t ret = core::system::read(getRegisteredFd(), chunk.data(), readSize);
 
-        if (ret > 0) {
-            if (onData) {
-                onData(chunk, static_cast<std::size_t>(ret));
-            }
-        } else {
-            ReadEventReceiver::disable();
+            if (ret > 0) {
+                const std::size_t chunkLength = static_cast<std::size_t>(ret);
+                bytesRead += chunkLength;
 
-            if (ret == 0) {
+                if (onData) {
+                    onData(chunk.data(), chunkLength);
+                }
+
+                if (!ReadEventReceiver::isEnabled()) {
+                    return;
+                }
+            } else if (ret == 0) {
+                ReadEventReceiver::disable();
+
                 if (onEof) {
                     onEof();
                 }
+                return;
+            } else if (errno == EINTR) {
+                continue;
+            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                return;
             } else {
+                const int errnum = errno;
+                ReadEventReceiver::disable();
+
                 if (onError) {
-                    onError(errno);
+                    onError(errnum);
                 }
+                return;
             }
+        }
+    }
+
+    void PipeSink::close() {
+        if (ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
         }
     }
 
@@ -105,8 +132,39 @@ namespace core::pipe {
         this->onError = onError;
     }
 
+    void PipeSink::setOnClosed(const std::function<void()>& onClosed) {
+        this->onClosed = onClosed;
+    }
+
+    void PipeSink::setOnShutdown(const std::function<void(const core::ShutdownContext&)>& onShutdown) {
+        shutdownCallback = onShutdown;
+    }
+
     void PipeSink::unobservedEvent() {
+        closeDescriptor();
+        if (onClosed) {
+            onClosed();
+        }
         delete this;
+    }
+
+    void PipeSink::destruct() {
+        delete this;
+    }
+
+    void PipeSink::onShutdown(const core::ShutdownContext& context) {
+        if (shutdownCallback) {
+            shutdownCallback(context);
+        } else {
+            close();
+        }
+    }
+
+    void PipeSink::closeDescriptor() noexcept {
+        if (!descriptorClosed) {
+            descriptorClosed = true;
+            core::system::close(getRegisteredFd());
+        }
     }
 
 } // namespace core::pipe

@@ -44,6 +44,7 @@
 
 namespace core {
     class DescriptorEventReceiver;
+    struct ShutdownContext;
 } // namespace core
 
 namespace utils {
@@ -73,7 +74,7 @@ namespace core {
         DescriptorEventPublisher(const DescriptorEventPublisher&) = delete;
         DescriptorEventPublisher& operator=(const DescriptorEventPublisher&) = delete;
 
-        void enable(DescriptorEventReceiver* descriptorEventReceiver);
+        bool enable(DescriptorEventReceiver* descriptorEventReceiver);
         void disable(DescriptorEventReceiver* descriptorEventReceiver);
         void suspend(DescriptorEventReceiver* descriptorEventReceiver);
         void resume(DescriptorEventReceiver* descriptorEventReceiver);
@@ -87,7 +88,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
-        void signal(int sigNum);
+        void shutdown(const ShutdownContext& context);
         void disable();
 
         const std::string& getName() const;
@@ -97,7 +98,7 @@ namespace core {
         unsigned long eventCounter = 0;
 
     private:
-        virtual void muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
+        virtual bool muxAdd(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxDel(int fd) = 0;
         virtual void muxOn(DescriptorEventReceiver* descriptorEventReceiver) = 0;
         virtual void muxOff(DescriptorEventReceiver* descriptorEventReceiver) = 0;

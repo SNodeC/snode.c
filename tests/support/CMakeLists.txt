@@ -37,7 +37,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+add_library(
+    snodec-test-support STATIC DescriptorRegistrationFailure.h TestResult.cpp
+                               TestResult.h
+)
 
-add_library(snodec-test-support STATIC TestResult.cpp TestResult.h)
-
-target_include_directories(snodec-test-support PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+target_include_directories(
+    snodec-test-support PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.."
+)

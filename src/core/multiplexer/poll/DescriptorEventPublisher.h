@@ -61,7 +61,7 @@ namespace core::multiplexer::poll {
         DescriptorEventPublisher(const std::string& name, core::multiplexer::poll::PollFdsManager& pollFds, short events, short revents);
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        bool muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(core::DescriptorEventReceiver* eventReceiver) override;

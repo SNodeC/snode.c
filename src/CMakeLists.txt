@@ -141,6 +141,7 @@ add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
+add_subdirectory(ai)
 
 if(SNODEC_BUILD_APPS)
     add_subdirectory(apps)
@@ -156,6 +157,7 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES ai)
 
 set(SUPPORTED_COMPONENTS
     core
@@ -193,6 +195,7 @@ set(SUPPORTED_COMPONENTS
     mqtt-client
     mqtt-server-websocket
     mqtt-client-websocket
+    ai-openai-codex
 )
 string(JOIN "\n    " SUPPORTED_COMPONENTS ${SUPPORTED_COMPONENTS})
 

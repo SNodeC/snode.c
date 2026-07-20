@@ -42,6 +42,7 @@
 #include "core/EventLoop.h"
 
 #include "core/EventMultiplexer.h"
+#include "core/Shutdown.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,10 +51,10 @@
 #include "utils/Timeval.h"
 #include "utils/system/signal.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <chrono>
 #include <utility>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -322,46 +323,51 @@ namespace core {
     }
 
     void EventLoop::free() {
+        const ShutdownReason reason = stopsig > 0                        ? ShutdownReason::Signal
+                                      : eventLoopState == State::RUNNING ? ShutdownReason::NoObserver
+                                                                         : ShutdownReason::Requested;
         std::string signal = "SIG" + utils::system::sigabbrev_np(stopsig);
 
         if (signal == "SIGUNKNOWN") {
             signal = std::to_string(stopsig);
         }
 
-        if (stopsig != 0) {
-            EventLoop::instance().log().trace("Core: Sending signal {} to all DescriptorEventReceivers", signal);
-
-            EventLoop::instance().eventMultiplexer.signal(stopsig);
-        }
-
+        EventLoop& eventLoop = EventLoop::instance();
         eventLoopState = State::STOPPING;
 
+        if (reason == ShutdownReason::Signal) {
+            eventLoop.log().trace("Core: Graceful shutdown after signal {}", signal);
+        } else {
+            eventLoop.log().trace("Core: Graceful shutdown");
+        }
+
+        eventLoop.eventMultiplexer.shutdown({reason, stopsig > 0 ? stopsig : 0});
+
         utils::Timeval timeout = 2;
-
-        EventLoop::instance().log().trace("Core: Terminate all stalled DescriptorEventReceivers");
-
-        EventLoop::instance().eventMultiplexer.terminate();
-
-        core::TickStatus tickStatus = TickStatus::SUCCESS;
+        TickStatus tickStatus = TickStatus::SUCCESS;
         do {
-            auto t1 = std::chrono::system_clock::now();
-            const utils::Timeval timeoutOp = timeout;
+            const auto startedAt = std::chrono::steady_clock::now();
+            const utils::Timeval timeoutOp =
+                eventLoop.eventMultiplexer.hasPendingResources() ? std::min(timeout, utils::Timeval({0, 100000})) : utils::Timeval();
 
-            tickStatus = EventLoop::instance()._tick(timeoutOp);
+            tickStatus = eventLoop._tick(timeoutOp);
 
-            auto t2 = std::chrono::system_clock::now();
-            const std::chrono::duration<double> seconds = t2 - t1;
+            const auto completedAt = std::chrono::steady_clock::now();
+            timeout -= std::chrono::duration<double>(completedAt - startedAt).count();
+        } while (timeout > 0 && eventLoop.eventMultiplexer.hasPendingResources() &&
+                 (tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED));
 
-            timeout -= seconds.count();
-        } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
+        eventLoop.log().trace("Core: Terminate remaining DescriptorEventReceivers and timers");
+        eventLoop.eventMultiplexer.terminate();
+        eventLoop.eventMultiplexer.clearEventQueue();
 
-        EventLoop::instance().log().trace("Core: Shutdown config system");
+        eventLoop.log().trace("Core: Shutdown config system");
 
         utils::Config::terminate();
 
-        EventLoop::instance().log().trace("Core: All resources released");
+        eventLoop.log().trace("Core: All resources released");
 
-        EventLoop::instance().log().trace("SNode.C: Ended ... BYE");
+        eventLoop.log().trace("SNode.C: Ended ... BYE");
     }
 
     void EventLoop::stoponsig(int sig) {

@@ -566,10 +566,24 @@ namespace {
                               "handshake starts");
             result.expectTrue(TLSLifecycleTestAccess::handshakeGuardActive(*f.connection), "handshake guard active while waiting");
             TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+            result.expectTrue(helper != nullptr, "handshake helper exists before connection destruction");
             f.destroyConnection();
+            const bool helperRetained = helper != nullptr && TLSLifecycleTestAccess::lastHandshake() == helper &&
+                                        TLSLifecycleTestAccess::handshakeCounters().active == 1;
+            result.expectTrue(helperRetained, "connection destruction retains the observed handshake helper");
             TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
-            TLSLifecycleTestAccess::readEvent(helper);
+            if (helperRetained) {
+                TLSLifecycleTestAccess::readEvent(helper);
+            }
             result.expectEqual(0, success, "destroyed connection suppresses success callback");
+            result.expectEqual(0, timeout, "destroyed connection suppresses timeout callback");
+            result.expectEqual(0, status, "destroyed connection suppresses status callback");
+            result.expectEqual(
+                1, TLSLifecycleTestAccess::handshakeCounters().active, "completed stale handshake remains alive until publisher cleanup");
+            releaseDisabledEvents();
+            result.expectTrue(TLSLifecycleTestAccess::lastHandshake() == nullptr, "publisher cleanup releases the stale handshake helper");
+            result.expectEqual(
+                0, TLSLifecycleTestAccess::handshakeCounters().active, "publisher cleanup destroys the stale handshake helper");
         }
 
         resetTlsTestState();
@@ -1020,6 +1034,14 @@ namespace {
             result.expectEqual(static_cast<int>(payload.size()),
                                static_cast<int>(TLSLifecycleTestAccess::queuedWriteBytes(*f.connection)),
                                "blocked handshake write leaves queue intact");
+            TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+            result.expectTrue(helper != nullptr, "stale-write gate retains its handshake helper");
+            TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
+            if (helper != nullptr) {
+                TLSLifecycleTestAccess::readEvent(helper);
+            }
+            releaseDisabledEvents();
+            result.expectEqual(0, TLSLifecycleTestAccess::handshakeCounters().active, "stale-write gate releases its handshake helper");
         }
 
         resetTlsTestState();
@@ -1050,15 +1072,8 @@ namespace {
             f.connection->sendToPeer("one", 3);
             f.connection->sendToPeer("-", 1);
             f.connection->sendToPeer("two", 3);
-            TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
-            TLSLifecycleTestAccess::doSSLHandshake(
-                *f.connection,
-                [] {
-                },
-                [] {
-                },
-                [](int) {
-                });
+            result.expectTrue(TLSLifecycleTestAccess::transitionTo(*f.connection, 2),
+                              "TLS writer ordering: enters Handshaking with queued output");
             TLSLifecycleTestAccess::triggerWriteEvent(*f.connection);
             result.expectEqual(0,
                                TLSLifecycleTestAccess::writerCounters().operationCalls,
@@ -1072,10 +1087,8 @@ namespace {
             char rawBefore[16] = {};
             result.expectTrue(::recv(f.pipeFd.writeFd(), rawBefore, sizeof(rawBefore), MSG_DONTWAIT) < 0,
                               "TLS writer ordering: raw peer receives no bytes before handshake completion");
-            TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
-            TLSLifecycleTestAccess::enqueueHandshakeResult(1, SSL_ERROR_NONE);
-            TLSLifecycleTestAccess::readEvent(helper);
-            releaseDisabledEvents();
+            result.expectTrue(TLSLifecycleTestAccess::transitionTo(*f.connection, 3),
+                              "TLS writer ordering: simulated handshake completion enters TlsActive");
             result.expectEqual(3,
                                TLSLifecycleTestAccess::transportState(*f.connection),
                                "TLS writer ordering: reaches TlsActive before output is allowed");
