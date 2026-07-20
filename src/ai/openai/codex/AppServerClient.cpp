@@ -10,6 +10,7 @@
 
 #include "ai/openai/codex/detail/ProtocolCodec.h"
 #include "ai/openai/codex/detail/Transport.h"
+#include "ai/openai/codex/typed/Client.h"
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "log/LogScopeOwner.h"
@@ -172,6 +173,48 @@ namespace ai::openai::codex {
             return rawProtocol;
         }
 
+        void installTypedFacades(std::unique_ptr<typed::Threads> threads,
+                                 std::unique_ptr<typed::Turns> turns,
+                                 std::unique_ptr<typed::Events> events,
+                                 std::unique_ptr<typed::Requests> requests) {
+            typedThreads = std::move(threads);
+            typedTurns = std::move(turns);
+            typedEvents = std::move(events);
+            typedRequests = std::move(requests);
+        }
+
+        typed::Threads& threads() noexcept {
+            return *typedThreads;
+        }
+
+        const typed::Threads& threads() const noexcept {
+            return *typedThreads;
+        }
+
+        typed::Turns& turns() noexcept {
+            return *typedTurns;
+        }
+
+        const typed::Turns& turns() const noexcept {
+            return *typedTurns;
+        }
+
+        typed::Events& events() noexcept {
+            return *typedEvents;
+        }
+
+        const typed::Events& events() const noexcept {
+            return *typedEvents;
+        }
+
+        typed::Requests& requests() noexcept {
+            return *typedRequests;
+        }
+
+        const typed::Requests& requests() const noexcept {
+            return *typedRequests;
+        }
+
         std::optional<InitializeResult> getInitializeResult() const {
             return initializeResult;
         }
@@ -283,11 +326,19 @@ namespace ai::openai::codex {
         }
 
         RawProtocol::SendResult respond(const ServerRequestId& id, Json result) {
-            return answerServerRequest(id, std::move(result), std::nullopt);
+            return answerServerRequest(id, std::nullopt, std::move(result), std::nullopt);
         }
 
         RawProtocol::SendResult reject(const ServerRequestId& id, ProtocolError error) {
-            return answerServerRequest(id, nullptr, std::move(error));
+            return answerServerRequest(id, std::nullopt, nullptr, std::move(error));
+        }
+
+        RawProtocol::SendResult respondOwned(const ServerRequestId& id, ServerRequestToken token, Json result) {
+            return answerServerRequest(id, token, std::move(result), std::nullopt);
+        }
+
+        RawProtocol::SendResult rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error) {
+            return answerServerRequest(id, token, nullptr, std::move(error));
         }
 
         void setOnNotification(RawProtocol::NotificationHandler handler) {
@@ -300,6 +351,14 @@ namespace ai::openai::codex {
 
         void setOnUnknownMessage(RawProtocol::UnknownMessageHandler handler) {
             onUnknownMessage = std::move(handler);
+        }
+
+        void setTypedNotificationDispatcher(RawProtocol::NotificationHandler handler) {
+            typedNotificationDispatcher = std::move(handler);
+        }
+
+        void setTypedServerRequestDispatcher(RawProtocol::ServerRequestHandler handler) {
+            typedServerRequestDispatcher = std::move(handler);
         }
 
     private:
@@ -700,15 +759,24 @@ namespace ai::openai::codex {
         }
 
         void dispatchNotification(std::uint64_t generation, detail::ProtocolMessage message) {
-            const RawProtocol::NotificationHandler handler = onNotification;
-            if (!handler) {
+            const RawProtocol::NotificationHandler typedHandler = typedNotificationDispatcher;
+            const RawProtocol::NotificationHandler rawHandler = onNotification;
+            if (!typedHandler && !rawHandler) {
                 return;
             }
 
-            Notification notification{std::move(message.method), std::move(message.params), std::move(message.raw)};
-            scheduleProtocol(generation, [handler, notification = std::move(notification)]() {
-                handler(notification);
-            });
+            const auto notification = std::make_shared<const Notification>(
+                Notification{std::move(message.method), std::move(message.params), std::move(message.raw)});
+            if (typedHandler) {
+                scheduleProtocol(generation, [typedHandler, notification]() {
+                    typedHandler(*notification);
+                });
+            }
+            if (rawHandler) {
+                scheduleProtocol(generation, [rawHandler, notification]() {
+                    rawHandler(*notification);
+                });
+            }
         }
 
         void dispatchServerRequest(std::uint64_t generation, detail::ProtocolMessage message) {
@@ -726,20 +794,39 @@ namespace ai::openai::codex {
                 fail({Error::Category::Protocol, ENOBUFS, "pending app-server server-request capacity exceeded"});
                 return;
             }
+            if (serverRequestTokensExhausted) {
+                fail({Error::Category::Capacity, EOVERFLOW, "app-server server-request token space exhausted"});
+                return;
+            }
 
-            ServerRequest request{id, std::move(message.method), std::move(message.params), std::move(message.raw)};
+            const ServerRequestToken token(nextServerRequestToken);
+            if (nextServerRequestToken == std::numeric_limits<std::uint64_t>::max()) {
+                serverRequestTokensExhausted = true;
+            } else {
+                ++nextServerRequestToken;
+            }
+
+            ServerRequest request{id, std::move(message.method), std::move(message.params), std::move(message.raw), token};
             const auto [iterator, inserted] = pendingServerRequests.emplace(id, std::move(request));
             if (!inserted) {
                 fail({Error::Category::Protocol, EEXIST, "duplicate pending app-server request ID"});
                 return;
             }
 
-            const RawProtocol::ServerRequestHandler handler = onServerRequest;
-            if (handler) {
-                const ServerRequest callbackRequest = iterator->second;
-                scheduleProtocol(generation, [handler, callbackRequest]() {
-                    handler(callbackRequest);
-                });
+            const RawProtocol::ServerRequestHandler typedHandler = typedServerRequestDispatcher;
+            const RawProtocol::ServerRequestHandler rawHandler = onServerRequest;
+            if (typedHandler || rawHandler) {
+                const auto callbackRequest = std::make_shared<const ServerRequest>(iterator->second);
+                if (typedHandler) {
+                    scheduleProtocol(generation, [typedHandler, callbackRequest]() {
+                        typedHandler(*callbackRequest);
+                    });
+                }
+                if (rawHandler) {
+                    scheduleProtocol(generation, [rawHandler, callbackRequest]() {
+                        rawHandler(*callbackRequest);
+                    });
+                }
             }
         }
 
@@ -755,7 +842,10 @@ namespace ai::openai::codex {
             });
         }
 
-        RawProtocol::SendResult answerServerRequest(const ServerRequestId& id, Json result, std::optional<ProtocolError> protocolError) {
+        RawProtocol::SendResult answerServerRequest(const ServerRequestId& id,
+                                                    std::optional<ServerRequestToken> token,
+                                                    Json result,
+                                                    std::optional<ProtocolError> protocolError) {
             if (state != State::Ready || !lifetime->protocolActive) {
                 return sendFailure(Error::Category::InvalidState, EINVAL, "answering a server request requires a ready connection");
             }
@@ -763,6 +853,10 @@ namespace ai::openai::codex {
             const auto pending = pendingServerRequests.find(id);
             if (pending == pendingServerRequests.end()) {
                 return sendFailure(Error::Category::InvalidState, ENOENT, "server request ID is not currently pending");
+            }
+            if (token.has_value() && pending->second.token != *token) {
+                return sendFailure(
+                    Error::Category::InvalidState, ESTALE, "server request ownership token does not match the currently pending request");
             }
 
             std::string encodeError;
@@ -909,6 +1003,8 @@ namespace ai::openai::codex {
         std::optional<std::int64_t> pendingInitializeId;
         std::uint64_t connectionGeneration = 0;
         std::uint64_t nextSubmissionSequence = 0;
+        std::uint64_t nextServerRequestToken = 1;
+        bool serverRequestTokensExhausted = false;
 
         std::map<std::int64_t, PendingRequest> pendingRequests;
         std::map<ServerRequestId, ServerRequest> pendingServerRequests;
@@ -921,11 +1017,17 @@ namespace ai::openai::codex {
         RawProtocol::NotificationHandler onNotification;
         RawProtocol::ServerRequestHandler onServerRequest;
         RawProtocol::UnknownMessageHandler onUnknownMessage;
+        RawProtocol::NotificationHandler typedNotificationDispatcher;
+        RawProtocol::ServerRequestHandler typedServerRequestDispatcher;
 
         std::deque<StateChange> stateChanges;
         bool stateDispatchScheduled = false;
         std::shared_ptr<Lifetime> lifetime;
         RawProtocol rawProtocol;
+        std::unique_ptr<typed::Threads> typedThreads;
+        std::unique_ptr<typed::Turns> typedTurns;
+        std::unique_ptr<typed::Events> typedEvents;
+        std::unique_ptr<typed::Requests> typedRequests;
 
         logger::LogScopeOwner logScope;
     };
@@ -971,8 +1073,30 @@ namespace ai::openai::codex {
         impl->setOnUnknownMessage(std::move(handler));
     }
 
+    void AppServerClient::RawProtocol::setTypedNotificationDispatcher(NotificationHandler handler) {
+        impl->setTypedNotificationDispatcher(std::move(handler));
+    }
+
+    void AppServerClient::RawProtocol::setTypedServerRequestDispatcher(ServerRequestHandler handler) {
+        impl->setTypedServerRequestDispatcher(std::move(handler));
+    }
+
+    AppServerClient::RawProtocol::SendResult
+    AppServerClient::RawProtocol::respondOwned(const ServerRequestId& id, ServerRequestToken token, Json result) {
+        return impl->respondOwned(id, token, std::move(result));
+    }
+
+    AppServerClient::RawProtocol::SendResult
+    AppServerClient::RawProtocol::rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error) {
+        return impl->rejectOwned(id, token, std::move(error));
+    }
+
     AppServerClient::AppServerClient(std::unique_ptr<detail::Transport> transport, ClientInfo clientInfo)
         : impl(std::make_unique<Impl>(std::move(transport), std::move(clientInfo))) {
+        impl->installTypedFacades(std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
+                                  std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
+                                  std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),
+                                  std::unique_ptr<typed::Requests>(new typed::Requests(impl->raw())));
     }
 
     AppServerClient::~AppServerClient() = default;
@@ -999,6 +1123,38 @@ namespace ai::openai::codex {
 
     const AppServerClient::RawProtocol& AppServerClient::raw() const noexcept {
         return impl->raw();
+    }
+
+    typed::Threads& AppServerClient::threads() noexcept {
+        return impl->threads();
+    }
+
+    const typed::Threads& AppServerClient::threads() const noexcept {
+        return impl->threads();
+    }
+
+    typed::Turns& AppServerClient::turns() noexcept {
+        return impl->turns();
+    }
+
+    const typed::Turns& AppServerClient::turns() const noexcept {
+        return impl->turns();
+    }
+
+    typed::Events& AppServerClient::events() noexcept {
+        return impl->events();
+    }
+
+    const typed::Events& AppServerClient::events() const noexcept {
+        return impl->events();
+    }
+
+    typed::Requests& AppServerClient::requests() noexcept {
+        return impl->requests();
+    }
+
+    const typed::Requests& AppServerClient::requests() const noexcept {
+        return impl->requests();
     }
 
     std::optional<InitializeResult> AppServerClient::getInitializeResult() const {

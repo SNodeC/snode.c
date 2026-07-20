@@ -7,12 +7,40 @@ cmake_minimum_required(VERSION 3.18)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 
-set(AI_OPENAI_CODEX_CPP AppServerClient.cpp detail/ProtocolCodec.cpp
-                        stdio/Client.cpp stdio/StdioTransport.cpp
+set(AI_OPENAI_CODEX_CPP
+    AppServerClient.cpp
+    detail/EventDecoder.cpp
+    detail/ItemDecoder.cpp
+    detail/ProtocolCodec.cpp
+    detail/ServerRequestDecoder.cpp
+    detail/ThreadCodec.cpp
+    detail/TurnCodec.cpp
+    stdio/Client.cpp
+    stdio/StdioTransport.cpp
+    typed/Client.cpp
+    typed/Types.cpp
 )
 
-set(AI_OPENAI_CODEX_H AppServerClient.h Protocol.h detail/ProtocolCodec.h
-                      detail/Transport.h stdio/Client.h stdio/StdioTransport.h
+set(AI_OPENAI_CODEX_H
+    AppServerClient.h
+    Protocol.h
+    detail/EventDecoder.h
+    detail/ItemDecoder.h
+    detail/ProtocolCodec.h
+    detail/ServerRequestDecoder.h
+    detail/ThreadCodec.h
+    detail/Transport.h
+    detail/TurnCodec.h
+    stdio/Client.h
+    stdio/StdioTransport.h
+    typed/Client.h
+    typed/Events.h
+    typed/Items.h
+    typed/Results.h
+    typed/ServerRequests.h
+    typed/Threads.h
+    typed/Turns.h
+    typed/Types.h
 )
 
 add_library(ai-openai-codex SHARED ${AI_OPENAI_CODEX_CPP} ${AI_OPENAI_CODEX_H})
@@ -45,6 +73,19 @@ install(
 install(
     FILES AppServerClient.h Protocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/ai/openai/codex
+    COMPONENT ai-openai-codex
+)
+
+install(
+    FILES typed/Client.h
+          typed/Events.h
+          typed/Items.h
+          typed/Results.h
+          typed/ServerRequests.h
+          typed/Threads.h
+          typed/Turns.h
+          typed/Types.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/ai/openai/codex/typed
     COMPONENT ai-openai-codex
 )
 

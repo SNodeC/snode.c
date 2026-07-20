@@ -9,3 +9,9 @@ target_compile_features(SNodeCInstalledCodexConsumer PRIVATE cxx_std_20)
 target_link_libraries(
     SNodeCInstalledCodexConsumer PRIVATE snodec::ai-openai-codex
 )
+
+add_executable(SNodeCInstalledCodexTypedConsumer CodexTypedConsumer.cpp)
+target_compile_features(SNodeCInstalledCodexTypedConsumer PRIVATE cxx_std_20)
+target_link_libraries(
+    SNodeCInstalledCodexTypedConsumer PRIVATE snodec::ai-openai-codex
+)

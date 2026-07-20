@@ -29,15 +29,19 @@ target_compile_definitions(
 )
 add_dependencies(CodexStdioProtocolFlowTest CodexFakeAppServer)
 
-foreach(scenario IN ITEMS flow exit-restart)
+foreach(scenario IN ITEMS flow typed-flow exit-restart)
     string(REPLACE "-" "_" scenario_name ${scenario})
+    set(protocol_flow_labels "component;ai;openai;codex;stdio;protocol")
+    if(scenario STREQUAL "typed-flow")
+        list(APPEND protocol_flow_labels typed)
+    endif()
     add_test(NAME CodexStdioProtocolFlow_${scenario_name}
              COMMAND CodexStdioProtocolFlowTest ${scenario}
     )
     set_tests_properties(
         CodexStdioProtocolFlow_${scenario_name}
-        PROPERTIES LABELS "component;ai;openai;codex;stdio;protocol"
-                   SKIP_RETURN_CODE 77 TIMEOUT 10
+        PROPERTIES LABELS "${protocol_flow_labels}" SKIP_RETURN_CODE 77 TIMEOUT
+                   10
     )
 endforeach()
 
@@ -61,6 +65,35 @@ target_compile_features(CodexProtocolEngineTest PRIVATE cxx_std_20)
 set_tests_properties(
     CodexProtocolEngineTest
     PROPERTIES LABELS "component;ai;openai;codex;protocol;engine"
+               SKIP_RETURN_CODE 77 TIMEOUT 30
+)
+
+foreach(
+    typed_test IN
+    ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
+          CodexTypedItemDecoderTest CodexTypedEventDecoderTest
+          CodexTypedServerRequestDecoderTest
+)
+    snodec_add_test(${typed_test} ${typed_test}.cpp)
+    target_link_libraries(
+        ${typed_test} PRIVATE snodec-test-support snodec::ai-openai-codex
+    )
+    target_compile_features(${typed_test} PRIVATE cxx_std_20)
+    set_tests_properties(
+        ${typed_test} PROPERTIES LABELS "component;ai;openai;codex;typed;codec"
+                                 SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+endforeach()
+
+snodec_add_test(CodexTypedProtocolEngineTest CodexTypedProtocolEngineTest.cpp)
+target_link_libraries(
+    CodexTypedProtocolEngineTest PRIVATE snodec-test-support
+                                         snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexTypedProtocolEngineTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexTypedProtocolEngineTest
+    PROPERTIES LABELS "component;ai;openai;codex;typed;protocol;engine"
                SKIP_RETURN_CODE 77 TIMEOUT 30
 )
 
@@ -185,6 +218,20 @@ snodec_add_test(CodexAppServerIntegrationTest CodexAppServerIntegrationTest.cpp)
 target_link_libraries(
     CodexAppServerIntegrationTest PRIVATE snodec-test-support
                                           snodec::ai-openai-codex snodec::core
+)
+
+snodec_add_test(
+    CodexTypedAppServerIntegrationTest CodexTypedAppServerIntegrationTest.cpp
+)
+target_link_libraries(
+    CodexTypedAppServerIntegrationTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexTypedAppServerIntegrationTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexTypedAppServerIntegrationTest
+    PROPERTIES LABELS "integration;ai;openai;codex;typed;optional"
+               SKIP_RETURN_CODE 77 TIMEOUT 60
 )
 target_compile_features(CodexAppServerIntegrationTest PRIVATE cxx_std_20)
 set_tests_properties(

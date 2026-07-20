@@ -7,11 +7,11 @@ Codex App Server. Its public center is the transport-independent
 communicates over standard input and standard output.
 
 The client implements process and transport lifecycle, the Codex initialization
-handshake, and a generic raw protocol engine. Callers can submit arbitrary App
-Server requests and notifications, consume streamed notifications, and answer
-server-initiated requests after the client reaches `Ready`. Thread, turn, item,
-approval, and other semantically typed APIs remain intentionally separate and
-are not part of this interface.
+handshake, a generic raw protocol engine, and typed facades over that engine.
+Callers can submit arbitrary raw App Server messages or use the typed thread,
+turn, event, item, approval, and user-input API after the client reaches
+`Ready`. See [Typed Codex App Server API](typed-api.md) for the typed boundary
+and forward-compatibility rules.
 
 ## Public interface
 
