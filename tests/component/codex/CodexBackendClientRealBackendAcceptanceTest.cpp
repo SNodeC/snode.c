@@ -27,12 +27,17 @@
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <functional>
+#include <limits>
 #include <memory>
+#include <optional>
+#include <ostream>
 #include <sstream>
+#include <streambuf>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -49,6 +54,109 @@ namespace {
     using FakeBackendCore = backend::BackendCore<tests::codex::FakeAppServerClient>;
     using ai::openai::codex::Json;
     using ai::openai::codex::detail::TransportCallbacks;
+
+    constexpr std::size_t LargeThreadCount = 24;
+    constexpr std::size_t LargePreviewBytes = 4096;
+    constexpr std::size_t LargeProtocolThreshold = 64U * 1024U;
+    constexpr std::size_t HumanPresentationWindowBytes = 8U * 1024U;
+
+    std::string largeThreadId(std::size_t index) {
+        return "large-thread-" + std::to_string(index);
+    }
+
+    std::string largePreview(std::size_t index) {
+        std::string preview = "complete-preview-" + largeThreadId(index) + ':';
+        preview.append(LargePreviewBytes - preview.size(), static_cast<char>('a' + index % 26));
+        return preview;
+    }
+
+    Json largeThreadPage() {
+        Json threads = Json::array();
+        for (std::size_t index = 0; index < LargeThreadCount; ++index) {
+            Json thread = tests::codex::threadValue(largeThreadId(index));
+            thread["preview"] = largePreview(index);
+            threads.push_back(std::move(thread));
+        }
+        return Json{{"data", std::move(threads)}, {"nextCursor", nullptr}, {"backwardsCursor", nullptr}};
+    }
+
+    bool isLargeSnapshotHydrated(const backend::Snapshot& snapshot) {
+        if (snapshot.lifecycle != backend::BackendLifecycle::Ready || snapshot.threads.size() != LargeThreadCount) {
+            return false;
+        }
+        for (std::size_t index = 0; index < LargeThreadCount; ++index) {
+            const auto thread =
+                std::find_if(snapshot.threads.begin(), snapshot.threads.end(), [&](const backend::ThreadSnapshot& candidate) {
+                    return candidate.id == largeThreadId(index);
+                });
+            if (thread == snapshot.threads.end() || !thread->preview.has_value() || *thread->preview != largePreview(index)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    class WindowedStreamBuffer final : public std::streambuf {
+    public:
+        explicit WindowedStreamBuffer(std::size_t windowBytes)
+            : windowBytes(windowBytes) {
+        }
+
+        [[nodiscard]] const std::string& str() const noexcept {
+            return bytes;
+        }
+
+        [[nodiscard]] std::size_t size() const noexcept {
+            return bytes.size();
+        }
+
+        [[nodiscard]] std::size_t maximumBurstBytes() const noexcept {
+            return maximumBurst;
+        }
+
+        [[nodiscard]] bool overflowed() const noexcept {
+            return didOverflow;
+        }
+
+    protected:
+        std::streamsize xsputn(const char* source, std::streamsize count) override {
+            if (count <= 0) {
+                return 0;
+            }
+
+            const std::size_t requested = static_cast<std::size_t>(count);
+            if (requested > windowBytes - currentBurst) {
+                didOverflow = true;
+                return 0;
+            }
+
+            bytes.append(source, requested);
+            currentBurst += requested;
+            maximumBurst = std::max(maximumBurst, currentBurst);
+            return count;
+        }
+
+        int_type overflow(int_type character) override {
+            if (traits_type::eq_int_type(character, traits_type::eof())) {
+                return traits_type::not_eof(character);
+            }
+
+            const char value = traits_type::to_char_type(character);
+            return xsputn(&value, 1) == 1 ? character : traits_type::eof();
+        }
+
+        int sync() override {
+            currentBurst = 0;
+            return 0;
+        }
+
+    private:
+        std::size_t windowBytes;
+        std::size_t currentBurst = 0;
+        std::size_t maximumBurst = 0;
+        bool didOverflow = false;
+        std::string bytes;
+    };
 
     class Pipe {
     public:
@@ -127,6 +235,7 @@ int main(int argc, char* argv[]) {
         bool timedOut = false;
         int eventLoopResult = 1;
         bool backendReadyForHandshake = false;
+        bool backendHydratedBeforeConnect = false;
         bool pathCleanedByServer = false;
         std::size_t appServerThreadListCount = 0;
         std::size_t listenSuccessCount = 0;
@@ -162,32 +271,34 @@ int main(int argc, char* argv[]) {
         std::vector<std::string> sentCommandIds;
         std::vector<client::CommandDrainController::SessionState> sentCommandStates;
         std::vector<std::size_t> sentCommandSyncCounts;
-        std::ostringstream humanOutput;
+        std::optional<frontend::Snapshot> initialSnapshot;
+        std::optional<frontend::Response> threadListResponse;
+        std::size_t snapshotHumanBytes = 0;
+        std::size_t threadsResponseHumanBytes = 0;
+        WindowedStreamBuffer humanBuffer(HumanPresentationWindowBytes);
+        std::ostream humanOutput(&humanBuffer);
         std::ostringstream diagnostics;
 
         {
             const auto transport = std::make_shared<tests::codex::FakeTransportState>();
-            tests::codex::installInitializingFake(
-                transport, [&appServerThreadListCount](const Json& message, const TransportCallbacks& callbacks) {
-                    if (message.value("method", std::string{}) != "thread/list") {
-                        return;
-                    }
-                    const auto id = message.find("id");
-                    if (id == message.end()) {
-                        return;
-                    }
-                    ++appServerThreadListCount;
-                    tests::codex::inject(
-                        callbacks,
-                        Json{{"id", *id}, {"result", {{"data", Json::array()}, {"nextCursor", nullptr}, {"backwardsCursor", nullptr}}}});
-                });
+            tests::codex::installInitializingFake(transport,
+                                                  [&appServerThreadListCount](const Json& message, const TransportCallbacks& callbacks) {
+                                                      if (message.value("method", std::string{}) != "thread/list") {
+                                                          return;
+                                                      }
+                                                      const auto id = message.find("id");
+                                                      if (id == message.end()) {
+                                                          return;
+                                                      }
+                                                      ++appServerThreadListCount;
+                                                      tests::codex::inject(callbacks, Json{{"id", *id}, {"result", largeThreadPage()}});
+                                                  });
 
             backend::BackendCoreOptions backendOptions;
-            backendOptions.initialThreadListLimit = 2;
+            backendOptions.initialThreadListLimit = LargeThreadCount;
             FakeBackendCore backendCore(backendOptions, transport);
 
             apps::codex_backend::SocketFrontendOptions frontendOptions;
-            frontendOptions.maximumOutboundBytes = 1024U * 1024U;
             using Server = net::un::stream::legacy::SocketServer<apps::codex_backend::CodexFrontendSocketContextFactory,
                                                                  FakeBackendCore&,
                                                                  apps::codex_backend::SocketFrontendOptions>;
@@ -260,9 +371,10 @@ int main(int argc, char* argv[]) {
                     },
                 .onMessage =
                     [&](const frontend::ServerMessage& message) {
-                        presenter.present(message);
-
                         const bool initialSync = std::holds_alternative<frontend::SyncComplete>(message) && syncCompleteCount == 0;
+                        const auto* snapshot = std::get_if<frontend::Snapshot>(&message);
+                        const auto* response = std::get_if<frontend::Response>(&message);
+                        const bool threadsResponse = response != nullptr && response->requestId == threadsRequestId;
                         if (syncCompleteCount == 0) {
                             if (std::holds_alternative<frontend::Welcome>(message)) {
                                 initialMessageKinds.emplace_back("welcome");
@@ -281,26 +393,38 @@ int main(int argc, char* argv[]) {
                         if (std::holds_alternative<frontend::Welcome>(message)) {
                             ++welcomeCount;
                             backendReadyForHandshake = backendCore.snapshot().lifecycle == backend::BackendLifecycle::Ready;
-                        } else if (std::holds_alternative<frontend::Snapshot>(message)) {
+                        } else if (snapshot != nullptr) {
                             ++snapshotCount;
+                            if (!initialSnapshot.has_value()) {
+                                initialSnapshot = *snapshot;
+                            }
                         } else if (initialSync) {
                             ++syncCompleteCount;
                             syncObservedWhileSynchronizing =
                                 lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing &&
                                 lifecycle.queuedCount() == 1;
-                        } else if (const auto* response = std::get_if<frontend::Response>(&message)) {
+                        } else if (response != nullptr) {
                             if (response->requestId == acquireRequestId) {
                                 ++acquireResponseCount;
                                 acquireResponseSucceeded = acquireResponseSucceeded || response->ok;
                             } else if (response->requestId == threadsRequestId) {
                                 ++threadsResponseCount;
                                 threadsResponseSucceeded = threadsResponseSucceeded || response->ok;
+                                threadListResponse = *response;
                             }
                         } else if (std::holds_alternative<frontend::ProtocolErrorMessage>(message)) {
                             ++protocolErrorCount;
                         }
 
+                        const std::size_t outputBytesBeforePresentation = humanBuffer.size();
                         lifecycle.receive(message);
+                        presenter.present(message);
+                        const std::size_t presentedBytes = humanBuffer.size() - outputBytesBeforePresentation;
+                        if (snapshot != nullptr) {
+                            snapshotHumanBytes = presentedBytes;
+                        } else if (threadsResponse) {
+                            threadsResponseHumanBytes = presentedBytes;
+                        }
 
                         if (initialSync) {
                             reachedReady = lifecycle.sessionState() == client::CommandDrainController::SessionState::Ready;
@@ -415,12 +539,18 @@ int main(int argc, char* argv[]) {
                 });
             };
 
-            server.listen(path, [&](const net::un::SocketAddress&, core::socket::State state) {
-                if (state != core::socket::State::OK) {
-                    lifecycle.connectionFailed("real BackendAdapter Unix server failed to listen");
+            bool serverListening = false;
+            std::function<void()> startInteractiveInputWhenHydrated = [&]() {
+                if (!serverListening || stdinReader != nullptr) {
                     return;
                 }
-                ++listenSuccessCount;
+                if (!isLargeSnapshotHydrated(backendCore.snapshot())) {
+                    return;
+                }
+
+                backendHydratedBeforeConnect = !connection.connected() &&
+                                               lifecycle.sessionState() == client::CommandDrainController::SessionState::Connecting &&
+                                               sentCommandIds.empty();
                 try {
                     stdinReader = std::make_unique<client::StdinReader>(
                         handleInput,
@@ -436,6 +566,27 @@ int main(int argc, char* argv[]) {
                 } catch (const std::exception& exception) {
                     lifecycle.inputFailed("failed to construct interactive stdin reader: " + std::string(exception.what()));
                 }
+            };
+
+            backend::BackendObserverSubscription hydrationObserver =
+                backendCore.subscribe(backend::BackendObserverCallbacks{.onEvents =
+                                                                            [&](const std::vector<backend::SequencedBackendEvent>&) {
+                                                                                startInteractiveInputWhenHydrated();
+                                                                            },
+                                                                        .onResynchronize =
+                                                                            [&](const backend::Snapshot&) {
+                                                                                startInteractiveInputWhenHydrated();
+                                                                            }});
+            result.expectTrue(hydrationObserver.isOpen(), "a real BackendCore observer gates frontend connection on initial hydration");
+
+            server.listen(path, [&](const net::un::SocketAddress&, core::socket::State state) {
+                if (state != core::socket::State::OK) {
+                    lifecycle.connectionFailed("real BackendAdapter Unix server failed to listen");
+                    return;
+                }
+                ++listenSuccessCount;
+                serverListening = true;
+                startInteractiveInputWhenHydrated();
             });
 
             [[maybe_unused]] core::timer::Timer watchdog = core::timer::Timer::singleshotTimer(
@@ -455,9 +606,63 @@ int main(int argc, char* argv[]) {
         }
 
         pathCleanedByServer = !pathExists(path);
-        const std::string output = humanOutput.str();
+        const std::string output = humanBuffer.str();
         const std::string errors = diagnostics.str();
+        std::string snapshotWire;
+        std::string jsonSnapshotOutput;
+        std::string jsonSnapshotDiagnostics;
+        bool snapshotRoundTrips = false;
+        bool snapshotContainsCompletePreview = false;
+        if (initialSnapshot.has_value()) {
+            const frontend::ServerMessage snapshotMessage{*initialSnapshot};
+            const auto encoded = frontend::Codec::serializeServer(snapshotMessage);
+            if (encoded) {
+                snapshotWire = encoded.value();
+                const auto decoded = frontend::Codec::decodeServer(std::string_view(snapshotWire));
+                snapshotRoundTrips = decoded && decoded.value() == snapshotMessage;
+
+                std::ostringstream jsonOutput;
+                std::ostringstream jsonDiagnostics;
+                client::Presenter jsonPresenter(client::OutputMode::Json, jsonOutput, jsonDiagnostics);
+                jsonPresenter.present(snapshotMessage);
+                jsonSnapshotOutput = jsonOutput.str();
+                jsonSnapshotDiagnostics = jsonDiagnostics.str();
+            }
+
+            const auto threads = initialSnapshot->state.find("threads");
+            if (threads != initialSnapshot->state.end() && threads->is_array()) {
+                const auto expectedPreview = largePreview(0);
+                snapshotContainsCompletePreview = std::any_of(threads->begin(), threads->end(), [&](const Json& thread) {
+                    return thread.value("id", std::string{}) == largeThreadId(0) &&
+                           thread.value("preview", std::string{}) == expectedPreview;
+                });
+            }
+        }
+
+        std::size_t threadListResponseWireBytes = 0;
+        if (threadListResponse.has_value()) {
+            const auto encoded = frontend::Codec::serializeServer(frontend::ServerMessage{*threadListResponse});
+            if (encoded) {
+                threadListResponseWireBytes = encoded.value().size();
+            }
+        }
+
+        std::ostringstream maximumUnsignedOutput;
+        std::ostringstream maximumUnsignedDiagnostics;
+        client::Presenter maximumUnsignedPresenter(client::OutputMode::Human, maximumUnsignedOutput, maximumUnsignedDiagnostics);
+        constexpr std::uint64_t MaximumUnsigned = std::numeric_limits<std::uint64_t>::max();
+        maximumUnsignedPresenter.present(frontend::ServerMessage{frontend::Snapshot{frontend::SequenceNumber{MaximumUnsigned},
+                                                                                    Json{{"backendRevision", MaximumUnsigned},
+                                                                                         {"lifecycle", "ready"},
+                                                                                         {"threads", Json::array()},
+                                                                                         {"pendingRequests", Json::array()},
+                                                                                         {"sessions", Json::array()},
+                                                                                         {"threadList", {{"complete", true}}}},
+                                                                                    Json::object()}});
+
         result.expectTrue(backendReadyForHandshake, "fake AppServerClient brings the real BackendCore to Ready for the frontend handshake");
+        result.expectTrue(backendHydratedBeforeConnect,
+                          "large fake thread data is hydrated before the production frontend starts its hello handshake");
         result.expectTrue(!timedOut, "interactive real-backend acceptance completes before its safety watchdog");
         result.expectEqual(0, eventLoopResult, "interactive production client event loop stops cleanly");
         result.expectEqual(1, static_cast<int>(listenSuccessCount), "real frontend adapter Unix server listens exactly once");
@@ -485,6 +690,34 @@ int main(int argc, char* argv[]) {
                           "acquire receives exactly one correlated successful response");
         result.expectTrue(threadsResponseCount == 1 && threadsResponseSucceeded,
                           "threads receives exactly one correlated successful response");
+        result.expectTrue(initialSnapshot.has_value() && snapshotContainsCompletePreview,
+                          "the typed initial Snapshot contains the complete seeded long preview");
+        result.expectTrue(snapshotWire.size() > LargeProtocolThreshold, "the initial real-adapter Snapshot serializes to more than 64 KiB");
+        result.expectTrue(snapshotRoundTrips, "the large initial Snapshot round-trips through the production frontend Codec");
+        result.expectTrue(jsonSnapshotOutput == snapshotWire + '\n' &&
+                              std::count(jsonSnapshotOutput.begin(), jsonSnapshotOutput.end(), '\n') == 1,
+                          "JSON Presenter emits exactly the complete compact protocol frame and one record delimiter");
+        result.expectTrue(contains(jsonSnapshotOutput, largePreview(0)) && jsonSnapshotDiagnostics.empty(),
+                          "JSON Presenter preserves the complete long preview without diagnostics");
+        result.expectTrue(threadListResponseWireBytes > LargeProtocolThreshold,
+                          "the interactive thread-list Response also carries more than 64 KiB of typed protocol data");
+        result.expectTrue(!humanBuffer.overflowed() && humanOutput.good() &&
+                              humanBuffer.maximumBurstBytes() <= HumanPresentationWindowBytes,
+                          "every flushed human presentation burst fits the deterministic downstream window");
+        result.expectTrue(snapshotHumanBytes > 0 && snapshotHumanBytes < HumanPresentationWindowBytes,
+                          "human Snapshot presentation remains compact despite its large protocol payload");
+        result.expectTrue(threadsResponseHumanBytes > 0 && threadsResponseHumanBytes < HumanPresentationWindowBytes,
+                          "human thread-list Response presentation remains compact despite its large protocol payload");
+        result.expectTrue(contains(output, "lifecycle=ready") && contains(output, "threads=24") && contains(output, "pending-requests=0") &&
+                              contains(output, "controller=none") && contains(output, "sessions=1") &&
+                              contains(output, "thread-list-complete=true"),
+                          "human Snapshot presents the useful top-level state summary");
+        result.expectTrue(contains(output, "result=threads=24 ids=large-thread-0") && !contains(output, "complete-preview-large-thread-"),
+                          "human thread-list presentation keeps usable identifiers without expanding previews");
+        result.expectTrue(contains(maximumUnsignedOutput.str(), "snapshot sequence=18446744073709551615") &&
+                              contains(maximumUnsignedOutput.str(), "backend-revision=18446744073709551615") &&
+                              maximumUnsignedDiagnostics.str().empty(),
+                          "human Snapshot summary preserves the full unsigned protocol range");
         result.expectEqual(
             2, static_cast<int>(appServerThreadListCount), "fake AppServerClient sees one initial and one interactive thread/list request");
         result.expectEqual(0, static_cast<int>(protocolErrorCount), "the real adapter reports no handshake or command protocol error");

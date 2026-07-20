@@ -213,7 +213,7 @@ namespace {
             if (const auto* complete = std::get_if<frontend::SyncComplete>(&message)) {
                 ++syncCompleteCount;
                 result.expectTrue(complete->sequence == HandshakeSequence && commandCount == 0,
-                                  "initial sync.complete is presented before queued commands are released");
+                                  "initial sync.complete is accepted and presented before the server receives released queued commands");
                 return;
             }
 
@@ -530,9 +530,9 @@ int main(int argc, char* argv[]) {
                                                       },
                                                   .onMessage =
                                                       [&state, &lifecycle, &presenter](const frontend::ServerMessage& message) {
+                                                          lifecycle.receive(message);
                                                           presenter.present(message);
                                                           state.clientMessage(message);
-                                                          lifecycle.receive(message);
                                                       },
                                                   .onProtocolError =
                                                       [&state, &lifecycle](const frontend::CodecError& error) {

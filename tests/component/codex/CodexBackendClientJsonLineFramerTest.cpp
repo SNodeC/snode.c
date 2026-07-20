@@ -9,6 +9,7 @@
 #include "support/TestResult.h"
 
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -48,6 +49,46 @@ int main() {
     result.expectTrue(bounded.push("9", collect) == JsonLineFramer::Result::FrameTooLarge,
                       "the first byte beyond the configured client frame bound is rejected");
     result.expectTrue(bounded.bufferedSize() == 0, "an oversized client frame releases its accumulated storage");
+
+    constexpr std::size_t ChunkSize = 16 * 1024;
+    const std::string snapshotFrame =
+        "{\"kind\":\"snapshot\",\"sequence\":42,\"state\":{\"padding\":\"" + std::string(4 * ChunkSize + 257, 'x') + "\"}}";
+    const std::string syncPreamble = "{\"kind\":\"";
+    const std::string syncKind = "sync.complete";
+    const std::string syncSuffix = "\",\"sequence\":42}";
+    const std::string syncFrame = syncPreamble + syncKind + syncSuffix;
+    std::vector<std::string> largeFrames;
+    const auto collectLarge = [&largeFrames](std::string frame) {
+        largeFrames.push_back(std::move(frame));
+    };
+
+    JsonLineFramer largeFramer(snapshotFrame.size());
+    result.expectTrue(snapshotFrame.size() > 64 * 1024, "the snapshot-like frame exceeds four client receive chunks");
+    std::size_t offset = 0;
+    while (snapshotFrame.size() - offset >= ChunkSize) {
+        result.expectTrue(largeFramer.push(std::string_view(snapshotFrame).substr(offset, ChunkSize), collectLarge) ==
+                              JsonLineFramer::Result::Accepted,
+                          "the client framer accepts an exact 16 KiB snapshot fragment");
+        offset += ChunkSize;
+    }
+    result.expectTrue(largeFramer.push(std::string_view(snapshotFrame).substr(offset), collectLarge) == JsonLineFramer::Result::Accepted,
+                      "the client framer accepts the final unterminated snapshot fragment");
+    result.expectTrue(largeFrames.empty() && largeFramer.bufferedSize() == snapshotFrame.size(),
+                      "the complete large snapshot remains buffered until its newline arrives");
+
+    result.expectTrue(largeFramer.push("\n" + syncPreamble, collectLarge) == JsonLineFramer::Result::Accepted,
+                      "one coalesced push terminates the snapshot and stops immediately before the sync.complete kind");
+    result.expectTrue(largeFrames == std::vector<std::string>{snapshotFrame} && largeFramer.bufferedSize() == syncPreamble.size(),
+                      "the newline emits the large snapshot exactly once and retains only the next frame preamble");
+    result.expectTrue(largeFramer.push(syncKind, collectLarge) == JsonLineFramer::Result::Accepted,
+                      "the next fragment stops immediately after the sync.complete kind");
+    result.expectTrue(largeFrames.size() == 1 && largeFramer.bufferedSize() == syncPreamble.size() + syncKind.size(),
+                      "the unterminated sync.complete frame is retained without another emission");
+    result.expectTrue(largeFramer.push(syncSuffix + "\n", collectLarge) == JsonLineFramer::Result::Accepted,
+                      "the trailing sync.complete suffix and newline finish the coalesced handshake");
+    result.expectTrue(largeFrames == std::vector<std::string>{snapshotFrame, syncFrame},
+                      "the large snapshot and trailing sync.complete frames are emitted exactly once and in order");
+    result.expectTrue(largeFramer.bufferedSize() == 0, "no protocol bytes remain buffered after the trailing sync.complete newline");
 
     return result.processResult();
 }

@@ -104,10 +104,11 @@ int main(int argc, char* argv[]) {
                 [&presenter, &lifecycle](const frontend::ServerMessage& message) {
                     const bool awaitingInitialSynchronization =
                         lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing;
-                    // Presentation is synchronous and flushes before lifecycle
-                    // completion can schedule a controlled disconnect.
-                    presenter.present(message);
+                    // Advance protocol state before presentation. A controlled
+                    // EOF exit is posted for the next event-loop tick, so the
+                    // current message is still rendered before disconnecting.
                     lifecycle.receive(message);
+                    presenter.present(message);
                     if (awaitingInitialSynchronization && lifecycle.sessionState() == client::CommandDrainController::SessionState::Ready &&
                         presenter.outputMode() == client::OutputMode::Human) {
                         presenter.localMessage("synchronized; commands are ready");
