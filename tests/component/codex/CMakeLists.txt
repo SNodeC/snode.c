@@ -145,14 +145,32 @@ if(TARGET codex-backend-client-support)
         CodexBackendClientCommandTest CodexBackendClientCommandTest.cpp
     )
     target_link_libraries(
-        CodexBackendClientCommandTest
-        PRIVATE snodec-test-support codex-backend-client-support
+        CodexBackendClientCommandTest PRIVATE snodec-test-support
+                                              codex-backend-client-support
     )
     target_compile_features(CodexBackendClientCommandTest PRIVATE cxx_std_20)
     set_tests_properties(
         CodexBackendClientCommandTest
         PROPERTIES LABELS
                    "component;ai;openai;codex;frontend;client;command;codec"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientCommandDrainTest
+        CodexBackendClientCommandDrainTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientCommandDrainTest PRIVATE snodec-test-support
+                                                   codex-backend-client-support
+    )
+    target_compile_features(
+        CodexBackendClientCommandDrainTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientCommandDrainTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;command;lifecycle"
                    SKIP_RETURN_CODE 77 TIMEOUT 5
     )
 
@@ -171,6 +189,23 @@ if(TARGET codex-backend-client-support)
         CodexBackendClientJsonLineFramerTest
         PROPERTIES LABELS
                    "component;ai;openai;codex;frontend;client;unix;framing"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientStdinReaderTest CodexBackendClientStdinReaderTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientStdinReaderTest
+        PRIVATE snodec-test-support codex-backend-client-support snodec::core
+    )
+    target_compile_features(
+        CodexBackendClientStdinReaderTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientStdinReaderTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;stdin;lifecycle"
                    SKIP_RETURN_CODE 77 TIMEOUT 5
     )
 

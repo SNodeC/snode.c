@@ -57,5 +57,19 @@ Stdin and the Unix socket are both integrated with the SNode.C event loop.
 Terminal and pipe input is nonblocking and line-buffered; regular-file stdin is
 rejected because POSIX cannot make those reads nonblocking (pipe the file's
 contents instead). Socket JSONL framing tolerates both fragmented records and
-several records in one read. `quit` and stdin EOF close the client connection
-before stopping the event loop.
+several records in one read.
+
+Piped commands are retained until the connection's initial `sync.complete`,
+then sent once in input order. EOF enters a deterministic drain: the client
+waits for every command's correlated response and, for `snapshot` and
+`replay`, the resulting `sync.complete` before disconnecting and exiting.
+Connection, protocol, or premature-disconnect failures during that drain
+produce a nonzero exit status. An explicit interactive `quit` remains an
+immediate shutdown.
+
+For example, this waits for the handshake and both command responses before
+returning:
+
+```sh
+printf 'acquire\nthreads\n' | codex-backend-client --json
+```
