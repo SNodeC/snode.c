@@ -9,8 +9,11 @@
 #ifndef AI_OPENAI_CODEX_APPSERVERCLIENT_H
 #define AI_OPENAI_CODEX_APPSERVERCLIENT_H
 
+#include "ai/openai/codex/Protocol.h"
+
 #include <functional>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 
@@ -26,14 +29,6 @@ namespace ai::openai::codex {
         std::string name = "snode_c";
         std::string title = "SNode.C";
         std::string version = "1.0.1";
-    };
-
-    struct Error {
-        enum class Category { Launch, Transport, Protocol, Initialization, Process };
-
-        Category category = Category::Transport;
-        int code = 0;
-        std::string message;
     };
 
     struct StateChange {
@@ -56,6 +51,8 @@ namespace ai::openai::codex {
 
     class AppServerClient {
     public:
+        class RawProtocol;
+
         AppServerClient(const AppServerClient&) = delete;
         AppServerClient(AppServerClient&&) = delete;
 
@@ -70,6 +67,11 @@ namespace ai::openai::codex {
         State getState() const noexcept;
         bool isReady() const noexcept;
 
+        RawProtocol& raw() noexcept;
+        const RawProtocol& raw() const noexcept;
+
+        std::optional<InitializeResult> getInitializeResult() const;
+
         void setOnStateChanged(Callbacks::StateChanged callback);
         void setOnDiagnostic(Callbacks::DiagnosticReceived callback);
 
@@ -79,6 +81,44 @@ namespace ai::openai::codex {
     private:
         class Impl;
         std::unique_ptr<Impl> impl;
+    };
+
+    class AppServerClient::RawProtocol {
+    public:
+        using ResponseHandler = std::function<void(const Response&)>;
+        using NotificationHandler = std::function<void(const Notification&)>;
+        using ServerRequestHandler = std::function<void(const ServerRequest&)>;
+        using UnknownMessageHandler = std::function<void(const UnknownMessage&)>;
+
+        struct Submission {
+            std::optional<ClientRequestId> id;
+            std::optional<Error> error;
+
+            explicit operator bool() const noexcept;
+        };
+
+        struct SendResult {
+            bool accepted = false;
+            std::optional<Error> error;
+
+            explicit operator bool() const noexcept;
+        };
+
+        Submission request(std::string method, Json params, ResponseHandler handler);
+        SendResult notify(std::string method, Json params = Json::object());
+        SendResult respond(const ServerRequestId& id, Json result);
+        SendResult reject(const ServerRequestId& id, ProtocolError error);
+
+        void setOnNotification(NotificationHandler handler);
+        void setOnServerRequest(ServerRequestHandler handler);
+        void setOnUnknownMessage(UnknownMessageHandler handler);
+
+    private:
+        friend class AppServerClient::Impl;
+
+        explicit RawProtocol(Impl& impl) noexcept;
+
+        Impl* impl;
     };
 
 } // namespace ai::openai::codex

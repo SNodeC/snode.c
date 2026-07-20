@@ -9,10 +9,14 @@
 #ifndef AI_OPENAI_CODEX_DETAIL_PROTOCOLCODEC_H
 #define AI_OPENAI_CODEX_DETAIL_PROTOCOLCODEC_H
 
+#include "ai/openai/codex/Protocol.h"
+
 #include <cstdint>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <variant>
 
 namespace ai::openai::codex {
     struct ClientInfo;
@@ -20,33 +24,31 @@ namespace ai::openai::codex {
 
 namespace ai::openai::codex::detail {
 
-    struct ProtocolError {
-        int code = 0;
-        std::string message;
-    };
-
-    struct InitializeResult {
-        std::string codexHome;
-        std::string platformFamily;
-        std::string platformOs;
-        std::string userAgent;
-    };
+    using ProtocolId = std::variant<std::int64_t, std::string>;
 
     struct ProtocolMessage {
         enum class Kind { Response, Request, Notification };
 
         Kind kind = Kind::Notification;
-        std::optional<std::int64_t> id;
+        std::optional<ProtocolId> id;
         std::string method;
+        Json params = nullptr;
+        Json result = nullptr;
         std::optional<ProtocolError> error;
-        bool hasResult = false;
-        std::optional<InitializeResult> initializeResult;
-        std::string resultError;
+        Json raw;
     };
+
+    std::optional<InitializeResult> decodeInitializeResult(const Json& result, std::string& errorMessage);
 
     class ProtocolCodec {
     public:
         ProtocolCodec() = delete;
+
+        static std::optional<std::string>
+        encodeRequest(std::int64_t id, std::string_view method, const Json& params, std::string& errorMessage);
+        static std::optional<std::string> encodeNotification(std::string_view method, const Json& params, std::string& errorMessage);
+        static std::optional<std::string> encodeSuccessResponse(const ProtocolId& id, const Json& result, std::string& errorMessage);
+        static std::optional<std::string> encodeErrorResponse(const ProtocolId& id, const ProtocolError& error, std::string& errorMessage);
 
         static std::string initializeRequest(std::int64_t id, const ClientInfo& clientInfo);
         static std::string initializedNotification();

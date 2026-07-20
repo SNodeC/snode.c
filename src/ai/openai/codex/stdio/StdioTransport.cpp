@@ -9,6 +9,7 @@
 #include "ai/openai/codex/stdio/StdioTransport.h"
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/Protocol.h"
 #include "core/SNodeC.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/pipe/Pipe.h"

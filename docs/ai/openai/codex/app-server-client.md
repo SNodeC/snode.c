@@ -6,9 +6,12 @@ Codex App Server. Its public center is the transport-independent
 `ai::openai::codex::stdio::Client`, which starts `codex app-server` locally and
 communicates over standard input and standard output.
 
-This first milestone implements process and transport lifecycle plus the Codex
-initialization handshake. Thread, turn, item, approval, and WebSocket APIs are
-intentionally not part of the public interface yet.
+The client implements process and transport lifecycle, the Codex initialization
+handshake, and a generic raw protocol engine. Callers can submit arbitrary App
+Server requests and notifications, consume streamed notifications, and answer
+server-initiated requests after the client reaches `Ready`. Thread, turn, item,
+approval, and other semantically typed APIs remain intentionally separate and
+are not part of this interface.
 
 ## Public interface
 
@@ -16,6 +19,12 @@ Include the local client with:
 
 ```cpp
 #include "ai/openai/codex/stdio/Client.h"
+```
+
+Raw protocol values and strong request-ID types are available from:
+
+```cpp
+#include "ai/openai/codex/Protocol.h"
 ```
 
 The client exposes:
@@ -29,6 +38,9 @@ bool isReady() const noexcept;
 
 void setOnStateChanged(ai::openai::codex::Callbacks::StateChanged callback);
 void setOnDiagnostic(ai::openai::codex::Callbacks::DiagnosticReceived callback);
+
+ai::openai::codex::AppServerClient::RawProtocol& raw() noexcept;
+std::optional<ai::openai::codex::InitializeResult> getInitializeResult() const;
 ```
 
 The default constructor runs:
@@ -80,9 +92,17 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-All callbacks run in the SNode.C event-loop context. State callbacks are queued,
-ordered, and non-reentrant. `start()` and `stop()` initiate work and return before
-completion callbacks are dispatched.
+All callbacks run in the SNode.C event-loop context. State and protocol
+callbacks are queued and ordered. Public protocol callbacks never run inline
+from `request()`, `notify()`, `respond()`, or `reject()`. Protocol callbacks may
+call those methods, call `stop()`, or destroy the client. Exceptions escaping a
+protocol callback are caught and logged instead of unwinding through the event
+loop. `start()` and `stop()` initiate work and return before completion callbacks
+are dispatched.
+
+See [Generic raw protocol engine](raw-protocol-engine.md) for request ownership,
+strong ID semantics, capacity limits, cancellation, generation safety, and
+unknown-message handling.
 
 ## State model
 
@@ -104,9 +124,11 @@ There is no automatic restart or reconnect. Calls to `start()` outside
 `Stopped`, calls to `stop()` in `Stopped` or `Stopping`, and startup attempted
 while SNode.C is stopping have no effect.
 
-`StateChange::error` is populated on the transition to `Failed`. Error
-categories distinguish launch, transport, protocol, initialization, and process
-failures.
+`StateChange::error` is populated on the transition to `Failed` and distinguishes
+launch, transport, protocol, initialization, and process failures. The shared
+public `Error` type also represents invalid-state, capacity, cancellation, and
+enqueue failures returned by raw operations. Remote App Server errors remain
+distinct from all of these local errors.
 
 ## Initialization
 
@@ -117,6 +139,13 @@ After the process and parent descriptors are ready, the client:
 3. validates the minimal initialization result;
 4. sends the `initialized` notification; and
 5. transitions to `Ready`.
+
+Initialization uses the same monotonically increasing request-ID allocator as
+caller requests but remains internally owned. Raw callers cannot send the
+reserved `initialize` or `initialized` operations. The typed initialization
+fields and complete raw result are cached for `getInitializeResult()`.
+Structurally valid non-initialization messages received during the handshake are
+held in a bounded queue and dispatched in wire order after `Ready`.
 
 Protocol encoding produces pure JSON documents. The stdio transport adds exactly
 one newline to each outgoing document. Incoming stdout is framed as JSON Lines;
@@ -140,7 +169,8 @@ The installed CMake target is:
 target_link_libraries(my_target PRIVATE snodec::ai-openai-codex)
 ```
 
-The module requires `nlohmann_json >= 3.11` at build time. A regular build and
-test run does not require a Codex installation or authentication; the real App
-Server integration test is optional.
-
+The target exports a C++20 compile-feature requirement. The public
+`Protocol.h` uses `nlohmann::json`, so the module also exposes the include path
+provided by `nlohmann_json >= 3.11` to build-tree and installed consumers. A
+regular build and test run does not require a Codex installation or
+authentication; the real App Server integration test is optional.

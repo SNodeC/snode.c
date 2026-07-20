@@ -1,29 +1,100 @@
 set(stage "${SNODEC_BUILD_DIR}/staged-installed-consumer")
 set(prefix "${stage}/prefix")
 set(consumer "${stage}/consumer.cpp")
+set(codex_consumer_source "${CMAKE_CURRENT_LIST_DIR}/installed/codex")
+set(codex_consumer_build "${stage}/codex-consumer-build")
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
-execute_process(COMMAND "${CMAKE_COMMAND}" --install "${SNODEC_BUILD_DIR}" --prefix "${prefix}" RESULT_VARIABLE install_result)
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" --install "${SNODEC_BUILD_DIR}" --prefix
+            "${prefix}" RESULT_VARIABLE install_result
+)
 if(NOT install_result EQUAL 0)
     message(FATAL_ERROR "staged install failed")
 endif()
-foreach(private_header IN ITEMS core/EventLoop.h core/EventMultiplexer.h core/DescriptorEventPublisher.h core/TimerEventPublisher.h)
+foreach(
+    private_header IN
+    ITEMS core/EventLoop.h
+          core/EventMultiplexer.h
+          core/DescriptorEventPublisher.h
+          core/TimerEventPublisher.h
+          ai/openai/codex/detail/ProtocolCodec.h
+          ai/openai/codex/detail/Transport.h
+          ai/openai/codex/stdio/StdioTransport.h
+)
     if(EXISTS "${prefix}/include/snode.c/${private_header}")
         message(FATAL_ERROR "private header installed: ${private_header}")
     endif()
 endforeach()
-file(WRITE "${consumer}" "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n")
+file(
+    WRITE "${consumer}"
+    "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n"
+)
 set(exe "${stage}/consumer")
 execute_process(
-    COMMAND "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}" "-I${prefix}/include/snode.c" "-L${prefix}/lib" "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib" "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o "${exe}"
+    COMMAND
+        "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}"
+        "-I${prefix}/include/snode.c" "-L${prefix}/lib"
+        "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib"
+        "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core
+        -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net
+        -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream
+        -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy
+        -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server
+        -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o
+        "${exe}"
     RESULT_VARIABLE compile_result
     OUTPUT_VARIABLE compile_output
-    ERROR_VARIABLE compile_error)
-message(STATUS "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}")
+    ERROR_VARIABLE compile_error
+)
+message(
+    STATUS
+        "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}"
+)
 if(NOT compile_result EQUAL 0)
-    message(FATAL_ERROR "installed consumer compile failed\n${compile_output}\n${compile_error}")
+    message(
+        FATAL_ERROR
+            "installed consumer compile failed\n${compile_output}\n${compile_error}"
+    )
 endif()
-execute_process(COMMAND "${exe}" RESULT_VARIABLE run_result OUTPUT_VARIABLE run_output ERROR_VARIABLE run_error)
+execute_process(
+    COMMAND "${exe}"
+    RESULT_VARIABLE run_result
+    OUTPUT_VARIABLE run_output
+    ERROR_VARIABLE run_error
+)
 if(NOT run_result EQUAL 0)
-    message(FATAL_ERROR "installed consumer execution failed\n${run_output}\n${run_error}")
+    message(
+        FATAL_ERROR
+            "installed consumer execution failed\n${run_output}\n${run_error}"
+    )
+endif()
+
+execute_process(
+    COMMAND
+        "${CMAKE_COMMAND}" -S "${codex_consumer_source}" -B
+        "${codex_consumer_build}" "-DCMAKE_PREFIX_PATH=${prefix}"
+        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    RESULT_VARIABLE codex_configure_result
+    OUTPUT_VARIABLE codex_configure_output
+    ERROR_VARIABLE codex_configure_error
+)
+if(NOT codex_configure_result EQUAL 0)
+    message(
+        FATAL_ERROR
+            "installed Codex CMake consumer configure failed\n${codex_configure_output}\n${codex_configure_error}"
+    )
+endif()
+
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" --build "${codex_consumer_build}"
+    RESULT_VARIABLE codex_build_result
+    OUTPUT_VARIABLE codex_build_output
+    ERROR_VARIABLE codex_build_error
+)
+if(NOT codex_build_result EQUAL 0)
+    message(
+        FATAL_ERROR
+            "installed Codex CMake consumer build failed\n${codex_build_output}\n${codex_build_error}"
+    )
 endif()
