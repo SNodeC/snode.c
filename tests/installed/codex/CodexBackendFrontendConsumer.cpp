@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <snode.c/ai/openai/codex/backend/BackendCore.h>
 #include <snode.c/ai/openai/codex/frontend/Protocol.h>
+#include <snode.c/ai/openai/codex/stdio/Client.h>
 #include <string_view>
 
 int main() {
@@ -17,6 +18,6 @@ int main() {
     static_assert(ProtocolVersion == std::uint32_t{1});
     static_assert(ProtocolIdentity == std::string_view{"snodec.codex-frontend"});
 
-    [[maybe_unused]] BackendCore* backend = nullptr;
-    return 0;
+    BackendCore<ai::openai::codex::stdio::Client> backend;
+    return backend.isReady() ? 1 : 0;
 }

@@ -4,7 +4,9 @@
 [Codex Frontend Protocol v1](frontend-protocol-v1.md). It owns one local Codex
 App Server client and accepts several frontend clients on a Unix-domain stream
 socket. It is an adapter and example, not a second backend implementation or a
-production daemon.
+production daemon. The companion
+[`codex-backend-client`](../../../../src/apps/codex-backend-client/README.md) is a
+small terminal and diagnostic client for that frontend protocol.
 
 The concrete transport is intentionally confined to
 `src/apps/codex-backend`:
@@ -32,6 +34,10 @@ Qt, CLI, WebSocket, or other transports from depending on a Unix socket path or
 The listener uses the actual SNode.C legacy helper:
 
 ```cpp
+ai::openai::codex::backend::BackendCore<
+    ai::openai::codex::stdio::Client
+> backend;
+
 auto socketServer =
     net::un::stream::legacy::Server<
         apps::codex_backend::CodexFrontendSocketContextFactory
@@ -40,7 +46,7 @@ auto socketServer =
 
 The helper yields a
 `net::un::stream::legacy::SocketServer<CodexFrontendSocketContextFactory,
-BackendCore&>`. The factory derives from
+BackendCore<stdio::Client>&>`. The factory derives from
 `core::socket::stream::SocketContextFactory`, owns one reusable
 `frontend::BackendAdapter`, and constructs one
 `CodexFrontendSocketContext` per accepted socket.
@@ -48,13 +54,13 @@ BackendCore&>`. The factory derives from
 `main()` performs this ordering:
 
 1. initialize `core::SNodeC`;
-2. create a `std::unique_ptr<ai::openai::codex::stdio::Client>`;
-3. move it into `backend::BackendCore`;
-4. create and listen with the Unix socket server;
-5. start `BackendCore`, then enter the SNode.C event loop;
-6. destroy the socket server and all contexts;
-7. destroy `BackendCore`, which stops and destroys the App Server client; and
-8. perform the final idempotent `core::SNodeC::free()` cleanup.
+2. directly construct `backend::BackendCore<stdio::Client>`;
+3. create and listen with the Unix socket server;
+4. start `BackendCore`, then enter the SNode.C event loop;
+5. destroy the socket server and all contexts;
+6. destroy `BackendCore`, whose non-template runtime stops before its directly
+   owned App Server client is destroyed; and
+7. perform the final idempotent `core::SNodeC::free()` cleanup.
 
 This construction order prevents an accepted context from outliving the
 backend. Frontend callbacks additionally use weak lifetime gates. Disconnecting
@@ -71,12 +77,14 @@ only when `SNODEC_BUILD_APPS` is enabled:
 cmake -S . -B build \
   -DSNODEC_BUILD_APPS=ON \
   -DSNODEC_BUILD_TESTS=ON
-cmake --build build --parallel --target codex-backend
+cmake --build build --parallel --target codex-backend codex-backend-client
 ```
 
-With a conventional single-configuration generator, run the in-tree binary
-from `build/src/apps/codex-backend/codex-backend`. Installing the `apps`
-component places `codex-backend` in the configured binary install directory:
+With a conventional single-configuration generator, run the in-tree binaries
+from `build/src/apps/codex-backend/codex-backend` and
+`build/src/apps/codex-backend-client/codex-backend-client`. Installing the
+`apps` component places both executables in the configured binary install
+directory:
 
 ```sh
 cmake --install build --component apps
@@ -88,6 +96,15 @@ Ordinary library builds may set `-DSNODEC_BUILD_APPS=OFF`; the exported
 The executable also requires the `codex` command expected by the existing
 stdio client. Authentication and quota are properties of that local Codex
 installation, not of the frontend protocol.
+
+Start the server and client in separate terminals. The client sends `hello`
+automatically and provides typed `snapshot`, `acquire`, `threads`, and `read`
+commands as well as the other commands documented in its README:
+
+```sh
+codex-backend
+codex-backend-client
+```
 
 ## Socket path
 

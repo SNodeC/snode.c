@@ -25,6 +25,8 @@ namespace {
     namespace backend = ai::openai::codex::backend;
     namespace typed = ai::openai::codex::typed;
 
+    using FakeBackendCore = backend::BackendCore<tests::codex::FakeAppServerClient>;
+
     class ManualScheduler {
     public:
         void schedule(std::function<void()> callback) {
@@ -121,7 +123,7 @@ namespace {
         };
         options.maxEventsPerCallback = 64;
 
-        backend::BackendCore core(std::make_unique<tests::codex::FakeAppServerClient>(transport), options);
+        FakeBackendCore core(options, transport);
         SessionObservations firstObservations;
         SessionObservations secondObservations;
         backend::FrontendSession first = core.openSession(callbacksFor(firstObservations));
@@ -273,7 +275,7 @@ namespace {
         };
         options.maxSessionQueueEntries = 2;
 
-        backend::BackendCore core(std::make_unique<tests::codex::FakeAppServerClient>(transport), options);
+        FakeBackendCore core(options, transport);
         std::size_t eventlessCompletions = 0;
         backend::FrontendSession eventless =
             core.openSession(backend::FrontendSessionCallbacks{{},

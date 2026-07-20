@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
  */
 
-#include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/backend/BackendCore.h"
 #include "ai/openai/codex/stdio/Client.h"
 #include "apps/codex-backend/CodexFrontendSocketContextFactory.h"
@@ -14,16 +13,13 @@
 #include "net/un/stream/legacy/SocketServer.h"
 
 #include <iostream>
-#include <memory>
-#include <utility>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     int result = 1;
     {
-        auto appServer = std::make_unique<ai::openai::codex::stdio::Client>();
-        ai::openai::codex::backend::BackendCore backend(std::move(appServer));
+        ai::openai::codex::backend::BackendCore<ai::openai::codex::stdio::Client> backend;
 
         auto socketServer = net::un::stream::legacy::Server<apps::codex_backend::CodexFrontendSocketContextFactory>(
             "codex-backend",

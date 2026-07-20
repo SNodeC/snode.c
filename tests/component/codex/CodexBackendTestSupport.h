@@ -96,9 +96,22 @@ namespace tests::codex {
 
     class FakeAppServerClient final : public AppServerClient {
     public:
-        explicit FakeAppServerClient(const std::shared_ptr<FakeTransportState>& state)
-            : AppServerClient(std::make_unique<FakeTransport>(state), {"codex_backend_test", "Codex Backend Test", "1"}) {
+        explicit FakeAppServerClient(const std::shared_ptr<FakeTransportState>& state, FakeAppServerClient** instance = nullptr)
+            : AppServerClient(std::make_unique<FakeTransport>(state), {"codex_backend_test", "Codex Backend Test", "1"})
+            , instance(instance) {
+            if (this->instance != nullptr) {
+                *this->instance = this;
+            }
         }
+
+        ~FakeAppServerClient() override {
+            if (instance != nullptr) {
+                *instance = nullptr;
+            }
+        }
+
+    private:
+        FakeAppServerClient** instance;
     };
 
     inline void inject(const TransportCallbacks& callbacks, const Json& message) {

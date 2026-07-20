@@ -1,10 +1,10 @@
 # Codex BackendCore
 
-`ai::openai::codex::backend::BackendCore` is the reusable, stateful layer above
-the typed Codex App Server API. It owns one `AppServerClient`, reduces typed
-operation results, notifications, lifecycle changes, diagnostics, and server
-requests into canonical state, and exposes deterministic snapshots and
-transport-neutral frontend sessions.
+`ai::openai::codex::backend::BackendCore<ClientT>` is the reusable, stateful
+layer above the typed Codex App Server API. It directly owns one concrete
+`AppServerClient`, reduces typed operation results, notifications, lifecycle
+changes, diagnostics, and server requests into canonical state, and exposes
+deterministic snapshots and transport-neutral frontend sessions.
 
 The dependency direction is deliberately one way:
 
@@ -25,38 +25,61 @@ socket path is not backend state. Concrete listener and framing code belongs in
 
 ## Ownership and construction
 
-`BackendCore` takes exclusive ownership of exactly one client:
+`BackendCore<ClientT>` directly owns exactly one concrete client:
 
 ```cpp
 #include "ai/openai/codex/backend/BackendCore.h"
 #include "ai/openai/codex/stdio/Client.h"
 
-auto appServer = std::make_unique<ai::openai::codex::stdio::Client>();
-ai::openai::codex::backend::BackendCore backend(std::move(appServer));
+ai::openai::codex::backend::BackendCore<
+    ai::openai::codex::stdio::Client
+> backend;
 
 backend.start();
 ```
 
-`stdio::Client` is only one possible composition. The backend constructor
-accepts `std::unique_ptr<AppServerClient>` and never constructs or assumes the
-stdio transport. Deterministic tests can supply an `AppServerClient` backed by
-a fake transport while using the same typed API and correlation registry.
+`stdio::Client` is only one possible composition. `ClientT` must derive from
+`AppServerClient`. A default-constructible client enables the zero-argument
+form, and other client constructor arguments are perfectly forwarded. Backend
+options are the first argument when both options and client arguments are
+present:
+
+```cpp
+BackendCoreOptions options;
+options.initialThreadListLimit = 2;
+
+BackendCore<FakeAppServerClient> backend(options, fakeTransportState);
+```
+
+This lets deterministic tests directly own an `AppServerClient` backed by a
+fake transport while using the same typed API and correlation registry. No heap
+allocation or caller-managed lifetime is required merely to own the client.
 
 The backend installs the client's lifecycle, diagnostic, typed-event, and
 typed-server-request handlers. It does not instantiate a raw protocol engine,
 does not allocate App Server client request IDs, and does not duplicate the
-typed client's request-correlation registry. Destruction invalidates backend
-callbacks, stops the owned client, suppresses queued frontend callbacks, and
-then destroys the client.
+typed client's request-correlation registry. The small public template
+delegates to a non-template runtime retained in `BackendCore.cpp`. That runtime
+borrows the owned client through the existing `AppServerClient` abstraction.
+Members are ordered so destruction first invalidates backend callbacks, stops
+the client, and suppresses queued frontend callbacks; only then is the concrete
+client destroyed.
 
 The main API is:
 
 ```cpp
+template <typename ClientT>
+    requires std::derived_from<ClientT, AppServerClient>
 class BackendCore {
 public:
-    explicit BackendCore(
-        std::unique_ptr<AppServerClient> client,
-        BackendCoreOptions options = {});
+    BackendCore();
+    explicit BackendCore(BackendCoreOptions options);
+
+    template <typename... ClientArgs>
+    explicit BackendCore(ClientArgs&&... clientArgs);
+
+    template <typename... ClientArgs>
+    BackendCore(BackendCoreOptions options, ClientArgs&&... clientArgs);
 
     void start();
     void stop();

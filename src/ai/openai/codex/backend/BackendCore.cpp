@@ -272,7 +272,7 @@ namespace ai::openai::codex::backend {
         }
     } // namespace
 
-    class BackendCore::Impl : public std::enable_shared_from_this<BackendCore::Impl> {
+    class detail::BackendCoreRuntime::Impl : public std::enable_shared_from_this<detail::BackendCoreRuntime::Impl> {
     public:
         struct SessionBinding {
             SessionId id;
@@ -288,8 +288,8 @@ namespace ai::openai::codex::backend {
             std::function<void()> close;
         };
 
-        Impl(std::unique_ptr<AppServerClient> client, BackendCoreOptions options)
-            : client(std::move(client))
+        Impl(AppServerClient& client, BackendCoreOptions options)
+            : client(client)
             , options(std::move(options))
             , reducer(this->options.reducer) {
             if (!this->options.scheduler) {
@@ -308,24 +308,24 @@ namespace ai::openai::codex::backend {
 
         void initialize() {
             const std::weak_ptr<Impl> weak = weak_from_this();
-            client->setOnStateChanged([weak](const StateChange& change) {
+            client.setOnStateChanged([weak](const StateChange& change) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     self->onStateChanged(change);
                 }
             });
-            client->setOnDiagnostic([weak](const Diagnostic& diagnostic) {
+            client.setOnDiagnostic([weak](const Diagnostic& diagnostic) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     self->publish(DiagnosticReceived{diagnostic.message});
                 }
             });
-            client->events().setOnEvent([weak](const typed::Event& event) {
+            client.events().setOnEvent([weak](const typed::Event& event) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     for (BackendEvent translated : self->reducer.translate(event)) {
                         self->publish(std::move(translated));
                     }
                 }
             });
-            client->requests().setOnRequest([weak](const typed::TypedServerRequest& request) {
+            client.requests().setOnRequest([weak](const typed::TypedServerRequest& request) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     self->onServerRequest(request);
                 }
@@ -342,11 +342,11 @@ namespace ai::openai::codex::backend {
             observers.clear();
             activeOperations.clear();
             try {
-                client->events().setOnEvent({});
-                client->requests().setOnRequest({});
-                client->setOnStateChanged({});
-                client->setOnDiagnostic({});
-                client->stop();
+                client.events().setOnEvent({});
+                client.requests().setOnRequest({});
+                client.setOnStateChanged({});
+                client.setOnDiagnostic({});
+                client.stop();
             } catch (...) {
             }
         }
@@ -363,7 +363,7 @@ namespace ai::openai::codex::backend {
             ++generation;
             operationCallbacksEnabled = true;
             initialRefreshGeneration.reset();
-            client->start();
+            client.start();
         }
 
         void stop() {
@@ -375,7 +375,7 @@ namespace ai::openai::codex::backend {
                 ++generation;
             }
             cancelActiveOperations("The backend was stopped before the operation completed.");
-            client->stop();
+            client.stop();
         }
 
         SessionBinding createSession(FrontendSessionCallbacks callbacks) {
@@ -531,7 +531,7 @@ namespace ai::openai::codex::backend {
                 state.sequenceExhausted = true;
                 state.lifecycle = BackendLifecycle::Failed;
                 state.lastLifecycleError = Error{Error::Category::Capacity, EOVERFLOW, "Backend sequence number exhausted."};
-                client->stop();
+                client.stop();
                 return;
             }
 
@@ -910,17 +910,16 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission =
-                client->threads().start(command.options, [weak, id, requestId, operationGeneration](const auto& result) {
-                    if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
-                        if (result && result.value) {
-                            self->publish(ThreadUpserted{*result.value, EntityLoad::Summary});
-                            self->complete(id, requestId, CommandResult::succeeded(*result.value));
-                        } else {
-                            self->complete(id, requestId, operationFailure(result));
-                        }
+            const auto submission = client.threads().start(command.options, [weak, id, requestId, operationGeneration](const auto& result) {
+                if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
+                    if (result && result.value) {
+                        self->publish(ThreadUpserted{*result.value, EntityLoad::Summary});
+                        self->complete(id, requestId, CommandResult::succeeded(*result.value));
+                    } else {
+                        self->complete(id, requestId, operationFailure(result));
                     }
-                });
+                }
+            });
             if (!submission) {
                 complete(id, requestId, submissionFailure(submission));
             }
@@ -931,7 +930,7 @@ namespace ai::openai::codex::backend {
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
             const auto submission =
-                client->threads().resume(command.threadId, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
+                client.threads().resume(command.threadId, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->publish(ThreadUpserted{*result.value, EntityLoad::Summary});
@@ -951,7 +950,7 @@ namespace ai::openai::codex::backend {
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
             const auto submission =
-                client->threads().list(command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
+                client.threads().list(command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->publish(ThreadListUpdated{*result.value, command.options.cursor, false});
@@ -970,7 +969,7 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client->threads().read(
+            const auto submission = client.threads().read(
                 command.threadId, command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
@@ -991,7 +990,7 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client->turns().start(
+            const auto submission = client.turns().start(
                 command.threadId, command.input, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
@@ -1012,7 +1011,7 @@ namespace ai::openai::codex::backend {
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
             const auto submission =
-                client->turns().interrupt(command.threadId, command.turnId, [weak, id, requestId, operationGeneration](const auto& result) {
+                client.turns().interrupt(command.threadId, command.turnId, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->complete(id, requestId, CommandResult::succeeded(*result.value));
@@ -1064,7 +1063,7 @@ namespace ai::openai::codex::backend {
                     requestId,
                     command.requestId,
                     [this, &command](const auto& request) {
-                        return client->requests().respond(request, command.decision);
+                        return client.requests().respond(request, command.decision);
                     },
                     "command approval");
             } else {
@@ -1073,7 +1072,7 @@ namespace ai::openai::codex::backend {
                     requestId,
                     command.requestId,
                     [this, &command](const auto& request) {
-                        return client->requests().respond(request, command.decision);
+                        return client.requests().respond(request, command.decision);
                     },
                     "file-change approval");
             }
@@ -1085,7 +1084,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client->requests().respond(request, command.answers);
+                    return client.requests().respond(request, command.answers);
                 },
                 "user-input");
         }
@@ -1096,7 +1095,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client->requests().respond(request, command.response);
+                    return client.requests().respond(request, command.response);
                 },
                 "authentication");
         }
@@ -1107,7 +1106,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client->requests().respondRaw(request, command.result);
+                    return client.requests().respondRaw(request, command.result);
                 },
                 "unknown extension");
         }
@@ -1118,7 +1117,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client->requests().reject(request, command.error);
+                    return client.requests().reject(request, command.error);
                 },
                 "unknown extension");
         }
@@ -1153,7 +1152,7 @@ namespace ai::openai::codex::backend {
             listOptions.limit = options.initialThreadListLimit;
             const std::uint64_t operationGeneration = generation;
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client->threads().list(listOptions, [weak, operationGeneration](const auto& result) {
+            const auto submission = client.threads().list(listOptions, [weak, operationGeneration](const auto& result) {
                 if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                     if (result && result.value) {
                         self->publish(ThreadListUpdated{*result.value, std::nullopt, true});
@@ -1209,7 +1208,7 @@ namespace ai::openai::codex::backend {
             }
         }
 
-        std::unique_ptr<AppServerClient> client;
+        AppServerClient& client;
         BackendCoreOptions options;
         Reducer reducer;
         BackendState state;
@@ -1338,42 +1337,39 @@ namespace ai::openai::codex::backend {
         }
     }
 
-    BackendCore::BackendCore(std::unique_ptr<AppServerClient> client, BackendCoreOptions options) {
-        if (!client) {
-            throw std::invalid_argument("BackendCore requires an AppServerClient");
-        }
-        impl = std::make_shared<Impl>(std::move(client), std::move(options));
+    detail::BackendCoreRuntime::BackendCoreRuntime(AppServerClient& client, BackendCoreOptions options) {
+        impl = std::make_shared<Impl>(client, std::move(options));
         impl->initialize();
     }
 
-    BackendCore::~BackendCore() {
+    detail::BackendCoreRuntime::~BackendCoreRuntime() {
         if (impl) {
             impl->shutdown();
         }
         impl.reset();
     }
 
-    void BackendCore::start() {
+    void detail::BackendCoreRuntime::start() {
         impl->start();
     }
 
-    void BackendCore::stop() {
+    void detail::BackendCoreRuntime::stop() {
         impl->stop();
     }
 
-    BackendState BackendCore::state() const {
+    BackendState detail::BackendCoreRuntime::state() const {
         return impl->copyState();
     }
 
-    Snapshot BackendCore::snapshot() const {
+    Snapshot detail::BackendCoreRuntime::snapshot() const {
         return impl->makeCurrentSnapshot();
     }
 
-    bool BackendCore::isReady() const noexcept {
+    bool detail::BackendCoreRuntime::isReady() const noexcept {
         return impl && impl->ready();
     }
 
-    FrontendSession BackendCore::openSession(FrontendSessionCallbacks callbacks) {
+    FrontendSession detail::BackendCoreRuntime::openSession(FrontendSessionCallbacks callbacks) {
         Impl::SessionBinding binding = impl->createSession(std::move(callbacks));
         if (!binding.id) {
             return {};
@@ -1388,7 +1384,7 @@ namespace ai::openai::codex::backend {
         return FrontendSession{std::move(control)};
     }
 
-    BackendObserverSubscription BackendCore::subscribe(BackendObserverCallbacks callbacks) {
+    BackendObserverSubscription detail::BackendCoreRuntime::subscribe(BackendObserverCallbacks callbacks) {
         Impl::ObserverBinding binding = impl->createObserver(std::move(callbacks));
         if (!binding.open) {
             return {};

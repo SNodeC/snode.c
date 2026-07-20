@@ -1,0 +1,169 @@
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+ */
+
+#include "ai/openai/codex/frontend/Codec.h"
+#include "ai/openai/codex/frontend/Messages.h"
+#include "ai/openai/codex/frontend/Protocol.h"
+#include "apps/codex-backend-client/CommandParser.h"
+#include "support/TestResult.h"
+
+#include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <variant>
+
+namespace {
+    namespace client = apps::codex_backend_client;
+    namespace frontend = ai::openai::codex::frontend;
+
+    const client::SendCommand* sendCommand(const client::ParsedCommand& parsed) {
+        return std::get_if<client::SendCommand>(&parsed);
+    }
+
+    const frontend::Command* protocolCommand(const client::ParsedCommand& parsed) {
+        const client::SendCommand* send = sendCommand(parsed);
+        return send == nullptr ? nullptr : std::get_if<frontend::Command>(&send->message);
+    }
+
+    template <typename ParametersT>
+    const ParametersT* parameters(const client::ParsedCommand& parsed) {
+        const frontend::Command* command = protocolCommand(parsed);
+        return command == nullptr ? nullptr : std::get_if<ParametersT>(&command->parameters);
+    }
+
+    void expectWireCommand(tests::support::TestResult& result,
+                           const client::ParsedCommand& parsed,
+                           std::string_view method,
+                           frontend::Json params,
+                           const std::string& description) {
+        const client::SendCommand* send = sendCommand(parsed);
+        const frontend::Command* command = protocolCommand(parsed);
+        result.expectTrue(send != nullptr && command != nullptr, description + " produces a protocol command");
+        if (send == nullptr || command == nullptr) {
+            return;
+        }
+
+        const auto encoded = frontend::Codec::encodeClient(send->message);
+        result.expectTrue(encoded.hasValue(), description + " encodes through the shared frontend codec");
+        if (!encoded) {
+            return;
+        }
+
+        const frontend::Json expected{{"protocol", frontend::ProtocolIdentity},
+                                      {"version", frontend::ProtocolVersion},
+                                      {"kind", frontend::kind::Command},
+                                      {"requestId", command->requestId},
+                                      {"method", method},
+                                      {"params", std::move(params)}};
+        result.expectTrue(!command->requestId.empty() && encoded.value() == expected,
+                          description + " uses the exact Frontend Protocol v1 envelope and parameters");
+    }
+} // namespace
+
+int main() {
+    using namespace apps::codex_backend_client;
+    using namespace ai::openai::codex::frontend;
+
+    tests::support::TestResult result;
+    CommandParser parser;
+
+    const ParsedCommand empty = parser.parse("  \t ");
+    result.expectTrue(std::holds_alternative<NoopCommand>(empty), "blank input is a local no-op");
+    result.expectTrue(std::holds_alternative<HelpCommand>(parser.parse("help")), "help remains a local presentation command");
+    result.expectTrue(std::holds_alternative<QuitCommand>(parser.parse("quit")), "quit remains a local lifecycle command");
+
+    const ParsedCommand watchOn = parser.parse("watch on");
+    const ParsedCommand watchOff = parser.parse("watch off");
+    const WatchCommand* enabled = std::get_if<WatchCommand>(&watchOn);
+    const WatchCommand* disabled = std::get_if<WatchCommand>(&watchOff);
+    result.expectTrue(enabled != nullptr && enabled->enabled, "watch on enables event presentation locally");
+    result.expectTrue(disabled != nullptr && !disabled->enabled, "watch off disables event presentation locally");
+
+    const ParsedCommand snapshot = parser.parse("snapshot");
+    result.expectTrue(parameters<SnapshotGet>(snapshot) != nullptr, "snapshot maps to typed snapshot.get parameters");
+    result.expectTrue(protocolCommand(snapshot) != nullptr && protocolCommand(snapshot)->requestId == "client-1",
+                      "the first protocol command receives the documented monotonic client request ID");
+    expectWireCommand(result, snapshot, method::SnapshotGet, Json::object(), "snapshot");
+
+    const ParsedCommand replay = parser.parse("replay 42");
+    const ReplayAfter* replayParameters = parameters<ReplayAfter>(replay);
+    result.expectTrue(replayParameters != nullptr && replayParameters->after == SequenceNumber{42},
+                      "replay parses the exact unsigned sequence number");
+    result.expectTrue(protocolCommand(replay) != nullptr && protocolCommand(replay)->requestId == "client-2",
+                      "the next protocol command advances the request ID exactly once");
+    expectWireCommand(result, replay, method::EventsReplay, Json{{"after", std::uint64_t{42}}}, "replay");
+
+    const ParsedCommand acquire = parser.parse("acquire");
+    const ParsedCommand release = parser.parse("release");
+    result.expectTrue(parameters<ControllerAcquire>(acquire) != nullptr, "acquire maps to controller.acquire");
+    result.expectTrue(parameters<ControllerRelease>(release) != nullptr, "release maps to controller.release");
+    expectWireCommand(result, acquire, method::ControllerAcquire, Json::object(), "acquire");
+    expectWireCommand(result, release, method::ControllerRelease, Json::object(), "release");
+
+    const Command* acquireCommand = protocolCommand(acquire);
+    const Command* releaseCommand = protocolCommand(release);
+    result.expectTrue(acquireCommand != nullptr && releaseCommand != nullptr && acquireCommand->requestId != releaseCommand->requestId,
+                      "generated request identifiers are non-empty and unique");
+
+    const ParsedCommand threads = parser.parse("threads");
+    result.expectTrue(parameters<ThreadList>(threads) != nullptr, "threads maps to a typed thread.list command");
+    expectWireCommand(result, threads, method::ThreadList, Json::object(), "threads");
+
+    const ParsedCommand read = parser.parse("read thread-7");
+    const ThreadRead* readParameters = parameters<ThreadRead>(read);
+    result.expectTrue(readParameters != nullptr && readParameters->threadId == "thread-7" && readParameters->includeTurns == std::nullopt,
+                      "read preserves the thread identifier and leaves the optional includeTurns policy unspecified");
+    expectWireCommand(result, read, method::ThreadRead, Json{{"threadId", "thread-7"}}, "read");
+
+    const ParsedCommand turn = parser.parse("turn thread-7 summarize these changes");
+    const TurnStart* turnParameters = parameters<TurnStart>(turn);
+    const TextInput* text =
+        turnParameters != nullptr && turnParameters->input.size() == 1 ? std::get_if<TextInput>(&turnParameters->input.front()) : nullptr;
+    result.expectTrue(turnParameters != nullptr && turnParameters->threadId == "thread-7" && text != nullptr &&
+                          text->text == "summarize these changes",
+                      "turn keeps the complete line-oriented text as one typed text input");
+    expectWireCommand(result,
+                      turn,
+                      method::TurnStart,
+                      Json{{"threadId", "thread-7"}, {"input", Json::array({Json{{"type", "text"}, {"text", "summarize these changes"}}})}},
+                      "turn");
+
+    const ParsedCommand interrupt = parser.parse("interrupt thread-7 turn-9");
+    const TurnInterrupt* interruptParameters = parameters<TurnInterrupt>(interrupt);
+    result.expectTrue(interruptParameters != nullptr && interruptParameters->threadId == "thread-7" &&
+                          interruptParameters->turnId == "turn-9",
+                      "interrupt maps both identifiers without changing their spelling");
+    expectWireCommand(result, interrupt, method::TurnInterrupt, Json{{"threadId", "thread-7"}, {"turnId", "turn-9"}}, "interrupt");
+
+    const std::string rawJson =
+        R"({"protocol":"snodec.codex-frontend","version":1,"kind":"command","requestId":"raw-1","method":"snapshot.get","params":{}})";
+    const ParsedCommand raw = parser.parse("raw " + rawJson);
+    const SendCommand* rawSend = sendCommand(raw);
+    bool rawRoundTrips = false;
+    if (rawSend != nullptr) {
+        const auto rawEncoded = Codec::encodeClient(rawSend->message);
+        rawRoundTrips = rawEncoded.hasValue() && rawEncoded.value() == Json::parse(rawJson);
+    }
+    result.expectTrue(rawRoundTrips,
+                      "raw accepts only a valid frontend message and reuses the shared codec without changing its wire fields");
+
+    for (const std::string_view invalid :
+         {"replay nope", "read", "turn thread-7", "interrupt thread-7", "watch maybe", "raw {not-json", "unknown-command"}) {
+        result.expectTrue(std::holds_alternative<CommandParseError>(parser.parse(invalid)),
+                          std::string("invalid command is rejected locally: ") + std::string(invalid));
+    }
+
+    const std::string help = CommandParser::helpText();
+    for (const std::string_view command :
+         {"snapshot", "replay", "acquire", "release", "threads", "read", "turn", "interrupt", "raw", "watch", "quit"}) {
+        result.expectTrue(help.find(command) != std::string::npos, "help documents command: " + std::string(command));
+    }
+
+    return result.processResult();
+}
