@@ -26,14 +26,20 @@ int main(int argc, char* argv[]) {
 
     core::SNodeC::init(argc, argv);
     core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC);
-    testResult.expectTrue(pipe.isValid(), "timeout test pipe is created");
-    if (!pipe.isValid()) {
+    const bool completePipe = pipe.hasReadFd() && pipe.hasWriteFd();
+    testResult.expectTrue(completePipe, "timeout test pipe is created");
+    if (!completePipe) {
         core::SNodeC::free();
         return testResult.processResult();
     }
 
     const auto startedAt = std::chrono::steady_clock::now();
     core::pipe::PipeSink* sink = pipe.releaseReadAsSink(core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, utils::Timeval({0, 50000}));
+    testResult.expectTrue(sink != nullptr, "read endpoint transfers into a PipeSink");
+    if (sink == nullptr) {
+        core::SNodeC::free();
+        return testResult.processResult();
+    }
     const int sinkFd = sink->getRegisteredFd();
     bool closed = false;
     bool descriptorClosedBeforeCallback = false;

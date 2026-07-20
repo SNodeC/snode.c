@@ -76,12 +76,13 @@ int main(int argc, char* argv[]) {
 
     const std::filesystem::path pidFile = uniqueRemovedPath();
     const std::size_t descriptorsBefore = descriptorCount();
-    const bool ignoreSigterm = scenario == "ignore-sigterm";
+    const bool forcePolling = scenario == "forced-polling-normal" || scenario == "forced-polling-ignore-sigterm";
+    const bool ignoreSigterm = scenario == "ignore-sigterm" || scenario == "forced-polling-ignore-sigterm";
     const bool destroyClient = scenario == "destroy-client";
     const std::string fakeMode = ignoreSigterm ? "pidfile-ignore-shutdown" : "pidfile-normal";
 
     std::unique_ptr<ai::openai::codex::AppServerClient> client;
-    if (scenario == "forced-polling-normal") {
+    if (forcePolling) {
         client = std::make_unique<ForcedPollingClient>(CODEX_FAKE_APP_SERVER, std::vector<std::string>{fakeMode, pidFile.string()});
     } else {
         client =

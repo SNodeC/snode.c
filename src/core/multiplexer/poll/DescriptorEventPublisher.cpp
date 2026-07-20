@@ -70,8 +70,8 @@ namespace core::multiplexer::poll {
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        pollFds.muxAdd(eventReceiver, events);
+    bool DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        return pollFds.muxAdd(eventReceiver, events);
     }
 
     void DescriptorEventPublisher::muxDel(int fd) {

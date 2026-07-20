@@ -47,6 +47,7 @@
 
 #include "log/Logger.h"
 
+#include <cerrno>
 #include <climits>
 #include <utility>
 
@@ -105,17 +106,23 @@ namespace core {
     }
 
     bool DescriptorEventReceiver::enable(int fd) {
-        if (!enabled) {
-            observedFd = fd;
-
-            enabled = true;
-            descriptorEventPublisher.enable(this);
-            log().trace("{}: Enabled", getName());
-        } else {
+        if (enabled) {
             log().warn("{}: Double enable", getName());
+            return false;
         }
 
-        return enabled;
+        observedFd = fd;
+        if (descriptorEventPublisher.enable(this)) {
+            enabled = true;
+            log().trace("{}: Enabled", getName());
+            return true;
+        }
+
+        const int registrationError = errno != 0 ? errno : EIO;
+        observedFd = -1;
+        log().error("{}: Descriptor registration failed: fd={}", getName(), fd);
+        errno = registrationError;
+        return false;
     }
 
     void DescriptorEventReceiver::disable() {

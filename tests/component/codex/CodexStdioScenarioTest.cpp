@@ -12,6 +12,7 @@
 #include "core/SNodeC.h"
 #include "core/pipe/PipeSource.h"
 #include "core/timer/Timer.h"
+#include "support/DescriptorRegistrationFailure.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 
@@ -21,7 +22,9 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
+#include <sys/syscall.h>
 #include <system_error>
 #include <unistd.h>
 #include <utility>
@@ -56,6 +59,18 @@ namespace {
         return count;
     }
 
+    std::size_t uniquePipeCount() {
+        std::set<std::string> pipes;
+        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator("/proc/self/fd")) {
+            std::error_code error;
+            const std::string target = std::filesystem::read_symlink(entry.path(), error).string();
+            if (!error && target.starts_with("pipe:[")) {
+                pipes.insert(target);
+            }
+        }
+        return pipes.size();
+    }
+
     bool containsState(const std::vector<CodexState>& states, CodexState expected) {
         for (const CodexState state : states) {
             if (state == expected) {
@@ -73,6 +88,20 @@ namespace {
         }
         return false;
     }
+
+    bool pidfdIsAvailable() {
+#if defined(SYS_pidfd_open)
+        int descriptor = -1;
+        do {
+            descriptor = static_cast<int>(::syscall(SYS_pidfd_open, ::getpid(), 0));
+        } while (descriptor < 0 && errno == EINTR);
+        if (descriptor >= 0) {
+            ::close(descriptor);
+            return true;
+        }
+#endif
+        return false;
+    }
 } // namespace
 
 int main(int argc, char* argv[]) {
@@ -88,13 +117,19 @@ int main(int argc, char* argv[]) {
     }
 
     const std::string scenario = argv[1];
+    if (scenario == "registration-pidfd-fallback" && !pidfdIsAvailable()) {
+        return tests::support::cTestSkipReturnCode;
+    }
+
     char* snodeArguments[] = {argv[0], nullptr};
     core::SNodeC::init(1, snodeArguments);
 
     const std::size_t descriptorsBefore = descriptorCount();
+    const std::size_t pipesBefore = uniquePipeCount();
     const auto startedAt = std::chrono::steady_clock::now();
     std::optional<std::chrono::steady_clock::time_point> stoppedAt;
     std::optional<std::chrono::milliseconds> probeDelay;
+    std::optional<std::size_t> readyPipeCount;
     std::optional<ai::openai::codex::Error> failure;
     std::optional<core::timer::Timer> delayedStopTimer;
     std::optional<std::filesystem::path> recoveryMarker;
@@ -121,8 +156,17 @@ int main(int argc, char* argv[]) {
         fakeMode = "hold-initialize";
     } else if (scenario == "post-spawn-setup-failure") {
         fakeMode = "hold-initialize";
+    } else if (scenario == "registration-lifecycle-failure" || scenario == "registration-stdin-failure" ||
+               scenario == "registration-stdout-failure" || scenario == "registration-stderr-failure") {
+        fakeMode = "hold-initialize";
+    } else if (scenario == "registration-pidfd-fallback") {
+        fakeMode = "normal";
     } else if (scenario == "forced-fallback-normal") {
         fakeMode = "normal";
+    } else if (scenario == "forced-fallback-ignore-shutdown") {
+        fakeMode = "ignore-shutdown";
+    } else if (scenario == "forced-fallback-close-stdout") {
+        fakeMode = "close-stdout-ignore-shutdown";
     } else if (scenario == "forced-fallback-exit-before-initialize") {
         fakeMode = "exit-before-initialize";
     } else if (scenario == "recover-after-failure") {
@@ -150,7 +194,10 @@ int main(int argc, char* argv[]) {
 
     const std::string executable = scenario == "launch-failure" ? "/snodec/nonexistent/codex" : CODEX_FAKE_APP_SERVER;
     std::unique_ptr<ai::openai::codex::AppServerClient> client;
-    if (scenario == "forced-fallback-normal" || scenario == "forced-fallback-exit-before-initialize") {
+    if (scenario == "registration-stdin-failure" || scenario == "registration-stdout-failure" ||
+        scenario == "registration-stderr-failure" || scenario == "forced-fallback-normal" ||
+        scenario == "forced-fallback-ignore-shutdown" || scenario == "forced-fallback-close-stdout" ||
+        scenario == "forced-fallback-exit-before-initialize") {
         client = std::make_unique<ForcedPollingClient>(executable, std::move(fakeArguments), std::move(clientInfo));
     } else if (scenario == "post-spawn-setup-failure") {
         client = std::make_unique<SetupFailureClient>(executable, std::move(fakeArguments), std::move(clientInfo));
@@ -168,6 +215,9 @@ int main(int argc, char* argv[]) {
             ++failureCount;
             failure = stateChange.error;
             failureWasAsynchronous = startCallReturned;
+            if (scenario == "forced-fallback-close-stdout") {
+                stoppedAt = std::chrono::steady_clock::now();
+            }
             client->stop();
             return;
         }
@@ -186,9 +236,16 @@ int main(int argc, char* argv[]) {
                     client->stop();
                 },
                 utils::Timeval({0, 100000})));
+        } else if (scenario == "forced-fallback-close-stdout" && stateChange.current == CodexState::Ready) {
+            readyPipeCount = uniquePipeCount();
         } else if ((scenario == "slow-stdin" || scenario == "ignore-shutdown" || scenario == "stdio-framing" ||
-                    scenario == "forced-fallback-normal" || scenario == "recover-after-failure") &&
+                    scenario == "registration-pidfd-fallback" || scenario == "forced-fallback-normal" ||
+                    scenario == "forced-fallback-ignore-shutdown" || scenario == "recover-after-failure") &&
                    stateChange.current == CodexState::Ready) {
+            if (scenario == "registration-pidfd-fallback" || scenario == "forced-fallback-normal" ||
+                scenario == "forced-fallback-ignore-shutdown") {
+                readyPipeCount = uniquePipeCount();
+            }
             stoppedAt = std::chrono::steady_clock::now();
             client->stop();
         } else if (stateChange.current == CodexState::Stopped) {
@@ -214,10 +271,23 @@ int main(int argc, char* argv[]) {
         },
         utils::Timeval({0, 20000}));
 
+    if (scenario == "registration-lifecycle-failure") {
+        core::test::failDescriptorRegistrationAfter(0);
+    } else if (scenario == "registration-pidfd-fallback") {
+        core::test::failDescriptorRegistrationAfter(1);
+    } else if (scenario == "registration-stdin-failure") {
+        core::test::failDescriptorRegistrationAfter(1);
+    } else if (scenario == "registration-stdout-failure") {
+        core::test::failDescriptorRegistrationAfter(2);
+    } else if (scenario == "registration-stderr-failure") {
+        core::test::failDescriptorRegistrationAfter(3);
+    }
+
     client->start();
     startCallReturned = true;
     const int startResult = core::SNodeC::start(utils::Timeval({7, 0}));
     const auto completedAt = std::chrono::steady_clock::now();
+    core::test::clearDescriptorRegistrationFailure();
     if (recoveryMarker) {
         std::error_code removeError;
         std::filesystem::remove(*recoveryMarker, removeError);
@@ -257,6 +327,26 @@ int main(int argc, char* argv[]) {
                               "post-spawn parent setup failure retains its transport category");
         testResult.expectTrue(containsState(states, CodexState::Stopped),
                               "post-spawn rollback kills and reaps the child before reaching Stopped");
+    } else if (scenario == "registration-lifecycle-failure") {
+        testResult.expectEqual(1, failureCount, "lifecycle receiver registration failure is reported exactly once");
+        testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Launch,
+                              "lifecycle receiver registration failure aborts before process launch");
+        testResult.expectTrue(failureWasAsynchronous, "pre-spawn registration failure is reported after start returns");
+        testResult.expectTrue(containsState(states, CodexState::Stopped), "pre-spawn registration failure recovers through explicit stop");
+    } else if (scenario == "registration-pidfd-fallback") {
+        testResult.expectEqual(0, failureCount, "pidfd registration failure falls back without failing the client");
+        testResult.expectTrue(containsState(states, CodexState::Ready) && containsState(states, CodexState::Stopped),
+                              "the pre-registered polling receiver completes lifecycle after pidfd rejection");
+        testResult.expectTrue(readyPipeCount && *readyPipeCount == pipesBefore + 3,
+                              "pidfd registration fallback introduces no lifecycle pipe");
+    } else if (scenario == "registration-stdin-failure" || scenario == "registration-stdout-failure" ||
+               scenario == "registration-stderr-failure") {
+        testResult.expectEqual(1, failureCount, scenario + ": parent receiver registration failure is reported exactly once");
+        testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Transport,
+                              scenario + ": parent receiver registration failure remains a transport failure");
+        testResult.expectTrue(containsState(states, CodexState::Stopped),
+                              scenario + ": partial parent setup is closed and the child is reaped");
+        testResult.expectTrue(failureWasAsynchronous, scenario + ": registration failure callback runs after start returns");
     } else if (scenario == "bounded-overflow") {
         testResult.expectEqual(1, failureCount, "bounded queue overflow reports failure exactly once");
         testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Transport,
@@ -325,6 +415,28 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(0, failureCount, "forced waitpid polling completes the normal lifecycle without failure");
         testResult.expectTrue(containsState(states, CodexState::Ready), "forced waitpid polling reaches Ready");
         testResult.expectTrue(containsState(states, CodexState::Stopped), "forced waitpid polling observes graceful child exit");
+        testResult.expectTrue(readyPipeCount && *readyPipeCount == pipesBefore + 3,
+                              "forced polling reuses stdout and creates only the three process pipes");
+    } else if (scenario == "forced-fallback-ignore-shutdown") {
+        testResult.expectEqual(0, failureCount, "forced waitpid polling keeps an uncooperative shutdown on the expected path");
+        testResult.expectTrue(containsState(states, CodexState::Stopped), "forced waitpid polling observes SIGKILL and reaps the child");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt >= std::chrono::milliseconds(450),
+                              "forced polling drives EOF, SIGTERM, and SIGKILL deadlines");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt < std::chrono::seconds(2),
+                              "forced polling keeps uncooperative shutdown bounded");
+        testResult.expectTrue(readyPipeCount && *readyPipeCount == pipesBefore + 3, "forced polling adds no dedicated lifecycle pipe");
+    } else if (scenario == "forced-fallback-close-stdout") {
+        testResult.expectEqual(1, failureCount, "forced polling reports unexpected stdout EOF exactly once");
+        testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Transport,
+                              "forced polling preserves stdout EOF as a transport failure");
+        testResult.expectTrue(containsState(states, CodexState::Ready) && containsState(states, CodexState::Stopped),
+                              "the stdout-backed polling receiver survives protocol EOF through child reaping");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt >= std::chrono::milliseconds(450),
+                              "stdout EOF does not bypass SIGTERM and SIGKILL grace periods");
+        testResult.expectTrue(stoppedAt && completedAt - *stoppedAt < std::chrono::seconds(2),
+                              "stdout EOF fallback shutdown remains bounded");
+        testResult.expectTrue(readyPipeCount && *readyPipeCount == pipesBefore + 3,
+                              "stdout EOF fallback still uses only the three process pipes");
     } else if (scenario == "forced-fallback-exit-before-initialize") {
         testResult.expectEqual(1, failureCount, "forced waitpid polling reports early exit exactly once");
         testResult.expectTrue(failure && failure->category == ai::openai::codex::Error::Category::Process,

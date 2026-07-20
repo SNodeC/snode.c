@@ -52,7 +52,9 @@ target_compile_definitions(
 )
 add_dependencies(CodexGlobalShutdownTest CodexFakeAppServer)
 
-foreach(scenario IN ITEMS forced-polling-normal ignore-sigterm destroy-client)
+foreach(scenario IN ITEMS forced-polling-normal forced-polling-ignore-sigterm
+                          ignore-sigterm destroy-client
+)
     string(REPLACE "-" "_" scenario_name ${scenario})
     add_test(NAME CodexGlobalShutdown_${scenario_name}
              COMMAND CodexGlobalShutdownTest ${scenario}
@@ -112,6 +114,11 @@ foreach(
           malformed-json
           launch-failure
           post-spawn-setup-failure
+          registration-lifecycle-failure
+          registration-pidfd-fallback
+          registration-stdin-failure
+          registration-stdout-failure
+          registration-stderr-failure
           bounded-overflow
           slow-stdin
           ignore-shutdown
@@ -123,6 +130,8 @@ foreach(
           close-stderr
           recover-after-failure
           forced-fallback-normal
+          forced-fallback-ignore-shutdown
+          forced-fallback-close-stdout
           forced-fallback-exit-before-initialize
 )
     string(REPLACE "-" "_" scenario_name ${scenario})

@@ -26,13 +26,19 @@ int main(int argc, char* argv[]) {
 
     core::SNodeC::init(argc, argv);
     core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC);
-    testResult.expectTrue(pipe.isValid(), "immediate-close test pipe is created");
-    if (!pipe.isValid()) {
+    const bool completePipe = pipe.hasReadFd() && pipe.hasWriteFd();
+    testResult.expectTrue(completePipe, "immediate-close test pipe is created");
+    if (!completePipe) {
         core::SNodeC::free();
         return testResult.processResult();
     }
 
     core::pipe::PipeSource* source = pipe.releaseWriteAsSource(64, core::pipe::PipeSource::TIMEOUT::DISABLE);
+    testResult.expectTrue(source != nullptr, "write endpoint transfers into a PipeSource");
+    if (source == nullptr) {
+        core::SNodeC::free();
+        return testResult.processResult();
+    }
     const int readFd = pipe.getReadFd();
     bool closed = false;
     int closureCount = 0;

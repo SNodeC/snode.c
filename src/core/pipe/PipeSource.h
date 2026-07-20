@@ -57,7 +57,14 @@
 
 namespace core::pipe {
 
-    class PipeSource : public core::eventreceiver::WriteEventReceiver {
+    /**
+     * A self-owned asynchronous pipe writer.
+     *
+     * Instances are created by Pipe::releaseWriteAsSource(). eof() and close()
+     * initiate asynchronous EventLoop removal and destruction. Callbacks must
+     * never delete the receiver and must not use its pointer after onClosed.
+     */
+    class PipeSource final : public core::eventreceiver::WriteEventReceiver {
     public:
         static constexpr std::size_t DEFAULT_MAX_QUEUED_BYTES = 1024 * 1024;
 
@@ -65,36 +72,44 @@ namespace core::pipe {
 
         PipeSource& operator=(const PipeSource&) = delete;
 
-        explicit PipeSource(int fd,
-                            std::size_t maxQueuedBytes = DEFAULT_MAX_QUEUED_BYTES,
-                            const utils::Timeval& timeout = utils::Timeval({60, 0}));
-        ~PipeSource() override;
-
         bool send(const char* chunk, std::size_t chunkLen);
         bool send(const std::string& data);
+
+        // Reject new data, flush accepted data, then close asynchronously.
         void eof();
+
+        // Discard queued data and close asynchronously.
         void close();
 
         std::size_t getQueuedBytes() const noexcept;
 
         void setOnError(const std::function<void(int)>& onError);
         void setOnClosed(const std::function<void()>& onClosed);
-
-    protected:
-        void writeEvent() override;
-        void unobservedEvent() override;
+        void setOnShutdown(const std::function<void(const core::ShutdownContext&)>& onShutdown);
 
     private:
+        explicit PipeSource(int fd,
+                            std::size_t maxQueuedBytes = DEFAULT_MAX_QUEUED_BYTES,
+                            const utils::Timeval& timeout = utils::Timeval({60, 0}));
+        ~PipeSource() override;
+
+        void destruct() final;
+        void writeEvent() override;
+        void unobservedEvent() override;
+        void onShutdown(const core::ShutdownContext& context) override;
         void closeDescriptor() noexcept;
 
         std::function<void(int errnum)> onError;
         std::function<void()> onClosed;
+        std::function<void(const core::ShutdownContext&)> shutdownCallback;
 
         std::vector<char> writeBuffer;
         std::size_t writeOffset = 0;
         std::size_t maxQueuedBytes;
         bool closeWhenDrained = false;
         bool descriptorClosed = false;
+
+        friend class Pipe;
     };
 
 } // namespace core::pipe

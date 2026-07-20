@@ -67,10 +67,10 @@ namespace core::multiplexer::epoll {
             explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
-            void muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const;
+            bool muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const;
 
         public:
-            void muxAdd(core::DescriptorEventReceiver* eventReceiver);
+            bool muxAdd(core::DescriptorEventReceiver* eventReceiver);
             void muxDel(int fd);
 
             void muxOn(core::DescriptorEventReceiver* eventReceiver);
@@ -92,7 +92,7 @@ namespace core::multiplexer::epoll {
         DescriptorEventPublisher(const std::string& name, int& epfd, uint32_t events, uint32_t revents);
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        bool muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(core::DescriptorEventReceiver* eventReceiver) override;

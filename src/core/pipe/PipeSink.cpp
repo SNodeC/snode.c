@@ -49,6 +49,7 @@
 #include <array>
 #include <cerrno>
 #include <string>
+#include <system_error>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -61,7 +62,9 @@ namespace core::pipe {
     PipeSink::PipeSink(int fd, std::size_t maxBytesPerEvent, const utils::Timeval& timeout)
         : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), timeout)
         , maxBytesPerEvent(std::max<std::size_t>(maxBytesPerEvent, 1)) {
-        ReadEventReceiver::enable(fd);
+        if (!ReadEventReceiver::enable(fd)) {
+            throw std::system_error(errno != 0 ? errno : EIO, std::generic_category(), "unable to register PipeSink descriptor");
+        }
     }
 
     PipeSink::~PipeSink() {
@@ -133,12 +136,28 @@ namespace core::pipe {
         this->onClosed = onClosed;
     }
 
+    void PipeSink::setOnShutdown(const std::function<void(const core::ShutdownContext&)>& onShutdown) {
+        shutdownCallback = onShutdown;
+    }
+
     void PipeSink::unobservedEvent() {
         closeDescriptor();
         if (onClosed) {
             onClosed();
         }
         delete this;
+    }
+
+    void PipeSink::destruct() {
+        delete this;
+    }
+
+    void PipeSink::onShutdown(const core::ShutdownContext& context) {
+        if (shutdownCallback) {
+            shutdownCallback(context);
+        } else {
+            close();
+        }
     }
 
     void PipeSink::closeDescriptor() noexcept {

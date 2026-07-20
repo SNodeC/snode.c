@@ -48,6 +48,7 @@
 #include <algorithm>
 #include <cerrno>
 #include <string>
+#include <system_error>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -64,7 +65,9 @@ namespace core::pipe {
     PipeSource::PipeSource(int fd, std::size_t maxQueuedBytes, const utils::Timeval& timeout)
         : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), timeout)
         , maxQueuedBytes(maxQueuedBytes) {
-        WriteEventReceiver::enable(fd);
+        if (!WriteEventReceiver::enable(fd)) {
+            throw std::system_error(errno != 0 ? errno : EIO, std::generic_category(), "unable to register PipeSource descriptor");
+        }
         WriteEventReceiver::suspend();
     }
 
@@ -78,6 +81,10 @@ namespace core::pipe {
 
     void PipeSource::setOnClosed(const std::function<void()>& onClosed) {
         this->onClosed = onClosed;
+    }
+
+    void PipeSource::setOnShutdown(const std::function<void(const core::ShutdownContext&)>& onShutdown) {
+        shutdownCallback = onShutdown;
     }
 
     bool PipeSource::send(const char* chunk, std::size_t chunkLen) {
@@ -173,6 +180,18 @@ namespace core::pipe {
             onClosed();
         }
         delete this;
+    }
+
+    void PipeSource::destruct() {
+        delete this;
+    }
+
+    void PipeSource::onShutdown(const core::ShutdownContext& context) {
+        if (shutdownCallback) {
+            shutdownCallback(context);
+        } else {
+            close();
+        }
     }
 
     void PipeSource::closeDescriptor() noexcept {

@@ -52,8 +52,10 @@
 
 #include <algorithm>
 #include <array>
+#include <cerrno>
 #include <cstdint>
 #include <ctime>
+#include <fcntl.h>
 #include <string>
 #include <utility>
 
@@ -83,28 +85,46 @@ namespace core::multiplexer::poll {
         pollFdIndices.reserve(1);
     }
 
-    void PollFdsManager::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
+    bool PollFdsManager::muxAdd(core::DescriptorEventReceiver* eventReceiver, short event) {
         const int fd = eventReceiver->getRegisteredFd();
 
+        int descriptorFlags = -1;
+        do {
+            descriptorFlags = ::fcntl(fd, F_GETFD);
+        } while (descriptorFlags < 0 && errno == EINTR);
+        if (descriptorFlags < 0) {
+            return false;
+        }
+
         if (!pollFdIndices.contains(fd)) {
+            if (nextIndex == pollfds.size()) {
+                try {
+                    pollfds.resize(pollfds.size() * 2, {-1, 0, 0});
+                } catch (...) {
+                    errno = ENOMEM;
+                    return false;
+                }
+            }
+
+            try {
+                pollFdIndices.try_emplace(fd, PollFdIndex{nextIndex, event});
+            } catch (...) {
+                errno = ENOMEM;
+                return false;
+            }
+
             pollfds[nextIndex].events = event;
             pollfds[nextIndex].fd = fd;
 
-            pollFdIndices[fd].index = nextIndex;
-            pollFdIndices[fd].events = event;
-
             ++nextIndex;
-
-            if (nextIndex == pollfds.size()) {
-                pollfds.resize(pollfds.size() * 2, {-1, 0, 0});
-                pollFdIndices.reserve(pollfds.size());
-            }
         } else {
             PollFdIndex& pollFdIndex = pollFdIndices[fd];
 
             pollfds[pollFdIndex.index].events |= event;
             pollFdIndex.events |= event;
         }
+
+        return true;
     }
 
     void PollFdsManager::muxDel(int fd, short event) {

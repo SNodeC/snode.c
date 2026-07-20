@@ -77,11 +77,19 @@ namespace core::multiplexer::epoll {
         ePollEvents.resize(1);
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        const utils::PreserveErrno preserveErrno;
-
+    bool DescriptorEventPublisher::EPollEvents::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
         if (epfd < 0) {
-            return;
+            errno = EBADF;
+            return false;
+        }
+
+        if (interestCount >= ePollEvents.size()) {
+            try {
+                ePollEvents.resize(ePollEvents.size() * 2);
+            } catch (...) {
+                errno = ENOMEM;
+                return false;
+            }
         }
 
         epoll_event ePollEvent{};
@@ -92,16 +100,15 @@ namespace core::multiplexer::epoll {
         const int fd = eventReceiver->getRegisteredFd();
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ePollEvent) == 0) {
             interestCount++;
-
-            if (interestCount >= ePollEvents.size()) {
-                ePollEvents.resize(ePollEvents.size() * 2);
-            }
+            return true;
         } else {
             const int errnum = errno;
             if (errnum == EEXIST) {
-                muxMod(fd, events, eventReceiver);
+                return muxMod(fd, events, eventReceiver);
             } else {
                 muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_ctl ADD failed: fd={}", fd);
+                errno = errnum;
+                return false;
             }
         }
     }
@@ -135,11 +142,10 @@ namespace core::multiplexer::epoll {
         }
     }
 
-    void DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
-        const utils::PreserveErrno preserveErrno;
-
+    bool DescriptorEventPublisher::EPollEvents::muxMod(int fd, uint32_t events, core::DescriptorEventReceiver* eventReceiver) const {
         if (epfd < 0) {
-            return;
+            errno = EBADF;
+            return false;
         }
 
         epoll_event ePollEvent{events, {eventReceiver}};
@@ -147,7 +153,10 @@ namespace core::multiplexer::epoll {
         if (core::system::epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ePollEvent) != 0) {
             const int errnum = errno;
             muxLog().sysError(logger::LogLevel::Error, errnum, "core.mux epoll_ctl MOD failed: fd={}", fd);
+            errno = errnum;
+            return false;
         }
+        return true;
     }
 
     void DescriptorEventPublisher::EPollEvents::muxOn(core::DescriptorEventReceiver* eventReceiver) {
@@ -176,8 +185,8 @@ namespace core::multiplexer::epoll {
         , revents(revents) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        ePollEvents.muxAdd(eventReceiver);
+    bool DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        return ePollEvents.muxAdd(eventReceiver);
     }
 
     void DescriptorEventPublisher::muxDel(int fd) {

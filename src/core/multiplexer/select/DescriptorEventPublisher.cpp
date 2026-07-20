@@ -45,6 +45,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+#include <fcntl.h>
 #include <list>
 #include <map>
 
@@ -84,8 +86,23 @@ namespace core::multiplexer::select {
         , fdSet(fdSet) {
     }
 
-    void DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
-        fdSet.set(eventReceiver->getRegisteredFd());
+    bool DescriptorEventPublisher::muxAdd(core::DescriptorEventReceiver* eventReceiver) {
+        const int fd = eventReceiver->getRegisteredFd();
+        if (fd < 0 || fd >= FD_SETSIZE) {
+            errno = EINVAL;
+            return false;
+        }
+
+        int descriptorFlags = -1;
+        do {
+            descriptorFlags = ::fcntl(fd, F_GETFD);
+        } while (descriptorFlags < 0 && errno == EINTR);
+        if (descriptorFlags < 0) {
+            return false;
+        }
+
+        fdSet.set(fd);
+        return true;
     }
 
     void DescriptorEventPublisher::muxDel(int fd) {

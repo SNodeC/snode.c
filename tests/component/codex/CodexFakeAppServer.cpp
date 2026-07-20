@@ -233,6 +233,15 @@ int main(int argc, char* argv[]) {
         return 22;
     }
 
+    if (mode == "close-stdout-ignore-shutdown") {
+        std::signal(SIGTERM, SIG_IGN);
+        ::close(STDOUT_FILENO);
+        static_cast<void>(input.waitForEof());
+        while (true) {
+            ::pause();
+        }
+    }
+
     if (mode == "ignore-shutdown") {
         std::signal(SIGTERM, SIG_IGN);
         static_cast<void>(input.waitForEof());

@@ -50,6 +50,7 @@
 #include "utils/Timeval.h"
 
 #include <cerrno>
+#include <system_error>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -63,6 +64,28 @@ namespace core::pipe {
                 const int savedErrno = errno;
                 core::system::close(descriptor);
                 errno = savedErrno;
+            }
+        }
+
+        void makeNonBlocking(int fd) {
+            int flags = -1;
+            do {
+                flags = ::fcntl(fd, F_GETFL);
+            } while (flags < 0 && errno == EINTR);
+
+            if (flags < 0) {
+                throw std::system_error(errno, std::generic_category(), "unable to inspect pipe endpoint flags");
+            }
+
+            if ((flags & O_NONBLOCK) == 0) {
+                int result = -1;
+                do {
+                    result = ::fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+                } while (result < 0 && errno == EINTR);
+
+                if (result < 0) {
+                    throw std::system_error(errno, std::generic_category(), "unable to make pipe endpoint nonblocking");
+                }
             }
         }
     } // namespace
@@ -106,15 +129,24 @@ namespace core::pipe {
 
     Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError)
         : Pipe(O_NONBLOCK | O_CLOEXEC) {
-        if (!isValid()) {
+        if (!hasReadFd() || !hasWriteFd()) {
             onError(error);
             return;
         }
 
         PipeSource* pipeSource = releaseWriteAsSource();
+        if (pipeSource == nullptr) {
+            onError(error != 0 ? error : EIO);
+            return;
+        }
         PipeSink* pipeSink = nullptr;
         try {
             pipeSink = releaseReadAsSink();
+            if (pipeSink == nullptr) {
+                pipeSource->close();
+                onError(error != 0 ? error : EIO);
+                return;
+            }
             onSuccess(*pipeSource, *pipeSink);
         } catch (...) {
             pipeSource->close();
@@ -126,7 +158,15 @@ namespace core::pipe {
     }
 
     bool Pipe::isValid() const noexcept {
-        return readFd >= 0 && writeFd >= 0;
+        return hasReadFd() || hasWriteFd();
+    }
+
+    bool Pipe::hasReadFd() const noexcept {
+        return readFd >= 0;
+    }
+
+    bool Pipe::hasWriteFd() const noexcept {
+        return writeFd >= 0;
     }
 
     int Pipe::getError() const noexcept {
@@ -162,10 +202,12 @@ namespace core::pipe {
     }
 
     PipeSink* Pipe::releaseReadAsSink(std::size_t maxBytesPerEvent, const utils::Timeval& timeout) {
-        const int descriptor = releaseReadFd();
-        if (descriptor < 0) {
+        if (!hasReadFd()) {
             return nullptr;
         }
+
+        makeNonBlocking(readFd);
+        const int descriptor = releaseReadFd();
         try {
             return new PipeSink(descriptor, maxBytesPerEvent, timeout);
         } catch (...) {
@@ -179,10 +221,12 @@ namespace core::pipe {
     }
 
     PipeSource* Pipe::releaseWriteAsSource(std::size_t maxQueuedBytes, const utils::Timeval& timeout) {
-        const int descriptor = releaseWriteFd();
-        if (descriptor < 0) {
+        if (!hasWriteFd()) {
             return nullptr;
         }
+
+        makeNonBlocking(writeFd);
+        const int descriptor = releaseWriteFd();
         try {
             return new PipeSource(descriptor, maxQueuedBytes, timeout);
         } catch (...) {

@@ -55,7 +55,14 @@
 
 namespace core::pipe {
 
-    class PipeSink : public core::eventreceiver::ReadEventReceiver {
+    /**
+     * A self-owned asynchronous pipe reader.
+     *
+     * Instances are created by Pipe::releaseReadAsSink(). close() initiates
+     * asynchronous EventLoop removal and destruction. Callbacks must never
+     * delete the receiver and must not use its pointer after onClosed.
+     */
+    class PipeSink final : public core::eventreceiver::ReadEventReceiver {
     public:
         static constexpr std::size_t DEFAULT_MAX_BYTES_PER_EVENT = 256 * 1024;
 
@@ -63,30 +70,36 @@ namespace core::pipe {
 
         PipeSink& operator=(const PipeSink&) = delete;
 
-        explicit PipeSink(int fd,
-                          std::size_t maxBytesPerEvent = DEFAULT_MAX_BYTES_PER_EVENT,
-                          const utils::Timeval& timeout = utils::Timeval({60, 0}));
-        ~PipeSink() override;
-
         void close();
 
         void setOnData(const std::function<void(const char*, std::size_t)>& onData);
         void setOnEof(const std::function<void()>& onEof);
         void setOnError(const std::function<void(int)>& onError);
         void setOnClosed(const std::function<void()>& onClosed);
+        void setOnShutdown(const std::function<void(const core::ShutdownContext&)>& onShutdown);
 
     private:
+        explicit PipeSink(int fd,
+                          std::size_t maxBytesPerEvent = DEFAULT_MAX_BYTES_PER_EVENT,
+                          const utils::Timeval& timeout = utils::Timeval({60, 0}));
+        ~PipeSink() override;
+
+        void destruct() final;
         void readEvent() override;
         void unobservedEvent() override;
+        void onShutdown(const core::ShutdownContext& context) override;
         void closeDescriptor() noexcept;
 
         std::function<void(const char*, std::size_t)> onData;
         std::function<void()> onEof;
         std::function<void(int errnum)> onError;
         std::function<void()> onClosed;
+        std::function<void(const core::ShutdownContext&)> shutdownCallback;
 
         std::size_t maxBytesPerEvent;
         bool descriptorClosed = false;
+
+        friend class Pipe;
     };
 
 } // namespace core::pipe

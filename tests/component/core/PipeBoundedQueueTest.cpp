@@ -27,12 +27,15 @@ int main(int argc, char* argv[]) {
 
     core::SNodeC::init(argc, argv);
 
-    core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC);
-    testResult.expectTrue(pipe.isValid(), "nonblocking test pipe is created");
-    if (!pipe.isValid()) {
+    core::pipe::Pipe pipe;
+    const bool completePipe = pipe.hasReadFd() && pipe.hasWriteFd();
+    testResult.expectTrue(completePipe, "default blocking test pipe is created with both endpoints");
+    if (!completePipe) {
         core::SNodeC::free();
         return testResult.processResult();
     }
+    testResult.expectTrue((::fcntl(pipe.getReadFd(), F_GETFL) & O_NONBLOCK) == 0 && (::fcntl(pipe.getWriteFd(), F_GETFL) & O_NONBLOCK) == 0,
+                          "default Pipe endpoints begin in blocking mode");
 
     bool sourceClosed = false;
     bool sinkClosed = false;
@@ -42,8 +45,21 @@ int main(int argc, char* argv[]) {
 
     auto* source = pipe.releaseWriteAsSource(32, core::pipe::PipeSource::TIMEOUT::DISABLE);
     auto* sink = pipe.releaseReadAsSink(core::pipe::PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, core::pipe::PipeSink::TIMEOUT::DISABLE);
+    testResult.expectTrue(source != nullptr && sink != nullptr, "both default Pipe endpoints transfer into event receivers");
+    if (source == nullptr || sink == nullptr) {
+        if (source != nullptr) {
+            source->close();
+        }
+        if (sink != nullptr) {
+            sink->close();
+        }
+        core::SNodeC::free();
+        return testResult.processResult();
+    }
     const int sourceFd = source->getRegisteredFd();
     const int sinkFd = sink->getRegisteredFd();
+    testResult.expectTrue((::fcntl(sourceFd, F_GETFL) & O_NONBLOCK) != 0 && (::fcntl(sinkFd, F_GETFL) & O_NONBLOCK) != 0,
+                          "Pipe transfer makes both parent event-loop endpoints nonblocking");
     bool sourceDescriptorClosedBeforeCallback = false;
     bool sinkDescriptorClosedBeforeCallback = false;
 

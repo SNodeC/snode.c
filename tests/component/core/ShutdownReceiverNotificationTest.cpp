@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         core::SNodeC::init(1, snodeArguments);
 
         core::pipe::Pipe pipe(O_CLOEXEC | O_NONBLOCK);
-        if (pipe.isValid()) {
+        if (pipe.hasReadFd() && pipe.hasWriteFd()) {
             static_cast<void>(new ShutdownReceiver(pipe.releaseReadFd(), pipe.releaseWriteFd(), callbackCount, receivedContext));
         }
 

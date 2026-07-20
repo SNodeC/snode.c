@@ -48,12 +48,44 @@
 #include "utils/Timeval.h"
 
 #include <algorithm>
+#include <cerrno>
+#include <cstddef>
 #include <iterator>
+#include <optional>
+#include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
+
+    namespace {
+        std::optional<std::size_t> descriptorRegistrationFailureCountdown;
+
+        bool injectDescriptorRegistrationFailure() {
+            if (!descriptorRegistrationFailureCountdown) {
+                return false;
+            }
+            if (*descriptorRegistrationFailureCountdown > 0) {
+                --*descriptorRegistrationFailureCountdown;
+                return false;
+            }
+
+            descriptorRegistrationFailureCountdown.reset();
+            errno = EIO;
+            return true;
+        }
+    } // namespace
+
+    namespace test {
+        void failDescriptorRegistrationAfter(std::size_t successfulRegistrations) {
+            descriptorRegistrationFailureCountdown = successfulRegistrations;
+        }
+
+        void clearDescriptorRegistrationFailure() {
+            descriptorRegistrationFailureCountdown.reset();
+        }
+    } // namespace test
 
     DescriptorEventPublisher::DescriptorEventPublisher(std::string name)
         : name(std::move(name)) {
@@ -62,15 +94,49 @@ namespace core {
     DescriptorEventPublisher::~DescriptorEventPublisher() {
     }
 
-    void DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
+    bool DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
+        if (injectDescriptorRegistrationFailure()) {
+            return false;
+        }
+
         const int fd = descriptorEventReceiver->getRegisteredFd();
 
-        observedEventReceiverLists[fd].push_front(descriptorEventReceiver);
-        muxAdd(descriptorEventReceiver);
+        decltype(observedEventReceiverLists)::iterator eventReceivers = observedEventReceiverLists.end();
+        bool inserted = false;
+        try {
+            std::tie(eventReceivers, inserted) = observedEventReceiverLists.try_emplace(fd);
+            eventReceivers->second.push_front(descriptorEventReceiver);
+        } catch (...) {
+            if (inserted && eventReceivers != observedEventReceiverLists.end()) {
+                observedEventReceiverLists.erase(eventReceivers);
+            }
+            errno = ENOMEM;
+            return false;
+        }
+
+        bool registered = false;
+        try {
+            registered = muxAdd(descriptorEventReceiver);
+        } catch (...) {
+            errno = ENOMEM;
+        }
+
+        if (!registered) {
+            eventReceivers->second.pop_front();
+            if (eventReceivers->second.empty()) {
+                observedEventReceiverLists.erase(eventReceivers);
+            }
+            if (errno == 0) {
+                errno = EIO;
+            }
+            return false;
+        }
+
         if (descriptorEventReceiver->isSuspended()) {
             muxOff(descriptorEventReceiver);
         }
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
+        return true;
     }
 
     void DescriptorEventPublisher::disable(DescriptorEventReceiver* descriptorEventReceiver) {

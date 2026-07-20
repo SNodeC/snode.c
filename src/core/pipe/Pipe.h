@@ -75,7 +75,10 @@ namespace core::pipe {
 
         Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError);
 
+        // True while this object still owns at least one endpoint.
         bool isValid() const noexcept;
+        bool hasReadFd() const noexcept;
+        bool hasWriteFd() const noexcept;
         int getError() const noexcept;
 
         int getReadFd() const noexcept;
@@ -87,9 +90,13 @@ namespace core::pipe {
         void closeRead() noexcept;
         void closeWrite() noexcept;
 
+        // Transfers only after O_NONBLOCK setup and receiver registration
+        // succeed. On failure the endpoint remains owned by this Pipe.
         PipeSink* releaseReadAsSink();
         PipeSink* releaseReadAsSink(std::size_t maxBytesPerEvent, const utils::Timeval& timeout);
 
+        // Transfers only after O_NONBLOCK setup and receiver registration
+        // succeed. On failure the endpoint remains owned by this Pipe.
         PipeSource* releaseWriteAsSource();
         PipeSource* releaseWriteAsSource(std::size_t maxQueuedBytes, const utils::Timeval& timeout);
 

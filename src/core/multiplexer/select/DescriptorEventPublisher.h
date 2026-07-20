@@ -74,7 +74,7 @@ namespace core::multiplexer::select {
         DescriptorEventPublisher(const std::string& name, FdSet& fdSet);
 
     private:
-        void muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
+        bool muxAdd(core::DescriptorEventReceiver* eventReceiver) override;
         void muxDel(int fd) override;
         void muxOn(core::DescriptorEventReceiver* eventReceiver) override;
         void muxOff(core::DescriptorEventReceiver* eventReceiver) override;

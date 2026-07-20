@@ -28,8 +28,9 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
     core::pipe::Pipe drainPipe(O_NONBLOCK | O_CLOEXEC);
     core::pipe::Pipe limitedPipe(O_NONBLOCK | O_CLOEXEC);
-    testResult.expectTrue(drainPipe.isValid() && limitedPipe.isValid(), "fairness test pipes are created");
-    if (!drainPipe.isValid() || !limitedPipe.isValid()) {
+    const bool completePipes = drainPipe.hasReadFd() && drainPipe.hasWriteFd() && limitedPipe.hasReadFd() && limitedPipe.hasWriteFd();
+    testResult.expectTrue(completePipes, "fairness test pipes are created");
+    if (!completePipes) {
         core::SNodeC::free();
         return testResult.processResult();
     }
@@ -38,6 +39,19 @@ int main(int argc, char* argv[]) {
     const int limitedWriteFd = limitedPipe.releaseWriteFd();
     core::pipe::PipeSink* drainSink = drainPipe.releaseReadAsSink(64, core::pipe::PipeSink::TIMEOUT::DISABLE);
     core::pipe::PipeSink* limitedSink = limitedPipe.releaseReadAsSink(4, core::pipe::PipeSink::TIMEOUT::DISABLE);
+    testResult.expectTrue(drainSink != nullptr && limitedSink != nullptr, "both read endpoints transfer into PipeSinks");
+    if (drainSink == nullptr || limitedSink == nullptr) {
+        if (drainSink != nullptr) {
+            drainSink->close();
+        }
+        if (limitedSink != nullptr) {
+            limitedSink->close();
+        }
+        ::close(drainWriteFd);
+        ::close(limitedWriteFd);
+        core::SNodeC::free();
+        return testResult.processResult();
+    }
 
     std::string drained;
     std::string limited;
