@@ -70,7 +70,11 @@ namespace apps::codex_backend_client {
     }
 
     void Presenter::connected(std::string_view socketPath) {
-        localMessage("connected to " + std::string(socketPath));
+        std::string message = "connected to " + std::string(socketPath);
+        if (mode == OutputMode::Human) {
+            message += "; waiting for initial synchronization";
+        }
+        localMessage(message);
     }
 
     void Presenter::disconnected() {

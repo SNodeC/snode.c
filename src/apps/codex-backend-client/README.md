@@ -48,6 +48,11 @@ Normal commands are encoded from the public typed frontend message classes.
 message. `watch` is local: disabling it suppresses event-batch presentation but
 does not change backend state or synchronization.
 
+Human mode reports when the connection is waiting for its initial
+synchronization and when commands are ready. Commands entered during that
+handshake are acknowledged as queued and remain behind the `sync.complete`
+barrier.
+
 Human-readable output is the default. `--json` writes each decoded server
 message as one compact protocol JSON object on stdout; connection notices,
 local command errors, and other diagnostics remain on stderr so stdout can be

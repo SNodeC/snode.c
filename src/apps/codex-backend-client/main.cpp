@@ -94,18 +94,24 @@ int main(int argc, char* argv[]) {
         client::ClientConnection connection(client::ClientConnectionCallbacks{
             .onConnected =
                 [&presenter, &socketConfig, &lifecycle]() {
+                    lifecycle.connected();
                     presenter.connected(socketConfig != nullptr ? socketConfig->Remote::getSunPath() : client::defaultSocketPath());
                     if (presenter.outputMode() == client::OutputMode::Human) {
                         presenter.localMessage("enter 'help' for commands");
                     }
-                    lifecycle.connected();
                 },
             .onMessage =
                 [&presenter, &lifecycle](const frontend::ServerMessage& message) {
+                    const bool awaitingInitialSynchronization =
+                        lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing;
                     // Presentation is synchronous and flushes before lifecycle
                     // completion can schedule a controlled disconnect.
                     presenter.present(message);
                     lifecycle.receive(message);
+                    if (awaitingInitialSynchronization && lifecycle.sessionState() == client::CommandDrainController::SessionState::Ready &&
+                        presenter.outputMode() == client::OutputMode::Human) {
+                        presenter.localMessage("synchronized; commands are ready");
+                    }
                 },
             .onProtocolError =
                 [&lifecycle](const frontend::CodecError& error) {
@@ -142,8 +148,16 @@ int main(int argc, char* argv[]) {
                             presenter.setWatchEnabled(command.enabled);
                             presenter.localMessage(command.enabled ? "watch on" : "watch off");
                         } else if constexpr (std::is_same_v<T, client::SendCommand>) {
-                            if (!lifecycle.enqueue(std::move(command.message)) && !lifecycle.failed()) {
-                                presenter.error("command input is closed; command was not queued");
+                            const bool waitingForInitialSynchronization =
+                                lifecycle.sessionState() == client::CommandDrainController::SessionState::Connecting ||
+                                lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing;
+                            const bool accepted = lifecycle.enqueue(std::move(command.message));
+                            if (!accepted) {
+                                if (!lifecycle.failed()) {
+                                    presenter.error("command input is closed; command was not queued");
+                                }
+                            } else if (waitingForInitialSynchronization && presenter.outputMode() == client::OutputMode::Human) {
+                                presenter.localMessage("command queued; waiting for initial synchronization");
                             }
                         } else {
                             presenter.error(command.message);

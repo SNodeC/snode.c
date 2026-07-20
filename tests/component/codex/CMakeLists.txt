@@ -227,6 +227,32 @@ if(TARGET codex-backend-client-support)
                    "component;ai;openai;codex;frontend;client;unix;acceptance"
                    SKIP_RETURN_CODE 77 TIMEOUT 10
     )
+
+    if(TARGET codex-backend-unix-adapter)
+        snodec_add_test(
+            CodexBackendClientRealBackendAcceptanceTest
+            CodexBackendClientRealBackendAcceptanceTest.cpp
+        )
+        target_link_libraries(
+            CodexBackendClientRealBackendAcceptanceTest
+            PRIVATE snodec-test-support codex-backend-client-support
+                    codex-backend-unix-adapter snodec::ai-openai-codex-backend
+                    snodec::net-un-stream-legacy snodec::core
+        )
+        target_compile_features(
+            CodexBackendClientRealBackendAcceptanceTest PRIVATE cxx_std_20
+        )
+        set_tests_properties(
+            CodexBackendClientRealBackendAcceptanceTest
+            PROPERTIES
+                LABELS
+                "component;ai;openai;codex;frontend;backend;client;unix;acceptance;interactive"
+                SKIP_RETURN_CODE
+                77
+                TIMEOUT
+                15
+        )
+    endif()
 endif()
 
 snodec_add_test(CodexBackendSessionTest CodexBackendSessionTest.cpp)
