@@ -188,15 +188,20 @@ namespace {
 
         void installStandardSendHook(bool queuePreReadyMessages = false,
                                      bool overflowPreReadyQueue = false,
-                                     bool duplicateDuringServerAnswer = false,
+                                     bool injectFollowOnDuringServerAnswer = false,
                                      bool failDuringInitializedSend = false) {
-            state->sendHook = [queuePreReadyMessages, overflowPreReadyQueue, duplicateDuringServerAnswer, failDuringInitializedSend](
-                                  const Json& message, const TransportCallbacks& callbacks) {
+            const std::shared_ptr<bool> followOnInjected = std::make_shared<bool>(false);
+            state->sendHook = [queuePreReadyMessages,
+                               overflowPreReadyQueue,
+                               injectFollowOnDuringServerAnswer,
+                               failDuringInitializedSend,
+                               followOnInjected](const Json& message, const TransportCallbacks& callbacks) {
                 if (!message.contains("method") || !message["method"].is_string()) {
-                    if (duplicateDuringServerAnswer && message.value("id", Json()) == Json("answer-in-flight") &&
-                        message.contains("result")) {
+                    if (injectFollowOnDuringServerAnswer && message.value("id", Json()) == Json("answer-in-flight") &&
+                        message.contains("result") && !std::exchange(*followOnInjected, true)) {
+                        inject(callbacks, {{"method", "server/after-answer"}, {"params", {{"sequence", 1}}}});
                         inject(callbacks,
-                               {{"method", "server/answer-in-flight"}, {"id", "answer-in-flight"}, {"params", {{"duplicate", true}}}});
+                               {{"method", "server/answer-in-flight"}, {"id", "answer-in-flight"}, {"params", {{"followOn", true}}}});
                     }
                     return;
                 }
@@ -825,33 +830,112 @@ namespace {
                 } else if (change.current == State::Stopped) {
                     defer([this]() {
                         client.reset();
-                        beginAnswerInFlightDuplicateScenario();
+                        beginAnsweredRequestFollowOnScenario();
                     });
                 }
             });
             client->start();
         }
 
-        void beginAnswerInFlightDuplicateScenario() {
+        void beginAnsweredRequestFollowOnScenario() {
             state = std::make_shared<FakeTransportState>();
             installStandardSendHook(false, false, true);
             client = std::make_unique<TestClient>(state);
+            client->raw().setOnNotification([this](const Notification& notification) {
+                if (notification.method == "server/after-answer") {
+                    expect(notification.params == Json{{"sequence", 1}},
+                           "traffic synchronously received during an accepted answer preserves its payload");
+                    answeredRequestFollowOnOrder.push_back("notification");
+                }
+            });
             client->raw().setOnServerRequest([this](const ServerRequest& request) {
                 expect(hasStringServerId(request.id, "answer-in-flight"),
-                       "answer-in-flight scenario receives the exact pending server-request ID");
-                const auto answer = client->raw().respond(request.id, {{"decision", "accept"}});
-                expect(!answer && answer.error && answer.error->category == Error::Category::Cancelled,
-                       "answer reports cancellation when an in-flight duplicate makes ownership ambiguous");
-                answerInFlightDuplicateObserved = true;
+                       "answer follow-on scenario preserves the exact server-request ID");
+
+                const bool followOn = request.params.value("followOn", false);
+                if (!followOn) {
+                    const auto answer = client->raw().respond(request.id, {{"decision", "accept-first"}});
+                    expect(static_cast<bool>(answer), "an accepted answer succeeds after synchronously receiving follow-on traffic");
+                    ++answeredRequestAnswerCount;
+                } else {
+                    answeredRequestFollowOnOrder.push_back("request");
+                    expect(answeredRequestFollowOnOrder == std::vector<std::string>({"notification", "request"}),
+                           "synchronously received follow-on traffic retains wire order");
+                    const auto answer = client->raw().respond(request.id, {{"decision", "accept-second"}});
+                    expect(static_cast<bool>(answer),
+                           "the same server-request ID can be owned again after its accepted answer was consumed");
+                    ++answeredRequestAnswerCount;
+                    answeredRequestFollowOnObserved = true;
+                    client->stop();
+                }
             });
             client->setOnStateChanged([this](const StateChange& change) {
                 if (change.current == State::Ready) {
-                    state->inject({{"method", "server/answer-in-flight"}, {"id", "answer-in-flight"}, {"params", {{"duplicate", false}}}});
+                    state->inject({{"method", "server/answer-in-flight"}, {"id", "answer-in-flight"}, {"params", {{"followOn", false}}}});
                 } else if (change.current == State::Failed) {
-                    expect(answerInFlightDuplicateObserved && change.error && change.error->category == Error::Category::Protocol,
-                           "duplicate ID injected while respond is in-flight causes a protocol failure, not fresh ownership");
+                    expect(false, "accepted server-request follow-on traffic must not fail the connection");
                     client->stop();
                 } else if (change.current == State::Stopped) {
+                    expect(answeredRequestFollowOnObserved && answeredRequestAnswerCount == 2,
+                           "both sequential owners of the reused server-request ID are answered exactly once");
+                    defer([this]() {
+                        client.reset();
+                        beginDeferredResponseGenerationScenario();
+                    });
+                }
+            });
+            client->start();
+        }
+
+        void beginDeferredResponseGenerationScenario() {
+            state = std::make_shared<FakeTransportState>();
+            installStandardSendHook();
+            client = std::make_unique<TestClient>(state);
+            client->setOnStateChanged([this](const StateChange& change) {
+                if (change.current == State::Ready) {
+                    ++deferredResponseReadyCount;
+                    if (deferredResponseReadyCount == 1) {
+                        const auto matched = client->raw().request("generation/matched", Json::object(), [this](const Response&) {
+                            ++oldGenerationMatchedResponseCallbacks;
+                        });
+                        const auto pending =
+                            client->raw().request("generation/cancelled", Json::object(), [this](const Response& response) {
+                                expect(response.kind == Response::Kind::Cancelled && response.localError &&
+                                           response.localError->category == Error::Category::Cancelled,
+                                       "a request still pending at invalidation receives its lifetime-bound cancellation");
+                                ++generationCancellationCallbacks;
+                            });
+                        expect(matched && pending, "generation-safety scenario accepts a matched request and a still-pending request");
+                        if (!matched || !pending) {
+                            client->stop();
+                            return;
+                        }
+
+                        state->inject({{"id", matched.id->value()}, {"result", "old-generation"}});
+                        expect(oldGenerationMatchedResponseCallbacks == 0,
+                               "a matched remote-response callback remains asynchronous before stop");
+                        client->stop();
+                        expect(client->getState() == State::Stopped,
+                               "the deterministic fake transport completes explicit stop synchronously");
+                        client->start();
+                    } else {
+                        expect(deferredResponseReadyCount == 2 && oldGenerationMatchedResponseCallbacks == 0,
+                               "a queued matched response from generation one cannot execute in generation two");
+                        expect(generationCancellationCallbacks == 1,
+                               "the pending generation-one request is cancelled exactly once across immediate restart");
+                        defer([this]() {
+                            expect(oldGenerationMatchedResponseCallbacks == 0,
+                                   "the old matched response remains suppressed after an additional generation-two tick");
+                            expect(generationCancellationCallbacks == 1,
+                                   "the lifetime-bound cancellation remains exactly once after an additional tick");
+                            deferredResponseFinalStop = true;
+                            client->stop();
+                        });
+                    }
+                } else if (change.current == State::Failed) {
+                    expect(false, "deferred matched-response generation scenario must not fail the connection");
+                    client->stop();
+                } else if (change.current == State::Stopped && deferredResponseFinalStop) {
                     defer([this]() {
                         client.reset();
                         beginServerCapacityScenario();
@@ -990,7 +1074,13 @@ namespace {
         bool initializedSendFailureReachedReady = false;
         bool notifyInvalidationReturnedFailure = false;
         std::size_t transportFailureCancellationCount = 0;
-        bool answerInFlightDuplicateObserved = false;
+        std::vector<std::string> answeredRequestFollowOnOrder;
+        std::size_t answeredRequestAnswerCount = 0;
+        bool answeredRequestFollowOnObserved = false;
+        std::size_t deferredResponseReadyCount = 0;
+        std::size_t oldGenerationMatchedResponseCallbacks = 0;
+        std::size_t generationCancellationCallbacks = 0;
+        bool deferredResponseFinalStop = false;
         bool preReadyOverflowReachedReady = false;
         std::size_t capacityCancellationCount = 0;
         std::string firstCapacityCancellationMethod;

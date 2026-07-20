@@ -1,4 +1,4 @@
-# Codex App Server foundation status and verification
+# Codex App Server protocol-core status and verification
 
 ## Milestone status
 
@@ -56,36 +56,76 @@ The fake App Server covers:
 - shutdown while the client is active or already destroyed; and
 - failure recovery followed by successful reuse of the same client object.
 
+The deterministic in-memory transport additionally covers:
+
+- accepted server-request answers consuming ownership before synchronously
+  received follow-on input is processed, including a subsequent request that
+  reuses the same server ID;
+- duplicate still-pending server-request IDs remaining a fatal protocol
+  ambiguity;
+- matched remote response callbacks remaining bound to their receiving
+  connection generation; and
+- lifetime-bound, exactly-once cancellation of requests still pending during an
+  immediate stop and restart.
+
 The optional integration test runs against a real `codex app-server` only when
 the executable is available. Installation and authentication are not required
 by the regular suite.
 
-## Latest verification
+## Latest protocol-core verification
 
-The foundation milestone produced the following baseline before the generic
-protocol-core extension:
+The following commands were run after the server-answer ordering and deferred
+response generation fixes:
+
+```bash
+cmake --build build --parallel 2
+ctest --test-dir build --output-on-failure -R '^CodexProtocolCodecTest$'
+ctest --test-dir build --output-on-failure -R '^CodexProtocolEngineTest$'
+ctest --test-dir build --output-on-failure -R '^CodexStdioProtocolFlow_'
+ctest --test-dir build --output-on-failure \
+  -R '^Codex(StdioLifecycleTest|GlobalShutdown_.*|ShutdownAdmissionTest)$'
+ctest --test-dir build --output-on-failure -L '^shutdown$'
+ctest --test-dir build --output-on-failure -L '^codex$' -LE '^optional$'
+ctest --test-dir build --output-on-failure -L '^tls$'
+ctest --test-dir build --output-on-failure \
+  -R '^CodexProtocolEngineTest$' --repeat until-fail:20
+ctest --test-dir build --output-on-failure \
+  -R '^StagedInstalledConsumerTest$'
+ctest --test-dir build --output-on-failure
+cmake --build /tmp/snodec-codex-asan --parallel 2 --target \
+  ai-openai-codex CodexFakeAppServer CodexStdioLifecycleTest \
+  CodexStdioProtocolFlowTest CodexProtocolCodecTest CodexProtocolEngineTest \
+  CodexGlobalShutdownTest CodexShutdownAdmissionTest \
+  CodexDescriptorCollisionTest CodexStdioScenarioTest
+cmake -E env ASAN_OPTIONS=detect_leaks=0:halt_on_error=1 \
+  ctest --test-dir /tmp/snodec-codex-asan --output-on-failure \
+  -L '^codex$' -LE '^optional$'
+git diff --check
+```
 
 | Verification | Result |
 | --- | --- |
-| Codex, pipe, and registration tests, epoll | 42/42 passed |
-| Codex, pipe, and registration tests, poll | 42/42 passed |
-| Codex, pipe, and registration tests, select | 42/42 passed |
-| AddressSanitizer focused run | 42/42 passed; no ASan diagnostics |
-| Former forced-fallback stdout-close failure | passed in 0.58 s |
-| Full repository build | passed |
-| Forced polling normal and early-exit stress | 200/200 invocations passed |
-| Installed CMake consumer | passed |
-| Optional real Codex integration | passed when available |
-| Formatting and `git diff --check` | passed |
+| Generic protocol codec | 1/1 passed |
+| Raw protocol engine | 1/1 passed |
+| End-to-end stdio protocol flow and exit/restart | 2/2 passed |
+| Codex lifecycle and shutdown | 6/6 passed |
+| Complete shutdown label | 7/7 passed |
+| Complete nonoptional Codex suite | 39/39 passed |
+| TLS unit suite | 5/5 passed |
+| Protocol-engine ordering and generation stress | 20/20 passed |
+| Installed CMake consumer | 1/1 passed |
+| Complete CI suite on the host | 203/203 passed |
+| AddressSanitizer, complete nonoptional Codex suite | 39/39 passed; no ASan diagnostics |
+| `git diff --check` | passed; 0 whitespace errors |
 
-LeakSanitizer was disabled for the AddressSanitizer run because the managed test
-environment does not permit its ptrace-based operation. The process tests found
-no surviving fake App Server child after completion.
+Leak detection was disabled for the AddressSanitizer run because the managed
+environment does not permit its ptrace-based operation. AddressSanitizer
+otherwise completed without diagnostics. The process tests left no surviving
+fake App Server child.
 
-A full-suite attempt in the managed sandbox was not authoritative: the sandbox
-denied unrelated loopback socket creation with `EPERM`, causing TLS and network
-tests to fail. All Codex tests in that same run passed. A normal host run should
-be used for the final repository-wide result.
+The TLS and complete CI commands were run with host socket permissions. The
+managed sandbox denies unrelated loopback socket operations with `EPERM`, so a
+sandbox-only full-suite result is not authoritative for those tests.
 
 ## Deliberately deferred work
 

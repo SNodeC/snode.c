@@ -693,7 +693,8 @@ namespace ai::openai::codex {
                 response.result = std::move(message.result);
             }
 
-            schedulePublic([handler = std::move(request.handler), response = std::move(response)]() {
+            // Normal remote completions belong to the generation that received them.
+            scheduleProtocol(generation, [handler = std::move(request.handler), response = std::move(response)]() {
                 handler(response);
             });
         }
@@ -775,20 +776,22 @@ namespace ai::openai::codex {
             std::string enqueueError;
             const std::uint64_t generation = connectionGeneration;
             const bool accepted = enqueue(std::move(*wireMessage), enqueueError);
-            flushDeferredIncoming();
 
             if (!accepted) {
+                flushDeferredIncoming();
                 if (enqueueError.empty()) {
                     enqueueError = "app-server transport rejected the server-request response";
                 }
                 return sendFailure(Error::Category::Enqueue, ENOBUFS, std::move(enqueueError));
             }
             if (state != State::Ready || !lifetime->protocolActive || generation != connectionGeneration) {
+                flushDeferredIncoming();
                 return sendFailure(Error::Category::Cancelled,
                                    ECANCELED,
                                    "app-server connection stopped while the server-request response was being enqueued");
             }
             pendingServerRequests.erase(id);
+            flushDeferredIncoming();
             return {true, std::nullopt};
         }
 
@@ -876,6 +879,7 @@ namespace ai::openai::codex {
                 response.localError = Error{Error::Category::Cancelled,
                                             ECANCELED,
                                             reason.empty() ? "app-server request cancelled" : "app-server request cancelled: " + reason};
+                // Invalidation-created cancellations remain lifetime-bound so an explicit restart cannot suppress them.
                 schedulePublic([handler = std::move(cancellation.handler), response = std::move(response)]() {
                     handler(response);
                 });

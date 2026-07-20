@@ -64,7 +64,11 @@ The request remains pending until the caller explicitly uses `respond()` or
 `reject()`. A successful response encodes a result; a rejection encodes a
 `ProtocolError`, including optional JSON data. The request is removed only after
 the transport accepts the encoded response. Encoding or enqueue failure retains
-it for retry, while a second answer after successful enqueue is rejected.
+it for retry, while a second answer after successful enqueue is rejected. Once
+an answer is accepted, that request is removed before input received
+synchronously during the answer send is processed. A later request may therefore
+reuse the same server ID without being mistaken for a duplicate still-pending
+request.
 
 Disconnect, failure, stop, or destruction never implies acceptance or approval.
 Pending server requests are simply cleared when their connection ends. A
@@ -127,11 +131,16 @@ replaced, every still-pending caller request completes once as
 error. Pending server requests and pre-ready messages are cleared without being
 answered.
 
-Deferred protocol work is generation-checked. Work retained from an old
-connection cannot dispatch into a restarted connection, and stale responses
-cannot match new requests. Installed notification, server-request, and unknown
-handlers belong to the public client object and remain installed across the
-explicit recovery sequence:
+Deferred protocol work is generation-checked. A normal matched result or remote
+error callback belongs to the connection generation that received it. If that
+generation is invalidated before the queued callback executes, the callback is
+suppressed; the already-matched request is not converted into a cancellation.
+Cancellation callbacks created while invalidating requests that are still
+pending are instead lifetime-bound and remain deliverable exactly once across an
+explicit restart. Work retained from an old connection cannot dispatch into a
+restarted connection, and stale responses cannot match new requests. Installed
+notification, server-request, and unknown handlers belong to the public client
+object and remain installed across the explicit recovery sequence:
 
 ```text
 Failed -> stop() -> Stopping -> Stopped -> start() -> Ready
