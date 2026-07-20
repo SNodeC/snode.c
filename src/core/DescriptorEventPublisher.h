@@ -44,6 +44,7 @@
 
 namespace core {
     class DescriptorEventReceiver;
+    struct ShutdownContext;
 } // namespace core
 
 namespace utils {
@@ -87,7 +88,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
-        void signal(int sigNum);
+        void shutdown(const ShutdownContext& context);
         void disable();
 
         const std::string& getName() const;

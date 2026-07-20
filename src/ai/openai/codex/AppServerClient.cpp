@@ -11,6 +11,7 @@
 #include "ai/openai/codex/detail/ProtocolCodec.h"
 #include "ai/openai/codex/detail/Transport.h"
 #include "core/EventReceiver.h"
+#include "core/SNodeC.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
@@ -88,7 +89,7 @@ namespace ai::openai::codex {
         }
 
         void start() {
-            if (state != State::Stopped) {
+            if (state != State::Stopped || core::SNodeC::state() == core::State::STOPPING) {
                 return;
             }
 
@@ -96,6 +97,11 @@ namespace ai::openai::codex {
             transition(State::Starting);
             schedule([this, generation]() {
                 if (state == State::Starting && generation == operationGeneration) {
+                    if (core::SNodeC::state() == core::State::STOPPING) {
+                        transportActive = false;
+                        transition(State::Stopped);
+                        return;
+                    }
                     transportActive = true;
                     transport->start();
                 }
@@ -263,7 +269,10 @@ namespace ai::openai::codex {
             transportActive = false;
             pendingInitializeId.reset();
 
-            if (state == State::Stopping) {
+            if (state == State::Stopping || core::SNodeC::state() == core::State::STOPPING) {
+                if (state != State::Stopping) {
+                    transition(State::Stopping);
+                }
                 transition(State::Stopped);
             } else if (state != State::Failed && state != State::Stopped) {
                 const int code = status.exited ? status.exitCode : status.signalNumber;

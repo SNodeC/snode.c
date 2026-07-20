@@ -149,10 +149,12 @@ namespace core {
         return nextTimeout;
     }
 
-    void DescriptorEventPublisher::signal(int sigNum) {
+    void DescriptorEventPublisher::shutdown(const ShutdownContext& context) {
         for (auto& [fd, eventReceivers] : observedEventReceiverLists) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->onSignal(sigNum);
+                if (eventReceiver->isEnabled()) {
+                    eventReceiver->notifyShutdown(context);
+                }
             }
         }
     }

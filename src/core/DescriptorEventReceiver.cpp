@@ -182,8 +182,16 @@ namespace core {
         dispatchEvent();
     }
 
-    void DescriptorEventReceiver::onSignal(int signum) {
-        signalEvent(signum);
+    void DescriptorEventReceiver::notifyShutdown(const ShutdownContext& context) {
+        onShutdown(context);
+    }
+
+    void DescriptorEventReceiver::onShutdown(const ShutdownContext& context) {
+        if (context.reason == ShutdownReason::Signal) {
+            signalEvent(context.signal);
+        } else {
+            disable();
+        }
     }
 
     void DescriptorEventReceiver::triggered(const utils::Timeval& currentTime) {

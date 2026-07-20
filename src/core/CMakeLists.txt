@@ -101,6 +101,7 @@ set(CORE_H
     EventMultiplexer.h
     EventReceiver.h
     SNodeC.h
+    Shutdown.h
     State.h
     TickStatus.h
     Timer.h

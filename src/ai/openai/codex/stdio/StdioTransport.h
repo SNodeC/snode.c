@@ -21,7 +21,10 @@ namespace ai::openai::codex::stdio::detail {
     public:
         class Session;
 
-        StdioTransport(std::string executable, std::vector<std::string> arguments, bool forceChildExitPollingForTests = false);
+        StdioTransport(std::string executable,
+                       std::vector<std::string> arguments,
+                       bool forceChildExitPollingForTests = false,
+                       bool failParentSetupForTests = false);
         ~StdioTransport() override;
 
         void setCallbacks(codex::detail::TransportCallbacks callbacks) override;
@@ -33,6 +36,7 @@ namespace ai::openai::codex::stdio::detail {
         std::string executable;
         std::vector<std::string> arguments;
         bool forceChildExitPollingForTests;
+        bool failParentSetupForTests;
         codex::detail::TransportCallbacks callbacks;
         std::shared_ptr<Session> session;
     };
