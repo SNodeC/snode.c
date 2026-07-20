@@ -8,6 +8,7 @@
 #ifndef AI_OPENAI_CODEX_FRONTEND_BACKENDADAPTER_H
 #define AI_OPENAI_CODEX_FRONTEND_BACKENDADAPTER_H
 
+#include "ai/openai/codex/backend/BackendCore.h"
 #include "ai/openai/codex/frontend/Codec.h"
 #include "ai/openai/codex/frontend/EventCoalescer.h"
 #include "ai/openai/codex/frontend/EventJournal.h"
@@ -21,10 +22,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
-
-namespace ai::openai::codex::backend {
-    class BackendCore;
-}
+#include <utility>
 
 namespace ai::openai::codex::frontend {
 
@@ -104,7 +102,11 @@ namespace ai::openai::codex::frontend {
 
     class BackendAdapter {
     public:
-        explicit BackendAdapter(backend::BackendCore& backend, BackendAdapterOptions options = {});
+        template <typename ClientT>
+        explicit BackendAdapter(backend::BackendCore<ClientT>& backend, BackendAdapterOptions options = {})
+            : BackendAdapter(backend.implementation(), std::move(options)) {
+        }
+
         BackendAdapter(const BackendAdapter&) = delete;
         BackendAdapter(BackendAdapter&&) = delete;
 
@@ -126,6 +128,9 @@ namespace ai::openai::codex::frontend {
 
     private:
         friend class FrontendConnection;
+
+        explicit BackendAdapter(backend::detail::BackendCoreRuntime& backend, BackendAdapterOptions options);
+
         class Impl;
         std::shared_ptr<Impl> impl;
     };

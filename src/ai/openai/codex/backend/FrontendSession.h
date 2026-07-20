@@ -19,6 +19,10 @@
 
 namespace ai::openai::codex::backend {
 
+    namespace detail {
+        class BackendCoreRuntime;
+    }
+
     struct FrontendSessionCallbacks {
         using Events = std::function<void(const std::vector<SequencedBackendEvent>&)>;
         using SnapshotReady = std::function<void(const Snapshot&)>;
@@ -63,7 +67,7 @@ namespace ai::openai::codex::backend {
         void close(std::string reason = "frontend session closed") noexcept;
 
     private:
-        friend class BackendCore;
+        friend class detail::BackendCoreRuntime;
         struct Control;
 
         explicit FrontendSession(std::shared_ptr<Control> control) noexcept;
@@ -94,7 +98,7 @@ namespace ai::openai::codex::backend {
         void close() noexcept;
 
     private:
-        friend class BackendCore;
+        friend class detail::BackendCoreRuntime;
         struct Control;
 
         explicit BackendObserverSubscription(std::shared_ptr<Control> control) noexcept;

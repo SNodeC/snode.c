@@ -518,7 +518,7 @@ namespace ai::openai::codex::frontend {
 
     class BackendAdapter::Impl : public std::enable_shared_from_this<BackendAdapter::Impl> {
     public:
-        Impl(backend::BackendCore& backend, BackendAdapterOptions options)
+        Impl(backend::detail::BackendCoreRuntime& backend, BackendAdapterOptions options)
             : backendCore(&backend)
             , adapterOptions(std::move(options))
             , journal(adapterOptions.journal)
@@ -1498,7 +1498,7 @@ namespace ai::openai::codex::frontend {
             return connections.size();
         }
 
-        backend::BackendCore* backendCore;
+        backend::detail::BackendCoreRuntime* backendCore;
         BackendAdapterOptions adapterOptions;
         EventJournal journal;
         UpdateBatchBuilder batchBuilder;
@@ -1631,7 +1631,7 @@ namespace ai::openai::codex::frontend {
         return control ? control->outboundBytes : 0;
     }
 
-    BackendAdapter::BackendAdapter(backend::BackendCore& backend, BackendAdapterOptions options)
+    BackendAdapter::BackendAdapter(backend::detail::BackendCoreRuntime& backend, BackendAdapterOptions options)
         : impl(std::make_shared<Impl>(backend, std::move(options))) {
         impl->initialize();
     }

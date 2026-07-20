@@ -43,6 +43,8 @@ namespace {
     namespace backend = ai::openai::codex::backend;
     namespace frontend = ai::openai::codex::frontend;
 
+    using FakeBackendCore = backend::BackendCore<tests::codex::FakeAppServerClient>;
+
     using ai::openai::codex::Json;
     using ai::openai::codex::detail::TransportCallbacks;
 
@@ -280,7 +282,7 @@ namespace {
     class AcceptanceScenario {
     public:
         AcceptanceScenario(tests::support::TestResult& result,
-                           backend::BackendCore& backendCore,
+                           FakeBackendCore& backendCore,
                            std::shared_ptr<tests::codex::FakeTransportState> transport)
             : result(result)
             , backendCore(backendCore)
@@ -908,7 +910,7 @@ namespace {
 
     private:
         tests::support::TestResult& result;
-        backend::BackendCore& backendCore;
+        FakeBackendCore& backendCore;
         std::shared_ptr<tests::codex::FakeTransportState> transport;
         ClientHooks hooks;
         std::function<void(ClientKind)> connector;
@@ -964,13 +966,13 @@ int main(int argc, char* argv[]) {
             backend::BackendCoreOptions backendOptions;
             backendOptions.initialThreadListLimit = 2;
             backendOptions.maxEventsPerCallback = 512;
-            backend::BackendCore backendCore(std::make_unique<tests::codex::FakeAppServerClient>(transport), backendOptions);
+            FakeBackendCore backendCore(backendOptions, transport);
 
             apps::codex_backend::SocketFrontendOptions frontendOptions;
             frontendOptions.maximumFrameSize = MaximumFrameSize;
             frontendOptions.maximumOutboundBytes = 2U * 1024U * 1024U;
             const net::un::stream::legacy::SocketServer<apps::codex_backend::CodexFrontendSocketContextFactory,
-                                                        backend::BackendCore&,
+                                                        FakeBackendCore&,
                                                         apps::codex_backend::SocketFrontendOptions>
                 server("codex-backend-acceptance-server", backendCore, std::move(frontendOptions));
             server.getConfig()->Instance::forceUnrequired();

@@ -140,6 +140,121 @@ set_tests_properties(
                SKIP_RETURN_CODE 77 TIMEOUT 5
 )
 
+if(TARGET codex-backend-client-support)
+    snodec_add_test(
+        CodexBackendClientCommandTest CodexBackendClientCommandTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientCommandTest PRIVATE snodec-test-support
+                                              codex-backend-client-support
+    )
+    target_compile_features(CodexBackendClientCommandTest PRIVATE cxx_std_20)
+    set_tests_properties(
+        CodexBackendClientCommandTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;command;codec"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientCommandDrainTest
+        CodexBackendClientCommandDrainTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientCommandDrainTest PRIVATE snodec-test-support
+                                                   codex-backend-client-support
+    )
+    target_compile_features(
+        CodexBackendClientCommandDrainTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientCommandDrainTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;command;lifecycle"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientJsonLineFramerTest
+        CodexBackendClientJsonLineFramerTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientJsonLineFramerTest
+        PRIVATE snodec-test-support codex-backend-client-support
+    )
+    target_compile_features(
+        CodexBackendClientJsonLineFramerTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientJsonLineFramerTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;unix;framing"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientStdinReaderTest CodexBackendClientStdinReaderTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientStdinReaderTest
+        PRIVATE snodec-test-support codex-backend-client-support snodec::core
+    )
+    target_compile_features(
+        CodexBackendClientStdinReaderTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientStdinReaderTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;stdin;lifecycle"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
+        CodexBackendClientUnixAcceptanceTest
+        CodexBackendClientUnixAcceptanceTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientUnixAcceptanceTest
+        PRIVATE snodec-test-support codex-backend-client-support
+                snodec::net-un-stream-legacy snodec::core
+    )
+    target_compile_features(
+        CodexBackendClientUnixAcceptanceTest PRIVATE cxx_std_20
+    )
+    set_tests_properties(
+        CodexBackendClientUnixAcceptanceTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;unix;acceptance"
+                   SKIP_RETURN_CODE 77 TIMEOUT 10
+    )
+
+    if(TARGET codex-backend-unix-adapter)
+        snodec_add_test(
+            CodexBackendClientRealBackendAcceptanceTest
+            CodexBackendClientRealBackendAcceptanceTest.cpp
+        )
+        target_link_libraries(
+            CodexBackendClientRealBackendAcceptanceTest
+            PRIVATE snodec-test-support codex-backend-client-support
+                    codex-backend-unix-adapter snodec::ai-openai-codex-backend
+                    snodec::net-un-stream-legacy snodec::core
+        )
+        target_compile_features(
+            CodexBackendClientRealBackendAcceptanceTest PRIVATE cxx_std_20
+        )
+        set_tests_properties(
+            CodexBackendClientRealBackendAcceptanceTest
+            PROPERTIES
+                LABELS
+                "component;ai;openai;codex;frontend;backend;client;unix;acceptance;interactive"
+                SKIP_RETURN_CODE
+                77
+                TIMEOUT
+                15
+        )
+    endif()
+endif()
+
 snodec_add_test(CodexBackendSessionTest CodexBackendSessionTest.cpp)
 target_link_libraries(
     CodexBackendSessionTest PRIVATE snodec-test-support

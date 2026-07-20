@@ -33,6 +33,8 @@ namespace {
     namespace backend = ai::openai::codex::backend;
     namespace frontend = ai::openai::codex::frontend;
 
+    using FakeBackendCore = backend::BackendCore<tests::codex::FakeAppServerClient>;
+
     using ai::openai::codex::Json;
     using ai::openai::codex::detail::TransportCallbacks;
 
@@ -268,7 +270,7 @@ namespace {
             scheduler.schedule(std::move(callback));
         };
         backendOptions.maxEventsPerCallback = 128;
-        backend::BackendCore core(std::make_unique<tests::codex::FakeAppServerClient>(transport), backendOptions);
+        FakeBackendCore core(backendOptions, transport);
 
         frontend::BackendAdapterOptions adapterOptions;
         adapterOptions.scheduler = [&scheduler](std::function<void()> callback) {
@@ -443,7 +445,7 @@ namespace {
         backendOptions.scheduler = [&scheduler](std::function<void()> callback) {
             scheduler.schedule(std::move(callback));
         };
-        backend::BackendCore core(std::make_unique<tests::codex::FakeAppServerClient>(transport), backendOptions);
+        FakeBackendCore core(backendOptions, transport);
 
         frontend::BackendAdapterOptions adapterOptions;
         adapterOptions.scheduler = [&scheduler](std::function<void()> callback) {
@@ -515,8 +517,7 @@ namespace {
             backendOptions.maxObserverQueueEntries = 2'048;
             backendOptions.maxObserverQueueBytes = 32U * 1024U * 1024U;
             backendOptions.maxEventsPerCallback = 2'048;
-            backendCore = std::make_unique<backend::BackendCore>(std::make_unique<tests::codex::FakeAppServerClient>(transport),
-                                                                 std::move(backendOptions));
+            backendCore = std::make_unique<FakeBackendCore>(std::move(backendOptions), transport);
 
             frontend::BackendAdapterOptions adapterOptions;
             adapterOptions.journal = {128, 2U * 1024U * 1024U, frontend::SequenceNumber{0}};
@@ -853,7 +854,7 @@ namespace {
 
         tests::support::TestResult& result;
         std::shared_ptr<tests::codex::FakeTransportState> transport;
-        std::unique_ptr<backend::BackendCore> backendCore;
+        std::unique_ptr<FakeBackendCore> backendCore;
         std::unique_ptr<frontend::BackendAdapter> adapter;
         std::optional<frontend::FrontendConnection> connectionA;
         std::optional<frontend::FrontendConnection> connectionB;

@@ -11,12 +11,6 @@
 
 namespace apps::codex_backend {
 
-    CodexFrontendSocketContextFactory::CodexFrontendSocketContextFactory(ai::openai::codex::backend::BackendCore& backend,
-                                                                         SocketFrontendOptions options)
-        : adapter(backend)
-        , options(options) {
-    }
-
     core::socket::stream::SocketContext*
     CodexFrontendSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new CodexFrontendSocketContext(socketConnection, adapter, options);

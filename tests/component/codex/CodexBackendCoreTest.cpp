@@ -34,8 +34,105 @@ namespace {
     using ai::openai::codex::Json;
     using ai::openai::codex::detail::TransportCallbacks;
 
+    using FakeBackendCore = backend::BackendCore<tests::codex::FakeAppServerClient>;
+
     Json agentItemValue(const std::string& id, const std::string& text = {}) {
         return {{"type", "agentMessage"}, {"id", id}, {"text", text}};
+    }
+
+    class BackendCoreConstructionClient;
+
+    struct ClientOwnershipProbe {
+        std::shared_ptr<tests::codex::FakeTransportState> transport = std::make_shared<tests::codex::FakeTransportState>();
+        BackendCoreConstructionClient* client = nullptr;
+        std::size_t constructions = 0;
+        std::size_t destructions = 0;
+        int forwardedValue = 0;
+        bool runtimeStoppedClientBeforeDestruction = false;
+    };
+
+    class BackendCoreConstructionClient final : public ai::openai::codex::AppServerClient {
+    public:
+        BackendCoreConstructionClient()
+            : AppServerClient(std::make_unique<tests::codex::FakeTransport>(std::make_shared<tests::codex::FakeTransportState>()),
+                              {"backend_core_default_test", "BackendCore Default Test", "1"}) {
+            ++defaultConstructions;
+            lastDefaultClient = this;
+        }
+
+        BackendCoreConstructionClient(std::shared_ptr<ClientOwnershipProbe>& probe, std::unique_ptr<int> forwardedValue)
+            : AppServerClient(std::make_unique<tests::codex::FakeTransport>(probe->transport),
+                              {"backend_core_forwarding_test", "BackendCore Forwarding Test", "1"})
+            , probe(probe)
+            , forwardedValue(std::move(forwardedValue)) {
+            probe->client = this;
+            ++probe->constructions;
+            probe->forwardedValue = this->forwardedValue ? *this->forwardedValue : 0;
+        }
+
+        ~BackendCoreConstructionClient() override {
+            if (probe) {
+                ++probe->destructions;
+                probe->runtimeStoppedClientBeforeDestruction =
+                    getState() == ai::openai::codex::State::Stopping || getState() == ai::openai::codex::State::Stopped;
+                probe->client = nullptr;
+            } else {
+                ++defaultDestructions;
+                lastDefaultClient = nullptr;
+            }
+        }
+
+        static inline std::size_t defaultConstructions = 0;
+        static inline std::size_t defaultDestructions = 0;
+        static inline BackendCoreConstructionClient* lastDefaultClient = nullptr;
+
+    private:
+        std::shared_ptr<ClientOwnershipProbe> probe;
+        std::unique_ptr<int> forwardedValue;
+    };
+
+    void testTemplatedConstructionAndOwnership(tests::support::TestResult& result) {
+        using ProbeBackendCore = backend::BackendCore<BackendCoreConstructionClient>;
+
+        BackendCoreConstructionClient::defaultConstructions = 0;
+        BackendCoreConstructionClient::defaultDestructions = 0;
+        BackendCoreConstructionClient::lastDefaultClient = nullptr;
+        {
+            ProbeBackendCore backendCore;
+            result.expectTrue(BackendCoreConstructionClient::defaultConstructions == 1,
+                              "BackendCore default-constructs its directly owned default-constructible client");
+            result.expectTrue(BackendCoreConstructionClient::lastDefaultClient != nullptr,
+                              "BackendCore directly owns the default-constructed concrete client subobject");
+        }
+        result.expectTrue(BackendCoreConstructionClient::defaultDestructions == 1,
+                          "BackendCore destroys its default-constructed client exactly once");
+
+        auto noOptionsProbe = std::make_shared<ClientOwnershipProbe>();
+        auto noOptionsValue = std::make_unique<int>(21);
+        {
+            ProbeBackendCore backendCore(noOptionsProbe, std::move(noOptionsValue));
+            result.expectTrue(!noOptionsValue && noOptionsProbe->client != nullptr && noOptionsProbe->forwardedValue == 21,
+                              "BackendCore perfectly forwards client arguments without backend options");
+        }
+        result.expectTrue(noOptionsProbe->destructions == 1 && noOptionsProbe->client == nullptr,
+                          "BackendCore destroys its forwarded client exactly once without exposing mutable access");
+
+        auto optionsProbe = std::make_shared<ClientOwnershipProbe>();
+        auto optionsValue = std::make_unique<int>(42);
+        backend::BackendCoreOptions options;
+        options.initialThreadListLimit = 7;
+        {
+            ProbeBackendCore backendCore(std::move(options), optionsProbe, std::move(optionsValue));
+            result.expectTrue(!optionsValue && optionsProbe->constructions == 1 && optionsProbe->forwardedValue == 42,
+                              "BackendCore perfectly forwards lvalue and move-only arguments after backend options");
+
+            backendCore.start();
+            result.expectTrue(optionsProbe->client != nullptr && optionsProbe->client->getState() == ai::openai::codex::State::Starting,
+                              "BackendCore lifecycle methods operate on the directly owned concrete client");
+        }
+        result.expectTrue(optionsProbe->destructions == 1 && optionsProbe->runtimeStoppedClientBeforeDestruction &&
+                              optionsProbe->client == nullptr,
+                          "BackendCore shuts down its non-template runtime before destroying the owned client");
     }
 
     class BackendCoreRunner {
@@ -53,9 +150,7 @@ namespace {
             backend::BackendCoreOptions options;
             options.initialThreadListLimit = 2;
             options.maxEventsPerCallback = 32;
-            auto appServer = std::make_unique<tests::codex::FakeAppServerClient>(transport);
-            appServerClient = appServer.get();
-            backendCore = std::make_unique<backend::BackendCore>(std::move(appServer), std::move(options));
+            backendCore = std::make_unique<FakeBackendCore>(std::move(options), transport, &appServerClient);
 
             controller = backendCore->openSession(sessionCallbacks(controllerEvents, false));
             observer = backendCore->openSession(sessionCallbacks(observerEvents, true));
@@ -721,7 +816,7 @@ namespace {
         tests::support::TestResult& result;
         std::shared_ptr<tests::codex::FakeTransportState> transport;
         tests::codex::FakeAppServerClient* appServerClient = nullptr;
-        std::unique_ptr<backend::BackendCore> backendCore;
+        std::unique_ptr<FakeBackendCore> backendCore;
         backend::FrontendSession controller;
         backend::FrontendSession observer;
         EventLog controllerEvents;
@@ -750,6 +845,7 @@ int main(int argc, char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("CodexBackendCoreTest");
     } else {
         core::SNodeC::init(argc, argv);
+        testTemplatedConstructionAndOwnership(result);
         bool timedOut = false;
         BackendCoreRunner runner(result);
         [[maybe_unused]] core::timer::Timer watchdog = core::timer::Timer::singleshotTimer(
