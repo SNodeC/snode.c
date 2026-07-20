@@ -235,11 +235,14 @@ set_tests_properties(Inet6LegacyClientConnectFailureTest PROPERTIES
 
 snodec_add_test(InetLegacyServerEffectiveListenAddressTest InetLegacyServerEffectiveListenAddressTest.cpp)
 snodec_add_test(InetPhysicalServerEffectiveBindAddressTest InetPhysicalServerEffectiveBindAddressTest.cpp)
+snodec_add_test(UnixPhysicalSocketPathSafetyTest UnixPhysicalSocketPathSafetyTest.cpp)
 
 target_link_libraries(InetLegacyServerEffectiveListenAddressTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
 target_link_libraries(InetPhysicalServerEffectiveBindAddressTest PRIVATE snodec-test-support snodec::net-in-phy-stream)
+target_link_libraries(UnixPhysicalSocketPathSafetyTest PRIVATE snodec-test-support snodec::net-un-phy-stream)
 target_compile_features(InetLegacyServerEffectiveListenAddressTest PRIVATE cxx_std_20)
 target_compile_features(InetPhysicalServerEffectiveBindAddressTest PRIVATE cxx_std_20)
+target_compile_features(UnixPhysicalSocketPathSafetyTest PRIVATE cxx_std_20)
 
 set_tests_properties(InetLegacyServerEffectiveListenAddressTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv4;listen;effective-address"
@@ -248,6 +251,10 @@ set_tests_properties(InetLegacyServerEffectiveListenAddressTest PROPERTIES
 
 set_tests_properties(InetPhysicalServerEffectiveBindAddressTest PROPERTIES
                      LABELS "component;net;stream;legacy;ipv4;listen;effective-address"
+                     TIMEOUT 5)
+
+set_tests_properties(UnixPhysicalSocketPathSafetyTest PROPERTIES
+                     LABELS "component;net;stream;unix;path-safety"
                      TIMEOUT 5)
 
 snodec_add_test(InetLegacyServerClientLargePayloadExchangeTest InetLegacyServerClientLargePayloadExchangeTest.cpp)

@@ -14,6 +14,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/ProtocolCodec.cpp
     detail/ServerRequestDecoder.cpp
     detail/ThreadCodec.cpp
+    detail/Transport.cpp
     detail/TurnCodec.cpp
     stdio/Client.cpp
     stdio/StdioTransport.cpp
@@ -102,3 +103,6 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT ai-openai-codex
 )
+
+add_subdirectory(backend)
+add_subdirectory(frontend)

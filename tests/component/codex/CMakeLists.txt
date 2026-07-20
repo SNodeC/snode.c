@@ -85,6 +85,109 @@ foreach(
     )
 endforeach()
 
+snodec_add_test(CodexBackendReducerTest CodexBackendReducerTest.cpp)
+target_link_libraries(
+    CodexBackendReducerTest PRIVATE snodec-test-support
+                                    snodec::ai-openai-codex-backend
+)
+target_compile_features(CodexBackendReducerTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexBackendReducerTest
+    PROPERTIES LABELS "component;ai;openai;codex;backend;reducer"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(CodexFrontendProtocolV1Test CodexFrontendProtocolV1Test.cpp)
+target_link_libraries(
+    CodexFrontendProtocolV1Test PRIVATE snodec-test-support
+                                        snodec::ai-openai-codex-frontend
+)
+target_compile_features(CodexFrontendProtocolV1Test PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexFrontendProtocolV1Test
+    PROPERTIES LABELS
+               "component;ai;openai;codex;frontend;protocol;journal;batch"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(CodexFrontendAdapterTest CodexFrontendAdapterTest.cpp)
+target_link_libraries(
+    CodexFrontendAdapterTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-frontend snodec::core
+)
+target_compile_features(CodexFrontendAdapterTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexFrontendAdapterTest
+    PROPERTIES LABELS
+               "component;ai;openai;codex;frontend;adapter;coalescing;session"
+               SKIP_RETURN_CODE 77 TIMEOUT 15
+)
+
+snodec_add_test(
+    CodexFrontendJsonLineFramerTest CodexFrontendJsonLineFramerTest.cpp
+    ${PROJECT_SOURCE_DIR}/src/apps/codex-backend/JsonLineFramer.cpp
+)
+target_link_libraries(
+    CodexFrontendJsonLineFramerTest PRIVATE snodec-test-support
+)
+target_include_directories(
+    CodexFrontendJsonLineFramerTest PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+target_compile_features(CodexFrontendJsonLineFramerTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexFrontendJsonLineFramerTest
+    PROPERTIES LABELS "component;ai;openai;codex;frontend;unix;framing"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+
+snodec_add_test(CodexBackendSessionTest CodexBackendSessionTest.cpp)
+target_link_libraries(
+    CodexBackendSessionTest PRIVATE snodec-test-support
+                                    snodec::ai-openai-codex-backend
+)
+target_compile_features(CodexBackendSessionTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexBackendSessionTest
+    PROPERTIES LABELS "component;ai;openai;codex;backend;session"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(CodexBackendCoreTest CodexBackendCoreTest.cpp)
+target_link_libraries(
+    CodexBackendCoreTest PRIVATE snodec-test-support
+                                 snodec::ai-openai-codex-backend snodec::core
+)
+target_compile_features(CodexBackendCoreTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexBackendCoreTest
+    PROPERTIES LABELS "component;ai;openai;codex;backend;core" SKIP_RETURN_CODE
+               77 TIMEOUT 15
+)
+
+snodec_add_test(
+    CodexBackendUnixAcceptanceTest
+    CodexBackendUnixAcceptanceTest.cpp
+    ${PROJECT_SOURCE_DIR}/src/apps/codex-backend/CodexFrontendSocketContext.cpp
+    ${PROJECT_SOURCE_DIR}/src/apps/codex-backend/CodexFrontendSocketContextFactory.cpp
+    ${PROJECT_SOURCE_DIR}/src/apps/codex-backend/JsonLineFramer.cpp
+)
+target_include_directories(
+    CodexBackendUnixAcceptanceTest PRIVATE ${PROJECT_SOURCE_DIR}/src
+)
+target_link_libraries(
+    CodexBackendUnixAcceptanceTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-frontend
+            snodec::ai-openai-codex-backend snodec::net-un-stream-legacy
+            snodec::core
+)
+target_compile_features(CodexBackendUnixAcceptanceTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexBackendUnixAcceptanceTest
+    PROPERTIES LABELS
+               "component;ai;openai;codex;backend;frontend;unix;acceptance"
+               SKIP_RETURN_CODE 77 TIMEOUT 20
+)
+
 snodec_add_test(CodexTypedProtocolEngineTest CodexTypedProtocolEngineTest.cpp)
 target_link_libraries(
     CodexTypedProtocolEngineTest PRIVATE snodec-test-support

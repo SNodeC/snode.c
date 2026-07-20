@@ -196,6 +196,8 @@ set(SUPPORTED_COMPONENTS
     mqtt-server-websocket
     mqtt-client-websocket
     ai-openai-codex
+    ai-openai-codex-backend
+    ai-openai-codex-frontend
 )
 string(JOIN "\n    " SUPPORTED_COMPONENTS ${SUPPORTED_COMPONENTS})
 

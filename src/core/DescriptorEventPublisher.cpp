@@ -78,6 +78,9 @@ namespace core {
     } // namespace
 
     namespace test {
+        void failDescriptorRegistrationAfter(std::size_t successfulRegistrations);
+        void clearDescriptorRegistrationFailure();
+
         void failDescriptorRegistrationAfter(std::size_t successfulRegistrations) {
             descriptorRegistrationFailureCountdown = successfulRegistrations;
         }

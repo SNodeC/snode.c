@@ -48,6 +48,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::un::phy {
@@ -74,8 +77,20 @@ namespace net::un::phy {
                                    logger::BoundaryLogger::Clock clock = {}) const;
 
     private:
+        void releaseFilesystemOwnership() noexcept;
+
         logger::LogScopeOwner logScope;
         int lockFd = -1;
+        bool lockHeld = false;
+        bool lockCleanupOwned = false;
+        bool lockIdentityValid = false;
+        std::uintmax_t lockDevice = 0;
+        std::uintmax_t lockInode = 0;
+        std::string lockPath;
+        bool socketIdentityValid = false;
+        std::uintmax_t socketDevice = 0;
+        std::uintmax_t socketInode = 0;
+        std::string socketPath;
     };
 
 } // namespace net::un::phy

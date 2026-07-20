@@ -183,6 +183,8 @@ namespace core::socket::stream {
         using SocketAddress = typename PhysicalSocket::SocketAddress;
 
     public:
+        using Super::log;
+
         SocketConnectionT() = delete;
 
     protected:

@@ -55,7 +55,8 @@ namespace logger {
         }
         std::string escapeJson(const std::string& value) {
             std::ostringstream out;
-            for (const unsigned char ch : value) {
+            for (const char rawCh : value) {
+                const unsigned char ch = static_cast<unsigned char>(rawCh);
                 switch (ch) {
                     case '"':
                         out << "\\\"";
@@ -142,7 +143,8 @@ namespace logger {
             if (value.empty()) {
                 return false;
             }
-            for (const unsigned char ch : value) {
+            for (const char rawCh : value) {
+                const unsigned char ch = static_cast<unsigned char>(rawCh);
                 const bool alphaNum = (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9');
                 switch (ch) {
                     case '.':
@@ -208,7 +210,8 @@ namespace logger {
             }
             std::ostringstream out;
             out << '"';
-            for (const unsigned char ch : value) {
+            for (const char rawCh : value) {
+                const unsigned char ch = static_cast<unsigned char>(rawCh);
                 appendEscapedByte(out, ch, true);
             }
             out << '"';

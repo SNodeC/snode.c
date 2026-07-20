@@ -157,6 +157,10 @@ cpack_add_component(mqtt-fast)
 
 cpack_add_component(db-mariadb DEPENDS core)
 
+cpack_add_component(ai-openai-codex DEPENDS core)
+cpack_add_component(ai-openai-codex-backend DEPENDS ai-openai-codex)
+cpack_add_component(ai-openai-codex-frontend DEPENDS ai-openai-codex-backend)
+
 cpack_add_component(
     apps
     DISPLAY_NAME "Applications"
@@ -178,4 +182,5 @@ cpack_add_component(
             websocket-server
             websocket-client
             db-mariadb
+            ai-openai-codex-frontend
 )

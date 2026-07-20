@@ -40,7 +40,7 @@ namespace ai::openai::codex::detail {
         Transport& operator=(const Transport&) = delete;
         Transport& operator=(Transport&&) = delete;
 
-        virtual ~Transport() = default;
+        virtual ~Transport();
 
         virtual void setCallbacks(TransportCallbacks callbacks) = 0;
         virtual void start() = 0;

@@ -26,6 +26,8 @@ foreach(
           ai/openai/codex/detail/Transport.h
           ai/openai/codex/detail/TurnCodec.h
           ai/openai/codex/stdio/StdioTransport.h
+          ai/openai/codex/backend/detail/BackendCoreImpl.h
+          ai/openai/codex/frontend/detail/CodecImpl.h
 )
     if(EXISTS "${prefix}/include/snode.c/${private_header}")
         message(FATAL_ERROR "private header installed: ${private_header}")
