@@ -1,0 +1,1048 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snodec.org/schema/ai/openai/codex/frontend-protocol-v1.schema.json",
+  "title": "SNode.C Codex Frontend Protocol v1",
+  "description": "Transport-independent JSON messages for snodec.codex-frontend version 1. Unknown non-conflicting fields are tolerated.",
+  "oneOf": [
+    { "$ref": "#/$defs/Hello" },
+    { "$ref": "#/$defs/Command" },
+    { "$ref": "#/$defs/Welcome" },
+    { "$ref": "#/$defs/SyncComplete" },
+    { "$ref": "#/$defs/Snapshot" },
+    { "$ref": "#/$defs/EventBatch" },
+    { "$ref": "#/$defs/SuccessResponse" },
+    { "$ref": "#/$defs/ErrorResponse" },
+    { "$ref": "#/$defs/ProtocolError" }
+  ],
+  "$defs": {
+    "UInt64": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 18446744073709551615
+    },
+    "PositiveUInt64": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 18446744073709551615
+    },
+    "UInt32": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "Int64": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "DecimalId": {
+      "type": "string",
+      "pattern": "^(?:[1-9][0-9]{0,18}|1[0-7][0-9]{18}|18[0-3][0-9]{17}|184[0-3][0-9]{16}|1844[0-5][0-9]{15}|18446[0-6][0-9]{14}|184467[0-3][0-9]{13}|1844674[0-3][0-9]{12}|184467440[0-6][0-9]{10}|1844674407[0-2][0-9]{9}|18446744073[0-6][0-9]{8}|1844674407370[0-8][0-9]{6}|18446744073709[0-4][0-9]{5}|184467440737095[0-4][0-9]{4}|18446744073709550[0-9]{3}|18446744073709551[0-5][0-9]{2}|1844674407370955160[0-9]|1844674407370955161[0-5])$",
+      "maxLength": 20,
+      "description": "A non-zero unsigned 64-bit value in canonical decimal notation."
+    },
+    "Envelope": {
+      "type": "object",
+      "required": ["protocol", "version", "kind"],
+      "properties": {
+        "protocol": { "const": "snodec.codex-frontend" },
+        "version": { "const": 1 },
+        "kind": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "permission_denied",
+        "invalid_command",
+        "not_found",
+        "conflict",
+        "local_submission_failure",
+        "typed_decoding_failure",
+        "remote_app_server_error",
+        "cancelled",
+        "backend_unavailable",
+        "duplicate_request_id",
+        "malformed_json",
+        "wrong_protocol",
+        "unsupported_version",
+        "missing_field",
+        "invalid_field",
+        "unknown_kind",
+        "unknown_method",
+        "frame_too_large",
+        "capacity_exceeded",
+        "sequence_overflow",
+        "replay_gap",
+        "internal_error"
+      ]
+    },
+    "Hello": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "hello" },
+            "resumeAfter": { "$ref": "#/$defs/UInt64" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "EmptyParams": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "ReplayParams": {
+      "type": "object",
+      "required": ["after"],
+      "properties": {
+        "after": { "$ref": "#/$defs/UInt64" }
+      },
+      "additionalProperties": true
+    },
+    "ThreadStartParams": {
+      "type": "object",
+      "properties": {
+        "cwd": { "$ref": "#/$defs/NonEmptyString" },
+        "model": { "$ref": "#/$defs/NonEmptyString" },
+        "modelProvider": { "$ref": "#/$defs/NonEmptyString" },
+        "approvalPolicy": { "$ref": "#/$defs/NonEmptyString" },
+        "sandboxMode": { "$ref": "#/$defs/NonEmptyString" },
+        "ephemeral": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "ThreadResumeParams": {
+      "type": "object",
+      "required": ["threadId"],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "cwd": { "$ref": "#/$defs/NonEmptyString" },
+        "model": { "$ref": "#/$defs/NonEmptyString" },
+        "modelProvider": { "$ref": "#/$defs/NonEmptyString" },
+        "approvalPolicy": { "$ref": "#/$defs/NonEmptyString" },
+        "sandboxMode": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "ThreadListParams": {
+      "type": "object",
+      "properties": {
+        "cursor": { "$ref": "#/$defs/NonEmptyString" },
+        "limit": { "$ref": "#/$defs/UInt32" },
+        "archived": { "type": "boolean" },
+        "searchTerm": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ThreadReadParams": {
+      "type": "object",
+      "required": ["threadId"],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "includeTurns": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "TextInput": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "text" },
+        "text": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ImageInput": {
+      "type": "object",
+      "required": ["type", "url"],
+      "properties": {
+        "type": { "const": "image" },
+        "url": { "$ref": "#/$defs/NonEmptyString" },
+        "detail": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "LocalImageInput": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "const": "localImage" },
+        "path": { "$ref": "#/$defs/NonEmptyString" },
+        "detail": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "SkillInput": {
+      "type": "object",
+      "required": ["type", "name", "path"],
+      "properties": {
+        "type": { "const": "skill" },
+        "name": { "$ref": "#/$defs/NonEmptyString" },
+        "path": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "MentionInput": {
+      "type": "object",
+      "required": ["type", "name", "path"],
+      "properties": {
+        "type": { "const": "mention" },
+        "name": { "$ref": "#/$defs/NonEmptyString" },
+        "path": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "TurnInput": {
+      "oneOf": [
+        { "$ref": "#/$defs/TextInput" },
+        { "$ref": "#/$defs/ImageInput" },
+        { "$ref": "#/$defs/LocalImageInput" },
+        { "$ref": "#/$defs/SkillInput" },
+        { "$ref": "#/$defs/MentionInput" }
+      ]
+    },
+    "BooleanNetworkSandbox": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["dangerFullAccess", "readOnly"] },
+        "networkAccess": { "type": "boolean" }
+      },
+      "not": {
+        "anyOf": [
+          { "required": ["writableRoots"] },
+          { "required": ["excludeTmpdirEnvVar"] },
+          { "required": ["excludeSlashTmp"] }
+        ]
+      },
+      "additionalProperties": true
+    },
+    "ExternalSandbox": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "externalSandbox" },
+        "networkAccess": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "not": {
+        "anyOf": [
+          { "required": ["writableRoots"] },
+          { "required": ["excludeTmpdirEnvVar"] },
+          { "required": ["excludeSlashTmp"] }
+        ]
+      },
+      "additionalProperties": true
+    },
+    "WorkspaceWriteSandbox": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "workspaceWrite" },
+        "networkAccess": { "type": "boolean" },
+        "writableRoots": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "excludeTmpdirEnvVar": { "type": "boolean" },
+        "excludeSlashTmp": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "SandboxPolicy": {
+      "oneOf": [
+        { "$ref": "#/$defs/BooleanNetworkSandbox" },
+        { "$ref": "#/$defs/ExternalSandbox" },
+        { "$ref": "#/$defs/WorkspaceWriteSandbox" }
+      ]
+    },
+    "TurnStartParams": {
+      "type": "object",
+      "required": ["threadId", "input"],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "input": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/TurnInput" }
+        },
+        "cwd": { "$ref": "#/$defs/NonEmptyString" },
+        "model": { "$ref": "#/$defs/NonEmptyString" },
+        "reasoningEffort": { "$ref": "#/$defs/NonEmptyString" },
+        "approvalPolicy": { "$ref": "#/$defs/NonEmptyString" },
+        "sandboxPolicy": { "$ref": "#/$defs/SandboxPolicy" }
+      },
+      "additionalProperties": true
+    },
+    "TurnInterruptParams": {
+      "type": "object",
+      "required": ["threadId", "turnId"],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "turnId": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "ApprovalRespondParams": {
+      "type": "object",
+      "required": ["pendingRequestId", "decision"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "decision": {
+          "enum": ["accept", "acceptForSession", "decline", "cancel"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "UserInputAnswer": {
+      "type": "object",
+      "required": ["questionId", "answers"],
+      "properties": {
+        "questionId": { "$ref": "#/$defs/NonEmptyString" },
+        "answers": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "UserInputRespondParams": {
+      "type": "object",
+      "required": ["pendingRequestId", "answers"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "answers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/UserInputAnswer" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "AuthenticationRespondParams": {
+      "type": "object",
+      "required": ["pendingRequestId", "accessToken", "chatgptAccountId"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "accessToken": { "$ref": "#/$defs/NonEmptyString" },
+        "chatgptAccountId": { "$ref": "#/$defs/NonEmptyString" },
+        "chatgptPlanType": { "$ref": "#/$defs/NonEmptyString" }
+      },
+      "additionalProperties": true
+    },
+    "UnknownRespondParams": {
+      "type": "object",
+      "required": ["pendingRequestId", "result"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "result": true
+      },
+      "additionalProperties": true
+    },
+    "UnknownRejectParams": {
+      "type": "object",
+      "required": ["pendingRequestId", "code", "message"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "code": { "$ref": "#/$defs/Int64" },
+        "message": { "$ref": "#/$defs/NonEmptyString" },
+        "data": true
+      },
+      "additionalProperties": true
+    },
+    "CommandBase": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "requestId", "method", "params"],
+          "properties": {
+            "kind": { "const": "command" },
+            "requestId": { "$ref": "#/$defs/NonEmptyString" },
+            "method": { "$ref": "#/$defs/NonEmptyString" },
+            "params": { "type": "object" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "CommandBranch": {
+      "type": "object",
+      "required": ["method", "params"],
+      "additionalProperties": true
+    },
+    "Command": {
+      "allOf": [
+        { "$ref": "#/$defs/CommandBase" },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "method": { "const": "controller.acquire" },
+                "params": { "$ref": "#/$defs/EmptyParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "controller.release" },
+                "params": { "$ref": "#/$defs/EmptyParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "snapshot.get" },
+                "params": { "$ref": "#/$defs/EmptyParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "events.replay" },
+                "params": { "$ref": "#/$defs/ReplayParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "thread.start" },
+                "params": { "$ref": "#/$defs/ThreadStartParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "thread.resume" },
+                "params": { "$ref": "#/$defs/ThreadResumeParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "thread.list" },
+                "params": { "$ref": "#/$defs/ThreadListParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "thread.read" },
+                "params": { "$ref": "#/$defs/ThreadReadParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "turn.start" },
+                "params": { "$ref": "#/$defs/TurnStartParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "turn.interrupt" },
+                "params": { "$ref": "#/$defs/TurnInterruptParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "request.approval.respond" },
+                "params": { "$ref": "#/$defs/ApprovalRespondParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "request.userInput.respond" },
+                "params": { "$ref": "#/$defs/UserInputRespondParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "request.authentication.respond" },
+                "params": { "$ref": "#/$defs/AuthenticationRespondParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "request.unknown.respond" },
+                "params": { "$ref": "#/$defs/UnknownRespondParams" }
+              }
+            },
+            {
+              "properties": {
+                "method": { "const": "request.unknown.reject" },
+                "params": { "$ref": "#/$defs/UnknownRejectParams" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "Welcome": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "sessionId", "role", "currentSequence", "syncMode"],
+          "properties": {
+            "kind": { "const": "welcome" },
+            "sessionId": { "$ref": "#/$defs/DecimalId" },
+            "role": { "const": "observer" },
+            "currentSequence": { "$ref": "#/$defs/UInt64" },
+            "syncMode": { "enum": ["replay", "snapshot"] }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "SyncComplete": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "sequence"],
+          "properties": {
+            "kind": { "const": "sync.complete" },
+            "sequence": { "$ref": "#/$defs/UInt64" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "ErrorSnapshot": {
+      "type": "object",
+      "required": ["category", "code", "message"],
+      "properties": {
+        "category": {
+          "enum": [
+            "launch",
+            "transport",
+            "protocol",
+            "initialization",
+            "process",
+            "invalid_state",
+            "capacity",
+            "cancelled",
+            "enqueue"
+          ]
+        },
+        "code": { "$ref": "#/$defs/Int64" },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ItemState": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "status",
+        "agentText",
+        "reasoningText",
+        "reasoningSummary",
+        "commandOutput",
+        "droppedContentBytes",
+        "contentTruncated",
+        "data",
+        "extensions"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "type": {
+          "$ref": "#/$defs/NonEmptyString",
+          "description": "Known values are agent_message, reasoning, command_execution, file_change, tool_call, and web_search. Future Codex item types remain explicit strings."
+        },
+        "status": { "enum": ["unknown", "started", "completed", "failed"] },
+        "agentText": { "type": "string" },
+        "reasoningText": { "type": "string" },
+        "reasoningSummary": { "type": "string" },
+        "commandOutput": { "type": "string" },
+        "droppedContentBytes": { "$ref": "#/$defs/UInt64" },
+        "contentTruncated": { "type": "boolean" },
+        "startedAtMs": { "$ref": "#/$defs/Int64" },
+        "completedAtMs": { "$ref": "#/$defs/Int64" },
+        "data": { "type": "object" },
+        "extensions": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "TurnState": {
+      "type": "object",
+      "required": ["id", "threadId", "status", "active", "terminal", "items", "extensions"],
+      "properties": {
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "status": { "type": "string" },
+        "active": { "type": "boolean" },
+        "terminal": { "type": "boolean" },
+        "failure": true,
+        "tokenUsage": true,
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ItemState" }
+        },
+        "extensions": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "ThreadState": {
+      "type": "object",
+      "required": ["id", "fullyLoaded", "turns", "extensions"],
+      "properties": {
+        "id": { "$ref": "#/$defs/NonEmptyString" },
+        "title": { "type": "string" },
+        "cwd": { "type": "string" },
+        "model": { "type": "string" },
+        "modelProvider": { "type": "string" },
+        "preview": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "$ref": "#/$defs/Int64" },
+        "updatedAt": { "$ref": "#/$defs/Int64" },
+        "fullyLoaded": { "type": "boolean" },
+        "turns": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TurnState" }
+        },
+        "extensions": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "PendingRequestState": {
+      "type": "object",
+      "required": ["id", "type", "details"],
+      "properties": {
+        "id": { "$ref": "#/$defs/DecimalId" },
+        "type": {
+          "enum": [
+            "command_approval",
+            "file_change_approval",
+            "user_input",
+            "authentication",
+            "unknown"
+          ]
+        },
+        "threadId": { "type": "string" },
+        "turnId": { "type": "string" },
+        "itemId": { "type": "string" },
+        "details": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "SessionState": {
+      "type": "object",
+      "required": ["sessionId", "role"],
+      "properties": {
+        "sessionId": { "$ref": "#/$defs/DecimalId" },
+        "role": { "enum": ["observer", "controller"] }
+      },
+      "additionalProperties": true
+    },
+    "ThreadListState": {
+      "type": "object",
+      "required": ["hasLoadedPage", "complete", "pagesLoaded"],
+      "properties": {
+        "hasLoadedPage": { "type": "boolean" },
+        "complete": { "type": "boolean" },
+        "pagesLoaded": { "$ref": "#/$defs/UInt64" },
+        "nextCursor": { "type": "string" },
+        "backwardsCursor": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "JournalState": {
+      "type": "object",
+      "required": ["oldestReplayableAfter", "currentSequence"],
+      "properties": {
+        "oldestReplayableAfter": { "$ref": "#/$defs/UInt64" },
+        "currentSequence": { "$ref": "#/$defs/UInt64" },
+        "oldestRetainedSequence": { "$ref": "#/$defs/UInt64" },
+        "newestRetainedSequence": { "$ref": "#/$defs/UInt64" }
+      },
+      "additionalProperties": true
+    },
+    "BackendSnapshotState": {
+      "type": "object",
+      "required": [
+        "backendRevision",
+        "lifecycle",
+        "diagnostics",
+        "threads",
+        "pendingRequests",
+        "sessions",
+        "codexExtensions",
+        "omittedCodexExtensions",
+        "threadList",
+        "journal",
+        "sequenceExhausted"
+      ],
+      "properties": {
+        "backendRevision": { "$ref": "#/$defs/UInt64" },
+        "lifecycle": {
+          "enum": ["stopped", "starting", "initializing", "ready", "stopping", "failed"]
+        },
+        "lastLifecycleError": { "$ref": "#/$defs/ErrorSnapshot" },
+        "diagnostics": {
+          "type": "object",
+          "required": ["received", "recent"],
+          "properties": {
+            "received": { "$ref": "#/$defs/UInt64" },
+            "recent": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": true
+        },
+        "threads": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ThreadState" }
+        },
+        "pendingRequests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PendingRequestState" }
+        },
+        "controllerSessionId": { "$ref": "#/$defs/DecimalId" },
+        "sessions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SessionState" }
+        },
+        "codexExtensions": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/ExtensionEventData" }
+        },
+        "omittedCodexExtensions": { "$ref": "#/$defs/UInt64" },
+        "threadList": { "$ref": "#/$defs/ThreadListState" },
+        "journal": { "$ref": "#/$defs/JournalState" },
+        "sequenceExhausted": { "type": "boolean" },
+        "frontendSequenceExhausted": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "Snapshot": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "sequence", "state"],
+          "properties": {
+            "kind": { "const": "snapshot" },
+            "sequence": { "$ref": "#/$defs/UInt64" },
+            "state": { "$ref": "#/$defs/BackendSnapshotState" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "LifecycleEventData": {
+      "type": "object",
+      "required": ["lifecycle"],
+      "properties": {
+        "lifecycle": {
+          "enum": ["stopped", "starting", "initializing", "ready", "stopping", "failed"]
+        },
+        "error": { "$ref": "#/$defs/ErrorSnapshot" }
+      },
+      "additionalProperties": true
+    },
+    "DiagnosticsEventData": {
+      "type": "object",
+      "required": ["received", "recent"],
+      "properties": {
+        "received": { "$ref": "#/$defs/UInt64" },
+        "recent": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "ThreadEventData": {
+      "type": "object",
+      "required": ["thread"],
+      "properties": {
+        "thread": { "$ref": "#/$defs/ThreadState" }
+      },
+      "additionalProperties": true
+    },
+    "TurnEventData": {
+      "type": "object",
+      "required": ["turn"],
+      "properties": {
+        "turn": { "$ref": "#/$defs/TurnState" }
+      },
+      "additionalProperties": true
+    },
+    "ItemEventData": {
+      "type": "object",
+      "required": ["threadId", "turnId", "item"],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "turnId": { "$ref": "#/$defs/NonEmptyString" },
+        "item": { "$ref": "#/$defs/ItemState" }
+      },
+      "additionalProperties": true
+    },
+    "ItemContentEventData": {
+      "type": "object",
+      "required": [
+        "threadId",
+        "turnId",
+        "itemId",
+        "channel",
+        "content",
+        "contentTruncated",
+        "droppedContentBytes"
+      ],
+      "properties": {
+        "threadId": { "$ref": "#/$defs/NonEmptyString" },
+        "turnId": { "$ref": "#/$defs/NonEmptyString" },
+        "itemId": { "$ref": "#/$defs/NonEmptyString" },
+        "channel": {
+          "enum": ["agentText", "reasoningText", "reasoningSummary", "commandOutput"]
+        },
+        "content": { "type": "string" },
+        "contentTruncated": { "type": "boolean" },
+        "droppedContentBytes": { "$ref": "#/$defs/UInt64" }
+      },
+      "additionalProperties": true
+    },
+    "PendingEventData": {
+      "type": "object",
+      "required": ["request"],
+      "properties": {
+        "request": { "$ref": "#/$defs/PendingRequestState" }
+      },
+      "additionalProperties": true
+    },
+    "ResolvedEventData": {
+      "type": "object",
+      "required": ["pendingRequestId", "reason"],
+      "properties": {
+        "pendingRequestId": { "$ref": "#/$defs/DecimalId" },
+        "reason": {
+          "type": "string",
+          "description": "Current values are response_enqueued and app_server_connection_invalidated."
+        }
+      },
+      "additionalProperties": true
+    },
+    "ControllerEventData": {
+      "type": "object",
+      "properties": {
+        "controllerSessionId": { "$ref": "#/$defs/DecimalId" }
+      },
+      "additionalProperties": true
+    },
+    "SessionEventData": {
+      "type": "object",
+      "required": ["sessionId", "connected", "role"],
+      "properties": {
+        "sessionId": { "$ref": "#/$defs/DecimalId" },
+        "connected": { "type": "boolean" },
+        "role": { "enum": ["observer", "controller"] }
+      },
+      "additionalProperties": true
+    },
+    "ExtensionEventData": {
+      "type": "object",
+      "required": ["method", "params"],
+      "properties": {
+        "method": { "$ref": "#/$defs/NonEmptyString" },
+        "params": true,
+        "decodingError": { "type": "string" },
+        "sensitiveFieldsRedacted": { "type": "boolean" },
+        "truncation": {
+          "type": "object",
+          "properties": {
+            "method": { "$ref": "#/$defs/ExtensionTruncation" },
+            "params": { "$ref": "#/$defs/ExtensionTruncation" },
+            "decodingError": { "$ref": "#/$defs/ExtensionTruncation" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "ExtensionTruncation": {
+      "type": "object",
+      "properties": {
+        "originalBytes": { "$ref": "#/$defs/UInt64" },
+        "retainedBytes": { "$ref": "#/$defs/UInt64" }
+      },
+      "additionalProperties": false
+    },
+    "FrontendEvent": {
+      "type": "object",
+      "required": ["sequence", "type", "data"],
+      "properties": {
+        "sequence": { "$ref": "#/$defs/PositiveUInt64" },
+        "type": {
+          "enum": [
+            "backend.lifecycle.changed",
+            "diagnostics.updated",
+            "thread.updated",
+            "thread.list.updated",
+            "turn.updated",
+            "item.updated",
+            "item.content.updated",
+            "request.pending",
+            "request.resolved",
+            "controller.changed",
+            "session.changed",
+            "codex.extension"
+          ]
+        },
+        "data": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "backend.lifecycle.changed" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/LifecycleEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "diagnostics.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/DiagnosticsEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "thread.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ThreadEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "thread.list.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ThreadListState" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "turn.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/TurnEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "item.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ItemEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "item.content.updated" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ItemContentEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "request.pending" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/PendingEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "request.resolved" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ResolvedEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "controller.changed" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ControllerEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "session.changed" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/SessionEventData" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "codex.extension" } } },
+          "then": { "properties": { "data": { "$ref": "#/$defs/ExtensionEventData" } } }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "EventBatch": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "fromSequence", "toSequence", "events"],
+          "properties": {
+            "kind": { "const": "events" },
+            "fromSequence": { "$ref": "#/$defs/UInt64" },
+            "toSequence": { "$ref": "#/$defs/UInt64" },
+            "events": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/FrontendEvent" }
+            }
+          },
+          "additionalProperties": true
+        }
+      ],
+      "description": "The codec additionally requires strictly increasing event sequences and exact agreement between the outer range and first/last event. The default serialized envelope bound is 262144 bytes."
+    },
+    "CommandError": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "message": { "type": "string" },
+        "details": true
+      },
+      "additionalProperties": true
+    },
+    "ResponseBase": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "requestId", "ok"],
+          "properties": {
+            "kind": { "const": "response" },
+            "requestId": { "$ref": "#/$defs/NonEmptyString" },
+            "ok": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "SuccessResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/ResponseBase" },
+        {
+          "type": "object",
+          "required": ["result"],
+          "properties": {
+            "ok": { "const": true },
+            "result": true
+          },
+          "not": { "required": ["error"] },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "ErrorResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/ResponseBase" },
+        {
+          "type": "object",
+          "required": ["error"],
+          "properties": {
+            "ok": { "const": false },
+            "error": { "$ref": "#/$defs/CommandError" }
+          },
+          "not": { "required": ["result"] },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "ProtocolError": {
+      "allOf": [
+        { "$ref": "#/$defs/Envelope" },
+        {
+          "type": "object",
+          "required": ["kind", "code", "message", "supportedVersions", "closeConnection"],
+          "properties": {
+            "kind": { "const": "protocol.error" },
+            "code": { "$ref": "#/$defs/ErrorCode" },
+            "message": { "type": "string" },
+            "supportedVersions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/UInt32" }
+            },
+            "closeConnection": { "type": "boolean" },
+            "requestId": { "$ref": "#/$defs/NonEmptyString" },
+            "details": true
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}
