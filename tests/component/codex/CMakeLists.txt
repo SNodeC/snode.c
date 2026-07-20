@@ -17,6 +17,30 @@ target_compile_definitions(
 )
 add_dependencies(CodexStdioLifecycleTest CodexFakeAppServer)
 
+add_executable(CodexStdioProtocolFlowTest CodexStdioProtocolFlowTest.cpp)
+target_link_libraries(
+    CodexStdioProtocolFlowTest PRIVATE snodec-test-support
+                                       snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexStdioProtocolFlowTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexStdioProtocolFlowTest
+    PRIVATE CODEX_FAKE_APP_SERVER="$<TARGET_FILE:CodexFakeAppServer>"
+)
+add_dependencies(CodexStdioProtocolFlowTest CodexFakeAppServer)
+
+foreach(scenario IN ITEMS flow exit-restart)
+    string(REPLACE "-" "_" scenario_name ${scenario})
+    add_test(NAME CodexStdioProtocolFlow_${scenario_name}
+             COMMAND CodexStdioProtocolFlowTest ${scenario}
+    )
+    set_tests_properties(
+        CodexStdioProtocolFlow_${scenario_name}
+        PROPERTIES LABELS "component;ai;openai;codex;stdio;protocol"
+                   SKIP_RETURN_CODE 77 TIMEOUT 10
+    )
+endforeach()
+
 snodec_add_test(CodexProtocolCodecTest CodexProtocolCodecTest.cpp)
 target_link_libraries(
     CodexProtocolCodecTest PRIVATE snodec-test-support snodec::ai-openai-codex
@@ -26,6 +50,18 @@ set_tests_properties(
     CodexProtocolCodecTest
     PROPERTIES LABELS "component;ai;openai;codex;protocol" SKIP_RETURN_CODE 77
                TIMEOUT 5
+)
+
+snodec_add_test(CodexProtocolEngineTest CodexProtocolEngineTest.cpp)
+target_link_libraries(
+    CodexProtocolEngineTest PRIVATE snodec-test-support snodec::ai-openai-codex
+                                    snodec::core
+)
+target_compile_features(CodexProtocolEngineTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexProtocolEngineTest
+    PROPERTIES LABELS "component;ai;openai;codex;protocol;engine"
+               SKIP_RETURN_CODE 77 TIMEOUT 30
 )
 
 add_executable(CodexStdioScenarioTest CodexStdioScenarioTest.cpp)

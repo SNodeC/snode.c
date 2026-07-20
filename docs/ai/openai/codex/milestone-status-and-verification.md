@@ -2,8 +2,10 @@
 
 ## Milestone status
 
-The lifecycle and local stdio foundation is implemented on branch
-`feature/codex-app-server-client-foundation`.
+The lifecycle and local stdio foundation was implemented on branch
+`feature/codex-app-server-client-foundation`. The generic protocol core extends
+that foundation on `feature/codex-app-server-protocol-core` without changing
+stdio framing or process ownership.
 
 Completed behavior includes:
 
@@ -14,6 +16,15 @@ Completed behavior includes:
 - JSONL stdout framing and independent stderr diagnostic framing;
 - the initialize request, response correlation, initialized notification, and
   transition to `Ready`;
+- arbitrary caller-owned requests with asynchronous, exactly-once response
+  correlation;
+- arbitrary outgoing and incoming notifications;
+- retained server-initiated requests with explicit success or rejection
+  responses;
+- integer and string server request-ID preservation;
+- bounded pre-ready dispatch, pending-request, and server-request registries;
+- raw-envelope preservation and nonfatal unmatched-message reporting;
+- deterministic request cancellation and connection-generation isolation;
 - asynchronous ordered state callbacks and diagnostic callbacks;
 - pidfd exit observation with a forced timerfd polling test path;
 - transactional descriptor-registration failure handling for lifecycle, pidfd,
@@ -51,7 +62,8 @@ by the regular suite.
 
 ## Latest verification
 
-The focused verification for the completed implementation produced:
+The foundation milestone produced the following baseline before the generic
+protocol-core extension:
 
 | Verification | Result |
 | --- | --- |
@@ -77,13 +89,15 @@ be used for the final repository-wide result.
 
 ## Deliberately deferred work
 
-This milestone does not define APIs for threads, turns, items, approvals, or
-automatic approval. It also does not implement WebSocket transport, automatic
-restart/reconnect, command-line configuration sections, or a generic child
-process abstraction.
+This milestone does not define typed APIs for threads, turns, items, approvals,
+models, accounts, or authentication. Server requests are deliberately exposed
+as neutral raw protocol requests; no request is silently approved. WebSocket
+transport, automatic restart/reconnect, command-line configuration sections,
+and a generic child process abstraction also remain out of scope.
 
-The current protocol codec is intentionally minimal and only validates the
-initialization exchange needed to establish `Ready`.
+The protocol codec is generic and preserves unknown methods and fields. Semantic
+validation of thread, turn, item, approval, model, and authentication payloads
+belongs in later typed layers.
 
 ## ABI and release note
 
@@ -91,6 +105,12 @@ The associated redesign of `core::pipe::Pipe`, `PipeSource`, and `PipeSink`
 changes public C++ layouts and semantics. The shutdown notification virtual
 interface also changes the core ABI. See
 [`core-pipe-abi-revision.md`](../../../core-pipe-abi-revision.md).
+
+The protocol-core extension adds public C++ types containing
+`nlohmann::json`, strong request-ID classes, `AppServerClient::RawProtocol`, and
+new exported member functions. This changes the Codex module's public C++ API
+and ABI surface even where the outer `AppServerClient` object layout remains
+pimpl-based.
 
 All SNode.C libraries and consumers must be rebuilt together. Old and new core
 binaries must not be mixed. Before a binary release, the project must address
@@ -101,5 +121,8 @@ interpreted as a binary-compatibility guarantee.
 
 - Child-exit fallback is currently Linux `timerfd`; non-Linux support needs a
   native event-loop-compatible exit trigger.
-- Higher-level Codex operations are intentionally absent, so App Server requests
-  received during initialization are diagnosed but not serviced.
+- Higher-level Codex operations remain raw JSON until future typed layers add
+  semantic payload validation.
+- The pre-ready queue and both pending-request registries are deliberately
+  bounded; capacity errors require caller handling rather than unbounded memory
+  growth.

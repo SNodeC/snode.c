@@ -11,11 +11,17 @@
 #include <cstdlib>
 #include <ctime>
 #include <fcntl.h>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unistd.h>
+#include <vector>
 
 namespace {
+    using Json = nlohmann::json;
+
     bool writeAll(int fd, std::string_view data) {
         std::size_t offset = 0;
         while (offset < data.size()) {
@@ -126,10 +132,245 @@ namespace {
         std::string initialized;
         return input.readLine(initialized) && !initialized.empty() && initialized.find("\"method\":\"initialized\"") != std::string::npos;
     }
+
+    bool readJson(LineReader& input, Json& message) {
+        std::string line;
+        if (!input.readLine(line)) {
+            return false;
+        }
+
+        try {
+            message = Json::parse(line);
+            return message.is_object();
+        } catch (const Json::exception&) {
+            return false;
+        }
+    }
+
+    bool writeJson(const Json& message) {
+        return writeAll(STDOUT_FILENO, message.dump() + '\n');
+    }
+
+    std::optional<long long> integerRequestId(const Json& request) {
+        const auto id = request.find("id");
+        if (id == request.end() || !id->is_number_integer()) {
+            return std::nullopt;
+        }
+
+        try {
+            return id->get<long long>();
+        } catch (const Json::exception&) {
+            return std::nullopt;
+        }
+    }
+
+    Json fakeThread() {
+        return {{"id", "thread-fake-001"},
+                {"sessionId", "session-fake-001"},
+                {"source", "appServer"},
+                {"modelProvider", "openai"},
+                {"createdAt", 1},
+                {"updatedAt", 1},
+                {"status", {{"type", "idle"}}},
+                {"cwd", "/tmp/project"},
+                {"cliVersion", "0.144.6"},
+                {"preview", "Analyse the current branch."},
+                {"ephemeral", true},
+                {"turns", Json::array()}};
+    }
+
+    Json fakeTurn(std::string status) {
+        return {{"id", "turn-fake-001"}, {"items", Json::array()}, {"status", std::move(status)}, {"startedAt", 2}};
+    }
+
+    Json approvalParams(std::string itemId) {
+        return {{"threadId", "thread-fake-001"},
+                {"turnId", "turn-fake-001"},
+                {"itemId", std::move(itemId)},
+                {"startedAtMs", 2000},
+                {"command", "printf protocol-flow"},
+                {"cwd", "/tmp/project"}};
+    }
+
+    int runProtocolFlow(LineReader& input) {
+        constexpr std::size_t requestCount = 8;
+        std::map<std::string, long long> ids;
+
+        for (std::size_t requestIndex = 0; requestIndex < requestCount; ++requestIndex) {
+            Json request;
+            if (!readJson(input, request)) {
+                return 40;
+            }
+            const auto method = request.find("method");
+            const std::optional<long long> id = integerRequestId(request);
+            if (method == request.end() || !method->is_string() || !id || !request.contains("params")) {
+                return 41;
+            }
+            const auto [iterator, inserted] = ids.emplace(method->get<std::string>(), *id);
+            if (!inserted || iterator->second != *id) {
+                return 42;
+            }
+
+            if (*method == "thread/start" && request["params"] != Json{{"cwd", "/tmp/project"}}) {
+                return 43;
+            }
+        }
+
+        const std::vector<std::string> requiredMethods = {"thread/start",
+                                                          "test/result-object",
+                                                          "test/result-array",
+                                                          "test/result-scalar",
+                                                          "test/result-null",
+                                                          "test/remote-error",
+                                                          "test/out-of-order/first",
+                                                          "test/out-of-order/second"};
+        for (const std::string& method : requiredMethods) {
+            if (!ids.contains(method)) {
+                return 44;
+            }
+        }
+
+        if (!writeJson({{"id", ids["test/out-of-order/second"]}, {"result", {{"order", "second"}}}}) ||
+            !writeJson({{"id", ids["test/out-of-order/first"]}, {"result", {{"order", "first"}}}}) ||
+            !writeJson({{"id", ids["test/remote-error"]},
+                        {"error", {{"code", -32000}, {"message", "fake remote failure"}, {"data", {{"reason", "example"}}}}}}) ||
+            !writeJson({{"id", ids["test/result-null"]}, {"result", nullptr}}) ||
+            !writeJson({{"id", ids["test/result-scalar"]}, {"result", 17}}) ||
+            !writeJson({{"id", ids["test/result-array"]}, {"result", Json::array({1, "two", false})}}) ||
+            !writeJson({{"id", ids["test/result-object"]}, {"result", {{"shape", "object"}}}}) ||
+            !writeJson({{"id", 987654}, {"result", {{"unmatched", true}}}}) ||
+            !writeJson({{"id", "future-response-id"}, {"result", "unmatched-string"}}) ||
+            !writeJson({{"method", "future/notification"}, {"params", Json::array({"preserved", 23})}})) {
+            return 45;
+        }
+
+        const Json thread = fakeThread();
+        if (!writeJson({{"method", "thread/started"}, {"params", {{"thread", thread}}}}) ||
+            !writeJson({{"id", ids["thread/start"]},
+                        {"result",
+                         {{"approvalPolicy", "on-request"},
+                          {"approvalsReviewer", "user"},
+                          {"cwd", "/tmp/project"},
+                          {"model", "gpt-5"},
+                          {"modelProvider", "openai"},
+                          {"sandbox", {{"type", "readOnly"}}},
+                          {"thread", thread}}}})) {
+            return 46;
+        }
+
+        Json turnStart;
+        if (!readJson(input, turnStart) || turnStart.value("method", "") != "turn/start" || !integerRequestId(turnStart) ||
+            turnStart.value("params", Json()) !=
+                Json{{"threadId", "thread-fake-001"},
+                     {"input", Json::array({Json{{"type", "text"}, {"text", "Analyse the current branch."}}})}}) {
+            return 47;
+        }
+
+        const long long turnStartId = *integerRequestId(turnStart);
+        const Json startedTurn = fakeTurn("inProgress");
+        if (!writeJson({{"id", turnStartId}, {"result", {{"turn", startedTurn}}}}) ||
+            !writeJson({{"method", "turn/started"}, {"params", {{"threadId", "thread-fake-001"}, {"turn", startedTurn}}}}) ||
+            !writeJson({{"method", "item/agentMessage/delta"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"},
+                          {"turnId", "turn-fake-001"},
+                          {"itemId", "message-fake-001"},
+                          {"delta", "Analysis "}}}}) ||
+            !writeJson({{"method", "item/commandExecution/requestApproval"}, {"id", 700}, {"params", approvalParams("command-700")}}) ||
+            !writeJson({{"method", "item/commandExecution/requestApproval"},
+                        {"id", "approval-string-701"},
+                        {"params", approvalParams("command-701")}})) {
+            return 48;
+        }
+
+        bool receivedIntegerResponse = false;
+        bool receivedStringRejection = false;
+        for (int responseIndex = 0; responseIndex < 2; ++responseIndex) {
+            Json response;
+            if (!readJson(input, response)) {
+                return 49;
+            }
+
+            if (response.value("id", Json()) == Json(700)) {
+                receivedIntegerResponse = response == Json{{"id", 700}, {"result", {{"decision", "accept"}}}};
+            } else if (response.value("id", Json()) == Json("approval-string-701")) {
+                receivedStringRejection =
+                    response ==
+                    Json{{"id", "approval-string-701"},
+                         {"error", {{"code", -32000}, {"message", "Request rejected"}, {"data", {{"reason", "component-test"}}}}}};
+            }
+        }
+        if (!receivedIntegerResponse || !receivedStringRejection) {
+            return 50;
+        }
+
+        const Json completedTurn = fakeTurn("completed");
+        if (!writeJson({{"method", "item/agentMessage/delta"},
+                        {"params",
+                         {{"threadId", "thread-fake-001"},
+                          {"turnId", "turn-fake-001"},
+                          {"itemId", "message-fake-001"},
+                          {"delta", "complete."}}}}) ||
+            !writeJson({{"method", "turn/completed"}, {"params", {{"threadId", "thread-fake-001"}, {"turn", completedTurn}}}})) {
+            return 51;
+        }
+
+        return input.waitForEof() ? 0 : 52;
+    }
+
+    std::optional<long long> readStoredRequestId(const std::string& path) {
+        const int marker = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+        if (marker < 0) {
+            return std::nullopt;
+        }
+
+        char value[64]{};
+        ssize_t count = -1;
+        do {
+            count = ::read(marker, value, sizeof(value) - 1);
+        } while (count < 0 && errno == EINTR);
+        const bool closed = ::close(marker) == 0;
+        if (count <= 0 || !closed) {
+            return std::nullopt;
+        }
+        char* end = nullptr;
+        const long long id = std::strtoll(value, &end, 10);
+        return end != value && *end == '\0' ? std::optional<long long>(id) : std::nullopt;
+    }
+
+    int runProtocolExitOnce(LineReader& input, const std::string& markerPath, int firstLaunchMarker) {
+        if (firstLaunchMarker >= 0) {
+            Json pending;
+            const std::optional<long long> id = readJson(input, pending) ? integerRequestId(pending) : std::nullopt;
+            if (!id || pending.value("method", "") != "test/pending-after-exit") {
+                ::close(firstLaunchMarker);
+                return 60;
+            }
+            const std::string storedId = std::to_string(*id);
+            if (!writeAll(firstLaunchMarker, storedId) || ::close(firstLaunchMarker) != 0) {
+                return 61;
+            }
+            return 42;
+        }
+
+        const std::optional<long long> staleId = readStoredRequestId(markerPath);
+        if (!staleId || !writeJson({{"id", *staleId}, {"result", {{"generation", "stale"}}}})) {
+            return 62;
+        }
+
+        Json current;
+        const std::optional<long long> currentId = readJson(input, current) ? integerRequestId(current) : std::nullopt;
+        if (!currentId || current.value("method", "") != "test/pending-after-exit" || *currentId <= *staleId ||
+            !writeJson({{"id", *currentId}, {"result", {{"generation", "current"}}}})) {
+            return 63;
+        }
+        return input.waitForEof() ? 0 : 64;
+    }
 } // namespace
 
 int main(int argc, char* argv[]) {
     std::string mode = argc > 1 ? argv[1] : "normal";
+    int protocolExitMarker = -1;
 
     if (mode.starts_with("pidfile-")) {
         if (argc < 3) {
@@ -144,6 +385,16 @@ int main(int argc, char* argv[]) {
 
     if (mode == "exit-before-initialize") {
         return 17;
+    }
+
+    if (mode == "protocol-exit-once") {
+        if (argc < 3) {
+            return 32;
+        }
+        protocolExitMarker = ::open(argv[2], O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+        if (protocolExitMarker < 0 && errno != EEXIST) {
+            return 33;
+        }
     }
 
     if (!isBlockingDescriptor(STDIN_FILENO) || !isBlockingDescriptor(STDOUT_FILENO) || !isBlockingDescriptor(STDERR_FILENO)) {
@@ -203,6 +454,17 @@ int main(int argc, char* argv[]) {
         writeAll(STDOUT_FILENO, "{not-json}\n");
         static_cast<void>(input.waitForEof());
         return 0;
+    }
+
+    if (mode == "protocol-flow" || mode == "protocol-exit-once") {
+        if (!writeAll(STDERR_FILENO, "protocol-initialized\n") || !writeAll(STDOUT_FILENO, initializeResponse(requestId(initialize))) ||
+            !receiveInitialized(input)) {
+            if (protocolExitMarker >= 0) {
+                ::close(protocolExitMarker);
+            }
+            return 34;
+        }
+        return mode == "protocol-flow" ? runProtocolFlow(input) : runProtocolExitOnce(input, argv[2], protocolExitMarker);
     }
 
     if (!writeAll(STDERR_FILENO, "diagnostic one\ndiagnostic") || !writeAll(STDERR_FILENO, " two\n") ||

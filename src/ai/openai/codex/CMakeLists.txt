@@ -11,7 +11,7 @@ set(AI_OPENAI_CODEX_CPP AppServerClient.cpp detail/ProtocolCodec.cpp
                         stdio/Client.cpp stdio/StdioTransport.cpp
 )
 
-set(AI_OPENAI_CODEX_H AppServerClient.h detail/ProtocolCodec.h
+set(AI_OPENAI_CODEX_H AppServerClient.h Protocol.h detail/ProtocolCodec.h
                       detail/Transport.h stdio/Client.h stdio/StdioTransport.h
 )
 
@@ -22,8 +22,10 @@ target_include_directories(
     ai-openai-codex
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
-    PRIVATE ${CODEX_NLOHMANN_JSON_INCLUDE_DIRS}
+           ${CODEX_NLOHMANN_JSON_INCLUDE_DIRS}
 )
+
+target_compile_features(ai-openai-codex PUBLIC cxx_std_20)
 
 target_link_libraries(ai-openai-codex PRIVATE core)
 
@@ -41,7 +43,7 @@ install(
 )
 
 install(
-    FILES AppServerClient.h
+    FILES AppServerClient.h Protocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/ai/openai/codex
     COMPONENT ai-openai-codex
 )
