@@ -15,6 +15,8 @@
 
 namespace apps::codex_backend_client {
 
+    struct ResponsePresentation;
+
     enum class OutputMode { Human, Json };
 
     class Presenter {
@@ -23,6 +25,7 @@ namespace apps::codex_backend_client {
         Presenter(OutputMode mode, std::ostream& output, std::ostream& diagnostics);
 
         void present(const ai::openai::codex::frontend::ServerMessage& message);
+        void present(const ai::openai::codex::frontend::ServerMessage& message, const ResponsePresentation& presentation);
 
         void setWatchEnabled(bool enabled) noexcept;
         [[nodiscard]] bool watchEnabled() const noexcept;
@@ -34,7 +37,7 @@ namespace apps::codex_backend_client {
         void error(std::string_view message);
 
     private:
-        void presentHuman(const ai::openai::codex::frontend::ServerMessage& message);
+        void presentHuman(const ai::openai::codex::frontend::ServerMessage& message, const ResponsePresentation* presentation);
         void presentJson(const ai::openai::codex::frontend::ServerMessage& message);
 
         OutputMode mode;

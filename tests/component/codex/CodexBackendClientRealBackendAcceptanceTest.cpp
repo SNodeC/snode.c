@@ -31,6 +31,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <limits>
 #include <memory>
@@ -40,6 +41,7 @@
 #include <streambuf>
 #include <string>
 #include <string_view>
+#include <sys/wait.h>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
@@ -200,6 +202,14 @@ namespace {
             return true;
         }
 
+        [[nodiscard]] bool closeWriter() noexcept {
+            if (writeFd < 0) {
+                return true;
+            }
+            const int descriptor = std::exchange(writeFd, -1);
+            return ::close(descriptor) == 0;
+        }
+
         int readFd = -1;
 
     private:
@@ -218,9 +228,493 @@ namespace {
         return haystack.find(needle) != std::string_view::npos;
     }
 
+    std::string threadWorkflowSocketPath() {
+        return "/tmp/snodec-codex-client-thread-workflow-" + std::to_string(::getpid()) + ".sock";
+    }
+
+    void runThreadWorkflowAcceptance(tests::support::TestResult& result, int argc, char* argv[]) {
+        const std::string path = threadWorkflowSocketPath();
+        std::remove(path.c_str());
+        result.expectTrue(!pathExists(path), "the thread-workflow Unix socket path is absent before listen");
+        core::SNodeC::init(argc, argv);
+
+        constexpr std::string_view PersistedThreadId = "thread-persisted-acceptance";
+        constexpr std::string_view ExplicitThreadId = "thread-started-acceptance";
+        constexpr std::string_view NewThreadId = "thread-new-acceptance";
+        constexpr std::string_view ExplicitPrompt = "Continue the previous task.";
+        constexpr std::string_view NewPrompt = "Review  the current implementation. --literal";
+
+        bool timedOut = false;
+        bool serverListening = false;
+        bool backendHydratedBeforeInput = false;
+        bool inputClosedBeforeConnection = false;
+        bool eofEnteredDrain = false;
+        bool newStartObservedDuringEofDrain = false;
+        bool newTurnSentFromMatchingStart = false;
+        bool exitWaitedForNewTurnResponse = false;
+        bool lifecycleClosedCleanly = false;
+        bool eventLoopRunning = false;
+        bool exitScheduled = false;
+        bool completed = false;
+        int eventLoopResult = 1;
+        std::size_t listenSuccessCount = 0;
+        std::size_t connectSuccessCount = 0;
+        std::size_t connectionCallbackCount = 0;
+        std::size_t disconnectCallbackCount = 0;
+        std::size_t stdinLineCount = 0;
+        std::size_t stdinEofCount = 0;
+        std::size_t syncCompleteCount = 0;
+        std::size_t exitRequestCount = 0;
+        std::size_t appServerThreadListCount = 0;
+        std::size_t acquireResponseCount = 0;
+        std::size_t protocolErrorCount = 0;
+        std::size_t queuedCountAtEof = 0;
+        std::string explicitStartRequestId;
+        std::string resumeRequestId;
+        std::string explicitTurnRequestId;
+        std::string newStartRequestId;
+        std::string newTurnRequestId;
+        std::vector<std::string> acquireRequestIds;
+        std::vector<std::string> sentCommandIds;
+        std::vector<std::string> sentCommandMethods;
+        std::vector<std::size_t> sentCommandSyncCounts;
+        std::vector<std::string> responseIds;
+        std::vector<std::pair<std::string, Json>> appServerOperations;
+        std::optional<frontend::Response> explicitStartResponse;
+        std::optional<frontend::Response> resumeResponse;
+        std::optional<frontend::Response> explicitTurnResponse;
+        std::optional<frontend::Response> newStartResponse;
+        std::optional<frontend::Response> newTurnResponse;
+        std::vector<std::string> lifecycleFailures;
+        std::ostringstream humanOutput;
+        std::ostringstream diagnostics;
+
+        {
+            const auto transport = std::make_shared<tests::codex::FakeTransportState>();
+            tests::codex::installInitializingFake(transport, [&](const Json& message, const TransportCallbacks& callbacks) {
+                const auto method = message.find("method");
+                const auto id = message.find("id");
+                if (method == message.end() || !method->is_string() || id == message.end()) {
+                    return;
+                }
+
+                const std::string methodName = method->get<std::string>();
+                const Json params = message.value("params", Json::object());
+                if (methodName == "thread/list") {
+                    ++appServerThreadListCount;
+                    tests::codex::inject(callbacks,
+                                         Json{{"id", *id},
+                                              {"result",
+                                               {{"data", Json::array({tests::codex::threadValue(std::string(PersistedThreadId))})},
+                                                {"nextCursor", nullptr},
+                                                {"backwardsCursor", nullptr}}}});
+                    return;
+                }
+
+                appServerOperations.emplace_back(methodName, params);
+                if (methodName == "thread/start") {
+                    const std::string threadId = params.value("cwd", std::string{}) == "/tmp/acceptance-new"
+                                                     ? std::string(NewThreadId)
+                                                     : std::string(ExplicitThreadId);
+                    tests::codex::inject(callbacks, Json{{"id", *id}, {"result", tests::codex::threadOperationResult(threadId)}});
+                } else if (methodName == "thread/resume") {
+                    tests::codex::inject(
+                        callbacks, Json{{"id", *id}, {"result", tests::codex::threadOperationResult(std::string(PersistedThreadId))}});
+                } else if (methodName == "turn/start") {
+                    const std::string threadId = params.value("threadId", std::string{});
+                    const std::string turnId = threadId == NewThreadId ? "turn-new-acceptance" : "turn-resumed-acceptance";
+                    tests::codex::inject(callbacks, Json{{"id", *id}, {"result", tests::codex::turnOperationResult(threadId, turnId)}});
+                }
+            });
+
+            backend::BackendCoreOptions backendOptions;
+            backendOptions.initialThreadListLimit = 1;
+            FakeBackendCore backendCore(backendOptions, transport);
+
+            apps::codex_backend::SocketFrontendOptions frontendOptions;
+            using Server = net::un::stream::legacy::SocketServer<apps::codex_backend::CodexFrontendSocketContextFactory,
+                                                                 FakeBackendCore&,
+                                                                 apps::codex_backend::SocketFrontendOptions>;
+            Server server("codex-client-thread-workflow-server", backendCore, std::move(frontendOptions));
+            server.getConfig()->Instance::forceUnrequired();
+            backendCore.start();
+
+            Pipe inputPipe;
+            const std::string input = "acquire\n"
+                                      "start --cwd /tmp/acceptance-start --model start-model --model-provider start-provider "
+                                      "--approval-policy on-request --sandbox-mode workspace-write --ephemeral\n"
+                                      "acquire\n"
+                                      "resume thread-persisted-acceptance --cwd /tmp/acceptance-resume --model resume-model "
+                                      "--model-provider resume-provider --approval-policy never --sandbox-mode read-only\n"
+                                      "turn thread-persisted-acceptance Continue the previous task.\n"
+                                      "acquire\n"
+                                      "new --cwd /tmp/acceptance-new --model new-model --model-provider new-provider "
+                                      "--approval-policy on-request --sandbox-mode workspace-write --ephemeral -- "
+                                      "Review  the current implementation. --literal\n";
+            result.expectTrue(inputPipe.valid() && inputPipe.writeAll(input) && inputPipe.closeWriter(),
+                              "the deterministic thread-workflow pipe contains every command and closes before connection");
+
+            client::Presenter presenter(client::OutputMode::Human, humanOutput, diagnostics);
+            client::CommandParser parser("thread-workflow");
+            client::ClientConnection* connectionHandle = nullptr;
+            client::StdinReader* stdinReaderHandle = nullptr;
+            client::CommandDrainController* lifecycleHandle = nullptr;
+
+            client::CommandDrainController lifecycle(client::CommandDrainCallbacks{
+                .send =
+                    [&](const frontend::ClientMessage& message) {
+                        if (const auto* command = std::get_if<frontend::Command>(&message)) {
+                            sentCommandIds.push_back(command->requestId);
+                            sentCommandMethods.emplace_back(frontend::toString(frontend::commandMethod(command->parameters)));
+                            sentCommandSyncCounts.push_back(syncCompleteCount);
+                        }
+                        return connectionHandle != nullptr && connectionHandle->send(message);
+                    },
+                .requestExit =
+                    [&]() {
+                        ++exitRequestCount;
+                        exitWaitedForNewTurnResponse = newTurnResponse.has_value() && responseIds.size() == 8;
+                        if (stdinReaderHandle != nullptr) {
+                            stdinReaderHandle->stop();
+                        }
+                        if (!eventLoopRunning || exitScheduled) {
+                            return;
+                        }
+                        exitScheduled = true;
+                        core::EventReceiver::atNextTick([&]() {
+                            if (!eventLoopRunning) {
+                                return;
+                            }
+                            if (connectionHandle != nullptr && connectionHandle->connected()) {
+                                connectionHandle->disconnect();
+                            } else {
+                                core::SNodeC::stop();
+                            }
+                        });
+                    },
+                .reportFailure =
+                    [&](std::string message) {
+                        lifecycleFailures.push_back(message);
+                        presenter.error(std::move(message));
+                    }});
+            lifecycleHandle = &lifecycle;
+
+            client::ClientConnection connection(client::ClientConnectionCallbacks{
+                .onConnected =
+                    [&]() {
+                        ++connectionCallbackCount;
+                        lifecycle.connected();
+                        presenter.connected(path);
+                    },
+                .onMessage =
+                    [&](const frontend::ServerMessage& message) {
+                        const bool initialSync = std::holds_alternative<frontend::SyncComplete>(message) && syncCompleteCount == 0;
+                        const auto* response = std::get_if<frontend::Response>(&message);
+                        if (initialSync) {
+                            ++syncCompleteCount;
+                        } else if (response != nullptr) {
+                            responseIds.push_back(response->requestId);
+                            if (std::find(acquireRequestIds.begin(), acquireRequestIds.end(), response->requestId) !=
+                                acquireRequestIds.end()) {
+                                ++acquireResponseCount;
+                            } else if (response->requestId == explicitStartRequestId) {
+                                explicitStartResponse = *response;
+                            } else if (response->requestId == resumeRequestId) {
+                                resumeResponse = *response;
+                            } else if (response->requestId == explicitTurnRequestId) {
+                                explicitTurnResponse = *response;
+                            } else if (response->requestId == newStartRequestId) {
+                                newStartResponse = *response;
+                                newStartObservedDuringEofDrain =
+                                    lifecycle.inputState() == client::CommandDrainController::InputState::DrainOnEof &&
+                                    lifecycle.outcome() == client::CommandDrainController::Outcome::Running;
+                            } else if (response->requestId == newTurnRequestId) {
+                                newTurnResponse = *response;
+                            }
+                        } else if (std::holds_alternative<frontend::ProtocolErrorMessage>(message)) {
+                            ++protocolErrorCount;
+                        }
+
+                        const std::size_t sentBefore = sentCommandIds.size();
+                        const std::optional<client::ResponsePresentation> presentation = lifecycle.receive(message);
+                        if (presentation.has_value()) {
+                            presenter.present(message, *presentation);
+                        } else {
+                            presenter.present(message);
+                        }
+                        if (response != nullptr && response->requestId == newStartRequestId) {
+                            newTurnSentFromMatchingStart = sentCommandIds.size() == sentBefore + 1 &&
+                                                           sentCommandIds.back() == newTurnRequestId &&
+                                                           sentCommandMethods.back() == frontend::method::TurnStart;
+                        }
+                    },
+                .onProtocolError =
+                    [&](const frontend::CodecError& error) {
+                        ++protocolErrorCount;
+                        lifecycle.protocolFailed(std::string(frontend::toString(error.code)) + ": " + error.message);
+                    },
+                .onDisconnected =
+                    [&]() {
+                        ++disconnectCallbackCount;
+                        presenter.disconnected();
+                        lifecycle.disconnected();
+                        lifecycleClosedCleanly = lifecycle.sessionState() == client::CommandDrainController::SessionState::Closed &&
+                                                 lifecycle.outcome() == client::CommandDrainController::Outcome::Success &&
+                                                 lifecycle.queuedCount() == 0 && lifecycle.pendingResponseCount() == 0 &&
+                                                 lifecycle.pendingSyncCount() == 0;
+                        completed = true;
+                        if (eventLoopRunning) {
+                            core::SNodeC::stop();
+                        }
+                    }});
+            connectionHandle = &connection;
+
+            using Client = net::un::stream::legacy::SocketClient<client::CodexBackendClientSocketContextFactory, client::ClientConnection&>;
+            Client socketClient("codex-client-thread-workflow-client", connection);
+            socketClient.getConfig()->Instance::forceUnrequired();
+
+            std::unique_ptr<client::StdinReader> stdinReader;
+            const auto handleInput = [&](std::string line) {
+                ++stdinLineCount;
+                client::ParsedCommand parsed = parser.parse(line);
+                std::visit(
+                    [&]<typename Parsed>(Parsed&& command) {
+                        using T = std::remove_cvref_t<Parsed>;
+                        if constexpr (std::is_same_v<T, client::SendCommand>) {
+                            const auto* wireCommand = std::get_if<frontend::Command>(&command.message);
+                            if (wireCommand == nullptr) {
+                                result.expectTrue(false, "thread-workflow parser produces a typed frontend command");
+                                lifecycle.inputFailed("thread-workflow parser produced a non-command message");
+                                return;
+                            }
+                            if (std::holds_alternative<frontend::ControllerAcquire>(wireCommand->parameters)) {
+                                acquireRequestIds.push_back(wireCommand->requestId);
+                            } else if (std::holds_alternative<frontend::ThreadStart>(wireCommand->parameters)) {
+                                explicitStartRequestId = wireCommand->requestId;
+                            } else if (std::holds_alternative<frontend::ThreadResume>(wireCommand->parameters)) {
+                                resumeRequestId = wireCommand->requestId;
+                            } else if (std::holds_alternative<frontend::TurnStart>(wireCommand->parameters)) {
+                                explicitTurnRequestId = wireCommand->requestId;
+                            } else {
+                                result.expectTrue(false, "thread-workflow input contains only acquire, start, resume, turn, and new");
+                            }
+                            result.expectTrue(lifecycle.enqueue(std::move(command.message)),
+                                              "the lifecycle queues each ordinary thread-workflow command before connection");
+                        } else if constexpr (std::is_same_v<T, client::NewCommand>) {
+                            newStartRequestId = command.threadStartRequestId;
+                            newTurnRequestId = command.turnStartRequestId;
+                            result.expectTrue(lifecycle.enqueue(std::move(command)),
+                                              "the lifecycle queues the client-side new operation before connection");
+                        } else {
+                            result.expectTrue(false, "thread-workflow pipe parses without local or usage commands");
+                            lifecycle.inputFailed("thread-workflow pipe contained an unexpected parsed command");
+                        }
+                    },
+                    std::move(parsed));
+            };
+
+            const auto startInputWhenReady = [&]() {
+                const backend::Snapshot snapshot = backendCore.snapshot();
+                const bool persistedThreadHydrated = snapshot.threads.size() == 1 && snapshot.threads.front().id == PersistedThreadId;
+                if (!serverListening || stdinReader != nullptr || snapshot.lifecycle != backend::BackendLifecycle::Ready ||
+                    !persistedThreadHydrated) {
+                    return;
+                }
+                backendHydratedBeforeInput = sentCommandIds.empty();
+                try {
+                    stdinReader = std::make_unique<client::StdinReader>(
+                        handleInput,
+                        [&]() {
+                            ++stdinEofCount;
+                            queuedCountAtEof = lifecycle.queuedCount();
+                            inputClosedBeforeConnection = !connection.connected() && sentCommandIds.empty();
+                            lifecycle.inputEof();
+                            eofEnteredDrain = lifecycle.inputState() == client::CommandDrainController::InputState::DrainOnEof &&
+                                              lifecycle.outcome() == client::CommandDrainController::Outcome::Running;
+                            socketClient.connect(path, [&](const net::un::SocketAddress&, core::socket::State state) {
+                                if (state == core::socket::State::OK) {
+                                    ++connectSuccessCount;
+                                } else {
+                                    lifecycle.connectionFailed("thread-workflow production client failed to connect");
+                                }
+                            });
+                        },
+                        [&](std::string message) {
+                            lifecycle.inputFailed(std::move(message));
+                        },
+                        inputPipe.readFd);
+                    stdinReaderHandle = stdinReader.get();
+                } catch (const std::exception& exception) {
+                    lifecycle.inputFailed("failed to construct thread-workflow stdin reader: " + std::string(exception.what()));
+                }
+            };
+
+            backend::BackendObserverSubscription hydrationObserver =
+                backendCore.subscribe(backend::BackendObserverCallbacks{.onEvents =
+                                                                            [&](const std::vector<backend::SequencedBackendEvent>&) {
+                                                                                startInputWhenReady();
+                                                                            },
+                                                                        .onResynchronize =
+                                                                            [&](const backend::Snapshot&) {
+                                                                                startInputWhenReady();
+                                                                            }});
+            result.expectTrue(hydrationObserver.isOpen(), "the thread-workflow scenario observes deterministic backend hydration");
+
+            server.listen(path, [&](const net::un::SocketAddress&, core::socket::State state) {
+                if (state != core::socket::State::OK) {
+                    lifecycle.connectionFailed("thread-workflow real BackendAdapter Unix server failed to listen");
+                    return;
+                }
+                ++listenSuccessCount;
+                serverListening = true;
+                startInputWhenReady();
+            });
+
+            [[maybe_unused]] core::timer::Timer watchdog = core::timer::Timer::singleshotTimer(
+                [&]() {
+                    timedOut = true;
+                    core::SNodeC::stop();
+                },
+                utils::Timeval({10, 0}));
+            eventLoopRunning = true;
+            eventLoopResult = core::SNodeC::start(utils::Timeval({12, 0}));
+            eventLoopRunning = false;
+            if (stdinReader != nullptr) {
+                stdinReader->stop();
+            }
+            connection.disconnect();
+            backendCore.stop();
+        }
+
+        const std::vector<std::string> expectedCommandIds{acquireRequestIds.size() > 0 ? acquireRequestIds[0] : std::string{},
+                                                          explicitStartRequestId,
+                                                          acquireRequestIds.size() > 1 ? acquireRequestIds[1] : std::string{},
+                                                          resumeRequestId,
+                                                          explicitTurnRequestId,
+                                                          acquireRequestIds.size() > 2 ? acquireRequestIds[2] : std::string{},
+                                                          newStartRequestId,
+                                                          newTurnRequestId};
+        const std::vector<std::string> expectedCommandMethods{std::string(frontend::method::ControllerAcquire),
+                                                              std::string(frontend::method::ThreadStart),
+                                                              std::string(frontend::method::ControllerAcquire),
+                                                              std::string(frontend::method::ThreadResume),
+                                                              std::string(frontend::method::TurnStart),
+                                                              std::string(frontend::method::ControllerAcquire),
+                                                              std::string(frontend::method::ThreadStart),
+                                                              std::string(frontend::method::TurnStart)};
+        const std::vector<std::pair<std::string, Json>> expectedAppServerOperations{
+            {"thread/start",
+             Json{{"cwd", "/tmp/acceptance-start"},
+                  {"model", "start-model"},
+                  {"modelProvider", "start-provider"},
+                  {"approvalPolicy", "on-request"},
+                  {"sandbox", "workspace-write"},
+                  {"ephemeral", true}}},
+            {"thread/resume",
+             Json{{"threadId", PersistedThreadId},
+                  {"cwd", "/tmp/acceptance-resume"},
+                  {"model", "resume-model"},
+                  {"modelProvider", "resume-provider"},
+                  {"approvalPolicy", "never"},
+                  {"sandbox", "read-only"}}},
+            {"turn/start",
+             Json{{"threadId", PersistedThreadId},
+                  {"input", Json::array({Json{{"type", "text"}, {"text", ExplicitPrompt}, {"text_elements", Json::array()}}})}}},
+            {"thread/start",
+             Json{{"cwd", "/tmp/acceptance-new"},
+                  {"model", "new-model"},
+                  {"modelProvider", "new-provider"},
+                  {"approvalPolicy", "on-request"},
+                  {"sandbox", "workspace-write"},
+                  {"ephemeral", true}}},
+            {"turn/start",
+             Json{{"threadId", NewThreadId},
+                  {"input", Json::array({Json{{"type", "text"}, {"text", NewPrompt}, {"text_elements", Json::array()}}})}}}};
+
+        const auto responseHasThread = [](const std::optional<frontend::Response>& response, std::string_view threadId) {
+            if (!response.has_value() || !response->ok || !response->result.has_value()) {
+                return false;
+            }
+            const auto thread = response->result->find("thread");
+            return thread != response->result->end() && thread->is_object() && thread->value("id", std::string{}) == threadId;
+        };
+        const auto responseHasTurn = [](const std::optional<frontend::Response>& response, std::string_view threadId) {
+            if (!response.has_value() || !response->ok || !response->result.has_value()) {
+                return false;
+            }
+            const auto turn = response->result->find("turn");
+            return turn != response->result->end() && turn->is_object() && turn->value("threadId", std::string{}) == threadId;
+        };
+
+        std::vector<std::string> uniqueRequestIds = sentCommandIds;
+        std::sort(uniqueRequestIds.begin(), uniqueRequestIds.end());
+        const bool requestIdsAreUnique = std::adjacent_find(uniqueRequestIds.begin(), uniqueRequestIds.end()) == uniqueRequestIds.end();
+        result.expectTrue(!timedOut && completed, "the EOF-driven thread-workflow acceptance completes before its watchdog");
+        result.expectEqual(0, eventLoopResult, "the EOF-driven thread-workflow event loop stops cleanly");
+        result.expectEqual(1, static_cast<int>(listenSuccessCount), "the thread-workflow real frontend server listens exactly once");
+        result.expectEqual(1, static_cast<int>(connectSuccessCount), "the thread-workflow production client connects exactly once");
+        result.expectEqual(
+            1, static_cast<int>(connectionCallbackCount), "the thread-workflow production connection callback runs exactly once");
+        result.expectTrue(backendHydratedBeforeInput && appServerThreadListCount == 1,
+                          "the persisted thread is list-hydrated before the workflow pipe is consumed");
+        result.expectTrue(stdinLineCount == 7 && stdinEofCount == 1 && queuedCountAtEof == 7 && inputClosedBeforeConnection &&
+                              eofEnteredDrain,
+                          "all seven commands and EOF are queued deterministically before the Unix connection");
+        result.expectTrue(sentCommandIds == expectedCommandIds && sentCommandMethods == expectedCommandMethods,
+                          "acquire/start, acquire/resume/turn, and acquire/new cross the frontend in exact request order");
+        result.expectTrue(requestIdsAreUnique && newStartRequestId != newTurnRequestId,
+                          "every workflow request ID is unique and new allocates distinct IDs for its two stages");
+        result.expectTrue(sentCommandSyncCounts == std::vector<std::size_t>(8, 1),
+                          "every workflow command, including new's turn, is sent only after initial synchronization");
+        result.expectTrue(appServerOperations == expectedAppServerOperations,
+                          "the real BackendAdapter maps every start/resume option and both exact TextInput prompts in order");
+        result.expectTrue(newStartObservedDuringEofDrain && newTurnSentFromMatchingStart && exitWaitedForNewTurnResponse,
+                          "EOF remains draining while new waits for its matching start response and subsequent turn response");
+        result.expectTrue(responseHasThread(explicitStartResponse, ExplicitThreadId) &&
+                              responseHasThread(resumeResponse, PersistedThreadId) &&
+                              responseHasTurn(explicitTurnResponse, PersistedThreadId) &&
+                              responseHasThread(newStartResponse, NewThreadId) && responseHasTurn(newTurnResponse, NewThreadId),
+                          "real BackendAdapter responses preserve explicit, resumed, and generated thread IDs through both workflows");
+        result.expectTrue(acquireRequestIds.size() == 3 && acquireResponseCount == 3 && responseIds.size() == 8,
+                          "controller ownership is explicitly acquired for each workflow and all real responses are correlated");
+        result.expectEqual(0, static_cast<int>(protocolErrorCount), "the thread-workflow scenario reports no frontend protocol error");
+        result.expectEqual(1, static_cast<int>(exitRequestCount), "EOF completion requests exactly one controlled exit");
+        result.expectEqual(1, static_cast<int>(disconnectCallbackCount), "the thread-workflow client disconnects exactly once");
+        result.expectTrue(lifecycleFailures.empty() && lifecycleClosedCleanly,
+                          "the compound new workflow closes with no queued or pending lifecycle work");
+        result.expectTrue(std::none_of(sentCommandMethods.begin(),
+                                       sentCommandMethods.end(),
+                                       [](const std::string& method) {
+                                           return method.find("new") != std::string::npos;
+                                       }) &&
+                              std::none_of(appServerOperations.begin(),
+                                           appServerOperations.end(),
+                                           [](const auto& operation) {
+                                               return operation.first.find("new") != std::string::npos;
+                                           }),
+                          "new emits only real thread.start and turn.start operations with no synthetic protocol method");
+        result.expectTrue(contains(humanOutput.str(), "thread started id=" + std::string(ExplicitThreadId)) &&
+                              contains(humanOutput.str(), "thread resumed id=" + std::string(PersistedThreadId)) &&
+                              contains(humanOutput.str(), "thread created id=" + std::string(NewThreadId)) &&
+                              contains(humanOutput.str(), "initial turn submitted thread=" + std::string(NewThreadId)) &&
+                              diagnostics.str().empty(),
+                          "the production presenter emits bounded lifecycle summaries without diagnostics on the successful workflow");
+        result.expectTrue(!pathExists(path), "the thread-workflow Unix server removes its owned socket path");
+
+        core::SNodeC::free();
+        std::remove(path.c_str());
+    }
+
 } // namespace
 
 int main(int argc, char* argv[]) {
+    if (const char* scenario = std::getenv("SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO");
+        scenario != nullptr && std::string_view(scenario) == "thread-workflow") {
+        tests::support::TestResult workflowResult;
+        runThreadWorkflowAcceptance(workflowResult, argc, argv);
+        return workflowResult.processResult();
+    }
+
     tests::support::TestResult result;
     int returnCode = tests::support::cTestSkipReturnCode;
     const std::string path = socketPath();
@@ -744,6 +1238,24 @@ int main(int argc, char* argv[]) {
         result.expectTrue(pathCleanedByServer, "real frontend Unix server removes its owned socket path");
 
         core::SNodeC::free();
+        const pid_t workflowProcess = ::fork();
+        if (workflowProcess == 0) {
+            if (::setenv("SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO", "thread-workflow", 1) != 0) {
+                _exit(126);
+            }
+            ::execvp(argv[0], argv);
+            _exit(127);
+        }
+
+        int workflowStatus = 0;
+        pid_t waited = -1;
+        if (workflowProcess > 0) {
+            do {
+                waited = ::waitpid(workflowProcess, &workflowStatus, 0);
+            } while (waited < 0 && errno == EINTR);
+        }
+        result.expectTrue(workflowProcess > 0 && waited == workflowProcess && WIFEXITED(workflowStatus) && WEXITSTATUS(workflowStatus) == 0,
+                          "the isolated EOF-driven thread-workflow acceptance subprocess passes");
         returnCode = result.processResult();
     }
 

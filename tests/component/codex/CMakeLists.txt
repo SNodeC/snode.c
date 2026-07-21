@@ -175,6 +175,21 @@ if(TARGET codex-backend-client-support)
     )
 
     snodec_add_test(
+        CodexBackendClientPresenterTest CodexBackendClientPresenterTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientPresenterTest PRIVATE snodec-test-support
+                                                codex-backend-client-support
+    )
+    target_compile_features(CodexBackendClientPresenterTest PRIVATE cxx_std_20)
+    set_tests_properties(
+        CodexBackendClientPresenterTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;presentation"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
         CodexBackendClientJsonLineFramerTest
         CodexBackendClientJsonLineFramerTest.cpp
     )

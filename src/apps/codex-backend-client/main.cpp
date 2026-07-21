@@ -24,6 +24,7 @@
 
 #include <exception>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -107,8 +108,12 @@ int main(int argc, char* argv[]) {
                     // Advance protocol state before presentation. A controlled
                     // EOF exit is posted for the next event-loop tick, so the
                     // current message is still rendered before disconnecting.
-                    lifecycle.receive(message);
-                    presenter.present(message);
+                    const std::optional<client::ResponsePresentation> presentation = lifecycle.receive(message);
+                    if (presentation.has_value()) {
+                        presenter.present(message, *presentation);
+                    } else {
+                        presenter.present(message);
+                    }
                     if (awaitingInitialSynchronization && lifecycle.sessionState() == client::CommandDrainController::SessionState::Ready &&
                         presenter.outputMode() == client::OutputMode::Human) {
                         presenter.localMessage("synchronized; commands are ready");
@@ -153,6 +158,18 @@ int main(int argc, char* argv[]) {
                                 lifecycle.sessionState() == client::CommandDrainController::SessionState::Connecting ||
                                 lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing;
                             const bool accepted = lifecycle.enqueue(std::move(command.message));
+                            if (!accepted) {
+                                if (!lifecycle.failed()) {
+                                    presenter.error("command input is closed; command was not queued");
+                                }
+                            } else if (waitingForInitialSynchronization && presenter.outputMode() == client::OutputMode::Human) {
+                                presenter.localMessage("command queued; waiting for initial synchronization");
+                            }
+                        } else if constexpr (std::is_same_v<T, client::NewCommand>) {
+                            const bool waitingForInitialSynchronization =
+                                lifecycle.sessionState() == client::CommandDrainController::SessionState::Connecting ||
+                                lifecycle.sessionState() == client::CommandDrainController::SessionState::Synchronizing;
+                            const bool accepted = lifecycle.enqueue(std::move(command));
                             if (!accepted) {
                                 if (!lifecycle.failed()) {
                                     presenter.error("command input is closed; command was not queued");
