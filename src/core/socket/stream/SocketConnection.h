@@ -166,8 +166,11 @@ namespace core::socket::stream {
 
     private:
         const net::config::ConfigInstance* config;
+        bool terminalSocketContextTeardown = false;
 
         friend class core::socket::stream::SocketContext;
+        template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
+        friend class SocketConnectionT;
     };
 
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>

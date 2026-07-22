@@ -93,7 +93,13 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
-        if (this->socketContext == nullptr) {
+        if (terminalSocketContextTeardown) {
+            if (newSocketContext == nullptr) {
+                newSocketContext = socketContext;
+            } else {
+                delete socketContext;
+            }
+        } else if (this->socketContext == nullptr) {
             this->socketContext = socketContext;
 
             socketContext->attach();

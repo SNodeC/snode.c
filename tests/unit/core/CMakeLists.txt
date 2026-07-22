@@ -94,6 +94,10 @@ foreach(scenario
         plain_noncooperating_timeout
         reentrant_context_cleanup
         reentrant_context_finalizer_cleanup
+        active_detach_context_visibility
+        pending_context_destructor_visibility
+        recursive_pending_context_destructor_visibility
+        on_disconnect_context_visibility
         destruction_logging_order)
     add_test(NAME StreamFrameworkShutdown_${scenario} COMMAND StreamFrameworkShutdownTest ${scenario})
     set_tests_properties(

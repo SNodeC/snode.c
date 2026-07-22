@@ -153,8 +153,21 @@ EventLoop enters STOPPING
 Completion and forced termination both preserve exactly-once helper release,
 context detach, disconnect notification, connection destruction, and physical
 descriptor closure. An active `SocketContext` is detached with
-`ConnectionClose`; a pending `newSocketContext` is either installed during
-normal operation or destroyed during shutdown.
+`ConnectionClose`. The connection continues to expose that still-live active
+context while its own `onDisconnected()` callback runs. Because `detach()`
+self-deletes the context, the connection clears its active-context pointer
+immediately after `detach()` returns, before pending-context destruction or the
+connection-level disconnect callback can run.
+
+Terminal context teardown is represented by explicit private lifecycle state,
+not by retaining the deleted pointer as a sentinel. A replacement context
+supplied reentrantly by `onDisconnected()`, a pending-context destructor, or the
+connection-level disconnect callback is accepted for cleanup but is never
+attached to the terminal connection. Pre-existing pending contexts and every
+finite chain of reentrant replacements are drained and destroyed exactly once;
+the connection exposes a null active context throughout those post-detach
+callbacks. During normal operation, a pending `newSocketContext` is still
+installed by the existing context-switch path.
 
 Connection and context `LogScopeOwner` objects remain alive for their final
 semantic logs. Those logs are emitted before the existing

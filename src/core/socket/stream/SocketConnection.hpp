@@ -394,29 +394,30 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
+        Super::terminalSocketContextTeardown = true;
+
         SocketContext* const pendingSocketContext = std::exchange(Super::newSocketContext, nullptr);
-        const bool hadActiveSocketContext = Super::socketContext != nullptr;
         const auto releasePendingSocketContexts = [this](SocketContext* pendingContext) {
             while (pendingContext != nullptr || Super::newSocketContext != nullptr) {
-                SocketContext* const context = Super::newSocketContext != nullptr
-                                                   ? std::exchange(Super::newSocketContext, nullptr)
-                                                   : std::exchange(pendingContext, nullptr);
+                SocketContext* const context = pendingContext != nullptr
+                                                   ? std::exchange(pendingContext, nullptr)
+                                                   : std::exchange(Super::newSocketContext, nullptr);
                 delete context;
             }
         };
 
-        if (hadActiveSocketContext) {
-            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+        if (SocketContext* const activeSocketContext = Super::socketContext; activeSocketContext != nullptr) {
+            activeSocketContext->detach(SocketContext::DetachReason::ConnectionClose);
+            Super::socketContext = nullptr;
         }
+
+        SocketContext* const detachSocketContext = std::exchange(Super::newSocketContext, nullptr);
         releasePendingSocketContexts(pendingSocketContext);
+        releasePendingSocketContexts(detachSocketContext);
 
         onDisconnect();
 
-        if (!hadActiveSocketContext && Super::socketContext != nullptr) {
-            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
-        }
         releasePendingSocketContexts(std::exchange(Super::newSocketContext, nullptr));
-        Super::socketContext = nullptr;
 
         Super::log().debug("disconnected");
 

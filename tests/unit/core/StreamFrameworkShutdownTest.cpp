@@ -16,6 +16,7 @@
 #include "tests/support/TestResult.h"
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <csignal>
 #include <cstdint>
@@ -62,8 +63,13 @@ namespace {
         std::size_t peerBytes = 0;
         std::size_t totalSentAtDisconnect = 0;
         std::size_t totalQueuedAtDisconnect = 0;
+        int activeContextVisibilityChecks = 0;
+        int postDetachContextVisibilityChecks = 0;
+        int invalidContextVisibility = 0;
+        int unexpectedReentrantAttaches = 0;
         std::function<void()> onContextDisconnect;
         std::function<void()> onPendingContextDestroy;
+        std::function<void()> onDisconnect;
         bool captureLifetimeLogs = false;
     };
 
@@ -304,12 +310,21 @@ namespace {
         LifecycleState& state;
     };
 
+    struct ContextDestructionProbe {
+        int* exactDestructionCount = nullptr;
+        std::function<void()> onDestroy;
+    };
+
     class CountingContext final : public core::socket::stream::SocketContext {
     public:
-        CountingContext(TestConnection* connection, LifecycleState& state, bool pending)
+        CountingContext(TestConnection* connection,
+                        LifecycleState& state,
+                        bool pending,
+                        ContextDestructionProbe destructionProbe = {})
             : SocketContext(connection)
             , state(state)
-            , pending(pending) {
+            , pending(pending)
+            , destructionProbe(std::move(destructionProbe)) {
         }
 
         ~CountingContext() override {
@@ -317,7 +332,18 @@ namespace {
                 frameworkLog().info(pending ? "final pending context destructor cleanup" : "final active context destructor cleanup");
             }
             if (pending) {
+                ++state.postDetachContextVisibilityChecks;
+                if (getSocketConnection()->getSocketContext() != nullptr) {
+                    ++state.invalidContextVisibility;
+                }
                 ++state.pendingContextDestroyed;
+                if (destructionProbe.exactDestructionCount != nullptr) {
+                    ++*destructionProbe.exactDestructionCount;
+                }
+                if (destructionProbe.onDestroy) {
+                    auto callback = std::move(destructionProbe.onDestroy);
+                    callback();
+                }
                 if (state.onPendingContextDestroy) {
                     auto callback = std::move(state.onPendingContextDestroy);
                     callback();
@@ -335,6 +361,10 @@ namespace {
         void onDisconnected() override {
             if (getDetachReason() == DetachReason::ConnectionClose) {
                 ++state.contextDetached;
+                ++state.activeContextVisibilityChecks;
+                if (getSocketConnection()->getSocketContext() != this) {
+                    ++state.invalidContextVisibility;
+                }
             }
             if (state.captureLifetimeLogs) {
                 log().info("final application context onDisconnected");
@@ -367,6 +397,7 @@ namespace {
 
         LifecycleState& state;
         bool pending;
+        ContextDestructionProbe destructionProbe;
     };
 
     class CooperativePeer final : public core::eventreceiver::ReadEventReceiver {
@@ -467,12 +498,17 @@ namespace {
             });
             connection = new TestConnection(
                 TestPhysicalSocket(pair.releaseConnectionFd(), physical),
-                [this, installContextDuringDisconnect](TestConnection* closingConnection) {
+                [this](TestConnection* closingConnection) {
                     ++lifecycle.disconnects;
                     lifecycle.totalSentAtDisconnect = closingConnection->getTotalSent();
                     lifecycle.totalQueuedAtDisconnect = closingConnection->getTotalQueued();
-                    if (installContextDuringDisconnect) {
-                        closingConnection->setSocketContext(new CountingContext(closingConnection, lifecycle, true));
+                    ++lifecycle.postDetachContextVisibilityChecks;
+                    if (closingConnection->getSocketContext() != nullptr) {
+                        ++lifecycle.invalidContextVisibility;
+                    }
+                    if (lifecycle.onDisconnect) {
+                        auto callback = std::move(lifecycle.onDisconnect);
+                        callback();
                     }
                     connection = nullptr;
                 },
@@ -490,6 +526,11 @@ namespace {
             }
             if (installContextDuringPendingDestroy) {
                 lifecycle.onPendingContextDestroy = [this]() {
+                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
+                };
+            }
+            if (installContextDuringDisconnect) {
+                lifecycle.onDisconnect = [this]() {
                     connection->setSocketContext(new CountingContext(connection, lifecycle, true));
                 };
             }
@@ -567,6 +608,18 @@ namespace {
         result.expectEqual(expectedPendingContexts,
                            fixture.lifecycle.pendingContextDestroyed,
                            "pending context is destroyed exactly once when present");
+        result.expectEqual(1,
+                           fixture.lifecycle.activeContextVisibilityChecks,
+                           "onDisconnected observes the still-live active context exactly once");
+        result.expectEqual(expectedPendingContexts + 1,
+                           fixture.lifecycle.postDetachContextVisibilityChecks,
+                           "pending destructors and onDisconnect inspect context visibility after detach");
+        result.expectEqual(0,
+                           fixture.lifecycle.invalidContextVisibility,
+                           "no callback after detach observes a stale active context");
+        result.expectEqual(0,
+                           fixture.lifecycle.unexpectedReentrantAttaches,
+                           "no reentrant context attaches during terminal teardown");
         result.expectEqual(trigger == Trigger::Signal ? 1 : 0, fixture.lifecycle.signals, "signal callback count matches trigger");
         result.expectEqual(trigger == Trigger::Signal ? SIGTERM : 0, fixture.lifecycle.lastSignal, "signal number is preserved");
         result.expectEqual(1, fixture.physical->shutdownWrite, "all shutdown reasons use the write-shutdown path once");
@@ -588,6 +641,132 @@ namespace {
                                static_cast<int>(fixture.lifecycle.peerBytes),
                                "cooperative peer receives the complete queued payload");
         }
+
+        return result.processResult();
+    }
+
+    enum class ContextReentrancyScenario { ActiveDetach, PendingDestructor, RecursivePendingDestructor, OnDisconnect };
+
+    int runContextReentrancyScenario(ContextReentrancyScenario scenario) {
+        tests::support::TestResult result;
+        char arg0[] = "StreamFrameworkShutdownTest";
+        char* args[] = {arg0, nullptr};
+        core::SNodeC::init(1, args);
+
+        Fixture fixture(false, utils::Timeval({1, 0}));
+        std::array<int, 3> exactDestructions{};
+        int expectedPendingContexts = 0;
+
+        switch (scenario) {
+            case ContextReentrancyScenario::ActiveDetach:
+                expectedPendingContexts = 1;
+                fixture.lifecycle.onContextDisconnect = [&fixture, &exactDestructions]() {
+                    const int attachedBefore = fixture.lifecycle.contextAttached;
+                    fixture.connection->setSocketContext(new CountingContext(
+                        fixture.connection, fixture.lifecycle, true, {.exactDestructionCount = &exactDestructions[0]}));
+                    if (fixture.lifecycle.contextAttached != attachedBefore) {
+                        ++fixture.lifecycle.unexpectedReentrantAttaches;
+                    }
+                };
+                break;
+            case ContextReentrancyScenario::PendingDestructor:
+                expectedPendingContexts = 2;
+                fixture.connection->setSocketContext(new CountingContext(
+                    fixture.connection,
+                    fixture.lifecycle,
+                    true,
+                    {.exactDestructionCount = &exactDestructions[0],
+                     .onDestroy = [&fixture, &exactDestructions]() {
+                         const int attachedBefore = fixture.lifecycle.contextAttached;
+                         fixture.connection->setSocketContext(new CountingContext(
+                             fixture.connection,
+                             fixture.lifecycle,
+                             true,
+                             {.exactDestructionCount = &exactDestructions[1]}));
+                         if (fixture.lifecycle.contextAttached != attachedBefore) {
+                             ++fixture.lifecycle.unexpectedReentrantAttaches;
+                         }
+                     }}));
+                break;
+            case ContextReentrancyScenario::RecursivePendingDestructor:
+                expectedPendingContexts = 3;
+                fixture.connection->setSocketContext(new CountingContext(
+                    fixture.connection,
+                    fixture.lifecycle,
+                    true,
+                    {.exactDestructionCount = &exactDestructions[0],
+                     .onDestroy = [&fixture, &exactDestructions]() {
+                         const int attachedBefore = fixture.lifecycle.contextAttached;
+                         fixture.connection->setSocketContext(new CountingContext(
+                             fixture.connection,
+                             fixture.lifecycle,
+                             true,
+                             {.exactDestructionCount = &exactDestructions[1],
+                              .onDestroy = [&fixture, &exactDestructions]() {
+                                  const int recursiveAttachedBefore = fixture.lifecycle.contextAttached;
+                                  fixture.connection->setSocketContext(new CountingContext(
+                                      fixture.connection,
+                                      fixture.lifecycle,
+                                      true,
+                                      {.exactDestructionCount = &exactDestructions[2]}));
+                                  if (fixture.lifecycle.contextAttached != recursiveAttachedBefore) {
+                                      ++fixture.lifecycle.unexpectedReentrantAttaches;
+                                  }
+                              }}));
+                         if (fixture.lifecycle.contextAttached != attachedBefore) {
+                             ++fixture.lifecycle.unexpectedReentrantAttaches;
+                         }
+                     }}));
+                break;
+            case ContextReentrancyScenario::OnDisconnect:
+                expectedPendingContexts = 1;
+                fixture.lifecycle.onDisconnect = [&fixture, &exactDestructions]() {
+                    const int attachedBefore = fixture.lifecycle.contextAttached;
+                    fixture.connection->setSocketContext(new CountingContext(
+                        fixture.connection, fixture.lifecycle, true, {.exactDestructionCount = &exactDestructions[0]}));
+                    if (fixture.lifecycle.contextAttached != attachedBefore) {
+                        ++fixture.lifecycle.unexpectedReentrantAttaches;
+                    }
+                };
+                break;
+        }
+
+        static_cast<void>(
+            new CooperativePeer(fixture.pair.releasePeerFd(), 0, fixture.lifecycle, fixture.physical));
+        core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
+            []() {
+                core::SNodeC::stop();
+            },
+            utils::Timeval({0, 1000}));
+
+        result.expectEqual(0, core::SNodeC::start(utils::Timeval({1, 0})), "terminal context reentrancy shutdown completes");
+        result.expectEqual(1, fixture.lifecycle.contextAttached, "only the original active context attaches");
+        result.expectEqual(1, fixture.lifecycle.contextDetached, "the active context detaches once");
+        result.expectEqual(1, fixture.lifecycle.activeContextDestroyed, "the active context is destroyed once");
+        result.expectEqual(expectedPendingContexts,
+                           fixture.lifecycle.pendingContextDestroyed,
+                           "every pending or reentrant context is destroyed once");
+        result.expectEqual(1,
+                           fixture.lifecycle.activeContextVisibilityChecks,
+                           "onDisconnected sees the still-live active context");
+        result.expectEqual(expectedPendingContexts + 1,
+                           fixture.lifecycle.postDetachContextVisibilityChecks,
+                           "all pending destructors and onDisconnect inspect post-detach visibility");
+        result.expectEqual(0,
+                           fixture.lifecycle.invalidContextVisibility,
+                           "getSocketContext is null in every callback after detach returns");
+        result.expectEqual(0,
+                           fixture.lifecycle.unexpectedReentrantAttaches,
+                           "terminal replacements never run onConnected");
+        for (int index = 0; index < expectedPendingContexts; ++index) {
+            result.expectEqual(1, exactDestructions[static_cast<std::size_t>(index)], "each supplied context is destroyed exactly once");
+        }
+        result.expectEqual(1, fixture.physical->shutdownWrite, "terminal context test uses the coordinated write-shutdown path once");
+        result.expectEqual(1, fixture.lifecycle.disconnects, "onDisconnect runs once");
+        result.expectEqual(1, fixture.lifecycle.connectionDestroyed, "connection destruction runs once");
+        result.expectEqual(1, fixture.physical->closes, "physical descriptor closes once");
+        result.expectEqual(1, fixture.lifecycle.configDestroyed, "connection configuration reference releases once");
+        result.expectTrue(fixture.connection == nullptr, "connection is destroyed before start returns");
 
         return result.processResult();
     }
@@ -797,6 +976,18 @@ int main(int argc, char* argv[]) {
     }
     if (scenario == "reentrant_context_finalizer_cleanup") {
         return runPlainScenario(Trigger::Requested, false, true, true, true, true, true);
+    }
+    if (scenario == "active_detach_context_visibility") {
+        return runContextReentrancyScenario(ContextReentrancyScenario::ActiveDetach);
+    }
+    if (scenario == "pending_context_destructor_visibility") {
+        return runContextReentrancyScenario(ContextReentrancyScenario::PendingDestructor);
+    }
+    if (scenario == "recursive_pending_context_destructor_visibility") {
+        return runContextReentrancyScenario(ContextReentrancyScenario::RecursivePendingDestructor);
+    }
+    if (scenario == "on_disconnect_context_visibility") {
+        return runContextReentrancyScenario(ContextReentrancyScenario::OnDisconnect);
     }
     if (scenario == "destruction_logging_order") {
         return runLoggingLifetimeScenario();

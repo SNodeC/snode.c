@@ -83,7 +83,7 @@ int main() {
 
     bool ok = true;
     ok &= requireContains(socketConnection, "socketContext->detach(SocketContext::DetachReason::ContextSwitch);", socketConnectionPath);
-    ok &= requireContains(socketConnection, "socketContext->detach(SocketContext::DetachReason::ConnectionClose);", socketConnectionPath);
+    ok &= requireContains(socketConnection, "activeSocketContext->detach(SocketContext::DetachReason::ConnectionClose);", socketConnectionPath);
     const std::string_view switchBlock = requireBlock(socketConnection,
                                                       "// Perform a pending SocketContextSwitch",
                                                       "this->log().debug(\"SocketConnection: switch completed\");",
