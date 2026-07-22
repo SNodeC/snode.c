@@ -71,6 +71,7 @@ namespace {
 
     struct CapturedRecord {
         std::string level;
+        std::string origin;
         std::string boundary;
         std::string component;
         std::optional<std::string> instance;
@@ -88,6 +89,7 @@ namespace {
                 const auto json = nlohmann::json::parse(line);
                 records.push_back(
                     {.level = json.at("level").get<std::string>(),
+                     .origin = json.at("origin").get<std::string>(),
                      .boundary = json.at("boundary").get<std::string>(),
                      .component = json.at("component").get<std::string>(),
                      .instance =
@@ -105,6 +107,15 @@ namespace {
         std::vector<CapturedRecord> matches;
         std::copy_if(records.begin(), records.end(), std::back_inserter(matches), [&message](const CapturedRecord& record) {
             return record.message == message;
+        });
+        return matches;
+    }
+
+    std::vector<CapturedRecord>
+    recordsFor(const std::vector<CapturedRecord>& records, const std::string& message, const std::string& instance) {
+        std::vector<CapturedRecord> matches;
+        std::copy_if(records.begin(), records.end(), std::back_inserter(matches), [&message, &instance](const CapturedRecord& record) {
+            return record.message == message && record.instance == std::optional<std::string>(instance);
         });
         return matches;
     }
@@ -288,8 +299,7 @@ int main(int argc, char* argv[]) {
         char* logArgs[] = {arg0, arg1, arg2, arg3, nullptr};
         core::SNodeC::init(4, logArgs);
 
-        net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv4-disconnect-client",
-                                                                                                       testState);
+        net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv4-disconnect-client", testState);
         const net::in::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv4-disconnect-server",
                                                                                                              testState);
         const net::in::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> conflictingSocketServer(
@@ -362,9 +372,10 @@ int main(int argc, char* argv[]) {
         logger::Logger::disableLogToFile();
 
         const auto records = readLogRecords(logPath);
-        const auto listenerStarted = recordsFor(records, "listener started");
-        const auto listenerStopped = recordsFor(records, "listener stopped");
-        const auto listenerStartFailed = recordsFor(records, "listener start failed");
+        const auto listenerStarted = recordsFor(records, "listener started", "ipv4-disconnect-server");
+        const auto listenerStopped = recordsFor(records, "listener stopped", "ipv4-disconnect-server");
+        const auto successfulListenerStartFailed = recordsFor(records, "listener start failed", "ipv4-disconnect-server");
+        const auto listenerStartFailed = recordsFor(records, "listener start failed", "ipv4-conflicting-server");
         const auto attemptStarted = recordsFor(records, "connection attempt started");
         const auto attemptSucceeded = recordsFor(records, "connection attempt succeeded");
         const auto connected = recordsFor(records, "transport connected");
@@ -372,6 +383,8 @@ int main(int argc, char* argv[]) {
 
         testResult.expectEqual(1, static_cast<int>(listenerStarted.size()), "listener start is emitted once");
         testResult.expectEqual(1, static_cast<int>(listenerStopped.size()), "listener stop is emitted once");
+        testResult.expectEqual(
+            0, static_cast<int>(successfulListenerStartFailed.size()), "successful listener emits no startup failure record");
         testResult.expectEqual(1, static_cast<int>(listenerStartFailed.size()), "failed listener emits one startup terminal record");
         testResult.expectEqual(1, static_cast<int>(attemptStarted.size()), "client attempt start is emitted once");
         testResult.expectEqual(1, static_cast<int>(attemptSucceeded.size()), "client attempt success is emitted once");
@@ -379,14 +392,17 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(2, static_cast<int>(disconnected.size()), "client and accepted server transports each disconnect once");
 
         for (const auto& record : listenerStarted) {
-            testResult.expectTrue(record.level == "info" && record.boundary == "instance" && record.component == "core.socket.stream" &&
+            testResult.expectTrue(record.level == "info" && record.origin == "framework" && record.boundary == "instance" &&
+                                      record.component == "core.socket.stream" &&
                                       record.instance == std::optional<std::string>("ipv4-disconnect-server") &&
                                       record.role == std::optional<std::string>("server") && !record.connection,
                                   "listener start carries server endpoint identity at Info");
         }
         for (const auto& record : listenerStopped) {
-            testResult.expectTrue(record.level == "info" && record.instance == std::optional<std::string>("ipv4-disconnect-server") &&
-                                      record.role == std::optional<std::string>("server"),
+            testResult.expectTrue(record.level == "info" && record.origin == "framework" && record.boundary == "instance" &&
+                                      record.component == "core.socket.stream" &&
+                                      record.instance == std::optional<std::string>("ipv4-disconnect-server") &&
+                                      record.role == std::optional<std::string>("server") && !record.connection,
                                   "listener stop carries matching server endpoint identity at Info");
         }
         for (const auto& record : listenerStartFailed) {

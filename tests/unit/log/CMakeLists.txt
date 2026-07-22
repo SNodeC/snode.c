@@ -67,6 +67,12 @@ target_link_libraries(SocketConnectorAcceptorMigration02Test PRIVATE snodec-test
 target_compile_definitions(SocketConnectorAcceptorMigration02Test PRIVATE SNODEC_BUILD_TESTS SNODEC_INTREE_BUILD)
 set_tests_properties(SocketConnectorAcceptorMigration02Test PROPERTIES LABELS "unit;log;migration02")
 
+snodec_add_test(ListenerLifecyclePhase2Test ListenerLifecyclePhase2Test.cpp)
+target_include_directories(ListenerLifecyclePhase2Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(ListenerLifecyclePhase2Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+target_compile_definitions(ListenerLifecyclePhase2Test PRIVATE SNODEC_INTREE_BUILD)
+set_tests_properties(ListenerLifecyclePhase2Test PROPERTIES LABELS "unit;log;lifecycle;listener")
+
 snodec_add_test(SocketServerClientMigration03Test SocketServerClientMigration03Test.cpp)
 target_include_directories(SocketServerClientMigration03Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(SocketServerClientMigration03Test PRIVATE cxx_std_20)

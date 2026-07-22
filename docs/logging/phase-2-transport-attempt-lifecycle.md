@@ -170,10 +170,17 @@ stream shutdown, callback ordering, context attach/detach ordering or lifetime,
 retry/reconnect policy, timeout values, timer or descriptor admission, TLS
 handshake/shutdown behavior, connection/process ownership, child reaping,
 public callbacks, public socket APIs, the logger backend/schema/formatters, the
-global logging policy, ABI, or SOVERSION.
+global logging policy, or SOVERSION.
 
-The only new state is private lifecycle bookkeeping: one connector-candidate
-boolean and three Codex session booleans. No public or protected API is added.
+There is no public or protected source API change and no callback signature
+change. The private layout of the public `SocketConnector` template changes
+because its installed header now contains the attempt lifecycle state.
+Affected dependent code and template instantiations must be rebuilt; binary
+compatibility is not claimed. The internal `SocketClient` and `SocketServer`
+shared context layouts also change because of private continuation lifecycle
+state, but those contexts are not intended public ABI surfaces. The remaining
+new state is private Codex session lifecycle bookkeeping. No semantic log
+schema, backend, text/JSON format, or filtering contract changes.
 
 ## Deliberate Phase 3 deferrals
 
@@ -197,9 +204,11 @@ records and are classified `APPLICATION_USER_FACING`.
 ## Validation surface
 
 Runtime JSON capture tests cover accepted and outgoing plain transports,
-attempt success/failure without fictional disconnect, listener success/failure
-and stop, graceful/dual-receiver shutdown, retry/reconnect schedule and
-dispatch, and Codex spawn/setup/normal-exit/termination/fallback behavior.
+attempt success/failure without fictional disconnect, deterministic listener
+startup failure in `ListenerLifecyclePhase2Test`, the successful listener pair
+in `InetLegacyServerClientDisconnectLifecycleTest`, graceful/dual-receiver
+shutdown, retry/reconnect schedule and dispatch, and Codex
+spawn/setup/normal-exit/termination/fallback behavior.
 Narrow source-policy tests cover terminal placement that is impractical to
 force deterministically, including timeout/cancellation convergence, TLS-ready
 placement, Phase 1 vocabulary preservation, and the absence of obsolete bare
