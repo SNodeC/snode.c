@@ -186,7 +186,7 @@ namespace core::pipe {
         delete this;
     }
 
-    void PipeSource::onShutdown(const core::ShutdownContext& context) {
+    void PipeSource::shutdownEvent(const core::ShutdownContext& context) {
         if (shutdownCallback) {
             shutdownCallback(context);
         } else {

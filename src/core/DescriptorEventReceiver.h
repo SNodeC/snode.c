@@ -127,7 +127,7 @@ namespace core {
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
         virtual void signalEvent(int signum) = 0;
-        virtual void onShutdown(const ShutdownContext& context);
+        virtual void shutdownEvent(const ShutdownContext& context);
 
         DescriptorEventPublisher& descriptorEventPublisher;
         logger::LogScopeOwner logScope;

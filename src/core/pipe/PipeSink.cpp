@@ -152,7 +152,7 @@ namespace core::pipe {
         delete this;
     }
 
-    void PipeSink::onShutdown(const core::ShutdownContext& context) {
+    void PipeSink::shutdownEvent(const core::ShutdownContext& context) {
         if (shutdownCallback) {
             shutdownCallback(context);
         } else {

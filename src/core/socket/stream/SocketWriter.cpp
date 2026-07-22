@@ -83,14 +83,6 @@ namespace core::socket::stream {
         doWrite();
     }
 
-    void SocketWriter::signalEvent(int sigNum) {
-        if (onSignal(sigNum)) {
-            shutdownWrite([this]() {
-                SocketWriter::disable();
-            });
-        }
-    }
-
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }

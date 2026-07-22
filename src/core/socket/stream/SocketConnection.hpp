@@ -40,6 +40,7 @@
  */
 
 #include "SemanticLog.h"
+#include "core/Shutdown.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 
@@ -172,6 +173,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setReadTimeout(const utils::Timeval& timeout) {
         SocketReader::setTimeout(timeout);
     }
+
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
     void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setWriteTimeout(const utils::Timeval& timeout) {
         SocketWriter::setTimeout(timeout);
@@ -207,7 +209,8 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            this->log().trace("ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress");
+            this->log().trace("ReadFromPeer: New SocketContext != nullptr: "
+                              "SocketContextSwitch still in progress");
         }
 
         return ret;
@@ -245,7 +248,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite() {
         if (!SocketWriter::shutdownInProgress) {
-            this->log().trace("Stop writing");
+            Super::log().trace("Stop writing");
 
             SocketWriter::shutdownWrite([this]() {
                 if (SocketWriter::isEnabled()) {
@@ -294,18 +297,34 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        setTimeout(SocketWriter::terminateTimeout);
+        SocketReader::setTimeout(SocketReader::terminateTimeout);
+        SocketWriter::setTimeout(SocketWriter::terminateTimeout);
 
-        this->log().trace("Shutdown (WR)");
+        Super::log().trace("Shutdown (WR)");
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            this->log().debug("Shutdown (WR): success");
+            Super::log().debug("Shutdown (WR): success");
         } else {
             const int errnum = errno;
-            this->log().sysError(logger::LogLevel::Error, errnum, "Shutdown (WR)");
+            Super::log().sysError(logger::LogLevel::Error, errnum, "Shutdown (WR)");
         }
 
         onShutdown();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownEvent(
+        const core::ShutdownContext& context) {
+        if (frameworkShutdownProcessed) {
+            return;
+        }
+        frameworkShutdownProcessed = true;
+
+        if (context.reason == core::ShutdownReason::Signal) {
+            static_cast<void>(SocketConnectionT::onSignal(context.signal));
+        }
+
+        SocketConnectionT::shutdownWrite();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -319,7 +338,8 @@ namespace core::socket::stream {
 
             delete newSocketContext;
             newSocketContext = nullptr;
-        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+        } else if (newSocketContext != nullptr) {
+            // Perform a pending SocketContextSwitch
             socketContext->detach(SocketContext::DetachReason::ContextSwitch);
 
             socketContext = newSocketContext;
@@ -351,10 +371,11 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                this->log().debug("Shutting down due to signal '{}' (SIG{} [{}])",
-                                  utils::system::strsignal(signum),
-                                  utils::system::sigabbrev_np(signum),
-                                  signum);
+                Super::log().debug("Shutting down due to signal '{}' "
+                                   "(SIG{} [{}])",
+                                   utils::system::strsignal(signum),
+                                   utils::system::sigabbrev_np(signum),
+                                   signum);
                 break;
             case SIGALRM:
                 break;
@@ -377,13 +398,24 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
+        // Cancel a context switch that was already pending when the
+        // connection entered final teardown.
+        delete std::exchange(newSocketContext, nullptr);
+
         if (socketContext != nullptr) {
             socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+
+            // detach() destroys the active SocketContext.
+            socketContext = nullptr;
         }
+
+        // onDisconnected() may have requested another context switch while
+        // the active context was still alive.
+        delete std::exchange(newSocketContext, nullptr);
 
         onDisconnect();
 
-        this->log().debug("disconnected");
+        Super::log().debug("disconnected");
 
         delete this;
     }

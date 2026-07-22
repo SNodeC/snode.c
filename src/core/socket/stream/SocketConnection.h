@@ -46,6 +46,8 @@
 #include "log/SemanticLogger.h"
 
 namespace core {
+    struct ShutdownContext;
+
     namespace pipe {
         class Source;
     }
@@ -234,6 +236,8 @@ namespace core::socket::stream {
         void onReadError(int errnum);
 
     private:
+        void shutdownEvent(const core::ShutdownContext& context) final;
+
         void onReceivedFromPeer(std::size_t available) final;
 
         bool onSignal(int signum) final;
@@ -250,6 +254,8 @@ namespace core::socket::stream {
         SocketAddress remoteAddress{};
 
         std::shared_ptr<Config> config;
+
+        bool frameworkShutdownProcessed = false;
     };
 
 } // namespace core::socket::stream
