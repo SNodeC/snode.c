@@ -12,6 +12,7 @@
 #include "core/SNodeC.h"
 #include "core/pipe/PipeSource.h"
 #include "core/timer/Timer.h"
+#include "log/Logger.h"
 #include "support/DescriptorRegistrationFailure.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
@@ -20,7 +21,9 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <set>
 #include <string>
@@ -121,8 +124,20 @@ int main(int argc, char* argv[]) {
         return tests::support::cTestSkipReturnCode;
     }
 
-    char* snodeArguments[] = {argv[0], nullptr};
-    core::SNodeC::init(1, snodeArguments);
+    const auto lifecycleLogPath = std::filesystem::temp_directory_path() / ("snodec-codex-phase2-" + scenario + ".jsonl");
+    std::error_code lifecycleLogRemoveError;
+    std::filesystem::remove(lifecycleLogPath, lifecycleLogRemoveError);
+    logger::Logger::init();
+    logger::LogManager::init();
+    logger::Logger::setQuiet(true);
+    logger::Logger::setDisableColor(true);
+    logger::Logger::logToFile(lifecycleLogPath.string());
+
+    char logLevel[] = "--log-level=6";
+    char logFormat[] = "--log-format=json";
+    char quiet[] = "--quiet";
+    char* snodeArguments[] = {argv[0], logLevel, logFormat, quiet, nullptr};
+    core::SNodeC::init(4, snodeArguments);
 
     const std::size_t descriptorsBefore = descriptorCount();
     const std::size_t pipesBefore = uniquePipeCount();
@@ -445,5 +460,69 @@ int main(int argc, char* argv[]) {
     }
 
     core::SNodeC::free();
+    logger::Logger::disableLogToFile();
+
+    int processSpawned = 0;
+    int processExited = 0;
+    int processTerminated = 0;
+    int processSpawnFailed = 0;
+    int transportStarted = 0;
+    int transportStopped = 0;
+    int transportStartFailed = 0;
+    int forcedTerminationRequested = 0;
+    std::ifstream lifecycleLog(lifecycleLogPath);
+    std::string lifecycleLine;
+    while (std::getline(lifecycleLog, lifecycleLine)) {
+        if (lifecycleLine.empty()) {
+            continue;
+        }
+        const auto record = nlohmann::json::parse(lifecycleLine);
+        const std::string message = record.at("message").get<std::string>();
+        const bool canonicalProcessRecord = message == "child process spawned" || message == "child process exited" ||
+                                            message == "child process terminated" || message == "child process spawn failed";
+        const bool canonicalTransportRecord =
+            message == "stdio transport started" || message == "stdio transport stopped" || message == "stdio transport start failed";
+        if (canonicalProcessRecord || canonicalTransportRecord) {
+            testResult.expectTrue(record.at("origin") == "framework" && record.at("boundary") == "connection" &&
+                                      record.at("component") == "ai.openai.codex.stdio" && !record.contains("connection"),
+                                  scenario + ": " + message + " retains the existing Codex stdio identity");
+        }
+        processSpawned += message == "child process spawned" ? 1 : 0;
+        processExited += message == "child process exited" ? 1 : 0;
+        processTerminated += message == "child process terminated" ? 1 : 0;
+        processSpawnFailed += message == "child process spawn failed" ? 1 : 0;
+        transportStarted += message == "stdio transport started" ? 1 : 0;
+        transportStopped += message == "stdio transport stopped" ? 1 : 0;
+        transportStartFailed += message == "stdio transport start failed" ? 1 : 0;
+        forcedTerminationRequested += message == "child process forced termination requested" ? 1 : 0;
+    }
+
+    if (scenario == "launch-failure") {
+        testResult.expectEqual(1, processSpawnFailed, "spawn failure emits one child spawn terminal record");
+        testResult.expectEqual(0, processSpawned, "spawn failure emits no child spawned record");
+        testResult.expectEqual(0, processExited + processTerminated, "spawn failure emits no fictional child terminal record");
+        testResult.expectEqual(1, transportStartFailed, "spawn failure emits one stdio startup failure");
+        testResult.expectEqual(0, transportStarted + transportStopped, "failed stdio startup has no start/stop pair");
+    } else if (scenario == "post-spawn-setup-failure") {
+        testResult.expectEqual(1, processSpawned, "post-spawn rollback records the real spawn once");
+        testResult.expectEqual(1, processExited + processTerminated, "post-spawn rollback records one reaped child outcome");
+        testResult.expectEqual(1, transportStartFailed, "post-spawn parent setup failure records startup failure once");
+        testResult.expectEqual(0, transportStarted + transportStopped, "parent setup failure never claims stdio transport activation");
+    } else if (scenario == "forced-fallback-normal") {
+        testResult.expectEqual(1, processSpawned, "polling fallback records one child spawn");
+        testResult.expectEqual(1, processExited, "polling fallback records one normal child exit");
+        testResult.expectEqual(0, processTerminated, "normal polling fallback is not mislabeled as termination");
+        testResult.expectEqual(1, transportStarted, "polling fallback starts stdio transport once");
+        testResult.expectEqual(1, transportStopped, "polling fallback stops stdio transport once");
+    } else if (scenario == "forced-fallback-ignore-shutdown" || scenario == "ignore-shutdown" || scenario == "blocked-ignore-shutdown") {
+        testResult.expectEqual(1, processSpawned, "forced shutdown records one child spawn");
+        testResult.expectEqual(1, processExited + processTerminated, "forced shutdown records one reaped child outcome");
+        testResult.expectEqual(1, forcedTerminationRequested, "forced shutdown distinguishes SIGKILL escalation once");
+        testResult.expectEqual(1, transportStarted, "forced shutdown starts stdio transport once");
+        testResult.expectEqual(1, transportStopped, "forced shutdown stops stdio transport once");
+    }
+
+    logger::Logger::init();
+    logger::LogManager::init();
     return testResult.processResult();
 }

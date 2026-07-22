@@ -17,9 +17,12 @@
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <optional>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utility>
+#include <vector>
 
 using core::socket::stream::tls::TLSHandshake;
 using core::socket::stream::tls::TLSShutdown;
@@ -384,7 +387,8 @@ namespace {
         }
     }
 
-    bool driveProductionHandshake(TestFixture& f, SSL* peerSsl, int& callbacks) {
+    bool
+    driveProductionHandshake(TestFixture& f, SSL* peerSsl, int& callbacks, std::vector<logger::LogRecord>* readinessRecords = nullptr) {
         SSL* connectionSsl = f.connection->getSSL();
         SSL_set_connect_state(connectionSsl);
         bool peerDone = false;
@@ -394,6 +398,13 @@ namespace {
                 [&] {
                     ++callbacks;
                     connectionDone = true;
+                    if (readinessRecords != nullptr) {
+                        f.connection
+                            ->log([readinessRecords](logger::LogRecord record) {
+                                readinessRecords->push_back(std::move(record));
+                            })
+                            .info("transport ready");
+                    }
                 },
                 [] {
                 },
@@ -905,10 +916,18 @@ namespace {
         resetTlsTestState();
         {
             TestFixture f(true);
+            int successCallbacks = 0;
+            std::vector<logger::LogRecord> readinessRecords;
             TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
             TLSLifecycleTestAccess::doSSLHandshake(
                 *f.connection,
-                [] {
+                [&] {
+                    ++successCallbacks;
+                    f.connection
+                        ->log([&readinessRecords](logger::LogRecord record) {
+                            readinessRecords.push_back(std::move(record));
+                        })
+                        .info("transport ready");
                 },
                 [] {
                 },
@@ -922,6 +941,8 @@ namespace {
             result.expectEqual(0,
                                TLSLifecycleTestAccess::shutdownCounters().constructed,
                                "handshake failure with pending shutdown starts no shutdown helper");
+            result.expectEqual(0, successCallbacks, "failed TLS handshake has no readiness callback");
+            result.expectTrue(readinessRecords.empty(), "failed TLS handshake emits no transport ready record");
             result.expectEqual(1, f.disconnects, "handshake failure with pending shutdown closes once");
         }
     }
@@ -1332,8 +1353,18 @@ namespace {
             result.expectEqual(f.pipeFd.fd(), SSL_get_fd(connectionSsl), "connection SSL uses fixture socket fd");
             result.expectEqual(f.pipeFd.writeFd(), SSL_get_fd(peer.ssl), "peer SSL uses fixture peer fd");
             int handshakeCallbacks = 0;
-            result.expectTrue(driveProductionHandshake(f, peer.ssl, handshakeCallbacks), "same-socket production TLS handshake completes");
+            std::vector<logger::LogRecord> readinessRecords;
+            result.expectTrue(driveProductionHandshake(f, peer.ssl, handshakeCallbacks, &readinessRecords),
+                              "same-socket production TLS handshake completes");
             result.expectEqual(1, handshakeCallbacks, "connection handshake callback occurs once");
+            result.expectTrue(readinessRecords.size() == 1 && readinessRecords.front().message == "transport ready" &&
+                                  readinessRecords.front().level == logger::LogLevel::Info &&
+                                  readinessRecords.front().origin == logger::LogOrigin::Framework &&
+                                  readinessRecords.front().boundary == logger::LogBoundary::Connection &&
+                                  readinessRecords.front().component == "core.socket.stream" &&
+                                  readinessRecords.front().role == std::optional<logger::LogRole>(logger::LogRole::Client) &&
+                                  readinessRecords.front().connection == std::optional<std::string>("1"),
+                              "successful production TLS handshake emits one connection-bound Info readiness record");
             result.expectEqual(3, TLSLifecycleTestAccess::transportState(*f.connection), "connection is TlsActive after real handshake");
             result.expectTrue(TLSLifecycleTestAccess::sslAttached(*f.connection), "SSL remains attached after real handshake");
             const std::string tlsVersion = SSL_get_version(connectionSsl);

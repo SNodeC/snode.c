@@ -758,6 +758,7 @@ namespace {
     };
 
     struct CapturedRecord {
+        std::string level;
         std::string origin;
         std::string boundary;
         std::string component;
@@ -790,6 +791,7 @@ namespace {
             const auto json = nlohmann::json::parse(line);
 
             records.push_back(CapturedRecord{
+                .level = json.at("level").get<std::string>(),
                 .origin = json.at("origin").get<std::string>(),
                 .boundary = json.at("boundary").get<std::string>(),
                 .component = json.at("component").get<std::string>(),
@@ -890,7 +892,7 @@ namespace {
                                                            "final application context onDisconnected",
                                                            "final framework context onDisconnected",
                                                            "final active context destructor cleanup",
-                                                           "disconnected",
+                                                           "transport disconnected",
                                                            "final connection destructor cleanup",
                                                            "final config destroy callback"};
 
@@ -935,8 +937,19 @@ namespace {
             expectRecordIdentity(message, "framework", "context", "core.socket.context", std::nullopt, std::optional<std::string>("41"));
         }
 
-        for (const std::string& message : {"disconnected", "final connection destructor cleanup"}) {
-            expectRecordIdentity(message, "framework", "connection", "core.socket.stream", std::nullopt, std::optional<std::string>("41"));
+        for (const std::string& message : {"transport disconnected", "final connection destructor cleanup"}) {
+            expectRecordIdentity(message,
+                                 "framework",
+                                 "connection",
+                                 "core.socket.stream",
+                                 std::optional<std::string>("client"),
+                                 std::optional<std::string>("41"));
+        }
+
+        const auto disconnected = findRecord(records, "transport disconnected");
+        result.expectTrue(disconnected.has_value(), "framework shutdown emits the canonical transport disconnect exactly once");
+        if (disconnected) {
+            result.expectTrue(records[*disconnected].level == "info", "transport disconnected uses Info");
         }
 
         expectRecordIdentity("final config destroy callback",
