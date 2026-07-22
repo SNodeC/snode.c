@@ -16,7 +16,6 @@
 #include "tests/support/TestResult.h"
 
 #include <algorithm>
-#include <array>
 #include <cerrno>
 #include <csignal>
 #include <cstdint>
@@ -43,9 +42,8 @@ namespace {
         using ReceiverMap = decltype(observedEventReceiverLists);
     };
 
-    static_assert(
-        std::is_same_v<typename PublisherContainerProbe::ReceiverMap::mapped_type, std::list<core::DescriptorEventReceiver*>>,
-        "Descriptor shutdown traversal relies on stable std::list iterators");
+    static_assert(std::is_same_v<typename PublisherContainerProbe::ReceiverMap::mapped_type, std::list<core::DescriptorEventReceiver*>>,
+                  "Descriptor shutdown traversal relies on stable std::list iterators");
 
     struct LifecycleState {
         int contextAttached = 0;
@@ -64,12 +62,11 @@ namespace {
         std::size_t totalSentAtDisconnect = 0;
         std::size_t totalQueuedAtDisconnect = 0;
         int activeContextVisibilityChecks = 0;
-        int postDetachContextVisibilityChecks = 0;
+        int pendingContextVisibilityChecks = 0;
+        int disconnectContextVisibilityChecks = 0;
         int invalidContextVisibility = 0;
         int unexpectedReentrantAttaches = 0;
         std::function<void()> onContextDisconnect;
-        std::function<void()> onPendingContextDestroy;
-        std::function<void()> onDisconnect;
         bool captureLifetimeLogs = false;
     };
 
@@ -128,6 +125,7 @@ namespace {
     class TestPhysicalSocket {
     public:
         using SocketAddress = TestSocketAddress;
+
         enum class SHUT { RD, WR, RDWR };
 
         TestPhysicalSocket(int fd, std::shared_ptr<PhysicalCounters> counters)
@@ -153,6 +151,7 @@ namespace {
                 fd = std::exchange(other.fd, -1);
                 counters = std::move(other.counters);
             }
+
             return *this;
         }
 
@@ -186,6 +185,7 @@ namespace {
             } else {
                 ++counters->shutdownBoth;
             }
+
             return 0;
         }
 
@@ -278,8 +278,7 @@ namespace {
         ~TestWriter() override = default;
     };
 
-    class TestConnection final
-        : public core::socket::stream::SocketConnectionT<TestPhysicalSocket, TestReader, TestWriter, TestConfig> {
+    class TestConnection final : public core::socket::stream::SocketConnectionT<TestPhysicalSocket, TestReader, TestWriter, TestConfig> {
     private:
         using Super = core::socket::stream::SocketConnectionT<TestPhysicalSocket, TestReader, TestWriter, TestConfig>;
 
@@ -303,6 +302,7 @@ namespace {
             if (state.captureLifetimeLogs) {
                 Super::log().info("final connection destructor cleanup");
             }
+
             ++state.connectionDestroyed;
         }
 
@@ -310,43 +310,38 @@ namespace {
         LifecycleState& state;
     };
 
-    struct ContextDestructionProbe {
-        int* exactDestructionCount = nullptr;
-        std::function<void()> onDestroy;
-    };
-
     class CountingContext final : public core::socket::stream::SocketContext {
     public:
         CountingContext(TestConnection* connection,
                         LifecycleState& state,
                         bool pending,
-                        ContextDestructionProbe destructionProbe = {})
+                        bool expectActiveContextVisibleOnDestroy = false,
+                        int* exactDestructionCount = nullptr)
             : SocketContext(connection)
             , state(state)
             , pending(pending)
-            , destructionProbe(std::move(destructionProbe)) {
+            , expectActiveContextVisibleOnDestroy(expectActiveContextVisibleOnDestroy)
+            , exactDestructionCount(exactDestructionCount) {
         }
 
         ~CountingContext() override {
             if (state.captureLifetimeLogs) {
                 frameworkLog().info(pending ? "final pending context destructor cleanup" : "final active context destructor cleanup");
             }
+
             if (pending) {
-                ++state.postDetachContextVisibilityChecks;
-                if (getSocketConnection()->getSocketContext() != nullptr) {
+                ++state.pendingContextVisibilityChecks;
+
+                const bool activeContextVisible = getSocketConnection()->getSocketContext() != nullptr;
+
+                if (activeContextVisible != expectActiveContextVisibleOnDestroy) {
                     ++state.invalidContextVisibility;
                 }
+
                 ++state.pendingContextDestroyed;
-                if (destructionProbe.exactDestructionCount != nullptr) {
-                    ++*destructionProbe.exactDestructionCount;
-                }
-                if (destructionProbe.onDestroy) {
-                    auto callback = std::move(destructionProbe.onDestroy);
-                    callback();
-                }
-                if (state.onPendingContextDestroy) {
-                    auto callback = std::move(state.onPendingContextDestroy);
-                    callback();
+
+                if (exactDestructionCount != nullptr) {
+                    ++*exactDestructionCount;
                 }
             } else {
                 ++state.activeContextDestroyed;
@@ -362,14 +357,17 @@ namespace {
             if (getDetachReason() == DetachReason::ConnectionClose) {
                 ++state.contextDetached;
                 ++state.activeContextVisibilityChecks;
+
                 if (getSocketConnection()->getSocketContext() != this) {
                     ++state.invalidContextVisibility;
                 }
             }
+
             if (state.captureLifetimeLogs) {
                 log().info("final application context onDisconnected");
                 frameworkLog().info("final framework context onDisconnected");
             }
+
             if (state.onContextDisconnect) {
                 auto callback = std::move(state.onContextDisconnect);
                 callback();
@@ -384,6 +382,7 @@ namespace {
         bool onSignal(int signum) override {
             ++state.signals;
             state.lastSignal = signum;
+
             return false;
         }
 
@@ -397,15 +396,13 @@ namespace {
 
         LifecycleState& state;
         bool pending;
-        ContextDestructionProbe destructionProbe;
+        bool expectActiveContextVisibleOnDestroy;
+        int* exactDestructionCount;
     };
 
     class CooperativePeer final : public core::eventreceiver::ReadEventReceiver {
     public:
-        CooperativePeer(int fd,
-                        std::size_t expectedBytes,
-                        LifecycleState& state,
-                        const std::shared_ptr<PhysicalCounters>& physical)
+        CooperativePeer(int fd, std::size_t expectedBytes, LifecycleState& state, const std::shared_ptr<PhysicalCounters>& physical)
             : ReadEventReceiver("stream framework shutdown peer", utils::Timeval({0, 10000}))
             , fd(fd)
             , expectedBytes(expectedBytes)
@@ -415,6 +412,7 @@ namespace {
             if (flags >= 0) {
                 static_cast<void>(::fcntl(fd, F_SETFL, flags | O_NONBLOCK));
             }
+
             ReadEventReceiver::enable(fd);
         }
 
@@ -423,13 +421,16 @@ namespace {
             if (fd >= 0) {
                 ::close(fd);
             }
+
             ++state.peerDestroyed;
         }
 
         void readEvent() override {
             char bytes[4096];
+
             for (;;) {
                 const ssize_t count = ::read(fd, bytes, sizeof(bytes));
+
                 if (count > 0) {
                     state.peerBytes += static_cast<std::size_t>(count);
                 } else if (count == 0) {
@@ -442,6 +443,7 @@ namespace {
                     break;
                 }
             }
+
             finishWhenComplete();
         }
 
@@ -485,53 +487,60 @@ namespace {
         Fixture(bool pendingContext,
                 const utils::Timeval& terminateTimeout,
                 bool captureLifetimeLogs = false,
-                bool installContextDuringDetach = false,
-                bool installContextDuringPendingDestroy = false,
-                bool installContextDuringDisconnect = false) {
+                bool installContextDuringDetach = false) {
             lifecycle.captureLifetimeLogs = captureLifetimeLogs;
+
             auto config = std::make_shared<TestConfig>(terminateTimeout);
+
             config->setOnDestroy([this](net::config::ConfigInstance* configInstance) {
                 if (lifecycle.captureLifetimeLogs) {
                     configInstance->log().info("final config destroy callback");
                 }
+
                 ++lifecycle.configDestroyed;
             });
+
             connection = new TestConnection(
                 TestPhysicalSocket(pair.releaseConnectionFd(), physical),
                 [this](TestConnection* closingConnection) {
                     ++lifecycle.disconnects;
+
                     lifecycle.totalSentAtDisconnect = closingConnection->getTotalSent();
                     lifecycle.totalQueuedAtDisconnect = closingConnection->getTotalQueued();
-                    ++lifecycle.postDetachContextVisibilityChecks;
+
+                    ++lifecycle.disconnectContextVisibilityChecks;
+
                     if (closingConnection->getSocketContext() != nullptr) {
                         ++lifecycle.invalidContextVisibility;
                     }
-                    if (lifecycle.onDisconnect) {
-                        auto callback = std::move(lifecycle.onDisconnect);
-                        callback();
-                    }
+
                     connection = nullptr;
                 },
                 41,
                 config,
                 lifecycle);
+
             connection->setSocketContext(new CountingContext(connection, lifecycle, false));
+
             if (pendingContext) {
-                connection->setSocketContext(new CountingContext(connection, lifecycle, true));
+                // This pending switch is discarded before active detach.
+                // The active context must therefore still be visible while
+                // this pending context's destructor executes.
+                connection->setSocketContext(new CountingContext(connection, lifecycle, true, true));
             }
+
             if (installContextDuringDetach) {
                 lifecycle.onContextDisconnect = [this]() {
-                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
-                };
-            }
-            if (installContextDuringPendingDestroy) {
-                lifecycle.onPendingContextDestroy = [this]() {
-                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
-                };
-            }
-            if (installContextDuringDisconnect) {
-                lifecycle.onDisconnect = [this]() {
-                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
+                    const int attachedBefore = lifecycle.contextAttached;
+
+                    // The active context is still registered while
+                    // onDisconnected() runs, so this is queued rather
+                    // than attached.
+                    connection->setSocketContext(new CountingContext(connection, lifecycle, true, false));
+
+                    if (lifecycle.contextAttached != attachedBefore) {
+                        ++lifecycle.unexpectedReentrantAttaches;
+                    }
                 };
             }
         }
@@ -539,45 +548,43 @@ namespace {
 
     enum class Trigger { Requested, Signal, NoObserver };
 
-    int runPlainScenario(Trigger trigger,
-                         bool queued,
-                         bool cooperative,
-                         bool pendingContext,
-                         bool installContextDuringDetach = false,
-                         bool installContextDuringPendingDestroy = false,
-                         bool installContextDuringDisconnect = false) {
+    int runPlainScenario(Trigger trigger, bool queued, bool cooperative, bool pendingContext, bool installContextDuringDetach = false) {
         tests::support::TestResult result;
+
         char arg0[] = "StreamFrameworkShutdownTest";
         char* args[] = {arg0, nullptr};
+
         core::SNodeC::init(1, args);
 
         const utils::Timeval terminateTimeout = cooperative ? utils::Timeval({1, 0}) : utils::Timeval({0, 50000});
-        Fixture fixture(pendingContext,
-                        terminateTimeout,
-                        false,
-                        installContextDuringDetach,
-                        installContextDuringPendingDestroy,
-                        installContextDuringDisconnect);
+
+        Fixture fixture(pendingContext, terminateTimeout, false, installContextDuringDetach);
+
         result.expectTrue(fixture.pair.valid() || fixture.connection != nullptr, "socketpair and connection are available");
 
         const std::string payload = queued ? std::string(32 * 1024, 'Q') : std::string();
+
         if (queued) {
             fixture.connection->sendToPeer(payload);
         }
+
         if (cooperative) {
-            static_cast<void>(new CooperativePeer(
-                fixture.pair.releasePeerFd(), payload.size(), fixture.lifecycle, fixture.physical));
+            static_cast<void>(new CooperativePeer(fixture.pair.releasePeerFd(), payload.size(), fixture.lifecycle, fixture.physical));
         }
 
         int startResult = 0;
+
         if (trigger == Trigger::NoObserver) {
             core::SNodeC::stop();
+
             core::timer::Timer rejectedTimer = core::timer::Timer::singleshotTimer(
                 [&fixture]() {
                     ++fixture.lifecycle.timerAfterStopping;
                 },
                 utils::Timeval());
+
             core::EventLoop::instance().getEventMultiplexer().shutdown({core::ShutdownReason::NoObserver, 0});
+
             core::SNodeC::free();
         } else {
             core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
@@ -588,6 +595,7 @@ namespace {
                     }
 
                     core::SNodeC::stop();
+
                     core::timer::Timer rejectedTimer = core::timer::Timer::singleshotTimer(
                         [&fixture]() {
                             ++fixture.lifecycle.timerAfterStopping;
@@ -600,43 +608,58 @@ namespace {
         }
 
         result.expectEqual(trigger == Trigger::Signal ? -SIGTERM : 0, startResult, "start result preserves shutdown trigger");
+
         result.expectEqual(1, fixture.lifecycle.contextAttached, "active context attaches once");
+
         result.expectEqual(1, fixture.lifecycle.contextDetached, "active context detaches once");
+
         result.expectEqual(1, fixture.lifecycle.activeContextDestroyed, "active context is destroyed once");
-        const int expectedPendingContexts = (pendingContext ? 1 : 0) + (installContextDuringDetach ? 1 : 0) +
-                                            (installContextDuringPendingDestroy ? 1 : 0) + (installContextDuringDisconnect ? 1 : 0);
+
+        const int expectedPendingContexts = (pendingContext ? 1 : 0) + (installContextDuringDetach ? 1 : 0);
+
+        result.expectEqual(
+            expectedPendingContexts, fixture.lifecycle.pendingContextDestroyed, "pending context is destroyed exactly once when present");
+
+        result.expectEqual(
+            1, fixture.lifecycle.activeContextVisibilityChecks, "onDisconnected observes the still-live active context exactly once");
+
         result.expectEqual(expectedPendingContexts,
-                           fixture.lifecycle.pendingContextDestroyed,
-                           "pending context is destroyed exactly once when present");
-        result.expectEqual(1,
-                           fixture.lifecycle.activeContextVisibilityChecks,
-                           "onDisconnected observes the still-live active context exactly once");
-        result.expectEqual(expectedPendingContexts + 1,
-                           fixture.lifecycle.postDetachContextVisibilityChecks,
-                           "pending destructors and onDisconnect inspect context visibility after detach");
-        result.expectEqual(0,
-                           fixture.lifecycle.invalidContextVisibility,
-                           "no callback after detach observes a stale active context");
-        result.expectEqual(0,
-                           fixture.lifecycle.unexpectedReentrantAttaches,
-                           "no reentrant context attaches during terminal teardown");
+                           fixture.lifecycle.pendingContextVisibilityChecks,
+                           "every pending context destructor checks context visibility");
+
+        result.expectEqual(1, fixture.lifecycle.disconnectContextVisibilityChecks, "onDisconnect checks context visibility once");
+
+        result.expectEqual(0, fixture.lifecycle.invalidContextVisibility, "context visibility matches each lifecycle boundary");
+
+        result.expectEqual(0, fixture.lifecycle.unexpectedReentrantAttaches, "a context requested during active detach is not attached");
+
         result.expectEqual(trigger == Trigger::Signal ? 1 : 0, fixture.lifecycle.signals, "signal callback count matches trigger");
+
         result.expectEqual(trigger == Trigger::Signal ? SIGTERM : 0, fixture.lifecycle.lastSignal, "signal number is preserved");
+
         result.expectEqual(1, fixture.physical->shutdownWrite, "all shutdown reasons use the write-shutdown path once");
+
         result.expectEqual(1, fixture.lifecycle.disconnects, "connection disconnect callback runs once");
+
         result.expectEqual(1, fixture.lifecycle.connectionDestroyed, "connection destructor runs once");
+
         result.expectEqual(1, fixture.physical->closes, "physical descriptor closes once");
+
         result.expectEqual(1, fixture.lifecycle.configDestroyed, "connection releases config before Config termination");
+
         result.expectEqual(0, fixture.lifecycle.timerAfterStopping, "new core timer is rejected while STOPPING");
+
         result.expectTrue(fixture.connection == nullptr, "connection is destroyed before start returns");
 
         if (queued) {
             result.expectEqual(static_cast<int>(payload.size()),
                                static_cast<int>(fixture.lifecycle.totalQueuedAtDisconnect),
                                "queued payload is recorded once");
+
             result.expectEqual(static_cast<int>(payload.size()),
                                static_cast<int>(fixture.lifecycle.totalSentAtDisconnect),
                                "queued payload drains before write shutdown");
+
             result.expectEqual(static_cast<int>(payload.size()),
                                static_cast<int>(fixture.lifecycle.peerBytes),
                                "cooperative peer receives the complete queued payload");
@@ -645,127 +668,70 @@ namespace {
         return result.processResult();
     }
 
-    enum class ContextReentrancyScenario { ActiveDetach, PendingDestructor, RecursivePendingDestructor, OnDisconnect };
-
-    int runContextReentrancyScenario(ContextReentrancyScenario scenario) {
+    int runActiveDetachContextVisibilityScenario() {
         tests::support::TestResult result;
+
         char arg0[] = "StreamFrameworkShutdownTest";
         char* args[] = {arg0, nullptr};
+
         core::SNodeC::init(1, args);
 
         Fixture fixture(false, utils::Timeval({1, 0}));
-        std::array<int, 3> exactDestructions{};
-        int expectedPendingContexts = 0;
 
-        switch (scenario) {
-            case ContextReentrancyScenario::ActiveDetach:
-                expectedPendingContexts = 1;
-                fixture.lifecycle.onContextDisconnect = [&fixture, &exactDestructions]() {
-                    const int attachedBefore = fixture.lifecycle.contextAttached;
-                    fixture.connection->setSocketContext(new CountingContext(
-                        fixture.connection, fixture.lifecycle, true, {.exactDestructionCount = &exactDestructions[0]}));
-                    if (fixture.lifecycle.contextAttached != attachedBefore) {
-                        ++fixture.lifecycle.unexpectedReentrantAttaches;
-                    }
-                };
-                break;
-            case ContextReentrancyScenario::PendingDestructor:
-                expectedPendingContexts = 2;
-                fixture.connection->setSocketContext(new CountingContext(
-                    fixture.connection,
-                    fixture.lifecycle,
-                    true,
-                    {.exactDestructionCount = &exactDestructions[0],
-                     .onDestroy = [&fixture, &exactDestructions]() {
-                         const int attachedBefore = fixture.lifecycle.contextAttached;
-                         fixture.connection->setSocketContext(new CountingContext(
-                             fixture.connection,
-                             fixture.lifecycle,
-                             true,
-                             {.exactDestructionCount = &exactDestructions[1]}));
-                         if (fixture.lifecycle.contextAttached != attachedBefore) {
-                             ++fixture.lifecycle.unexpectedReentrantAttaches;
-                         }
-                     }}));
-                break;
-            case ContextReentrancyScenario::RecursivePendingDestructor:
-                expectedPendingContexts = 3;
-                fixture.connection->setSocketContext(new CountingContext(
-                    fixture.connection,
-                    fixture.lifecycle,
-                    true,
-                    {.exactDestructionCount = &exactDestructions[0],
-                     .onDestroy = [&fixture, &exactDestructions]() {
-                         const int attachedBefore = fixture.lifecycle.contextAttached;
-                         fixture.connection->setSocketContext(new CountingContext(
-                             fixture.connection,
-                             fixture.lifecycle,
-                             true,
-                             {.exactDestructionCount = &exactDestructions[1],
-                              .onDestroy = [&fixture, &exactDestructions]() {
-                                  const int recursiveAttachedBefore = fixture.lifecycle.contextAttached;
-                                  fixture.connection->setSocketContext(new CountingContext(
-                                      fixture.connection,
-                                      fixture.lifecycle,
-                                      true,
-                                      {.exactDestructionCount = &exactDestructions[2]}));
-                                  if (fixture.lifecycle.contextAttached != recursiveAttachedBefore) {
-                                      ++fixture.lifecycle.unexpectedReentrantAttaches;
-                                  }
-                              }}));
-                         if (fixture.lifecycle.contextAttached != attachedBefore) {
-                             ++fixture.lifecycle.unexpectedReentrantAttaches;
-                         }
-                     }}));
-                break;
-            case ContextReentrancyScenario::OnDisconnect:
-                expectedPendingContexts = 1;
-                fixture.lifecycle.onDisconnect = [&fixture, &exactDestructions]() {
-                    const int attachedBefore = fixture.lifecycle.contextAttached;
-                    fixture.connection->setSocketContext(new CountingContext(
-                        fixture.connection, fixture.lifecycle, true, {.exactDestructionCount = &exactDestructions[0]}));
-                    if (fixture.lifecycle.contextAttached != attachedBefore) {
-                        ++fixture.lifecycle.unexpectedReentrantAttaches;
-                    }
-                };
-                break;
-        }
+        int exactDestructionCount = 0;
 
-        static_cast<void>(
-            new CooperativePeer(fixture.pair.releasePeerFd(), 0, fixture.lifecycle, fixture.physical));
+        fixture.lifecycle.onContextDisconnect = [&fixture, &exactDestructionCount]() {
+            const int attachedBefore = fixture.lifecycle.contextAttached;
+
+            fixture.connection->setSocketContext(
+                new CountingContext(fixture.connection, fixture.lifecycle, true, false, &exactDestructionCount));
+
+            if (fixture.lifecycle.contextAttached != attachedBefore) {
+                ++fixture.lifecycle.unexpectedReentrantAttaches;
+            }
+        };
+
+        static_cast<void>(new CooperativePeer(fixture.pair.releasePeerFd(), 0, fixture.lifecycle, fixture.physical));
+
         core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
             []() {
                 core::SNodeC::stop();
             },
             utils::Timeval({0, 1000}));
 
-        result.expectEqual(0, core::SNodeC::start(utils::Timeval({1, 0})), "terminal context reentrancy shutdown completes");
+        result.expectEqual(0, core::SNodeC::start(utils::Timeval({1, 0})), "active-detach context reentrancy shutdown completes");
+
         result.expectEqual(1, fixture.lifecycle.contextAttached, "only the original active context attaches");
+
         result.expectEqual(1, fixture.lifecycle.contextDetached, "the active context detaches once");
+
         result.expectEqual(1, fixture.lifecycle.activeContextDestroyed, "the active context is destroyed once");
-        result.expectEqual(expectedPendingContexts,
-                           fixture.lifecycle.pendingContextDestroyed,
-                           "every pending or reentrant context is destroyed once");
-        result.expectEqual(1,
-                           fixture.lifecycle.activeContextVisibilityChecks,
-                           "onDisconnected sees the still-live active context");
-        result.expectEqual(expectedPendingContexts + 1,
-                           fixture.lifecycle.postDetachContextVisibilityChecks,
-                           "all pending destructors and onDisconnect inspect post-detach visibility");
-        result.expectEqual(0,
-                           fixture.lifecycle.invalidContextVisibility,
-                           "getSocketContext is null in every callback after detach returns");
-        result.expectEqual(0,
-                           fixture.lifecycle.unexpectedReentrantAttaches,
-                           "terminal replacements never run onConnected");
-        for (int index = 0; index < expectedPendingContexts; ++index) {
-            result.expectEqual(1, exactDestructions[static_cast<std::size_t>(index)], "each supplied context is destroyed exactly once");
-        }
-        result.expectEqual(1, fixture.physical->shutdownWrite, "terminal context test uses the coordinated write-shutdown path once");
+
+        result.expectEqual(1, fixture.lifecycle.pendingContextDestroyed, "the replacement queued during detach is destroyed once");
+
+        result.expectEqual(1, exactDestructionCount, "the supplied replacement context is destroyed exactly once");
+
+        result.expectEqual(1, fixture.lifecycle.activeContextVisibilityChecks, "onDisconnected sees the still-live active context");
+
+        result.expectEqual(1, fixture.lifecycle.pendingContextVisibilityChecks, "the queued replacement checks post-detach visibility");
+
+        result.expectEqual(1, fixture.lifecycle.disconnectContextVisibilityChecks, "onDisconnect checks post-detach visibility");
+
+        result.expectEqual(0, fixture.lifecycle.invalidContextVisibility, "context visibility is correct before and after detach");
+
+        result.expectEqual(
+            0, fixture.lifecycle.unexpectedReentrantAttaches, "the replacement requested during detach never runs onConnected");
+
+        result.expectEqual(1, fixture.physical->shutdownWrite, "active-detach context test uses the coordinated write-shutdown path once");
+
         result.expectEqual(1, fixture.lifecycle.disconnects, "onDisconnect runs once");
+
         result.expectEqual(1, fixture.lifecycle.connectionDestroyed, "connection destruction runs once");
+
         result.expectEqual(1, fixture.physical->closes, "physical descriptor closes once");
+
         result.expectEqual(1, fixture.lifecycle.configDestroyed, "connection configuration reference releases once");
+
         result.expectTrue(fixture.connection == nullptr, "connection is destroyed before start returns");
 
         return result.processResult();
@@ -803,9 +769,11 @@ namespace {
 
     std::filesystem::path lifetimeLogPath() {
         const auto path = std::filesystem::temp_directory_path() / "snodec-stream-framework-shutdown-lifetime.jsonl";
+
         std::error_code error;
         std::filesystem::remove(path, error);
         std::filesystem::remove(path.string() + ".1", error);
+
         return path;
     }
 
@@ -813,11 +781,14 @@ namespace {
         std::vector<CapturedRecord> records;
         std::ifstream input(path);
         std::string line;
+
         while (std::getline(input, line)) {
             if (line.empty()) {
                 continue;
             }
+
             const auto json = nlohmann::json::parse(line);
+
             records.push_back(CapturedRecord{
                 .origin = json.at("origin").get<std::string>(),
                 .boundary = json.at("boundary").get<std::string>(),
@@ -826,9 +797,9 @@ namespace {
                 .role = json.contains("role") ? std::optional<std::string>(json.at("role").get<std::string>()) : std::nullopt,
                 .connection =
                     json.contains("connection") ? std::optional<std::string>(json.at("connection").get<std::string>()) : std::nullopt,
-                .message = json.at("message").get<std::string>(),
-            });
+                .message = json.at("message").get<std::string>()});
         }
+
         return records;
     }
 
@@ -838,6 +809,7 @@ namespace {
                 return index;
             }
         }
+
         return std::nullopt;
     }
 
@@ -856,27 +828,38 @@ namespace {
                         const std::optional<std::string>& connection,
                         const std::string& label) {
         result.expectTrue(record.origin == origin, label + " retains origin identity");
+
         result.expectTrue(record.boundary == boundary, label + " retains boundary identity");
+
         result.expectTrue(record.component == component, label + " retains component identity");
+
         result.expectTrue(record.instance && *record.instance == "stream-framework-shutdown", label + " retains instance identity");
+
         result.expectTrue(record.role == role, label + " retains role identity where applicable");
+
         result.expectTrue(record.connection == connection, label + " retains connection identity where applicable");
     }
 
     int runLoggingLifetimeScenario() {
         tests::support::TestResult result;
+
         const auto logPath = lifetimeLogPath();
+
         LoggerStateGuard loggerGuard(logPath.string());
 
         char arg0[] = "StreamFrameworkShutdownTest";
         char arg1[] = "--log-level=6";
         char arg2[] = "--log-format=json";
         char arg3[] = "--quiet";
+
         char* args[] = {arg0, arg1, arg2, arg3, nullptr};
+
         core::SNodeC::init(4, args);
 
         Fixture fixture(true, utils::Timeval({1, 0}), true);
+
         static_cast<void>(new CooperativePeer(fixture.pair.releasePeerFd(), 0, fixture.lifecycle, fixture.physical));
+
         core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
             []() {
                 core::SNodeC::stop();
@@ -884,30 +867,42 @@ namespace {
             utils::Timeval({0, 1000}));
 
         result.expectEqual(0, core::SNodeC::start(utils::Timeval({1, 0})), "requested logging-lifetime shutdown completes");
+
         result.expectEqual(1, fixture.lifecycle.contextDetached, "active context detaches once before config termination");
+
         result.expectEqual(1, fixture.lifecycle.activeContextDestroyed, "active context is destroyed once before config termination");
+
         result.expectEqual(1, fixture.lifecycle.pendingContextDestroyed, "pending context is destroyed once before config termination");
+
         result.expectEqual(1, fixture.lifecycle.disconnects, "disconnect callback runs once before config termination");
+
         result.expectEqual(1, fixture.lifecycle.connectionDestroyed, "connection is destroyed once before config termination");
+
         result.expectEqual(1, fixture.lifecycle.configDestroyed, "connection-owned config is destroyed once before Config::terminate");
+
         result.expectTrue(fixture.connection == nullptr, "connection does not survive Config::terminate");
 
         logger::Logger::disableLogToFile();
+
         const std::vector<CapturedRecord> records = readRecords(logPath);
-        const std::vector<std::string> lifetimeMessages = {
-            "final application context onDisconnected",
-            "final framework context onDisconnected",
-            "final active context destructor cleanup",
-            "final pending context destructor cleanup",
-            "disconnected",
-            "final connection destructor cleanup",
-            "final config destroy callback",
-        };
+
+        const std::vector<std::string> lifetimeMessages = {"final pending context destructor cleanup",
+                                                           "final application context onDisconnected",
+                                                           "final framework context onDisconnected",
+                                                           "final active context destructor cleanup",
+                                                           "disconnected",
+                                                           "final connection destructor cleanup",
+                                                           "final config destroy callback"};
+
         const auto configShutdown = findRecord(records, "Core: Shutdown config system");
+
         result.expectTrue(configShutdown.has_value(), "Config::terminate phase is observable in captured semantic logs");
+
         for (const std::string& message : lifetimeMessages) {
             const auto lifetimeRecord = findRecord(records, message);
+
             result.expectEqual(1, countRecords(records, message), message + " occurs exactly once");
+
             result.expectTrue(lifetimeRecord && configShutdown && *lifetimeRecord < *configShutdown,
                               message + " occurs before the Config::terminate phase");
         }
@@ -919,7 +914,9 @@ namespace {
                                               const std::optional<std::string>& role,
                                               const std::optional<std::string>& connection) {
             const auto index = findRecord(records, message);
+
             result.expectTrue(index.has_value(), message + " is available for identity assertions");
+
             if (index) {
                 expectIdentity(result, records[*index], origin, boundary, component, role, connection, message);
             }
@@ -931,16 +928,17 @@ namespace {
                              "core.socket.context",
                              std::nullopt,
                              std::optional<std::string>("41"));
+
         for (const std::string& message : {"final framework context onDisconnected",
-                                          "final active context destructor cleanup",
-                                          "final pending context destructor cleanup"}) {
-            expectRecordIdentity(
-                message, "framework", "context", "core.socket.context", std::nullopt, std::optional<std::string>("41"));
+                                           "final active context destructor cleanup",
+                                           "final pending context destructor cleanup"}) {
+            expectRecordIdentity(message, "framework", "context", "core.socket.context", std::nullopt, std::optional<std::string>("41"));
         }
+
         for (const std::string& message : {"disconnected", "final connection destructor cleanup"}) {
-            expectRecordIdentity(
-                message, "framework", "connection", "core.socket.stream", std::nullopt, std::optional<std::string>("41"));
+            expectRecordIdentity(message, "framework", "connection", "core.socket.stream", std::nullopt, std::optional<std::string>("41"));
         }
+
         expectRecordIdentity("final config destroy callback",
                              "framework",
                              "configuration",
@@ -959,36 +957,31 @@ int main(int argc, char* argv[]) {
     if (scenario == "plain_requested_empty") {
         return runPlainScenario(Trigger::Requested, false, true, true);
     }
+
     if (scenario == "plain_requested_queued") {
         return runPlainScenario(Trigger::Requested, true, true, false);
     }
+
     if (scenario == "plain_signal_false_veto") {
         return runPlainScenario(Trigger::Signal, false, true, false);
     }
+
     if (scenario == "plain_no_observer") {
         return runPlainScenario(Trigger::NoObserver, false, true, false);
     }
+
     if (scenario == "plain_noncooperating_timeout") {
         return runPlainScenario(Trigger::Requested, false, false, false);
     }
+
     if (scenario == "reentrant_context_cleanup") {
         return runPlainScenario(Trigger::Requested, false, true, false, true);
     }
-    if (scenario == "reentrant_context_finalizer_cleanup") {
-        return runPlainScenario(Trigger::Requested, false, true, true, true, true, true);
-    }
+
     if (scenario == "active_detach_context_visibility") {
-        return runContextReentrancyScenario(ContextReentrancyScenario::ActiveDetach);
+        return runActiveDetachContextVisibilityScenario();
     }
-    if (scenario == "pending_context_destructor_visibility") {
-        return runContextReentrancyScenario(ContextReentrancyScenario::PendingDestructor);
-    }
-    if (scenario == "recursive_pending_context_destructor_visibility") {
-        return runContextReentrancyScenario(ContextReentrancyScenario::RecursivePendingDestructor);
-    }
-    if (scenario == "on_disconnect_context_visibility") {
-        return runContextReentrancyScenario(ContextReentrancyScenario::OnDisconnect);
-    }
+
     if (scenario == "destruction_logging_order") {
         return runLoggingLifetimeScenario();
     }

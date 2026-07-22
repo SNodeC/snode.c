@@ -61,9 +61,9 @@ struct tm;
 namespace core::socket::stream {
 
     SocketConnection::SocketConnection(int fd,
-                                           std::uint64_t connectionId,
-                                           const std::string& instanceName,
-                                           const net::config::ConfigInstance* config)
+                                       std::uint64_t connectionId,
+                                       const std::string& instanceName,
+                                       const net::config::ConfigInstance* config)
         : instanceName(instanceName)
         , connectionId(connectionId)
         , connectionName("[" + std::to_string(fd) + "]" + (!instanceName.empty() ? " " + instanceName : ""))
@@ -93,13 +93,7 @@ namespace core::socket::stream {
     }
 
     void SocketConnection::setSocketContext(SocketContext* socketContext) {
-        if (terminalSocketContextTeardown) {
-            if (newSocketContext == nullptr) {
-                newSocketContext = socketContext;
-            } else {
-                delete socketContext;
-            }
-        } else if (this->socketContext == nullptr) {
+        if (this->socketContext == nullptr) {
             this->socketContext = socketContext;
 
             socketContext->attach();
@@ -135,8 +129,9 @@ namespace core::socket::stream {
     }
 
     logger::BoundaryLogger SocketConnection::log() const {
-        // The sink-taking overload remains available for tests and custom capture.
-        // Before freeze this remains dynamic; after freeze it reuses the cached semantic threshold.
+        // The sink-taking overload remains available for tests and custom
+        // capture. Before freeze this remains dynamic; after freeze it reuses
+        // the cached semantic threshold.
         if (logger::LogManager::isFrozen()) {
             const unsigned long generation = logger::LogManager::generation();
             if (!cachedLog_ || cachedLogGeneration_ != generation) {

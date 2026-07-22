@@ -173,6 +173,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setReadTimeout(const utils::Timeval& timeout) {
         SocketReader::setTimeout(timeout);
     }
+
     template <typename PhysicalSocketT, typename SocketReaderT, typename SocketWriterT, typename ConfigT>
     void SocketConnectionT<PhysicalSocketT, SocketReaderT, SocketWriterT, ConfigT>::setWriteTimeout(const utils::Timeval& timeout) {
         SocketWriter::setTimeout(timeout);
@@ -208,7 +209,8 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(chunk, chunkLen);
         } else {
-            this->log().trace("ReadFromPeer: New SocketContext != nullptr: SocketContextSwitch still in progress");
+            this->log().trace("ReadFromPeer: New SocketContext != nullptr: "
+                              "SocketContextSwitch still in progress");
         }
 
         return ret;
@@ -336,7 +338,8 @@ namespace core::socket::stream {
 
             delete newSocketContext;
             newSocketContext = nullptr;
-        } else if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+        } else if (newSocketContext != nullptr) {
+            // Perform a pending SocketContextSwitch
             socketContext->detach(SocketContext::DetachReason::ContextSwitch);
 
             socketContext = newSocketContext;
@@ -368,7 +371,8 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                Super::log().debug("Shutting down due to signal '{}' (SIG{} [{}])",
+                Super::log().debug("Shutting down due to signal '{}' "
+                                   "(SIG{} [{}])",
                                    utils::system::strsignal(signum),
                                    utils::system::sigabbrev_np(signum),
                                    signum);
@@ -394,30 +398,22 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
-        Super::terminalSocketContextTeardown = true;
+        // Cancel a context switch that was already pending when the
+        // connection entered final teardown.
+        delete std::exchange(Super::newSocketContext, nullptr);
 
-        SocketContext* const pendingSocketContext = std::exchange(Super::newSocketContext, nullptr);
-        const auto releasePendingSocketContexts = [this](SocketContext* pendingContext) {
-            while (pendingContext != nullptr || Super::newSocketContext != nullptr) {
-                SocketContext* const context = pendingContext != nullptr
-                                                   ? std::exchange(pendingContext, nullptr)
-                                                   : std::exchange(Super::newSocketContext, nullptr);
-                delete context;
-            }
-        };
+        if (Super::socketContext != nullptr) {
+            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
 
-        if (SocketContext* const activeSocketContext = Super::socketContext; activeSocketContext != nullptr) {
-            activeSocketContext->detach(SocketContext::DetachReason::ConnectionClose);
+            // detach() destroys the active SocketContext.
             Super::socketContext = nullptr;
         }
 
-        SocketContext* const detachSocketContext = std::exchange(Super::newSocketContext, nullptr);
-        releasePendingSocketContexts(pendingSocketContext);
-        releasePendingSocketContexts(detachSocketContext);
+        // onDisconnected() may have requested another context switch while
+        // the active context was still alive.
+        delete std::exchange(Super::newSocketContext, nullptr);
 
         onDisconnect();
-
-        releasePendingSocketContexts(std::exchange(Super::newSocketContext, nullptr));
 
         Super::log().debug("disconnected");
 
