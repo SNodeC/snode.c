@@ -451,7 +451,7 @@ namespace {
             finishWhenComplete();
         }
 
-        void onShutdown(const core::ShutdownContext&) override {
+        void shutdownEvent(const core::ShutdownContext&) override {
             ++state.peerShutdownNotifications;
             finishWhenComplete();
         }

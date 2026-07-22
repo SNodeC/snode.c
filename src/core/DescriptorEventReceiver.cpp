@@ -190,10 +190,10 @@ namespace core {
     }
 
     void DescriptorEventReceiver::notifyShutdown(const ShutdownContext& context) {
-        onShutdown(context);
+        shutdownEvent(context);
     }
 
-    void DescriptorEventReceiver::onShutdown(const ShutdownContext& context) {
+    void DescriptorEventReceiver::shutdownEvent(const ShutdownContext& context) {
         if (context.reason == ShutdownReason::Signal) {
             signalEvent(context.signal);
         } else {

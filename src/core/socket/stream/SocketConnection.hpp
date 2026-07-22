@@ -313,7 +313,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onShutdown(const core::ShutdownContext& context) {
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownEvent(
+        const core::ShutdownContext& context) {
         if (frameworkShutdownProcessed) {
             return;
         }

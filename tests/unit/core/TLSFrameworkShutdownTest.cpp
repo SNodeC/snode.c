@@ -307,7 +307,7 @@ namespace {
         void readTimeout() override {
         }
 
-        void onShutdown(const core::ShutdownContext&) override {
+        void shutdownEvent(const core::ShutdownContext&) override {
             ++state->readSentinelNotifications;
         }
 
@@ -337,7 +337,7 @@ namespace {
         void writeTimeout() override {
         }
 
-        void onShutdown(const core::ShutdownContext&) override {
+        void shutdownEvent(const core::ShutdownContext&) override {
             ++state->writeSentinelNotifications;
         }
 

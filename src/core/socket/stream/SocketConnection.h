@@ -236,7 +236,7 @@ namespace core::socket::stream {
         void onReadError(int errnum);
 
     private:
-        void onShutdown(const core::ShutdownContext& context) final;
+        void shutdownEvent(const core::ShutdownContext& context) final;
 
         void onReceivedFromPeer(std::size_t available) final;
 

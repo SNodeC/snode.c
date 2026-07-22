@@ -256,7 +256,7 @@ namespace ai::openai::codex::stdio::detail {
         private:
             void readEvent() override;
             void unobservedEvent() override;
-            void onShutdown(const core::ShutdownContext& context) override;
+            void shutdownEvent(const core::ShutdownContext& context) override;
 
             std::shared_ptr<StdioTransport::Session> session;
         };
@@ -273,7 +273,7 @@ namespace ai::openai::codex::stdio::detail {
             void readEvent() override;
             void readTimeout() override;
             void unobservedEvent() override;
-            void onShutdown(const core::ShutdownContext& context) override;
+            void shutdownEvent(const core::ShutdownContext& context) override;
 
             std::shared_ptr<StdioTransport::Session> session;
         };
@@ -1072,7 +1072,7 @@ namespace ai::openai::codex::stdio::detail {
             delete this;
         }
 
-        void ChildExitPollingReceiver::onShutdown(const core::ShutdownContext&) {
+        void ChildExitPollingReceiver::shutdownEvent(const core::ShutdownContext&) {
             const std::shared_ptr<StdioTransport::Session> currentSession = session;
             if (currentSession) {
                 currentSession->eventLoopShutdown();
@@ -1125,7 +1125,7 @@ namespace ai::openai::codex::stdio::detail {
             delete this;
         }
 
-        void ChildExitReceiver::onShutdown(const core::ShutdownContext&) {
+        void ChildExitReceiver::shutdownEvent(const core::ShutdownContext&) {
             const std::shared_ptr<StdioTransport::Session> currentSession = session;
             if (currentSession) {
                 currentSession->eventLoopShutdown();

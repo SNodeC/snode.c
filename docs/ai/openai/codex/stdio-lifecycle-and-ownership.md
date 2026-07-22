@@ -129,7 +129,7 @@ stdin is closed immediately before the signal sequence continues. All deadlines
 are driven by the registered pidfd timeout or polling timerfd; there is no busy
 loop.
 
-During global SNode.C shutdown, descriptor receivers receive `onShutdown`, which
+During global SNode.C shutdown, descriptor receivers receive `shutdownEvent`, which
 starts the same sequence. The existing bounded `EventLoop::free()` drain keeps
 registered descriptors, timeouts, and queued events alive long enough for EOF,
 SIGTERM, SIGKILL, and nonblocking reaping. Destruction of the public client does

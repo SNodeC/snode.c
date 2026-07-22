@@ -130,7 +130,7 @@ namespace core::socket::stream::tls {
         void readEvent() final;
         void writeEvent() final;
         void signalEvent(int signum) final;
-        void onShutdown(const core::ShutdownContext& context) final;
+        void shutdownEvent(const core::ShutdownContext& context) final;
 
         void readTimeout() final;
         void writeTimeout() final;

@@ -87,7 +87,7 @@ namespace core::pipe {
         void destruct() final;
         void readEvent() override;
         void unobservedEvent() override;
-        void onShutdown(const core::ShutdownContext& context) override;
+        void shutdownEvent(const core::ShutdownContext& context) override;
         void closeDescriptor() noexcept;
 
         std::function<void(const char*, std::size_t)> onData;

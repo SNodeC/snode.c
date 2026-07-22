@@ -43,7 +43,7 @@ namespace {
             delete this;
         }
 
-        void onShutdown(const core::ShutdownContext& context) override {
+        void shutdownEvent(const core::ShutdownContext& context) override {
             ++callbackCount;
             receivedContext = context;
             ReadEventReceiver::disable();
