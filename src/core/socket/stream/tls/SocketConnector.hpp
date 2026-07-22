@@ -86,6 +86,7 @@ namespace core::socket::stream::tls {
                            socketConnection,
                            log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onSuccess
                               log.debug("SSL/TLS: Handshake success");
+                              log.info("transport ready");
 
                               onConnected(socketConnection);
 

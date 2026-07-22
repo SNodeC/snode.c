@@ -415,7 +415,7 @@ namespace core::socket::stream {
 
         onDisconnect();
 
-        Super::log().debug("disconnected");
+        Super::log().info("transport disconnected");
 
         delete this;
     }

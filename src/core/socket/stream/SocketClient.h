@@ -105,6 +105,15 @@ namespace core::socket::stream {
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
+                flowController.setOnFlowTerminated([this](ClientFlowController*) {
+                    cancelRetry();
+                    cancelReconnect();
+                });
+            }
+
+            ~Context() {
+                cancelRetry();
+                cancelReconnect();
             }
 
             ClientFlowController flowController;
@@ -113,6 +122,50 @@ namespace core::socket::stream {
 
             std::uint64_t allocateConnectionId() noexcept {
                 return ++connectionsCreated;
+            }
+
+            void scheduleRetry() {
+                retryScheduled = true;
+                logScope.logger(logger::Logger::semanticSink()).debug("retry scheduled");
+            }
+
+            bool dispatchRetry() {
+                if (!retryScheduled) {
+                    return false;
+                }
+                retryScheduled = false;
+                logScope.logger(logger::Logger::semanticSink()).debug("retry dispatched");
+                flowController.reportFlowRetry();
+                return true;
+            }
+
+            void cancelRetry() {
+                if (retryScheduled) {
+                    retryScheduled = false;
+                    logScope.logger(logger::Logger::semanticSink()).debug("retry cancelled");
+                }
+            }
+
+            void scheduleReconnect() {
+                reconnectScheduled = true;
+                logScope.logger(logger::Logger::semanticSink()).debug("reconnect scheduled");
+            }
+
+            bool dispatchReconnect() {
+                if (!reconnectScheduled) {
+                    return false;
+                }
+                reconnectScheduled = false;
+                logScope.logger(logger::Logger::semanticSink()).debug("reconnect dispatched");
+                flowController.reportFlowReconnect();
+                return true;
+            }
+
+            void cancelReconnect() {
+                if (reconnectScheduled) {
+                    reconnectScheduled = false;
+                    logScope.logger(logger::Logger::semanticSink()).debug("reconnect cancelled");
+                }
             }
 
             void emitTerminationSummary() const {
@@ -131,6 +184,8 @@ namespace core::socket::stream {
             }
 
             bool terminationSummaryEmitted{false};
+            bool retryScheduled{false};
+            bool reconnectScheduled{false};
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -234,18 +289,23 @@ namespace core::socket::stream {
                                         core::eventLoopState() == core::State::RUNNING) {
                                         double relativeReconnectTimeout = config->getReconnectTime();
 
-                                        log.info("Reconnect in {} seconds", relativeReconnectTimeout);
+                                        sharedContext->scheduleReconnect();
+                                        log.trace("Reconnect in {} seconds", relativeReconnectTimeout);
 
                                         sharedContext->flowController.armReconnectTimer(
                                             relativeReconnectTimeout, [config, sharedContext, log, /*generation,*/ onStatus]() {
                                                 if (!sharedContext->flowController.isReconnectEnabled()) {
+                                                    sharedContext->cancelReconnect();
                                                     return;
                                                 }
                                                 if (config->getReconnect()) {
-                                                    sharedContext->flowController.reportFlowReconnect();
-                                                    SocketClient(config, sharedContext).realConnect(onStatus, 0, config->getRetryBase());
+                                                    if (sharedContext->dispatchReconnect()) {
+                                                        SocketClient(config, sharedContext)
+                                                            .realConnect(onStatus, 0, config->getRetryBase());
+                                                    }
                                                 } else {
-                                                    log.info("Reconnect disabled during wait");
+                                                    sharedContext->cancelReconnect();
+                                                    log.trace("Reconnect disabled during wait");
                                                 }
                                             });
                                     } else if (core::eventLoopState() == core::State::RUNNING &&
@@ -276,7 +336,8 @@ namespace core::socket::stream {
                                             utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                             relativeRetryTimeout / 100.;
 
-                                        log.info("Retry connect in {} seconds", relativeRetryTimeout);
+                                        sharedContext->scheduleRetry();
+                                        log.trace("Retry connect in {} seconds", relativeRetryTimeout);
 
                                         sharedContext->flowController.armRetryTimer(
                                             relativeRetryTimeout,
@@ -287,19 +348,22 @@ namespace core::socket::stream {
                                              tries,
                                              retryTimeoutScale]() {
                                                 if (!sharedContext->flowController.isRetryEnabled()) {
+                                                    sharedContext->cancelRetry();
                                                     return;
                                                 }
                                                 if (config->getRetry()) {
-                                                    sharedContext->flowController.reportFlowRetry();
-                                                    SocketClient(config, sharedContext)
-                                                        .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                                    if (sharedContext->dispatchRetry()) {
+                                                        SocketClient(config, sharedContext)
+                                                            .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                                    }
                                                 } else {
-                                                    log.info("Retry connect disabled during wait");
+                                                    sharedContext->cancelRetry();
+                                                    log.trace("Retry connect disabled during wait");
                                                 }
                                             });
-                                    } else if (retryFlag &&
-                                               (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
-                                               core::SNodeC::state() == core::State::RUNNING && sharedContext->flowController.terminateFlow()) {
+                                    } else if (retryFlag && (state == core::socket::State::ERROR || state == core::socket::State::FATAL) &&
+                                               core::SNodeC::state() == core::State::RUNNING &&
+                                               sharedContext->flowController.terminateFlow()) {
                                         sharedContext->emitTerminationSummaryOnce();
                                     }
                                 },

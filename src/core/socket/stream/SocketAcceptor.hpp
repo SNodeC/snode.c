@@ -180,6 +180,7 @@ namespace core::socket::stream {
                             if (enable(physicalServerSocket.getFd())) {
                                 snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " enable "
                                                                          << physicalServerSocket.getBindAddress().toString() << ": success";
+                                log().info("listener started");
                             } else {
                                 snode::semantic::coreSocketLog().error()
                                     << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString()
@@ -189,6 +190,10 @@ namespace core::socket::stream {
                             }
                         }
                     }
+                }
+
+                if (getRegisteredFd() < 0) {
+                    log().debug("listener start failed");
                 }
 
                 SocketAddress currentLocalAddress = bindSucceeded ? physicalServerSocket.getBindAddress() : configuredAddress;
@@ -208,6 +213,7 @@ namespace core::socket::stream {
 
                 snode::semantic::coreSocketLog().error() << state.what();
 
+                log().debug("listener start failed");
                 onStatus({}, state);
             }
         } else {
@@ -241,6 +247,8 @@ namespace core::socket::stream {
                     SocketConnection* socketConnection =
                         new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, connectionId, config);
 
+                    socketConnection->log().info("transport connected");
+
                     snode::semantic::coreSocketLog().debug()
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
                     snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getRemoteAddress().toString() << " -> "
@@ -260,6 +268,7 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     void SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::unobservedEvent() {
+        log().info("listener stopped");
         destruct();
     }
 
