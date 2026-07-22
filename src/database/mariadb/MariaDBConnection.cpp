@@ -50,7 +50,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/SNodeC.h"
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
 #include <mysql.h>
@@ -106,6 +106,8 @@ namespace database::mariadb {
             },
             [this]() {
                 snode::semantic::mariaDbLog().debug() << this->connectionName << " MariaDB connect: success";
+                this->sessionEstablished = true;
+                snode::semantic::mariaDbLog().info() << "database session established: connection=" << this->connectionName;
 
                 this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
             },
@@ -118,6 +120,13 @@ namespace database::mariadb {
     }
 
     MariaDBConnection::~MariaDBConnection() {
+        if (currentCommandStarted && currentCommand != nullptr) {
+            snode::semantic::mariaDbLog().debug()
+                << "database request " << (closing || core::SNodeC::state() != core::State::RUNNING ? "cancelled" : "failed")
+                << ": connection=" << connectionName << " command=" << currentCommand->commandInfo();
+            currentCommandStarted = false;
+        }
+
         for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
             for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
                 if (core::SNodeC::state() == core::State::RUNNING && connected) {
@@ -135,6 +144,11 @@ namespace database::mariadb {
         if (mysql != nullptr) {
             mysql_close(mysql);
             mysql = nullptr;
+        }
+
+        if (sessionEstablished) {
+            snode::semantic::mariaDbLog().info() << "database session ended: connection=" << connectionName;
+            sessionEstablished = false;
         }
     }
 
@@ -165,7 +179,10 @@ namespace database::mariadb {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
-            snode::semantic::mariaDbLog().debug() << connectionName << " MariaDB start: " << currentCommand->commandInfo();
+            currentCommandStarted = true;
+            currentCommandFailed = false;
+            snode::semantic::mariaDbLog().debug()
+                << "database request started: connection=" << connectionName << " command=" << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -191,7 +208,11 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        snode::semantic::mariaDbLog().debug() << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
+        if (currentCommandStarted) {
+            snode::semantic::mariaDbLog().debug() << "database request " << (currentCommandFailed ? "failed" : "completed")
+                                                  << ": connection=" << connectionName << " command=" << currentCommand->commandInfo();
+            currentCommandStarted = false;
+        }
         commandSequenceQueue.front().commandCompleted();
 
         const bool sequenceEmpty = commandSequenceQueue.front().empty();
@@ -263,12 +284,14 @@ namespace database::mariadb {
                         commandCompleted();
                     }
                 } else {
+                    currentCommandFailed = true;
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
                     commandCompleted();
                 }
                 commandStartEvent.span();
             }
         } else {
+            currentCommandFailed = true;
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
             commandCompleted();
 

@@ -105,6 +105,8 @@ namespace iot::mqtt {
 
     protected:
         void initSession(Session* session, utils::Timeval keepAlive);
+        void sessionEstablished(bool resumed);
+        void sessionRejected(const std::string& rejectedClientId = {});
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) const;
@@ -161,6 +163,9 @@ namespace iot::mqtt {
         int state = 0;
 
         Session* session = nullptr;
+        bool protocolStarted = false;
+        bool sessionActive = false;
+        bool sessionWasRejected = false;
 
     protected:
         MqttContext* mqttContext = nullptr;

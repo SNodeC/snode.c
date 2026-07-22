@@ -106,7 +106,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).info() << "WsMqtt: connected:";
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "WsMqtt: protocol adapter attached";
         iot::mqtt::MqttContext::onConnected();
     }
 
@@ -159,7 +159,7 @@ namespace iot::mqtt {
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         iot::mqtt::MqttContext::onDisconnected();
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).debug() << "WsMqtt: disconnected";
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "WsMqtt: protocol adapter detached";
     }
 
     template <typename WSSubProtocolRole>

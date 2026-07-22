@@ -99,7 +99,11 @@ namespace iot::mqtt {
         const unsigned long generation = logger::LogManager::generation();
         if (!log_ || logGeneration_ != generation) {
             logGeneration_ = generation;
-            log_.emplace(iot::mqtt::semantic::mqttLog());
+            if (mqttContext != nullptr && mqttContext->getSocketConnection() != nullptr) {
+                log_.emplace(iot::mqtt::semantic::mqttLog(*mqttContext->getSocketConnection()));
+            } else {
+                log_.emplace(iot::mqtt::semantic::mqttLog());
+            }
         }
         return *log_;
     }
@@ -115,6 +119,7 @@ namespace iot::mqtt {
 
     void Mqtt::setMqttContext(MqttContext* mqttContext) {
         this->mqttContext = mqttContext;
+        log_.reset();
     }
 
     const MqttContext* Mqtt::getMqttContext() const {
@@ -122,7 +127,11 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onConnected() {
-        log().info() << "MQTT: Connected";
+        if (!protocolStarted) {
+            sessionWasRejected = false;
+            protocolStarted = true;
+            log().info() << "mqtt protocol started";
+        }
     }
 
     std::size_t Mqtt::onReceivedFromPeer() {
@@ -193,7 +202,14 @@ namespace iot::mqtt {
     }
 
     void Mqtt::onDisconnected() {
-        log().info() << connectionName << " MQTT: Disconnected";
+        if (sessionActive) {
+            log().info() << "mqtt session ended: client=" << clientId;
+            sessionActive = false;
+        }
+        if (protocolStarted) {
+            log().info() << "mqtt protocol stopped";
+            protocolStarted = false;
+        }
     }
 
     const std::string& Mqtt::getConnectionName() const {
@@ -229,6 +245,20 @@ namespace iot::mqtt {
         }
 
         mqttContext->getSocketConnection()->setTimeout(0);
+    }
+
+    void Mqtt::sessionEstablished(bool resumed) {
+        if (!sessionActive && !sessionWasRejected) {
+            sessionActive = true;
+            log().info() << (resumed ? "mqtt session resumed: client=" : "mqtt session established: client=") << clientId;
+        }
+    }
+
+    void Mqtt::sessionRejected(const std::string& rejectedClientId) {
+        if (!sessionActive && !sessionWasRejected) {
+            sessionWasRejected = true;
+            log().debug() << "mqtt session rejected: client=" << (rejectedClientId.empty() ? clientId : rejectedClientId);
+        }
     }
 
     void Mqtt::send(const ControlPacket& controlPacket) const {

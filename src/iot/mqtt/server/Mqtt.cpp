@@ -154,6 +154,7 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
             willFlag = false;
+            sessionRejected(clientId);
             success = false;
         } else if (broker->hasRetainedSession(clientId)) {
             iot::mqtt::semantic::mqttServerLog().info()
@@ -164,12 +165,14 @@ namespace iot::mqtt::server {
 
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
+                sessionEstablished(false);
             } else {
                 iot::mqtt::semantic::mqttServerLog().debug() << connectionName << "   Renew SessionId = " << this;
                 sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
 
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
+                sessionEstablished(true);
             }
         } else {
             iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker: No session found for ClientId = " << clientId;
@@ -178,6 +181,7 @@ namespace iot::mqtt::server {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
             initSession(broker->newSession(clientId, this), keepAlive);
+            sessionEstablished(false);
         }
 
         return success;
@@ -247,35 +251,42 @@ namespace iot::mqtt::server {
 
         if (connect.getProtocol() != "MQTT") {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
             iot::mqtt::semantic::mqttServerLog().error()
                 << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if ((connect.getConnectFlags() & 0x01) != 0) {
             iot::mqtt::semantic::mqttServerLog().error()
                 << connectionName << " MQTT Broker:   CONNECT reserved flag bit set";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (!connect.getWillFlag() && (connect.getWillQoS() != 0 || connect.getWillRetain())) {
             iot::mqtt::semantic::mqttServerLog().error()
                 << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.getWillQoS() > 2) {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   WillQoS larger than 2";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.getPasswordFlag() && !connect.getUsernameFlag()) {
             iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Password flag set but username flag not";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else {
             // V-Header

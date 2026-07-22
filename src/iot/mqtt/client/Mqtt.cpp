@@ -216,8 +216,10 @@ namespace iot::mqtt::client {
 
         if (connack.getReturnCode() != MQTT_CONNACK_ACCEPT) {
             iot::mqtt::semantic::mqttClientLog().error() << connectionName << " MQTT Client:   Negative ack received";
+            sessionRejected();
         } else {
             initSession(&session, keepAlive);
+            sessionEstablished(connack.getSessionPresent());
 
             pingTimer = core::timer::Timer::intervalTimer(
                 [this]() {
