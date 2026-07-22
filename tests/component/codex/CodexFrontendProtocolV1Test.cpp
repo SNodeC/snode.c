@@ -13,8 +13,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <limits>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -53,6 +56,195 @@ namespace {
 
     Command command(std::string requestId, CommandParameters parameters) {
         return {std::move(requestId), std::move(parameters), Json::object(), Json::object()};
+    }
+
+    // Test-only evaluator for the draft-2020-12 keywords reached by FrontendEvent -> ItemState.
+    // It keeps the checked-in schema, rather than a duplicated C++ predicate, authoritative for these examples.
+    bool matchesJsonType(const Json& value, std::string_view type) {
+        if (type == "object") {
+            return value.is_object();
+        }
+        if (type == "array") {
+            return value.is_array();
+        }
+        if (type == "string") {
+            return value.is_string();
+        }
+        if (type == "boolean") {
+            return value.is_boolean();
+        }
+        if (type == "integer") {
+            return value.is_number_integer() || value.is_number_unsigned();
+        }
+        if (type == "number") {
+            return value.is_number();
+        }
+        if (type == "null") {
+            return value.is_null();
+        }
+        return false;
+    }
+
+    bool matchesSchema(const Json& root, const Json& schema, const Json& value, std::size_t depth = 0) {
+        if (depth > 64) {
+            return false;
+        }
+        if (schema.is_boolean()) {
+            return schema.get<bool>();
+        }
+        if (!schema.is_object()) {
+            return true;
+        }
+
+        if (const auto reference = schema.find("$ref"); reference != schema.end()) {
+            constexpr std::string_view definitionsPrefix = "#/$defs/";
+            if (!reference->is_string()) {
+                return false;
+            }
+            const std::string name = reference->get<std::string>();
+            if (!name.starts_with(definitionsPrefix)) {
+                return false;
+            }
+            const auto definitions = root.find("$defs");
+            const auto definition =
+                definitions != root.end() ? definitions->find(name.substr(definitionsPrefix.size())) : Json::const_iterator{};
+            if (definitions == root.end() || definition == definitions->end() || !matchesSchema(root, *definition, value, depth + 1)) {
+                return false;
+            }
+        }
+
+        if (const auto type = schema.find("type"); type != schema.end()) {
+            bool typeMatched = false;
+            if (type->is_string()) {
+                typeMatched = matchesJsonType(value, type->get<std::string>());
+            } else if (type->is_array()) {
+                for (const Json& candidate : *type) {
+                    typeMatched = typeMatched || (candidate.is_string() && matchesJsonType(value, candidate.get<std::string>()));
+                }
+            }
+            if (!typeMatched) {
+                return false;
+            }
+        }
+        if (const auto constant = schema.find("const"); constant != schema.end() && value != *constant) {
+            return false;
+        }
+        if (const auto enumeration = schema.find("enum");
+            enumeration != schema.end() && enumeration->is_array() &&
+            std::find(enumeration->begin(), enumeration->end(), value) == enumeration->end()) {
+            return false;
+        }
+        if (value.is_number()) {
+            if (const auto minimum = schema.find("minimum"); minimum != schema.end() && value < *minimum) {
+                return false;
+            }
+            if (const auto maximum = schema.find("maximum"); maximum != schema.end() && value > *maximum) {
+                return false;
+            }
+        }
+
+        if (value.is_object()) {
+            if (const auto required = schema.find("required"); required != schema.end() && required->is_array()) {
+                for (const Json& name : *required) {
+                    if (!name.is_string() || !value.contains(name.get<std::string>())) {
+                        return false;
+                    }
+                }
+            }
+            if (const auto properties = schema.find("properties"); properties != schema.end() && properties->is_object()) {
+                for (const auto& [name, propertySchema] : properties->items()) {
+                    if (const auto member = value.find(name);
+                        member != value.end() && !matchesSchema(root, propertySchema, *member, depth + 1)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        if (value.is_array()) {
+            if (const auto items = schema.find("items"); items != schema.end()) {
+                for (const Json& item : value) {
+                    if (!matchesSchema(root, *items, item, depth + 1)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (const auto allOf = schema.find("allOf"); allOf != schema.end() && allOf->is_array()) {
+            for (const Json& memberSchema : *allOf) {
+                if (!matchesSchema(root, memberSchema, value, depth + 1)) {
+                    return false;
+                }
+            }
+        }
+        if (const auto condition = schema.find("if"); condition != schema.end()) {
+            const bool conditionMatched = matchesSchema(root, *condition, value, depth + 1);
+            const auto branch = schema.find(conditionMatched ? "then" : "else");
+            if (branch != schema.end() && !matchesSchema(root, *branch, value, depth + 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void testUserMessageDataSchema(tests::support::TestResult& result) {
+        const std::filesystem::path sourceRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
+        const std::filesystem::path schemaPath = sourceRoot / "docs/ai/openai/codex/frontend-protocol-v1.schema.json";
+        std::ifstream input(schemaPath);
+        result.expectTrue(input.good(), "the checked-in Frontend Protocol v1 schema is readable");
+        if (!input) {
+            return;
+        }
+
+        const Json schema = Json::parse(input, nullptr, false);
+        result.expectTrue(!schema.is_discarded() && schema.contains("$defs") && schema["$defs"].contains("UserMessageData"),
+                          "the schema defines normalized user-message data explicitly");
+        if (schema.is_discarded() || !schema.contains("$defs") || !schema["$defs"].contains("FrontendEvent")) {
+            return;
+        }
+
+        const Json content =
+            Json::array({Json{{"type", "text"}, {"text", "hello"}}, Json{{"type", "future"}, {"payload", Json{{"nested", true}}}}});
+        const auto contentBytes = static_cast<std::uint64_t>(content.dump().size());
+        const Json data = Json{{"clientId", nullptr},
+                               {"content", content},
+                               {"contentTruncated", false},
+                               {"originalContentBytes", contentBytes},
+                               {"retainedContentBytes", contentBytes},
+                               {"originalContentItems", std::uint64_t{2}},
+                               {"retainedContentItems", std::uint64_t{2}}};
+        const Json item = Json{{"id", "item-1"},
+                               {"type", "user_message"},
+                               {"status", "completed"},
+                               {"agentText", ""},
+                               {"reasoningText", ""},
+                               {"reasoningSummary", ""},
+                               {"commandOutput", ""},
+                               {"droppedContentBytes", std::uint64_t{0}},
+                               {"contentTruncated", false},
+                               {"data", data},
+                               {"extensions", Json::object()}};
+        const Json event = Json{{"sequence", std::uint64_t{1}},
+                                {"type", "item.updated"},
+                                {"data", Json{{"threadId", "thread-1"}, {"turnId", "turn-1"}, {"item", item}}}};
+        const Json& frontendEventSchema = schema["$defs"]["FrontendEvent"];
+        result.expectTrue(matchesSchema(schema, frontendEventSchema, event),
+                          "the schema accepts array-valued normalized user-message content");
+
+        Json invalidEvent = event;
+        invalidEvent["data"]["item"]["data"]["content"] = Json{{"truncated", true}};
+        result.expectTrue(!matchesSchema(schema, frontendEventSchema, invalidEvent),
+                          "the schema rejects object-valued normalized user-message content");
+
+        Json incompleteEvent = event;
+        incompleteEvent["data"]["item"]["data"].erase("retainedContentItems");
+        result.expectTrue(!matchesSchema(schema, frontendEventSchema, incompleteEvent),
+                          "the schema requires user-message truncation metadata");
+
+        Json futureItemEvent = invalidEvent;
+        futureItemEvent["data"]["item"]["type"] = "future_item";
+        result.expectTrue(matchesSchema(schema, frontendEventSchema, futureItemEvent),
+                          "the user-message condition leaves future item data shapes unrestricted");
     }
 
     void testDefaultReplayHeadroom(tests::support::TestResult& result) {
@@ -324,6 +516,7 @@ int main() {
                       "a single oversized update requests snapshot fallback");
 
     testDefaultReplayHeadroom(result);
+    testUserMessageDataSchema(result);
 
     return result.processResult();
 }

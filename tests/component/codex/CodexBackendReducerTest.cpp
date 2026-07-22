@@ -42,11 +42,16 @@ namespace {
         return item;
     }
 
-    typed::UserMessageItem
-    userMessageItem(const std::string& threadId, const std::string& turnId, const std::string& itemId, Json content, Json raw) {
+    typed::UserMessageItem userMessageItem(const std::string& threadId,
+                                           const std::string& turnId,
+                                           const std::string& itemId,
+                                           Json content,
+                                           Json raw,
+                                           std::optional<std::string> clientId = std::nullopt) {
         typed::UserMessageItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         item.metadata.raw = std::move(raw);
+        item.clientId = std::move(clientId);
         item.content = std::move(content);
         return item;
     }
@@ -428,12 +433,17 @@ namespace {
             "userMessage completion updates the same canonical item and retains both lifecycle timestamps without extensions");
 
         const backend::Snapshot itemSnapshot = backend::makeSnapshot(state);
+        const Json& userMessageData = itemSnapshot.threads[0].turns[0].items[0].data;
         result.expectTrue(itemSnapshot.threads.size() == 1 && itemSnapshot.threads[0].turns.size() == 1 &&
                               itemSnapshot.threads[0].turns[0].items.size() == 1 &&
                               itemSnapshot.threads[0].turns[0].items[0].type == "user_message" &&
-                              itemSnapshot.threads[0].turns[0].items[0].data.at("content") == completedContent &&
-                              itemSnapshot.threads[0].turns[0].items[0].data.at("clientId").is_null(),
-                          "userMessage canonical snapshots retain structured content instead of flattening it");
+                              userMessageData.at("content").is_array() && userMessageData.at("content") == completedContent &&
+                              userMessageData.at("clientId").is_null() && !userMessageData.at("contentTruncated").get<bool>() &&
+                              userMessageData.at("originalContentBytes") == completedContent.dump().size() &&
+                              userMessageData.at("retainedContentBytes") == completedContent.dump().size() &&
+                              userMessageData.at("originalContentItems") == completedContent.size() &&
+                              userMessageData.at("retainedContentItems") == completedContent.size(),
+                          "small userMessage snapshots preserve array content and report equal original and retained bounds");
 
         typed::Turn terminalTurn =
             turn("thread-user", "turn-user", typed::TurnStatus::completed(), std::vector<typed::Item>{typed::Item{completedItem}});
@@ -442,6 +452,90 @@ namespace {
         result.expectTrue(completedState && completedState->lifecycle == backend::ItemLifecycle::Completed &&
                               completedState->startedAtMs == 101 && completedState->completedAtMs == 202,
                           "a later terminal turn snapshot does not erase item lifecycle timestamps");
+    }
+
+    void testUserMessageSnapshotBounding(tests::support::TestResult& result) {
+        backend::Reducer reducer;
+
+        backend::BackendState smallState;
+        const Json smallContent =
+            Json::array({Json{{"type", "text"}, {"text", "small"}}, Json{{"type", "future"}, {"nested", Json{{"kept", true}}}}});
+        typed::UserMessageItem smallItem =
+            userMessageItem("thread-small", "turn-small", "item-small", smallContent, Json{{"id", "item-small"}}, "client-small");
+        reducer.apply(smallState,
+                      backend::ItemUpserted{typed::ThreadId{"thread-small"},
+                                            typed::TurnId{"turn-small"},
+                                            typed::Item{smallItem},
+                                            backend::ItemLifecycle::Completed,
+                                            10});
+        const backend::Snapshot smallStateSnapshot = backend::makeSnapshot(smallState);
+        const backend::ItemSnapshot& smallSnapshot = smallStateSnapshot.threads[0].turns[0].items[0];
+        const Json& smallData = smallSnapshot.data;
+        result.expectTrue(
+            smallData.at("clientId") == "client-small" && smallData.at("content").is_array() && smallData.at("content") == smallContent &&
+                !smallData.at("contentTruncated").get<bool>() && smallData.at("originalContentBytes") == smallContent.dump().size() &&
+                smallData.at("retainedContentBytes") == smallContent.dump().size() &&
+                smallData.at("originalContentItems") == smallContent.size() && smallData.at("retainedContentItems") == smallContent.size(),
+            "small userMessage content and a non-null clientId remain lossless with complete bound metadata");
+
+        backend::BackendState largeState;
+        Json largeContent = Json::array();
+        largeContent.push_back(Json{{"type", "futureNested"}, {"payload", Json{{"unknown", Json::array({1, Json{{"deep", true}}})}}}});
+        for (std::size_t index = 0; index < 8; ++index) {
+            largeContent.push_back(Json{{"type", "futureChunk"},
+                                        {"index", index},
+                                        {"payload", std::string(12U * 1024U, static_cast<char>('a' + index))},
+                                        {"opaque", Json{{"index", index}, {"enabled", index % 2 == 0}}}});
+        }
+        typed::UserMessageItem largeItem =
+            userMessageItem("thread-large", "turn-large", "item-large", largeContent, Json{{"id", "item-large"}}, "client-large");
+        reducer.apply(largeState,
+                      backend::ItemUpserted{typed::ThreadId{"thread-large"},
+                                            typed::TurnId{"turn-large"},
+                                            typed::Item{largeItem},
+                                            backend::ItemLifecycle::Completed,
+                                            20});
+        const backend::Snapshot largeStateSnapshot = backend::makeSnapshot(largeState);
+        const backend::ItemSnapshot& largeSnapshot = largeStateSnapshot.threads[0].turns[0].items[0];
+        const Json& largeData = largeSnapshot.data;
+        const Json& retainedContent = largeData.at("content");
+        const std::size_t retainedItems = retainedContent.size();
+        bool retainedPrefixUnchanged = retainedItems > 0 && retainedItems < largeContent.size();
+        for (std::size_t index = 0; index < retainedItems; ++index) {
+            retainedPrefixUnchanged = retainedPrefixUnchanged && retainedContent[index] == largeContent[index] &&
+                                      retainedContent[index].dump() == largeContent[index].dump();
+        }
+        const backend::ItemState* canonicalLarge = findItem(largeState, "thread-large", "turn-large", "item-large");
+        const auto* canonicalLargeUser = canonicalLarge ? std::get_if<typed::UserMessageItem>(&canonicalLarge->item) : nullptr;
+        result.expectTrue(
+            largeContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && retainedContent.is_array() &&
+                largeData.at("contentTruncated").get<bool>() && retainedPrefixUnchanged &&
+                largeData.at("originalContentItems") == largeContent.size() && largeData.at("retainedContentItems") == retainedItems &&
+                largeData.at("originalContentBytes") == largeContent.dump().size() &&
+                largeData.at("retainedContentBytes") == retainedContent.dump().size() &&
+                largeData.dump().size() <= backend::MaxSerializedUserMessageDataBytes && canonicalLargeUser &&
+                canonicalLargeUser->content == largeContent && !largeSnapshot.contentTruncated && largeSnapshot.droppedContentBytes == 0,
+            "large userMessage snapshots retain an unchanged ordered prefix of complete opaque entries within 64 KiB");
+
+        backend::BackendState oversizedFirstState;
+        const Json oversizedFirstContent = Json::array({Json{{"type", "futureHuge"}, {"payload", std::string(70U * 1024U, 'z')}}});
+        typed::UserMessageItem oversizedFirstItem =
+            userMessageItem("thread-first", "turn-first", "item-first", oversizedFirstContent, Json{{"id", "item-first"}});
+        reducer.apply(oversizedFirstState,
+                      backend::ItemUpserted{typed::ThreadId{"thread-first"},
+                                            typed::TurnId{"turn-first"},
+                                            typed::Item{oversizedFirstItem},
+                                            backend::ItemLifecycle::Completed,
+                                            30});
+        const backend::Snapshot oversizedFirstSnapshot = backend::makeSnapshot(oversizedFirstState);
+        const Json& oversizedFirstData = oversizedFirstSnapshot.threads[0].turns[0].items[0].data;
+        result.expectTrue(oversizedFirstData.at("content").is_array() && oversizedFirstData.at("content").empty() &&
+                              oversizedFirstData.at("contentTruncated").get<bool>() && oversizedFirstData.at("originalContentItems") == 1 &&
+                              oversizedFirstData.at("retainedContentItems") == 0 &&
+                              oversizedFirstData.at("originalContentBytes") == oversizedFirstContent.dump().size() &&
+                              oversizedFirstData.at("retainedContentBytes") == Json::array().dump().size() &&
+                              oversizedFirstData.dump().size() <= backend::MaxSerializedUserMessageDataBytes,
+                          "an oversized first userMessage entry yields an empty array without exposing partial JSON or text");
     }
 
     void testUnknownItemCommonMetadataFallbacks(tests::support::TestResult& result) {
@@ -762,6 +856,7 @@ int main() {
     testItemsAndHighVolumeDeltas(result);
     testCompletionFailureAndAuxiliaryUpdates(result);
     testUserMessageLifecycle(result);
+    testUserMessageSnapshotBounding(result);
     testUnknownItemCommonMetadataFallbacks(result);
     testUnknownPreservationAndTranslation(result);
     testPendingRequestsAndSessions(result);

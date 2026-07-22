@@ -890,13 +890,31 @@ namespace {
             const auto userMessageUpdate = std::find_if(receivedA.begin(), receivedA.end(), [&](const frontend::FrontendEvent& event) {
                 return isCompletedItemUpdate(event, userMessageItemId, "user_message", userMessageStartedAtMs, userMessageCompletedAtMs);
             });
-            const Json userMessageData =
-                userMessageUpdate == receivedA.end() ? Json::object() : userMessageUpdate->data.at("item").value("data", Json::object());
-            const bool userMessageDataPreserved = userMessageData.is_object() && userMessageData.contains("clientId") &&
-                                                  userMessageData.at("clientId").is_null() &&
-                                                  userMessageData.value("content", Json::array()) == userMessageContent;
+            const Json userMessageItem =
+                userMessageUpdate == receivedA.end() ? Json::object() : userMessageUpdate->data.value("item", Json::object());
+            const Json userMessageData = userMessageItem.is_object() ? userMessageItem.value("data", Json::object()) : Json::object();
+            const Json retainedUserMessageContent = userMessageData.value("content", Json::object());
+            bool userMessagePrefixPreserved = retainedUserMessageContent.is_array() && !retainedUserMessageContent.empty() &&
+                                              retainedUserMessageContent.size() < userMessageContent.size();
+            if (retainedUserMessageContent.is_array()) {
+                for (std::size_t index = 0; index < retainedUserMessageContent.size(); ++index) {
+                    userMessagePrefixPreserved = userMessagePrefixPreserved &&
+                                                 retainedUserMessageContent[index] == userMessageContent[index] &&
+                                                 retainedUserMessageContent[index].dump() == userMessageContent[index].dump();
+                }
+            }
+            const bool userMessageDataPreserved =
+                userMessageData.is_object() && userMessageData.contains("clientId") && userMessageData.at("clientId").is_null() &&
+                userMessageContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && userMessagePrefixPreserved &&
+                userMessageData.value("contentTruncated", false) &&
+                userMessageData.value("originalContentBytes", std::uint64_t{0}) == userMessageContent.dump().size() &&
+                userMessageData.value("retainedContentBytes", std::uint64_t{0}) == retainedUserMessageContent.dump().size() &&
+                userMessageData.value("originalContentItems", std::uint64_t{0}) == userMessageContent.size() &&
+                userMessageData.value("retainedContentItems", std::uint64_t{0}) == retainedUserMessageContent.size() &&
+                userMessageData.dump().size() <= backend::MaxSerializedUserMessageDataBytes &&
+                !userMessageItem.value("contentTruncated", true) && userMessageItem.value("droppedContentBytes", std::uint64_t{1}) == 0;
             expect(userMessageDataPreserved,
-                   "the canonical frontend user-message item preserves nullable clientId and complete heterogeneous content");
+                   "Decoder through BackendAdapter preserves a bounded array prefix and independent user-message truncation metadata");
             const auto unknownUpdate = std::find_if(receivedA.begin(), receivedA.end(), [&](const frontend::FrontendEvent& event) {
                 return isCompletedItemUpdate(event, unknownItemId, unknownItemType, unknownItemStartedAtMs, unknownItemCompletedAtMs);
             });
@@ -955,9 +973,18 @@ namespace {
         const std::string turnId = "turn-burst";
         const std::string itemId = "item-burst";
         const std::string userMessageItemId = "user-message-burst";
-        const Json userMessageContent =
-            Json::array({Json{{"type", "text"}, {"text", "adapter user message"}, {"text_elements", Json::array()}},
-                         Json{{"type", "futureContent"}, {"payload", Json{{"preserved", true}}}}});
+        const Json userMessageContent = []() {
+            Json content =
+                Json::array({Json{{"type", "futureContent"},
+                                  {"payload", Json{{"preserved", true}, {"nested", Json::array({1, Json{{"future", "value"}}})}}}}});
+            for (std::size_t index = 0; index < 8; ++index) {
+                content.push_back(Json{{"type", "futureLargeContent"},
+                                       {"index", index},
+                                       {"payload", std::string(12U * 1024U, static_cast<char>('a' + index))},
+                                       {"future", Json{{"nested", index}, {"preserved", true}}}});
+            }
+            return content;
+        }();
         static constexpr std::int64_t userMessageStartedAtMs = 30;
         static constexpr std::int64_t userMessageCompletedAtMs = 40;
         const std::string unknownItemId = "unknown-item-burst";

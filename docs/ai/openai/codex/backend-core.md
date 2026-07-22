@@ -137,6 +137,17 @@ bounded suffix for complete output. These bounds are configurable through
 `ReducerOptions`; ordinary 1,000-delta test bursts remain below the defaults
 and reconstruct exactly.
 
+The typed `UserMessageItem` separately retains its complete opaque content
+array. Its normalized snapshot/event `data` object has a dedicated 65,536-byte
+compact-serialization bound: `content` remains an array containing an ordered
+prefix of complete, unmodified entries, and the adjacent
+`contentTruncated`, `originalContentBytes`, `retainedContentBytes`,
+`originalContentItems`, and `retainedContentItems` fields describe that
+projection. The byte counts are compact serialized array sizes, so an empty
+retained array counts as two bytes. This payload-specific truncation does not
+alter the top-level `contentTruncated` or `droppedContentBytes`; those fields
+retain their accumulated-visible-content meaning for every item type.
+
 ## Reducer semantics
 
 All ordinary domain transitions pass through `Reducer::apply()`. Typed Codex

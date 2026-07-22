@@ -93,6 +93,12 @@ retains its nullable client ID and complete content array as JSON; content
 entries are not flattened or restricted to currently known input variants.
 Item metadata carries item, thread, and turn identity when the notification or
 parent turn supplies it. Every item retains its raw item JSON.
+When canonical state is projected into Frontend Protocol snapshots or events,
+user-message content is represented as an ordered, bounded prefix of complete
+entries. The normalized `data.content` value remains an array, every retained
+entry remains an exact JSON value, and explicit byte and item counts report
+whether entries were omitted. This frontend projection does not modify the
+complete `UserMessageItem::content` value held by the typed layer.
 `Turn::itemsView` preserves the current `notLoaded`, `summary`, or `full`
 completeness marker and any future string; an omitted marker has the
 schema-defined `full` default.

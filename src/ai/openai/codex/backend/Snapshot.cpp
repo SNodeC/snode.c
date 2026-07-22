@@ -44,6 +44,50 @@ namespace ai::openai::codex::backend {
             }
         }
 
+        Json userMessageData(const typed::UserMessageItem& item) {
+            const std::size_t originalContentBytes = item.content.dump().size();
+            const std::size_t originalContentItems = item.content.size();
+            const Json clientId = item.clientId ? Json(*item.clientId) : Json(nullptr);
+            Json retainedContent = Json::array();
+            std::size_t retainedContentBytes = retainedContent.dump().size();
+            std::size_t retainedContentItems = 0;
+
+            const auto makeData = [&](const Json& content, bool contentTruncated, std::size_t contentBytes, std::size_t contentItems) {
+                return Json::object({{"clientId", clientId},
+                                     {"content", content},
+                                     {"contentTruncated", contentTruncated},
+                                     {"originalContentBytes", static_cast<std::uint64_t>(originalContentBytes)},
+                                     {"retainedContentBytes", static_cast<std::uint64_t>(contentBytes)},
+                                     {"originalContentItems", static_cast<std::uint64_t>(originalContentItems)},
+                                     {"retainedContentItems", static_cast<std::uint64_t>(contentItems)}});
+            };
+
+            for (const Json& contentEntry : item.content) {
+                const std::size_t separatorBytes = retainedContentItems == 0 ? 0 : 1;
+                const std::size_t contentEntryBytes = contentEntry.dump().size();
+                if (retainedContentBytes > MaxSerializedUserMessageDataBytes - separatorBytes ||
+                    contentEntryBytes > MaxSerializedUserMessageDataBytes - separatorBytes - retainedContentBytes) {
+                    break;
+                }
+
+                const std::size_t candidateContentBytes = retainedContentBytes + separatorBytes + contentEntryBytes;
+                const std::size_t candidateContentItems = retainedContentItems + 1;
+                const bool candidateTruncated = candidateContentItems < originalContentItems;
+                const Json candidateSkeleton = makeData(Json::array(), candidateTruncated, candidateContentBytes, candidateContentItems);
+                const std::size_t candidateDataBytes =
+                    candidateSkeleton.dump().size() - Json::array().dump().size() + candidateContentBytes;
+                if (candidateDataBytes > MaxSerializedUserMessageDataBytes) {
+                    break;
+                }
+
+                retainedContent.push_back(contentEntry);
+                retainedContentBytes = candidateContentBytes;
+                retainedContentItems = candidateContentItems;
+            }
+
+            return makeData(retainedContent, retainedContentItems < originalContentItems, retainedContentBytes, retainedContentItems);
+        }
+
         std::string safeUtf8Prefix(std::string_view value, std::size_t byteLimit) {
             std::size_t offset = 0;
             while (offset < value.size() && offset < byteLimit) {
@@ -208,8 +252,7 @@ namespace ai::openai::codex::backend {
                                       }
                                   },
                                   [&snapshot](const typed::UserMessageItem& value) {
-                                      snapshot.data = Json::object({{"clientId", value.clientId ? Json(*value.clientId) : Json(nullptr)},
-                                                                    {"content", boundedJson(value.content)}});
+                                      snapshot.data = userMessageData(value);
                                   },
                                   [&snapshot](const typed::ReasoningItem&) {
                                       snapshot.data["hasSummary"] = !snapshot.reasoningSummary.empty();

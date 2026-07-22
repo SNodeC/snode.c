@@ -41,7 +41,6 @@
 #include <streambuf>
 #include <string>
 #include <string_view>
-#include <sys/wait.h>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
@@ -708,19 +707,24 @@ namespace {
 } // namespace
 
 int main(int argc, char* argv[]) {
-    if (const char* scenario = std::getenv("SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO");
-        scenario != nullptr && std::string_view(scenario) == "thread-workflow") {
-        tests::support::TestResult workflowResult;
-        runThreadWorkflowAcceptance(workflowResult, argc, argv);
-        return workflowResult.processResult();
-    }
-
     tests::support::TestResult result;
     int returnCode = tests::support::cTestSkipReturnCode;
     const std::string path = socketPath();
+    const char* configuredScenario = std::getenv("SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO");
+    const std::string_view scenario = configuredScenario == nullptr ? "interactive" : configuredScenario;
+    const std::string testName =
+        scenario == "thread-workflow" ? "CodexBackendClientThreadWorkflowAcceptanceTest" : "CodexBackendClientRealBackendAcceptanceTest";
 
-    if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
-        tests::support::printRootWithoutSNodeCGroupSkipMessage("CodexBackendClientRealBackendAcceptanceTest");
+    if (scenario != "interactive" && scenario != "thread-workflow") {
+        result.expectTrue(false,
+                          "unknown SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO '" + std::string(scenario) +
+                              "'; expected 'interactive' or 'thread-workflow'");
+        returnCode = result.processResult();
+    } else if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
+        tests::support::printRootWithoutSNodeCGroupSkipMessage(testName);
+    } else if (scenario == "thread-workflow") {
+        runThreadWorkflowAcceptance(result, argc, argv);
+        returnCode = result.processResult();
     } else {
         std::remove(path.c_str());
         result.expectTrue(!pathExists(path), "the unique real-backend client socket path is absent before listen");
@@ -1238,24 +1242,6 @@ int main(int argc, char* argv[]) {
         result.expectTrue(pathCleanedByServer, "real frontend Unix server removes its owned socket path");
 
         core::SNodeC::free();
-        const pid_t workflowProcess = ::fork();
-        if (workflowProcess == 0) {
-            if (::setenv("SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO", "thread-workflow", 1) != 0) {
-                _exit(126);
-            }
-            ::execvp(argv[0], argv);
-            _exit(127);
-        }
-
-        int workflowStatus = 0;
-        pid_t waited = -1;
-        if (workflowProcess > 0) {
-            do {
-                waited = ::waitpid(workflowProcess, &workflowStatus, 0);
-            } while (waited < 0 && errno == EINTR);
-        }
-        result.expectTrue(workflowProcess > 0 && waited == workflowProcess && WIFEXITED(workflowStatus) && WEXITSTATUS(workflowStatus) == 0,
-                          "the isolated EOF-driven thread-workflow acceptance subprocess passes");
         returnCode = result.processResult();
     }
 
