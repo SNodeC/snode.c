@@ -119,7 +119,6 @@ namespace ai::openai::codex {
         }
 
         ~Impl() {
-            invalidateConnection("app-server client destroyed");
             lifetime.reset();
             transport->setCallbacks({});
             transport->stop();
@@ -971,7 +970,7 @@ namespace ai::openai::codex {
             transport->stop();
         }
 
-        void invalidateConnection(const std::string& reason, const char* requestOutcome = "cancelled") {
+        void invalidateConnection(const std::string& reason, const char* serverRequestOutcome = "cancelled") {
             if (lifetime->protocolActive) {
                 lifetime->protocolActive = false;
             }
@@ -980,7 +979,7 @@ namespace ai::openai::codex {
             deferredIncoming.clear();
             for (const auto& [id, pending] : pendingServerRequests) {
                 logScope.logger(logger::Logger::semanticSink())
-                    .debug("request {}: id={} method={}", requestOutcome, serverRequestId(id), pending.method);
+                    .debug("request {}: id={} method={}", serverRequestOutcome, serverRequestId(id), pending.method);
             }
             pendingServerRequests.clear();
 
@@ -988,8 +987,7 @@ namespace ai::openai::codex {
             cancellations.reserve(pendingRequests.size());
             for (auto& [id, pending] : pendingRequests) {
                 if (pending.accepted) {
-                    logScope.logger(logger::Logger::semanticSink())
-                        .debug("request {}: id={} method={}", requestOutcome, id, pending.method);
+                    logScope.logger(logger::Logger::semanticSink()).debug("request cancelled: id={} method={}", id, pending.method);
                     cancellations.push_back({id, std::move(pending.method), std::move(pending.handler), pending.submissionSequence});
                 }
             }

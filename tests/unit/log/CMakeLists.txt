@@ -176,10 +176,19 @@ target_include_directories(Phase3CodexLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR
 target_link_libraries(Phase3CodexLifecycleTest PRIVATE snodec-test-support snodec::ai-openai-codex-backend snodec::logger)
 set_tests_properties(Phase3CodexLifecycleTest PROPERTIES LABELS "unit;log;codex;thread;turn;lifecycle")
 
+snodec_add_test(Phase3AppServerClientLifecycleTest Phase3AppServerClientLifecycleTest.cpp)
+target_compile_features(Phase3AppServerClientLifecycleTest PRIVATE cxx_std_20)
+target_include_directories(Phase3AppServerClientLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(Phase3AppServerClientLifecycleTest PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core snodec::logger)
+set_tests_properties(Phase3AppServerClientLifecycleTest PROPERTIES
+                     LABELS "unit;log;codex;protocol;request;lifecycle"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 10)
+
 snodec_add_test(Phase3MqttLifecycleTest Phase3MqttLifecycleTest.cpp)
 target_compile_features(Phase3MqttLifecycleTest PRIVATE cxx_std_20)
 target_include_directories(Phase3MqttLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(Phase3MqttLifecycleTest PRIVATE snodec-test-support snodec::mqtt snodec::logger)
+target_link_libraries(Phase3MqttLifecycleTest PRIVATE snodec-test-support snodec::mqtt-server snodec::logger)
 set_tests_properties(Phase3MqttLifecycleTest PROPERTIES LABELS "unit;log;mqtt;protocol;session;lifecycle")
 
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)

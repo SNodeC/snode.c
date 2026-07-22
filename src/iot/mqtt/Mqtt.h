@@ -52,6 +52,14 @@ namespace iot::mqtt {
     class MqttContext;
     class Session;
 
+    namespace client {
+        class Mqtt;
+    }
+
+    namespace server {
+        class Mqtt;
+    }
+
     namespace packets {
         class Publish;
         class Puback;
@@ -105,8 +113,6 @@ namespace iot::mqtt {
 
     protected:
         void initSession(Session* session, utils::Timeval keepAlive);
-        void sessionEstablished(bool resumed);
-        void sessionRejected(const std::string& rejectedClientId = {});
 
     public:
         void sendPublish(const std::string& topic, const std::string& message, uint8_t qoS, bool retain) const;
@@ -141,6 +147,8 @@ namespace iot::mqtt {
     private:
         void send(const std::vector<char>& data) const;
         const logger::BoundaryLogger& log() const;
+        void sessionEstablished(bool resumed);
+        void sessionRejected(const std::string& rejectedClientId = {});
 
     protected:
         void printVP(const iot::mqtt::ControlPacket& packet) const;
@@ -166,6 +174,9 @@ namespace iot::mqtt {
         bool protocolStarted = false;
         bool sessionActive = false;
         bool sessionWasRejected = false;
+
+        friend class iot::mqtt::client::Mqtt;
+        friend class iot::mqtt::server::Mqtt;
 
     protected:
         MqttContext* mqttContext = nullptr;

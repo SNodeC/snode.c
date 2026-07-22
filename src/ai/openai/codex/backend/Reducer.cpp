@@ -332,13 +332,7 @@ namespace ai::openai::codex::backend {
                     return Reduction{true, false};
                 },
                 [this, &state](const ThreadUpserted& value) {
-                    const bool changed = upsertThread(state, value.thread, value.load, options.maxAccumulatedItemBytes);
-                    ThreadState& thread = ensureThread(state, value.thread.id);
-                    if (value.lifecycleStart && !thread.creationLogged) {
-                        lifecycleLog().info("thread created: thread={}", value.thread.id.value);
-                        thread.creationLogged = true;
-                    }
-                    return Reduction{changed, false};
+                    return Reduction{upsertThread(state, value.thread, value.load, options.maxAccumulatedItemBytes), false};
                 },
                 [this, &state](const ThreadListUpdated& value) {
                     for (const typed::Thread& thread : value.page.data) {
@@ -357,17 +351,11 @@ namespace ai::openai::codex::backend {
                     return Reduction{true, false};
                 },
                 [this, &state](const TurnUpserted& value) {
-                    const bool changed = upsertTurn(state, value.turn, options.maxAccumulatedItemBytes);
-                    TurnState& turn = ensureTurn(state, value.turn.threadId, value.turn.id);
-                    if (value.lifecycleStart && !turn.lifecycleStarted && !turn.lifecycleTerminalLogged) {
-                        lifecycleLog().debug("turn started: thread={} turn={}", value.turn.threadId.value, value.turn.id.value);
-                        turn.lifecycleStarted = true;
-                    }
-                    return Reduction{changed, false};
+                    return Reduction{upsertTurn(state, value.turn, options.maxAccumulatedItemBytes), false};
                 },
                 [this, &state](const TurnCompleted& value) {
-                    TurnState& prior = ensureTurn(state, value.turn.threadId, value.turn.id);
-                    const bool emitTerminal = prior.lifecycleStarted && !prior.lifecycleTerminalLogged;
+                    const TurnState* prior = findTurn(state, value.turn.threadId, value.turn.id);
+                    const bool emitTerminal = prior != nullptr && !prior->terminal;
                     upsertTurn(state, value.turn, options.maxAccumulatedItemBytes);
                     TurnState& turn = ensureTurn(state, value.turn.threadId, value.turn.id);
                     turn.active = false;
@@ -376,13 +364,12 @@ namespace ai::openai::codex::backend {
                         const bool cancelled = value.turn.status.value == "cancelled" || value.turn.status.value == "interrupted";
                         const char* outcome = value.turn.status.value == "failed" ? "failed" : (cancelled ? "cancelled" : "completed");
                         lifecycleLog().debug("turn {}: thread={} turn={}", outcome, value.turn.threadId.value, value.turn.id.value);
-                        turn.lifecycleTerminalLogged = true;
                     }
                     return Reduction{true, true};
                 },
                 [this, &state](const TurnFailed& value) {
-                    TurnState& prior = ensureTurn(state, value.turn.threadId, value.turn.id);
-                    const bool emitTerminal = prior.lifecycleStarted && !prior.lifecycleTerminalLogged;
+                    const TurnState* prior = findTurn(state, value.turn.threadId, value.turn.id);
+                    const bool emitTerminal = prior != nullptr && !prior->terminal;
                     upsertTurn(state, value.turn, options.maxAccumulatedItemBytes);
                     TurnState& turn = ensureTurn(state, value.turn.threadId, value.turn.id);
                     turn.active = false;
@@ -390,7 +377,6 @@ namespace ai::openai::codex::backend {
                     turn.failure = value.error;
                     if (emitTerminal) {
                         lifecycleLog().debug("turn failed: thread={} turn={}", value.turn.threadId.value, value.turn.id.value);
-                        turn.lifecycleTerminalLogged = true;
                     }
                     return Reduction{true, true};
                 },
@@ -560,13 +546,15 @@ namespace ai::openai::codex::backend {
         return std::visit(
             Overloaded{
                 [](const typed::ThreadStarted& value) -> std::vector<BackendEvent> {
-                    return {ThreadUpserted{value.thread, EntityLoad::Summary, true}};
+                    lifecycleLog().info("thread created: thread={}", value.thread.id.value);
+                    return {ThreadUpserted{value.thread, EntityLoad::Summary}};
                 },
                 [](const typed::ThreadStatusChanged& value) -> std::vector<BackendEvent> {
                     return {ThreadStatusUpdated{value.threadId, value.status}};
                 },
                 [](const typed::TurnStarted& value) -> std::vector<BackendEvent> {
-                    return {TurnUpserted{value.turn, true}};
+                    lifecycleLog().debug("turn started: thread={} turn={}", value.turn.threadId.value, value.turn.id.value);
+                    return {TurnUpserted{value.turn}};
                 },
                 [](const typed::TurnCompleted& value) -> std::vector<BackendEvent> {
                     return {TurnCompleted{value.turn}};

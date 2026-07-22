@@ -1,6 +1,7 @@
 #include "ai/openai/codex/backend/BackendEvent.h"
 #include "ai/openai/codex/backend/BackendState.h"
 #include "ai/openai/codex/backend/Reducer.h"
+#include "ai/openai/codex/typed/Events.h"
 #include "log/Logger.h"
 #include "tests/support/TestResult.h"
 
@@ -87,31 +88,43 @@ int main() {
         backend::BackendState state;
         backend::Reducer reducer;
 
-        reducer.apply(state, backend::ThreadUpserted{thread("thread-phase3"), backend::EntityLoad::Summary, true});
-        reducer.apply(state, backend::ThreadUpserted{thread("thread-phase3"), backend::EntityLoad::Summary, true});
+        const auto applyTyped = [&state, &reducer](const typed::Event& event) {
+            for (const backend::BackendEvent& translated : reducer.translate(event)) {
+                reducer.apply(state, translated);
+            }
+        };
+
+        reducer.apply(state, backend::ThreadUpserted{thread("thread-hydrated"), backend::EntityLoad::Summary});
+        reducer.apply(state, backend::TurnUpserted{turn("turn-hydrated", typed::TurnStatus::inProgress())});
+        applyTyped(typed::Event{typed::ThreadStarted{thread("thread-phase3"), ai::openai::codex::Json::object()}});
 
         typed::Turn success = turn("turn-success", typed::TurnStatus::inProgress());
-        reducer.apply(state, backend::TurnUpserted{success, true});
+        applyTyped(typed::Event{typed::TurnStarted{success, ai::openai::codex::Json::object()}});
         success.status = typed::TurnStatus::completed();
-        reducer.apply(state, backend::TurnCompleted{success});
-        reducer.apply(state, backend::TurnCompleted{success});
+        applyTyped(typed::Event{typed::TurnCompleted{success, ai::openai::codex::Json::object()}});
+        applyTyped(typed::Event{typed::TurnCompleted{success, ai::openai::codex::Json::object()}});
 
         typed::Turn failed = turn("turn-failed", typed::TurnStatus::inProgress());
-        reducer.apply(state, backend::TurnUpserted{failed, true});
+        applyTyped(typed::Event{typed::TurnStarted{failed, ai::openai::codex::Json::object()}});
         failed.status = typed::TurnStatus::failed();
-        reducer.apply(state, backend::TurnFailed{failed, {{"message", "failure"}}});
-        reducer.apply(state, backend::TurnCompleted{failed});
+        applyTyped(typed::Event{typed::TurnFailed{failed, {{"message", "failure"}}, ai::openai::codex::Json::object()}});
+        failed.status = typed::TurnStatus::completed();
+        applyTyped(typed::Event{typed::TurnCompleted{failed, ai::openai::codex::Json::object()}});
 
         typed::Turn cancelled = turn("turn-cancelled", typed::TurnStatus::inProgress());
-        reducer.apply(state, backend::TurnUpserted{cancelled, true});
+        applyTyped(typed::Event{typed::TurnStarted{cancelled, ai::openai::codex::Json::object()}});
         cancelled.status = typed::TurnStatus{"cancelled"};
-        reducer.apply(state, backend::TurnCompleted{cancelled});
+        applyTyped(typed::Event{typed::TurnCompleted{cancelled, ai::openai::codex::Json::object()}});
         cancelled.status = typed::TurnStatus::completed();
-        reducer.apply(state, backend::TurnCompleted{cancelled});
+        applyTyped(typed::Event{typed::TurnCompleted{cancelled, ai::openai::codex::Json::object()}});
     }
 
     const std::vector<nlohmann::json> captured = records(path);
     result.expectTrue(countMessage(captured, "thread created: thread=thread-phase3") == 1, "thread creation is emitted exactly once");
+    result.expectTrue(countMessage(captured, "thread created: thread=thread-hydrated") == 0,
+                      "generic thread hydration does not fabricate creation");
+    result.expectTrue(countMessage(captured, "turn started: thread=thread-phase3 turn=turn-hydrated") == 0,
+                      "generic turn hydration does not fabricate a start");
     result.expectTrue(countMessage(captured, "turn started: thread=thread-phase3 turn=turn-success") == 1, "successful turn has one start");
     result.expectTrue(countMessage(captured, "turn completed: thread=thread-phase3 turn=turn-success") == 1,
                       "successful turn has one completion");

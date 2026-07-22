@@ -1,43 +1,158 @@
+#include "core/socket/SocketAddress.h"
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/Mqtt.h"
+#include "iot/mqtt/MqttContext.h"
+#include "iot/mqtt/packets/Connect.h"
+#include "iot/mqtt/server/Mqtt.h"
+#include "iot/mqtt/server/broker/Broker.h"
 #include "log/Logger.h"
 #include "support/Phase3SemanticLogCapture.h"
 #include "support/TestResult.h"
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace {
-    class TestMqtt final : public iot::mqtt::Mqtt {
+    class DummyAddress final : public core::socket::SocketAddress {
     public:
-        TestMqtt(const std::string& connectionName, const std::string& clientId)
-            : Mqtt(connectionName, clientId) {
+        std::string toString(bool = true) const override {
+            return {};
+        }
+    };
+
+    class FakeSocketConnection final : public core::socket::stream::SocketConnection {
+    public:
+        FakeSocketConnection(std::uint64_t id, const std::string& name)
+            : SocketConnection(-1, id, name, nullptr) {
         }
 
-        void establish(bool resumed) {
-            sessionEstablished(resumed);
+        ~FakeSocketConnection() override = default;
+
+        int getFd() const override {
+            return -1;
         }
 
-        void reject(const std::string& rejectedClientId) {
-            sessionRejected(rejectedClientId);
+        void sendToPeer(const char*, std::size_t) override {
         }
 
-        bool onSignal(int) override {
-            return true;
+        bool streamToPeer(core::pipe::Source*) override {
+            return false;
+        }
+
+        void streamEof() override {
+        }
+
+        std::size_t readFromPeer(char*, std::size_t) override {
+            return 0;
+        }
+
+        void shutdownRead() override {
+        }
+
+        void shutdownWrite() override {
+        }
+
+        const core::socket::SocketAddress& getBindAddress() const override {
+            return address;
+        }
+
+        const core::socket::SocketAddress& getLocalAddress() const override {
+            return address;
+        }
+
+        const core::socket::SocketAddress& getRemoteAddress() const override {
+            return address;
+        }
+
+        void close() override {
+        }
+
+        void setTimeout(const utils::Timeval&) override {
+        }
+
+        void setReadTimeout(const utils::Timeval&) override {
+        }
+
+        void setWriteTimeout(const utils::Timeval&) override {
+        }
+
+        std::size_t getTotalSent() const override {
+            return 0;
+        }
+
+        std::size_t getTotalQueued() const override {
+            return 0;
+        }
+
+        std::size_t getTotalRead() const override {
+            return 0;
+        }
+
+        std::size_t getTotalProcessed() const override {
+            return 0;
         }
 
     private:
-        iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader&) const override {
-            return nullptr;
-        }
-
-        void deliverPacket(iot::mqtt::ControlPacketDeserializer*) override {
-        }
-
-        void distributePublish(const iot::mqtt::packets::Publish&) override {
-        }
+        DummyAddress address;
     };
+
+    class BufferContext final : public iot::mqtt::MqttContext {
+    public:
+        BufferContext(iot::mqtt::Mqtt* mqtt, FakeSocketConnection& socketConnection, std::vector<char> input)
+            : MqttContext(mqtt)
+            , socketConnection(socketConnection)
+            , input(std::move(input)) {
+        }
+
+        std::size_t recv(char* chunk, std::size_t length) override {
+            const std::size_t count = std::min(length, input.size() - offset);
+            std::copy_n(input.data() + static_cast<std::ptrdiff_t>(offset), count, chunk);
+            offset += count;
+            return count;
+        }
+
+        void send(const char* chunk, std::size_t length) override {
+            output.insert(output.end(), chunk, chunk + static_cast<std::ptrdiff_t>(length));
+        }
+
+        core::socket::stream::SocketConnection* getSocketConnection() const override {
+            return &socketConnection;
+        }
+
+        void end() override {
+            ended = true;
+        }
+
+        void close() override {
+            closed = true;
+        }
+
+        void process() {
+            while (offset < input.size() && onReceivedFromPeer() != 0) {
+            }
+        }
+
+        bool ended = false;
+        bool closed = false;
+        std::vector<char> output;
+
+    private:
+        FakeSocketConnection& socketConnection;
+        std::vector<char> input;
+        std::size_t offset = 0;
+    };
+
+    std::vector<char> connectPacket(const std::string& clientId, bool cleanSession) {
+        return iot::mqtt::packets::Connect(clientId, 0, cleanSession, "", "", 0, false, "", "", false).serialize();
+    }
 
     int countMessage(const std::vector<nlohmann::json>& records, std::string_view message) {
         int count = 0;
@@ -73,27 +188,45 @@ int main() {
     logger::LogManager::setFormat(logger::LogManager::Format::Json);
     logger::LogManager::freeze();
 
+    const auto broker = std::make_shared<iot::mqtt::server::broker::Broker>(2, "");
+
     {
-        TestMqtt established("accepted", "client-established");
-        established.onConnected();
-        established.onConnected();
-        established.establish(false);
-        established.establish(false);
-        established.onDisconnected();
-        established.onDisconnected();
+        FakeSocketConnection socket(1, "accepted");
+        BufferContext context(new iot::mqtt::server::Mqtt("accepted", broker), socket, connectPacket("client-established", true));
+        context.onConnected();
+        context.onConnected();
+        context.process();
+        context.onDisconnected();
+        context.onDisconnected();
+    }
 
-        TestMqtt resumed("resumed", "client-resumed");
-        resumed.onConnected();
-        resumed.establish(true);
-        resumed.onDisconnected();
+    broker->newSession("client-resumed", nullptr);
+    broker->retainSession("client-resumed");
+    {
+        FakeSocketConnection socket(2, "resumed");
+        BufferContext context(new iot::mqtt::server::Mqtt("resumed", broker), socket, connectPacket("client-resumed", false));
+        context.onConnected();
+        context.process();
+        context.onDisconnected();
+    }
 
-        TestMqtt rejected("rejected", "client-rejected");
-        rejected.onConnected();
-        rejected.reject("client-rejected");
-        rejected.reject("client-rejected");
-        rejected.establish(false);
-        rejected.onDisconnected();
-        rejected.onDisconnected();
+    {
+        std::vector<char> packet = connectPacket("client-rejected", true);
+        constexpr std::array<char, 4> protocol{'M', 'Q', 'T', 'T'};
+        const auto protocolBegin = std::search(packet.begin(), packet.end(), protocol.begin(), protocol.end());
+        result.expectTrue(protocolBegin != packet.end(), "serialized MQTT CONNECT contains the protocol name");
+        if (protocolBegin != packet.end()) {
+            *protocolBegin = 'X';
+        }
+
+        FakeSocketConnection socket(3, "rejected");
+        BufferContext context(new iot::mqtt::server::Mqtt("rejected", broker), socket, std::move(packet));
+        context.onConnected();
+        context.onConnected();
+        context.process();
+        result.expectTrue(context.closed, "invalid MQTT CONNECT reaches the existing session-rejection transition");
+        context.onDisconnected();
+        context.onDisconnected();
     }
 
     const std::vector<nlohmann::json> records = capture.finish();

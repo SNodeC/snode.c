@@ -28,6 +28,25 @@ namespace {
         return first == std::string_view::npos || last == std::string_view::npos ? std::string()
                                                                                  : std::string(source.substr(first, last - first));
     }
+
+    bool privateDeclaration(std::string_view source, std::string_view declaration, const std::filesystem::path& path) {
+        const std::size_t declarationPosition = source.find(declaration);
+        if (declarationPosition == std::string_view::npos) {
+            std::cerr << "Missing Phase 3 private declaration in " << path << ": " << declaration << '\n';
+            return false;
+        }
+
+        const std::size_t publicPosition = source.rfind("public:", declarationPosition);
+        const std::size_t protectedPosition = source.rfind("protected:", declarationPosition);
+        const std::size_t privatePosition = source.rfind("private:", declarationPosition);
+        const bool isPrivate = privatePosition != std::string_view::npos &&
+                               (publicPosition == std::string_view::npos || privatePosition > publicPosition) &&
+                               (protectedPosition == std::string_view::npos || privatePosition > protectedPosition);
+        if (!isPrivate) {
+            std::cerr << "Phase 3 logging helper is not private in " << path << ": " << declaration << '\n';
+        }
+        return isPrivate;
+    }
 } // namespace
 
 int main() {
@@ -41,9 +60,12 @@ int main() {
     const auto eventSourcePath = root / "src/web/http/client/tools/EventSource.h";
     const auto webSocketPath = root / "src/web/websocket/SocketContextUpgrade.hpp";
     const auto subProtocolPath = root / "src/web/websocket/SubProtocol.hpp";
+    const auto mqttHeaderPath = root / "src/iot/mqtt/Mqtt.h";
     const auto mqttPath = root / "src/iot/mqtt/Mqtt.cpp";
     const auto mqttWsPath = root / "src/iot/mqtt/SubProtocol.hpp";
     const auto codexPath = root / "src/ai/openai/codex/AppServerClient.cpp";
+    const auto backendEventPath = root / "src/ai/openai/codex/backend/BackendEvent.h";
+    const auto backendStatePath = root / "src/ai/openai/codex/backend/BackendState.h";
     const auto reducerPath = root / "src/ai/openai/codex/backend/Reducer.cpp";
     const auto databasePath = root / "src/database/mariadb/MariaDBConnection.cpp";
 
@@ -52,9 +74,12 @@ int main() {
     const std::string eventSource = source_policy::readSourcePolicyFile(eventSourcePath);
     const std::string webSocket = source_policy::readSourcePolicyFile(webSocketPath);
     const std::string subProtocol = source_policy::readSourcePolicyFile(subProtocolPath);
+    const std::string mqttHeader = source_policy::readSourcePolicyFile(mqttHeaderPath);
     const std::string mqtt = source_policy::readSourcePolicyFile(mqttPath);
     const std::string mqttWs = source_policy::readSourcePolicyFile(mqttWsPath);
     const std::string codex = source_policy::readSourcePolicyFile(codexPath);
+    const std::string backendEvent = source_policy::readSourcePolicyFile(backendEventPath);
+    const std::string backendState = source_policy::readSourcePolicyFile(backendStatePath);
     const std::string reducer = source_policy::readSourcePolicyFile(reducerPath);
     const std::string database = source_policy::readSourcePolicyFile(databasePath);
 
@@ -90,6 +115,8 @@ int main() {
     }
     ok &= forbid(mqtt, "MQTT: Connected", mqttPath);
     ok &= forbid(mqtt, "MQTT: Disconnected", mqttPath);
+    ok &= privateDeclaration(mqttHeader, "sessionEstablished(bool resumed)", mqttHeaderPath);
+    ok &= privateDeclaration(mqttHeader, "sessionRejected(const std::string& rejectedClientId", mqttHeaderPath);
     ok &= forbid(mqttWs, "WsMqtt: connected", mqttWsPath);
     ok &= forbid(mqttWs, "WsMqtt: disconnected", mqttWsPath);
 
@@ -105,6 +132,9 @@ int main() {
     const std::string notificationBody = functionBody(codex, "void dispatchNotification", "void dispatchServerRequest");
     ok &= forbid(notificationBody, "request started", codexPath);
     ok &= forbid(notificationBody, "request completed", codexPath);
+    for (const auto field : {"lifecycleStart", "creationLogged", "lifecycleStarted", "lifecycleTerminalLogged"}) {
+        ok &= forbid(backendEvent + backendState, field, root / "src/ai/openai/codex/backend");
+    }
     ok &= require(reducer, "thread created", reducerPath);
     ok &= require(reducer, "turn started", reducerPath);
     ok &= require(reducer, "turn failed", reducerPath);
