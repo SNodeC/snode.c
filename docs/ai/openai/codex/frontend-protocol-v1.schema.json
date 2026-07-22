@@ -530,6 +530,33 @@
       },
       "additionalProperties": true
     },
+    "UserMessageData": {
+      "type": "object",
+      "description": "Normalized user-message data. Content is an ordered prefix of complete entries; byte counts measure compact serialization of the corresponding arrays.",
+      "required": [
+        "clientId",
+        "content",
+        "contentTruncated",
+        "originalContentBytes",
+        "retainedContentBytes",
+        "originalContentItems",
+        "retainedContentItems"
+      ],
+      "properties": {
+        "clientId": { "type": ["string", "null"] },
+        "content": {
+          "type": "array",
+          "items": true,
+          "description": "A bounded prefix of complete opaque Codex content entries in original order."
+        },
+        "contentTruncated": { "type": "boolean" },
+        "originalContentBytes": { "$ref": "#/$defs/UInt64" },
+        "retainedContentBytes": { "$ref": "#/$defs/UInt64" },
+        "originalContentItems": { "$ref": "#/$defs/UInt64" },
+        "retainedContentItems": { "$ref": "#/$defs/UInt64" }
+      },
+      "additionalProperties": true
+    },
     "ItemState": {
       "type": "object",
       "required": [
@@ -549,7 +576,7 @@
         "id": { "$ref": "#/$defs/NonEmptyString" },
         "type": {
           "$ref": "#/$defs/NonEmptyString",
-          "description": "Known values are agent_message, reasoning, command_execution, file_change, tool_call, and web_search. Future Codex item types remain explicit strings."
+          "description": "Known values are user_message, agent_message, reasoning, command_execution, file_change, tool_call, and web_search. Future Codex item types remain explicit strings."
         },
         "status": { "enum": ["unknown", "started", "completed", "failed"] },
         "agentText": { "type": "string" },
@@ -563,6 +590,21 @@
         "data": { "type": "object" },
         "extensions": { "type": "object" }
       },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": {
+              "type": { "const": "user_message" }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": { "$ref": "#/$defs/UserMessageData" }
+            }
+          }
+        }
+      ],
       "additionalProperties": true
     },
     "TurnState": {

@@ -35,6 +35,7 @@ namespace {
     using ai::openai::codex::typed::TurnStarted;
     using ai::openai::codex::typed::UnknownEvent;
     using ai::openai::codex::typed::UnknownItem;
+    using ai::openai::codex::typed::UserMessageItem;
 
     Notification makeNotification(std::string method, Json params, Json envelopeExtension = Json::object()) {
         Json raw = {
@@ -79,6 +80,20 @@ namespace {
             {"id", std::move(id)},
             {"text", "event text"},
             {"futureItemField", 7},
+        };
+    }
+
+    Json userMessageItem(std::string id = "user-message-event", Json clientId = nullptr) {
+        return {
+            {"type", "userMessage"},
+            {"id", std::move(id)},
+            {"clientId", std::move(clientId)},
+            {"content",
+             Json::array({
+                 Json{{"type", "text"}, {"text", "Answer just with OK!"}, {"text_elements", Json::array()}},
+                 Json{{"type", "futureInput"}, {"futurePayload", Json{{"kept", true}}}},
+             })},
+            {"futureItemField", Json::array({1, 2})},
         };
     }
 
@@ -171,14 +186,68 @@ namespace {
                                   completed->raw == completedNotification.raw,
                               "item/completed preserves maximum int64 timestamp and complete event raw");
 
-        const Json futureItem = {{"type", "futureItem"}, {"future", Json::array({1, 2, 3})}};
+        const Json futureItem = {{"type", "futureItem"}, {"id", "future-item"}, {"future", Json::array({1, 2, 3})}};
         const Notification futureItemNotification = makeNotification(
             "item/started", Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"item", futureItem}, {"startedAtMs", 17}});
         const Event futureItemEvent = decodeEvent(futureItemNotification);
         const ItemStarted* futureStarted = as<ItemStarted>(futureItemEvent);
         const UnknownItem* unknownItem = futureStarted ? std::get_if<UnknownItem>(&futureStarted->item) : nullptr;
-        testResult.expectTrue(unknownItem && unknownItem->type == "futureItem" && unknownItem->raw == futureItem,
-                              "unknown item discriminator remains a nonfatal UnknownItem inside a typed lifecycle event");
+        testResult.expectTrue(unknownItem && unknownItem->type == "futureItem" && unknownItem->raw == futureItem &&
+                                  unknownItem->metadata.id && unknownItem->metadata.id->value == "future-item" &&
+                                  unknownItem->metadata.threadId && unknownItem->metadata.threadId->value == "thread-event" &&
+                                  unknownItem->metadata.turnId && unknownItem->metadata.turnId->value == "turn-event" &&
+                                  !unknownItem->decodingError,
+                              "unknown item discriminator retains all common metadata inside a typed lifecycle event");
+
+        const Json missingIdItem = {{"type", "futureItem"}, {"future", true}};
+        const Notification missingIdNotification = makeNotification(
+            "item/started", Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"item", missingIdItem}, {"startedAtMs", 18}});
+        const Event missingIdEvent = decodeEvent(missingIdNotification);
+        const ItemStarted* missingIdStarted = as<ItemStarted>(missingIdEvent);
+        const UnknownItem* missingId = missingIdStarted ? std::get_if<UnknownItem>(&missingIdStarted->item) : nullptr;
+        testResult.expectTrue(missingId && !missingId->metadata.id && missingId->metadata.threadId &&
+                                  missingId->metadata.threadId->value == "thread-event" && missingId->metadata.turnId &&
+                                  missingId->metadata.turnId->value == "turn-event" && missingId->raw == missingIdItem &&
+                                  missingId->decodingError,
+                              "item lifecycle events retain envelope location when the item has no stable ID");
+    }
+
+    void testUserMessageItemEvents(tests::support::TestResult& testResult) {
+        const Json startedItem = userMessageItem("user-message-shared");
+        const Notification startedNotification = makeNotification("item/started",
+                                                                  Json{{"threadId", "thread-user-message"},
+                                                                       {"turnId", "turn-user-message"},
+                                                                       {"item", startedItem},
+                                                                       {"startedAtMs", 1784637396096}});
+        const Event startedEvent = decodeEvent(startedNotification);
+        const ItemStarted* started = as<ItemStarted>(startedEvent);
+        const UserMessageItem* startedUser = started ? std::get_if<UserMessageItem>(&started->item) : nullptr;
+        testResult.expectTrue(started && started->startedAtMs == 1784637396096 && started->raw == startedNotification.raw,
+                              "userMessage item/started preserves its lifecycle timestamp and complete event raw");
+        testResult.expectTrue(startedUser && startedUser->metadata.id.value == "user-message-shared" && startedUser->metadata.threadId &&
+                                  startedUser->metadata.threadId->value == "thread-user-message" && startedUser->metadata.turnId &&
+                                  startedUser->metadata.turnId->value == "turn-user-message" && !startedUser->clientId &&
+                                  startedUser->content == startedItem["content"] && startedUser->metadata.raw == startedItem,
+                              "userMessage item/started preserves ID, location, nullable clientId, opaque content, and item raw");
+
+        Json completedItem = userMessageItem("user-message-shared", "client-user-message");
+        completedItem["content"].push_back(Json{{"type", "localImage"}, {"path", "/tmp/input.png"}, {"detail", "original"}, {"future", 9}});
+        const Notification completedNotification = makeNotification("item/completed",
+                                                                    Json{{"threadId", "thread-user-message"},
+                                                                         {"turnId", "turn-user-message"},
+                                                                         {"item", completedItem},
+                                                                         {"completedAtMs", 1784637396123}});
+        const Event completedEvent = decodeEvent(completedNotification);
+        const ItemCompleted* completed = as<ItemCompleted>(completedEvent);
+        const UserMessageItem* completedUser = completed ? std::get_if<UserMessageItem>(&completed->item) : nullptr;
+        testResult.expectTrue(completed && completed->completedAtMs == 1784637396123 && completed->raw == completedNotification.raw,
+                              "userMessage item/completed preserves its lifecycle timestamp and complete event raw");
+        testResult.expectTrue(completedUser && completedUser->metadata.id.value == "user-message-shared" &&
+                                  completedUser->metadata.threadId && completedUser->metadata.threadId->value == "thread-user-message" &&
+                                  completedUser->metadata.turnId && completedUser->metadata.turnId->value == "turn-user-message" &&
+                                  completedUser->clientId == "client-user-message" && completedUser->content == completedItem["content"] &&
+                                  completedUser->metadata.raw == completedItem,
+                              "userMessage completion keeps the same canonical identity and preserves all content entries exactly");
     }
 
     void testDeltaEvents(tests::support::TestResult& testResult) {
@@ -297,10 +366,28 @@ namespace {
         };
         const Notification malformedItemNotification = makeNotification("item/completed", malformedItemParams);
         const Event malformedItemEvent = decodeEvent(malformedItemNotification);
-        const UnknownEvent* malformedItem = as<UnknownEvent>(malformedItemEvent);
-        testResult.expectTrue(malformedItem && malformedItem->decodingError && malformedItem->params == malformedItemParams &&
-                                  malformedItem->raw == malformedItemNotification.raw,
-                              "known malformed item payload becomes diagnosable UnknownEvent without losing raw data");
+        const ItemCompleted* malformedItem = as<ItemCompleted>(malformedItemEvent);
+        const UnknownItem* malformedTypedItem = malformedItem ? std::get_if<UnknownItem>(&malformedItem->item) : nullptr;
+        testResult.expectTrue(malformedItem && malformedItem->completedAtMs == 1 && malformedItem->raw == malformedItemNotification.raw &&
+                                  malformedTypedItem && malformedTypedItem->type == "agentMessage" && malformedTypedItem->metadata.id &&
+                                  malformedTypedItem->metadata.id->value == "bad-item" && malformedTypedItem->metadata.threadId &&
+                                  malformedTypedItem->metadata.threadId->value == "thread-event" && malformedTypedItem->metadata.turnId &&
+                                  malformedTypedItem->metadata.turnId->value == "turn-event" &&
+                                  malformedTypedItem->raw == malformedItemParams["item"] && malformedTypedItem->decodingError,
+                              "known malformed item detail remains a located typed lifecycle event with an item-local diagnostic");
+
+        const Json scalarItemParams = {
+            {"threadId", "thread-event"},
+            {"turnId", "turn-event"},
+            {"item", Json::array({1, 2})},
+            {"completedAtMs", 2},
+        };
+        const Notification scalarItemNotification = makeNotification("item/completed", scalarItemParams);
+        const Event scalarItemEvent = decodeEvent(scalarItemNotification);
+        const UnknownEvent* scalarItem = as<UnknownEvent>(scalarItemEvent);
+        testResult.expectTrue(scalarItem && scalarItem->decodingError && scalarItem->params == scalarItemParams &&
+                                  scalarItem->raw == scalarItemNotification.raw,
+                              "structurally unusable non-object item remains a diagnosable UnknownEvent");
 
         const Notification scalarParamsNotification = makeNotification("turn/started", Json::array({1, 2}));
         const Event scalarParamsEvent = decodeEvent(scalarParamsNotification);
@@ -328,6 +415,7 @@ int main() {
     testThreadEvents(testResult);
     testTurnEvents(testResult);
     testItemEvents(testResult);
+    testUserMessageItemEvents(testResult);
     testDeltaEvents(testResult);
     testAuxiliaryEvents(testResult);
     testUnknownAndMalformedEvents(testResult);

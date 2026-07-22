@@ -137,6 +137,17 @@ bounded suffix for complete output. These bounds are configurable through
 `ReducerOptions`; ordinary 1,000-delta test bursts remain below the defaults
 and reconstruct exactly.
 
+The typed `UserMessageItem` separately retains its complete opaque content
+array. Its normalized snapshot/event `data` object has a dedicated 65,536-byte
+compact-serialization bound: `content` remains an array containing an ordered
+prefix of complete, unmodified entries, and the adjacent
+`contentTruncated`, `originalContentBytes`, `retainedContentBytes`,
+`originalContentItems`, and `retainedContentItems` fields describe that
+projection. The byte counts are compact serialized array sizes, so an empty
+retained array counts as two bytes. This payload-specific truncation does not
+alter the top-level `contentTruncated` or `droppedContentBytes`; those fields
+retain their accumulated-visible-content meaning for every item type.
+
 ## Reducer semantics
 
 All ordinary domain transitions pass through `Reducer::apply()`. Typed Codex
@@ -152,9 +163,13 @@ backend events:
 - `ControllerChanged` and `SessionChanged`; and
 - `CodexExtensionReceived`.
 
-Unknown typed items with a stable ID remain items. Unknown events, or malformed
-future item events that cannot identify an owning entity, remain observable as
-bounded `CodexExtensionReceived` records with their original method or
+User messages and unknown typed items with a stable ID and envelope location
+remain canonical items. Unknown items retain their common ID, thread, and turn
+metadata along with raw JSON and any item-local decoding error. An item with a
+valid location but no stable ID remains observable through the bounded
+`codex/item-without-id` extension fallback. Unknown events, or malformed future
+item events that cannot identify an owning thread and turn, remain observable
+as bounded `CodexExtensionReceived` records with their original method or
 deliberate extension name, payload, and optional decoding error. They do not
 fail the backend and are not silently discarded.
 

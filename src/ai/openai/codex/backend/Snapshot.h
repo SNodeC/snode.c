@@ -28,6 +28,7 @@ namespace ai::openai::codex::backend {
     inline constexpr std::size_t MaxSnapshotExtensionDecodingErrorBytes = 2U * 1024U;
     inline constexpr std::size_t MaxSerializedCodexExtensionEventBytes = 64U * 1024U;
     inline constexpr std::size_t MaxSerializedCodexExtensionEnvelopeOverheadBytes = 4U * 1024U;
+    inline constexpr std::size_t MaxSerializedUserMessageDataBytes = 64U * 1024U;
     static_assert(MaxSnapshotExtensionMethodBytes * 6U + MaxSnapshotExtensionPayloadBytes + MaxSnapshotExtensionDecodingErrorBytes * 6U +
                           MaxSerializedCodexExtensionEnvelopeOverheadBytes <=
                       MaxSerializedCodexExtensionEventBytes,

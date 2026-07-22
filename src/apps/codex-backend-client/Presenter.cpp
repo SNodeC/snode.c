@@ -8,6 +8,7 @@
 #include "apps/codex-backend-client/Presenter.h"
 
 #include "ai/openai/codex/frontend/Codec.h"
+#include "apps/codex-backend-client/CommandDrainController.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -17,6 +18,7 @@
 #include <map>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -33,6 +35,7 @@ namespace apps::codex_backend_client {
         constexpr std::size_t maximumInlineJsonBytes = 4096;
         constexpr std::size_t maximumSummaryIdentifiers = 20;
         constexpr std::size_t maximumSummaryIdentifierBytes = 80;
+        constexpr std::size_t maximumSummaryMessageBytes = 512;
 
         void writeLine(std::ostream& stream, std::string_view value) {
             stream << value;
@@ -68,6 +71,14 @@ namespace apps::codex_backend_client {
         std::string boundedIdentifier(std::string value) {
             if (value.size() > maximumSummaryIdentifierBytes) {
                 value.resize(maximumSummaryIdentifierBytes);
+                value += "...";
+            }
+            return value;
+        }
+
+        std::string boundedMessage(std::string value) {
+            if (value.size() > maximumSummaryMessageBytes) {
+                value.resize(maximumSummaryMessageBytes);
                 value += "...";
             }
             return value;
@@ -151,6 +162,81 @@ namespace apps::codex_backend_client {
             return "<json omitted; bytes=" + std::to_string(encoded.size()) + "; use --json for complete protocol data>";
         }
 
+        std::string responseError(const frontend::Response& response) {
+            if (!response.error.has_value()) {
+                return "request failed without an error payload";
+            }
+
+            std::string error = std::string(frontend::toString(response.error->code));
+            if (!response.error->message.empty()) {
+                error += ": " + boundedMessage(response.error->message);
+            }
+            return error;
+        }
+
+        std::string turnId(const frontend::Response& response) {
+            if (!response.result.has_value() || !response.result->is_object()) {
+                return {};
+            }
+            const auto turn = response.result->find("turn");
+            if (turn != response.result->end() && turn->is_object()) {
+                const auto id = turn->find("id");
+                if (id != turn->end() && id->is_string()) {
+                    return id->get<std::string>();
+                }
+            }
+            const auto id = response.result->find("turnId");
+            return id != response.result->end() && id->is_string() ? id->get<std::string>() : std::string{};
+        }
+
+        bool presentCommandResponse(std::ostream& output, const frontend::Response& response, const ResponsePresentation& presentation) {
+            const std::string threadId = presentation.threadId.has_value() ? boundedIdentifier(*presentation.threadId) : "unknown";
+            const auto failure = [&output, &response](std::string_view action) {
+                output << action << " failed: " << responseError(response) << '\n';
+            };
+
+            switch (presentation.kind) {
+                case ResponsePresentation::Kind::Generic:
+                    return false;
+                case ResponsePresentation::Kind::ThreadStart:
+                    if (response.ok) {
+                        output << "thread started id=" << threadId << '\n';
+                    } else {
+                        failure("thread start");
+                    }
+                    return true;
+                case ResponsePresentation::Kind::ThreadResume:
+                    if (response.ok) {
+                        output << "thread resumed id=" << threadId << '\n';
+                    } else {
+                        output << "thread resume failed id=" << threadId << ": " << responseError(response) << '\n';
+                    }
+                    return true;
+                case ResponsePresentation::Kind::TurnStart:
+                    return false;
+                case ResponsePresentation::Kind::NewThreadStart:
+                    if (response.ok) {
+                        output << "thread created id=" << threadId << '\n';
+                    } else {
+                        failure("new thread creation");
+                    }
+                    return true;
+                case ResponsePresentation::Kind::NewTurnStart:
+                    if (response.ok) {
+                        output << "initial turn submitted thread=" << threadId;
+                        const std::string id = boundedIdentifier(turnId(response));
+                        if (!id.empty()) {
+                            output << " turn=" << id;
+                        }
+                        output << '\n';
+                    } else {
+                        output << "thread created id=" << threadId << ", but initial turn failed: " << responseError(response) << '\n';
+                    }
+                    return true;
+            }
+            return false;
+        }
+
     } // namespace
 
     Presenter::Presenter(OutputMode mode)
@@ -171,7 +257,19 @@ namespace apps::codex_backend_client {
         if (mode == OutputMode::Json) {
             presentJson(message);
         } else {
-            presentHuman(message);
+            presentHuman(message, nullptr);
+        }
+    }
+
+    void Presenter::present(const frontend::ServerMessage& message, const ResponsePresentation& presentation) {
+        if (!watching && std::holds_alternative<frontend::EventBatch>(message)) {
+            return;
+        }
+
+        if (mode == OutputMode::Json) {
+            presentJson(message);
+        } else {
+            presentHuman(message, &presentation);
         }
     }
 
@@ -209,10 +307,10 @@ namespace apps::codex_backend_client {
         writeLine(*diagnostics, "codex-backend-client: " + std::string(message));
     }
 
-    void Presenter::presentHuman(const frontend::ServerMessage& message) {
+    void Presenter::presentHuman(const frontend::ServerMessage& message, const ResponsePresentation* presentation) {
         try {
             std::visit(
-                [this]<typename Message>(const Message& value) {
+                [this, presentation]<typename Message>(const Message& value) {
                     using T = std::remove_cvref_t<Message>;
                     if constexpr (std::is_same_v<T, frontend::Welcome>) {
                         *output << "welcome session=" << value.sessionId << " role=" << frontend::toString(value.role)
@@ -229,6 +327,9 @@ namespace apps::codex_backend_client {
                             *output << "  [" << event.sequence.value() << "] " << event.type << ' ' << humanJson(event.data) << '\n';
                         }
                     } else if constexpr (std::is_same_v<T, frontend::Response>) {
+                        if (presentation != nullptr && presentCommandResponse(*output, value, *presentation)) {
+                            return;
+                        }
                         *output << "response request-id=" << value.requestId << " ok=" << (value.ok ? "true" : "false");
                         if (value.ok) {
                             if (value.result.has_value()) {

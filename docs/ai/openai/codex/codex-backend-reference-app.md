@@ -98,13 +98,106 @@ stdio client. Authentication and quota are properties of that local Codex
 installation, not of the frontend protocol.
 
 Start the server and client in separate terminals. The client sends `hello`
-automatically and provides typed `snapshot`, `acquire`, `threads`, and `read`
-commands as well as the other commands documented in its README:
+automatically and provides typed synchronization, controller, thread, and turn
+commands as documented in its README:
 
 ```sh
 codex-backend
 codex-backend-client
 ```
+
+## Reference client thread lifecycle
+
+The reference client exposes the existing Frontend Protocol v1 operations with
+the following thread-management syntax:
+
+```text
+start [--cwd <path>] [--model <model>]
+      [--model-provider <provider>]
+      [--approval-policy <policy>]
+      [--sandbox-mode <mode>]
+      [--ephemeral]
+
+resume <thread-id>
+       [--cwd <path>] [--model <model>]
+       [--model-provider <provider>]
+       [--approval-policy <policy>]
+       [--sandbox-mode <mode>]
+
+new [thread-start-options] -- <prompt>
+new <prompt>
+
+turn <thread-id> <prompt>
+read <thread-id>
+threads
+acquire
+release
+```
+
+Frontend sessions begin as observers, and the client does not acquire
+controller ownership automatically. `start`, `resume`, `new`, and `turn`
+therefore require a prior successful `acquire`; an observer receives the
+backend's ordinary `permission_denied` response.
+
+An interactive explicit workflow creates a thread, reports its ID, and then
+uses that ID for the first turn:
+
+```text
+acquire
+start --cwd /home/voc/projects/snode.c
+turn <returned-thread-id> Review the repository.
+```
+
+An existing persisted thread must be resumed before it can accept a turn in
+the running App Server:
+
+```text
+acquire
+threads
+resume <thread-id>
+turn <thread-id> Continue the previous task.
+```
+
+`threads` may include threads marked `notLoaded`. In particular:
+
+> `read` retrieves thread data but does not resume or load the thread into the
+> running Codex App Server. Use `resume <thread-id>` before starting a turn on a
+> persisted `notLoaded` thread.
+
+The convenience workflow is:
+
+```text
+acquire
+new --cwd /home/voc/projects/snode.c -- Review the repository.
+```
+
+`new` is solely a `codex-backend-client` compound command. It submits a typed
+`ThreadStart`, waits for the matching successful response, validates the
+returned `result.thread.id`, and submits a typed `TurnStart` with that ID and
+one text input containing the complete prompt. The backend and Frontend
+Protocol v1 gain no `new` operation, and the client does not send both requests
+before the start response arrives.
+
+Human mode reports concise started/resumed IDs and `new` stage results. In
+`--json` mode, stdout remains complete Frontend Protocol JSONL: `new` emits the
+real `thread.start` and `turn.start` responses and events, never a synthetic
+message. Local diagnostics remain on stderr.
+
+For example, a piped JSON workflow is:
+
+```sh
+printf '%s\n' \
+  'acquire' \
+  'new --cwd /home/voc/projects/snode.c -- Review the repository.' \
+  | codex-backend-client --json
+```
+
+EOF draining waits for both stages of `new`. If thread creation succeeds but
+the initial turn cannot be submitted or returns a failure, the client exits
+unsuccessfully, reports that the thread was created, and preserves its ID in
+the diagnostic. Disconnects and send failures during either stage likewise
+produce a deterministic failure rather than silently completing the compound
+command.
 
 ## Socket path
 

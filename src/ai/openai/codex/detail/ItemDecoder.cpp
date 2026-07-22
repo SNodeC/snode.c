@@ -163,9 +163,45 @@ namespace ai::openai::codex::detail {
             if (!requireString(value, "id", id, error)) {
                 return false;
             }
+            if (id.empty()) {
+                error = "item 'id' field must be a non-empty string";
+                return false;
+            }
 
             metadata = typed::ItemMetadata{typed::ItemId{std::move(id)}, threadId, turnId, value};
             return true;
+        }
+
+        typed::UnknownItem makeUnknownItem(const Json& value,
+                                           std::optional<std::string> type,
+                                           const std::optional<typed::ThreadId>& threadId,
+                                           const std::optional<typed::TurnId>& turnId,
+                                           std::optional<std::string> decodingError = std::nullopt) {
+            typed::UnknownItem item{std::move(type), value, std::move(decodingError), {}};
+            item.metadata.threadId = threadId;
+            item.metadata.turnId = turnId;
+
+            const Json* id = findMember(value, "id");
+            if (id == nullptr) {
+                if (!item.decodingError) {
+                    item.decodingError = "item is missing required 'id' field";
+                }
+            } else if (!id->is_string()) {
+                if (!item.decodingError) {
+                    item.decodingError = "item 'id' field must be a string";
+                }
+            } else {
+                const std::string idValue = id->get<std::string>();
+                if (idValue.empty()) {
+                    if (!item.decodingError) {
+                        item.decodingError = "item 'id' field must be a non-empty string";
+                    }
+                } else {
+                    item.metadata.id = typed::ItemId{idValue};
+                }
+            }
+
+            return item;
         }
 
         std::optional<typed::Item> decodeAgentMessage(const Json& value,
@@ -175,6 +211,18 @@ namespace ai::openai::codex::detail {
             typed::AgentMessageItem item;
             if (!makeMetadata(value, threadId, turnId, item.metadata, error) || !requireString(value, "text", item.text, error) ||
                 !readOptionalString(value, "phase", item.phase, error)) {
+                return std::nullopt;
+            }
+            return typed::Item{std::move(item)};
+        }
+
+        std::optional<typed::Item> decodeUserMessage(const Json& value,
+                                                     const std::optional<typed::ThreadId>& threadId,
+                                                     const std::optional<typed::TurnId>& turnId,
+                                                     std::string& error) {
+            typed::UserMessageItem item;
+            if (!makeMetadata(value, threadId, turnId, item.metadata, error) ||
+                !readOptionalString(value, "clientId", item.clientId, error) || !requireArray(value, "content", item.content, error)) {
                 return std::nullopt;
             }
             return typed::Item{std::move(item)};
@@ -325,38 +373,49 @@ namespace ai::openai::codex::detail {
 
             const Json* discriminator = findMember(value, "type");
             if (discriminator == nullptr) {
-                error = "item is missing required 'type' field";
-                return std::nullopt;
+                typed::UnknownItem item = makeUnknownItem(value, std::nullopt, threadId, turnId, "item is missing required 'type' field");
+                return typed::Item{std::move(item)};
             }
             if (!discriminator->is_string()) {
-                error = "item 'type' field must be a string";
-                return std::nullopt;
+                typed::UnknownItem item = makeUnknownItem(value, std::nullopt, threadId, turnId, "item 'type' field must be a string");
+                return typed::Item{std::move(item)};
             }
 
             const std::string type = discriminator->get<std::string>();
-            if (type == "agentMessage") {
-                return decodeAgentMessage(value, threadId, turnId, error);
-            }
-            if (type == "reasoning") {
-                return decodeReasoning(value, threadId, turnId, error);
-            }
-            if (type == "commandExecution") {
-                return decodeCommandExecution(value, threadId, turnId, error);
-            }
-            if (type == "fileChange") {
-                return decodeFileChange(value, threadId, turnId, error);
-            }
-            if (type == "mcpToolCall") {
-                return decodeMcpToolCall(value, threadId, turnId, error);
-            }
-            if (type == "dynamicToolCall") {
-                return decodeDynamicToolCall(value, threadId, turnId, error);
-            }
-            if (type == "webSearch") {
-                return decodeWebSearch(value, threadId, turnId, error);
+            if (type.empty()) {
+                typed::UnknownItem item =
+                    makeUnknownItem(value, std::nullopt, threadId, turnId, "item 'type' field must be a non-empty string");
+                return typed::Item{std::move(item)};
             }
 
-            return typed::Item{typed::UnknownItem{type, value, std::nullopt}};
+            std::optional<typed::Item> decoded;
+            if (type == "agentMessage") {
+                decoded = decodeAgentMessage(value, threadId, turnId, error);
+            } else if (type == "userMessage") {
+                decoded = decodeUserMessage(value, threadId, turnId, error);
+            } else if (type == "reasoning") {
+                decoded = decodeReasoning(value, threadId, turnId, error);
+            } else if (type == "commandExecution") {
+                decoded = decodeCommandExecution(value, threadId, turnId, error);
+            } else if (type == "fileChange") {
+                decoded = decodeFileChange(value, threadId, turnId, error);
+            } else if (type == "mcpToolCall") {
+                decoded = decodeMcpToolCall(value, threadId, turnId, error);
+            } else if (type == "dynamicToolCall") {
+                decoded = decodeDynamicToolCall(value, threadId, turnId, error);
+            } else if (type == "webSearch") {
+                decoded = decodeWebSearch(value, threadId, turnId, error);
+            } else {
+                return typed::Item{makeUnknownItem(value, type, threadId, turnId)};
+            }
+
+            if (decoded) {
+                return decoded;
+            }
+
+            typed::UnknownItem item = makeUnknownItem(value, type, threadId, turnId, error);
+            error.clear();
+            return typed::Item{std::move(item)};
         } catch (const std::exception& exception) {
             error = std::string("item decoding failed: ") + exception.what();
         } catch (...) {

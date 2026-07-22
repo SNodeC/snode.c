@@ -40,6 +40,9 @@ namespace ai::openai::codex::backend {
             [](const auto& value) -> std::optional<typed::ItemId> {
                 using Value = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<Value, typed::UnknownItem>) {
+                    if (value.metadata.id && !value.metadata.id->value.empty()) {
+                        return value.metadata.id;
+                    }
                     try {
                         if (value.raw.is_object()) {
                             const auto iterator = value.raw.find("id");
@@ -52,7 +55,7 @@ namespace ai::openai::codex::backend {
                     }
                     return std::nullopt;
                 } else {
-                    return value.metadata.id;
+                    return value.metadata.id.value.empty() ? std::nullopt : std::optional<typed::ItemId>{value.metadata.id};
                 }
             },
             item);
@@ -64,6 +67,8 @@ namespace ai::openai::codex::backend {
                 using Value = std::decay_t<decltype(value)>;
                 if constexpr (std::is_same_v<Value, typed::AgentMessageItem>) {
                     return "agent_message";
+                } else if constexpr (std::is_same_v<Value, typed::UserMessageItem>) {
+                    return "user_message";
                 } else if constexpr (std::is_same_v<Value, typed::ReasoningItem>) {
                     return "reasoning";
                 } else if constexpr (std::is_same_v<Value, typed::CommandExecutionItem>) {
@@ -75,7 +80,7 @@ namespace ai::openai::codex::backend {
                 } else if constexpr (std::is_same_v<Value, typed::WebSearchItem>) {
                     return "web_search";
                 } else {
-                    return value.type.value_or("unknown");
+                    return value.type && !value.type->empty() ? *value.type : "unknown";
                 }
             },
             item);

@@ -632,6 +632,32 @@ namespace {
                 {{"method", "item/completed"},
                  {"params",
                   {{"threadId", threadId}, {"turnId", turnId}, {"item", agentItemValue(itemId, expectedText)}, {"completedAtMs", 20}}}});
+            transport->inject(
+                {{"method", "item/started"},
+                 {"params",
+                  {{"threadId", threadId},
+                   {"turnId", turnId},
+                   {"item", {{"id", userMessageItemId}, {"type", "userMessage"}, {"clientId", nullptr}, {"content", userMessageContent}}},
+                   {"startedAtMs", userMessageStartedAtMs}}}});
+            transport->inject(
+                {{"method", "item/completed"},
+                 {"params",
+                  {{"threadId", threadId},
+                   {"turnId", turnId},
+                   {"item", {{"id", userMessageItemId}, {"type", "userMessage"}, {"clientId", nullptr}, {"content", userMessageContent}}},
+                   {"completedAtMs", userMessageCompletedAtMs}}}});
+            transport->inject({{"method", "item/started"},
+                               {"params",
+                                {{"threadId", threadId},
+                                 {"turnId", turnId},
+                                 {"item", {{"id", unknownItemId}, {"type", unknownItemType}, {"futureField", Json{{"value", 7}}}}},
+                                 {"startedAtMs", unknownItemStartedAtMs}}}});
+            transport->inject({{"method", "item/completed"},
+                               {"params",
+                                {{"threadId", threadId},
+                                 {"turnId", turnId},
+                                 {"item", {{"id", unknownItemId}, {"type", unknownItemType}, {"futureField", Json{{"value", 7}}}}},
+                                 {"completedAtMs", unknownItemCompletedAtMs}}}});
             transport->inject({{"method", "turn/completed"},
                                {"params", {{"threadId", threadId}, {"turn", tests::codex::turnValue(threadId, turnId, "completed")}}}});
 
@@ -639,7 +665,15 @@ namespace {
                 "1,000 typed deltas reach exact terminal frontend state",
                 [this]() {
                     return terminalBackendText() == expectedText && latestFrontendText(observerA) == expectedText &&
-                           latestFrontendText(observerB) == expectedText;
+                           latestFrontendText(observerB) == expectedText &&
+                           hasCompletedItemUpdate(
+                               observerA, userMessageItemId, "user_message", userMessageStartedAtMs, userMessageCompletedAtMs) &&
+                           hasCompletedItemUpdate(
+                               observerA, unknownItemId, unknownItemType, unknownItemStartedAtMs, unknownItemCompletedAtMs) &&
+                           hasCompletedItemUpdate(
+                               observerB, userMessageItemId, "user_message", userMessageStartedAtMs, userMessageCompletedAtMs) &&
+                           hasCompletedItemUpdate(
+                               observerB, unknownItemId, unknownItemType, unknownItemStartedAtMs, unknownItemCompletedAtMs);
                 },
                 [this]() {
                     verifyBurst();
@@ -766,6 +800,32 @@ namespace {
             return latest;
         }
 
+        bool isCompletedItemUpdate(const frontend::FrontendEvent& event,
+                                   const std::string& expectedItemId,
+                                   const std::string& expectedType,
+                                   std::int64_t expectedStartedAtMs,
+                                   std::int64_t expectedCompletedAtMs) const {
+            if (event.type != "item.updated" || event.data.value("threadId", "") != threadId || event.data.value("turnId", "") != turnId) {
+                return false;
+            }
+            const auto item = event.data.find("item");
+            return item != event.data.end() && item->is_object() && item->value("id", "") == expectedItemId &&
+                   item->value("type", "") == expectedType && item->value("status", "") == "completed" &&
+                   item->value("startedAtMs", std::int64_t{-1}) == expectedStartedAtMs &&
+                   item->value("completedAtMs", std::int64_t{-1}) == expectedCompletedAtMs;
+        }
+
+        bool hasCompletedItemUpdate(const Observations& observations,
+                                    const std::string& expectedItemId,
+                                    const std::string& expectedType,
+                                    std::int64_t expectedStartedAtMs,
+                                    std::int64_t expectedCompletedAtMs) const {
+            const std::vector<frontend::FrontendEvent> received = events(observations);
+            return std::any_of(received.begin(), received.end(), [&](const frontend::FrontendEvent& event) {
+                return isCompletedItemUpdate(event, expectedItemId, expectedType, expectedStartedAtMs, expectedCompletedAtMs);
+            });
+        }
+
         std::vector<frontend::FrontendEvent> burstEvents(const Observations& observations, std::size_t baseline) const {
             std::vector<frontend::FrontendEvent> received = events(observations);
             if (baseline >= received.size()) {
@@ -815,6 +875,67 @@ namespace {
             expect(latestFrontendText(observerA) == expectedText && latestFrontendText(observerB) == expectedText,
                    "coalescing preserves exact final text for every protocol session");
 
+            const auto countCompletedItemUpdates = [&](const std::string& expectedItemId,
+                                                       const std::string& expectedType,
+                                                       std::int64_t expectedStartedAtMs,
+                                                       std::int64_t expectedCompletedAtMs) {
+                return std::count_if(receivedA.begin(), receivedA.end(), [&](const frontend::FrontendEvent& event) {
+                    return isCompletedItemUpdate(event, expectedItemId, expectedType, expectedStartedAtMs, expectedCompletedAtMs);
+                });
+            };
+            expect(countCompletedItemUpdates(userMessageItemId, "user_message", userMessageStartedAtMs, userMessageCompletedAtMs) == 1,
+                   "userMessage start/completion coalesce into one canonical completed frontend item update");
+            expect(countCompletedItemUpdates(unknownItemId, unknownItemType, unknownItemStartedAtMs, unknownItemCompletedAtMs) == 1,
+                   "an unknown item with common metadata coalesces into one canonical completed frontend item update");
+            const auto userMessageUpdate = std::find_if(receivedA.begin(), receivedA.end(), [&](const frontend::FrontendEvent& event) {
+                return isCompletedItemUpdate(event, userMessageItemId, "user_message", userMessageStartedAtMs, userMessageCompletedAtMs);
+            });
+            const Json userMessageItem =
+                userMessageUpdate == receivedA.end() ? Json::object() : userMessageUpdate->data.value("item", Json::object());
+            const Json userMessageData = userMessageItem.is_object() ? userMessageItem.value("data", Json::object()) : Json::object();
+            const Json retainedUserMessageContent = userMessageData.value("content", Json::object());
+            bool userMessagePrefixPreserved = retainedUserMessageContent.is_array() && !retainedUserMessageContent.empty() &&
+                                              retainedUserMessageContent.size() < userMessageContent.size();
+            if (retainedUserMessageContent.is_array()) {
+                for (std::size_t index = 0; index < retainedUserMessageContent.size(); ++index) {
+                    userMessagePrefixPreserved = userMessagePrefixPreserved &&
+                                                 retainedUserMessageContent[index] == userMessageContent[index] &&
+                                                 retainedUserMessageContent[index].dump() == userMessageContent[index].dump();
+                }
+            }
+            const bool userMessageDataPreserved =
+                userMessageData.is_object() && userMessageData.contains("clientId") && userMessageData.at("clientId").is_null() &&
+                userMessageContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && userMessagePrefixPreserved &&
+                userMessageData.value("contentTruncated", false) &&
+                userMessageData.value("originalContentBytes", std::uint64_t{0}) == userMessageContent.dump().size() &&
+                userMessageData.value("retainedContentBytes", std::uint64_t{0}) == retainedUserMessageContent.dump().size() &&
+                userMessageData.value("originalContentItems", std::uint64_t{0}) == userMessageContent.size() &&
+                userMessageData.value("retainedContentItems", std::uint64_t{0}) == retainedUserMessageContent.size() &&
+                userMessageData.dump().size() <= backend::MaxSerializedUserMessageDataBytes &&
+                !userMessageItem.value("contentTruncated", true) && userMessageItem.value("droppedContentBytes", std::uint64_t{1}) == 0;
+            expect(userMessageDataPreserved,
+                   "Decoder through BackendAdapter preserves a bounded array prefix and independent user-message truncation metadata");
+            const auto unknownUpdate = std::find_if(receivedA.begin(), receivedA.end(), [&](const frontend::FrontendEvent& event) {
+                return isCompletedItemUpdate(event, unknownItemId, unknownItemType, unknownItemStartedAtMs, unknownItemCompletedAtMs);
+            });
+            const Json unknownData =
+                unknownUpdate == receivedA.end() ? Json::object() : unknownUpdate->data.at("item").value("data", Json::object());
+            expect(unknownData.is_object() && unknownData.value("codexType", "") == unknownItemType,
+                   "the canonical frontend unknown item preserves its future discriminator");
+
+            const bool hasItemLifecycleExtension =
+                std::any_of(receivedA.begin(), receivedA.end(), [](const frontend::FrontendEvent& event) {
+                    if (event.type != "codex.extension") {
+                        return false;
+                    }
+                    const std::string method = event.data.value("method", "");
+                    const std::string decodingError = event.data.value("decodingError", "");
+                    return method == "item/started" || method == "item/completed" ||
+                           decodingError.find("item event omitted threadId or turnId") != std::string::npos;
+                });
+            expect(!hasItemLifecycleExtension,
+                   "valid userMessage and unknown item lifecycle events never become location-error codex.extension events");
+
             adapter->close("burst test complete");
             backendCore->stop();
             waitUntil(
@@ -851,6 +972,25 @@ namespace {
         const std::string threadId = "thread-burst";
         const std::string turnId = "turn-burst";
         const std::string itemId = "item-burst";
+        const std::string userMessageItemId = "user-message-burst";
+        const Json userMessageContent = []() {
+            Json content =
+                Json::array({Json{{"type", "futureContent"},
+                                  {"payload", Json{{"preserved", true}, {"nested", Json::array({1, Json{{"future", "value"}}})}}}}});
+            for (std::size_t index = 0; index < 8; ++index) {
+                content.push_back(Json{{"type", "futureLargeContent"},
+                                       {"index", index},
+                                       {"payload", std::string(12U * 1024U, static_cast<char>('a' + index))},
+                                       {"future", Json{{"nested", index}, {"preserved", true}}}});
+            }
+            return content;
+        }();
+        static constexpr std::int64_t userMessageStartedAtMs = 30;
+        static constexpr std::int64_t userMessageCompletedAtMs = 40;
+        const std::string unknownItemId = "unknown-item-burst";
+        const std::string unknownItemType = "futureAdapterItem";
+        static constexpr std::int64_t unknownItemStartedAtMs = 50;
+        static constexpr std::int64_t unknownItemCompletedAtMs = 60;
 
         tests::support::TestResult& result;
         std::shared_ptr<tests::codex::FakeTransportState> transport;

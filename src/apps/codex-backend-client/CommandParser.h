@@ -11,8 +11,11 @@
 #include "ai/openai/codex/frontend/Messages.h"
 
 #include <cstdint>
+#include <iterator>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 
 namespace apps::codex_backend_client {
@@ -41,13 +44,22 @@ namespace apps::codex_backend_client {
         bool operator==(const SendCommand&) const = default;
     };
 
+    struct NewCommand {
+        std::string threadStartRequestId;
+        std::string turnStartRequestId;
+        ai::openai::codex::frontend::ThreadStart options;
+        std::string prompt;
+
+        bool operator==(const NewCommand&) const = default;
+    };
+
     struct CommandParseError {
         std::string message;
 
         bool operator==(const CommandParseError&) const = default;
     };
 
-    using ParsedCommand = std::variant<NoopCommand, HelpCommand, QuitCommand, WatchCommand, SendCommand, CommandParseError>;
+    using ParsedCommand = std::variant<NoopCommand, HelpCommand, QuitCommand, WatchCommand, SendCommand, NewCommand, CommandParseError>;
 
     class CommandParser {
     public:
@@ -58,6 +70,7 @@ namespace apps::codex_backend_client {
 
     private:
         [[nodiscard]] std::string allocateRequestId();
+        [[nodiscard]] std::optional<std::pair<std::string, std::string>> allocateRequestIdPair();
 
         std::string requestIdPrefix;
         std::uint64_t nextRequestId = 1;

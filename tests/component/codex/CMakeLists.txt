@@ -175,6 +175,21 @@ if(TARGET codex-backend-client-support)
     )
 
     snodec_add_test(
+        CodexBackendClientPresenterTest CodexBackendClientPresenterTest.cpp
+    )
+    target_link_libraries(
+        CodexBackendClientPresenterTest PRIVATE snodec-test-support
+                                                codex-backend-client-support
+    )
+    target_compile_features(CodexBackendClientPresenterTest PRIVATE cxx_std_20)
+    set_tests_properties(
+        CodexBackendClientPresenterTest
+        PROPERTIES LABELS
+                   "component;ai;openai;codex;frontend;client;presentation"
+                   SKIP_RETURN_CODE 77 TIMEOUT 5
+    )
+
+    snodec_add_test(
         CodexBackendClientJsonLineFramerTest
         CodexBackendClientJsonLineFramerTest.cpp
     )
@@ -247,10 +262,28 @@ if(TARGET codex-backend-client-support)
             PROPERTIES
                 LABELS
                 "component;ai;openai;codex;frontend;backend;client;unix;acceptance;interactive"
+                ENVIRONMENT
+                "SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO=interactive"
                 SKIP_RETURN_CODE
                 77
                 TIMEOUT
-                15
+                20
+        )
+        add_test(
+            NAME CodexBackendClientThreadWorkflowAcceptanceTest
+            COMMAND CodexBackendClientRealBackendAcceptanceTest
+        )
+        set_tests_properties(
+            CodexBackendClientThreadWorkflowAcceptanceTest
+            PROPERTIES
+                LABELS
+                "component;ai;openai;codex;frontend;backend;client;unix;acceptance;thread-workflow"
+                ENVIRONMENT
+                "SNODEC_CODEX_CLIENT_ACCEPTANCE_SCENARIO=thread-workflow"
+                SKIP_RETURN_CODE
+                77
+                TIMEOUT
+                20
         )
     endif()
 endif()

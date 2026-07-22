@@ -31,6 +31,12 @@ namespace ai::openai::codex::typed {
         std::optional<std::string> phase;
     };
 
+    struct UserMessageItem {
+        ItemMetadata metadata;
+        std::optional<std::string> clientId;
+        Json content = Json::array();
+    };
+
     struct ReasoningItem {
         ItemMetadata metadata;
         std::vector<std::string> summary;
@@ -73,14 +79,27 @@ namespace ai::openai::codex::typed {
         Json action = nullptr;
     };
 
+    struct UnknownItemMetadata {
+        std::optional<ItemId> id;
+        std::optional<ThreadId> threadId;
+        std::optional<TurnId> turnId;
+    };
+
     struct UnknownItem {
         std::optional<std::string> type;
         Json raw;
         std::optional<std::string> decodingError;
+        UnknownItemMetadata metadata = {};
     };
 
-    using Item =
-        std::variant<AgentMessageItem, ReasoningItem, CommandExecutionItem, FileChangeItem, ToolCallItem, WebSearchItem, UnknownItem>;
+    using Item = std::variant<AgentMessageItem,
+                              ReasoningItem,
+                              CommandExecutionItem,
+                              FileChangeItem,
+                              ToolCallItem,
+                              WebSearchItem,
+                              UnknownItem,
+                              UserMessageItem>;
 
 } // namespace ai::openai::codex::typed
 

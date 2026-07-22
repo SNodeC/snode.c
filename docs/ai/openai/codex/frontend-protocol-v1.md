@@ -269,7 +269,7 @@ Its deterministic `state` contains:
 - each item's lifecycle plus complete currently retained `agentText`,
   `reasoningText`, `reasoningSummary`, and `commandOutput`;
 - `contentTruncated` and `droppedContentBytes` when the backend's configurable
-  accumulated-content bound discarded an old prefix;
+  accumulated-visible-content bound discarded an old prefix;
 - pending request summaries, controller ownership, and connected sessions;
 - thread-list completeness, loaded-page count, and available cursors; and
 - frontend journal `oldestReplayableAfter`, `currentSequence`, and optional
@@ -279,9 +279,28 @@ Lifecycle strings are `stopped`, `starting`, `initializing`, `ready`,
 `stopping`, and `failed`. Session roles are `observer` and `controller`. Item
 status is `unknown`, `started`, `completed`, or `failed`; turn status remains a
 stable Codex status string with independent `active` and `terminal` Booleans.
-Known item `type` strings are `agent_message`, `reasoning`,
+Known item `type` strings are `user_message`, `agent_message`, `reasoning`,
 `command_execution`, `file_change`, `tool_call`, and `web_search`; a future
-unknown item retains its provided Codex type or uses `unknown`.
+unknown item retains its provided Codex type or uses `unknown`. A user-message
+item's normalized `data` is an object with a nullable string `clientId` and a
+`content` array. The typed layer retains the complete opaque App Server content
+array, while a snapshot or `item.updated` event retains an ordered prefix of
+complete entries whose complete normalized `data` serialization is at most
+65,536 bytes. Retained entries remain exact JSON values, including unknown
+future content-entry variants; no partial JSON serialization is exposed as an
+entry.
+
+User-message `data` also contains `contentTruncated`,
+`originalContentBytes`, `retainedContentBytes`, `originalContentItems`, and
+`retainedContentItems`. The byte counts are the compact serialized sizes of
+the original and retained content arrays, including their array delimiters;
+an empty retained array is therefore two bytes. The item counts report the
+corresponding array lengths. If even the first entry cannot fit with the
+client ID and metadata, `content` is empty and `contentTruncated` is true.
+These user-message fields describe normalized payload truncation. They do not
+change the top-level item `contentTruncated` and `droppedContentBytes`, which
+continue to describe old prefixes discarded from accumulated visible text and
+command-output channels.
 
 Snapshots do not contain callbacks, pointers, internal request-occurrence
 tokens, App Server client request IDs, authentication access tokens, or secret

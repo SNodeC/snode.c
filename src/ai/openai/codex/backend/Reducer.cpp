@@ -139,13 +139,17 @@ namespace ai::openai::codex::backend {
                 [](const auto& value) -> std::optional<std::pair<typed::ThreadId, typed::TurnId>> {
                     using Value = std::decay_t<decltype(value)>;
                     if constexpr (std::is_same_v<Value, typed::UnknownItem>) {
-                        return std::nullopt;
-                    } else {
-                        if (value.metadata.threadId && value.metadata.turnId) {
+                        if (value.metadata.threadId && !value.metadata.threadId->value.empty() && value.metadata.turnId &&
+                            !value.metadata.turnId->value.empty()) {
                             return std::pair{*value.metadata.threadId, *value.metadata.turnId};
                         }
-                        return std::nullopt;
+                    } else {
+                        if (value.metadata.threadId && !value.metadata.threadId->value.empty() && value.metadata.turnId &&
+                            !value.metadata.turnId->value.empty()) {
+                            return std::pair{*value.metadata.threadId, *value.metadata.turnId};
+                        }
                     }
+                    return std::nullopt;
                 },
                 item);
         }
@@ -179,10 +183,12 @@ namespace ai::openai::codex::backend {
             } else {
                 ItemState& itemState = iterator->second;
                 itemState.item = item;
-                itemState.lifecycle = lifecycle;
-                if (lifecycle == ItemLifecycle::Started) {
+                if (lifecycle != ItemLifecycle::Unknown || itemState.lifecycle == ItemLifecycle::Unknown) {
+                    itemState.lifecycle = lifecycle;
+                }
+                if (lifecycle == ItemLifecycle::Started && occurredAtMs) {
                     itemState.startedAtMs = occurredAtMs;
-                } else if (lifecycle == ItemLifecycle::Completed) {
+                } else if (lifecycle == ItemLifecycle::Completed && occurredAtMs) {
                     itemState.completedAtMs = occurredAtMs;
                 }
                 initializeVisibleContent(itemState, lifecycle == ItemLifecycle::Completed, contentLimit);
@@ -400,6 +406,7 @@ namespace ai::openai::codex::backend {
                         typed::UnknownItem placeholder;
                         placeholder.type = "backend.delta-placeholder";
                         placeholder.raw = Json::object({{"id", value.itemId.value}, {"backendPlaceholder", true}});
+                        placeholder.metadata = {value.itemId, value.threadId, value.turnId};
                         upsertItem(state,
                                    value.threadId,
                                    value.turnId,
@@ -432,6 +439,7 @@ namespace ai::openai::codex::backend {
                         typed::UnknownItem placeholder;
                         placeholder.type = "fileChange";
                         placeholder.raw = Json::object({{"id", value.itemId.value}, {"changes", value.changes}});
+                        placeholder.metadata = {value.itemId, value.threadId, value.turnId};
                         upsertItem(state,
                                    value.threadId,
                                    value.turnId,
