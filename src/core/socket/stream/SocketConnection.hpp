@@ -40,6 +40,7 @@
  */
 
 #include "SemanticLog.h"
+#include "core/Shutdown.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 
@@ -245,7 +246,7 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::shutdownWrite() {
         if (!SocketWriter::shutdownInProgress) {
-            this->log().trace("Stop writing");
+            Super::log().trace("Stop writing");
 
             SocketWriter::shutdownWrite([this]() {
                 if (SocketWriter::isEnabled()) {
@@ -294,18 +295,34 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::doWriteShutdown(const std::function<void()>& onShutdown) {
         errno = 0;
 
-        setTimeout(SocketWriter::terminateTimeout);
+        SocketReader::setTimeout(SocketReader::terminateTimeout);
+        SocketWriter::setTimeout(SocketWriter::terminateTimeout);
 
-        this->log().trace("Shutdown (WR)");
+        Super::log().trace("Shutdown (WR)");
 
         if (physicalSocket.shutdown(PhysicalSocket::SHUT::WR) == 0) {
-            this->log().debug("Shutdown (WR): success");
+            Super::log().debug("Shutdown (WR): success");
         } else {
             const int errnum = errno;
-            this->log().sysError(logger::LogLevel::Error, errnum, "Shutdown (WR)");
+            Super::log().sysError(logger::LogLevel::Error, errnum, "Shutdown (WR)");
         }
 
         onShutdown();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onShutdown(const core::ShutdownContext& context) {
+        if (frameworkShutdownProcessed) {
+            return;
+        }
+        frameworkShutdownProcessed = true;
+
+        if (context.reason == core::ShutdownReason::Signal) {
+            const bool signalHandled = SocketConnectionT::onSignal(context.signal);
+            static_cast<void>(signalHandled);
+        }
+
+        SocketConnectionT::shutdownWrite();
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -351,16 +368,16 @@ namespace core::socket::stream {
             case SIGABRT:
                 [[fallthrough]];
             case SIGHUP:
-                this->log().debug("Shutting down due to signal '{}' (SIG{} [{}])",
-                                  utils::system::strsignal(signum),
-                                  utils::system::sigabbrev_np(signum),
-                                  signum);
+                Super::log().debug("Shutting down due to signal '{}' (SIG{} [{}])",
+                                   utils::system::strsignal(signum),
+                                   utils::system::sigabbrev_np(signum),
+                                   signum);
                 break;
             case SIGALRM:
                 break;
         }
 
-        return socketContext != nullptr ? socketContext->onSignal(signum) : true;
+        return Super::socketContext != nullptr ? Super::socketContext->onSignal(signum) : true;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -377,13 +394,18 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
-        if (socketContext != nullptr) {
-            socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+        SocketContext* const pendingSocketContext = std::exchange(Super::newSocketContext, nullptr);
+
+        if (Super::socketContext != nullptr) {
+            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+            Super::socketContext = nullptr;
         }
+        delete pendingSocketContext;
+        delete std::exchange(Super::newSocketContext, nullptr);
 
         onDisconnect();
 
-        this->log().debug("disconnected");
+        Super::log().debug("disconnected");
 
         delete this;
     }

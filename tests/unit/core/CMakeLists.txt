@@ -79,3 +79,44 @@ snodec_add_test(TLSLifecycleAbiSourceCompatibilityTest TLSLifecycleAbiSourceComp
 target_link_libraries(TLSLifecycleAbiSourceCompatibilityTest PRIVATE snodec::core-socket-stream-tls)
 target_compile_features(TLSLifecycleAbiSourceCompatibilityTest PRIVATE cxx_std_20)
 set_tests_properties(TLSLifecycleAbiSourceCompatibilityTest PROPERTIES LABELS "unit;core;tls;abi" TIMEOUT 5)
+
+add_executable(StreamFrameworkShutdownTest StreamFrameworkShutdownTest.cpp)
+target_include_directories(StreamFrameworkShutdownTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
+target_link_libraries(StreamFrameworkShutdownTest PRIVATE snodec-test-support snodec::core-socket-stream snodec::net)
+target_compile_features(StreamFrameworkShutdownTest PRIVATE cxx_std_20)
+target_compile_definitions(StreamFrameworkShutdownTest PRIVATE SNODEC_BUILD_TESTS)
+
+foreach(scenario
+        plain_requested_empty
+        plain_requested_queued
+        plain_signal_false_veto
+        plain_no_observer
+        plain_noncooperating_timeout
+        destruction_logging_order)
+    add_test(NAME StreamFrameworkShutdown_${scenario} COMMAND StreamFrameworkShutdownTest ${scenario})
+    set_tests_properties(
+        StreamFrameworkShutdown_${scenario}
+        PROPERTIES LABELS "unit;core;stream;lifecycle;shutdown" TIMEOUT 8)
+endforeach()
+
+add_executable(TLSFrameworkShutdownTest TLSFrameworkShutdownTest.cpp)
+target_include_directories(TLSFrameworkShutdownTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    TLSFrameworkShutdownTest
+    PRIVATE snodec-test-support snodec::core-socket-stream-tls snodec::net)
+target_compile_features(TLSFrameworkShutdownTest PRIVATE cxx_std_20)
+target_compile_definitions(TLSFrameworkShutdownTest PRIVATE SNODEC_BUILD_TESTS)
+
+foreach(scenario
+        active_helper_requested
+        active_helper_no_observer
+        publisher_mutation_same_list
+        publisher_mutation_cross_publisher
+        signal_false_tls
+        outer_timeout_long
+        outer_timeout_multiple)
+    add_test(NAME TLSFrameworkShutdown_${scenario} COMMAND TLSFrameworkShutdownTest ${scenario})
+    set_tests_properties(
+        TLSFrameworkShutdown_${scenario}
+        PROPERTIES LABELS "unit;core;stream;tls;lifecycle;shutdown" TIMEOUT 8)
+endforeach()

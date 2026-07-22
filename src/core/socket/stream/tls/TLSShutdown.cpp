@@ -467,6 +467,9 @@ namespace core::socket::stream::tls {
     void TLSShutdown::signalEvent([[maybe_unused]] int signum) { // Do nothing on signal event
     }
 
+    void TLSShutdown::onShutdown([[maybe_unused]] const core::ShutdownContext& context) {
+    }
+
     void TLSShutdown::unobservedEvent() {
         notifyReleased();
         delete this;
