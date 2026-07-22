@@ -320,8 +320,7 @@ namespace core::socket::stream {
         frameworkShutdownProcessed = true;
 
         if (context.reason == core::ShutdownReason::Signal) {
-            const bool signalHandled = SocketConnectionT::onSignal(context.signal);
-            static_cast<void>(signalHandled);
+            static_cast<void>(SocketConnectionT::onSignal(context.signal));
         }
 
         SocketConnectionT::shutdownWrite();
@@ -381,7 +380,7 @@ namespace core::socket::stream {
                 break;
         }
 
-        return Super::socketContext != nullptr ? Super::socketContext->onSignal(signum) : true;
+        return socketContext != nullptr ? socketContext->onSignal(signum) : true;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -400,18 +399,18 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
         // Cancel a context switch that was already pending when the
         // connection entered final teardown.
-        delete std::exchange(Super::newSocketContext, nullptr);
+        delete std::exchange(newSocketContext, nullptr);
 
-        if (Super::socketContext != nullptr) {
-            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+        if (socketContext != nullptr) {
+            socketContext->detach(SocketContext::DetachReason::ConnectionClose);
 
             // detach() destroys the active SocketContext.
-            Super::socketContext = nullptr;
+            socketContext = nullptr;
         }
 
         // onDisconnected() may have requested another context switch while
         // the active context was still alive.
-        delete std::exchange(Super::newSocketContext, nullptr);
+        delete std::exchange(newSocketContext, nullptr);
 
         onDisconnect();
 

@@ -112,7 +112,7 @@ int main() {
                           socketConnectionPath);
 
     ok &= requireContains(socketConnection,
-                          "Super::socketContext->detach("
+                          "socketContext->detach("
                           "SocketContext::DetachReason::ConnectionClose);",
                           socketConnectionPath);
 
@@ -141,12 +141,12 @@ int main() {
 
     ok &= requireOrdered(closeBlock,
                          {"delete std::exchange("
-                          "Super::newSocketContext, nullptr);",
-                          "Super::socketContext->detach("
+                          "newSocketContext, nullptr);",
+                          "socketContext->detach("
                           "SocketContext::DetachReason::ConnectionClose);",
-                          "Super::socketContext = nullptr;",
+                          "socketContext = nullptr;",
                           "delete std::exchange("
-                          "Super::newSocketContext, nullptr);",
+                          "newSocketContext, nullptr);",
                           "onDisconnect();"},
                          socketConnectionPath);
 

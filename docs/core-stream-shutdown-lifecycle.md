@@ -44,16 +44,14 @@ arrived.
 Signal-triggered framework shutdown still calls the existing `SocketContext`
 signal callback exactly once and leaves its `bool` signature unchanged. Before
 this policy, `false` prevented `SocketWriter` from starting graceful shutdown.
-While the EventLoop is `STOPPING`, `false` is now retained as an observable
-callback result but cannot veto framework transport cleanup: the common bounded
+During coordinated framework shutdown, the callback result is intentionally
+ignored and cannot veto framework transport cleanup: the common bounded
 shutdown path proceeds.
 
-This change is deliberately limited to framework shutdown. The existing
-`SocketWriter::signalEvent()` behavior remains unchanged for any independent
-signal dispatch outside EventLoop shutdown. The current source has no such
-ordinary non-`STOPPING` dispatch path: `signalEvent()` is reached through
-`DescriptorEventReceiver::onShutdown()`, after `EventLoop::free()` has entered
-`STOPPING`. No synthetic signal path is introduced by this change.
+The current source has no independent non-`STOPPING` signal-dispatch path for
+an established stream connection. Removing the obsolete writer-specific signal
+override therefore does not change any reachable ordinary signal behavior, and
+no synthetic signal path is introduced.
 
 ## TLS helper coordination
 

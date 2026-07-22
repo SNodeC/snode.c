@@ -81,7 +81,6 @@ namespace core::socket::stream {
 
     private:
         void writeEvent() final;
-        void signalEvent(int sigNum) final;
 
         void doWrite();
 
