@@ -49,6 +49,10 @@ namespace net::config {
     class ConfigSection;
 }
 
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -109,6 +113,7 @@ namespace net::config {
         std::function<void(ConfigInstance*)> onDestroy;
 
         friend class net::config::ConfigSection;
+        friend class core::socket::stream::SocketConnection;
     };
 
 } // namespace net::config

@@ -44,6 +44,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
+#include "log/Logger.h"
 #include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
 #include "support/TestResult.h"
@@ -53,6 +54,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -122,7 +127,21 @@ int main(int argc, char* argv[]) {
     } else {
         TestState testState;
 
-        core::SNodeC::init(argc, argv);
+        const auto logPath = std::filesystem::temp_directory_path() / "snodec-phase2-ipv4-attempt-failure.jsonl";
+        std::error_code removeError;
+        std::filesystem::remove(logPath, removeError);
+        logger::Logger::init();
+        logger::LogManager::init();
+        logger::Logger::setQuiet(true);
+        logger::Logger::setDisableColor(true);
+        logger::Logger::logToFile(logPath.string());
+
+        char arg0[] = "InetLegacyClientConnectFailureTest";
+        char arg1[] = "--log-level=6";
+        char arg2[] = "--log-format=json";
+        char arg3[] = "--quiet";
+        char* logArgs[] = {arg0, arg1, arg2, arg3, nullptr};
+        core::SNodeC::init(4, logArgs);
 
         net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv4-connect-failure-client", testState);
 
@@ -150,9 +169,42 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(0, testState.clientConnectedCount, "client socket context never reaches onConnected");
         testResult.expectEqual(0, testState.unexpectedStateCount, "connect callback reports no unexpected states");
 
-        result = testResult.processResult();
-
         core::SNodeC::free();
+        logger::Logger::disableLogToFile();
+
+        int attemptStarted = 0;
+        int attemptFailed = 0;
+        int attemptTimedOut = 0;
+        int transportDisconnected = 0;
+        std::ifstream input(logPath);
+        std::string line;
+        while (std::getline(input, line)) {
+            if (line.empty()) {
+                continue;
+            }
+            const auto record = nlohmann::json::parse(line);
+            const std::string message = record.at("message").get<std::string>();
+            if (message == "connection attempt started" || message == "connection attempt failed") {
+                testResult.expectTrue(record.at("level") == "debug" && record.at("origin") == "framework" &&
+                                          record.at("boundary") == "instance" && record.at("component") == "core.socket.stream" &&
+                                          record.at("instance") == "ipv4-connect-failure-client" && record.at("role") == "client" &&
+                                          !record.contains("connection"),
+                                      message + " carries client endpoint identity at Debug");
+            }
+            attemptStarted += message == "connection attempt started" ? 1 : 0;
+            attemptFailed += message == "connection attempt failed" ? 1 : 0;
+            attemptTimedOut += message == "connection attempt timed out" ? 1 : 0;
+            transportDisconnected += message == "transport disconnected" ? 1 : 0;
+        }
+
+        testResult.expectEqual(1, attemptStarted, "failed connection emits one attempt start");
+        testResult.expectEqual(1, attemptFailed, "failed connection emits one terminal failure");
+        testResult.expectEqual(0, attemptTimedOut, "failed connection does not also time out");
+        testResult.expectEqual(0, transportDisconnected, "failed connection attempt emits no fictional transport disconnect");
+
+        logger::Logger::init();
+        logger::LogManager::init();
+        result = testResult.processResult();
     }
 
     return result;

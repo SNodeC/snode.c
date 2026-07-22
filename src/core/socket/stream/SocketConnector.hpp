@@ -91,7 +91,8 @@ namespace core::socket::stream {
         , onStatus(socketConnector.onStatus)
         , allocateConnectionId(socketConnector.allocateConnectionId)
         , logScope(socketConnector.logScope)
-        , config(socketConnector.config) {
+        , config(socketConnector.config)
+        , attemptActive(false) {
     }
 
     template <typename PhysicalSocketClient,
@@ -105,6 +106,7 @@ namespace core::socket::stream {
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::init() {
         if (!config->getDisabled()) {
+            startAttempt();
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
@@ -132,7 +134,7 @@ namespace core::socket::stream {
                                 break;
                         }
 
-                        onStatus(configuredLocalAddress, state);
+                        finishAttempt("connection attempt failed", configuredLocalAddress, state);
                     } else {
                         snode::semantic::coreSocketLog().trace()
                             << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
@@ -151,7 +153,7 @@ namespace core::socket::stream {
                                     break;
                             }
 
-                            onStatus(configuredLocalAddress, state);
+                            finishAttempt("connection attempt failed", configuredLocalAddress, state);
                         } else {
                             const std::string configuredLocalAddressString = configuredLocalAddress.toString();
                             const std::string effectiveBindAddressString = physicalClientSocket.getBindAddress().toString();
@@ -184,14 +186,14 @@ namespace core::socket::stream {
 
                                 SocketAddress currentRemoteAddress = remoteAddress;
                                 if (remoteAddress.useNext()) {
-                                    onStatus(currentRemoteAddress, state | core::socket::State::NO_RETRY);
+                                    finishAttempt("connection attempt failed", currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
                                     snode::semantic::coreSocketLog().info()
                                         << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
                                 } else {
-                                    onStatus(currentRemoteAddress, state);
+                                    finishAttempt("connection attempt failed", currentRemoteAddress, state);
                                 }
                             } else {
                                 snode::semantic::coreSocketLog().trace()
@@ -208,7 +210,7 @@ namespace core::socket::stream {
 
                                         state = core::socket::STATE(core::socket::STATE_FATAL, ECANCELED, "SocketConnector not enabled");
 
-                                        onStatus(remoteAddress, state);
+                                        finishAttempt("connection attempt failed", remoteAddress, state);
                                     }
                                 } else {
                                     SocketConnection* socketConnection =
@@ -219,7 +221,9 @@ namespace core::socket::stream {
                                     snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getLocalAddress().toString()
                                                                              << " -> " << socketConnection->getRemoteAddress().toString();
 
-                                    onStatus(remoteAddress, state);
+                                    finishAttempt("connection attempt succeeded", remoteAddress, state);
+
+                                    socketConnection->log().info("transport connected");
 
                                     onConnect(socketConnection);
                                     onConnected(socketConnection);
@@ -233,7 +237,7 @@ namespace core::socket::stream {
 
                     snode::semantic::coreSocketLog().error() << state.what();
 
-                    onStatus({}, state);
+                    finishAttempt("connection attempt failed", {}, state);
                 }
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
                 core::socket::State state =
@@ -241,7 +245,7 @@ namespace core::socket::stream {
 
                 snode::semantic::coreSocketLog().error() << state.what();
 
-                onStatus({}, state);
+                finishAttempt("connection attempt failed", {}, state);
             }
         } else {
             snode::semantic::coreSocketLog().debug() << config->getInstanceName() << ": disabled";
@@ -275,7 +279,9 @@ namespace core::socket::stream {
                 snode::semantic::coreSocketLog().debug()
                     << "  " << socketConnection->getLocalAddress().toString() << " -> " << socketConnection->getRemoteAddress().toString();
 
-                onStatus(remoteAddress, core::socket::STATE_OK);
+                finishAttempt("connection attempt succeeded", remoteAddress, core::socket::STATE_OK);
+
+                socketConnection->log().info("transport connected");
 
                 onConnect(socketConnection);
                 onConnected(socketConnection);
@@ -307,7 +313,7 @@ namespace core::socket::stream {
                     snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                         << config->getInstanceName() << " connect '" << remoteAddress.toString();
 
-                    onStatus(currentRemoteAddress, (state | core::socket::State::NO_RETRY));
+                    finishAttempt("connection attempt failed", currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
                     snode::semantic::coreSocketLog().debug()
                         << config->getInstanceName() << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
@@ -319,7 +325,7 @@ namespace core::socket::stream {
                     snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                         << config->getInstanceName() << " connect " << remoteAddress.toString();
 
-                    onStatus(currentRemoteAddress, state);
+                    finishAttempt("connection attempt failed", currentRemoteAddress, state);
 
                     disable();
                 }
@@ -329,7 +335,7 @@ namespace core::socket::stream {
             snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
                 << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
 
-            onStatus(remoteAddress, core::socket::STATE_FATAL);
+            finishAttempt("connection attempt failed", remoteAddress, core::socket::STATE_FATAL);
             disable();
         }
     }
@@ -349,6 +355,7 @@ namespace core::socket::stream {
 
         SocketAddress currentRemoteAddress = remoteAddress;
         if (remoteAddress.useNext()) {
+            finishAttempt("connection attempt timed out");
             snode::semantic::coreSocketLog().debug()
                 << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString() << "'";
 
@@ -358,7 +365,7 @@ namespace core::socket::stream {
                 << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
             errno = ETIMEDOUT;
 
-            onStatus(currentRemoteAddress, core::socket::STATE_ERROR);
+            finishAttempt("connection attempt timed out", currentRemoteAddress, core::socket::STATE_ERROR);
         }
 
         core::eventreceiver::ConnectEventReceiver::connectTimeout();
@@ -368,11 +375,44 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::destruct() {
+        finishAttempt("connection attempt cancelled");
+
         if (!config->getDisabled()) {
             onInitState(this);
         }
 
         delete this;
+    }
+
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::startAttempt() {
+        if (!attemptActive) {
+            attemptActive = true;
+            log().debug("connection attempt started");
+        }
+    }
+
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::finishAttempt(const char* outcome) {
+        if (std::exchange(attemptActive, false)) {
+            log().debug(outcome);
+        }
+    }
+
+    template <typename PhysicalSocketClient,
+              typename Config,
+              template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
+    void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::finishAttempt(const char* outcome,
+                                                                                        const SocketAddress& socketAddress,
+                                                                                        core::socket::State state) {
+        if (std::exchange(attemptActive, false)) {
+            log().debug(outcome);
+            onStatus(socketAddress, state);
+        }
     }
 
 } // namespace core::socket::stream

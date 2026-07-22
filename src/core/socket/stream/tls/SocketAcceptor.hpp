@@ -83,6 +83,7 @@ namespace core::socket::stream::tls {
                            socketConnection,
                            log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onSuccess
                               log.debug("SSL/TLS: Handshake success");
+                              log.info("transport ready");
 
                               onConnected(socketConnection);
 
@@ -148,6 +149,7 @@ namespace core::socket::stream::tls {
                 Super::init();
             } else {
                 this->log().error("SSL/TLS: SSL/TLS creation failed");
+                this->log().debug("listener start failed");
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::STATE_ERROR);
                 Super::destruct();

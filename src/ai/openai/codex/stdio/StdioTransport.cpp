@@ -305,14 +305,14 @@ namespace ai::openai::codex::stdio::detail {
 
         void start() {
             if (core::SNodeC::state() == core::State::STOPPING) {
-                reportError({Error::Category::Launch, ECANCELED, "codex app-server launch rejected during event-loop shutdown"});
+                reportStartError({Error::Category::Launch, ECANCELED, "codex app-server launch rejected during event-loop shutdown"});
                 return;
             }
 
             StandardDescriptorReservations standardDescriptors;
             if (!standardDescriptors.isValid()) {
                 const int errnum = standardDescriptors.getError();
-                reportError({Error::Category::Launch, errnum, errorText("unable to reserve standard descriptors", errnum)});
+                reportStartError({Error::Category::Launch, errnum, errorText("unable to reserve standard descriptors", errnum)});
                 return;
             }
 
@@ -329,7 +329,7 @@ namespace ai::openai::codex::stdio::detail {
                 const int errnum = !completePipe(stdinPipe)    ? stdinPipe.getError()
                                    : !completePipe(stdoutPipe) ? stdoutPipe.getError()
                                                                : stderrPipe.getError();
-                reportError({Error::Category::Launch, errnum, errorText("unable to create app-server pipes", errnum)});
+                reportStartError({Error::Category::Launch, errnum, errorText("unable to create app-server pipes", errnum)});
                 return;
             }
 
@@ -338,14 +338,14 @@ namespace ai::openai::codex::stdio::detail {
             };
             if (!endpointsAreAboveStandardDescriptors(stdinPipe) || !endpointsAreAboveStandardDescriptors(stdoutPipe) ||
                 !endpointsAreAboveStandardDescriptors(stderrPipe)) {
-                reportError({Error::Category::Launch, EINVAL, "app-server pipe endpoint collided with a standard descriptor"});
+                reportStartError({Error::Category::Launch, EINVAL, "app-server pipe endpoint collided with a standard descriptor"});
                 return;
             }
 
             posix_spawn_file_actions_t fileActions{};
             const int actionsInitResult = posix_spawn_file_actions_init(&fileActions);
             if (actionsInitResult != 0) {
-                reportError(
+                reportStartError(
                     {Error::Category::Launch, actionsInitResult, errorText("posix_spawn_file_actions_init failed", actionsInitResult)});
                 return;
             }
@@ -409,12 +409,14 @@ namespace ai::openai::codex::stdio::detail {
             }
 
             pid_t spawnedPid = -1;
+            bool spawnDispatched = false;
             if (setupResult == 0 && core::SNodeC::state() == core::State::STOPPING) {
                 setupResult = ECANCELED;
             }
             if (setupResult == 0) {
                 try {
                     std::vector<char*> argv = buildArgv(executable, arguments);
+                    spawnDispatched = true;
                     setupResult = posix_spawnp(&spawnedPid, executable.c_str(), &fileActions, &attributes, argv.data(), environ);
                 } catch (...) {
                     setupResult = ENOMEM;
@@ -428,15 +430,20 @@ namespace ai::openai::codex::stdio::detail {
 
             if (setupResult != 0) {
                 detachExitObservers();
+                if (spawnDispatched) {
+                    logScope.logger(logger::Logger::semanticSink()).debug("child process spawn failed");
+                }
                 if (!observerSetupError.empty()) {
-                    reportError({Error::Category::Launch, setupResult, std::move(observerSetupError)});
+                    reportStartError({Error::Category::Launch, setupResult, std::move(observerSetupError)});
                 } else {
-                    reportError({Error::Category::Launch, setupResult, errorText("unable to launch codex app-server", setupResult)});
+                    reportStartError({Error::Category::Launch, setupResult, errorText("unable to launch codex app-server", setupResult)});
                 }
                 return;
             }
 
             childPid = spawnedPid;
+            logScope.logger(logger::Logger::semanticSink()).info("child process spawned");
+            logScope.logger(logger::Logger::semanticSink()).trace("child process pid={}", childPid);
             try {
                 selfKeepAlive = shared_from_this();
 
@@ -540,7 +547,8 @@ namespace ai::openai::codex::stdio::detail {
                     }
                 });
 
-                logScope.logger(logger::Logger::semanticSink()).trace("Spawned codex app-server: pid={}", childPid);
+                transportStarted = true;
+                logScope.logger(logger::Logger::semanticSink()).info("stdio transport started");
                 const std::function<void()> callback = callbacks.onStarted;
                 if (callback) {
                     callback();
@@ -630,9 +638,18 @@ namespace ai::openai::codex::stdio::detail {
                 if (WIFEXITED(status)) {
                     exitStatus.exited = true;
                     exitStatus.exitCode = WEXITSTATUS(status);
+                    logScope.logger(logger::Logger::semanticSink()).info("child process exited");
+                    logScope.logger(logger::Logger::semanticSink())
+                        .debug("child process exit status: code={} requested={}", exitStatus.exitCode, stopping);
                 } else if (WIFSIGNALED(status)) {
                     exitStatus.signaled = true;
                     exitStatus.signalNumber = WTERMSIG(status);
+                    logScope.logger(logger::Logger::semanticSink()).info("child process terminated");
+                    logScope.logger(logger::Logger::semanticSink())
+                        .debug("child process termination status: signal={} requested={} forced={}",
+                               exitStatus.signalNumber,
+                               terminationRequested,
+                               forcedTerminationRequested);
                 }
             } else {
                 const int waitError = errno;
@@ -720,6 +737,18 @@ namespace ai::openai::codex::stdio::detail {
         }
 
         void signalChildProcessGroup(int signalNumber) {
+            if (childPid <= 0) {
+                return;
+            }
+
+            if (signalNumber == SIGTERM && !terminationRequested) {
+                terminationRequested = true;
+                logScope.logger(logger::Logger::semanticSink()).debug("child process termination requested");
+            } else if (signalNumber == SIGKILL && !forcedTerminationRequested) {
+                forcedTerminationRequested = true;
+                logScope.logger(logger::Logger::semanticSink()).warn("child process forced termination requested");
+            }
+
             if (childPid > 0 && ::kill(-childPid, signalNumber) != 0 && errno == ESRCH) {
                 static_cast<void>(::kill(childPid, signalNumber));
             }
@@ -775,7 +804,7 @@ namespace ai::openai::codex::stdio::detail {
                 processObserver->pollUntilExit();
             }
             signalChildProcessGroup(SIGKILL);
-            reportError(std::move(error));
+            reportStartError(std::move(error));
             childMayHaveExited(nullptr);
         }
 
@@ -949,10 +978,22 @@ namespace ai::openai::codex::stdio::detail {
             }
         }
 
+        void reportStartError(Error error) {
+            if (!errorReported) {
+                logScope.logger(logger::Logger::semanticSink()).debug("stdio transport start failed");
+            }
+            reportError(std::move(error));
+        }
+
         void finalizeExit(const codex::detail::ProcessExit& status) {
             const std::shared_ptr<Session> keepAlive = shared_from_this();
             detachExitObservers();
             closeEndpoints();
+
+            if (transportStarted) {
+                transportStarted = false;
+                logScope.logger(logger::Logger::semanticSink()).info("stdio transport stopped");
+            }
 
             const std::function<void(codex::detail::ProcessExit)> callback = callbacks.onExited;
             selfKeepAlive.reset();
@@ -1016,6 +1057,9 @@ namespace ai::openai::codex::stdio::detail {
         bool stopping = false;
         bool errorReported = false;
         bool stdinFlushTimedOut = false;
+        bool transportStarted = false;
+        bool terminationRequested = false;
+        bool forcedTerminationRequested = false;
         StopPhase stopPhase = StopPhase::Running;
         utils::Timeval stopDeadline;
 

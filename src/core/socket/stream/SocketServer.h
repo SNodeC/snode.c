@@ -100,6 +100,13 @@ namespace core::socket::stream {
                 , onConnect(onConnect)
                 , onConnected(onConnected)
                 , onDisconnect(onDisconnect) {
+                flowController.setOnFlowTerminated([this](ServerFlowController*) {
+                    cancelRetry();
+                });
+            }
+
+            ~Context() {
+                cancelRetry();
             }
 
             ServerFlowController flowController;
@@ -108,6 +115,28 @@ namespace core::socket::stream {
 
             std::uint64_t allocateConnectionId() noexcept {
                 return ++connectionsCreated;
+            }
+
+            void scheduleRetry() {
+                retryScheduled = true;
+                logScope.logger(logger::Logger::semanticSink()).debug("retry scheduled");
+            }
+
+            bool dispatchRetry() {
+                if (!retryScheduled) {
+                    return false;
+                }
+                retryScheduled = false;
+                logScope.logger(logger::Logger::semanticSink()).debug("retry dispatched");
+                flowController.reportFlowRetry();
+                return true;
+            }
+
+            void cancelRetry() {
+                if (retryScheduled) {
+                    retryScheduled = false;
+                    logScope.logger(logger::Logger::semanticSink()).debug("retry cancelled");
+                }
             }
 
             void emitTerminationSummary() const {
@@ -123,6 +152,7 @@ namespace core::socket::stream {
             }
 
             bool terminationSummaryEmitted{false};
+            bool retryScheduled{false};
 
             std::shared_ptr<SocketContextFactory> socketContextFactory;
 
@@ -243,20 +273,24 @@ namespace core::socket::stream {
                                             utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                             relativeRetryTimeout / 100.;
 
-                                        log.info("Retry listen in {} seconds", relativeRetryTimeout);
+                                        sharedContext->scheduleRetry();
+                                        log.trace("Retry listen in {} seconds", relativeRetryTimeout);
 
                                         sharedContext->flowController.armRetryTimer(
                                             relativeRetryTimeout,
                                             [config, sharedContext, log, /*generation,*/ onStatus, tries, retryTimeoutScale]() {
                                                 if (!sharedContext->flowController.isRetryEnabled()) {
+                                                    sharedContext->cancelRetry();
                                                     return;
                                                 }
                                                 if (config->getRetry()) {
-                                                    sharedContext->flowController.reportFlowRetry();
-                                                    SocketServer(config, sharedContext)
-                                                        .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                                    if (sharedContext->dispatchRetry()) {
+                                                        SocketServer(config, sharedContext)
+                                                            .realListen(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
+                                                    }
                                                 } else {
-                                                    log.info("Retry listen disabled during wait");
+                                                    sharedContext->cancelRetry();
+                                                    log.trace("Retry listen disabled during wait");
                                                 }
                                             });
                                     } else if (retryFlag &&

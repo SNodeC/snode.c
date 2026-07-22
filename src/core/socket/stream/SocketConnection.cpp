@@ -43,6 +43,7 @@
 
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
+#include "net/config/ConfigInstance.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -71,7 +72,10 @@ namespace core::socket::stream {
                    logger::LogBoundary::Connection,
                    "core.socket.stream",
                    instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                   std::nullopt,
+                   config != nullptr
+                       ? std::optional<logger::LogRole>(config->role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server
+                                                                                                                  : logger::LogRole::Client)
+                       : std::nullopt,
                    std::to_string(connectionId))
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {

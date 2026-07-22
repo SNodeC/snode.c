@@ -134,8 +134,7 @@ int main() {
 
     ok &= requireNotContains(switchBlock, "onDisconnect", socketConnectionPath);
 
-    const std::string_view closeBlock =
-        requireBlock(socketConnection, "::unobservedEvent() {", "Super::log().debug(\"disconnected\");", socketConnectionPath);
+    const std::string_view closeBlock = requireBlock(socketConnection, "::unobservedEvent() {", "delete this;", socketConnectionPath);
 
     ok &= !closeBlock.empty();
 
@@ -147,7 +146,8 @@ int main() {
                           "socketContext = nullptr;",
                           "delete std::exchange("
                           "newSocketContext, nullptr);",
-                          "onDisconnect();"},
+                          "onDisconnect();",
+                          "Super::log().info(\"transport disconnected\");"},
                          socketConnectionPath);
 
     ok &= requireNotContains(closeBlock, "terminalSocketContextTeardown", socketConnectionPath);

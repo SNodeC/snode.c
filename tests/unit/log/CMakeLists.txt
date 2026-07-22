@@ -64,7 +64,14 @@ set_tests_properties(SocketConnectionMigration01Test PROPERTIES LABELS "unit;log
 snodec_add_test(SocketConnectorAcceptorMigration02Test SocketConnectorAcceptorMigration02Test.cpp)
 target_include_directories(SocketConnectorAcceptorMigration02Test PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(SocketConnectorAcceptorMigration02Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+target_compile_definitions(SocketConnectorAcceptorMigration02Test PRIVATE SNODEC_BUILD_TESTS SNODEC_INTREE_BUILD)
 set_tests_properties(SocketConnectorAcceptorMigration02Test PROPERTIES LABELS "unit;log;migration02")
+
+snodec_add_test(ListenerLifecyclePhase2Test ListenerLifecyclePhase2Test.cpp)
+target_include_directories(ListenerLifecyclePhase2Test PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(ListenerLifecyclePhase2Test PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
+target_compile_definitions(ListenerLifecyclePhase2Test PRIVATE SNODEC_INTREE_BUILD)
+set_tests_properties(ListenerLifecyclePhase2Test PROPERTIES LABELS "unit;log;lifecycle;listener")
 
 snodec_add_test(SocketServerClientMigration03Test SocketServerClientMigration03Test.cpp)
 target_include_directories(SocketServerClientMigration03Test PRIVATE ${PROJECT_SOURCE_DIR})
@@ -154,6 +161,10 @@ set_tests_properties(ContextLifecyclePhase1Test PROPERTIES LABELS "unit;log;sock
 snodec_add_test(SocketContextDetachPolicyTest SocketContextDetachPolicyTest.cpp)
 target_compile_features(SocketContextDetachPolicyTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(SocketContextDetachPolicyTest "unit;log;socketcontext")
+
+snodec_add_test(TransportLifecyclePhase2PolicyTest TransportLifecyclePhase2PolicyTest.cpp)
+target_compile_features(TransportLifecyclePhase2PolicyTest PRIVATE cxx_std_20)
+snodec_set_source_policy_test_properties(TransportLifecyclePhase2PolicyTest "unit;log;transport;lifecycle;source-policy")
 
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
