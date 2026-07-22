@@ -152,9 +152,13 @@ backend events:
 - `ControllerChanged` and `SessionChanged`; and
 - `CodexExtensionReceived`.
 
-Unknown typed items with a stable ID remain items. Unknown events, or malformed
-future item events that cannot identify an owning entity, remain observable as
-bounded `CodexExtensionReceived` records with their original method or
+User messages and unknown typed items with a stable ID and envelope location
+remain canonical items. Unknown items retain their common ID, thread, and turn
+metadata along with raw JSON and any item-local decoding error. An item with a
+valid location but no stable ID remains observable through the bounded
+`codex/item-without-id` extension fallback. Unknown events, or malformed future
+item events that cannot identify an owning thread and turn, remain observable
+as bounded `CodexExtensionReceived` records with their original method or
 deliberate extension name, payload, and optional decoding error. They do not
 fail the backend and are not silently discarded.
 

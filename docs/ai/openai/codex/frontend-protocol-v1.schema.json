@@ -549,7 +549,7 @@
         "id": { "$ref": "#/$defs/NonEmptyString" },
         "type": {
           "$ref": "#/$defs/NonEmptyString",
-          "description": "Known values are agent_message, reasoning, command_execution, file_change, tool_call, and web_search. Future Codex item types remain explicit strings."
+          "description": "Known values are user_message, agent_message, reasoning, command_execution, file_change, tool_call, and web_search. Future Codex item types remain explicit strings."
         },
         "status": { "enum": ["unknown", "started", "completed", "failed"] },
         "agentText": { "type": "string" },

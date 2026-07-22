@@ -42,6 +42,15 @@ namespace {
         return item;
     }
 
+    typed::UserMessageItem
+    userMessageItem(const std::string& threadId, const std::string& turnId, const std::string& itemId, Json content, Json raw) {
+        typed::UserMessageItem item;
+        item.metadata = metadata(threadId, turnId, itemId);
+        item.metadata.raw = std::move(raw);
+        item.content = std::move(content);
+        return item;
+    }
+
     typed::Item reasoningItem(const std::string& threadId,
                               const std::string& turnId,
                               const std::string& itemId,
@@ -360,6 +369,165 @@ namespace {
                           "file-change updates remain associated with the correct item");
     }
 
+    void testUserMessageLifecycle(tests::support::TestResult& result) {
+        backend::BackendState state;
+        backend::Reducer reducer;
+
+        const Json startedContent = Json::array({Json{{"type", "text"}, {"text", "Answer just with OK!"}}});
+        const Json startedRaw = {
+            {"type", "userMessage"}, {"id", "user-item"}, {"clientId", nullptr}, {"content", startedContent}, {"future", 1}};
+        const typed::UserMessageItem startedItem = userMessageItem("thread-user", "turn-user", "user-item", startedContent, startedRaw);
+        const Json startedEnvelope =
+            Json{{"method", "item/started"},
+                 {"params", {{"threadId", "thread-user"}, {"turnId", "turn-user"}, {"item", startedRaw}, {"startedAtMs", 101}}}};
+        const std::vector<backend::BackendEvent> startedEvents =
+            reducer.translate(typed::Event{typed::ItemStarted{typed::Item{startedItem}, 101, startedEnvelope}});
+        const auto* startedUpsert = startedEvents.size() == 1 ? std::get_if<backend::ItemUpserted>(&startedEvents.front()) : nullptr;
+        result.expectTrue(startedUpsert && startedUpsert->threadId.value == "thread-user" && startedUpsert->turnId.value == "turn-user" &&
+                              startedUpsert->lifecycle == backend::ItemLifecycle::Started && startedUpsert->occurredAtMs == 101,
+                          "userMessage start translates to a canonical item upsert at its envelope location");
+        if (startedUpsert) {
+            reducer.apply(state, *startedUpsert);
+        }
+
+        const backend::ItemState* startedState = findItem(state, "thread-user", "turn-user", "user-item");
+        const auto* canonicalStarted = startedState ? std::get_if<typed::UserMessageItem>(&startedState->item) : nullptr;
+        result.expectTrue(canonicalStarted && canonicalStarted->content == startedContent && !canonicalStarted->clientId &&
+                              canonicalStarted->metadata.raw == startedRaw && startedState->lifecycle == backend::ItemLifecycle::Started &&
+                              startedState->startedAtMs == 101 && !startedState->completedAtMs && state.recentExtensions.empty(),
+                          "userMessage start retains complete content, nullable client ID, raw item, timestamp, and no extension fallback");
+
+        const Json completedContent = Json::array({Json{{"type", "text"}, {"text", "Answer just with OK!"}},
+                                                   Json{{"type", "futureContent"}, {"payload", Json::array({1, 2, 3})}}});
+        const Json completedRaw = {
+            {"type", "userMessage"}, {"id", "user-item"}, {"clientId", nullptr}, {"content", completedContent}, {"future", 2}};
+        const typed::UserMessageItem completedItem =
+            userMessageItem("thread-user", "turn-user", "user-item", completedContent, completedRaw);
+        const Json completedEnvelope =
+            Json{{"method", "item/completed"},
+                 {"params", {{"threadId", "thread-user"}, {"turnId", "turn-user"}, {"item", completedRaw}, {"completedAtMs", 202}}}};
+        const std::vector<backend::BackendEvent> completedEvents =
+            reducer.translate(typed::Event{typed::ItemCompleted{typed::Item{completedItem}, 202, completedEnvelope}});
+        const auto* completedUpsert = completedEvents.size() == 1 ? std::get_if<backend::ItemUpserted>(&completedEvents.front()) : nullptr;
+        result.expectTrue(completedUpsert && completedUpsert->threadId.value == "thread-user" &&
+                              completedUpsert->turnId.value == "turn-user" &&
+                              completedUpsert->lifecycle == backend::ItemLifecycle::Completed && completedUpsert->occurredAtMs == 202,
+                          "userMessage completion translates to a canonical terminal item upsert");
+        if (completedUpsert) {
+            reducer.apply(state, *completedUpsert);
+        }
+
+        const backend::TurnState* userTurn = findTurn(state, "thread-user", "turn-user");
+        const backend::ItemState* completedState = findItem(state, "thread-user", "turn-user", "user-item");
+        const auto* canonicalCompleted = completedState ? std::get_if<typed::UserMessageItem>(&completedState->item) : nullptr;
+        result.expectTrue(
+            userTurn && userTurn->items.size() == 1 && userTurn->itemOrder.size() == 1 &&
+                userTurn->itemOrder.front().value == "user-item" && canonicalCompleted && canonicalCompleted->content == completedContent &&
+                canonicalCompleted->metadata.raw == completedRaw && completedState->lifecycle == backend::ItemLifecycle::Completed &&
+                completedState->startedAtMs == 101 && completedState->completedAtMs == 202 && state.recentExtensions.empty(),
+            "userMessage completion updates the same canonical item and retains both lifecycle timestamps without extensions");
+
+        const backend::Snapshot itemSnapshot = backend::makeSnapshot(state);
+        result.expectTrue(itemSnapshot.threads.size() == 1 && itemSnapshot.threads[0].turns.size() == 1 &&
+                              itemSnapshot.threads[0].turns[0].items.size() == 1 &&
+                              itemSnapshot.threads[0].turns[0].items[0].type == "user_message" &&
+                              itemSnapshot.threads[0].turns[0].items[0].data.at("content") == completedContent &&
+                              itemSnapshot.threads[0].turns[0].items[0].data.at("clientId").is_null(),
+                          "userMessage canonical snapshots retain structured content instead of flattening it");
+
+        typed::Turn terminalTurn =
+            turn("thread-user", "turn-user", typed::TurnStatus::completed(), std::vector<typed::Item>{typed::Item{completedItem}});
+        reducer.apply(state, backend::TurnCompleted{std::move(terminalTurn)});
+        completedState = findItem(state, "thread-user", "turn-user", "user-item");
+        result.expectTrue(completedState && completedState->lifecycle == backend::ItemLifecycle::Completed &&
+                              completedState->startedAtMs == 101 && completedState->completedAtMs == 202,
+                          "a later terminal turn snapshot does not erase item lifecycle timestamps");
+    }
+
+    void testUnknownItemCommonMetadataFallbacks(tests::support::TestResult& result) {
+        backend::Reducer reducer;
+        backend::BackendState state;
+
+        typed::UnknownItem located;
+        located.type = "futureItem";
+        located.raw = Json{{"type", "futureItem"}, {"id", "unknown-located"}, {"future", Json::array({1, 2, 3})}};
+        located.decodingError = "future detailed field is unsupported";
+        located.metadata.id = typed::ItemId{"unknown-located"};
+        located.metadata.threadId = typed::ThreadId{"thread-unknown"};
+        located.metadata.turnId = typed::TurnId{"turn-unknown"};
+        const Json locatedEnvelope =
+            Json{{"method", "item/started"},
+                 {"params", {{"threadId", "thread-unknown"}, {"turnId", "turn-unknown"}, {"item", located.raw}, {"startedAtMs", 303}}}};
+        const std::vector<backend::BackendEvent> locatedEvents =
+            reducer.translate(typed::Event{typed::ItemStarted{typed::Item{located}, 303, locatedEnvelope}});
+        const auto* locatedUpsert = locatedEvents.size() == 1 ? std::get_if<backend::ItemUpserted>(&locatedEvents.front()) : nullptr;
+        result.expectTrue(locatedUpsert && locatedUpsert->threadId.value == "thread-unknown" &&
+                              locatedUpsert->turnId.value == "turn-unknown",
+                          "an unknown item with valid common metadata translates canonically instead of reporting a false location error");
+        if (locatedUpsert) {
+            reducer.apply(state, *locatedUpsert);
+        }
+        const backend::ItemState* locatedState = findItem(state, "thread-unknown", "turn-unknown", "unknown-located");
+        const auto* canonicalUnknown = locatedState ? std::get_if<typed::UnknownItem>(&locatedState->item) : nullptr;
+        result.expectTrue(canonicalUnknown && canonicalUnknown->metadata.id && canonicalUnknown->metadata.id->value == "unknown-located" &&
+                              canonicalUnknown->metadata.threadId && canonicalUnknown->metadata.threadId->value == "thread-unknown" &&
+                              canonicalUnknown->metadata.turnId && canonicalUnknown->metadata.turnId->value == "turn-unknown" &&
+                              canonicalUnknown->raw == located.raw && canonicalUnknown->decodingError == located.decodingError &&
+                              state.recentExtensions.empty(),
+                          "canonical unknown items retain their ID, envelope location, raw JSON, and decoding error");
+
+        backend::ReducerOptions boundedOptions;
+        boundedOptions.retainedExtensions = 1;
+        boundedOptions.maxExtensionBytes = 64;
+        backend::Reducer boundedReducer(boundedOptions);
+        backend::BackendState noIdState;
+        typed::UnknownItem noId;
+        noId.type = "futureWithoutId";
+        noId.raw = Json{{"type", "futureWithoutId"}, {"payload", std::string(256, 'x')}};
+        noId.metadata.threadId = typed::ThreadId{"thread-no-id"};
+        noId.metadata.turnId = typed::TurnId{"turn-no-id"};
+        const Json noIdEnvelope =
+            Json{{"method", "item/started"},
+                 {"params", {{"threadId", "thread-no-id"}, {"turnId", "turn-no-id"}, {"item", noId.raw}, {"startedAtMs", 404}}}};
+        const std::vector<backend::BackendEvent> noIdEvents =
+            boundedReducer.translate(typed::Event{typed::ItemStarted{typed::Item{noId}, 404, noIdEnvelope}});
+        const auto* noIdUpsert = noIdEvents.size() == 1 ? std::get_if<backend::ItemUpserted>(&noIdEvents.front()) : nullptr;
+        result.expectTrue(noIdUpsert && noIdUpsert->threadId.value == "thread-no-id" && noIdUpsert->turnId.value == "turn-no-id",
+                          "an unknown item with a valid location but no stable ID reaches canonical ID validation");
+        if (noIdUpsert) {
+            boundedReducer.apply(noIdState, *noIdUpsert);
+        }
+        const backend::ExtensionRecord* noIdExtension =
+            noIdState.recentExtensions.size() == 1 ? &noIdState.recentExtensions.front() : nullptr;
+        result.expectTrue(noIdState.threads.empty() && noIdExtension && noIdExtension->method == "codex/item-without-id" &&
+                              noIdExtension->decodingError == "typed item has no stable id" &&
+                              noIdExtension->originalPayloadBytes.has_value() && noIdExtension->payload.value("truncated", false) &&
+                              noIdExtension->payload.value("omitted", false),
+                          "a truly ID-less item uses the bounded item-without-id extension fallback");
+
+        backend::BackendState missingLocationState;
+        typed::UnknownItem missingLocation;
+        missingLocation.type = "futureMissingLocation";
+        missingLocation.raw = Json{{"type", "futureMissingLocation"}, {"id", "unknown-missing-location"}};
+        missingLocation.metadata.id = typed::ItemId{"unknown-missing-location"};
+        missingLocation.metadata.threadId = typed::ThreadId{"thread-missing-location"};
+        const Json missingLocationEnvelope =
+            Json{{"method", "item/started"}, {"params", {{"threadId", "thread-missing-location"}, {"item", missingLocation.raw}}}};
+        const std::vector<backend::BackendEvent> missingLocationEvents =
+            reducer.translate(typed::Event{typed::ItemStarted{typed::Item{missingLocation}, 505, missingLocationEnvelope}});
+        const auto* locationExtension =
+            missingLocationEvents.size() == 1 ? std::get_if<backend::CodexExtensionReceived>(&missingLocationEvents.front()) : nullptr;
+        result.expectTrue(locationExtension && locationExtension->method == "item/started" &&
+                              locationExtension->payload == missingLocationEnvelope &&
+                              locationExtension->decodingError == "item event omitted threadId or turnId",
+                          "an item genuinely missing part of its envelope location retains the lifecycle extension fallback");
+        if (locationExtension) {
+            reducer.apply(missingLocationState, *locationExtension);
+        }
+        result.expectTrue(missingLocationState.threads.empty() && missingLocationState.recentExtensions.size() == 1,
+                          "an unusable item location is not inserted into canonical thread state");
+    }
+
     void testUnknownPreservationAndTranslation(tests::support::TestResult& result) {
         backend::ReducerOptions options;
         options.retainedExtensions = 2;
@@ -593,6 +761,8 @@ int main() {
     testThreadAndTurnHydration(result);
     testItemsAndHighVolumeDeltas(result);
     testCompletionFailureAndAuxiliaryUpdates(result);
+    testUserMessageLifecycle(result);
+    testUnknownItemCommonMetadataFallbacks(result);
     testUnknownPreservationAndTranslation(result);
     testPendingRequestsAndSessions(result);
     testSnapshotDeterminism(result);

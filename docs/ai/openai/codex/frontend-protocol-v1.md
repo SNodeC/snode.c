@@ -279,9 +279,11 @@ Lifecycle strings are `stopped`, `starting`, `initializing`, `ready`,
 `stopping`, and `failed`. Session roles are `observer` and `controller`. Item
 status is `unknown`, `started`, `completed`, or `failed`; turn status remains a
 stable Codex status string with independent `active` and `terminal` Booleans.
-Known item `type` strings are `agent_message`, `reasoning`,
+Known item `type` strings are `user_message`, `agent_message`, `reasoning`,
 `command_execution`, `file_change`, `tool_call`, and `web_search`; a future
-unknown item retains its provided Codex type or uses `unknown`.
+unknown item retains its provided Codex type or uses `unknown`. A user-message
+item's normalized `data` retains its nullable `clientId` and bounded complete
+`content` array.
 
 Snapshots do not contain callbacks, pointers, internal request-occurrence
 tokens, App Server client request IDs, authentication access tokens, or secret

@@ -207,6 +207,10 @@ namespace ai::openai::codex::backend {
                                           snapshot.data["phase"] = *value.phase;
                                       }
                                   },
+                                  [&snapshot](const typed::UserMessageItem& value) {
+                                      snapshot.data = Json::object({{"clientId", value.clientId ? Json(*value.clientId) : Json(nullptr)},
+                                                                    {"content", boundedJson(value.content)}});
+                                  },
                                   [&snapshot](const typed::ReasoningItem&) {
                                       snapshot.data["hasSummary"] = !snapshot.reasoningSummary.empty();
                                   },

@@ -26,6 +26,7 @@ namespace {
     using ai::openai::codex::typed::ToolCallItem;
     using ai::openai::codex::typed::TurnId;
     using ai::openai::codex::typed::UnknownItem;
+    using ai::openai::codex::typed::UserMessageItem;
     using ai::openai::codex::typed::WebSearchItem;
 
     std::optional<Item> decode(const Json& raw, std::string& error) {
@@ -46,6 +47,18 @@ namespace {
                                   metadata.turnId && metadata.turnId->value == "turn-typed",
                               description + " preserves typed item, thread, and turn identifiers");
         testResult.expectTrue(metadata.raw == raw, description + " preserves the exact raw item including future fields");
+    }
+
+    void expectUnknownMetadata(tests::support::TestResult& testResult,
+                               const UnknownItem& item,
+                               const std::optional<std::string>& id,
+                               const Json& raw,
+                               const std::string& description) {
+        const bool idMatches = id.has_value() ? item.metadata.id && item.metadata.id->value == *id : !item.metadata.id;
+        testResult.expectTrue(idMatches && item.metadata.threadId && item.metadata.threadId->value == "thread-typed" &&
+                                  item.metadata.turnId && item.metadata.turnId->value == "turn-typed",
+                              description + " preserves every usable common identifier");
+        testResult.expectTrue(item.raw == raw, description + " preserves the exact raw item");
     }
 
     void testAgentMessage(tests::support::TestResult& testResult) {
@@ -72,6 +85,75 @@ namespace {
         const std::optional<Item> decodedWithoutPhase = decode(withoutPhase, error);
         const AgentMessageItem* noPhase = as<AgentMessageItem>(decodedWithoutPhase);
         testResult.expectTrue(noPhase && !noPhase->phase, "agentMessage accepts an absent optional phase");
+    }
+
+    void testUserMessage(tests::support::TestResult& testResult) {
+        const Json content = Json::array({
+            Json{{"type", "text"}, {"text", "Answer just with OK!"}, {"text_elements", Json::array()}},
+            Json{{"type", "image"}, {"url", "https://example.invalid/input.png"}, {"detail", nullptr}},
+            Json{{"type", "futureInput"}, {"payload", Json{{"nested", Json::array({1, false, "kept"})}}}},
+        });
+        const Json raw = {
+            {"type", "userMessage"},
+            {"id", "user-message-1"},
+            {"clientId", nullptr},
+            {"content", content},
+            {"futureUserMessageField", Json{{"kept", true}}},
+        };
+        std::string error = "stale";
+        const std::optional<Item> decoded = decode(raw, error);
+        const UserMessageItem* item = as<UserMessageItem>(decoded);
+
+        testResult.expectTrue(item != nullptr, "userMessage item is classified");
+        testResult.expectTrue(item && !item->clientId, "userMessage accepts a nullable clientId");
+        testResult.expectTrue(item && item->content == content && item->content.size() == 3,
+                              "userMessage preserves multiple content entries exactly and in order");
+        testResult.expectTrue(item && item->content[0]["text"] == "Answer just with OK!" && item->content[2]["type"] == "futureInput" &&
+                                  item->content[2]["payload"] == content[2]["payload"],
+                              "userMessage preserves text and unfamiliar future content-entry variants losslessly");
+        testResult.expectTrue(error.empty(), "successful userMessage decoding clears a stale external error");
+        if (item) {
+            expectMetadata(testResult, item->metadata, "user-message-1", raw, "userMessage item");
+        }
+
+        Json withClientId = raw;
+        withClientId["id"] = "user-message-2";
+        withClientId["clientId"] = "client-message-2";
+        const std::optional<Item> decodedWithClientId = decode(withClientId, error);
+        const UserMessageItem* clientItem = as<UserMessageItem>(decodedWithClientId);
+        testResult.expectTrue(clientItem && clientItem->clientId == "client-message-2" && clientItem->content == content,
+                              "userMessage preserves a non-null clientId without changing content");
+
+        Json invalidContent = raw;
+        invalidContent["id"] = "user-message-invalid-content";
+        invalidContent["content"] = Json::object({{"text", "not an array"}});
+        const std::optional<Item> decodedInvalidContent = decode(invalidContent, error);
+        const UnknownItem* invalidContentItem = as<UnknownItem>(decodedInvalidContent);
+        testResult.expectTrue(invalidContentItem && invalidContentItem->type == "userMessage" && invalidContentItem->decodingError &&
+                                  error.empty(),
+                              "malformed userMessage content degrades locally to a diagnosable UnknownItem");
+        if (invalidContentItem) {
+            expectUnknownMetadata(testResult,
+                                  *invalidContentItem,
+                                  std::string("user-message-invalid-content"),
+                                  invalidContent,
+                                  "malformed userMessage content");
+        }
+
+        Json invalidClientId = raw;
+        invalidClientId["id"] = "user-message-invalid-client";
+        invalidClientId["clientId"] = Json::array({"not", "a", "string"});
+        const std::optional<Item> decodedInvalidClientId = decode(invalidClientId, error);
+        const UnknownItem* invalidClientItem = as<UnknownItem>(decodedInvalidClientId);
+        testResult.expectTrue(invalidClientItem && invalidClientItem->decodingError && error.empty(),
+                              "malformed userMessage clientId retains common metadata in an UnknownItem");
+        if (invalidClientItem) {
+            expectUnknownMetadata(testResult,
+                                  *invalidClientItem,
+                                  std::string("user-message-invalid-client"),
+                                  invalidClientId,
+                                  "malformed userMessage clientId");
+        }
     }
 
     void testReasoning(tests::support::TestResult& testResult) {
@@ -153,13 +235,28 @@ namespace {
 
         Json exitOverflow = optionalFieldsAbsent;
         exitOverflow["exitCode"] = static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max()) + 1;
-        const std::optional<Item> rejectedExitOverflow = decode(exitOverflow, error);
-        testResult.expectTrue(!rejectedExitOverflow && !error.empty(), "commandExecution rejects exitCode outside int32 range");
+        const std::optional<Item> decodedExitOverflow = decode(exitOverflow, error);
+        const UnknownItem* exitOverflowItem = as<UnknownItem>(decodedExitOverflow);
+        testResult.expectTrue(exitOverflowItem && exitOverflowItem->decodingError && error.empty(),
+                              "commandExecution with exitCode outside int32 degrades to a diagnosable UnknownItem");
+        if (exitOverflowItem) {
+            expectUnknownMetadata(
+                testResult, *exitOverflowItem, std::string("command-optional"), exitOverflow, "commandExecution with overflowing exitCode");
+        }
 
         Json durationOverflow = optionalFieldsAbsent;
         durationOverflow["durationMs"] = std::numeric_limits<std::uint64_t>::max();
-        const std::optional<Item> rejectedDurationOverflow = decode(durationOverflow, error);
-        testResult.expectTrue(!rejectedDurationOverflow && !error.empty(), "commandExecution rejects durationMs outside int64 range");
+        const std::optional<Item> decodedDurationOverflow = decode(durationOverflow, error);
+        const UnknownItem* durationOverflowItem = as<UnknownItem>(decodedDurationOverflow);
+        testResult.expectTrue(durationOverflowItem && durationOverflowItem->decodingError && error.empty(),
+                              "commandExecution with durationMs outside int64 degrades to a diagnosable UnknownItem");
+        if (durationOverflowItem) {
+            expectUnknownMetadata(testResult,
+                                  *durationOverflowItem,
+                                  std::string("command-optional"),
+                                  durationOverflow,
+                                  "commandExecution with overflowing durationMs");
+        }
     }
 
     void testFileChange(tests::support::TestResult& testResult) {
@@ -253,25 +350,62 @@ namespace {
     void testUnknownAndMalformed(tests::support::TestResult& testResult) {
         const Json futureRaw = {
             {"type", "futureItem"},
+            {"id", "future-item-1"},
             {"futurePayload", Json::array({1, false, "three"})},
         };
-        std::string error;
+        std::string error = "stale";
         const std::optional<Item> decodedFuture = decode(futureRaw, error);
         const UnknownItem* future = as<UnknownItem>(decodedFuture);
-        testResult.expectTrue(future && future->type == "futureItem" && future->raw == futureRaw && !future->decodingError,
-                              "unknown item discriminator becomes UnknownItem with exact raw payload and no fatal error");
+        testResult.expectTrue(future && future->type == "futureItem" && !future->decodingError && error.empty(),
+                              "unknown item discriminator becomes a nonfatal UnknownItem and clears the external error");
+        if (future) {
+            expectUnknownMetadata(testResult, *future, std::string("future-item-1"), futureRaw, "unknown future item");
+        }
 
         const Json missingText = {{"type", "agentMessage"}, {"id", "bad-agent"}};
-        const std::optional<Item> rejectedMissingText = decode(missingText, error);
-        testResult.expectTrue(!rejectedMissingText && !error.empty(), "known item missing a required field reports a decoding error");
+        const std::optional<Item> decodedMissingText = decode(missingText, error);
+        const UnknownItem* missingTextItem = as<UnknownItem>(decodedMissingText);
+        testResult.expectTrue(missingTextItem && missingTextItem->type == "agentMessage" && missingTextItem->decodingError && error.empty(),
+                              "known item missing a detail field degrades to UnknownItem without a fatal external error");
+        if (missingTextItem) {
+            expectUnknownMetadata(testResult, *missingTextItem, std::string("bad-agent"), missingText, "agentMessage missing text");
+        }
 
         const Json invalidId = {{"type", "reasoning"}, {"id", 7}};
-        const std::optional<Item> rejectedInvalidId = decode(invalidId, error);
-        testResult.expectTrue(!rejectedInvalidId && !error.empty(), "known item with non-string ID reports a decoding error");
+        const std::optional<Item> decodedInvalidId = decode(invalidId, error);
+        const UnknownItem* invalidIdItem = as<UnknownItem>(decodedInvalidId);
+        testResult.expectTrue(invalidIdItem && invalidIdItem->type == "reasoning" && invalidIdItem->decodingError && error.empty(),
+                              "known item with non-string ID retains its raw object and an item-local decoding error");
+        if (invalidIdItem) {
+            expectUnknownMetadata(testResult, *invalidIdItem, std::nullopt, invalidId, "item with a non-string ID");
+        }
+
+        const Json missingId = {{"type", "futureItem"}, {"futurePayload", true}};
+        const std::optional<Item> decodedMissingId = decode(missingId, error);
+        const UnknownItem* missingIdItem = as<UnknownItem>(decodedMissingId);
+        testResult.expectTrue(missingIdItem && missingIdItem->decodingError && error.empty(),
+                              "unknown item missing its ID retains a bounded item-local diagnostic");
+        if (missingIdItem) {
+            expectUnknownMetadata(testResult, *missingIdItem, std::nullopt, missingId, "unknown item missing its ID");
+        }
+
+        const Json emptyId = {{"type", "futureItem"}, {"id", ""}, {"futurePayload", false}};
+        const std::optional<Item> decodedEmptyId = decode(emptyId, error);
+        const UnknownItem* emptyIdItem = as<UnknownItem>(decodedEmptyId);
+        testResult.expectTrue(emptyIdItem && !emptyIdItem->metadata.id && emptyIdItem->decodingError && error.empty(),
+                              "unknown item with an empty ID does not fabricate a stable identifier");
+        if (emptyIdItem) {
+            expectUnknownMetadata(testResult, *emptyIdItem, std::nullopt, emptyId, "unknown item with an empty ID");
+        }
 
         const Json missingType = {{"id", "missing-type"}};
-        const std::optional<Item> rejectedMissingType = decode(missingType, error);
-        testResult.expectTrue(!rejectedMissingType && !error.empty(), "item missing its discriminator reports a decoding error");
+        const std::optional<Item> decodedMissingType = decode(missingType, error);
+        const UnknownItem* missingTypeItem = as<UnknownItem>(decodedMissingType);
+        testResult.expectTrue(missingTypeItem && !missingTypeItem->type && missingTypeItem->decodingError && error.empty(),
+                              "item missing its discriminator retains common metadata with an item-local error");
+        if (missingTypeItem) {
+            expectUnknownMetadata(testResult, *missingTypeItem, std::string("missing-type"), missingType, "item missing its discriminator");
+        }
 
         const std::optional<Item> rejectedScalar = decode(Json::array({1, 2}), error);
         testResult.expectTrue(!rejectedScalar && !error.empty(), "non-object item reports a decoding error without throwing");
@@ -282,6 +416,7 @@ int main() {
     tests::support::TestResult testResult;
 
     testAgentMessage(testResult);
+    testUserMessage(testResult);
     testReasoning(testResult);
     testCommandExecution(testResult);
     testFileChange(testResult);

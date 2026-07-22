@@ -87,17 +87,23 @@ currently include:
 A failed `turn/completed` payload becomes `TurnFailed`; there is no separate
 `turn/failed` wire method in the current schema.
 
-Principal item variants are agent message, reasoning, command execution, file
-change, MCP/dynamic tool call, and web search. Item metadata carries item,
-thread, and turn identity when the notification or parent turn supplies it.
-Every item retains its raw item JSON. `Turn::itemsView` preserves the current
-`notLoaded`, `summary`, or `full` completeness marker and any future
-string; an omitted marker has the schema-defined `full` default.
+Principal item variants are user message, agent message, reasoning, command
+execution, file change, MCP/dynamic tool call, and web search. A user message
+retains its nullable client ID and complete content array as JSON; content
+entries are not flattened or restricted to currently known input variants.
+Item metadata carries item, thread, and turn identity when the notification or
+parent turn supplies it. Every item retains its raw item JSON.
+`Turn::itemsView` preserves the current `notLoaded`, `summary`, or `full`
+completeness marker and any future string; an omitted marker has the
+schema-defined `full` default.
 
 Unknown notification methods become `UnknownEvent`. Unknown item
-discriminators become `UnknownItem`. A known notification with a malformed
-known payload also becomes `UnknownEvent` with `decodingError`. These values
-retain the raw method, params, and envelope and do not fail the connection.
+discriminators become `UnknownItem`. Unknown items retain any valid common item
+ID plus the thread and turn IDs supplied by their notification or parent turn.
+A malformed item-local field also degrades to `UnknownItem` with a
+`decodingError` when its object can still be retained; a malformed notification
+envelope becomes `UnknownEvent`. These values retain their original raw JSON
+and do not fail the connection.
 
 ## Server requests
 
@@ -169,3 +175,11 @@ Typed public headers are installed. Decoder headers under `detail/` remain
 private. Raw JSON on results, threads, turns, items, events, and server requests
 is the forward-compatibility escape hatch, and `client.raw()` remains
 available for protocol additions not yet represented by the typed layer.
+
+Adding `UserMessageItem` extends the public `Item` variant, and adding partial
+common metadata enlarges the public `UnknownItem` structure. Existing variant
+indices are retained and the new `UnknownItem` member is appended, preserving
+ordinary field access and existing three-field aggregate initializers at source
+level. The layouts are not binary-compatible, however, and exhaustive item
+visitors must handle the new alternative; already-built C++ consumers must be
+rebuilt.
