@@ -2,7 +2,7 @@
 
 ## Scope and frozen contracts
 
-This phase audits production logging under `src/` and normalizes lifecycle records above the transport layer. It preserves the semantic logging contract, Phase 1 framework-context ownership, Phase 2 listener/connection-attempt/transport ownership, coordinated stream shutdown, and the TLS state machine. In particular, this work does not rename, reorder, duplicate, or change the severity of `listener started/stopped`, connection-attempt outcomes, `transport connected/ready/disconnected`, or framework-context `attached/detached` records.
+This phase audits production logging under `src/` and normalizes lifecycle records above the transport layer. It is primarily a mechanical semantic-logging normalization: existing lifecycle messages receive canonical vocabulary and severity and are emitted through existing semantic scopes at authoritative protocol transitions. It does not redesign protocol state machines. It preserves the semantic logging contract, Phase 1 framework-context ownership, Phase 2 listener/connection-attempt/transport ownership, coordinated stream shutdown, and the TLS state machine. In particular, this work does not rename, reorder, duplicate, or change the severity of `listener started/stopped`, connection-attempt outcomes, `transport connected/ready/disconnected`, or framework-context `attached/detached` records.
 
 The audit reviewed the implementations and state transitions, not only message text. The ownership decisions below were checked against HTTP parser and request queues, EventSource ready-state and retry configuration, WebSocket upgraded-context attachment, MQTT CONNECT/CONNACK and broker session retention, the Codex pending-request maps and typed reducer, and the MariaDB asynchronous command queue.
 
@@ -62,17 +62,17 @@ No public request-ID API or second identity framework was added. HTTP server cor
 
 ## Exactly-once strategy
 
-Exactly-once behavior follows existing ownership data structures:
+Duplicate suppression uses existing owner state and narrow private flags only where necessary. These guarantees apply to the actual framework lifecycle; they do not promise arbitrary event-replay or event-sourcing idempotency.
 
 - The HTTP server stores terminal state beside each pending request. Parser failure marks the request terminal, successful response completion removes it, and context teardown aborts only remaining nonterminal entries. A parser that fails before message-begin produces no fabricated start/terminal pair. Streaming source failure prevents a later completion.
 - The HTTP client treats membership in its private started-request set as terminal ownership. Response delivery, parse failure, delivery failure, and disconnect erase that membership; later cleanup cannot emit another outcome.
-- EventSource start/stop and reconnect-pending bits live in the existing shared ready-state owner. `close()` is idempotent, disables Phase 2 reconnect/retry before shutdown, cancels an outstanding SSE retry record, and prevents disconnect cleanup from scheduling another retry or stop.
+- EventSource start/stop and reconnect-pending bits live in private per-instance shared configuration. `close()` is idempotent, disables Phase 2 reconnect/retry before shutdown, cancels an outstanding SSE retry record, and prevents disconnect cleanup from scheduling another retry or stop.
 - WebSocket establishment/end are emitted only by upgraded-context attach/detach. Close-frame progress does not terminate the lifecycle, so the later transport teardown cannot duplicate the WebSocket end. Selected subprotocol start/stop uses the same attach/detach convergence point.
-- MQTT protocol/session flags live in the `Mqtt` protocol engine. Session establishment is called only after accepted CONNACK or broker session creation; resume is called only in the retained-session renewal branch or for a client CONNACK with `sessionPresent`. Rejection prevents establishment, and disconnect clears the active session before stopping the protocol. Broker retention remains a persistence decision, not a second end.
-- Codex client requests are terminal exactly when the existing pending map erases them or invalidation clears accepted requests. Notifications never enter that map. Server-originated requests follow the same rule. Intentional stop/destruction cancels pending requests; protocol, process, or transport failure fails them. Session stop is guarded by successful initialization. Turn terminal logging uses the existing reducer-owned `TurnState`, preventing completion after a failure or cancellation.
+- MQTT protocol/session flags live in the `Mqtt` protocol engine. Private helpers, friend-limited to the existing concrete client and server implementations, are invoked only after accepted CONNACK or broker session creation. Resume is limited to the retained-session renewal branch or a client CONNACK with `sessionPresent`. Rejection prevents establishment, and disconnect clears the active session before stopping the protocol. Broker retention remains a persistence decision, not a second end.
+- Codex client requests are terminal when the existing pending map erases them or connection invalidation clears accepted requests. Notifications never enter that map, and server-originated requests follow the same ownership rule. Explicit stop and unusable-connection invalidation cancel pending local requests, matching the existing callback result; pending server-originated requests retain the triggering stop/failure outcome. A separate Error diagnostic retains the underlying protocol/process/transport cause. Session stop is guarded by successful initialization. `typed::ThreadStarted` and `typed::TurnStarted` are the authoritative starts. Turn terminal logging inspects the existing reducer-owned `TurnState::terminal` before applying a terminal event, preventing completion after failure or cancellation.
 - MariaDB command state is attached to the existing `currentCommand`. The error path marks it failed before the shared completion cleanup; destruction terminates only a command that actually started. Queued, unstarted commands do not receive fabricated terminals.
 
-These are local flags on lifecycle owners, not a general lifecycle registry or alternate ownership graph.
+These are existing domain state and local private flags on lifecycle owners, not a general lifecycle registry or alternate ownership graph. AppServerClient destruction intentionally does not manufacture terminal records for pending work.
 
 ## Per-module decisions
 
@@ -82,7 +82,7 @@ HTTP request start is parser message-begin on the server and successful dispatch
 
 ### EventSource
 
-The EventSource object owns the long-lived protocol. Stream establishment may repeat after an SSE retry. `event source reconnect ...` describes WHATWG/EventSource retry policy only; generic socket retry/reconnect remains Phase 2. `Last-Event-ID`, parsed `retry`, ready states, reconnect timing, and explicit close behavior are unchanged.
+The EventSource object owns the long-lived protocol. Stream establishment may repeat after an SSE retry. `event source reconnect ...` describes WHATWG/EventSource retry policy only; generic socket retry/reconnect remains Phase 2. `Last-Event-ID`, parsed `retry`, ready states, reconnect timing, and explicit close behavior are unchanged. A small safety correction initializes the private configuration pointer to null, guards configuration access in `close()`, and makes destruction call the same idempotent close path. This prevents a post-destruction reconnect and supplies one stop for a started object without adding another shutdown state machine.
 
 ### WebSocket and subprotocols
 
@@ -90,11 +90,15 @@ HTTP upgrade completion and WebSocket establishment are separate boundaries. Upg
 
 ### MQTT
 
-Physical transport connection is not an MQTT session. Protocol start occurs when the MQTT context attaches. Session establishment follows accepted CONNECT/CONNACK only. Server-side `resumed` is limited to renewal of an actual retained broker session; client-side `resumed` requires CONNACK `sessionPresent`. CONNECT rejection has no fabricated establishment/end. Explicit DISCONNECT, keep-alive close, context detach, and transport loss all converge on the same guarded protocol/session stop. The MQTT-over-WebSocket adapter logs only Trace progress and relies on the WebSocket, subprotocol, MQTT, and Phase 2 owners for canonical records.
+Physical transport connection is not an MQTT session. Protocol start occurs when the MQTT context attaches. Session establishment follows accepted CONNECT/CONNACK only. Server-side `resumed` is limited to renewal of an actual retained broker session; client-side `resumed` requires CONNACK `sessionPresent`. CONNECT rejection has no fabricated establishment/end. Explicit DISCONNECT, keep-alive close, context detach, and transport loss all converge on the same guarded protocol/session stop. The MQTT-over-WebSocket adapter logs only Trace progress and relies on the WebSocket, subprotocol, MQTT, and Phase 2 owners for canonical records. Logging-only session helpers are private; the installed class exposes no new public or protected member function for them.
 
 ### Codex App Server
 
-The App Server session begins only after successful initialize response and initialized-notification admission. Initialization failure records only `app-server session start failed`; an established session stops once during invalidation. Accepted client and server JSON-RPC requests carry their IDs from start to their one map-removal terminal. Notifications remain notifications. The typed backend reducer records real thread-start and turn events; no `thread closed` is invented because the protocol exposes no thread-close event. A turn terminal bit suppresses completion after failure/cancellation.
+The App Server session begins only after successful initialize response and initialized-notification admission. Initialization failure records only `app-server session start failed`; an established session stops once during explicit stop or connection invalidation. Accepted client and server JSON-RPC requests carry their IDs from start to their one map-removal terminal. Remote JSON-RPC errors are `request failed`; accepted pending requests invalidated with an unusable connection are `request cancelled`, matching the existing callback semantics. Notifications remain notifications.
+
+Destruction-time invalidation was removed. `AppServerClient::Impl` retains its pre-Phase-3 destruction behavior: invalidate callback lifetime, clear transport callbacks, and stop the transport. It does not synthesize request/session terminals or schedule callbacks during destruction.
+
+The typed backend reducer emits creation/start records only for actual `typed::ThreadStarted` and `typed::TurnStarted` events. Generic upserts and snapshot hydration do not fabricate starts. Before applying `typed::TurnCompleted` or `typed::TurnFailed`, terminal logging checks the existing domain `terminal` state; no logging flags live in `ThreadUpserted`, `TurnUpserted`, `ThreadState`, `TurnState`, snapshots, or frontend state. No `thread closed` is invented because the protocol exposes no thread-close event.
 
 ### MariaDB
 
@@ -112,30 +116,40 @@ No relevant Phase 3 lifecycle record is deferred. The final closure audit may re
 
 ## Compatibility assessment
 
-Protocol behavior, parsing, routing, middleware order, callbacks, public/protected function signatures, HTTP/1.x behavior, WebSocket framing and close behavior, MQTT QoS/persistence/reconnect behavior, Codex wire schemas/reducers, database execution, Phase 1/2 transport behavior, TLS, logger schema/backend/formatting/filtering, SOVERSION, and book content are unchanged.
+Apart from the narrow EventSource destruction/configuration correction described above, protocol behavior, parsing, routing, middleware order, callbacks, HTTP/1.x behavior, WebSocket framing and close behavior, MQTT QoS/persistence/reconnect behavior, Codex wire schemas and reducer domain semantics, database execution, Phase 1/2 transport behavior, TLS, logger schema/backend/formatting/filtering, and book content are unchanged. AppServerClient destruction is restored to its pre-Phase-3 behavior.
 
-Source compatibility is preserved. Binary compatibility is **not claimed**: private state was added to installed/polymorphic HTTP, EventSource template, MQTT, MariaDB, and Codex backend types, so consumers must rebuild. No vtable entry or public/protected API was added, removed, or reordered, and SOVERSION is intentionally unchanged for this in-tree lifecycle normalization.
+Existing public class-member signatures and protected APIs are unchanged, and the installed Codex backend aggregate shapes match `master`. The installed function surface is not literally unchanged: four additive namespace-scope semantic logger overloads were added for connection-bound MQTT and HTTP logging (`mqttLogScope(connection)`, `mqttLog(connection)`, `httpClientLog(connection)`, and `httpServerLog(connection)`). Existing source consumers remain source-compatible.
+
+Binary compatibility is **not claimed**. Installed HTTP client/server context and response classes, MQTT `Mqtt`, and `MariaDBConnection` have private layout changes, so consumers must rebuild. AppServerClient's PIMPL and the restored Codex aggregates add no exposed layout change. EventSource's private shared allocation and inline destructor behavior changed, but no virtual slot was added. No vtable entry was added, removed, or reordered. SOVERSION is intentionally unchanged.
 
 ## Validation surface and results
 
-The final GCC build used `cmake --build build -j2` and completed all targets successfully. The focused structured lifecycle matrix used:
+The GCC 15 Debug build, with include-what-you-use checks enabled, completed every target:
 
 ```text
-ctest --test-dir build --output-on-failure -R '^(Phase3LifecyclePolicyTest|Phase3CodexLifecycleTest|Phase3MqttLifecycleTest|InetHttpServerClientGetRoundTripTest|InetHttpServerMalformedRequestBehaviorTest|InetHttpClientPrematureServerCloseTest|InetWebSocketServerClientCloseHandshakeTest|InetWebSocketUnexpectedCloseLifecycleTest|InetSseEventSourceClientCloseAfterEventTest|InetSseEventSourceReconnectLifecycleTest)$'
+cmake --build build -j2
 ```
 
-Result: 10/10 passed. The tests use structured semantic JSON for HTTP request success, malformed-input failure, transport-loss abort, WebSocket upgrade/normal end/abnormal end/subprotocol ownership, EventSource establishment/retry/explicit close, MQTT established/resumed/rejected/ended exactly-once behavior, and Codex thread/turn terminal exclusion. The Phase 3 source-policy test covers notification separation, obsolete MQTT wording, MQTT-over-WebSocket duplication, absence of fabricated thread close, and database outcome consistency.
+The 42-test focused matrix passed 42/42. It covers the Phase 3 policy, Codex reducer, fake-transport AppServerClient requests, MQTT CONNECT/CONNACK transitions, EventSource explicit close/reconnect/destruction, HTTP request outcomes, WebSocket lifecycle, Phase 1 context, Phase 2 transport, TLS state-machine/ABI checks, and coordinated stream/TLS shutdown. The Phase 3 tests use structured semantic JSON for vocabulary, level, count, ordering, and available semantic identity fields.
 
-The final combined logging, lifecycle, TLS, and shutdown label matrix passed 76/76. The final complete suite passed 249 tests with zero failures out of 250. `CodexTypedAppServerIntegrationTest` was skipped and is not counted as passing because `SNODEC_RUN_CODEX_TYPED_INTEGRATION=1` was not set; that opt-in may use configured credentials and quota.
+Additional GCC results were:
 
-Clang 21 compiled every changed production library and the focused targets with `CHECK_INCLUDES=OFF` and only these compatibility demotions for warnings introduced by newer Clang diagnostics:
+- all logging tests: 44/44 passed;
+- all 65 Codex-labelled tests: 64 passed and one skipped;
+- all three MQTT-named tests: 3/3 passed;
+- staged installed consumers and the TLS ABI/source check: 2/2 passed;
+- complete CTest: 251 passed, zero failed, and one skipped out of 252.
+
+`CodexTypedAppServerIntegrationTest` was skipped and is not counted as passing because `SNODEC_RUN_CODEX_TYPED_INTEGRATION=1` was not set. That opt-in uses a real Codex App Server and may consume configured credentials and quota.
+
+Clang 21.1.8 compiled the 12 focused Phase 3 targets and passed 12/12 focused tests with `CHECK_INCLUDES=OFF` and the existing compatibility demotions for three newer diagnostics:
 
 ```text
 -Wno-error=tautological-type-limit-compare -Wno-error=nrvo -Wno-error=implicit-int-conversion
 ```
 
-The Clang focused matrix passed 10/10. A strict Clang 21 build remains gated by three pre-existing `-Werror` diagnostics outside Phase 3 changes: a tautological type-limit comparison in `src/web/http/decoder/Chunked.cpp`, `-Wnrvo` in `src/ai/openai/codex/detail/ItemDecoder.cpp`, and implicit integer conversion in `src/web/websocket/Receiver.cpp`.
+A strict Clang 21 build remains gated by those three pre-existing `-Werror` diagnostics outside Phase 3 changes: a tautological type-limit comparison in `src/web/http/decoder/Chunked.cpp`, `-Wnrvo` in `src/ai/openai/codex/detail/ItemDecoder.cpp`, and implicit integer conversion in `src/web/websocket/Receiver.cpp`.
 
-The AddressSanitizer/LeakSanitizer configuration used `SNODEC_ENABLE_ASAN=ON`. Seven non-WebSocket lifecycle tests passed 7/7 with leak detection enabled, covering MQTT, Codex, HTTP, and EventSource. The two WebSocket lifecycle tests passed 2/2 with address checking enabled and leak reporting disabled. With leak reporting enabled, both expose the existing process-lifetime WebSocket upgrade/subprotocol factory registries; no invalid access is reported, but those two runs are not called leak-clean.
+The AddressSanitizer/LeakSanitizer configuration used `SNODEC_ENABLE_ASAN=ON`. With the compiler's `libasan.so` explicitly preloaded so that the runtime is first, the focused Codex reducer, AppServerClient request, EventSource explicit-close, and EventSource destruction tests passed 4/4 with `detect_leaks=1:halt_on_error=1`. An initial invocation without `LD_PRELOAD` was rejected before any test ran because the ASan runtime was not first in the process library list.
 
-There is no configured MariaDB service or credentials in this environment, so no live database session/query integration was run; the MariaDB library compiled under GCC and Clang and its lifecycle invariants are covered by the source-policy test. MQTT-over-WebSocket libraries compiled under both compilers and their ownership boundary is source-policy checked, but the repository has no broker-backed MQTT-over-WebSocket lifecycle integration fixture. These are validation limitations, not passing integration results.
+There is no MariaDB CTest fixture or configured service/credentials in this environment, so no live database session/query integration was run; the MariaDB library compiled in the full GCC build and its lifecycle invariants are covered by the source-policy test. MQTT-over-WebSocket libraries compiled, and their ownership boundary is source-policy checked, but the repository has no broker-backed MQTT-over-WebSocket lifecycle fixture. These are limitations, not passing integration results. `git diff --check` is clean.
