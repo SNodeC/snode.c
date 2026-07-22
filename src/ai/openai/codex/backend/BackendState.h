@@ -114,6 +114,8 @@ namespace ai::openai::codex::backend {
         std::vector<typed::ItemId> itemOrder;
         bool active = false;
         bool terminal = false;
+        bool lifecycleStarted = false;
+        bool lifecycleTerminalLogged = false;
         std::optional<Json> failure;
         std::optional<Json> tokenUsage;
         std::vector<ModelRerouteRecord> modelReroutes;
@@ -125,6 +127,7 @@ namespace ai::openai::codex::backend {
         std::map<std::string, TurnState> turns;
         std::vector<typed::TurnId> turnOrder;
         bool fullyLoaded = false;
+        bool creationLogged = false;
         Json extensions = Json::object();
     };
 

@@ -32,6 +32,7 @@ namespace ai::openai::codex::backend {
     struct ThreadUpserted {
         typed::Thread thread;
         EntityLoad load = EntityLoad::Summary;
+        bool lifecycleStart = false;
     };
 
     struct ThreadListUpdated {
@@ -47,6 +48,7 @@ namespace ai::openai::codex::backend {
 
     struct TurnUpserted {
         typed::Turn turn;
+        bool lifecycleStart = false;
     };
 
     struct TurnCompleted {
