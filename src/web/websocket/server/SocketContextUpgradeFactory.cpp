@@ -43,10 +43,12 @@
 
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
+#include "web/websocket/SemanticLog.h"
 #include "web/websocket/server/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
@@ -95,17 +97,23 @@ namespace web::websocket::server {
                     delete socketContext;
                     socketContext = nullptr;
 
+                    semantic::webSocketSubProtocolLog(*socketConnection).debug() << "websocket failed";
+
                     response->set("Connection", "close");
                     response->status(400);
                 }
             } else {
                 checkRefCount();
 
+                semantic::webSocketSubProtocolLog(*socketConnection).debug() << "websocket failed";
+
                 response->set("Connection", "close");
                 response->status(400);
             }
         } else {
             checkRefCount();
+
+            semantic::webSocketSubProtocolLog(*socketConnection).debug() << "websocket failed";
 
             response->set("Sec-WebSocket-Version", "13");
             response->set("Connection", "close");

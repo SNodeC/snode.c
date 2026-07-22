@@ -131,6 +131,7 @@ namespace web::http::server {
     private:
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
+        bool sourceFailed = false;
 
         web::http::server::SocketContext* socketContext = nullptr;
 

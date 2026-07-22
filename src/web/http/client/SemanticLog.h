@@ -1,9 +1,12 @@
 #ifndef WEB_HTTP_CLIENT_SEMANTICLOG_H
 #define WEB_HTTP_CLIENT_SEMANTICLOG_H
 
+#include "core/socket/stream/SocketConnection.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace web::http::client::semantic {
@@ -26,6 +29,17 @@ namespace web::http::client::semantic {
 
     inline logger::BoundaryLogger httpClientLog() {
         return httpClientLogScope().logger(logger::Logger::semanticSink());
+    }
+
+    inline logger::BoundaryLogger httpClientLog(const core::socket::stream::SocketConnection& connection) {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "web.http.client",
+                                     connection.getInstanceName().empty() ? std::nullopt
+                                                                          : std::optional<std::string>(connection.getInstanceName()),
+                                     logger::LogRole::Client,
+                                     std::to_string(connection.getConnectionId()))
+            .logger(logger::Logger::semanticSink());
     }
 
     inline logger::BoundaryLogger httpClientLog(logger::BoundaryLogger::Sink sink,

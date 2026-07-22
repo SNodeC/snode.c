@@ -142,7 +142,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::attach() {
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': start";
+        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).info() << "subprotocol started: " << name;
 
         onConnected();
     }
@@ -151,7 +151,7 @@ namespace web::websocket {
     void SubProtocol<SocketContextUpgrade>::detach() {
         onDisconnected();
 
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': stopped";
+        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).info() << "subprotocol stopped: " << name;
 
         semantic::webSocketSubProtocolLog().debug() << "       Total Payload sent: " << getPayloadTotalSent();
         semantic::webSocketSubProtocolLog().debug() << "  Total Payload processed: " << getPayloadTotalRead();

@@ -59,6 +59,7 @@ namespace web::http::client {
 #include <functional>
 #include <list>
 #include <memory> // IWYU pragma: export
+#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -87,6 +88,7 @@ namespace web::http::client {
         void deliverResponse(const std::shared_ptr<Response>& response);
         void deliverResponseParseError(int status, const std::string& reason);
         void requestCompleted(const std::shared_ptr<Response>& response);
+        void requestTerminal(const std::shared_ptr<MasterRequest>& request, const char* outcome);
 
         void setSseEventReceiver(const std::function<std::size_t()>& onServerSentEvent);
 
@@ -103,6 +105,7 @@ namespace web::http::client {
 
         std::list<std::shared_ptr<MasterRequest>> pendingRequests;
         std::list<std::shared_ptr<MasterRequest>> deliveredRequests;
+        std::set<std::size_t> startedRequests;
 
         bool pipelinedRequests = false;
 

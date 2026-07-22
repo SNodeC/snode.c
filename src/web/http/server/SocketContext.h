@@ -81,10 +81,17 @@ namespace web::http::server {
         SocketContext* setOnDisconnected(std::function<void()> onDisconnectEventReceiver);
 
     private:
+        struct PendingRequest {
+            std::shared_ptr<Request> request;
+            std::size_t id;
+            bool terminal;
+        };
+
         void deliverRequest();
         void responseStarted(const Response& response);
         void responseCompleted(const Response& response, bool success);
         void requestCompleted(const Response& response);
+        void requestTerminal(const PendingRequest& request, const char* outcome);
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
 
@@ -94,7 +101,7 @@ namespace web::http::server {
         bool onSignal(int signum) override;
         void onWriteError(int errnum) override;
 
-        std::list<std::shared_ptr<Request>> pendingRequests;
+        std::list<PendingRequest> pendingRequests;
         std::shared_ptr<Response> masterResponse;
 
         std::list<std::function<void()>> onConnectEventReceiverList;
@@ -104,6 +111,9 @@ namespace web::http::server {
 
         bool httpClose = false;
         bool serverSentEvent = false;
+        std::size_t nextRequestId = 0;
+        std::size_t parsingRequestId = 0;
+        bool parsingRequest = false;
 
         friend Response;
     };

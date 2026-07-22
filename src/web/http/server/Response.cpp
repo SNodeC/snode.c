@@ -98,6 +98,7 @@ namespace web::http::server {
         trailer.clear();
         contentLength = 0;
         contentSent = 0;
+        sourceFailed = false;
         connectionState = ConnectionState::Default;
         transferEncoding = TransferEncoding::HTTP10;
     }
@@ -467,7 +468,8 @@ namespace web::http::server {
                 // Pretend we sent the full body length; this prevents keep-alive logic from treating HEAD as incomplete.
                 contentSent = contentLength;
             }
-            socketContext->responseCompleted(*this, isHead || contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
+            socketContext->responseCompleted(
+                *this, !sourceFailed && (isHead || contentSent == contentLength || (httpMajor == 1 && httpMinor == 0)));
         }
     }
 
@@ -499,6 +501,7 @@ namespace web::http::server {
 
     void Response::onSourceError(int errnum) {
         errno = errnum;
+        sourceFailed = true;
 
         if (isConnected()) {
             socketContext->streamEof();
