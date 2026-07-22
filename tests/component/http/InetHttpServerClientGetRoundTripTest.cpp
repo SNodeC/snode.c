@@ -1,10 +1,13 @@
 #include "HttpServerClientRoundTripTest.h"
-
 #include "net/in/SocketAddress.h"
+#include "support/Phase3SemanticLogCapture.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
-int main(int argc, char* argv[]) {
+#include <string_view>
+#include <utility>
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;
 
@@ -12,8 +15,9 @@ int main(int argc, char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpServerClientGetRoundTripTest");
     } else {
         tests::component::http::RoundTripState state;
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-success");
 
-        core::SNodeC::init(argc, argv);
+        capture.initCore("InetHttpServerClientGetRoundTripTest");
 
         using Server = web::http::legacy::in::Server;
         using Client = web::http::legacy::in::Client;
@@ -60,8 +64,30 @@ int main(int argc, char* argv[]) {
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         tests::component::http::expectRoundTrip(testResult, state, "IPv4 legacy", startResult);
-        result = testResult.processResult();
         core::SNodeC::free();
+
+        const std::vector<nlohmann::json> records = capture.finish();
+        for (const auto& [component, instance] :
+             {std::pair{"web.http.server", "ipv4-http-round-trip-server"}, std::pair{"web.http.client", "ipv4-http-round-trip-client"}}) {
+            testResult.expectEqual(
+                1, capture.count(records, component, instance, "request started:"), "one request start for " + std::string(instance));
+            testResult.expectEqual(1,
+                                   capture.count(records, component, instance, "request completed:"),
+                                   "one request completion for " + std::string(instance));
+            testResult.expectEqual(
+                0, capture.count(records, component, instance, "request failed:"), "no request failure for " + std::string(instance));
+            testResult.expectEqual(
+                0, capture.count(records, component, instance, "request aborted:"), "no request abort for " + std::string(instance));
+            testResult.expectTrue(capture.matchingIdentityAndLevel(records,
+                                                                   component,
+                                                                   instance,
+                                                                   "request ",
+                                                                   "debug",
+                                                                   true,
+                                                                   std::string_view(instance).ends_with("-server") ? "server" : "client"),
+                                  "request lifecycle has matching connection identity and Debug level for " + std::string(instance));
+        }
+        result = testResult.processResult();
     }
 
     return result;

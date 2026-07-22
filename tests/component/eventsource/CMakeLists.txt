@@ -9,6 +9,7 @@ snodec_add_test(InetSseEventSourceCommentIgnoredTest InetSseEventSourceCommentIg
 snodec_add_test(InetSseEventSourceDefaultMessageEventTest InetSseEventSourceDefaultMessageEventTest.cpp)
 snodec_add_test(InetSseEventSourceClientCloseAfterEventTest InetSseEventSourceClientCloseAfterEventTest.cpp)
 snodec_add_test(InetSseEventSourceRetryFieldTest InetSseEventSourceRetryFieldTest.cpp)
+snodec_add_test(InetSseEventSourceReconnectLifecycleTest InetSseEventSourceReconnectLifecycleTest.cpp)
 
 target_link_libraries(InetSseEventSourceBasicEventTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
 target_link_libraries(InetSseEventSourceMultiEventSequenceTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
@@ -17,6 +18,7 @@ target_link_libraries(InetSseEventSourceCommentIgnoredTest PRIVATE snodec-test-s
 target_link_libraries(InetSseEventSourceDefaultMessageEventTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
 target_link_libraries(InetSseEventSourceClientCloseAfterEventTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
 target_link_libraries(InetSseEventSourceRetryFieldTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetSseEventSourceReconnectLifecycleTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
 
 target_compile_features(InetSseEventSourceBasicEventTest PRIVATE cxx_std_20)
 target_compile_features(InetSseEventSourceMultiEventSequenceTest PRIVATE cxx_std_20)
@@ -25,6 +27,7 @@ target_compile_features(InetSseEventSourceCommentIgnoredTest PRIVATE cxx_std_20)
 target_compile_features(InetSseEventSourceDefaultMessageEventTest PRIVATE cxx_std_20)
 target_compile_features(InetSseEventSourceClientCloseAfterEventTest PRIVATE cxx_std_20)
 target_compile_features(InetSseEventSourceRetryFieldTest PRIVATE cxx_std_20)
+target_compile_features(InetSseEventSourceReconnectLifecycleTest PRIVATE cxx_std_20)
 
 set_tests_properties(InetSseEventSourceBasicEventTest PROPERTIES
                      LABELS "component;sse;eventsource;client;server;legacy;ipv4"
@@ -58,5 +61,10 @@ set_tests_properties(InetSseEventSourceClientCloseAfterEventTest PROPERTIES
 
 set_tests_properties(InetSseEventSourceRetryFieldTest PROPERTIES
                      LABELS "component;sse;eventsource;client;server;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetSseEventSourceReconnectLifecycleTest PROPERTIES
+                     LABELS "component;sse;eventsource;client;server;legacy;ipv4;lifecycle;log"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)

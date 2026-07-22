@@ -8,16 +8,17 @@
 #define TESTS_COMPONENT_EVENTSOURCE_EVENTSOURCECOMPONENTTEST_H
 
 #include "core/SNodeC.h"
+#include "net/in/SocketAddress.h"
+#include "support/Phase3SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
+#include "web/http/CiStringMap.h"
 #include "web/http/client/tools/EventSource.h"
 #include "web/http/legacy/in/EventSource.h"
 #include "web/http/legacy/in/Server.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContext.h"
-#include "web/http/CiStringMap.h"
-#include "net/in/SocketAddress.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -49,6 +50,7 @@ namespace tests::component::eventsource {
         bool serverSawAccept = false;
         bool stoppedAfterExpectedEvents = false;
         bool closeInvoked = false;
+        bool allowReconnect = false;
 
         std::vector<ExpectedEvent> receivedEvents;
         std::shared_ptr<web::http::client::tools::EventSource> eventSource;
@@ -100,7 +102,10 @@ namespace tests::component::eventsource {
         state.serverSawPath = request->url == "/events";
         state.serverSawAccept = web::http::ciContains(request->get("Accept"), "text/event-stream");
 
-        response->status(200).type("text/event-stream").set("Cache-Control", "no-cache").set("Connection", "keep-alive");
+        response->status(200)
+            .type("text/event-stream")
+            .set("Cache-Control", "no-cache")
+            .set("Connection", state.allowReconnect && state.serverRequestCount == 1 ? "close" : "keep-alive");
         response->sendHeader();
 
         sendEvents(request, response, state, events);
@@ -139,7 +144,7 @@ namespace tests::component::eventsource {
         }
     }
 
-    template <typename StateT, typename Expect, typename SendEvents>
+    template <typename StateT, typename Expect, typename SendEvents, typename AfterFree>
     int runInetEventSourceTest(int argc,
                                char* argv[],
                                const char* testName,
@@ -148,7 +153,8 @@ namespace tests::component::eventsource {
                                const std::vector<ExpectedEvent>& events,
                                bool multiLineData,
                                Expect expect,
-                               SendEvents sendEvents) {
+                               SendEvents sendEvents,
+                               AfterFree afterFree) {
         int result = tests::support::cTestSkipReturnCode;
 
         if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
@@ -178,7 +184,7 @@ namespace tests::component::eventsource {
                         }
                         state.eventSource->onOpen([&state]() { ++state.eventSourceOpenCount; });
                         state.eventSource->onError([&state]() {
-                            if (!state.stoppedAfterExpectedEvents) {
+                            if (!state.stoppedAfterExpectedEvents && !state.allowReconnect) {
                                 ++state.parseErrorCount;
                                 core::SNodeC::stop();
                             }
@@ -204,12 +210,28 @@ namespace tests::component::eventsource {
 
             const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
             expect(testResult, state, events, startResult);
-            result = testResult.processResult();
             state.eventSource.reset();
             core::SNodeC::free();
+            afterFree(testResult);
+            result = testResult.processResult();
         }
 
         return result;
+    }
+
+    template <typename StateT, typename Expect, typename SendEvents>
+    int runInetEventSourceTest(int argc,
+                               char* argv[],
+                               const char* testName,
+                               const char* serverName,
+                               StateT& state,
+                               const std::vector<ExpectedEvent>& events,
+                               bool multiLineData,
+                               Expect expect,
+                               SendEvents sendEvents) {
+        return runInetEventSourceTest(
+            argc, argv, testName, serverName, state, events, multiLineData, expect, sendEvents, [](tests::support::TestResult&) {
+            });
     }
 
     template <typename Expect>
@@ -268,10 +290,16 @@ namespace tests::component::eventsource {
 
     struct CloseState : State {};
 
-    inline int runInetEventSourceClientCloseAfterEventTest(int argc, char* argv[], CloseState& state) {
+    inline int runInetEventSourceClientCloseAfterEventTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], CloseState& state) {
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-close");
+        char testName[] = "InetSseEventSourceClientCloseAfterEventTest";
+        char logLevel[] = "--log-level=6";
+        char logFormat[] = "--log-format=json";
+        char quiet[] = "--quiet";
+        char* logArgs[] = {testName, logLevel, logFormat, quiet, nullptr};
         return runInetEventSourceTest(
-            argc,
-            argv,
+            4,
+            logArgs,
             "InetSseEventSourceClientCloseAfterEventTest",
             "ipv4-sse-eventsource-client-close-after-event-server",
             state,
@@ -286,6 +314,92 @@ namespace tests::component::eventsource {
             },
             [](const auto&, const auto& response, CloseState&, const auto&) {
                 sendSseEvent(response, {"measurement", "1", "close-now"});
+            },
+            [&capture](tests::support::TestResult& testResult) {
+                const auto records = capture.finish();
+                constexpr std::string_view component = "web.http.client.eventsource";
+                testResult.expectEqual(1, capture.count(records, component, "", "event source started:"), "EventSource starts once");
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event stream established:"), "event stream establishes once");
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event source stopped:"), "explicit close stops EventSource once");
+                testResult.expectEqual(0,
+                                       capture.count(records, component, "", "event source reconnect scheduled:"),
+                                       "explicit close does not schedule an EventSource reconnect");
+                testResult.expectEqual(0,
+                                       capture.count(records, component, "", "event source reconnect dispatched:"),
+                                       "explicit close does not dispatch an EventSource reconnect");
+                testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, "", "event source started:", "info", false),
+                                      "EventSource start uses framework connection scope and Info");
+                testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, "", "event source stopped:", "info", false),
+                                      "EventSource stop uses the same framework connection scope and Info");
+                const std::size_t start = capture.position(records, component, "event source started:");
+                const std::size_t established = capture.position(records, component, "event stream established:");
+                const std::size_t stopped = capture.position(records, component, "event source stopped:");
+                testResult.expectTrue(start < established && established < stopped,
+                                      "EventSource start, stream establishment, and stop are ordered");
+            });
+    }
+
+    struct ReconnectState : State {};
+
+    inline int runInetEventSourceReconnectLifecycleTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], ReconnectState& state) {
+        state.allowReconnect = true;
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-reconnect");
+        char testName[] = "InetSseEventSourceReconnectLifecycleTest";
+        char logLevel[] = "--log-level=6";
+        char logFormat[] = "--log-format=json";
+        char quiet[] = "--quiet";
+        char* logArgs[] = {testName, logLevel, logFormat, quiet, nullptr};
+        return runInetEventSourceTest(
+            4,
+            logArgs,
+            "InetSseEventSourceReconnectLifecycleTest",
+            "ipv4-sse-eventsource-reconnect-lifecycle-server",
+            state,
+            {{"measurement", "2", "reconnected"}},
+            false,
+            [](tests::support::TestResult& testResult, const ReconnectState& observedState, const auto& expectedEvents, int startResult) {
+                testResult.expectEqual(0, startResult, "EventSource reconnect lifecycle exits cleanly");
+                testResult.expectEqual(1, observedState.listenOkCount, "EventSource reconnect server listens once");
+                testResult.expectEqual(1, observedState.eventSourceOpenCount, "EventSource stream establishes after retry");
+                testResult.expectEqual(2, observedState.serverRequestCount, "EventSource retry dispatches a second HTTP request");
+                testResult.expectEqual(0, observedState.parseErrorCount, "EventSource reconnect has no parse error");
+                testResult.expectEqual(0, observedState.unexpectedStateCount, "EventSource reconnect has no unexpected state");
+                expectEvents(testResult, observedState, expectedEvents);
+                testResult.expectTrue(observedState.closeInvoked, "EventSource closes explicitly after the reconnected event");
+            },
+            [](const auto&, const auto& response, ReconnectState& observedState, const auto&) {
+                if (observedState.serverRequestCount == 1) {
+                    response->sendFragment("retry: 10");
+                    response->sendFragment("");
+                    response->end();
+                } else {
+                    sendSseEvent(response, {"measurement", "2", "reconnected"});
+                }
+            },
+            [&capture](tests::support::TestResult& testResult) {
+                const auto records = capture.finish();
+                constexpr std::string_view component = "web.http.client.eventsource";
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event source started:"), "reconnecting EventSource starts once");
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event stream established:"), "EventSource records the established stream");
+                testResult.expectEqual(1,
+                                       capture.count(records, component, "", "event source reconnect scheduled:"),
+                                       "EventSource schedules one protocol retry");
+                testResult.expectEqual(1,
+                                       capture.count(records, component, "", "event source reconnect dispatched:"),
+                                       "EventSource dispatches one protocol retry");
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event source stopped:"), "reconnecting EventSource stops once");
+                testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, "", "event source reconnect ", "debug", false),
+                                      "EventSource retry lifecycle uses framework connection scope and Debug");
+                const std::size_t scheduled = capture.position(records, component, "event source reconnect scheduled:");
+                const std::size_t dispatched = capture.position(records, component, "event source reconnect dispatched:");
+                const std::size_t stopped = capture.position(records, component, "event source stopped:");
+                testResult.expectTrue(scheduled < dispatched && dispatched < stopped,
+                                      "EventSource retry schedule, dispatch, and stop are ordered");
             });
     }
 

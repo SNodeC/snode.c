@@ -11,8 +11,9 @@
 
 namespace tests::component::websocket::behavior {
 
-    template <typename Expect>
-    int runInetBehaviorTest(int argc, char* argv[], const char* serverName, const char* clientName, State& state, Expect expect) {
+    template <typename Expect, typename AfterFree>
+    int runInetBehaviorTest(
+        int argc, char* argv[], const char* serverName, const char* clientName, State& state, Expect expect, AfterFree afterFree) {
         tests::support::TestResult testResult;
         core::SNodeC::init(argc, argv);
 
@@ -39,9 +40,15 @@ namespace tests::component::websocket::behavior {
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         expect(testResult, state, startResult);
-        const int result = testResult.processResult();
         core::SNodeC::free();
-        return result;
+        afterFree(testResult);
+        return testResult.processResult();
+    }
+
+    template <typename Expect>
+    int runInetBehaviorTest(int argc, char* argv[], const char* serverName, const char* clientName, State& state, Expect expect) {
+        return runInetBehaviorTest(argc, argv, serverName, clientName, state, expect, [](tests::support::TestResult&) {
+        });
     }
 
 } // namespace tests::component::websocket::behavior

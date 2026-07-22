@@ -166,6 +166,22 @@ snodec_add_test(TransportLifecyclePhase2PolicyTest TransportLifecyclePhase2Polic
 target_compile_features(TransportLifecyclePhase2PolicyTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(TransportLifecyclePhase2PolicyTest "unit;log;transport;lifecycle;source-policy")
 
+snodec_add_test(Phase3LifecyclePolicyTest Phase3LifecyclePolicyTest.cpp)
+target_compile_features(Phase3LifecyclePolicyTest PRIVATE cxx_std_20)
+snodec_set_source_policy_test_properties(Phase3LifecyclePolicyTest "unit;log;protocol;session;request;lifecycle;source-policy")
+
+snodec_add_test(Phase3CodexLifecycleTest Phase3CodexLifecycleTest.cpp)
+target_compile_features(Phase3CodexLifecycleTest PRIVATE cxx_std_20)
+target_include_directories(Phase3CodexLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(Phase3CodexLifecycleTest PRIVATE snodec-test-support snodec::ai-openai-codex-backend snodec::logger)
+set_tests_properties(Phase3CodexLifecycleTest PROPERTIES LABELS "unit;log;codex;thread;turn;lifecycle")
+
+snodec_add_test(Phase3MqttLifecycleTest Phase3MqttLifecycleTest.cpp)
+target_compile_features(Phase3MqttLifecycleTest PRIVATE cxx_std_20)
+target_include_directories(Phase3MqttLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(Phase3MqttLifecycleTest PRIVATE snodec-test-support snodec::mqtt snodec::logger)
+set_tests_properties(Phase3MqttLifecycleTest PROPERTIES LABELS "unit;log;mqtt;protocol;session;lifecycle")
+
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(SensitiveLoggingRedactionTest "unit;log;security")

@@ -1,6 +1,7 @@
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "net/in/SocketAddress.h"
+#include "support/Phase3SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 #include "web/http/legacy/in/Client.h"
@@ -167,8 +168,9 @@ namespace {
     int runTest(int argc, char* argv[], const char* testName) {
         tests::support::TestResult testResult;
         State state;
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-websocket-unexpected-close");
         linkedState = &state;
-        core::SNodeC::init(argc, argv);
+        capture.initCore(testName);
         using Server = web::http::legacy::in::Server;
         using Client = web::http::legacy::in::Client;
         const Server server(testName + std::string("-server"), [&state](const auto& request, const auto& response) {
@@ -270,9 +272,24 @@ namespace {
         testResult.expectEqual(0, state.unexpectedStateCount, "reports no unexpected states");
         testResult.expectEqual(0, state.serverMessageStartCount, "server observes no messages before unexpected close");
         testResult.expectEqual(1, state.serverWsDisconnectedCount, "server observes one disconnect after peer close");
-        const int result = testResult.processResult();
         core::SNodeC::free();
-        return result;
+        const auto records = capture.finish();
+        for (const std::string instance : {std::string(testName) + "-server", std::string(testName) + "-client"}) {
+            testResult.expectEqual(1,
+                                   capture.count(records, "web.websocket.subprotocol", instance, "websocket established:"),
+                                   "unexpected-close WebSocket establishes once for " + instance);
+            testResult.expectEqual(1,
+                                   capture.count(records, "web.websocket.subprotocol", instance, "websocket ended:"),
+                                   "unexpected-close WebSocket ends once for " + instance);
+            testResult.expectEqual(1,
+                                   capture.count(records, "web.websocket.subprotocol", instance, "subprotocol stopped:"),
+                                   "unexpected-close subprotocol stops once for " + instance);
+            testResult.expectTrue(capture.matchingIdentityAndLevel(records, "web.websocket.subprotocol", instance, "websocket ", "info"),
+                                  "unexpected-close WebSocket lifecycle has matching identity and Info level for " + instance);
+        }
+        static_cast<void>(argc);
+        static_cast<void>(argv);
+        return testResult.processResult();
     }
 
 } // namespace
