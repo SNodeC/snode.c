@@ -92,6 +92,8 @@ foreach(scenario
         plain_signal_false_veto
         plain_no_observer
         plain_noncooperating_timeout
+        reentrant_context_cleanup
+        reentrant_context_finalizer_cleanup
         destruction_logging_order)
     add_test(NAME StreamFrameworkShutdown_${scenario} COMMAND StreamFrameworkShutdownTest ${scenario})
     set_tests_properties(
@@ -110,6 +112,8 @@ target_compile_definitions(TLSFrameworkShutdownTest PRIVATE SNODEC_BUILD_TESTS)
 foreach(scenario
         active_helper_requested
         active_helper_no_observer
+        active_helper_signal
+        active_helper_forced
         publisher_mutation_same_list
         publisher_mutation_cross_publisher
         signal_false_tls

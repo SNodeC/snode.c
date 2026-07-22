@@ -368,8 +368,8 @@ namespace {
     }
 
     void initializeFramework() {
-        char arg0[] = "TLSFrameworkShutdownTest";
-        char* args[] = {arg0, nullptr};
+        static char arg0[] = "TLSFrameworkShutdownTest";
+        static char* args[] = {arg0, nullptr};
         core::SNodeC::init(1, args);
     }
 
@@ -422,7 +422,7 @@ namespace {
         core::EventLoop::instance().getEventMultiplexer().clearEventQueue();
     }
 
-    int runActiveHelper(core::ShutdownReason reason) {
+    int runActiveHelper(core::ShutdownReason reason, bool forceTermination = false) {
         TestResult result;
         initializeFramework();
         resetTlsState();
@@ -438,26 +438,45 @@ namespace {
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "one active helper is constructed");
         result.expectTrue(TLSLifecycleTestAccess::readEnabled(helper), "active helper is observing reads");
 
-        core::SNodeC::stop();
-        core::EventLoop::instance().getEventMultiplexer().shutdown({reason, 0});
-
-        result.expectTrue(TLSLifecycleTestAccess::lastShutdown() == helper, "framework shutdown joins the existing helper");
-        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "framework shutdown does not duplicate helper");
-        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().operationCalls, "dual helper notification does not restart helper");
-        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().active, "active helper remains alive after notification");
-        result.expectTrue(TLSLifecycleTestAccess::readEnabled(helper), "Requested/NoObserver notification leaves helper enabled");
-
-        TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+        TLSLifecycleTestAccess::enqueueShutdownResult(-1, SSL_ERROR_WANT_WRITE);
         TLSLifecycleTestAccess::readEvent(helper);
-        releaseDisabledEvents();
+        result.expectTrue(TLSLifecycleTestAccess::readEnabled(helper), "active helper retains its read receiver");
+        result.expectTrue(TLSLifecycleTestAccess::writeEnabled(helper), "active helper also registers its write receiver");
 
-        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().successes, "joined helper completes cooperatively");
+        core::SNodeC::stop();
+        const int shutdownSignal = reason == core::ShutdownReason::Signal ? SIGTERM : 0;
+        core::EventLoop::instance().getEventMultiplexer().shutdown({reason, shutdownSignal});
+
+        const bool helperRetained = TLSLifecycleTestAccess::lastShutdown() == helper &&
+                                    TLSLifecycleTestAccess::shutdownCounters().active == 1;
+        result.expectTrue(helperRetained, "framework shutdown joins the existing helper");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "framework shutdown does not duplicate helper");
+        result.expectEqual(2, TLSLifecycleTestAccess::shutdownCounters().operationCalls, "dual helper notification does not restart helper");
+        result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().active, "active helper remains alive after notification");
+        result.expectTrue(helperRetained && TLSLifecycleTestAccess::readEnabled(helper),
+                          "Requested/NoObserver notification leaves helper enabled");
+        result.expectEqual(reason == core::ShutdownReason::Signal ? 1 : 0,
+                           state->signals,
+                           "active-helper signal callback count matches the framework reason");
+        result.expectEqual(shutdownSignal, state->lastSignal, "active-helper signal metadata is preserved");
+
+        if (!forceTermination) {
+            TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
+            if (helperRetained) {
+                TLSLifecycleTestAccess::writeEvent(helper);
+            }
+            releaseDisabledEvents();
+
+            result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().successes, "joined helper completes cooperatively");
+            result.expectEqual(1, state->shutdownWriteCalls, "joined helper performs physical write shutdown once");
+        } else {
+            result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().successes, "forced helper remains mid-shutdown");
+        }
+
+        terminateRemainingResources();
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().releases, "joined helper release callback runs once");
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().destroyed, "joined helper is destroyed once");
         result.expectEqual(0, TLSLifecycleTestAccess::shutdownCounters().active, "joined helper leaves no active helper");
-        result.expectEqual(1, state->shutdownWriteCalls, "joined helper performs physical write shutdown once");
-
-        terminateRemainingResources();
         result.expectTrue(fixture.connection == nullptr, "forced local fallback releases the connection");
         result.expectEqual(1, state->detached, "active context detaches once");
         result.expectEqual(1, state->contextsDestroyed, "active context is destroyed once");
@@ -484,20 +503,25 @@ namespace {
         core::EventLoop::instance().getEventMultiplexer().shutdown({core::ShutdownReason::Requested, 0});
 
         TLSShutdown* const helper = TLSLifecycleTestAccess::lastShutdown();
-        result.expectTrue(helper != nullptr, "connection notification creates TLSShutdown during traversal");
+        const bool helperCreated = helper != nullptr;
+        result.expectTrue(helperCreated, "connection notification creates TLSShutdown during traversal");
         result.expectEqual(1, state->readSentinelNotifications, "pre-existing read receiver is notified exactly once");
         result.expectEqual(1, state->writeSentinelNotifications, "pre-existing write receiver is notified exactly once");
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().constructed, "live insertion constructs one helper");
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().operationCalls, "helper notification is continuation-safe");
         result.expectEqual(1, TLSLifecycleTestAccess::shutdownCounters().active, "inserted helper survives publisher shutdown");
-        result.expectTrue(crossPublisher ? TLSLifecycleTestAccess::writeEnabled(helper) : TLSLifecycleTestAccess::readEnabled(helper),
+        result.expectTrue(helperCreated &&
+                              (crossPublisher ? TLSLifecycleTestAccess::writeEnabled(helper)
+                                              : TLSLifecycleTestAccess::readEnabled(helper)),
                           "inserted helper remains enabled in its selected publisher");
 
         TLSLifecycleTestAccess::enqueueShutdownResult(1, SSL_ERROR_NONE);
-        if (crossPublisher) {
-            TLSLifecycleTestAccess::writeEvent(helper);
-        } else {
-            TLSLifecycleTestAccess::readEvent(helper);
+        if (helperCreated) {
+            if (crossPublisher) {
+                TLSLifecycleTestAccess::writeEvent(helper);
+            } else {
+                TLSLifecycleTestAccess::readEvent(helper);
+            }
         }
         releaseDisabledEvents();
 
@@ -617,6 +641,12 @@ int main(int argc, char* argv[]) {
     }
     if (scenario == "active_helper_no_observer") {
         return runActiveHelper(core::ShutdownReason::NoObserver);
+    }
+    if (scenario == "active_helper_signal") {
+        return runActiveHelper(core::ShutdownReason::Signal);
+    }
+    if (scenario == "active_helper_forced") {
+        return runActiveHelper(core::ShutdownReason::Requested, true);
     }
     if (scenario == "publisher_mutation_same_list") {
         return runPublisherMutation(false);

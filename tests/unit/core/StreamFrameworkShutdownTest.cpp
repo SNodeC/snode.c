@@ -62,6 +62,8 @@ namespace {
         std::size_t peerBytes = 0;
         std::size_t totalSentAtDisconnect = 0;
         std::size_t totalQueuedAtDisconnect = 0;
+        std::function<void()> onContextDisconnect;
+        std::function<void()> onPendingContextDestroy;
         bool captureLifetimeLogs = false;
     };
 
@@ -316,6 +318,10 @@ namespace {
             }
             if (pending) {
                 ++state.pendingContextDestroyed;
+                if (state.onPendingContextDestroy) {
+                    auto callback = std::move(state.onPendingContextDestroy);
+                    callback();
+                }
             } else {
                 ++state.activeContextDestroyed;
             }
@@ -333,6 +339,10 @@ namespace {
             if (state.captureLifetimeLogs) {
                 log().info("final application context onDisconnected");
                 frameworkLog().info("final framework context onDisconnected");
+            }
+            if (state.onContextDisconnect) {
+                auto callback = std::move(state.onContextDisconnect);
+                callback();
             }
         }
 
@@ -441,7 +451,12 @@ namespace {
         std::shared_ptr<PhysicalCounters> physical = std::make_shared<PhysicalCounters>();
         TestConnection* connection = nullptr;
 
-        Fixture(bool pendingContext, const utils::Timeval& terminateTimeout, bool captureLifetimeLogs = false) {
+        Fixture(bool pendingContext,
+                const utils::Timeval& terminateTimeout,
+                bool captureLifetimeLogs = false,
+                bool installContextDuringDetach = false,
+                bool installContextDuringPendingDestroy = false,
+                bool installContextDuringDisconnect = false) {
             lifecycle.captureLifetimeLogs = captureLifetimeLogs;
             auto config = std::make_shared<TestConfig>(terminateTimeout);
             config->setOnDestroy([this](net::config::ConfigInstance* configInstance) {
@@ -452,10 +467,13 @@ namespace {
             });
             connection = new TestConnection(
                 TestPhysicalSocket(pair.releaseConnectionFd(), physical),
-                [this](TestConnection* closingConnection) {
+                [this, installContextDuringDisconnect](TestConnection* closingConnection) {
                     ++lifecycle.disconnects;
                     lifecycle.totalSentAtDisconnect = closingConnection->getTotalSent();
                     lifecycle.totalQueuedAtDisconnect = closingConnection->getTotalQueued();
+                    if (installContextDuringDisconnect) {
+                        closingConnection->setSocketContext(new CountingContext(closingConnection, lifecycle, true));
+                    }
                     connection = nullptr;
                 },
                 41,
@@ -465,19 +483,40 @@ namespace {
             if (pendingContext) {
                 connection->setSocketContext(new CountingContext(connection, lifecycle, true));
             }
+            if (installContextDuringDetach) {
+                lifecycle.onContextDisconnect = [this]() {
+                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
+                };
+            }
+            if (installContextDuringPendingDestroy) {
+                lifecycle.onPendingContextDestroy = [this]() {
+                    connection->setSocketContext(new CountingContext(connection, lifecycle, true));
+                };
+            }
         }
     };
 
     enum class Trigger { Requested, Signal, NoObserver };
 
-    int runPlainScenario(Trigger trigger, bool queued, bool cooperative, bool pendingContext) {
+    int runPlainScenario(Trigger trigger,
+                         bool queued,
+                         bool cooperative,
+                         bool pendingContext,
+                         bool installContextDuringDetach = false,
+                         bool installContextDuringPendingDestroy = false,
+                         bool installContextDuringDisconnect = false) {
         tests::support::TestResult result;
         char arg0[] = "StreamFrameworkShutdownTest";
         char* args[] = {arg0, nullptr};
         core::SNodeC::init(1, args);
 
         const utils::Timeval terminateTimeout = cooperative ? utils::Timeval({1, 0}) : utils::Timeval({0, 50000});
-        Fixture fixture(pendingContext, terminateTimeout);
+        Fixture fixture(pendingContext,
+                        terminateTimeout,
+                        false,
+                        installContextDuringDetach,
+                        installContextDuringPendingDestroy,
+                        installContextDuringDisconnect);
         result.expectTrue(fixture.pair.valid() || fixture.connection != nullptr, "socketpair and connection are available");
 
         const std::string payload = queued ? std::string(32 * 1024, 'Q') : std::string();
@@ -489,32 +528,43 @@ namespace {
                 fixture.pair.releasePeerFd(), payload.size(), fixture.lifecycle, fixture.physical));
         }
 
-        core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
-            [&fixture, trigger]() {
-                if (trigger == Trigger::Signal) {
-                    static_cast<void>(::kill(::getpid(), SIGTERM));
-                    return;
-                }
+        int startResult = 0;
+        if (trigger == Trigger::NoObserver) {
+            core::SNodeC::stop();
+            core::timer::Timer rejectedTimer = core::timer::Timer::singleshotTimer(
+                [&fixture]() {
+                    ++fixture.lifecycle.timerAfterStopping;
+                },
+                utils::Timeval());
+            core::EventLoop::instance().getEventMultiplexer().shutdown({core::ShutdownReason::NoObserver, 0});
+            core::SNodeC::free();
+        } else {
+            core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
+                [&fixture, trigger]() {
+                    if (trigger == Trigger::Signal) {
+                        static_cast<void>(::kill(::getpid(), SIGTERM));
+                        return;
+                    }
 
-                core::SNodeC::stop();
-                core::timer::Timer rejectedTimer = core::timer::Timer::singleshotTimer(
-                    [&fixture]() {
-                        ++fixture.lifecycle.timerAfterStopping;
-                    },
-                    utils::Timeval());
-                if (trigger == Trigger::NoObserver) {
-                    core::EventLoop::instance().getEventMultiplexer().shutdown({core::ShutdownReason::NoObserver, 0});
-                }
-            },
-            utils::Timeval({0, 1000}));
+                    core::SNodeC::stop();
+                    core::timer::Timer rejectedTimer = core::timer::Timer::singleshotTimer(
+                        [&fixture]() {
+                            ++fixture.lifecycle.timerAfterStopping;
+                        },
+                        utils::Timeval());
+                },
+                utils::Timeval({0, 1000}));
 
-        const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
+            startResult = core::SNodeC::start(utils::Timeval({1, 0}));
+        }
 
         result.expectEqual(trigger == Trigger::Signal ? -SIGTERM : 0, startResult, "start result preserves shutdown trigger");
         result.expectEqual(1, fixture.lifecycle.contextAttached, "active context attaches once");
         result.expectEqual(1, fixture.lifecycle.contextDetached, "active context detaches once");
         result.expectEqual(1, fixture.lifecycle.activeContextDestroyed, "active context is destroyed once");
-        result.expectEqual(pendingContext ? 1 : 0,
+        const int expectedPendingContexts = (pendingContext ? 1 : 0) + (installContextDuringDetach ? 1 : 0) +
+                                            (installContextDuringPendingDestroy ? 1 : 0) + (installContextDuringDisconnect ? 1 : 0);
+        result.expectEqual(expectedPendingContexts,
                            fixture.lifecycle.pendingContextDestroyed,
                            "pending context is destroyed exactly once when present");
         result.expectEqual(trigger == Trigger::Signal ? 1 : 0, fixture.lifecycle.signals, "signal callback count matches trigger");
@@ -741,6 +791,12 @@ int main(int argc, char* argv[]) {
     }
     if (scenario == "plain_noncooperating_timeout") {
         return runPlainScenario(Trigger::Requested, false, false, false);
+    }
+    if (scenario == "reentrant_context_cleanup") {
+        return runPlainScenario(Trigger::Requested, false, true, false, true);
+    }
+    if (scenario == "reentrant_context_finalizer_cleanup") {
+        return runPlainScenario(Trigger::Requested, false, true, true, true, true, true);
     }
     if (scenario == "destruction_logging_order") {
         return runLoggingLifetimeScenario();

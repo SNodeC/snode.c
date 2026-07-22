@@ -395,15 +395,28 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::unobservedEvent() {
         SocketContext* const pendingSocketContext = std::exchange(Super::newSocketContext, nullptr);
+        const bool hadActiveSocketContext = Super::socketContext != nullptr;
+        const auto releasePendingSocketContexts = [this](SocketContext* pendingContext) {
+            while (pendingContext != nullptr || Super::newSocketContext != nullptr) {
+                SocketContext* const context = Super::newSocketContext != nullptr
+                                                   ? std::exchange(Super::newSocketContext, nullptr)
+                                                   : std::exchange(pendingContext, nullptr);
+                delete context;
+            }
+        };
 
-        if (Super::socketContext != nullptr) {
+        if (hadActiveSocketContext) {
             Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
-            Super::socketContext = nullptr;
         }
-        delete pendingSocketContext;
-        delete std::exchange(Super::newSocketContext, nullptr);
+        releasePendingSocketContexts(pendingSocketContext);
 
         onDisconnect();
+
+        if (!hadActiveSocketContext && Super::socketContext != nullptr) {
+            Super::socketContext->detach(SocketContext::DetachReason::ConnectionClose);
+        }
+        releasePendingSocketContexts(std::exchange(Super::newSocketContext, nullptr));
+        Super::socketContext = nullptr;
 
         Super::log().debug("disconnected");
 
