@@ -8,6 +8,7 @@
 #define TESTS_COMPONENT_EVENTSOURCE_EVENTSOURCECOMPONENTTEST_H
 
 #include "core/SNodeC.h"
+#include "core/timer/Timer.h"
 #include "net/in/SocketAddress.h"
 #include "support/Phase3SemanticLogCapture.h"
 #include "support/TestResult.h"
@@ -51,9 +52,14 @@ namespace tests::component::eventsource {
         bool stoppedAfterExpectedEvents = false;
         bool closeInvoked = false;
         bool allowReconnect = false;
+        bool destroyAfterExpectedEvents = false;
+        bool destroyedWithoutClose = false;
+        bool unconfiguredDestroyed = false;
 
         std::vector<ExpectedEvent> receivedEvents;
         std::shared_ptr<web::http::client::tools::EventSource> eventSource;
+        core::timer::Timer destructionTimer;
+        core::timer::Timer settleTimer;
     };
 
     template <typename Response>
@@ -136,11 +142,25 @@ namespace tests::component::eventsource {
     inline void maybeStopAfterExpectedEvents(State& state, std::size_t expectedEventCount) {
         if (state.receivedEvents.size() == expectedEventCount) {
             state.stoppedAfterExpectedEvents = true;
-            if (state.eventSource) {
-                state.closeInvoked = true;
-                state.eventSource->close();
+            if (state.destroyAfterExpectedEvents) {
+                state.destructionTimer = core::timer::Timer::singleshotTimer(
+                    [&state]() {
+                        state.eventSource.reset();
+                        state.destroyedWithoutClose = true;
+                        state.settleTimer = core::timer::Timer::singleshotTimer(
+                            []() {
+                                core::SNodeC::stop();
+                            },
+                            utils::Timeval({0, 20000}));
+                    },
+                    utils::Timeval({0, 1000}));
+            } else {
+                if (state.eventSource) {
+                    state.closeInvoked = true;
+                    state.eventSource->close();
+                }
+                core::SNodeC::stop();
             }
-            core::SNodeC::stop();
         }
     }
 
@@ -400,6 +420,71 @@ namespace tests::component::eventsource {
                 const std::size_t stopped = capture.position(records, component, "event source stopped:");
                 testResult.expectTrue(scheduled < dispatched && dispatched < stopped,
                                       "EventSource retry schedule, dispatch, and stop are ordered");
+            });
+    }
+
+    struct DestructionState : State {};
+
+    inline int
+    runInetEventSourceDestructionLifecycleTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], DestructionState& state) {
+        state.destroyAfterExpectedEvents = true;
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-destruction");
+        {
+            auto unconfigured = std::make_shared<class web::http::legacy::in::EventSource>();
+            unconfigured.reset();
+            state.unconfiguredDestroyed = true;
+        }
+
+        char testName[] = "InetSseEventSourceDestructionLifecycleTest";
+        char logLevel[] = "--log-level=6";
+        char logFormat[] = "--log-format=json";
+        char quiet[] = "--quiet";
+        char* logArgs[] = {testName, logLevel, logFormat, quiet, nullptr};
+        return runInetEventSourceTest(
+            4,
+            logArgs,
+            "InetSseEventSourceDestructionLifecycleTest",
+            "ipv4-sse-eventsource-destruction-lifecycle-server",
+            state,
+            {{"measurement", "3", "destroy-now"}},
+            false,
+            [](tests::support::TestResult& testResult, const DestructionState& observedState, const auto& expectedEvents, int startResult) {
+                expectCommon(testResult, observedState, startResult);
+                expectEvents(testResult, observedState, expectedEvents);
+                testResult.expectTrue(observedState.unconfiguredDestroyed,
+                                      "EventSource destruction before configuration is available is safe");
+                testResult.expectTrue(observedState.destroyedWithoutClose,
+                                      "started EventSource is destroyed without an explicit close call");
+                testResult.expectTrue(!observedState.closeInvoked, "destruction scenario does not call close explicitly");
+                testResult.expectEqual(1, observedState.serverRequestCount, "destruction schedules no later EventSource reconnect request");
+            },
+            [](const auto&, const auto& response, DestructionState&, const auto&) {
+                response->sendFragment("retry: 1");
+                response->sendFragment("");
+                sendSseEvent(response, {"measurement", "3", "destroy-now"});
+            },
+            [&capture](tests::support::TestResult& testResult) {
+                const auto records = capture.finish();
+                constexpr std::string_view component = "web.http.client.eventsource";
+                testResult.expectEqual(
+                    1, capture.count(records, component, "", "event source started:"), "only the configured EventSource starts");
+                testResult.expectEqual(1,
+                                       capture.count(records, component, "", "event stream established:"),
+                                       "configured EventSource stream establishes once");
+                testResult.expectEqual(1,
+                                       capture.count(records, component, "", "event source stopped:"),
+                                       "destructor-driven close stops the EventSource once");
+                testResult.expectEqual(0,
+                                       capture.count(records, component, "", "event source reconnect scheduled:"),
+                                       "destruction prevents a later EventSource reconnect schedule");
+                testResult.expectEqual(0,
+                                       capture.count(records, component, "", "event source reconnect dispatched:"),
+                                       "destruction prevents a later EventSource reconnect dispatch");
+                testResult.expectEqual(0,
+                                       capture.count(records, component, "", "event source reconnect cancelled:"),
+                                       "destruction of an active stream has no fabricated pending reconnect");
+                testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, "", "event source stopped:", "info", false),
+                                      "destructor-driven EventSource stop keeps the canonical Info scope");
             });
     }
 
