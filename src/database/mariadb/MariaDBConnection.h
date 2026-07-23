@@ -131,6 +131,9 @@ namespace database::mariadb {
         MariaDBCommand* currentCommand = nullptr;
         bool connected = false;
         bool closing = false;
+        bool sessionEstablished = false;
+        bool currentCommandStarted = false;
+        bool currentCommandFailed = false;
 
         MariaDBCommandStartEvent commandStartEvent;
 

@@ -16,6 +16,16 @@ namespace iot::mqtt::semantic {
         return scope;
     }
 
+    inline logger::LogScopeOwner mqttLogScope(const core::socket::stream::SocketConnection& connection) {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "iot.mqtt",
+                                     connection.getInstanceName().empty() ? std::nullopt
+                                                                          : std::optional<std::string>(connection.getInstanceName()),
+                                     std::nullopt,
+                                     std::to_string(connection.getConnectionId()));
+    }
+
     inline const logger::LogScopeOwner& mqttClientLogScope() {
         static const logger::LogScopeOwner scope(logger::LogOrigin::Framework, logger::LogBoundary::Connection, "iot.mqtt.client");
         return scope;
@@ -79,6 +89,10 @@ namespace iot::mqtt::semantic {
     IOT_MQTT_SEMANTIC_HELPER(mqttPacketLog)
     IOT_MQTT_SEMANTIC_HELPER(mqttTopicLog)
     IOT_MQTT_SEMANTIC_HELPER(mqttWebSocketLog)
+
+    inline logger::BoundaryLogger mqttLog(const core::socket::stream::SocketConnection& connection) {
+        return mqttLogScope(connection).logger(logger::Logger::semanticSink());
+    }
 
     inline logger::BoundaryLogger mqttWebSocketLog(const core::socket::stream::SocketConnection& connection) {
         return mqttWebSocketLogScope(connection).logger(logger::Logger::semanticSink());

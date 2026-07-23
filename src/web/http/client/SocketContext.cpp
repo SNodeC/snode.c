@@ -45,6 +45,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/CookieOptions.h"
 #include "web/http/client/Request.h"
+#include "web/http/client/SemanticLog.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -161,10 +162,12 @@ namespace web::http::client {
                                                 .append(".")
                                                 .append(std::to_string(request->httpMinor));
 
-            frameworkLog().debug() << "HTTP: Request (" << request->count << ") start: " << requestLine;
+            startedRequests.insert(request->count);
+            semantic::httpClientLog(*getSocketConnection()).debug() << "request started: id=" << request->count;
 
             if (!request->initiate(request)) {
                 frameworkLog().warn() << "HTTP: Request (" << request->count << ") delivering failed: " << requestLine;
+                requestTerminal(request, "failed");
 
                 core::EventReceiver::atNextTick([masterRequest = std::weak_ptr(masterRequest)]() {
                     if (!masterRequest.expired()) {
@@ -225,6 +228,7 @@ namespace web::http::client {
             }
         } else {
             frameworkLog().warn() << "HTTP: Request (" << currentRequest->count << ") deliver failed: " << requestLine;
+            requestTerminal(currentRequest, "failed");
 
             shutdownWrite();
         }
@@ -257,7 +261,7 @@ namespace web::http::client {
 
         request->deliverResponse(request, response);
 
-        frameworkLog().debug() << "HTTP: Request (" << request->count << ") completed: " << requestLine;
+        requestTerminal(request, "completed");
 
         requestCompleted(response);
     }
@@ -285,8 +289,15 @@ namespace web::http::client {
                                      .append(std::to_string(request->httpMinor));
 
         request->deliverResponseParseError(request, reason);
+        requestTerminal(request, "failed");
 
         close();
+    }
+
+    void SocketContext::requestTerminal(const std::shared_ptr<MasterRequest>& request, const char* outcome) {
+        if (startedRequests.erase(request->count) != 0) {
+            semantic::httpClientLog(*getSocketConnection()).debug() << "request " << outcome << ": id=" << request->count;
+        }
     }
 
     void SocketContext::requestCompleted(const std::shared_ptr<Response>& response) {
@@ -349,6 +360,8 @@ namespace web::http::client {
 
     void SocketContext::onDisconnected() {
         while (!deliveredRequests.empty()) {
+            const std::shared_ptr<MasterRequest> request = std::move(deliveredRequests.front());
+            deliveredRequests.pop_front();
             const std::shared_ptr<Response> response(new Response());
             response->httpVersion = "HTTP/1.1";
             response->httpMajor = 1;
@@ -356,7 +369,12 @@ namespace web::http::client {
             response->statusCode = "0";
             response->reason = "Connection loss";
 
-            deliverResponse(response);
+            request->deliverResponse(request, response);
+            requestTerminal(request, "aborted");
+        }
+
+        for (const std::shared_ptr<MasterRequest>& request : pendingRequests) {
+            requestTerminal(request, "aborted");
         }
 
         masterRequest->disconnect();

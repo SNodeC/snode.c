@@ -80,12 +80,12 @@ namespace ai::openai::codex {
                 callback();
             } catch (const std::exception& exception) {
                 try {
-                    callbackLogger.error("Exception escaped Codex app-server public callback: {}", exception.what());
+                    callbackLogger.error("Exception escaped app-server public callback: {}", exception.what());
                 } catch (...) {
                 }
             } catch (...) {
                 try {
-                    callbackLogger.error("Unknown exception escaped Codex app-server public callback");
+                    callbackLogger.error("Unknown exception escaped app-server public callback");
                 } catch (...) {
                 }
             }
@@ -93,6 +93,18 @@ namespace ai::openai::codex {
 
         bool isReservedInitializationMethod(std::string_view method) {
             return method == "initialize" || method == "initialized";
+        }
+
+        std::string serverRequestId(const ServerRequestId& id) {
+            return std::visit(
+                [](const auto& value) {
+                    if constexpr (std::is_same_v<std::decay_t<decltype(value)>, std::string>) {
+                        return value;
+                    } else {
+                        return std::to_string(value);
+                    }
+                },
+                id.value());
         }
     } // namespace
 
@@ -124,6 +136,7 @@ namespace ai::openai::codex {
             }
             const std::uint64_t generation = *allocatedGeneration;
             initializeResult.reset();
+            protocolSessionStarted = false;
             lifetime->callbackGeneration = generation;
             lifetime->protocolActive = true;
             installTransportCallbacks(generation);
@@ -272,6 +285,8 @@ namespace ai::openai::codex {
                 generation == connectionGeneration) {
                 pendingIterator->second.accepted = true;
                 submissionAccepted = true;
+                logScope.logger(logger::Logger::semanticSink())
+                    .debug("request started: id={} method={}", id, pendingIterator->second.method);
             } else if (pendingIterator != pendingRequests.end()) {
                 pendingRequests.erase(pendingIterator);
             }
@@ -479,8 +494,7 @@ namespace ai::openai::codex {
             const State previous = state;
             state = next;
             stateChanges.push_back({previous, next, std::move(error)});
-            logScope.logger(logger::Logger::semanticSink())
-                .trace("Codex app-server client: {} -> {}", stateName(previous), stateName(next));
+            logScope.logger(logger::Logger::semanticSink()).trace("app-server client: {} -> {}", stateName(previous), stateName(next));
             scheduleStateDispatch();
         }
 
@@ -695,6 +709,8 @@ namespace ai::openai::codex {
 
             initializeResult = std::move(decodedInitializeResult);
             transition(State::Ready);
+            protocolSessionStarted = true;
+            logScope.logger(logger::Logger::semanticSink()).info("app-server session started");
 
             std::deque<detail::ProtocolMessage> queuedMessages = std::move(preReadyMessages);
             preReadyMessages.clear();
@@ -741,6 +757,9 @@ namespace ai::openai::codex {
 
             PendingRequest request = std::move(pending->second);
             pendingRequests.erase(pending);
+
+            logScope.logger(logger::Logger::semanticSink())
+                .debug("request {}: id={} method={}", message.error ? "failed" : "completed", *integerId, request.method);
 
             Response response{
                 ClientRequestId(*integerId), std::move(request.method), Response::Kind::Result, nullptr, std::nullopt, std::nullopt};
@@ -813,6 +832,9 @@ namespace ai::openai::codex {
                 return;
             }
 
+            logScope.logger(logger::Logger::semanticSink())
+                .debug("request started: id={} method={}", serverRequestId(id), iterator->second.method);
+
             const RawProtocol::ServerRequestHandler typedHandler = typedServerRequestDispatcher;
             const RawProtocol::ServerRequestHandler rawHandler = onServerRequest;
             if (typedHandler || rawHandler) {
@@ -884,7 +906,10 @@ namespace ai::openai::codex {
                                    ECANCELED,
                                    "app-server connection stopped while the server-request response was being enqueued");
             }
+            const std::string method = pending->second.method;
             pendingServerRequests.erase(id);
+            logScope.logger(logger::Logger::semanticSink())
+                .debug("request {}: id={} method={}", protocolError ? "failed" : "completed", serverRequestId(id), method);
             flushDeferredIncoming();
             return {true, std::nullopt};
         }
@@ -935,25 +960,33 @@ namespace ai::openai::codex {
                 return;
             }
 
-            invalidateConnection(error.message);
-            logScope.logger(logger::Logger::semanticSink()).error("Codex app-server client failed: {}", error.message);
+            logScope.logger(logger::Logger::semanticSink()).error("app-server client failed: {}", error.message);
+            if (!protocolSessionStarted && (state == State::Starting || state == State::Initializing)) {
+                logScope.logger(logger::Logger::semanticSink()).debug("app-server session start failed");
+            }
+            invalidateConnection(error.message, "failed");
             transition(State::Failed, error);
             transport->stop();
         }
 
-        void invalidateConnection(const std::string& reason) {
+        void invalidateConnection(const std::string& reason, const char* serverRequestOutcome = "cancelled") {
             if (lifetime->protocolActive) {
                 lifetime->protocolActive = false;
             }
             pendingInitializeId.reset();
             preReadyMessages.clear();
             deferredIncoming.clear();
+            for (const auto& [id, pending] : pendingServerRequests) {
+                logScope.logger(logger::Logger::semanticSink())
+                    .debug("request {}: id={} method={}", serverRequestOutcome, serverRequestId(id), pending.method);
+            }
             pendingServerRequests.clear();
 
             std::vector<PendingCancellation> cancellations;
             cancellations.reserve(pendingRequests.size());
             for (auto& [id, pending] : pendingRequests) {
                 if (pending.accepted) {
+                    logScope.logger(logger::Logger::semanticSink()).debug("request cancelled: id={} method={}", id, pending.method);
                     cancellations.push_back({id, std::move(pending.method), std::move(pending.handler), pending.submissionSequence});
                 }
             }
@@ -978,6 +1011,15 @@ namespace ai::openai::codex {
                     handler(response);
                 });
             }
+
+            stopProtocolSession();
+        }
+
+        void stopProtocolSession() {
+            if (protocolSessionStarted) {
+                logScope.logger(logger::Logger::semanticSink()).info("app-server session stopped");
+                protocolSessionStarted = false;
+            }
         }
 
         struct DeferredIncoming {
@@ -998,6 +1040,7 @@ namespace ai::openai::codex {
 
         State state = State::Stopped;
         bool transportActive = false;
+        bool protocolSessionStarted = false;
         std::int64_t nextRequestId = 0;
         bool requestIdsExhausted = false;
         std::optional<std::int64_t> pendingInitializeId;

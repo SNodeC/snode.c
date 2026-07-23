@@ -132,7 +132,10 @@ namespace web::http::client::tools {
 
     private:
         struct SharedConfig {
-            Config* config;
+            Config* config = nullptr;
+            bool started = false;
+            bool stopped = false;
+            bool reconnectScheduled = false;
         };
 
         static bool digits(std::string_view maybeDigitsAsString) {
@@ -275,6 +278,10 @@ namespace web::http::client::tools {
         }
 
     public:
+        ~EventSourceT() override {
+            close();
+        }
+
         EventSourceT(const EventSourceT&) = delete;
         EventSourceT& operator=(const EventSourceT&) = delete;
         EventSourceT(EventSourceT&&) noexcept = delete;
@@ -296,17 +303,17 @@ namespace web::http::client::tools {
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnect";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << " : OnDisconnect";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -325,6 +332,10 @@ namespace web::http::client::tools {
                             onError();
                         }
 
+                        if (sharedState->ready == ReadyState::CLOSED) {
+                            return;
+                        }
+
                         sharedState->ready = ReadyState::CONNECTING;
                         sharedState->data.clear();
                         sharedState->type.clear();
@@ -333,13 +344,24 @@ namespace web::http::client::tools {
 
                         sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
                         sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
+                        if (!sharedConfig->reconnectScheduled) {
+                            sharedConfig->reconnectScheduled = true;
+                            web::http::client::semantic::httpClientEventSourceLog().debug()
+                                << "event source reconnect scheduled: " << sharedState->origin + sharedState->path;
+                        }
                     }
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](
                     const std::shared_ptr<MasterRequest>& masterRequest) {
-                    const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
+                    auto* socketConnection = masterRequest->getSocketContext()->getSocketConnection();
 
-                    web::http::client::semantic::httpClientLog().debug() << connectionName << ": OnRequestStart";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnRequestStart";
+
+                    if (sharedConfig->reconnectScheduled) {
+                        sharedConfig->reconnectScheduled = false;
+                        web::http::client::semantic::httpClientEventSourceLog().debug()
+                            << "event source reconnect dispatched: " << sharedState->origin + sharedState->path;
+                    }
 
                     if (!sharedState->lastId.empty()) {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
@@ -347,7 +369,7 @@ namespace web::http::client::tools {
 
                     if (!masterRequest->requestEventSource(
                             sharedState->path,
-                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, connectionName]()
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, socketConnection]()
                                 -> std::size_t {
                                 std::size_t consumed = 0;
 
@@ -361,17 +383,23 @@ namespace web::http::client::tools {
                                         masterRequest->getSocketContext()->close();
                                     }
                                 } else {
-                                    web::http::client::semantic::httpClientLog().debug()
-                                        << connectionName << ": server-sent event: server disconnect";
+                                    web::http::client::semantic::httpClientLog(*socketConnection).debug()
+                                        << "server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
-                            [sharedState, sharedConfig, connectionName]() {
-                                web::http::client::semantic::httpClientLog().debug()
-                                    << connectionName << ": server-sent event stream start";
+                            [sharedState, sharedConfig, socketConnection]() {
+                                if (sharedState->ready == ReadyState::CLOSED) {
+                                    return;
+                                }
+
+                                web::http::client::semantic::httpClientLog(*socketConnection).debug() << "server-sent event stream start";
 
                                 sharedState->ready = ReadyState::OPEN;
+
+                                web::http::client::semantic::httpClientEventSourceLog().info()
+                                    << "event stream established: " << sharedState->origin + sharedState->path;
 
                                 sharedConfig->config->setReconnectTime(sharedState->retry / 1000.);
                                 sharedConfig->config->setRetryTimeout(sharedState->retry / 1000.);
@@ -388,9 +416,9 @@ namespace web::http::client::tools {
                                     onOpen();
                                 }
                             },
-                            [sharedState, connectionName]() {
-                                web::http::client::semantic::httpClientLog().debug()
-                                    << connectionName << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
+                            [sharedState, socketConnection]() {
+                                web::http::client::semantic::httpClientLog(*socketConnection).debug()
+                                    << "not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
                                 if (auto it = sharedState->onEventListener.find("error"); it != sharedState->onEventListener.end()) {
                                     EventSource::MessageEvent e{"error", "", sharedState->lastId, sharedState->origin};
 
@@ -408,8 +436,13 @@ namespace web::http::client::tools {
                         }
                     }
                 },
-                [](const std::shared_ptr<Request>& req) {
-                    web::http::client::semantic::httpClientLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                [eventSourceWeak](const std::shared_ptr<Request>& req) {
+                    if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock();
+                        eventSource && eventSource->socketConnection != nullptr) {
+                        web::http::client::semantic::httpClientLog(*eventSource->socketConnection).debug() << "OnRequestEnd";
+                    } else {
+                        web::http::client::semantic::httpClientLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                    }
                 });
 
             client->getConfig()->Remote::setSocketAddress(socketAddress);
@@ -419,6 +452,10 @@ namespace web::http::client::tools {
             client->getConfig()->setInstanceName("EventSource");
 
             sharedConfig->config = client->getConfig();
+
+            sharedConfig->started = true;
+            web::http::client::semantic::httpClientEventSourceLog().info()
+                << "event source started: " << sharedState->origin + sharedState->path;
 
             client->connect([instanceName = client->getConfig()->getInstanceName()](
                                 const core::socket::SocketAddress& socketAddress,
@@ -445,13 +482,31 @@ namespace web::http::client::tools {
 
     public:
         void close() override {
+            if (sharedConfig->stopped) {
+                return;
+            }
+
             sharedState->ready = ReadyState::CLOSED;
 
-            sharedConfig->config->setReconnect(false);
-            sharedConfig->config->setRetry(false);
+            if (sharedConfig->reconnectScheduled) {
+                sharedConfig->reconnectScheduled = false;
+                web::http::client::semantic::httpClientEventSourceLog().debug()
+                    << "event source reconnect cancelled: " << sharedState->origin + sharedState->path;
+            }
+
+            if (sharedConfig->config != nullptr) {
+                sharedConfig->config->setReconnect(false);
+                sharedConfig->config->setRetry(false);
+            }
 
             if (socketConnection != nullptr) {
                 socketConnection->shutdownWrite();
+            }
+
+            sharedConfig->stopped = true;
+            if (sharedConfig->started) {
+                web::http::client::semantic::httpClientEventSourceLog().info()
+                    << "event source stopped: " << sharedState->origin + sharedState->path;
             }
         }
 

@@ -5,6 +5,7 @@
 #include "core/socket/stream/SocketContextFactory.h"
 #include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
+#include "support/Phase3SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 #include "web/http/legacy/in/Server.h"
@@ -71,14 +72,15 @@ namespace {
     };
 }
 
-int main(int argc, char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;
     if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpServerMalformedRequestBehaviorTest");
     } else {
         State state;
-        core::SNodeC::init(argc, argv);
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-malformed-request");
+        capture.initCore("InetHttpServerMalformedRequestBehaviorTest");
         using Server = web::http::legacy::in::Server;
         const Server server("ipv4-http-malformed-request-server", [&state](const auto&, const auto& response) {
             ++state.serverRequestCount;
@@ -111,8 +113,18 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(0, state.serverRequestCount, "malformed request does not reach normal handler");
         testResult.expectEqual(0, state.unexpectedStateCount, "no unexpected states");
         testResult.expectTrue(sawBadRequest || (state.rawClientDisconnectedCount == 1 && didNotReturnNormalOk), "server either returns 400 or closes without normal 200 handler response");
-        result = testResult.processResult();
         core::SNodeC::free();
+        const auto records = capture.finish();
+        constexpr std::string_view component = "web.http.server";
+        constexpr std::string_view instance = "ipv4-http-malformed-request-server";
+        testResult.expectEqual(1, capture.count(records, component, instance, "request started:"), "malformed request starts once");
+        testResult.expectEqual(1, capture.count(records, component, instance, "request failed:"), "malformed request fails once");
+        testResult.expectEqual(0, capture.count(records, component, instance, "request completed:"), "malformed request never completes");
+        testResult.expectEqual(
+            0, capture.count(records, component, instance, "request aborted:"), "malformed request failure is not an abort");
+        testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, instance, "request ", "debug", true, "server"),
+                              "malformed request lifecycle uses matching connection identity and Debug level");
+        result = testResult.processResult();
     }
     return result;
 }

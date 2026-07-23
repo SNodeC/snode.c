@@ -41,6 +41,7 @@
 
 #include "iot/mqtt/server/Mqtt.h"
 
+#include "core/socket/stream/SocketConnection.h"
 #include "iot/mqtt/MqttContext.h"
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/packets/Connack.h"
@@ -61,14 +62,37 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/LogScopeOwner.h"
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 
 #include <cstdint>
 #include <iomanip>
+#include <optional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::server {
+    namespace {
+        logger::BoundaryLogger serverLog(const Mqtt& mqtt) {
+            const iot::mqtt::MqttContext* context = mqtt.getMqttContext();
+            if (context != nullptr) {
+                const core::socket::stream::SocketConnection* connection = context->getSocketConnection();
+                if (connection != nullptr) {
+                    return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::Connection,
+                                                 "iot.mqtt.server",
+                                                 connection->getInstanceName().empty()
+                                                     ? std::nullopt
+                                                     : std::optional<std::string>(connection->getInstanceName()),
+                                                 logger::LogRole::Server,
+                                                 std::to_string(connection->getConnectionId()))
+                        .logger(logger::Logger::semanticSink());
+                }
+            }
+            return iot::mqtt::semantic::mqttServerLog();
+        }
+    } // namespace
 
     Mqtt::Mqtt(const std::string& connectionName, const std::shared_ptr<broker::Broker>& broker)
         : Super(connectionName)
@@ -76,7 +100,7 @@ namespace iot::mqtt::server {
     }
 
     Mqtt::~Mqtt() {
-        releaseSession();
+        releaseSession(iot::mqtt::semantic::mqttServerLog(), connectionName + ": ");
 
         if (willFlag) {
             broker->publish(clientId, willTopic, willMessage, willQoS, willRetain);
@@ -146,54 +170,55 @@ namespace iot::mqtt::server {
 
     bool Mqtt::initSession(const utils::Timeval& keepAlive) {
         bool success = true;
+        const auto log = serverLog(*this);
 
         if (broker->hasActiveSession(clientId)) {
-            iot::mqtt::semantic::mqttServerLog().error()
-                << connectionName << " MQTT Broker: Existing session found for ClientId = " << clientId;
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   closing";
+            log.error() << "Existing session found for ClientId = " << clientId;
+            log.error() << "closing";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
             willFlag = false;
+            sessionRejected(clientId);
             success = false;
         } else if (broker->hasRetainedSession(clientId)) {
-            iot::mqtt::semantic::mqttServerLog().info()
-                << connectionName << " MQTT Broker: Retained session found for ClientId = " << clientId;
+            log.info() << "Retained session found for ClientId = " << clientId;
             if (cleanSession) {
-                iot::mqtt::semantic::mqttServerLog().debug() << connectionName << "   New SessionId = " << this;
+                log.debug() << "New SessionId = " << this;
                 sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
+                sessionEstablished(false);
             } else {
-                iot::mqtt::semantic::mqttServerLog().debug() << connectionName << "   Renew SessionId = " << this;
+                log.debug() << "Renew SessionId = " << this;
                 sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_PRESENT);
 
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
+                sessionEstablished(true);
             }
         } else {
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker: No session found for ClientId = " << clientId;
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   new SessionId = " << this;
+            log.info() << "No session found for ClientId = " << clientId;
+            log.info() << "new SessionId = " << this;
 
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
             initSession(broker->newSession(clientId, this), keepAlive);
+            sessionEstablished(false);
         }
 
         return success;
     }
 
-    void Mqtt::releaseSession() {
+    void Mqtt::releaseSession(logger::BoundaryLogger log, std::string_view prefix) {
         if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
-                iot::mqtt::semantic::mqttServerLog().debug()
-                    << connectionName << " MQTT Broker: Delete session for ClientId = " << clientId;
-                iot::mqtt::semantic::mqttServerLog().debug() << connectionName << " MQTT Broker:   SessionId = " << this;
+                log.debug() << prefix << "Delete session for ClientId = " << clientId;
+                log.debug() << prefix << "SessionId = " << this;
                 broker->deleteSession(clientId);
             } else {
-                iot::mqtt::semantic::mqttServerLog().debug()
-                    << connectionName << " MQTT Broker: Retain session for ClientId = " << clientId;
-                iot::mqtt::semantic::mqttServerLog().debug() << connectionName << " MQTT Broker:   SessionId = " << this;
+                log.debug() << prefix << "Retain session for ClientId = " << clientId;
+                log.debug() << prefix << "SessionId = " << this;
                 broker->retainSession(clientId);
             }
         }
@@ -221,61 +246,60 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onConnect(const iot::mqtt::server::packets::Connect& connect) {
-        iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   Protocol: " << connect.getProtocol();
-        iot::mqtt::semantic::mqttServerLog().info()
-            << connectionName << " MQTT Broker:   Version: " << static_cast<uint16_t>(connect.getLevel());
-        iot::mqtt::semantic::mqttServerLog().info()
-            << connectionName << " MQTT Broker:   ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
-            << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
-        iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   KeepAlive: " << connect.getKeepAlive();
-        iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   ClientID: " << connect.getClientId();
-        iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   CleanSession: " << connect.getCleanSession();
+        const auto log = serverLog(*this);
+        log.info() << "Protocol: " << connect.getProtocol();
+        log.info() << "Version: " << static_cast<uint16_t>(connect.getLevel());
+        log.info() << "ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                   << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
+        log.info() << "KeepAlive: " << connect.getKeepAlive();
+        log.info() << "ClientID: " << connect.getClientId();
+        log.info() << "CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
-            iot::mqtt::semantic::mqttServerLog().debug() << connectionName << " MQTT Broker:   WillTopic: " << connect.getWillTopic();
-            iot::mqtt::semantic::mqttServerLog().debug()
-                << connectionName << " MQTT Broker:   WillMessage supplied: " << !connect.getWillMessage().empty()
-                << " (size=" << connect.getWillMessage().size() << ")";
-            iot::mqtt::semantic::mqttServerLog().info()
-                << connectionName << " MQTT Broker:   WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
-            iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   WillRetain: " << connect.getWillRetain();
+            log.debug() << "WillTopic: " << connect.getWillTopic();
+            log.debug() << "WillMessage supplied: " << !connect.getWillMessage().empty() << " (size=" << connect.getWillMessage().size()
+                        << ")";
+            log.info() << "WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
+            log.info() << "WillRetain: " << connect.getWillRetain();
         }
-        iot::mqtt::semantic::mqttServerLog().debug()
-            << connectionName << " MQTT Broker:   Username supplied: " << connect.getUsernameFlag();
-        iot::mqtt::semantic::mqttServerLog().debug()
-            << connectionName << " MQTT Broker:   Password supplied: " << connect.getPasswordFlag();
+        log.debug() << "Username supplied: " << connect.getUsernameFlag();
+        log.debug() << "Password supplied: " << connect.getPasswordFlag();
 
         if (connect.getProtocol() != "MQTT") {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Wrong Protocol: " << connect.getProtocol();
+            log.error() << "Wrong Protocol: " << connect.getProtocol();
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if ((connect.getLevel()) != MQTT_VERSION_3_1_1) {
-            iot::mqtt::semantic::mqttServerLog().error()
-                << connectionName << " MQTT Broker:   Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+            log.error() << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if ((connect.getConnectFlags() & 0x01) != 0) {
-            iot::mqtt::semantic::mqttServerLog().error()
-                << connectionName << " MQTT Broker:   CONNECT reserved flag bit set";
+            log.error() << "CONNECT reserved flag bit set";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Resume session but no ClientId present";
+            log.error() << "Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (!connect.getWillFlag() && (connect.getWillQoS() != 0 || connect.getWillRetain())) {
-            iot::mqtt::semantic::mqttServerLog().error()
-                << connectionName << " MQTT Broker:   WillFlag not set but WillQoS or WillRetain set";
+            log.error() << "WillFlag not set but WillQoS or WillRetain set";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.getWillQoS() > 2) {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   WillQoS larger than 2";
+            log.error() << "WillQoS larger than 2";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else if (connect.getPasswordFlag() && !connect.getUsernameFlag()) {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   Password flag set but username flag not";
+            log.error() << "Password flag set but username flag not";
 
+            sessionRejected(connect.getClientId());
             mqttContext->close();
         } else {
             // V-Header
@@ -315,17 +339,16 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
+        const auto log = serverLog(*this);
         if (subscribe.getPacketIdentifier() == 0) {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   PackageIdentifier missing";
+            log.error() << "PackageIdentifier missing";
             mqttContext->close();
         } else {
-            iot::mqtt::semantic::mqttServerLog().debug()
-                << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                << subscribe.getPacketIdentifier() << std::dec;
+            log.debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier()
+                        << std::dec;
 
             for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-                iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   Topic filter: '" << topic.getName()
-                                                            << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
+                log.info() << "Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
             }
 
             std::list<uint8_t> returnCodes;
@@ -341,16 +364,16 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
+        const auto log = serverLog(*this);
         if (unsubscribe.getPacketIdentifier() == 0) {
-            iot::mqtt::semantic::mqttServerLog().error() << connectionName << " MQTT Broker:   PackageIdentifier missing";
+            log.error() << "PackageIdentifier missing";
             mqttContext->close();
         } else {
-            iot::mqtt::semantic::mqttServerLog().debug()
-                << connectionName << " MQTT Broker:   PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4)
-                << unsubscribe.getPacketIdentifier() << std::dec;
+            log.debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsubscribe.getPacketIdentifier()
+                        << std::dec;
 
             for (const std::string& topic : unsubscribe.getTopics()) {
-                iot::mqtt::semantic::mqttServerLog().info() << connectionName << " MQTT Broker:   Topic: " << topic;
+                log.info() << "Topic: " << topic;
             }
 
             for (const std::string& topic : unsubscribe.getTopics()) {
@@ -374,7 +397,7 @@ namespace iot::mqtt::server {
 
         onDisconnect(disconnect);
 
-        releaseSession();
+        releaseSession(serverLog(*this), {});
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server

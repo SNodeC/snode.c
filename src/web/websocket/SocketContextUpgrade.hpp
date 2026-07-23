@@ -116,8 +116,8 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            semantic::webSocketSubProtocolLog(*this->getSocketConnection()).debug()
-                << "WebSocketContext: Subprotocol '" << subProtocol->name << "' sending close to peer";
+            semantic::webSocketSubProtocolLog(*this->getSocketConnection()).trace()
+                << "subprotocol='" << subProtocol->name << "' sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -188,13 +188,13 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
-                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close confirmed from peer";
+                    semantic::webSocketSubProtocolLog(*getSocketConnection()).trace()
+                        << "subprotocol='" << subProtocol->name << "' close confirmed from peer";
 
                     shutdownWrite();
                 } else { // passive close
-                    semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
-                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close request received - replying with close";
+                    semantic::webSocketSubProtocolLog(*getSocketConnection()).trace()
+                        << "subprotocol='" << subProtocol->name << "' close request received - replying with close";
 
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();
@@ -232,12 +232,14 @@ namespace web::websocket {
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
         semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
             << "WebSocket: context attached with subprotocol '" << subProtocol->name << "'";
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).info() << "websocket established: subprotocol=" << subProtocol->name;
         subProtocol->attach();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->detach();
+        semantic::webSocketSubProtocolLog(*getSocketConnection()).info() << "websocket ended: subprotocol=" << subProtocol->name;
         semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
             << "WebSocket: context detached with subprotocol '" << subProtocol->name << "' for "
             << (this->getDetachReason() == core::socket::stream::SocketContext::DetachReason::ContextSwitch ? "context switch" : "connection close");

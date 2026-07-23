@@ -98,22 +98,20 @@ namespace web::http {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        snode::semantic::webHttpLog().trace()
-                            << "HTTP: SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
+                        snode::semantic::webHttpLog().trace() << "SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
                     } else {
                         snode::semantic::webHttpLog().trace()
-                            << "HTTP: SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
+                            << "SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
                         delete socketContextUpgradeFactory;
                         socketContextUpgradeFactory = nullptr;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    snode::semantic::webHttpLog().error()
-                        << "HTTP: SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
+                    snode::semantic::webHttpLog().error() << "SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                snode::semantic::webHttpLog().error() << "HTTP: Optaining function \"" << socketContextUpgradeFactoryFunctionName
+                snode::semantic::webHttpLog().error() << "Optaining function \"" << socketContextUpgradeFactoryFunctionName
                                                       << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }
@@ -130,19 +128,18 @@ namespace web::http {
         if (socketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = socketContextUpgradePlugins[socketContextUpgradeName].socketContextUpgradeFactory;
 
-            snode::semantic::webHttpLog().debug()
-                << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
+            snode::semantic::webHttpLog().debug() << "upgrade plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
         } else if (linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[socketContextUpgradeName]();
 
-            snode::semantic::webHttpLog().debug() << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' selected from static cache";
+            snode::semantic::webHttpLog().debug() << "upgrade plugin '" << socketContextUpgradeName << "' selected from static cache";
         } else if (!onlyLinked) {
             socketContextUpgradeFactory = load(socketContextUpgradeName);
 
             snode::semantic::webHttpLog().debug()
-                << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' loaded and added to dynamic cache";
+                << "upgrade plugin '" << socketContextUpgradeName << "' loaded and added to dynamic cache";
         } else {
-            snode::semantic::webHttpLog().warn() << "HTTP upgrade: plugin '" << socketContextUpgradeName << "' not found";
+            snode::semantic::webHttpLog().warn() << "upgrade plugin '" << socketContextUpgradeName << "' not found";
         }
 
         return socketContextUpgradeFactory;

@@ -137,7 +137,7 @@ namespace web::http::legacy::un {
                     << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
             }
         } else {
-            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource unix-domain url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "unix-domain url not accepted: " << url;
         }
 
         return eventSource;

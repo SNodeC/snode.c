@@ -45,6 +45,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/server/Response.h"
+#include "web/http/server/SemanticLog.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -67,13 +68,16 @@ namespace web::http::server {
         , parser(
               this,
               [this]() {
-                  frameworkLog().debug() << "HTTP: Request start";
+                  parsingRequestId = ++nextRequestId;
+                  parsingRequest = true;
+                  semantic::httpServerLog(*getSocketConnection()).debug() << "request started: id=" << parsingRequestId;
               },
               [this](web::http::server::Request&& request) {
                   frameworkLog().debug() << "HTTP: Request parse success: " << request.method << " " << request.url << " HTTP/"
                                          << request.httpMajor << "." << request.httpMinor;
 
-                  pendingRequests.emplace_back(std::make_shared<Request>(std::move(request)));
+                  pendingRequests.push_back({std::make_shared<Request>(std::move(request)), parsingRequestId, false});
+                  parsingRequest = false;
 
                   if (pendingRequests.size() == 1) {
                       deliverRequest();
@@ -81,9 +85,13 @@ namespace web::http::server {
               },
               [this](int status, const std::string& reason) {
                   frameworkLog().error() << "HTTP: Request parse error: " << reason << " (" << status << ") ";
+                  if (parsingRequest) {
+                      semantic::httpServerLog(*getSocketConnection()).debug() << "request failed: id=" << parsingRequestId;
+                  }
+                  parsingRequest = false;
                   shutdownRead();
 
-                  pendingRequests.emplace_back(std::make_shared<Request>(Request(status, reason)));
+                  pendingRequests.push_back({std::make_shared<Request>(Request(status, reason)), parsingRequestId, true});
 
                   if (pendingRequests.size() == 1) {
                       deliverRequest();
@@ -105,7 +113,7 @@ namespace web::http::server {
 
     void SocketContext::deliverRequest() {
         if (!pendingRequests.empty()) {
-            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front().request;
 
             if (pendingRequest->status == 0) {
                 frameworkLog().debug() << "HTTP: Request deliver: " << pendingRequest->method << " " << pendingRequest->url << " HTTP/"
@@ -139,7 +147,7 @@ namespace web::http::server {
 
     void SocketContext::responseStarted(const Response& response) {
         if (!pendingRequests.empty()) {
-            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front();
+            const std::shared_ptr<Request>& pendingRequest = pendingRequests.front().request;
 
             serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
 
@@ -167,16 +175,22 @@ namespace web::http::server {
             frameworkLog().warn() << "HTTP: Response completed with error: " << response.statusCode << " "
                                   << StatusCode::reason(response.statusCode);
 
+            if (!pendingRequests.empty() && !pendingRequests.front().terminal) {
+                requestTerminal(pendingRequests.front(), "failed");
+                pendingRequests.front().terminal = true;
+            }
+
             close();
         }
     }
 
     void SocketContext::requestCompleted(const Response& response) {
-        const std::shared_ptr<Request> request = std::move(pendingRequests.front());
+        PendingRequest pendingRequest = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
-        frameworkLog().debug() << "HTTP: Response completed for request: " << request->method << " " << request->url << " HTTP/"
-                               << request->httpMajor << "." << request->httpMinor;
+        if (!pendingRequest.terminal) {
+            requestTerminal(pendingRequest, "completed");
+        }
         frameworkLog().debug() << "  "
                                << "HTTP/" + std::to_string(response.httpMajor)
                                                 .append(".")
@@ -211,6 +225,10 @@ namespace web::http::server {
         }
     }
 
+    void SocketContext::requestTerminal(const PendingRequest& request, const char* outcome) {
+        semantic::httpServerLog(*getSocketConnection()).debug() << "request " << outcome << ": id=" << request.id;
+    }
+
     void SocketContext::onConnected() {
         frameworkLog().debug() << "HTTP: context attached";
 
@@ -231,6 +249,18 @@ namespace web::http::server {
 
     void SocketContext::onDisconnected() {
         masterResponse->disconnect();
+
+        if (parsingRequest) {
+            semantic::httpServerLog(*getSocketConnection()).debug() << "request aborted: id=" << parsingRequestId;
+            parsingRequest = false;
+        }
+
+        for (PendingRequest& request : pendingRequests) {
+            if (!request.terminal) {
+                requestTerminal(request, "aborted");
+                request.terminal = true;
+            }
+        }
 
         frameworkLog().debug() << (getDetachReason() == DetachReason::ContextSwitch ? "HTTP: context detached for context switch"
                                                                                      : "HTTP: context detached for connection close");

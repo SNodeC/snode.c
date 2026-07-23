@@ -143,8 +143,10 @@ int main() {
     ok &= forbid(context, "transport connected", contextPath);
     ok &= forbid(context, "transport disconnected", contextPath);
 
-    ok &= require(mqtt, "MQTT: Connected", mqttPath);
-    ok &= require(mqtt, "MQTT: Disconnected", mqttPath);
+    ok &= forbid(mqtt, "MQTT: Connected", mqttPath);
+    ok &= forbid(mqtt, "MQTT: Disconnected", mqttPath);
+    ok &= forbid(mqtt, "transport connected", mqttPath);
+    ok &= forbid(mqtt, "transport disconnected", mqttPath);
 
     return ok ? 0 : 1;
 }

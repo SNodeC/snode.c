@@ -109,7 +109,7 @@ namespace web::http::legacy::in6 {
                 web::http::client::semantic::httpClientEventSourceLog().error() << "Scheme not valid: " << scheme;
             }
         } else {
-            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "url not accepted: " << url;
         }
 
         return eventSource;

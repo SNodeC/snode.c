@@ -81,7 +81,7 @@ namespace web::websocket::client {
 
 #if !defined(NDEBUG)
         if (const char* websocketSubprotocolInstallLibdirEnv = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
-            semantic::webSocketFactoryLog().warn() << "WebSocket: Overriding websocket subprotocol library dir";
+            semantic::webSocketFactoryLog().warn() << "Overriding websocket subprotocol library dir";
             websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEnv);
         }
 #endif

@@ -1,10 +1,12 @@
 #include "HttpServerClientBehaviorTest.h"
-
 #include "net/in/SocketAddress.h"
+#include "support/Phase3SemanticLogCapture.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
-int main(int argc, char* argv[]) {
+#include <string_view>
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;
 
@@ -12,8 +14,9 @@ int main(int argc, char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpClientPrematureServerCloseTest");
     } else {
         tests::component::http::BehaviorState state;
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-premature-close");
 
-        core::SNodeC::init(argc, argv);
+        capture.initCore("InetHttpClientPrematureServerCloseTest");
 
         using Server = web::http::legacy::in::Server;
         using Client = web::http::legacy::in::Client;
@@ -63,8 +66,21 @@ int main(int argc, char* argv[]) {
         testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/premature-close"}), "IPv4 legacy HTTP server observes premature-close target");
         testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"0"}), "IPv4 legacy HTTP client maps premature close to status 0");
         testResult.expectTrue(state.clientBodies == std::vector<std::string>({"Connection loss"}), "IPv4 legacy HTTP client reports connection-loss reason");
-        result = testResult.processResult();
         core::SNodeC::free();
+        const auto records = capture.finish();
+        constexpr std::string_view component = "web.http.client";
+        constexpr std::string_view instance = "ipv4-http-behavior-client";
+        testResult.expectEqual(
+            1, capture.count(records, component, instance, "request started:"), "interrupted client request starts once");
+        testResult.expectEqual(
+            1, capture.count(records, component, instance, "request aborted:"), "interrupted client request aborts once");
+        testResult.expectEqual(
+            0, capture.count(records, component, instance, "request completed:"), "interrupted client request never completes");
+        testResult.expectEqual(
+            0, capture.count(records, component, instance, "request failed:"), "transport loss is not a request parse failure");
+        testResult.expectTrue(capture.matchingIdentityAndLevel(records, component, instance, "request ", "debug", true, "client"),
+                              "interrupted client request lifecycle uses matching connection identity and Debug level");
+        result = testResult.processResult();
     }
 
     return result;

@@ -71,7 +71,7 @@ namespace web::websocket {
                         flyingPings++;
                     } else {
                         semantic::webSocketSubProtocolLog(*this->subProtocolContext->getSocketConnection()).warn()
-                            << "Subprotocol '" << this->name << "': MaxFlyingPings exceeded - closing";
+                            << "subprotocol='" << this->name << "': MaxFlyingPings exceeded - closing";
 
                         sendClose();
                         stop();
@@ -130,7 +130,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendPing(const char* reason, std::size_t reasonLength) const {
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': Ping sent";
+        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "subprotocol='" << name << "': Ping sent";
 
         subProtocolContext->sendPing(reason, reasonLength);
     }
@@ -142,7 +142,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::attach() {
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': start";
+        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).info() << "subprotocol started: " << name;
 
         onConnected();
     }
@@ -151,16 +151,17 @@ namespace web::websocket {
     void SubProtocol<SocketContextUpgrade>::detach() {
         onDisconnected();
 
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': stopped";
+        const auto log = semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection());
 
-        semantic::webSocketSubProtocolLog().debug() << "       Total Payload sent: " << getPayloadTotalSent();
-        semantic::webSocketSubProtocolLog().debug() << "  Total Payload processed: " << getPayloadTotalRead();
+        log.info() << "subprotocol stopped: " << name;
+        log.debug() << "       Total Payload sent: " << getPayloadTotalSent();
+        log.debug() << "  Total Payload processed: " << getPayloadTotalRead();
     }
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::onPongReceived() {
         semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug()
-            << "Subprotocol '" << name << "': Pong received";
+            << "subprotocol='" << name << "': Pong received";
 
         flyingPings = 0;
     }

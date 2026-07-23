@@ -98,6 +98,7 @@ namespace web::http::server {
         trailer.clear();
         contentLength = 0;
         contentSent = 0;
+        sourceFailed = false;
         connectionState = ConnectionState::Default;
         transferEncoding = TransferEncoding::HTTP10;
     }
@@ -248,15 +249,14 @@ namespace web::http::server {
      */
     void Response::upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status) {
         if (isConnected()) {
-            const std::string connectionName = socketContext->getSocketConnection()->getConnectionName();
+            auto log = semantic::httpServerLog(*socketContext->getSocketConnection());
 
             std::string socketContextUpgradeName;
 
             if (request != nullptr) {
-                auto log = semantic::httpServerLog();
                 if (log.enabled(logger::LogLevel::Debug)) {
-                    const std::string prefix = connectionName + " HTTP: Initiating upgrade: " + request->method + " " + request->url +
-                                               " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) + "\n";
+                    const std::string prefix = "Initiating upgrade: " + request->method + " " + request->url + " HTTP/" +
+                                               std::to_string(httpMajor) + "." + std::to_string(httpMinor) + "\n";
                     const auto formatted = httputils::toStringPresentation(request->method,
                                                                            request->url,
                                                                            "HTTP/" + std::to_string(request->httpMajor) + "." +
@@ -276,22 +276,18 @@ namespace web::http::server {
                     if (socketContextUpgradeFactory != nullptr) {
                         socketContextUpgradeName = socketContextUpgradeFactory->name();
 
-                        semantic::httpServerLog().debug()
-                            << connectionName
-                            << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
+                        log.debug() << "SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            semantic::httpServerLog().debug()
-                                << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
+                            log.debug() << "SocketContextUpgrade create success for: " << socketContextUpgradeName;
 
-                            auto responseLog = semantic::httpServerLog();
-                            if (responseLog.enabled(logger::LogLevel::Debug)) {
-                                const std::string prefix =
-                                    connectionName + " HTTP upgrade: Response to upgrade request: " + request->method + " " + request->url +
-                                    " HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor) + "\n";
+                            if (log.enabled(logger::LogLevel::Debug)) {
+                                const std::string prefix = "Response to upgrade request: " + request->method + " " + request->url +
+                                                           " HTTP/" + std::to_string(request->httpMajor) + "." +
+                                                           std::to_string(request->httpMinor) + "\n";
                                 const auto formatted =
                                     httputils::toStringPresentation("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
                                                                     std::to_string(statusCode),
@@ -299,45 +295,49 @@ namespace web::http::server {
                                                                     headers,
                                                                     cookies,
                                                                     {});
-                                responseLog.emit(
+                                log.emit(
                                     logger::LogLevel::Debug,
                                     logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
                             }
 
                             socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
-                            semantic::httpServerLog().debug()
-                                << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << socketContextUpgradeName;
+                            log.debug() << "SocketContextUpgrade create failed for: " << socketContextUpgradeName;
 
                             set("Connection", "close").status(404);
                         }
                     } else {
-                        semantic::httpServerLog().debug()
-                            << connectionName << " SocketContextUpgradeFactory create failed for all of: " << request->get("upgrade");
+                        log.debug() << "SocketContextUpgradeFactory create failed for all of: " << request->get("upgrade");
 
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    semantic::httpServerLog().debug() << connectionName << " HTTP upgrade: No upgrade requested";
+                    log.debug() << "No upgrade requested";
 
                     set("Connection", "close").status(400);
                 }
             } else {
-                semantic::httpServerLog().error() << connectionName << " HTTP upgrade: Request has gone away";
+                log.error() << "Upgrade request has gone away";
 
                 set("Connection", "close").status(500);
+
+                log.debug() << "Upgrade bootstrap failed";
+                log.debug() << "      Protocol selected: ";
+                log.debug() << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
+
+                status({});
+                return;
             }
 
-            semantic::httpServerLog().debug() << connectionName << " HTTP: Upgrade bootstrap "
-                                              << (!socketContextUpgradeName.empty() ? "success" : "failed");
-            semantic::httpServerLog().debug() << "      Protocol selected: " << socketContextUpgradeName;
-            semantic::httpServerLog().debug() << "              requested: " << request->get("upgrade");
-            semantic::httpServerLog().debug() << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
-            semantic::httpServerLog().debug() << "              requested: " << request->get("Sec-WebSocket-Protocol");
+            log.debug() << "Upgrade bootstrap " << (!socketContextUpgradeName.empty() ? "success" : "failed");
+            log.debug() << "      Protocol selected: " << socketContextUpgradeName;
+            log.debug() << "              requested: " << request->get("upgrade");
+            log.debug() << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
+            log.debug() << "              requested: " << request->get("Sec-WebSocket-Protocol");
 
             status(socketContextUpgradeName);
         } else {
-            semantic::httpServerLog().error() << "HTTP upgrade: Unexpected disconnect";
+            semantic::httpServerLog().error() << "Unexpected disconnect during upgrade";
         }
     }
 
@@ -467,7 +467,8 @@ namespace web::http::server {
                 // Pretend we sent the full body length; this prevents keep-alive logic from treating HEAD as incomplete.
                 contentSent = contentLength;
             }
-            socketContext->responseCompleted(*this, isHead || contentSent == contentLength || (httpMajor == 1 && httpMinor == 0));
+            socketContext->responseCompleted(
+                *this, !sourceFailed && (isHead || contentSent == contentLength || (httpMajor == 1 && httpMinor == 0)));
         }
     }
 
@@ -499,6 +500,7 @@ namespace web::http::server {
 
     void Response::onSourceError(int errnum) {
         errno = errnum;
+        sourceFailed = true;
 
         if (isConnected()) {
             socketContext->streamEof();

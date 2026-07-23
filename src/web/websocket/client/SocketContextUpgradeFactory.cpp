@@ -43,10 +43,12 @@
 
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
+#include "web/websocket/SemanticLog.h"
 #include "web/websocket/client/SocketContextUpgrade.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
 #include "utils/base64.h"
 
 #include <stdexcept>
@@ -114,9 +116,11 @@ namespace web::websocket::client {
             if (selectedSubProtocolName.empty()) {
                 delete socketContext;
                 socketContext = nullptr;
+                semantic::webSocketSubProtocolLog(*socketConnection).debug() << "websocket failed";
             }
         } else {
             checkRefCount();
+            semantic::webSocketSubProtocolLog(*socketConnection).debug() << "websocket failed";
         }
 
         return socketContext;
