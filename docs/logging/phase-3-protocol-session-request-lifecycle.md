@@ -60,6 +60,14 @@ No HTTP `request timed out` or `request cancelled` record is fabricated: the HTT
 
 No public request-ID API or second identity framework was added. HTTP server correlation is private and socket-local because pipelined requests otherwise share all available semantic scope fields.
 
+### Identity-prefix closure
+
+Architectural identity is carried by semantic fields rather than repeated in message text. The MQTT closure reviewed 184 production message sites: 51 connection-bound duplicates, 44 static sites that could use an existing connection, 11 pre-bound or destruction-order fallbacks, five canonical/domain-identity records, and 73 process-wide component diagnostics. It mechanically changed 178 sites. Connection-bound common, client-role, server-role, and MQTT-over-WebSocket records now begin with the event or diagnostic payload; process-wide broker diagnostics likewise omit the redundant component label. MQTT client IDs, topics, packet identifiers and types, QoS, DUP/retain state, session-present state, protocol version, keep-alive values, store paths, and error detail remain domain payload.
+
+The 11 retained `PREBOUND_FALLBACK` message sites are narrowly limited to seven client session-store diagnostics (constructor load, corrupt/empty data, restore, read failure, and absent filename; destructor write failure and absent filename) and four server session-release diagnostics reached from MQTT object destruction (delete/retain decisions and their session-pointer detail). They retain only the configured connection display name because no safe bound socket scope exists at those points; the client/server component label is removed. Live DISCONNECT uses the connection-bound server scope. All common-engine records were verified to execute after MQTT context attachment.
+
+The secondary Phase 3 closure changed 78 verified duplicate component prefixes: 40 HTTP/EventSource sites, 29 WebSocket/subprotocol sites, four Codex App Server diagnostics, and five MariaDB diagnostics. Frozen HTTP/WebSocket context lifecycle text, Phase 2 transport/process records, protocol-version and subprotocol payload, and application-facing output were excluded. This identity cleanup changes no lifecycle outcome, protocol behavior, callback, timer, persistence decision, logger schema or formatter. It adds no public/protected API, class state, layout, or vtable entry.
+
 ## Exactly-once strategy
 
 Duplicate suppression uses existing owner state and narrow private flags only where necessary. These guarantees apply to the actual framework lifecycle; they do not promise arbitrary event-replay or event-sourcing idempotency.
@@ -120,6 +128,8 @@ Apart from the narrow EventSource destruction/configuration correction described
 
 Existing public class-member signatures and protected APIs are unchanged, and the installed Codex backend aggregate shapes match `master`. The installed function surface is not literally unchanged: four additive namespace-scope semantic logger overloads were added for connection-bound MQTT and HTTP logging (`mqttLogScope(connection)`, `mqttLog(connection)`, `httpClientLog(connection)`, and `httpServerLog(connection)`). Existing source consumers remain source-compatible.
 
+The identity-prefix closure adds no namespace helper or public/protected API. It changes the signature of the private, nonvirtual server `releaseSession` implementation so its safe caller selects either the bound logger or destruction fallback; this adds no member state, layout change, or vtable effect.
+
 Binary compatibility is **not claimed**. Installed HTTP client/server context and response classes, MQTT `Mqtt`, and `MariaDBConnection` have private layout changes, so consumers must rebuild. AppServerClient's PIMPL and the restored Codex aggregates add no exposed layout change. EventSource's private shared allocation and inline destructor behavior changed, but no virtual slot was added. No vtable entry was added, removed, or reordered. SOVERSION is intentionally unchanged.
 
 ## Validation surface and results
@@ -130,11 +140,17 @@ The GCC 15 Debug build, with include-what-you-use checks enabled, completed ever
 cmake --build build -j2
 ```
 
-The 42-test focused matrix passed 42/42. It covers the Phase 3 policy, Codex reducer, fake-transport AppServerClient requests, MQTT CONNECT/CONNACK transitions, EventSource explicit close/reconnect/destruction, HTTP request outcomes, WebSocket lifecycle, Phase 1 context, Phase 2 transport, TLS state-machine/ABI checks, and coordinated stream/TLS shutdown. The Phase 3 tests use structured semantic JSON for vocabulary, level, count, ordering, and available semantic identity fields.
+The direct Phase 3 policy, Codex reducer, fake-transport AppServerClient, and MQTT lifecycle tests passed 4/4. The MQTT test now also captures a common packet diagnostic and a server-role diagnostic after connection binding, checks their structured instance/connection/component/role fields and retained domain payload, and verifies that text formatting places architectural identity before the formatter separator while the payload begins with the diagnostic. The Phase 3 tests otherwise continue to use structured semantic JSON for vocabulary, level, count, ordering, and available semantic identity fields.
 
 Additional GCC results were:
 
 - all logging tests: 44/44 passed;
+- Phase 1/2 context, listener, and transport policy tests: 4/4 passed;
+- HTTP tests: 28/28 passed;
+- WebSocket tests: 12/12 passed;
+- EventSource tests: 9/9 passed;
+- TLS lifecycle/state-machine tests: 14/14 passed;
+- coordinated shutdown tests: 24/24 passed;
 - all 65 Codex-labelled tests: 64 passed and one skipped;
 - all three MQTT-named tests: 3/3 passed;
 - staged installed consumers and the TLS ABI/source check: 2/2 passed;
@@ -142,7 +158,7 @@ Additional GCC results were:
 
 `CodexTypedAppServerIntegrationTest` was skipped and is not counted as passing because `SNODEC_RUN_CODEX_TYPED_INTEGRATION=1` was not set. That opt-in uses a real Codex App Server and may consume configured credentials and quota.
 
-Clang 21.1.8 compiled the 12 focused Phase 3 targets and passed 12/12 focused tests with `CHECK_INCLUDES=OFF` and the existing compatibility demotions for three newer diagnostics:
+Clang 21.1.8 compiled 16 focused changed targets, including all MQTT roles/adapters, HTTP, WebSocket, Codex, MariaDB, and the two identity-policy tests. Those tests passed 2/2 with `CHECK_INCLUDES=OFF` and the existing compatibility demotions for three newer diagnostics:
 
 ```text
 -Wno-error=tautological-type-limit-compare -Wno-error=nrvo -Wno-error=implicit-int-conversion
@@ -150,6 +166,6 @@ Clang 21.1.8 compiled the 12 focused Phase 3 targets and passed 12/12 focused te
 
 A strict Clang 21 build remains gated by those three pre-existing `-Werror` diagnostics outside Phase 3 changes: a tautological type-limit comparison in `src/web/http/decoder/Chunked.cpp`, `-Wnrvo` in `src/ai/openai/codex/detail/ItemDecoder.cpp`, and implicit integer conversion in `src/web/websocket/Receiver.cpp`.
 
-The AddressSanitizer/LeakSanitizer configuration used `SNODEC_ENABLE_ASAN=ON`. With the compiler's `libasan.so` explicitly preloaded so that the runtime is first, the focused Codex reducer, AppServerClient request, EventSource explicit-close, and EventSource destruction tests passed 4/4 with `detect_leaks=1:halt_on_error=1`. An initial invocation without `LD_PRELOAD` was rejected before any test ran because the ASan runtime was not first in the process library list.
+The AddressSanitizer/LeakSanitizer configuration used `SNODEC_ENABLE_ASAN=ON`. With the compiler's `libasan.so` explicitly preloaded so that the runtime is first, the focused Codex reducer, AppServerClient request, MQTT identity, EventSource reconnect, and EventSource destruction tests passed 5/5 with `detect_leaks=1:halt_on_error=1`. LeakSanitizer cannot run inside the restricted ptrace sandbox; the identical focused command passed outside that restriction with no sanitizer finding. Socket-based HTTP, WebSocket, and EventSource tests likewise required the unrestricted local-socket test environment and passed there.
 
 There is no MariaDB CTest fixture or configured service/credentials in this environment, so no live database session/query integration was run; the MariaDB library compiled in the full GCC build and its lifecycle invariants are covered by the source-policy test. MQTT-over-WebSocket libraries compiled, and their ownership boundary is source-policy checked, but the repository has no broker-backed MQTT-over-WebSocket lifecycle fixture. These are limitations, not passing integration results. `git diff --check` is clean.
