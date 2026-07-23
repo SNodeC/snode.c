@@ -44,6 +44,25 @@ namespace {
                                                                                  : std::string(source.substr(first, last - first));
     }
 
+    std::string enclosingBlockContaining(std::string_view source, std::string_view marker) {
+        const std::size_t markerPosition = source.find(marker);
+        const std::size_t blockBegin =
+            markerPosition == std::string_view::npos ? std::string_view::npos : source.rfind('{', markerPosition);
+        if (blockBegin == std::string_view::npos) {
+            return {};
+        }
+
+        std::size_t depth = 0;
+        for (std::size_t position = blockBegin; position < source.size(); ++position) {
+            if (source[position] == '{') {
+                ++depth;
+            } else if (source[position] == '}' && --depth == 0) {
+                return std::string(source.substr(blockBegin, position - blockBegin + 1));
+            }
+        }
+        return {};
+    }
+
     std::string withoutWhitespace(std::string_view source) {
         std::string compact;
         compact.reserve(source.size());
@@ -147,6 +166,8 @@ int main() {
         functionBody(clientRequest, "bool MasterRequest::requestEventSource", "bool MasterRequest::sendFile");
     const std::string clientExecuteUpgrade =
         functionBody(clientRequest, "bool MasterRequest::executeUpgrade", "bool MasterRequest::executeEnd");
+    const std::string missingUpgradeRequest = enclosingBlockContaining(serverUpgrade, "Upgrade request has gone away");
+    const std::string disconnectedUpgrade = enclosingBlockContaining(serverUpgrade, "Unexpected disconnect during upgrade");
     ok &= requireCount(serverUpgrade, "semantic::httpServerLog(*", 1, serverResponsePath);
     ok &= requireCount(serverUpgrade, "semantic::httpServerLog()", 1, serverResponsePath);
     ok &= forbid(serverUpgrade, "connectionName", serverResponsePath);
@@ -160,6 +181,21 @@ int main() {
                                "Protocol selected:"}) {
         ok &= require(serverUpgrade, payload, serverResponsePath);
     }
+    ok &= require(withoutWhitespace(missingUpgradeRequest), "set(\"Connection\",\"close\").status(500);", serverResponsePath);
+    ok &= require(withoutWhitespace(missingUpgradeRequest), "status({});return;", serverResponsePath);
+    ok &= forbid(missingUpgradeRequest, "request->", serverResponsePath);
+    ok &= forbid(missingUpgradeRequest, "SocketContextUpgradeFactorySelector", serverResponsePath);
+    ok &= forbid(missingUpgradeRequest, "setSocketContext", serverResponsePath);
+
+    ok &= requireCount(disconnectedUpgrade, "semantic::httpServerLog()", 1, serverResponsePath);
+    ok &= forbid(disconnectedUpgrade, "semantic::httpServerLog(*", serverResponsePath);
+    ok &= forbid(disconnectedUpgrade, "socketContext", serverResponsePath);
+    ok &= forbid(disconnectedUpgrade, "connectionName", serverResponsePath);
+    ok &= forbid(disconnectedUpgrade, "getConnectionName()", serverResponsePath);
+    for (const auto prefix : {"Upgrade:", "HTTP:", "HTTP upgrade:"}) {
+        ok &= forbid(disconnectedUpgrade, prefix, serverResponsePath);
+    }
+    ok &= require(disconnectedUpgrade, "Unexpected disconnect during upgrade", serverResponsePath);
 
     ok &= requireCount(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "semantic::httpClientLog(*", 3, clientRequestPath);
     ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "semantic::httpClientLog()", clientRequestPath);

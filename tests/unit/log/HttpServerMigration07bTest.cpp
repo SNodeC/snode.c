@@ -1,8 +1,11 @@
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "log/Logger.h"
+#include "tests/support/Phase3SemanticLogCapture.h"
 #include "tests/support/TestResult.h"
+#include "web/http/server/Response.h"
 #include "web/http/server/SemanticLog.h"
+#include "web/http/server/SocketContext.h"
 
 #include <cerrno>
 #include <filesystem>
@@ -166,6 +169,57 @@ int main() {
                           upgradePayload.find("phase3-http-upgrade-server") == std::string::npos &&
                           upgradePayload.find("HTTP:") == std::string::npos && upgradePayload.find("HTTP upgrade:") == std::string::npos,
                       "text payload starts with upgrade content and does not repeat architectural identity");
+
+    {
+        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-server-null-upgrade-request");
+        logger::Logger::setLogLevel(6);
+        logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
+        logger::LogManager::setFormat(logger::LogManager::Format::Json);
+        logger::LogManager::freeze();
+
+        TestSocketConnection connection;
+        web::http::server::SocketContext context(&connection, {});
+        web::http::server::Response response(&context);
+        int callbackCount = 0;
+        std::string selectedProtocol = "not-empty";
+
+        result.expectTrue(response.isConnected(), "null upgrade request regression starts with a connected response");
+        result.expectTrue(connection.getSocketContext() == nullptr, "fake connection starts without an installed upgrade context");
+
+        response.upgrade(nullptr, [&callbackCount, &selectedProtocol](const std::string& protocol) {
+            ++callbackCount;
+            selectedProtocol = protocol;
+        });
+
+        result.expectEqual(1, callbackCount, "null upgrade request invokes the status callback exactly once");
+        result.expectTrue(selectedProtocol.empty(), "null upgrade request reports no selected protocol");
+        result.expectEqual(500, response.statusCode, "null upgrade request reports HTTP 500");
+        result.expectTrue(response.header("Connection") == "close", "null upgrade request closes the HTTP response connection");
+        result.expectTrue(connection.getSocketContext() == nullptr,
+                          "null upgrade request does not create or switch an upgrade context");
+
+        const auto records = capture.finish();
+        int errorRecordCount = 0;
+        int factoryDiagnosticCount = 0;
+        bool errorIdentityMatches = false;
+        for (const auto& record : records) {
+            const std::string message = record.value("message", "");
+            if (message == "Upgrade request has gone away") {
+                ++errorRecordCount;
+                errorIdentityMatches = record.value("level", "") == "error" && record.value("origin", "") == "framework" &&
+                                       record.value("boundary", "") == "connection" &&
+                                       record.value("component", "") == "web.http.server" && record.value("role", "") == "server" &&
+                                       record.value("instance", "") == "phase3-http-upgrade-server" &&
+                                       record.value("connection", "") == "314";
+            }
+            if (message.find("SocketContextUpgrade") != std::string::npos || message.find("upgrade plugin") != std::string::npos) {
+                ++factoryDiagnosticCount;
+            }
+        }
+        result.expectEqual(1, errorRecordCount, "null upgrade request emits one error diagnostic");
+        result.expectTrue(errorIdentityMatches, "null upgrade request error uses the bound HTTP server identity");
+        result.expectEqual(0, factoryDiagnosticCount, "null upgrade request does not invoke upgrade factory selection or creation");
+    }
 
     const auto managerFilterPath = tempLogPath("snodec-migration07b-manager-filter.log");
     {

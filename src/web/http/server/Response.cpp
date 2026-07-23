@@ -320,6 +320,13 @@ namespace web::http::server {
                 log.error() << "Upgrade request has gone away";
 
                 set("Connection", "close").status(500);
+
+                log.debug() << "Upgrade bootstrap failed";
+                log.debug() << "      Protocol selected: ";
+                log.debug() << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
+
+                status({});
+                return;
             }
 
             log.debug() << "Upgrade bootstrap " << (!socketContextUpgradeName.empty() ? "success" : "failed");
@@ -330,7 +337,7 @@ namespace web::http::server {
 
             status(socketContextUpgradeName);
         } else {
-            semantic::httpServerLog().error() << "Upgrade: Unexpected disconnect";
+            semantic::httpServerLog().error() << "Unexpected disconnect during upgrade";
         }
     }
 
