@@ -171,6 +171,10 @@ snodec_add_test(Phase3LifecyclePolicyTest Phase3LifecyclePolicyTest.cpp)
 target_compile_features(Phase3LifecyclePolicyTest PRIVATE cxx_std_20)
 snodec_set_source_policy_test_properties(Phase3LifecyclePolicyTest "unit;log;protocol;session;request;lifecycle;source-policy")
 
+snodec_add_test(Phase3ParameterlessSemanticLoggerPolicyTest Phase3ParameterlessSemanticLoggerPolicyTest.cpp)
+target_compile_features(Phase3ParameterlessSemanticLoggerPolicyTest PRIVATE cxx_std_20)
+snodec_set_source_policy_test_properties(Phase3ParameterlessSemanticLoggerPolicyTest "unit;log;phase3;source-policy")
+
 snodec_add_test(Phase3CodexLifecycleTest Phase3CodexLifecycleTest.cpp)
 target_compile_features(Phase3CodexLifecycleTest PRIVATE cxx_std_20)
 target_include_directories(Phase3CodexLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
@@ -191,6 +195,13 @@ target_compile_features(Phase3MqttLifecycleTest PRIVATE cxx_std_20)
 target_include_directories(Phase3MqttLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(Phase3MqttLifecycleTest PRIVATE snodec-test-support snodec::mqtt-server snodec::logger)
 set_tests_properties(Phase3MqttLifecycleTest PROPERTIES LABELS "unit;log;mqtt;protocol;session;lifecycle")
+
+snodec_add_test(Phase3HttpStreamingSourceFailureTest Phase3HttpStreamingSourceFailureTest.cpp)
+target_compile_features(Phase3HttpStreamingSourceFailureTest PRIVATE cxx_std_20)
+target_include_directories(Phase3HttpStreamingSourceFailureTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(Phase3HttpStreamingSourceFailureTest
+                      PRIVATE snodec-test-support snodec::http-server snodec::net snodec::core-socket-stream snodec::logger)
+set_tests_properties(Phase3HttpStreamingSourceFailureTest PROPERTIES LABELS "unit;log;http;streaming;lifecycle")
 
 snodec_add_test(SensitiveLoggingRedactionTest SensitiveLoggingRedactionTest.cpp)
 target_compile_features(SensitiveLoggingRedactionTest PRIVATE cxx_std_20)
