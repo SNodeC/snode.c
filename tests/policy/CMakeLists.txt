@@ -16,6 +16,11 @@ snodec_add_policy_test(
     "log;architecture"
 )
 snodec_add_policy_test(
+    LoggingApiSurfacePolicyTest
+    log/LoggingApiSurfacePolicyTest.cpp
+    "log;architecture;api"
+)
+snodec_add_policy_test(
     EpollDescriptorPublisherPolicyTest
     core/EpollDescriptorPublisherPolicyTest.cpp
     "core;epoll"

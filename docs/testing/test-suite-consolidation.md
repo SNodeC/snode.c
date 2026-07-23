@@ -123,7 +123,8 @@ stylistic churn.
 | `ContextLifecyclePhase1Test` | `tests/unit/log/ContextLifecyclePhase1Test.cpp` | unit/log/core lifecycle | Real context attach/switch/detach ordering, reasons, callbacks, identity, and obsolete duplicate suppression | Complements framework shutdown context visibility | MOVE_TO_SUBSYSTEM | `tests/unit/core/SocketContextLifecycleTest.cpp` | Core lifecycle ownership |
 | `SocketContextDetachPolicyTest` | `tests/unit/log/SocketContextDetachPolicyTest.cpp` | unit/log/source policy | Exact source spellings for detach calls | Runtime context lifecycle is stronger | REPLACE_WITH_RUNTIME_TEST | `SocketContextLifecycleTest` | Layout/spelling snapshot is not a durable independent contract |
 | `TransportLifecyclePhase2PolicyTest` | `tests/unit/log/TransportLifecyclePhase2PolicyTest.cpp` | unit/log/source policy | Exact transport lifecycle source spellings | Runtime connection/listener/endpoint tests are stronger | REPLACE_WITH_RUNTIME_TEST | `ConnectionAttemptLifecycleTest`, `ListenerLifecycleTest`, `EndpointLifetimeCountersTest`, existing shutdown tests | Runtime state transitions are falsifiable without source snapshots |
-| `Phase3LifecyclePolicyTest` | `tests/unit/log/Phase3LifecyclePolicyTest.cpp` | unit/log/source policy | Exact protocol/session/request lifecycle source spellings | Runtime HTTP/MQTT/Codex/WebSocket/EventSource lifecycle tests are stronger | REPLACE_WITH_RUNTIME_TEST | Named subsystem lifecycle and component tests | Broad migration snapshot has no stable independent architecture invariant |
+| `Phase3LifecyclePolicyTest` | `tests/unit/log/Phase3LifecyclePolicyTest.cpp` | unit/log lifecycle source policy | Lifecycle exactly-once and identity behavior | Runtime HTTP/MQTT/Codex/WebSocket/EventSource lifecycle tests are stronger | REPLACE_WITH_RUNTIME_TEST | `HttpStreamingSourceFailureTest`, `MqttLifecycleTest`, `CodexBackendLifecycleTest`, `AppServerClientRequestLifecycleTest`, and existing WebSocket/EventSource lifecycle tests | Runtime scenarios protect observable lifecycle behavior without retaining message-spelling snapshots |
+| `Phase3LifecyclePolicyTest` | `tests/unit/log/Phase3LifecyclePolicyTest.cpp` | logging architecture/API policy | MQTT logging/lifecycle helpers remain private; Codex backend event/state models exclude logging-only bookkeeping | Runtime lifecycle tests cannot protect API access or domain-model shape | EXTRACT_THEN_DELETE | `LoggingApiSurfacePolicyTest` | Durable API and model-pollution invariants require a focused structural policy |
 | `Phase3ParameterlessSemanticLoggerPolicyTest` | `tests/unit/log/Phase3ParameterlessSemanticLoggerPolicyTest.cpp` | unit/log/architecture policy | Complete masked scan and exact justified allowlist for literal parameterless semantic logger calls | No runtime equivalent can prove whole-source classification | MOVE_TO_POLICY | `tests/policy/log/ParameterlessSemanticLoggerPolicyTest.cpp` | Durable explicit-scope architecture invariant |
 | `Phase3CodexLifecycleTest` | `tests/unit/log/Phase3CodexLifecycleTest.cpp` | unit/log/Codex lifecycle | Codex thread/turn lifecycle exactly-once and identity behavior | Complements component protocol engine tests | MOVE_TO_SUBSYSTEM | `tests/component/codex/CodexBackendLifecycleTest.cpp` | Codex behavior belongs to Codex |
 | `Phase3AppServerClientLifecycleTest` | `tests/unit/log/Phase3AppServerClientLifecycleTest.cpp` | unit/log/Codex lifecycle | App-server client request lifecycle exactly-once behavior | Complements Codex stdio and protocol tests | MOVE_TO_SUBSYSTEM | `tests/component/codex/AppServerClientRequestLifecycleTest.cpp` | Codex request lifecycle belongs to Codex |
@@ -214,7 +215,8 @@ deleted.
 | `ContextLifecyclePhase1Test` | Context attach/switch/detach ordering, reasons, callbacks, identity, and duplicate-terminal suppression | `SocketContextLifecycleTest` |
 | `SocketContextDetachPolicyTest` | Detach reason and ordering | `SocketContextLifecycleTest` runtime assertions |
 | `TransportLifecyclePhase2PolicyTest` | Attempt/listener/endpoint terminal uniqueness and ordering | `ConnectionAttemptLifecycleTest`, `ListenerLifecycleTest`, `EndpointLifetimeCountersTest`, and stream/TLS shutdown suites |
-| `Phase3LifecyclePolicyTest` | HTTP/MQTT/Codex/WebSocket/EventSource terminal uniqueness | `HttpStreamingSourceFailureTest`, `MqttLifecycleTest`, `CodexBackendLifecycleTest`, `AppServerClientRequestLifecycleTest`, and existing WebSocket/EventSource component lifecycle tests |
+| `Phase3LifecyclePolicyTest` | Lifecycle exactly-once and identity behavior | `HttpStreamingSourceFailureTest`, `MqttLifecycleTest`, `CodexBackendLifecycleTest`, `AppServerClientRequestLifecycleTest`, and existing WebSocket/EventSource component lifecycle tests |
+| `Phase3LifecyclePolicyTest` | MQTT logging/lifecycle helpers remain private; Codex backend events/state exclude logging-only lifecycle bookkeeping | `LoggingApiSurfacePolicyTest` |
 | `Phase3ParameterlessSemanticLoggerPolicyTest` | Masked whole-source scan, exact stable-marker allowlist, duplicate/stale/missing/reason validation, unresolved-category rejection, and negative self-tests | `ParameterlessSemanticLoggerPolicyTest` |
 | `Phase3CodexLifecycleTest` | Codex backend thread/turn exactly-once transitions and identity | `CodexBackendLifecycleTest` |
 | `Phase3AppServerClientLifecycleTest` | App-server client request exactly-once transitions | `AppServerClientRequestLifecycleTest` |
@@ -234,8 +236,8 @@ deleted.
 
 ## Final suite and validation
 
-- Registered tests: 235
-- Expected passing tests: 234
+- Registered tests: 236
+- Expected passing tests: 235
 - Expected skipped tests: 1 (`CodexTypedAppServerIntegrationTest`, return
   code 77)
 - Historical registered names and labels: none
@@ -251,6 +253,7 @@ deleted.
 The final policy suite contains:
 
 - `ParameterlessSemanticLoggerPolicyTest` (`policy;log;architecture`);
+- `LoggingApiSurfacePolicyTest` (`policy;log;architecture;api`);
 - `EpollDescriptorPublisherPolicyTest` (`policy;core;epoll`);
 - `EventLoopSyscallDisciplinePolicyTest` (`policy;core;syscall`);
 - `SensitiveLoggingPolicyTest` (`policy;security;log`).
@@ -275,7 +278,7 @@ Validation performed:
 | Clang 21.1 focused build with only those diagnostics demoted | Build pass; 22/22 focused tests pass |
 | ASan plus LSan, five required lifecycle/regression targets | 5/5 pass; LSan required execution outside the ptrace sandbox |
 | UBSan, five required lifecycle/regression targets | 5/5 pass with `vptr` excluded; vptr instrumentation introduces an unresolved circular RTTI link from `core-socket-stream` to `ConfigInstance` |
-| Complete GCC CTest suite | 234 pass, 1 expected skip, 0 failures (235 registered) |
+| Complete GCC CTest suite | 235 pass, 1 expected skip, 0 failures (236 registered) |
 | `git diff --check` | Pass |
 
 CI state is recorded in the pull request after the committed branch is pushed.
