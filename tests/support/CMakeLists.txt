@@ -39,7 +39,7 @@
 
 add_library(
     snodec-test-support STATIC DescriptorRegistrationFailure.h TestResult.cpp
-                               TestResult.h
+                               TestResult.h SemanticLogCapture.h
 )
 
 target_include_directories(

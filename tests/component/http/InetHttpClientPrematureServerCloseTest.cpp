@@ -1,6 +1,6 @@
 #include "HttpServerClientBehaviorTest.h"
 #include "net/in/SocketAddress.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
@@ -14,7 +14,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpClientPrematureServerCloseTest");
     } else {
         tests::component::http::BehaviorState state;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-premature-close");
+        tests::support::SemanticLogCapture capture("snodec-phase3-http-premature-close");
 
         capture.initCore("InetHttpClientPrematureServerCloseTest");
 

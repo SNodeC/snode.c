@@ -1,7 +1,7 @@
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "net/in/SocketAddress.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 #include "web/http/legacy/in/Client.h"
@@ -168,7 +168,7 @@ namespace {
     int runTest(int argc, char* argv[], const char* testName) {
         tests::support::TestResult testResult;
         State state;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-websocket-unexpected-close");
+        tests::support::SemanticLogCapture capture("snodec-phase3-websocket-unexpected-close");
         linkedState = &state;
         capture.initCore(testName);
         using Server = web::http::legacy::in::Server;
