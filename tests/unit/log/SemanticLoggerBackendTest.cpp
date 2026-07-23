@@ -29,7 +29,7 @@ namespace {
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
             logger::Logger::setTickResolver([]() {
-                return std::string("ROUND6TICK000");
+                return std::string("BACKENDTICK000");
             });
             logger::Logger::logToFile(logFile);
         }
@@ -57,10 +57,10 @@ namespace {
     logger::LogScope testScope() {
         return {logger::LogOrigin::Framework,
                 logger::LogBoundary::System,
-                "round6.component",
-                "round6-instance",
+                "backend.component",
+                "backend-instance",
                 logger::LogRole::Server,
-                "round6-connection"};
+                "backend-connection"};
     }
 
     logger::LogRecord record(logger::LogLevel level, std::string message) {
@@ -161,7 +161,7 @@ namespace {
 int main() {
     tests::support::TestResult result;
 
-    const auto semanticPath = tempLogPath("snodec-round6-semantic.log");
+    const auto semanticPath = tempLogPath("snodec-backend-semantic.log");
     {
         LoggerStateGuard guard(semanticPath.string());
         logger::Logger::emitSemantic(record(logger::LogLevel::Info, "semantic info emitted"));
@@ -172,10 +172,10 @@ int main() {
     result.expectTrue(semanticLog.find("INFO") != std::string::npos, "semantic info maps to legacy INFO label");
     result.expectTrue(semanticLog.find("semantic info emitted") != std::string::npos, "semantic info emits through file backend");
     result.expectTrue(semanticLog.find("semantic off hidden") == std::string::npos, "semantic off emits nothing");
-    result.expectTrue(semanticLog.find("ROUND6TICK000") != std::string::npos, "semantic emission uses legacy tick resolver pattern");
+    result.expectTrue(semanticLog.find("BACKENDTICK000") != std::string::npos, "semantic emission uses legacy tick resolver pattern");
     result.expectTrue(semanticLog.find("legacy macro emitted") != std::string::npos, "legacy LOG macro still emits through backend");
 
-    const auto filteredPath = tempLogPath("snodec-round6-filtered.log");
+    const auto filteredPath = tempLogPath("snodec-backend-filtered.log");
     {
         LoggerStateGuard guard(filteredPath.string());
         logger::Logger::setLogLevel(3);
@@ -188,12 +188,12 @@ int main() {
     result.expectTrue(filteredLog.find("warning visible") != std::string::npos,
                       "semantic backend respects Logger::setLogLevel for warning");
 
-    const auto objectPath = tempLogPath("snodec-round6-objects.log");
+    const auto objectPath = tempLogPath("snodec-backend-objects.log");
     {
         LoggerStateGuard guard(objectPath.string());
-        TestConfigInstance config("round6-config");
+        TestConfigInstance config("backend-config");
         config.log().info("config default backend");
-        TestSocketConnection connection("round6-connection");
+        TestSocketConnection connection("backend-connection");
         connection.log().info("connection default backend");
         TestSocketContext context(&connection);
         context.log().info("context default backend");

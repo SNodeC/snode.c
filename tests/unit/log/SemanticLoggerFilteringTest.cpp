@@ -28,7 +28,7 @@ namespace {
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
             logger::Logger::setTickResolver([]() {
-                return std::string("ROUND7TICK000");
+                return std::string("FILTERINGTICK000");
             });
             logger::Logger::logToFile(logFile);
         }
@@ -53,16 +53,16 @@ namespace {
         return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
     }
 
-    logger::LogScope scope(std::string_view instance = "round7-instance") {
+    logger::LogScope scope(std::string_view instance = "filtering-instance") {
         return {logger::LogOrigin::Framework,
                 logger::LogBoundary::Connection,
                 "core.socket.stream",
                 instance,
                 logger::LogRole::Server,
-                "round7-connection"};
+                "filtering-connection"};
     }
 
-    logger::LogRecord record(logger::LogLevel level, std::string message, std::string_view instance = "round7-instance") {
+    logger::LogRecord record(logger::LogLevel level, std::string message, std::string_view instance = "filtering-instance") {
         logger::LogRecordOptions options;
         options.ts = fixedTimestamp();
         return logger::materialize(scope(instance), level, std::move(message), std::move(options));
@@ -97,7 +97,7 @@ int main() {
     result.expectTrue(logger::LogManager::effectiveLevel(scope()) == logger::LogLevel::Debug, "boundary overrides origin");
     logger::LogManager::setComponentLevel("core.socket.stream", logger::LogLevel::Info);
     result.expectTrue(logger::LogManager::effectiveLevel(scope()) == logger::LogLevel::Info, "component overrides boundary");
-    logger::LogManager::setInstanceLevel("round7-instance", logger::LogLevel::Trace);
+    logger::LogManager::setInstanceLevel("filtering-instance", logger::LogLevel::Trace);
     result.expectTrue(logger::LogManager::effectiveLevel(scope()) == logger::LogLevel::Trace, "instance overrides component");
     result.expectTrue(logger::LogManager::effectiveLevel(scope("")) == logger::LogLevel::Info,
                       "missing instance does not match instance override");
@@ -134,7 +134,7 @@ int main() {
                           json.find("\"message\"") != std::string::npos,
                       "Json output includes mandatory JSON v1 fields");
     const auto minimal = logger::materialize(
-        {logger::LogOrigin::Application, logger::LogBoundary::Application, "round7.minimal", "", logger::LogRole::Unknown, ""},
+        {logger::LogOrigin::Application, logger::LogBoundary::Application, "filtering.minimal", "", logger::LogRole::Unknown, ""},
         logger::LogLevel::Info,
         "minimal",
         logger::LogRecordOptions{.ts = fixedTimestamp()});
@@ -143,7 +143,7 @@ int main() {
                           minimalJson.find("\"role\"") == std::string::npos && minimalJson.find("\"connection\"") == std::string::npos,
                       "Json output omits absent optional fields rather than null");
 
-    const auto semanticPath = tempLogPath("snodec-round7-semantic-filter.log");
+    const auto semanticPath = tempLogPath("snodec-filtering-semantic-filter.log");
     {
         LoggerStateGuard guard(semanticPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Warn);
@@ -155,12 +155,12 @@ int main() {
     result.expectTrue(semanticLog.find("semantic info hidden") == std::string::npos, "Logger::emitSemantic honors semantic filter");
     result.expectTrue(semanticLog.find("semantic warning visible") != std::string::npos, "Logger::emitSemantic emits allowed record");
 
-    const auto objectPath = tempLogPath("snodec-round7-object-filter.log");
+    const auto objectPath = tempLogPath("snodec-filtering-object-filter.log");
     {
         LoggerStateGuard guard(objectPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
         logger::LogManager::freeze();
-        TestConfigInstance config("round7-config");
+        TestConfigInstance config("filtering-config");
         config.log().info("object info hidden");
         config.log().error("object error visible");
     }
@@ -170,7 +170,7 @@ int main() {
     result.expectTrue(objectLog.find("object error visible") != std::string::npos,
                       "default no-argument object logger emits allowed semantic record");
 
-    const auto gatePath = tempLogPath("snodec-round7-backend-gate.log");
+    const auto gatePath = tempLogPath("snodec-filtering-backend-gate.log");
     {
         LoggerStateGuard guard(gatePath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Trace);
@@ -189,7 +189,7 @@ int main() {
                           gateLog.find("legacy warning visible") != std::string::npos,
                       "legacy LOG macro behavior remains unchanged");
 
-    const auto jsonPath = tempLogPath("snodec-round7-json-format.log");
+    const auto jsonPath = tempLogPath("snodec-filtering-json-format.log");
     {
         LoggerStateGuard guard(jsonPath.string());
         logger::LogManager::setFormat(logger::LogManager::Format::Json);

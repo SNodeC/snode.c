@@ -34,7 +34,7 @@ namespace {
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
             logger::Logger::setTickResolver([]() {
-                return std::string("REPAIRTICK");
+                return std::string("DISABLEDTICK");
             });
             logger::Logger::logToFile(logFile);
         }
@@ -64,10 +64,10 @@ namespace {
     logger::LogScope testScope() {
         return {logger::LogOrigin::Framework,
                 logger::LogBoundary::System,
-                "repair.test",
-                "repair-instance",
+                "disabled-path.test",
+                "disabled-instance",
                 logger::LogRole::Server,
-                "repair-connection"};
+                "disabled-connection"};
     }
 
     std::chrono::system_clock::time_point fixedTimestamp() {
@@ -159,12 +159,45 @@ namespace {
 int main() {
     tests::support::TestResult result;
 
-    const auto suppressedConnectionPath = tempLogPath("snodec-semantic-repair-connection-suppressed.log");
+    int genericSinkCalls = 0;
+    auto genericLog = logger::BoundaryLogger::createForTest(
+        testScope(),
+        [&](logger::LogRecord) {
+            ++genericSinkCalls;
+        },
+        logger::LogLevel::Info,
+        fixedTimestamp);
+    int genericEvaluations = 0;
+    genericLog.debug("{}", ExpensiveValue{&genericEvaluations});
+    result.expectEqual(0, genericEvaluations, "disabled format-style logging does not evaluate expensive arguments");
+    result.expectEqual(0, genericSinkCalls, "disabled format-style logging does not invoke the sink");
+
+    if (genericLog.enabled(logger::LogLevel::Debug)) {
+        genericLog.debug() << ExpensiveValue{&genericEvaluations};
+    }
+    result.expectEqual(0, genericEvaluations, "disabled guarded stream-style logging does not evaluate expensive arguments");
+    result.expectEqual(0, genericSinkCalls, "disabled guarded stream-style logging does not invoke the sink");
+
+    genericLog.emit(logger::LogLevel::Off, "off");
+    result.expectEqual(0, genericSinkCalls, "LogLevel::Off does not invoke the sink");
+
+    auto enabledGenericLog = logger::BoundaryLogger::createForTest(
+        testScope(),
+        [&](logger::LogRecord) {
+            ++genericSinkCalls;
+        },
+        logger::LogLevel::Debug,
+        fixedTimestamp);
+    enabledGenericLog.debug("{}", ExpensiveValue{&genericEvaluations});
+    result.expectEqual(1, genericEvaluations, "enabled logging evaluates an expensive argument exactly once");
+    result.expectEqual(1, genericSinkCalls, "enabled logging invokes the sink exactly once");
+
+    const auto suppressedConnectionPath = tempLogPath("snodec-semantic-disabled-connection-suppressed.log");
     {
         LoggerStateGuard guard(suppressedConnectionPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
         logger::LogManager::freeze();
-        TestSocketConnection connection("repair-instance");
+        TestSocketConnection connection("disabled-instance");
         int evaluations = 0;
         connection.log().debug("{}", ExpensiveValue{&evaluations});
         result.expectEqual(0, evaluations, "production SocketConnection::log debug formatting is skipped when globally suppressed");
@@ -172,12 +205,12 @@ int main() {
     result.expectTrue(readFile(suppressedConnectionPath).empty(),
                       "production SocketConnection::log suppressed debug emits no backend output");
 
-    const auto enabledConnectionPath = tempLogPath("snodec-semantic-repair-connection-enabled.log");
+    const auto enabledConnectionPath = tempLogPath("snodec-semantic-disabled-connection-enabled.log");
     {
         LoggerStateGuard guard(enabledConnectionPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
         logger::LogManager::freeze();
-        TestSocketConnection connection("repair-instance");
+        TestSocketConnection connection("disabled-instance");
         int evaluations = 0;
         connection.log().debug("{}", ExpensiveValue{&evaluations});
         result.expectEqual(1, evaluations, "production SocketConnection::log debug formatting runs when enabled");
@@ -188,12 +221,12 @@ int main() {
     result.expectTrue(enabledConnectionLog.find(" framework/connection core.socket.stream ") != std::string::npos,
                       "enabled SocketConnection::log preserves framework/connection scope");
 
-    const auto suppressedContextPath = tempLogPath("snodec-semantic-repair-context-suppressed.log");
+    const auto suppressedContextPath = tempLogPath("snodec-semantic-disabled-context-suppressed.log");
     {
         LoggerStateGuard guard(suppressedContextPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
         logger::LogManager::freeze();
-        TestSocketConnection connection("repair-instance");
+        TestSocketConnection connection("disabled-instance");
         TestSocketContext context(&connection);
         int evaluations = 0;
         context.frameworkLog().debug("{}", ExpensiveValue{&evaluations});
@@ -235,7 +268,7 @@ int main() {
     logger::LogManager::init();
     logger::LogManager::setGlobalLevel(logger::LogLevel::Error);
     logger::LogManager::freeze();
-    TestSocketConnection explicitConnection("repair-instance");
+    TestSocketConnection explicitConnection("disabled-instance");
     explicitConnection
         .log(
             [&](logger::LogRecord record) {

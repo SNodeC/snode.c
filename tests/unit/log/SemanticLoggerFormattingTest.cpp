@@ -313,18 +313,5 @@ int main() {
     result.expectTrue(stripAnsi(logger::formatText(validCrlf, true)) == logger::formatText(validCrlf, false),
                       "line-reset CRLF presentation strips exactly to plain formatter output");
 
-    logger::Logger::init();
-    logger::Logger::setDisableColor(true);
-    logger::Logger::setTickResolver([] {
-        return "000000";
-    });
-    logger::Logger::setLogLevel(1);
-    logger::Logger::setVerboseLevel(1);
-    LOG(INFO) << "round2 compatibility LOG enabled";
-    errno = EACCES;
-    PLOG(ERROR) << "round2 compatibility PLOG enabled";
-    LOG(TRACE) << "round2 compatibility LOG disabled";
-    result.expectTrue(true, "legacy LOG/PLOG macros compile/link/run via existing macro path");
-
     return result.processResult();
 }

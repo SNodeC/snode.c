@@ -30,7 +30,7 @@ namespace {
     }
 } // namespace
 
-int main() {
+int main(void) {
     tests::support::TestResult result;
 
     static_assert(std::is_copy_constructible_v<logger::LogScopeOwner>, "LogScopeOwner copy behavior is intentionally supported");
