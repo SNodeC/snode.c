@@ -26,6 +26,7 @@ int main() {
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
+    static_assert(!std::is_same_v<typed::ClientUserMessageId, std::string>);
 
     [[maybe_unused]] typed::DecodeDiagnostic diagnostic{
         typed::DecodeIssueKind::UnknownDiscriminator,

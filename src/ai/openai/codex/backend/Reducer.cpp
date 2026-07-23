@@ -8,6 +8,7 @@
 #include "ai/openai/codex/backend/Reducer.h"
 
 #include "ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h"
+#include "ai/openai/codex/detail/ConversationCodec.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
@@ -119,6 +120,33 @@ namespace ai::openai::codex::backend {
             target += value;
         }
 
+        std::optional<std::vector<typed::FileUpdateChange>> decodeFileUpdateChanges(const Json& changes) {
+            if (!changes.is_array()) {
+                return std::nullopt;
+            }
+
+            std::vector<typed::FileUpdateChange> decoded;
+            decoded.reserve(changes.size());
+            for (const Json& change : changes) {
+                if (!change.is_object()) {
+                    return std::nullopt;
+                }
+                const auto diff = change.find("diff");
+                const auto kind = change.find("kind");
+                const auto path = change.find("path");
+                if (diff == change.end() || !diff->is_string() || kind == change.end() || path == change.end() || !path->is_string()) {
+                    return std::nullopt;
+                }
+                ai::openai::codex::detail::ConversationDecodeResult<typed::PatchChangeKind> decodedKind =
+                    ai::openai::codex::detail::decodePatchChangeKind(*kind);
+                if (!decodedKind.value) {
+                    return std::nullopt;
+                }
+                decoded.push_back({diff->get<std::string>(), std::move(*decodedKind.value), path->get<std::string>()});
+            }
+            return decoded;
+        }
+
         void initializeVisibleContent(ItemState& state, bool authoritative, std::size_t limit) {
             std::visit(Overloaded{[&state, authoritative, limit](const typed::AgentMessageItem& item) {
                                       if ((!item.text.empty() && authoritative) || state.agentText.empty()) {
@@ -126,30 +154,31 @@ namespace ai::openai::codex::backend {
                                       }
                                   },
                                   [&state, authoritative, limit](const typed::ReasoningItem& item) {
-                                      const bool hasContent =
-                                          std::any_of(item.content.begin(), item.content.end(), [](const std::string& value) {
-                                              return !value.empty();
-                                          });
+                                      const std::vector<std::string>& content = item.contentOrDefault();
+                                      const bool hasContent = std::any_of(content.begin(), content.end(), [](const std::string& value) {
+                                          return !value.empty();
+                                      });
                                       if ((authoritative && hasContent) || state.reasoningText.empty()) {
                                           state.reasoningText.clear();
-                                          for (const std::string& content : item.content) {
-                                              appendBounded(state.reasoningText, content, limit, state.droppedContentBytes);
+                                          for (const std::string& value : content) {
+                                              appendBounded(state.reasoningText, value, limit, state.droppedContentBytes);
                                           }
                                       }
-                                      const bool hasSummary =
-                                          std::any_of(item.summary.begin(), item.summary.end(), [](const std::string& value) {
-                                              return !value.empty();
-                                          });
+                                      const std::vector<std::string>& summary = item.summaryOrDefault();
+                                      const bool hasSummary = std::any_of(summary.begin(), summary.end(), [](const std::string& value) {
+                                          return !value.empty();
+                                      });
                                       if ((authoritative && hasSummary) || state.reasoningSummary.empty()) {
                                           state.reasoningSummary.clear();
-                                          for (const std::string& summary : item.summary) {
-                                              appendBounded(state.reasoningSummary, summary, limit, state.droppedContentBytes);
+                                          for (const std::string& value : summary) {
+                                              appendBounded(state.reasoningSummary, value, limit, state.droppedContentBytes);
                                           }
                                       }
                                   },
                                   [&state, authoritative, limit](const typed::CommandExecutionItem& item) {
-                                      if (item.output && ((!item.output->empty() && authoritative) || state.commandOutput.empty())) {
-                                          assignBounded(state.commandOutput, *item.output, limit, state.droppedContentBytes);
+                                      if (item.aggregatedOutput &&
+                                          ((!item.aggregatedOutput->empty() && authoritative) || state.commandOutput.empty())) {
+                                          assignBounded(state.commandOutput, *item.aggregatedOutput, limit, state.droppedContentBytes);
                                       }
                                   },
                                   [](const auto&) {
@@ -525,7 +554,10 @@ namespace ai::openai::codex::backend {
                     }
                     if (item) {
                         if (auto* fileChange = std::get_if<typed::FileChangeItem>(&item->item)) {
-                            fileChange->changes = value.changes;
+                            fileChange->metadata.raw["changes"] = value.changes;
+                            if (std::optional<std::vector<typed::FileUpdateChange>> changes = decodeFileUpdateChanges(value.changes)) {
+                                fileChange->changes = std::move(*changes);
+                            }
                         }
                         item->extensions["fileChanges"] = value.changes;
                     }

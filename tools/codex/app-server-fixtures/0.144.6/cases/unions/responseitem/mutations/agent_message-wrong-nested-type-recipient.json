@@ -1,0 +1,15 @@
+{
+  "author": "synthetic-eb5eeb5f1c",
+  "content": [
+    {
+      "text": "synthetic-190436a7d1",
+      "type": "input_text"
+    }
+  ],
+  "id": "synthetic-4e3aa1db22",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "recipient": null,
+  "type": "agent_message"
+}

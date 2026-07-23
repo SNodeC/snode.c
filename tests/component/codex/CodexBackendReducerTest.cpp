@@ -52,8 +52,19 @@ namespace {
         typed::UserMessageItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         item.metadata.raw = std::move(raw);
-        item.clientId = std::move(clientId);
-        item.content = std::move(content);
+        if (!item.metadata.raw.contains("content")) {
+            item.metadata.raw["content"] = content;
+        }
+        if (clientId) {
+            item.clientId = typed::ClientUserMessageId{std::move(*clientId)};
+        }
+        for (Json& entry : content) {
+            std::optional<std::string> type;
+            if (const auto discriminator = entry.find("type"); discriminator != entry.end() && discriminator->is_string()) {
+                type = discriminator->get<std::string>();
+            }
+            item.content.emplace_back(typed::UnknownUserInput{std::move(type), std::move(entry), std::nullopt});
+        }
         return item;
     }
 
@@ -65,10 +76,10 @@ namespace {
         typed::ReasoningItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         if (!text.empty()) {
-            item.content.push_back(std::move(text));
+            item.content = std::vector<std::string>{std::move(text)};
         }
         if (!summary.empty()) {
-            item.summary.push_back(std::move(summary));
+            item.summary = std::vector<std::string>{std::move(summary)};
         }
         return item;
     }
@@ -80,9 +91,9 @@ namespace {
         typed::CommandExecutionItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         item.command = "printf test";
-        item.cwd = "/tmp/project";
-        item.status = "inProgress";
-        item.output = std::move(output);
+        item.cwd = typed::LegacyAppPathString{"/tmp/project"};
+        item.status = typed::CommandExecutionStatus::inProgress();
+        item.aggregatedOutput = std::move(output);
         return item;
     }
 
@@ -359,7 +370,7 @@ namespace {
 
         typed::FileChangeItem file;
         file.metadata = metadata("thread-terminal", "turn-failed", "file-item");
-        file.status = "inProgress";
+        file.status = typed::PatchApplyStatus::inProgress();
         reducer.apply(state,
                       backend::ItemUpserted{typed::ThreadId{"thread-terminal"},
                                             typed::TurnId{"turn-failed"},
@@ -398,9 +409,10 @@ namespace {
 
         const backend::ItemState* startedState = findItem(state, "thread-user", "turn-user", "user-item");
         const auto* canonicalStarted = startedState ? std::get_if<typed::UserMessageItem>(&startedState->item) : nullptr;
-        result.expectTrue(canonicalStarted && canonicalStarted->content == startedContent && !canonicalStarted->clientId &&
-                              canonicalStarted->metadata.raw == startedRaw && startedState->lifecycle == backend::ItemLifecycle::Started &&
-                              startedState->startedAtMs == 101 && !startedState->completedAtMs && state.recentExtensions.empty(),
+        result.expectTrue(canonicalStarted && canonicalStarted->metadata.raw.at("content") == startedContent &&
+                              !canonicalStarted->clientId && canonicalStarted->metadata.raw == startedRaw &&
+                              startedState->lifecycle == backend::ItemLifecycle::Started && startedState->startedAtMs == 101 &&
+                              !startedState->completedAtMs && state.recentExtensions.empty(),
                           "userMessage start retains complete content, nullable client ID, raw item, timestamp, and no extension fallback");
 
         const Json completedContent = Json::array({Json{{"type", "text"}, {"text", "Answer just with OK!"}},
@@ -428,9 +440,10 @@ namespace {
         const auto* canonicalCompleted = completedState ? std::get_if<typed::UserMessageItem>(&completedState->item) : nullptr;
         result.expectTrue(
             userTurn && userTurn->items.size() == 1 && userTurn->itemOrder.size() == 1 &&
-                userTurn->itemOrder.front().value == "user-item" && canonicalCompleted && canonicalCompleted->content == completedContent &&
-                canonicalCompleted->metadata.raw == completedRaw && completedState->lifecycle == backend::ItemLifecycle::Completed &&
-                completedState->startedAtMs == 101 && completedState->completedAtMs == 202 && state.recentExtensions.empty(),
+                userTurn->itemOrder.front().value == "user-item" && canonicalCompleted &&
+                canonicalCompleted->metadata.raw.at("content") == completedContent && canonicalCompleted->metadata.raw == completedRaw &&
+                completedState->lifecycle == backend::ItemLifecycle::Completed && completedState->startedAtMs == 101 &&
+                completedState->completedAtMs == 202 && state.recentExtensions.empty(),
             "userMessage completion updates the same canonical item and retains both lifecycle timestamps without extensions");
 
         const backend::Snapshot itemSnapshot = backend::makeSnapshot(state);
@@ -508,15 +521,16 @@ namespace {
         }
         const backend::ItemState* canonicalLarge = findItem(largeState, "thread-large", "turn-large", "item-large");
         const auto* canonicalLargeUser = canonicalLarge ? std::get_if<typed::UserMessageItem>(&canonicalLarge->item) : nullptr;
-        result.expectTrue(
-            largeContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && retainedContent.is_array() &&
-                largeData.at("contentTruncated").get<bool>() && retainedPrefixUnchanged &&
-                largeData.at("originalContentItems") == largeContent.size() && largeData.at("retainedContentItems") == retainedItems &&
-                largeData.at("originalContentBytes") == largeContent.dump().size() &&
-                largeData.at("retainedContentBytes") == retainedContent.dump().size() &&
-                largeData.dump().size() <= backend::MaxSerializedUserMessageDataBytes && canonicalLargeUser &&
-                canonicalLargeUser->content == largeContent && !largeSnapshot.contentTruncated && largeSnapshot.droppedContentBytes == 0,
-            "large userMessage snapshots retain an unchanged ordered prefix of complete opaque entries within 64 KiB");
+        result.expectTrue(largeContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && retainedContent.is_array() &&
+                              largeData.at("contentTruncated").get<bool>() && retainedPrefixUnchanged &&
+                              largeData.at("originalContentItems") == largeContent.size() &&
+                              largeData.at("retainedContentItems") == retainedItems &&
+                              largeData.at("originalContentBytes") == largeContent.dump().size() &&
+                              largeData.at("retainedContentBytes") == retainedContent.dump().size() &&
+                              largeData.dump().size() <= backend::MaxSerializedUserMessageDataBytes && canonicalLargeUser &&
+                              canonicalLargeUser->metadata.raw.at("content") == largeContent && !largeSnapshot.contentTruncated &&
+                              largeSnapshot.droppedContentBytes == 0,
+                          "large userMessage snapshots retain an unchanged ordered prefix of complete opaque entries within 64 KiB");
 
         backend::BackendState oversizedFirstState;
         const Json oversizedFirstContent = Json::array({Json{{"type", "futureHuge"}, {"payload", std::string(70U * 1024U, 'z')}}});

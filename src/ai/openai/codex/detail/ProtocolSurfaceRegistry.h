@@ -96,13 +96,43 @@ namespace ai::openai::codex::detail {
 
     enum class ItemDiscriminatorTarget {
         AgentMessage,
-        UserMessage,
-        Reasoning,
+        CollabAgentToolCall,
         CommandExecution,
-        FileChange,
-        McpToolCall,
+        ContextCompaction,
         DynamicToolCall,
+        EnteredReviewMode,
+        ExitedReviewMode,
+        FileChange,
+        HookPrompt,
+        ImageGeneration,
+        ImageView,
+        McpToolCall,
+        Plan,
+        Reasoning,
+        Sleep,
+        SubAgentActivity,
+        UserMessage,
         WebSearch,
+        Count
+    };
+
+    enum class ResponseItemTarget {
+        AgentMessage,
+        Compaction,
+        CompactionTrigger,
+        ContextCompaction,
+        CustomToolCall,
+        CustomToolCallOutput,
+        FunctionCall,
+        FunctionCallOutput,
+        ImageGenerationCall,
+        LocalShellCall,
+        Message,
+        Other,
+        Reasoning,
+        ToolSearchCall,
+        ToolSearchOutput,
+        WebSearchCall,
         Count
     };
 
@@ -133,6 +163,8 @@ namespace ai::openai::codex::detail {
     };
 
     enum class ConversationUnionTarget {
+        AgentMessageInputContentEncryptedContent,
+        AgentMessageInputContentInputText,
         AskForApprovalGranular,
         AskForApprovalNever,
         AskForApprovalOnRequest,
@@ -141,11 +173,25 @@ namespace ai::openai::codex::detail {
         CommandActionRead,
         CommandActionSearch,
         CommandActionUnknown,
+        ContentItemInputImage,
+        ContentItemInputText,
+        ContentItemOutputText,
         DynamicToolCallOutputContentItemInputImage,
         DynamicToolCallOutputContentItemInputText,
+        FunctionCallOutputContentItemEncryptedContent,
+        FunctionCallOutputContentItemInputImage,
+        FunctionCallOutputContentItemInputText,
+        LocalShellActionExec,
         PatchChangeKindAdd,
         PatchChangeKindDelete,
         PatchChangeKindUpdate,
+        ReasoningItemContentReasoningText,
+        ReasoningItemContentText,
+        ReasoningItemReasoningSummarySummaryText,
+        ResponsesApiWebSearchActionFindInPage,
+        ResponsesApiWebSearchActionOpenPage,
+        ResponsesApiWebSearchActionOther,
+        ResponsesApiWebSearchActionSearch,
         SandboxPolicyDangerFullAccess,
         SandboxPolicyExternalSandbox,
         SandboxPolicyReadOnly,
@@ -172,6 +218,7 @@ namespace ai::openai::codex::detail {
                                        ServerNotificationTarget,
                                        ServerRequestTarget,
                                        ItemDiscriminatorTarget,
+                                       ResponseItemTarget,
                                        CodexErrorInfoTarget,
                                        ConversationUnionTarget>;
 
@@ -193,6 +240,20 @@ namespace ai::openai::codex::detail {
     struct ConversationUnionCodecDescriptor {
         ProtocolSurfaceKey key;
         ConversationUnionTarget target = ConversationUnionTarget::Count;
+        ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
+        ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
+    };
+
+    struct ThreadItemCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ItemDiscriminatorTarget target = ItemDiscriminatorTarget::Count;
+        ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
+        ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
+    };
+
+    struct ResponseItemCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ResponseItemTarget target = ResponseItemTarget::Count;
         ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
         ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
     };
@@ -325,10 +386,13 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ServerNotificationTarget target);
     const ProtocolSurfaceEntry& entryFor(ServerRequestTarget target);
     const ProtocolSurfaceEntry& entryFor(ItemDiscriminatorTarget target);
+    const ProtocolSurfaceEntry& entryFor(ResponseItemTarget target);
     const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target);
     const ProtocolSurfaceEntry& entryFor(ConversationUnionTarget target);
 
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
+    std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept;
+    std::span<const ResponseItemCodecDescriptor> responseItemCodecDescriptors() noexcept;
 
     TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept;
 
@@ -340,6 +404,11 @@ namespace ai::openai::codex::detail {
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
                                                       std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
                                                       std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                                      std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                                      std::span<const ResponseItemCodecDescriptor> responseItemDescriptors);
 
 } // namespace ai::openai::codex::detail
 

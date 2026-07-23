@@ -24,10 +24,12 @@ namespace {
     using ai::openai::codex::typed::FileChangeUpdated;
     using ai::openai::codex::typed::ItemCompleted;
     using ai::openai::codex::typed::ItemStarted;
+    using ai::openai::codex::typed::LocalImageUserInput;
     using ai::openai::codex::typed::ModelRerouted;
     using ai::openai::codex::typed::ReasoningDelta;
     using ai::openai::codex::typed::ThreadStarted;
     using ai::openai::codex::typed::ThreadStatusChanged;
+    using ai::openai::codex::typed::TextUserInput;
     using ai::openai::codex::typed::TokenUsageUpdated;
     using ai::openai::codex::typed::TurnCompleted;
     using ai::openai::codex::typed::TurnErrorEvent;
@@ -35,6 +37,7 @@ namespace {
     using ai::openai::codex::typed::TurnStarted;
     using ai::openai::codex::typed::UnknownEvent;
     using ai::openai::codex::typed::UnknownItem;
+    using ai::openai::codex::typed::UnknownUserInput;
     using ai::openai::codex::typed::UserMessageItem;
 
     Notification makeNotification(std::string method, Json params, Json envelopeExtension = Json::object()) {
@@ -222,13 +225,29 @@ namespace {
         const Event startedEvent = decodeEvent(startedNotification);
         const ItemStarted* started = as<ItemStarted>(startedEvent);
         const UserMessageItem* startedUser = started ? std::get_if<UserMessageItem>(&started->item) : nullptr;
+        const TextUserInput* startedText =
+            startedUser && startedUser->content.size() == 2 ? std::get_if<TextUserInput>(&startedUser->content[0]) : nullptr;
+        const UnknownUserInput* startedFuture =
+            startedUser && startedUser->content.size() == 2 ? std::get_if<UnknownUserInput>(&startedUser->content[1]) : nullptr;
         testResult.expectTrue(started && started->startedAtMs == 1784637396096 && started->raw == startedNotification.raw,
                               "userMessage item/started preserves its lifecycle timestamp and complete event raw");
         testResult.expectTrue(startedUser && startedUser->metadata.id.value == "user-message-shared" && startedUser->metadata.threadId &&
                                   startedUser->metadata.threadId->value == "thread-user-message" && startedUser->metadata.turnId &&
-                                  startedUser->metadata.turnId->value == "turn-user-message" && !startedUser->clientId &&
-                                  startedUser->content == startedItem["content"] && startedUser->metadata.raw == startedItem,
-                              "userMessage item/started preserves ID, location, nullable clientId, opaque content, and item raw");
+                                  startedUser->metadata.turnId->value == "turn-user-message" && startedUser->clientId.isNull() &&
+                                  startedText && startedText->text == "Answer just with OK!" &&
+                                  startedText->raw == startedItem["content"][0] && startedFuture &&
+                                  startedFuture->type == "futureInput" && startedFuture->raw == startedItem["content"][1] &&
+                                  startedFuture->diagnostic &&
+                                  startedFuture->diagnostic->kind ==
+                                      ai::openai::codex::typed::DecodeIssueKind::UnknownDiscriminator &&
+                                  startedFuture->diagnostic->severity ==
+                                      ai::openai::codex::typed::DecodeIssueSeverity::ForwardCompatibility &&
+                                  startedFuture->diagnostic->surface == "UserInput" &&
+                                  startedFuture->diagnostic->fieldPath == "$.type" &&
+                                  startedUser->diagnostics.size() == 1 &&
+                                  startedUser->diagnostics.front().fieldPath == "$.content[1].type" &&
+                                  startedUser->metadata.raw == startedItem,
+                              "userMessage item/started preserves location, tri-state clientId, typed/unknown content, and item raw");
 
         Json completedItem = userMessageItem("user-message-shared", "client-user-message");
         completedItem["content"].push_back(Json{{"type", "localImage"}, {"path", "/tmp/input.png"}, {"detail", "original"}, {"future", 9}});
@@ -240,14 +259,32 @@ namespace {
         const Event completedEvent = decodeEvent(completedNotification);
         const ItemCompleted* completed = as<ItemCompleted>(completedEvent);
         const UserMessageItem* completedUser = completed ? std::get_if<UserMessageItem>(&completed->item) : nullptr;
+        const TextUserInput* completedText =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<TextUserInput>(&completedUser->content[0]) : nullptr;
+        const UnknownUserInput* completedFuture =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<UnknownUserInput>(&completedUser->content[1]) : nullptr;
+        const LocalImageUserInput* completedImage =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<LocalImageUserInput>(&completedUser->content[2]) : nullptr;
         testResult.expectTrue(completed && completed->completedAtMs == 1784637396123 && completed->raw == completedNotification.raw,
                               "userMessage item/completed preserves its lifecycle timestamp and complete event raw");
         testResult.expectTrue(completedUser && completedUser->metadata.id.value == "user-message-shared" &&
                                   completedUser->metadata.threadId && completedUser->metadata.threadId->value == "thread-user-message" &&
                                   completedUser->metadata.turnId && completedUser->metadata.turnId->value == "turn-user-message" &&
-                                  completedUser->clientId == "client-user-message" && completedUser->content == completedItem["content"] &&
-                                  completedUser->metadata.raw == completedItem,
-                              "userMessage completion keeps the same canonical identity and preserves all content entries exactly");
+                                  completedUser->clientId.hasValue() &&
+                                  completedUser->clientId->value == "client-user-message" &&
+                                  completedText && completedText->raw == completedItem["content"][0] && completedFuture &&
+                                  completedFuture->raw == completedItem["content"][1] && completedImage &&
+                                  completedImage->path == "/tmp/input.png" && completedImage->detail.hasValue() &&
+                                  completedImage->detail->value == "original" &&
+                                  completedFuture->diagnostic &&
+                                  completedFuture->diagnostic->kind ==
+                                      ai::openai::codex::typed::DecodeIssueKind::UnknownDiscriminator &&
+                                  completedFuture->diagnostic->severity ==
+                                      ai::openai::codex::typed::DecodeIssueSeverity::ForwardCompatibility &&
+                                  completedUser->diagnostics.size() == 1 &&
+                                  completedUser->diagnostics.front().fieldPath == "$.content[1].type" &&
+                                  completedImage->raw == completedItem["content"][2] && completedUser->metadata.raw == completedItem,
+                              "userMessage completion keeps its identity and every typed/unknown content entry in order");
     }
 
     void testDeltaEvents(tests::support::TestResult& testResult) {

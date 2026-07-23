@@ -1,0 +1,28 @@
+{
+  "appContext": {
+    "actionName": "synthetic-cbab645902",
+    "connectorId": "synthetic-184c26bbff",
+    "linkId": "synthetic-0c85366528",
+    "resourceUri": "synthetic-9de98eff4f",
+    "templateId": "synthetic-9417a2d986"
+  },
+  "arguments": {},
+  "durationMs": 0,
+  "error": {
+    "message": "synthetic-d5e2538bfb"
+  },
+  "id": "synthetic-dac4ad7d24",
+  "mcpAppResourceUri": "synthetic-50fbbab58b",
+  "pluginId": "synthetic-7671192683",
+  "result": {
+    "_meta": {},
+    "content": [
+      {}
+    ],
+    "structuredContent": {}
+  },
+  "server": "synthetic-ca3a3f75b8",
+  "status": "inProgress",
+  "tool": "synthetic-d5d2a27013",
+  "type": "mcpToolCall"
+}

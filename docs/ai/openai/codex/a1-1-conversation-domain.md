@@ -635,6 +635,8 @@ public variant corrections instead of preserving incomplete field models.
 Practical compatibility includes:
 
 - `Item = ThreadItem`;
+- `ToolCallItem = McpToolCallThreadItem` for the pre-A1.1 MCP-only
+  compatibility name;
 - a compatible `TurnInterruptResult` alias to the common `Unit`;
 - deprecated direct grouped accessors forwarding to `client.typed()`;
 - reviewed overloads and conversions for the six previously typed A1.1
@@ -649,6 +651,26 @@ Practical compatibility includes:
 Ambiguous compatibility encodings are rejected, including requests that set
 old and new representations of the same protocol field simultaneously.
 
+The compatibility aliases retain the familiar item names, but the following
+public member-contract corrections are unavoidable source changes:
+
+| Public item | A1.1 source change |
+|---|---|
+| `ThreadItem` | The variant expands from eight to nineteen alternatives and changes its alternative order; exhaustive visitors and index-based code must be updated. `ResponseItem` is now a separate seventeen-alternative variant. |
+| `AgentMessageItem` | `phase` changes from `optional<string>` to tri-state `MessagePhase`; `memoryCitation` and structured diagnostics are added. |
+| `UserMessageItem` | `content` changes from untyped `Json` to `vector<UserInput>`; `clientId` becomes tri-state `ClientUserMessageId` and follows `content` in aggregate order. The exact incoming content remains in `metadata.raw`. |
+| `ReasoningItem` | `summary` and `content` become optional vectors to represent omitted fields; `summaryOrDefault()` and `contentOrDefault()` provide read-only empty fallbacks. |
+| `CommandExecutionItem` | `cwd`, `status`, and `commandActions` become protocol types; nullable fields become tri-state; `output` is renamed to the canonical `aggregatedOutput`; `source` and diagnostics are added and aggregate order changes. |
+| `FileChangeItem` | `changes` becomes `vector<FileUpdateChange>` and `status` becomes `PatchApplyStatus`; the exact incoming changes remain in `metadata.raw`. |
+| `ToolCallItem` | The name now aliases only `McpToolCallThreadItem`; MCP status/result/error fields become typed or tri-state, `server` is required, and dynamic-tool-only fields move to `DynamicToolCallThreadItem`. |
+| `WebSearchItem` | `action` changes from untyped `Json` to tri-state `WebSearchAction`. |
+
+The old `ToolCallItem` name cannot also denote the newly distinct
+`DynamicToolCallThreadItem`: visitors that previously used `ToolCallItem` as a
+catch-all for tool activity must add an explicit dynamic-tool alternative.
+This is an intentional source change at the A1 consumer-rebuild boundary; the
+MCP spelling remains available through the alias above.
+
 `AppServerClient` keeps its PIMPL-only object layout.
 `typed::Client` remains a one-pointer PIMPL. Public variants may change under
 the documented rebuild boundary. A1.1 does not bump `SOVERSION`.
@@ -660,7 +682,7 @@ command, frontend event, frontend snapshot field, remotely callable
 operation, or frontend-security decision.
 
 Existing modeled item and notification reducer semantics remain unchanged.
-New known but A2-unmodeled items and notifications follow:
+New known but A2-unmodeled notifications follow:
 
 ```text
 typed event
@@ -669,11 +691,19 @@ typed event
     -> bounded recent-extension state
 ```
 
-This path retains surface identity, bounded raw payload, structured
+That notification path retains surface identity, bounded raw payload, structured
 diagnostic, legacy optional decode error, original-size accounting, and the
-existing redaction boundary. Newly typed items do not disappear merely
-because they are no longer `UnknownItem`. High-volume audio and transcript
-deltas remain bounded.
+existing redaction boundary. High-volume audio and transcript deltas remain
+bounded.
+
+Newly typed `ThreadItem` alternatives with a stable item ID retain the
+pre-typing `UnknownItem` behavior through the existing `ItemUpserted` path:
+the canonical item state keeps exact raw JSON and common metadata, while the
+Frontend Protocol v1 snapshot remains the same metadata-only generic item.
+An item without a stable ID uses the existing bounded recent-extension
+fallback, including original-size accounting and snapshot-boundary redaction.
+Thus an item does not disappear merely because it is no longer
+`UnknownItem`, and no new item semantic is invented.
 
 Frontend Protocol v1, its schema, version and identity, command set, event
 set, and snapshot fields remain unchanged. `codex-backend-client` receives no

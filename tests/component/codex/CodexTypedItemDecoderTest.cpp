@@ -19,13 +19,23 @@ namespace {
     using ai::openai::codex::detail::decodeItem;
     using ai::openai::codex::typed::AgentMessageItem;
     using ai::openai::codex::typed::CommandExecutionItem;
+    using ai::openai::codex::typed::DecodeIssueKind;
+    using ai::openai::codex::typed::DecodeIssueSeverity;
+    using ai::openai::codex::typed::DynamicToolCallThreadItem;
     using ai::openai::codex::typed::FileChangeItem;
+    using ai::openai::codex::typed::ImageUserInput;
+    using ai::openai::codex::typed::InputTextDynamicToolCallOutputContentItem;
     using ai::openai::codex::typed::Item;
     using ai::openai::codex::typed::ReasoningItem;
+    using ai::openai::codex::typed::TextUserInput;
     using ai::openai::codex::typed::ThreadId;
     using ai::openai::codex::typed::ToolCallItem;
     using ai::openai::codex::typed::TurnId;
     using ai::openai::codex::typed::UnknownItem;
+    using ai::openai::codex::typed::UnknownPatchChangeKind;
+    using ai::openai::codex::typed::UnknownUserInput;
+    using ai::openai::codex::typed::UnknownWebSearchAction;
+    using ai::openai::codex::typed::UnrecognizedCommandAction;
     using ai::openai::codex::typed::UserMessageItem;
     using ai::openai::codex::typed::WebSearchItem;
 
@@ -61,6 +71,21 @@ namespace {
         testResult.expectTrue(item.raw == raw, description + " preserves the exact raw item");
     }
 
+    bool isForwardCompatibility(const std::optional<ai::openai::codex::typed::DecodeDiagnostic>& diagnostic,
+                                DecodeIssueKind kind,
+                                const std::string& fieldPath,
+                                const std::string& surface = "ThreadItem") {
+        return diagnostic && diagnostic->kind == kind && diagnostic->severity == DecodeIssueSeverity::ForwardCompatibility &&
+               diagnostic->surface == surface && diagnostic->fieldPath == fieldPath;
+    }
+
+    bool isMalformedKnown(const std::optional<ai::openai::codex::typed::DecodeDiagnostic>& diagnostic,
+                          const std::string& fieldPath) {
+        return diagnostic && diagnostic->kind == DecodeIssueKind::MalformedKnownPayload &&
+               diagnostic->severity == DecodeIssueSeverity::ProtocolWarning && diagnostic->surface == "ThreadItem" &&
+               diagnostic->fieldPath == fieldPath;
+    }
+
     void testAgentMessage(tests::support::TestResult& testResult) {
         const Json raw = {
             {"type", "agentMessage"},
@@ -74,8 +99,12 @@ namespace {
         const AgentMessageItem* item = as<AgentMessageItem>(decoded);
 
         testResult.expectTrue(item != nullptr, "agentMessage item is classified");
-        testResult.expectTrue(item && item->text == "Analysis complete." && item->phase == "future_phase",
-                              "agentMessage preserves text and an unknown extensible phase string");
+        testResult.expectTrue(item && item->text == "Analysis complete." && item->phase.hasValue() &&
+                                  item->phase->value == "future_phase" && item->diagnostics.size() == 1 &&
+                                  item->diagnostics.front().kind == DecodeIssueKind::UnknownEnumValue &&
+                                  item->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  item->diagnostics.front().surface == "ThreadItem" && item->diagnostics.front().fieldPath == "$.phase",
+                              "agentMessage preserves an unknown open phase as a typed value with its exact forward diagnostic");
         testResult.expectTrue(error.empty(), "successful item decoding clears a stale error");
         if (item) {
             expectMetadata(testResult, item->metadata, "agent-1", raw, "agentMessage item");
@@ -84,7 +113,7 @@ namespace {
         const Json withoutPhase = {{"type", "agentMessage"}, {"id", "agent-2"}, {"text", "No phase"}};
         const std::optional<Item> decodedWithoutPhase = decode(withoutPhase, error);
         const AgentMessageItem* noPhase = as<AgentMessageItem>(decodedWithoutPhase);
-        testResult.expectTrue(noPhase && !noPhase->phase, "agentMessage accepts an absent optional phase");
+        testResult.expectTrue(noPhase && noPhase->phase.isOmitted(), "agentMessage preserves an omitted optional phase");
     }
 
     void testUserMessage(tests::support::TestResult& testResult) {
@@ -105,12 +134,24 @@ namespace {
         const UserMessageItem* item = as<UserMessageItem>(decoded);
 
         testResult.expectTrue(item != nullptr, "userMessage item is classified");
-        testResult.expectTrue(item && !item->clientId, "userMessage accepts a nullable clientId");
-        testResult.expectTrue(item && item->content == content && item->content.size() == 3,
-                              "userMessage preserves multiple content entries exactly and in order");
-        testResult.expectTrue(item && item->content[0]["text"] == "Answer just with OK!" && item->content[2]["type"] == "futureInput" &&
-                                  item->content[2]["payload"] == content[2]["payload"],
-                              "userMessage preserves text and unfamiliar future content-entry variants losslessly");
+        testResult.expectTrue(item && item->clientId.isNull(), "userMessage preserves an explicit-null clientId");
+        const TextUserInput* text =
+            item && item->content.size() == 3 ? std::get_if<TextUserInput>(&item->content[0]) : nullptr;
+        const ImageUserInput* image =
+            item && item->content.size() == 3 ? std::get_if<ImageUserInput>(&item->content[1]) : nullptr;
+        const UnknownUserInput* future =
+            item && item->content.size() == 3 ? std::get_if<UnknownUserInput>(&item->content[2]) : nullptr;
+        testResult.expectTrue(text && text->text == "Answer just with OK!" && text->textElements &&
+                                  text->textElements->empty() && text->raw == content[0] && image &&
+                                  image->url == "https://example.invalid/input.png" && image->detail.isNull() &&
+                                  image->raw == content[1],
+                              "userMessage decodes known content entries into direction-specific typed alternatives in order");
+        testResult.expectTrue(future && future->type == "futureInput" && future->raw == content[2] &&
+                                  isForwardCompatibility(
+                                      future->diagnostic, DecodeIssueKind::UnknownDiscriminator, "$.type", "UserInput") &&
+                                  item->diagnostics.size() == 1 &&
+                                  item->diagnostics.front().fieldPath == "$.content[2].type",
+                              "userMessage preserves an unfamiliar content alternative losslessly with an exact relocated diagnostic");
         testResult.expectTrue(error.empty(), "successful userMessage decoding clears a stale external error");
         if (item) {
             expectMetadata(testResult, item->metadata, "user-message-1", raw, "userMessage item");
@@ -121,17 +162,20 @@ namespace {
         withClientId["clientId"] = "client-message-2";
         const std::optional<Item> decodedWithClientId = decode(withClientId, error);
         const UserMessageItem* clientItem = as<UserMessageItem>(decodedWithClientId);
-        testResult.expectTrue(clientItem && clientItem->clientId == "client-message-2" && clientItem->content == content,
-                              "userMessage preserves a non-null clientId without changing content");
+        testResult.expectTrue(clientItem && clientItem->clientId.hasValue() &&
+                                  clientItem->clientId->value == "client-message-2" && clientItem->content.size() == 3 &&
+                                  std::get<UnknownUserInput>(clientItem->content[2]).raw == content[2],
+                              "userMessage preserves a non-null clientId without changing typed or unknown content");
 
         Json invalidContent = raw;
         invalidContent["id"] = "user-message-invalid-content";
         invalidContent["content"] = Json::object({{"text", "not an array"}});
         const std::optional<Item> decodedInvalidContent = decode(invalidContent, error);
         const UnknownItem* invalidContentItem = as<UnknownItem>(decodedInvalidContent);
-        testResult.expectTrue(invalidContentItem && invalidContentItem->type == "userMessage" && invalidContentItem->decodingError &&
-                                  error.empty(),
-                              "malformed userMessage content degrades locally to a diagnosable UnknownItem");
+        testResult.expectTrue(invalidContentItem && invalidContentItem->type == "userMessage" &&
+                                  invalidContentItem->decodingError &&
+                                  isMalformedKnown(invalidContentItem->diagnostic, "$.content") && error.empty(),
+                              "malformed userMessage content degrades locally with the exact malformed-known diagnostic");
         if (invalidContentItem) {
             expectUnknownMetadata(testResult,
                                   *invalidContentItem,
@@ -145,8 +189,9 @@ namespace {
         invalidClientId["clientId"] = Json::array({"not", "a", "string"});
         const std::optional<Item> decodedInvalidClientId = decode(invalidClientId, error);
         const UnknownItem* invalidClientItem = as<UnknownItem>(decodedInvalidClientId);
-        testResult.expectTrue(invalidClientItem && invalidClientItem->decodingError && error.empty(),
-                              "malformed userMessage clientId retains common metadata in an UnknownItem");
+        testResult.expectTrue(invalidClientItem && invalidClientItem->decodingError &&
+                                  isMalformedKnown(invalidClientItem->diagnostic, "$.clientId") && error.empty(),
+                              "malformed userMessage clientId retains metadata and the exact malformed-known diagnostic");
         if (invalidClientItem) {
             expectUnknownMetadata(testResult,
                                   *invalidClientItem,
@@ -168,8 +213,8 @@ namespace {
         const std::optional<Item> decoded = decode(raw, error);
         const ReasoningItem* item = as<ReasoningItem>(decoded);
 
-        testResult.expectTrue(item && item->summary.size() == 2 && item->summary[0] == "first" && item->content.size() == 1 &&
-                                  item->content[0] == "detail",
+        testResult.expectTrue(item && item->summary && item->summary->size() == 2 && item->summary->at(0) == "first" &&
+                                  item->content && item->content->size() == 1 && item->content->at(0) == "detail",
                               "reasoning item decodes summary and content arrays");
         if (item) {
             expectMetadata(testResult, item->metadata, "reasoning-1", raw, "reasoning item");
@@ -178,8 +223,9 @@ namespace {
         const Json defaults = {{"type", "reasoning"}, {"id", "reasoning-defaults"}};
         const std::optional<Item> decodedDefaults = decode(defaults, error);
         const ReasoningItem* defaultItem = as<ReasoningItem>(decodedDefaults);
-        testResult.expectTrue(defaultItem && defaultItem->summary.empty() && defaultItem->content.empty(),
-                              "reasoning applies schema defaults when optional arrays are absent");
+        testResult.expectTrue(defaultItem && !defaultItem->summary && !defaultItem->content &&
+                                  defaultItem->summaryOrDefault().empty() && defaultItem->contentOrDefault().empty(),
+                              "reasoning preserves omitted optional arrays while its compatibility accessors remain empty");
     }
 
     void testCommandExecution(tests::support::TestResult& testResult) {
@@ -200,12 +246,34 @@ namespace {
         const std::optional<Item> decoded = decode(raw, error);
         const CommandExecutionItem* item = as<CommandExecutionItem>(decoded);
 
-        testResult.expectTrue(item && item->command == "printf hello" && item->cwd == "/tmp/project" && item->status == "future_status" &&
-                                  item->commandActions == raw["commandActions"],
-                              "commandExecution decodes required fields and preserves an extensible status");
-        testResult.expectTrue(item && item->processId == "pty-7" && item->exitCode == std::numeric_limits<std::int32_t>::min() &&
-                                  item->durationMs == std::numeric_limits<std::int64_t>::min() && item->output == "hello",
-                              "commandExecution preserves signed integer boundaries and optional output fields");
+        const UnrecognizedCommandAction* futureAction =
+            item && item->commandActions.size() == 1 ? std::get_if<UnrecognizedCommandAction>(&item->commandActions.front()) : nullptr;
+        testResult.expectTrue(item && item->command == "printf hello" && item->cwd.value == "/tmp/project" &&
+                                  item->status.value == "future_status" && futureAction &&
+                                  futureAction->type == "unknownFutureAction" && futureAction->raw == raw["commandActions"][0] &&
+                                  futureAction->diagnostic &&
+                                  futureAction->diagnostic->kind == DecodeIssueKind::UnknownDiscriminator &&
+                                  futureAction->diagnostic->severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  futureAction->diagnostic->surface == "CommandAction" &&
+                                  futureAction->diagnostic->fieldPath == "$.type",
+                              "commandExecution decodes required fields and explicitly preserves a future command action");
+        testResult.expectTrue(item && item->processId.hasValue() && *item->processId == "pty-7" &&
+                                  item->exitCode.hasValue() &&
+                                  *item->exitCode == std::numeric_limits<std::int32_t>::min() &&
+                                  item->durationMs.hasValue() &&
+                                  *item->durationMs == std::numeric_limits<std::int64_t>::min() &&
+                                  item->aggregatedOutput.hasValue() && *item->aggregatedOutput == "hello",
+                              "commandExecution preserves signed integer boundaries and tri-state optional output fields");
+        testResult.expectTrue(item && item->diagnostics.size() == 2 &&
+                                  item->diagnostics[0].kind == DecodeIssueKind::UnknownDiscriminator &&
+                                  item->diagnostics[0].severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  item->diagnostics[0].surface == "CommandAction" &&
+                                  item->diagnostics[0].fieldPath == "$.commandActions[0].type" &&
+                                  item->diagnostics[1].kind == DecodeIssueKind::UnknownEnumValue &&
+                                  item->diagnostics[1].severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  item->diagnostics[1].surface == "ThreadItem" &&
+                                  item->diagnostics[1].fieldPath == "$.status",
+                              "commandExecution reports the exact nested-discriminator and open-enum diagnostics");
         if (item) {
             expectMetadata(testResult, item->metadata, "command-1", raw, "commandExecution item");
         }
@@ -220,25 +288,29 @@ namespace {
         };
         const std::optional<Item> decodedOptionalFields = decode(optionalFieldsAbsent, error);
         const CommandExecutionItem* optionalItem = as<CommandExecutionItem>(decodedOptionalFields);
-        testResult.expectTrue(optionalItem && !optionalItem->processId && !optionalItem->exitCode && !optionalItem->durationMs &&
-                                  !optionalItem->output,
-                              "commandExecution accepts all optional result fields being absent");
+        testResult.expectTrue(optionalItem && optionalItem->processId.isOmitted() && optionalItem->exitCode.isOmitted() &&
+                                  optionalItem->durationMs.isOmitted() && optionalItem->aggregatedOutput.isOmitted() &&
+                                  !optionalItem->source && optionalItem->sourceOrDefault().value == "agent",
+                              "commandExecution preserves omitted result fields and its protocol default source");
 
         Json maximumValues = optionalFieldsAbsent;
         maximumValues["exitCode"] = std::numeric_limits<std::int32_t>::max();
         maximumValues["durationMs"] = std::numeric_limits<std::int64_t>::max();
         const std::optional<Item> decodedMaximumValues = decode(maximumValues, error);
         const CommandExecutionItem* maximumItem = as<CommandExecutionItem>(decodedMaximumValues);
-        testResult.expectTrue(maximumItem && maximumItem->exitCode == std::numeric_limits<std::int32_t>::max() &&
-                                  maximumItem->durationMs == std::numeric_limits<std::int64_t>::max(),
+        testResult.expectTrue(maximumItem && maximumItem->exitCode.hasValue() &&
+                                  *maximumItem->exitCode == std::numeric_limits<std::int32_t>::max() &&
+                                  maximumItem->durationMs.hasValue() &&
+                                  *maximumItem->durationMs == std::numeric_limits<std::int64_t>::max(),
                               "commandExecution preserves maximum signed integer values");
 
         Json exitOverflow = optionalFieldsAbsent;
         exitOverflow["exitCode"] = static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max()) + 1;
         const std::optional<Item> decodedExitOverflow = decode(exitOverflow, error);
         const UnknownItem* exitOverflowItem = as<UnknownItem>(decodedExitOverflow);
-        testResult.expectTrue(exitOverflowItem && exitOverflowItem->decodingError && error.empty(),
-                              "commandExecution with exitCode outside int32 degrades to a diagnosable UnknownItem");
+        testResult.expectTrue(exitOverflowItem && exitOverflowItem->decodingError &&
+                                  isMalformedKnown(exitOverflowItem->diagnostic, "$.exitCode") && error.empty(),
+                              "commandExecution with exitCode outside int32 degrades with the exact malformed-known diagnostic");
         if (exitOverflowItem) {
             expectUnknownMetadata(
                 testResult, *exitOverflowItem, std::string("command-optional"), exitOverflow, "commandExecution with overflowing exitCode");
@@ -248,8 +320,9 @@ namespace {
         durationOverflow["durationMs"] = std::numeric_limits<std::uint64_t>::max();
         const std::optional<Item> decodedDurationOverflow = decode(durationOverflow, error);
         const UnknownItem* durationOverflowItem = as<UnknownItem>(decodedDurationOverflow);
-        testResult.expectTrue(durationOverflowItem && durationOverflowItem->decodingError && error.empty(),
-                              "commandExecution with durationMs outside int64 degrades to a diagnosable UnknownItem");
+        testResult.expectTrue(durationOverflowItem && durationOverflowItem->decodingError &&
+                                  isMalformedKnown(durationOverflowItem->diagnostic, "$.durationMs") && error.empty(),
+                              "commandExecution with durationMs outside int64 degrades with the exact malformed-known diagnostic");
         if (durationOverflowItem) {
             expectUnknownMetadata(testResult,
                                   *durationOverflowItem,
@@ -263,7 +336,9 @@ namespace {
         const Json raw = {
             {"type", "fileChange"},
             {"id", "file-1"},
-            {"changes", Json::array({Json{{"path", "/tmp/a"}, {"kind", "future"}}})},
+            {"changes",
+             Json::array(
+                 {Json{{"path", "/tmp/a"}, {"diff", "@@ future patch @@"}, {"kind", Json{{"type", "futurePatchKind"}}}}})},
             {"status", "declined"},
             {"futureFileField", 8},
         };
@@ -271,8 +346,17 @@ namespace {
         const std::optional<Item> decoded = decode(raw, error);
         const FileChangeItem* item = as<FileChangeItem>(decoded);
 
-        testResult.expectTrue(item && item->changes == raw["changes"] && item->status == "declined",
-                              "fileChange decodes changes and status without discarding nested extensions");
+        const UnknownPatchChangeKind* futureKind =
+            item && item->changes.size() == 1 ? std::get_if<UnknownPatchChangeKind>(&item->changes.front().kind) : nullptr;
+        testResult.expectTrue(item && item->changes.size() == 1 && item->changes.front().path == "/tmp/a" &&
+                                  item->changes.front().diff == "@@ future patch @@" && futureKind &&
+                                  futureKind->type == "futurePatchKind" && futureKind->raw == raw["changes"][0]["kind"] &&
+                                  item->status.value == "declined" && item->diagnostics.size() == 1 &&
+                                  item->diagnostics.front().kind == DecodeIssueKind::UnknownDiscriminator &&
+                                  item->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  item->diagnostics.front().surface == "PatchChangeKind" &&
+                                  item->diagnostics.front().fieldPath == "$.changes[0].kind.type",
+                              "fileChange types every known field while preserving a future patch-kind extension");
         if (item) {
             expectMetadata(testResult, item->metadata, "file-1", raw, "fileChange item");
         }
@@ -294,9 +378,14 @@ namespace {
         const std::optional<Item> decodedMcp = decode(mcpRaw, error);
         const ToolCallItem* mcp = as<ToolCallItem>(decodedMcp);
 
-        testResult.expectTrue(mcp && mcp->type == "mcpToolCall" && mcp->server == "files" && !mcp->nameSpace && mcp->tool == "read" &&
-                                  mcp->arguments == mcpRaw["arguments"] && mcp->result == mcpRaw["result"] && mcp->error.is_null(),
-                              "mcpToolCall decodes its discriminator, server, tool, arguments, result, and null error");
+        testResult.expectTrue(mcp && mcp->server == "files" && mcp->tool == "read" &&
+                                  mcp->status.value == "completed" && mcp->arguments &&
+                                  *mcp->arguments == mcpRaw["arguments"] && mcp->result.hasValue() &&
+                                  mcp->result->content.size() == 1 &&
+                                  mcp->result->content.front() == mcpRaw["result"]["content"][0] &&
+                                  mcp->result->meta.isOmitted() && mcp->result->structuredContent.isOmitted() &&
+                                  mcp->error.isNull(),
+                              "mcpToolCall decodes typed server/status/result fields, protocol-opaque arguments, and null error");
         if (mcp) {
             expectMetadata(testResult, mcp->metadata, "mcp-1", mcpRaw, "mcpToolCall item");
         }
@@ -313,11 +402,23 @@ namespace {
             {"futureDynamicField", true},
         };
         const std::optional<Item> decodedDynamic = decode(dynamicRaw, error);
-        const ToolCallItem* dynamic = as<ToolCallItem>(decodedDynamic);
-        testResult.expectTrue(dynamic && dynamic->type == "dynamicToolCall" && !dynamic->server && dynamic->nameSpace == "workspace" &&
-                                  dynamic->tool == "inspect" && dynamic->status == "future_status" &&
-                                  dynamic->arguments == dynamicRaw["arguments"] && dynamic->result == dynamicRaw["contentItems"],
-                              "dynamicToolCall maps contentItems to the common raw result field and preserves extensible values");
+        const DynamicToolCallThreadItem* dynamic = as<DynamicToolCallThreadItem>(decodedDynamic);
+        const InputTextDynamicToolCallOutputContentItem* dynamicText =
+            dynamic && dynamic->contentItems.hasValue() && dynamic->contentItems->size() == 1
+                ? std::get_if<InputTextDynamicToolCallOutputContentItem>(&dynamic->contentItems->front())
+                : nullptr;
+        testResult.expectTrue(dynamic && dynamic->nameSpace.hasValue() && *dynamic->nameSpace == "workspace" &&
+                                  dynamic->tool == "inspect" && dynamic->status.value == "future_status" &&
+                                  dynamic->arguments && *dynamic->arguments == dynamicRaw["arguments"] && dynamicText &&
+                                  dynamicText->text == "done" && dynamicText->raw == dynamicRaw["contentItems"][0] &&
+                                  dynamic->success.hasValue() && !*dynamic->success,
+                              "dynamicToolCall remains directionally distinct and types contentItems without losing opaque arguments");
+        testResult.expectTrue(dynamic && dynamic->diagnostics.size() == 1 &&
+                                  dynamic->diagnostics.front().kind == DecodeIssueKind::UnknownEnumValue &&
+                                  dynamic->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  dynamic->diagnostics.front().surface == "ThreadItem" &&
+                                  dynamic->diagnostics.front().fieldPath == "$.status",
+                              "dynamicToolCall preserves a future open status with the exact diagnostic");
         if (dynamic) {
             expectMetadata(testResult, dynamic->metadata, "dynamic-1", dynamicRaw, "dynamicToolCall item");
         }
@@ -335,8 +436,21 @@ namespace {
         const std::optional<Item> decoded = decode(raw, error);
         const WebSearchItem* item = as<WebSearchItem>(decoded);
 
-        testResult.expectTrue(item && item->query == "Codex App Server schema" && item->action == raw["action"],
-                              "webSearch decodes query and preserves a future action object");
+        const UnknownWebSearchAction* futureAction =
+            item && item->action.hasValue() ? std::get_if<UnknownWebSearchAction>(&*item->action) : nullptr;
+        testResult.expectTrue(item && item->query == "Codex App Server schema" && futureAction &&
+                                  futureAction->type == "futureSearchAction" && futureAction->raw == raw["action"] &&
+                                  futureAction->diagnostic &&
+                                  futureAction->diagnostic->kind == DecodeIssueKind::UnknownDiscriminator &&
+                                  futureAction->diagnostic->severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  futureAction->diagnostic->surface == "WebSearchAction" &&
+                                  futureAction->diagnostic->fieldPath == "$.type" &&
+                                  item->diagnostics.size() == 1 &&
+                                  item->diagnostics.front().kind == DecodeIssueKind::UnknownDiscriminator &&
+                                  item->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  item->diagnostics.front().surface == "WebSearchAction" &&
+                                  item->diagnostics.front().fieldPath == "$.action.type",
+                              "webSearch decodes query and explicitly preserves a future action object");
         if (item) {
             expectMetadata(testResult, item->metadata, "web-1", raw, "webSearch item");
         }
@@ -344,7 +458,7 @@ namespace {
         const Json actionAbsent = {{"type", "webSearch"}, {"id", "web-2"}, {"query", "optional"}};
         const std::optional<Item> decodedActionAbsent = decode(actionAbsent, error);
         const WebSearchItem* noAction = as<WebSearchItem>(decodedActionAbsent);
-        testResult.expectTrue(noAction && noAction->action.is_null(), "webSearch accepts an absent optional action");
+        testResult.expectTrue(noAction && noAction->action.isOmitted(), "webSearch preserves an omitted optional action");
     }
 
     void testUnknownAndMalformed(tests::support::TestResult& testResult) {
@@ -356,8 +470,10 @@ namespace {
         std::string error = "stale";
         const std::optional<Item> decodedFuture = decode(futureRaw, error);
         const UnknownItem* future = as<UnknownItem>(decodedFuture);
-        testResult.expectTrue(future && future->type == "futureItem" && !future->decodingError && error.empty(),
-                              "unknown item discriminator becomes a nonfatal UnknownItem and clears the external error");
+        testResult.expectTrue(future && future->type == "futureItem" && !future->decodingError &&
+                                  isForwardCompatibility(future->diagnostic, DecodeIssueKind::UnknownDiscriminator, "$.type") &&
+                                  error.empty(),
+                              "unknown item discriminator becomes a nonfatal UnknownItem with the exact forward diagnostic");
         if (future) {
             expectUnknownMetadata(testResult, *future, std::string("future-item-1"), futureRaw, "unknown future item");
         }
@@ -365,8 +481,9 @@ namespace {
         const Json missingText = {{"type", "agentMessage"}, {"id", "bad-agent"}};
         const std::optional<Item> decodedMissingText = decode(missingText, error);
         const UnknownItem* missingTextItem = as<UnknownItem>(decodedMissingText);
-        testResult.expectTrue(missingTextItem && missingTextItem->type == "agentMessage" && missingTextItem->decodingError && error.empty(),
-                              "known item missing a detail field degrades to UnknownItem without a fatal external error");
+        testResult.expectTrue(missingTextItem && missingTextItem->type == "agentMessage" && missingTextItem->decodingError &&
+                                  isMalformedKnown(missingTextItem->diagnostic, "$.text") && error.empty(),
+                              "known item missing a detail field degrades with the exact malformed-known diagnostic");
         if (missingTextItem) {
             expectUnknownMetadata(testResult, *missingTextItem, std::string("bad-agent"), missingText, "agentMessage missing text");
         }
@@ -374,8 +491,9 @@ namespace {
         const Json invalidId = {{"type", "reasoning"}, {"id", 7}};
         const std::optional<Item> decodedInvalidId = decode(invalidId, error);
         const UnknownItem* invalidIdItem = as<UnknownItem>(decodedInvalidId);
-        testResult.expectTrue(invalidIdItem && invalidIdItem->type == "reasoning" && invalidIdItem->decodingError && error.empty(),
-                              "known item with non-string ID retains its raw object and an item-local decoding error");
+        testResult.expectTrue(invalidIdItem && invalidIdItem->type == "reasoning" && invalidIdItem->decodingError &&
+                                  isMalformedKnown(invalidIdItem->diagnostic, "$.id") && error.empty(),
+                              "known item with non-string ID retains raw data and the exact malformed-known diagnostic");
         if (invalidIdItem) {
             expectUnknownMetadata(testResult, *invalidIdItem, std::nullopt, invalidId, "item with a non-string ID");
         }
@@ -383,8 +501,9 @@ namespace {
         const Json missingId = {{"type", "futureItem"}, {"futurePayload", true}};
         const std::optional<Item> decodedMissingId = decode(missingId, error);
         const UnknownItem* missingIdItem = as<UnknownItem>(decodedMissingId);
-        testResult.expectTrue(missingIdItem && missingIdItem->decodingError && error.empty(),
-                              "unknown item missing its ID retains a bounded item-local diagnostic");
+        testResult.expectTrue(missingIdItem && missingIdItem->decodingError &&
+                                  isMalformedKnown(missingIdItem->diagnostic, "$.id") && error.empty(),
+                              "unknown item missing its ID retains the exact bounded malformed-known diagnostic");
         if (missingIdItem) {
             expectUnknownMetadata(testResult, *missingIdItem, std::nullopt, missingId, "unknown item missing its ID");
         }
@@ -392,8 +511,9 @@ namespace {
         const Json emptyId = {{"type", "futureItem"}, {"id", ""}, {"futurePayload", false}};
         const std::optional<Item> decodedEmptyId = decode(emptyId, error);
         const UnknownItem* emptyIdItem = as<UnknownItem>(decodedEmptyId);
-        testResult.expectTrue(emptyIdItem && !emptyIdItem->metadata.id && emptyIdItem->decodingError && error.empty(),
-                              "unknown item with an empty ID does not fabricate a stable identifier");
+        testResult.expectTrue(emptyIdItem && !emptyIdItem->metadata.id && emptyIdItem->decodingError &&
+                                  isMalformedKnown(emptyIdItem->diagnostic, "$.id") && error.empty(),
+                              "unknown item with an empty ID does not fabricate an identifier and reports its exact path");
         if (emptyIdItem) {
             expectUnknownMetadata(testResult, *emptyIdItem, std::nullopt, emptyId, "unknown item with an empty ID");
         }
@@ -401,8 +521,9 @@ namespace {
         const Json missingType = {{"id", "missing-type"}};
         const std::optional<Item> decodedMissingType = decode(missingType, error);
         const UnknownItem* missingTypeItem = as<UnknownItem>(decodedMissingType);
-        testResult.expectTrue(missingTypeItem && !missingTypeItem->type && missingTypeItem->decodingError && error.empty(),
-                              "item missing its discriminator retains common metadata with an item-local error");
+        testResult.expectTrue(missingTypeItem && !missingTypeItem->type && missingTypeItem->decodingError &&
+                                  isMalformedKnown(missingTypeItem->diagnostic, "$.type") && error.empty(),
+                              "item missing its discriminator retains metadata with the exact malformed-known diagnostic");
         if (missingTypeItem) {
             expectUnknownMetadata(testResult, *missingTypeItem, std::string("missing-type"), missingType, "item missing its discriminator");
         }

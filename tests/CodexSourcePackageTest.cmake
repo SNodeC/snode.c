@@ -147,10 +147,10 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 482 index records resolve to the retained files
+# additionally proves that all 1324 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 483)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 1325)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
@@ -224,6 +224,8 @@ set(
     "src/ai/openai/codex/detail/ConversationCodec.cpp"
     "src/ai/openai/codex/detail/ConversationCodec.h"
     "src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
     "src/ai/openai/codex/typed/Conversation.h"
     "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
@@ -361,6 +363,23 @@ run_extracted_check(
     "${extracted_evidence_root}"
     --output
     "${extracted_root}/src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
+    --check
+)
+run_extracted_check(
+    "A1.1 item descriptor generation"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    item-descriptors
+    --manifest
+    "${extracted_surface}"
+    --schema-root
+    "${extracted_schema_root}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --thread-output
+    "${extracted_root}/src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
+    --response-output
+    "${extracted_root}/src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
     --check
 )
 run_extracted_check(

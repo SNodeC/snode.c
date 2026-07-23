@@ -232,6 +232,39 @@ namespace {
         }));
     }
 
+    struct SchemaStatusCounts {
+        std::size_t complete = 0;
+        std::size_t partial = 0;
+        std::size_t notImplemented = 0;
+        std::size_t notApplicable = 0;
+
+        bool operator==(const SchemaStatusCounts&) const = default;
+    };
+
+    SchemaStatusCounts schemaStatusCounts(std::span<const detail::ProtocolSurfaceEntry> entries, bool a11Only = false) {
+        SchemaStatusCounts counts;
+        for (const detail::ProtocolSurfaceEntry& entry : entries) {
+            if (a11Only && entry.a1Slice != detail::A1Slice::A1_1) {
+                continue;
+            }
+            switch (entry.typedSchemaStatus) {
+                case detail::TypedSchemaStatus::Complete:
+                    ++counts.complete;
+                    break;
+                case detail::TypedSchemaStatus::Partial:
+                    ++counts.partial;
+                    break;
+                case detail::TypedSchemaStatus::NotImplemented:
+                    ++counts.notImplemented;
+                    break;
+                case detail::TypedSchemaStatus::NotApplicable:
+                    ++counts.notApplicable;
+                    break;
+            }
+        }
+        return counts;
+    }
+
     Json loadManifest() {
         std::ifstream input(CODEX_PHASE_A0_SURFACE_MANIFEST);
         if (!input) {
@@ -251,11 +284,15 @@ int main() {
 
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
-    result.expectTrue(hasExactRatchetCodes(baseline, {}) &&
-                          typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
-                                                              tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
-                                                              tests::component::codex::CodexA11B2TypedSurfaceBaseline.size(),
-                      "the exact typed ratchet contains the original A1.0 50 identities plus all 26 complete A1.1 B2 alternatives");
+    result.expectTrue(hasExactRatchetCodes(baseline, {}), "the staged B3 registry retains every locked A1.0 and B2 typed identity");
+    result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
+                                                          tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 42,
+                      "B3 adds 42 newly typed identities while completing the eight ThreadItems already in the A1.0 runtime floor");
+    result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{76, 18, 57, 0},
+                      "the staged A1.1 slice is exactly Complete 76, Partial 18, NotImplemented 57, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{92, 26, 221, 48},
+                      "the staged global registry is exactly Complete 92, Partial 26, NotImplemented 221, NotApplicable 48");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry = findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");

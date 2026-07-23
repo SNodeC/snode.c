@@ -171,8 +171,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 42 && schemaPartial == 34 && schemaNotImplemented == 263 && schemaNotApplicable == 48,
-                      "the staged B2 registry advances exactly 26 A1.1 identities beyond the 16 A1.0 complete identities");
+    result.expectTrue(schemaComplete == 92 && schemaPartial == 26 && schemaNotImplemented == 221 && schemaNotApplicable == 48,
+                      "the staged B3 registry advances exactly 50 item-batch identities without promoting later batches");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -218,9 +218,44 @@ int main() {
         "every existing typed server-request dispatch target resolves to its exact registered wire method");
     expectTargets<detail::ItemDiscriminatorTarget>(
         result,
-        std::array<std::string_view, 8>{
-            "agentMessage", "userMessage", "reasoning", "commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"},
-        "every existing typed item dispatch target resolves to its exact registered discriminator");
+        std::array<std::string_view, 18>{"agentMessage",
+                                         "collabAgentToolCall",
+                                         "commandExecution",
+                                         "contextCompaction",
+                                         "dynamicToolCall",
+                                         "enteredReviewMode",
+                                         "exitedReviewMode",
+                                         "fileChange",
+                                         "hookPrompt",
+                                         "imageGeneration",
+                                         "imageView",
+                                         "mcpToolCall",
+                                         "plan",
+                                         "reasoning",
+                                         "sleep",
+                                         "subAgentActivity",
+                                         "userMessage",
+                                         "webSearch"},
+        "every ThreadItem dispatch target resolves to its exact registered discriminator");
+    expectTargets<detail::ResponseItemTarget>(
+        result,
+        std::array<std::string_view, 16>{"agent_message",
+                                         "compaction",
+                                         "compaction_trigger",
+                                         "context_compaction",
+                                         "custom_tool_call",
+                                         "custom_tool_call_output",
+                                         "function_call",
+                                         "function_call_output",
+                                         "image_generation_call",
+                                         "local_shell_call",
+                                         "message",
+                                         "other",
+                                         "reasoning",
+                                         "tool_search_call",
+                                         "tool_search_output",
+                                         "web_search_call"},
+        "every ResponseItem dispatch target resolves to its distinct exact registered discriminator");
     expectTargets<detail::CodexErrorInfoTarget>(
         result,
         std::array<std::string_view, 16>{"activeTurnNotSteerable",
@@ -297,7 +332,9 @@ int main() {
         "a complete nested-union row without target/decoder fails with the exact bidirectional diagnostic multiset");
 
     const std::span<const detail::ConversationUnionCodecDescriptor> conversationDescriptors = detail::conversationUnionCodecDescriptors();
-    constexpr std::array<detail::ProtocolSurfaceKey, 26> expectedConversationTargets{{
+    constexpr std::array<detail::ProtocolSurfaceKey, 42> expectedConversationTargets{{
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "AgentMessageInputContent", "type", "encrypted_content"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "AgentMessageInputContent", "type", "input_text"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "granular"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "never"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "on-request"},
@@ -306,11 +343,25 @@ int main() {
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "CommandAction", "type", "read"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "CommandAction", "type", "search"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "CommandAction", "type", "unknown"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ContentItem", "type", "input_image"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ContentItem", "type", "input_text"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ContentItem", "type", "output_text"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "DynamicToolCallOutputContentItem", "type", "inputImage"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "DynamicToolCallOutputContentItem", "type", "inputText"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "FunctionCallOutputContentItem", "type", "encrypted_content"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "FunctionCallOutputContentItem", "type", "input_image"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "FunctionCallOutputContentItem", "type", "input_text"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "LocalShellAction", "type", "exec"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "PatchChangeKind", "type", "add"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "PatchChangeKind", "type", "delete"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "PatchChangeKind", "type", "update"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ReasoningItemContent", "type", "reasoning_text"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ReasoningItemContent", "type", "text"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ReasoningItemReasoningSummary", "type", "summary_text"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ResponsesApiWebSearchAction", "type", "find_in_page"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ResponsesApiWebSearchAction", "type", "open_page"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ResponsesApiWebSearchAction", "type", "other"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ResponsesApiWebSearchAction", "type", "search"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "dangerFullAccess"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "externalSandbox"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "readOnly"},
@@ -334,14 +385,14 @@ int main() {
                                    detail::entryFor(target).key == expectedConversationTargets[index];
     }
     result.expectTrue(exactConversationTargets,
-                      "the generated B2 descriptor artifact maps exactly 26 canonical keys to 26 stable runtime targets");
+                      "the generated dependency-closed B2+B3 descriptor artifact maps exactly 42 canonical keys to 42 stable targets");
 
     const std::vector<detail::ProtocolSurfaceEntry> conversationRegistry(registry.begin(), registry.end());
     result.expectTrue(static_cast<bool>(detail::validateProtocolSurface(registry)),
-                      "the canonical registry validates all 26 B2 rows against the generated production descriptors");
+                      "the canonical registry validates all 42 B2+B3 nested rows against generated production descriptors");
     result.expectTrue(static_cast<bool>(detail::validateProtocolSurface(
                           conversationRegistry, detail::codexErrorInfoCodecDescriptors(), conversationDescriptors)),
-                      "the exact 26-target descriptor set validates bidirectionally against the canonical registry");
+                      "the exact 42-target descriptor set validates bidirectionally against the canonical registry");
 
     std::vector<detail::ConversationUnionCodecDescriptor> duplicateConversationDescriptor(conversationDescriptors.begin(),
                                                                                           conversationDescriptors.end());
@@ -383,9 +434,7 @@ int main() {
                                      detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
                                      detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
                                      detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor,
-                                     detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor,
-                                     detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorShape,
-                                     detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorShape}),
+                                     detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
                       "descriptor target swaps fail with the exact target/key mismatch multiset");
 
     std::vector<detail::ConversationUnionCodecDescriptor> invalidConversationShape(conversationDescriptors.begin(),
@@ -398,7 +447,7 @@ int main() {
 
     std::vector<detail::ConversationUnionCodecDescriptor> invalidConversationDirection(conversationDescriptors.begin(),
                                                                                        conversationDescriptors.end());
-    invalidConversationDirection.front().direction = detail::ConversationUnionCodecDirection::DecodeOnly;
+    invalidConversationDirection[2].direction = detail::ConversationUnionCodecDirection::DecodeOnly;
     result.expectTrue(hasExactCodes(detail::validateProtocolSurface(
                                         conversationRegistry, detail::codexErrorInfoCodecDescriptors(), invalidConversationDirection),
                                     {detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorDirection}),
@@ -531,6 +580,241 @@ int main() {
                                      detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow}),
                       "removing a conversation registry row while retaining its target descriptor fails with the exact two codes");
 
+    const std::span<const detail::ThreadItemCodecDescriptor> threadItemDescriptors = detail::threadItemCodecDescriptors();
+    const std::span<const detail::ResponseItemCodecDescriptor> responseItemDescriptors = detail::responseItemCodecDescriptors();
+    result.expectTrue(threadItemDescriptors.size() == 18 &&
+                          threadItemDescriptors.size() == static_cast<std::size_t>(detail::ItemDiscriminatorTarget::Count),
+                      "the generated ThreadItem descriptor family contains exactly 18 distinct targets");
+    result.expectTrue(responseItemDescriptors.size() == 16 &&
+                          responseItemDescriptors.size() == static_cast<std::size_t>(detail::ResponseItemTarget::Count),
+                      "the generated ResponseItem descriptor family contains exactly 16 distinct targets");
+
+    auto verifyItemDescriptorFamily =
+        [&]<typename Descriptor, typename Target>(std::span<const Descriptor> descriptors,
+                                                  std::string_view expectedDomain,
+                                                  auto validateWithDescriptors) {
+            bool exactTargets = true;
+            for (std::size_t index = 0; exactTargets && index < descriptors.size(); ++index) {
+                const Target target = static_cast<Target>(index);
+                exactTargets = descriptors[index].target == target && descriptors[index].key.domain == expectedDomain &&
+                               descriptors[index].key.category == detail::SurfaceCategory::ItemDiscriminator &&
+                               descriptors[index].key.field == "type" &&
+                               descriptors[index].shape == detail::ConversationUnionCodecShape::InternallyTaggedObject &&
+                               descriptors[index].direction == detail::ConversationUnionCodecDirection::DecodeOnly &&
+                               detail::entryFor(target).key == descriptors[index].key;
+            }
+            result.expectTrue(exactTargets,
+                              std::string(expectedDomain) +
+                                  " targets, exact keys, shape, and direction are bidirectionally canonical");
+
+            std::vector<Descriptor> duplicate(descriptors.begin(), descriptors.end());
+            duplicate.push_back(descriptors.front());
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(registry, duplicate),
+                              {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+                std::string(expectedDomain) + " duplicate descriptor emits exactly DuplicateCodecDescriptor");
+
+            std::vector<Descriptor> missing(descriptors.begin(), descriptors.end());
+            missing.erase(missing.begin());
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(registry, missing),
+                              {detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+                std::string(expectedDomain) + " typed complete row without descriptor emits the exact two codes");
+
+            std::vector<Descriptor> stale(descriptors.begin(), descriptors.end());
+            stale.front().key.name = "stale_item_descriptor";
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(registry, stale),
+                              {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                               detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+                std::string(expectedDomain) + " stale descriptor emits the exact canonical-key multiset");
+
+            std::vector<Descriptor> swapped(descriptors.begin(), descriptors.end());
+            std::swap(swapped[0].target, swapped[1].target);
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(registry, swapped),
+                              {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                               detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+                std::string(expectedDomain) + " descriptor target swap emits only the exact eight intrinsic codes");
+
+            std::vector<detail::ProtocolSurfaceEntry> demoted(registry.begin(), registry.end());
+            const auto demotedRow = findExactEntry(demoted, descriptors.front().key);
+            demotedRow->runtimeDisposition = detail::RuntimeDisposition::OpaquePreserved;
+            demotedRow->typedImplementation = detail::TypedImplementationStatus::NotImplemented;
+            demotedRow->typedSchemaStatus = detail::TypedSchemaStatus::NotImplemented;
+            demotedRow->schemaCompleteness = {};
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(demoted, descriptors),
+                              {detail::ProtocolSurfaceErrorCode::RuntimeTargetWithoutTypedImplementation,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutTypedRegistryRow}),
+                std::string(expectedDomain) + " retained target on a demoted row emits the exact two codes");
+
+            std::vector<detail::ProtocolSurfaceEntry> targetless(registry.begin(), registry.end());
+            findExactEntry(targetless, descriptors.front().key)->runtimeTarget = std::monostate{};
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(targetless, descriptors),
+                              {detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+                               detail::ProtocolSurfaceErrorCode::MissingRuntimeTargetRegistration,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                               detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+                std::string(expectedDomain) + " missing target emits the exact bidirectional five-code multiset");
+
+            std::vector<detail::ProtocolSurfaceEntry> duplicateTarget(registry.begin(), registry.end());
+            findExactEntry(duplicateTarget, descriptors[1].key)->runtimeTarget = descriptors.front().target;
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(duplicateTarget, descriptors),
+                              {detail::ProtocolSurfaceErrorCode::DuplicateRuntimeTargetRegistration,
+                               detail::ProtocolSurfaceErrorCode::MissingRuntimeTargetRegistration,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                               detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch,
+                               detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                               detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+                std::string(expectedDomain) + " duplicate target emits the exact duplicate/missing descriptor multiset");
+
+            const std::array<std::pair<std::string_view, detail::ProtocolSurfaceKey>, 3> wrongKeyMutations{{
+                {"category",
+                 {detail::SurfaceCategory::TaggedUnionDiscriminator,
+                  descriptors.front().key.domain,
+                  descriptors.front().key.field,
+                  descriptors.front().key.name}},
+                {"domain",
+                 {descriptors.front().key.category,
+                  expectedDomain == "ThreadItem" ? "WrongThreadItem" : "WrongResponseItem",
+                  descriptors.front().key.field,
+                  descriptors.front().key.name}},
+                {"field",
+                 {descriptors.front().key.category,
+                  descriptors.front().key.domain,
+                  "wrongItemField",
+                  descriptors.front().key.name}},
+            }};
+
+            for (const auto& mutation : wrongKeyMutations) {
+                std::vector<Descriptor> wrongDescriptor(descriptors.begin(), descriptors.end());
+                wrongDescriptor.front().key = mutation.second;
+                const auto validationWithWrongDescriptor = validateWithDescriptors(registry, wrongDescriptor);
+                const bool expectedCodes =
+                    mutation.first == std::string_view{"field"}
+                        ? hasExactCodes(validationWithWrongDescriptor,
+                                        {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                                         detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                                         detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor,
+                                         detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorShape})
+                        : hasExactCodes(validationWithWrongDescriptor,
+                                        {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                                         detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                                         detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor});
+                result.expectTrue(expectedCodes,
+                                  std::string(expectedDomain) + " wrong descriptor " + std::string(mutation.first) +
+                                      " emits only its exact bidirectional key-association codes");
+            }
+
+            for (const auto& mutation : wrongKeyMutations) {
+                std::vector<detail::ProtocolSurfaceEntry> wrongRegistryKey(registry.begin(), registry.end());
+                findExactEntry(wrongRegistryKey, descriptors.front().key)->key = mutation.second;
+                std::sort(wrongRegistryKey.begin(), wrongRegistryKey.end(), [](const auto& left, const auto& right) {
+                    return left.key < right.key;
+                });
+                const auto validationWithWrongRegistryKey = validateWithDescriptors(wrongRegistryKey, descriptors);
+                const bool expectedCodes =
+                    mutation.first == std::string_view{"category"}
+                        ? hasExactCodes(validationWithWrongRegistryKey,
+                                        {detail::ProtocolSurfaceErrorCode::WrongRuntimeTargetCategory,
+                                         detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                                         detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                                         detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor})
+                        : hasExactCodes(validationWithWrongRegistryKey,
+                                        {detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                                         detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                                         detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor});
+                result.expectTrue(expectedCodes,
+                                  std::string(expectedDomain) + " wrong registry " + std::string(mutation.first) +
+                                      " emits only its exact bidirectional key-association codes");
+            }
+
+            for (const auto& mutation : wrongKeyMutations) {
+                std::vector<detail::ProtocolSurfaceEntry> coherentWrongKey(registry.begin(), registry.end());
+                std::vector<Descriptor> coherentWrongDescriptor(descriptors.begin(), descriptors.end());
+                findExactEntry(coherentWrongKey, descriptors.front().key)->key = mutation.second;
+                coherentWrongDescriptor.front().key = mutation.second;
+                std::sort(coherentWrongKey.begin(), coherentWrongKey.end(), [](const auto& left, const auto& right) {
+                    return left.key < right.key;
+                });
+                const auto validationWithCoherentWrongKey =
+                    validateWithDescriptors(coherentWrongKey, coherentWrongDescriptor);
+                const bool expectedCodes =
+                    mutation.first == std::string_view{"category"}
+                        ? hasExactCodes(validationWithCoherentWrongKey,
+                                        {detail::ProtocolSurfaceErrorCode::WrongRuntimeTargetCategory,
+                                         detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch})
+                    : mutation.first == std::string_view{"field"}
+                        ? hasExactCodes(validationWithCoherentWrongKey,
+                                        {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorShape})
+                        : hasExactCodes(validationWithCoherentWrongKey,
+                                        {detail::ProtocolSurfaceErrorCode::CodecDescriptorCanonicalKeyMismatch,
+                                         detail::ProtocolSurfaceErrorCode::RuntimeTargetCanonicalKeyMismatch});
+                result.expectTrue(expectedCodes,
+                                  std::string(expectedDomain) + " coherent wrong row/descriptor " +
+                                      std::string(mutation.first) +
+                                      " cannot evade the exact generated canonical-key guard");
+            }
+
+            std::vector<detail::ProtocolSurfaceEntry> falseComplete(registry.begin(), registry.end());
+            findExactEntry(falseComplete, descriptors.front().key)->schemaCompleteness.noKnownSchemaFieldsDropped = false;
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(falseComplete, descriptors),
+                              {detail::ProtocolSurfaceErrorCode::KnownSchemaFieldDropped}),
+                std::string(expectedDomain) + " false completeness emits exactly KnownSchemaFieldDropped");
+
+            std::vector<detail::ProtocolSurfaceEntry> removed(registry.begin(), registry.end());
+            removed.erase(findExactEntry(removed, descriptors.front().key));
+            result.expectTrue(
+                hasExactCodes(validateWithDescriptors(removed, descriptors),
+                              {detail::ProtocolSurfaceErrorCode::MissingRuntimeTargetRegistration,
+                               detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow}),
+                std::string(expectedDomain) + " removed row with retained descriptor emits exactly two codes");
+        };
+
+    verifyItemDescriptorFamily.template operator()<detail::ThreadItemCodecDescriptor, detail::ItemDiscriminatorTarget>(
+        threadItemDescriptors,
+        "ThreadItem",
+        [&](std::span<const detail::ProtocolSurfaceEntry> entries,
+            std::span<const detail::ThreadItemCodecDescriptor> descriptors) {
+            return detail::validateProtocolSurface(entries,
+                                                   detail::codexErrorInfoCodecDescriptors(),
+                                                   conversationDescriptors,
+                                                   descriptors,
+                                                   responseItemDescriptors);
+        });
+    verifyItemDescriptorFamily.template operator()<detail::ResponseItemCodecDescriptor, detail::ResponseItemTarget>(
+        responseItemDescriptors,
+        "ResponseItem",
+        [&](std::span<const detail::ProtocolSurfaceEntry> entries,
+            std::span<const detail::ResponseItemCodecDescriptor> descriptors) {
+            return detail::validateProtocolSurface(entries,
+                                                   detail::codexErrorInfoCodecDescriptors(),
+                                                   conversationDescriptors,
+                                                   threadItemDescriptors,
+                                                   descriptors);
+        });
+
     const detail::ProtocolSurfaceEntry* deferred =
         detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
@@ -543,15 +827,19 @@ int main() {
 
     const detail::ProtocolSurfaceEntry* unknownThreadItem =
         detail::findSurface(detail::SurfaceCategory::ItemDiscriminator, "ThreadItem", "type", "plan");
-    result.expectTrue(unknownThreadItem && unknownThreadItem->frontendProtocol == detail::FrontendExposure::ExistingUnknownItemSubset &&
+    result.expectTrue(unknownThreadItem && unknownThreadItem->runtimeDisposition == detail::RuntimeDisposition::Typed &&
+                          unknownThreadItem->typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+                          unknownThreadItem->frontendProtocol == detail::FrontendExposure::ExistingUnknownItemSubset &&
                           unknownThreadItem->frontendSecurity == detail::FrontendSecurityDecision::ExistingUnknownItemMetadataContract,
-                      "untyped ThreadItem entries claim only the existing metadata-only frontend subset");
+                      "newly typed ThreadItem rows preserve only the existing metadata-only frontend subset");
 
     const detail::ProtocolSurfaceEntry* responseItem =
         detail::findSurface(detail::SurfaceCategory::ItemDiscriminator, "ResponseItem", "type", "message");
-    result.expectTrue(responseItem && responseItem->frontendProtocol == detail::FrontendExposure::NotExposed &&
+    result.expectTrue(responseItem && responseItem->runtimeDisposition == detail::RuntimeDisposition::Typed &&
+                          responseItem->typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+                          responseItem->frontendProtocol == detail::FrontendExposure::NotExposed &&
                           responseItem->frontendSecurity == detail::FrontendSecurityDecision::Unresolved,
-                      "undispatched ResponseItem entries do not claim an existing frontend payload path");
+                      "typed ResponseItem rows remain distinct and do not claim a frontend payload path");
 
     std::vector<detail::ProtocolSurfaceEntry> wrongUnknownItemPair(registry.begin(), registry.end());
     const auto wrongUnknownItem =

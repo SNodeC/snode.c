@@ -455,6 +455,26 @@ def schema_result_contract_kind(document: dict[str, Any]) -> str:
 CONVERSATION_UNION_CODECS = {
     (
         "tagged_union_discriminator",
+        "AgentMessageInputContent",
+        "type",
+        "encrypted_content",
+    ): (
+        "ConversationUnionTarget::AgentMessageInputContentEncryptedContent",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AgentMessageInputContent",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::AgentMessageInputContentInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
         "AskForApproval",
         "$variant",
         "granular",
@@ -505,6 +525,36 @@ CONVERSATION_UNION_CODECS = {
     ),
     (
         "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "input_image",
+    ): (
+        "ConversationUnionTarget::ContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::ContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "output_text",
+    ): (
+        "ConversationUnionTarget::ContentItemOutputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
         "CommandAction",
         "type",
         "read",
@@ -545,6 +595,46 @@ CONVERSATION_UNION_CODECS = {
     ),
     (
         "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "encrypted_content",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemEncryptedContent",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "input_image",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LocalShellAction",
+        "type",
+        "exec",
+    ): (
+        "ConversationUnionTarget::LocalShellActionExec",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
         "DynamicToolCallOutputContentItem",
         "type",
         "inputText",
@@ -560,6 +650,76 @@ CONVERSATION_UNION_CODECS = {
         "add",
     ): (
         "ConversationUnionTarget::PatchChangeKindAdd",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemContent",
+        "type",
+        "reasoning_text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemContentReasoningText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemContent",
+        "type",
+        "text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemContentText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemReasoningSummary",
+        "type",
+        "summary_text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemReasoningSummarySummaryText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "find_in_page",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionFindInPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "open_page",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionOpenPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "other",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionOther",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionSearch",
         "ConversationUnionCodecShape::InternallyTaggedObject",
         "ConversationUnionCodecDirection::DecodeOnly",
     ),
@@ -803,23 +963,139 @@ RUNTIME_TARGETS = {
         "account/chatgptAuthTokens/refresh",
     ): "ServerRequestTarget::ChatgptAuthTokensRefresh",
     ("item_discriminator", "ThreadItem", "type", "agentMessage"): "ItemDiscriminatorTarget::AgentMessage",
-    ("item_discriminator", "ThreadItem", "type", "userMessage"): "ItemDiscriminatorTarget::UserMessage",
-    ("item_discriminator", "ThreadItem", "type", "reasoning"): "ItemDiscriminatorTarget::Reasoning",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "collabAgentToolCall",
+    ): "ItemDiscriminatorTarget::CollabAgentToolCall",
     (
         "item_discriminator",
         "ThreadItem",
         "type",
         "commandExecution",
     ): "ItemDiscriminatorTarget::CommandExecution",
-    ("item_discriminator", "ThreadItem", "type", "fileChange"): "ItemDiscriminatorTarget::FileChange",
-    ("item_discriminator", "ThreadItem", "type", "mcpToolCall"): "ItemDiscriminatorTarget::McpToolCall",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "contextCompaction",
+    ): "ItemDiscriminatorTarget::ContextCompaction",
     (
         "item_discriminator",
         "ThreadItem",
         "type",
         "dynamicToolCall",
     ): "ItemDiscriminatorTarget::DynamicToolCall",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "enteredReviewMode",
+    ): "ItemDiscriminatorTarget::EnteredReviewMode",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "exitedReviewMode",
+    ): "ItemDiscriminatorTarget::ExitedReviewMode",
+    ("item_discriminator", "ThreadItem", "type", "fileChange"): "ItemDiscriminatorTarget::FileChange",
+    ("item_discriminator", "ThreadItem", "type", "hookPrompt"): "ItemDiscriminatorTarget::HookPrompt",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "imageGeneration",
+    ): "ItemDiscriminatorTarget::ImageGeneration",
+    ("item_discriminator", "ThreadItem", "type", "imageView"): "ItemDiscriminatorTarget::ImageView",
+    ("item_discriminator", "ThreadItem", "type", "mcpToolCall"): "ItemDiscriminatorTarget::McpToolCall",
+    ("item_discriminator", "ThreadItem", "type", "plan"): "ItemDiscriminatorTarget::Plan",
+    ("item_discriminator", "ThreadItem", "type", "reasoning"): "ItemDiscriminatorTarget::Reasoning",
+    ("item_discriminator", "ThreadItem", "type", "sleep"): "ItemDiscriminatorTarget::Sleep",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "subAgentActivity",
+    ): "ItemDiscriminatorTarget::SubAgentActivity",
+    ("item_discriminator", "ThreadItem", "type", "userMessage"): "ItemDiscriminatorTarget::UserMessage",
     ("item_discriminator", "ThreadItem", "type", "webSearch"): "ItemDiscriminatorTarget::WebSearch",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "agent_message",
+    ): "ResponseItemTarget::AgentMessage",
+    ("item_discriminator", "ResponseItem", "type", "compaction"): "ResponseItemTarget::Compaction",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "compaction_trigger",
+    ): "ResponseItemTarget::CompactionTrigger",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "context_compaction",
+    ): "ResponseItemTarget::ContextCompaction",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "custom_tool_call",
+    ): "ResponseItemTarget::CustomToolCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "custom_tool_call_output",
+    ): "ResponseItemTarget::CustomToolCallOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "function_call",
+    ): "ResponseItemTarget::FunctionCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "function_call_output",
+    ): "ResponseItemTarget::FunctionCallOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "image_generation_call",
+    ): "ResponseItemTarget::ImageGenerationCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "local_shell_call",
+    ): "ResponseItemTarget::LocalShellCall",
+    ("item_discriminator", "ResponseItem", "type", "message"): "ResponseItemTarget::Message",
+    ("item_discriminator", "ResponseItem", "type", "other"): "ResponseItemTarget::Other",
+    ("item_discriminator", "ResponseItem", "type", "reasoning"): "ResponseItemTarget::Reasoning",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "tool_search_call",
+    ): "ResponseItemTarget::ToolSearchCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "tool_search_output",
+    ): "ResponseItemTarget::ToolSearchOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "web_search_call",
+    ): "ResponseItemTarget::WebSearchCall",
     (
         "tagged_union_discriminator",
         "CodexErrorInfo",
@@ -3883,7 +4159,7 @@ def registry_statuses(
                 "FrontendSecurityDecision::ExistingRedactedExtensionContract"
             )
     elif category == "item_discriminator":
-        if target is not None:
+        if entry["domain"] == "ThreadItem" and backend_implemented:
             frontend_exposure = "FrontendExposure::ExistingEventSubset"
             frontend_security = (
                 "FrontendSecurityDecision::ExistingEventSubsetContract"
@@ -3958,11 +4234,26 @@ def registry_statuses(
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
     if identity in CONVERSATION_UNION_CODECS and target is not None:
-        # The exact B2 descriptor set is generated from the same mapping that
-        # supplies the canonical registry targets. Its direction-specific
-        # codec tests guard raw retention and every reviewed public field.
+        # The exact dependency-closed B2+B3 descriptor set is generated from
+        # the same mapping that supplies the canonical registry targets. Its
+        # direction-specific codec tests guard raw retention and every
+        # reviewed public field.
         # Keep this override exact-keyed: other A1.1 unions advance only with
         # their own production descriptor and codec batches.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity[0] == "item_discriminator"
+        and identity[1] in {"ThreadItem", "ResponseItem"}
+        and target is not None
+    ):
+        # Commit 3's two generated item target families are exact-keyed
+        # production descriptors. The schema-derived item corpus exercises
+        # every known branch, represented property, presence state, open
+        # value, and the seven protocol-defined opaque paths through the
+        # production decoders.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -4139,23 +4430,31 @@ def generate_conversation_union_descriptor_data(
         key
         for key, assignment in assignments.items()
         if assignment.get("slice") == "A1.1"
-        and assignment.get("classification") == "SharedCommon"
-        and assignment.get("module") == "Common"
+        and (
+            (
+                assignment.get("classification") == "SharedCommon"
+                and assignment.get("module") == "Common"
+            )
+            or (
+                assignment.get("classification") == "RootOwnedNestedUnion"
+                and assignment.get("module") == "ThreadsTurnsSessions"
+            )
+        )
         and assignment.get("stability") == "stable"
     }
     descriptor_keys = set(CONVERSATION_UNION_CODECS)
-    if expected_keys != descriptor_keys or len(descriptor_keys) != 26:
+    if expected_keys != descriptor_keys or len(descriptor_keys) != 42:
         raise SurfaceError(
             "ConversationUnionDescriptorAssignmentMismatch: "
-            "reviewed descriptor keys must equal the exact 26 stable "
-            "A1.1 SharedCommon/Common assignments"
+            "reviewed descriptor keys must equal the exact 26 stable B2 "
+            "SharedCommon/Common plus 16 B3 RootOwnedNestedUnion assignments"
         )
 
     manifest_entries = {
         surface_key(entry): entry for entry in manifest.get("entries", [])
     }
     targets = [metadata[0] for metadata in CONVERSATION_UNION_CODECS.values()]
-    if len(set(targets)) != 26:
+    if len(set(targets)) != 42:
         raise SurfaceError(
             "DuplicateConversationUnionDescriptorTarget: "
             "each exact key must own one unique runtime target"
@@ -4170,11 +4469,11 @@ def generate_conversation_union_descriptor_data(
             metadata[2] == "ConversationUnionCodecDirection::DecodeOnly"
             for metadata in CONVERSATION_UNION_CODECS.values()
         )
-        != 13
+        != 29
     ):
         raise SurfaceError(
             "ConversationUnionDescriptorDirectionMismatch: "
-            "reviewed B2 direction split must remain 13 bidirectional/13 decode-only"
+            "reviewed B2+B3 direction split must remain 13 bidirectional/29 decode-only"
         )
 
     lines = [
@@ -4210,6 +4509,77 @@ def generate_conversation_union_descriptor_data(
             + ", ".join(arguments)
             + ")"
         )
+    return "\n".join(lines) + "\n"
+
+
+def generate_item_codec_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    domain: str,
+    target_prefix: str,
+    macro: str,
+    expected_count: int,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate one direction-specific item target family from exact registry keys."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "item_discriminator"
+        and key[1] == domain
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StableItemRoot"
+        and assignment.get("stability") == "stable"
+    }
+    targets = {
+        key: target
+        for key, target in RUNTIME_TARGETS.items()
+        if key[0] == "item_discriminator" and key[1] == domain
+    }
+    if (
+        set(targets) != expected_keys
+        or len(targets) != expected_count
+        or any(not target.startswith(target_prefix + "::") for target in targets.values())
+        or len(set(targets.values())) != expected_count
+    ):
+        raise SurfaceError(
+            "ItemCodecDescriptorAssignmentMismatch: "
+            f"{domain} must map exactly {expected_count} stable A1.1 item identities "
+            f"to unique {target_prefix} targets"
+        )
+
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py item-descriptors; do not edit.",
+        "// Exact keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Item shape and direction are private codec metadata, not production dispositions.",
+    ]
+    for key in sorted(expected_keys):
+        entry = manifest_entries.get(key)
+        if entry is None or entry.get("stability") != "stable":
+            raise SurfaceError(
+                "ItemCodecDescriptorAssignmentMismatch: "
+                f"missing stable manifest row for {key}"
+            )
+        branch = _conversation_union_schema_branch(entry, schema_root)
+        _validate_conversation_union_descriptor_shape(
+            entry, branch, "ConversationUnionCodecShape::InternallyTaggedObject"
+        )
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            targets[key],
+            "ConversationUnionCodecShape::InternallyTaggedObject",
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        lines.append(f"{macro}(" + ", ".join(arguments) + ")")
     return "\n".join(lines) + "\n"
 
 
@@ -4992,6 +5362,60 @@ def write_or_check_conversation_union_descriptors(
         output.write_text(generated, encoding="utf-8")
 
 
+def command_item_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    outputs = (
+        (
+            arguments.thread_output,
+            generate_item_codec_descriptor_data(
+                manifest,
+                arguments.schema_root,
+                "ThreadItem",
+                "ItemDiscriminatorTarget",
+                "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+                18,
+                evidence,
+            ),
+        ),
+        (
+            arguments.response_output,
+            generate_item_codec_descriptor_data(
+                manifest,
+                arguments.schema_root,
+                "ResponseItem",
+                "ResponseItemTarget",
+                "CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR",
+                16,
+                evidence,
+            ),
+        ),
+    )
+    for output, generated in outputs:
+        write_or_check_item_codec_descriptors(output, generated, arguments.check)
+
+
+def write_or_check_item_codec_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedItemCodecDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedItemCodecDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
 def command_docs(arguments: argparse.Namespace) -> None:
     manifest = load_json(arguments.manifest)
     provenance = load_json(arguments.provenance)
@@ -5074,6 +5498,20 @@ def parser() -> argparse.ArgumentParser:
     conversation_descriptors.set_defaults(
         function=command_conversation_descriptors
     )
+
+    item_descriptors = subparsers.add_parser(
+        "item-descriptors",
+        help="generate private A1.1 ThreadItem and ResponseItem codec descriptors",
+    )
+    item_descriptors.add_argument("--manifest", type=Path, required=True)
+    item_descriptors.add_argument("--schema-root", type=Path, required=True)
+    item_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    item_descriptors.add_argument("--thread-output", type=Path, required=True)
+    item_descriptors.add_argument("--response-output", type=Path, required=True)
+    item_descriptors.add_argument("--check", action="store_true")
+    item_descriptors.set_defaults(function=command_item_descriptors)
 
     docs = subparsers.add_parser(
         "docs", help="generate coverage and owner security worksheet documents"

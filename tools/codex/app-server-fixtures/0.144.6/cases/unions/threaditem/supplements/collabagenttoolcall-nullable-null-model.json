@@ -1,0 +1,19 @@
+{
+  "agentsStates": {
+    "syntheticKey": {
+      "message": "synthetic-24d7cd4fc4",
+      "status": "pendingInit"
+    }
+  },
+  "id": "synthetic-80d8631079",
+  "model": null,
+  "prompt": "synthetic-f474ebc3aa",
+  "reasoningEffort": "synthetic-b43c9594ba",
+  "receiverThreadIds": [
+    "synthetic-fe8365292f"
+  ],
+  "senderThreadId": "synthetic-b2d5134629",
+  "status": "inProgress",
+  "tool": "spawnAgent",
+  "type": "collabAgentToolCall"
+}

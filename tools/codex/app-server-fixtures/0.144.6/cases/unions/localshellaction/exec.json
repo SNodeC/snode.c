@@ -1,0 +1,12 @@
+{
+  "command": [
+    "synthetic-46feda36c2"
+  ],
+  "env": {
+    "syntheticKey": "synthetic-c533d91afb"
+  },
+  "timeout_ms": 0,
+  "type": "exec",
+  "user": "synthetic-a256feb94f",
+  "working_directory": "synthetic-eda135865e"
+}

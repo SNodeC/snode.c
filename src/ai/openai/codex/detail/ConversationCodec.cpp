@@ -196,6 +196,53 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
+        bool requiredStringArray(const Json& object,
+                                 std::string_view name,
+                                 std::vector<std::string>& result,
+                                 std::string_view surface,
+                                 std::optional<typed::DecodeDiagnostic>& diagnostic) {
+            const Json* value = member(object, name);
+            if (value == nullptr || !value->is_array()) {
+                diagnostic = malformedKnownDiagnostic(std::string(surface), "$." + std::string(name));
+                return false;
+            }
+            std::vector<std::string> decodedValues;
+            decodedValues.reserve(value->size());
+            for (std::size_t index = 0; index < value->size(); ++index) {
+                if (!(*value)[index].is_string()) {
+                    diagnostic =
+                        malformedKnownDiagnostic(std::string(surface), "$." + std::string(name) + "[" + std::to_string(index) + "]");
+                    return false;
+                }
+                decodedValues.emplace_back((*value)[index].get<std::string>());
+            }
+            result = std::move(decodedValues);
+            return true;
+        }
+
+        bool decodeStringMap(const Json& value, std::map<std::string, std::string>& result) {
+            if (!value.is_object()) {
+                return false;
+            }
+            std::map<std::string, std::string> decodedValues;
+            for (auto iterator = value.begin(); iterator != value.end(); ++iterator) {
+                if (!iterator.value().is_string()) {
+                    return false;
+                }
+                decodedValues.emplace(iterator.key(), iterator.value().get<std::string>());
+            }
+            result = std::move(decodedValues);
+            return true;
+        }
+
+        bool decodeImageDetail(const Json& value, typed::ImageDetail& result) {
+            if (!value.is_string()) {
+                return false;
+            }
+            result.value = value.get<std::string>();
+            return true;
+        }
+
         bool decodeUint64(const Json& value, std::uint64_t& result) {
             if (value.is_number_unsigned()) {
                 result = value.get<std::uint64_t>();
@@ -445,6 +492,44 @@ namespace ai::openai::codex::detail {
         }
     }
 
+    ConversationDecodeResult<typed::AgentMessageInputContent> decodeAgentMessageInputContent(const Json& value) noexcept {
+        constexpr std::string_view Surface = "AgentMessageInputContent";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::AgentMessageInputContent, typed::UnknownAgentMessageInputContent>(
+                    value, resolved.discriminator, Surface, "$.type");
+            }
+
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            const ConversationUnionTarget target = resolved.descriptor->target;
+            if (target == ConversationUnionTarget::AgentMessageInputContentInputText) {
+                typed::InputTextAgentMessageInputContent result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::AgentMessageInputContent>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::AgentMessageInputContentEncryptedContent) {
+                typed::EncryptedContentAgentMessageInputContent result;
+                if (!requiredString(value, "encrypted_content", result.encryptedContent, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::AgentMessageInputContent>(std::move(result));
+            }
+            return malformed<typed::AgentMessageInputContent>(Surface, "$.type");
+        } catch (const std::exception&) {
+            return malformed<typed::AgentMessageInputContent>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::AgentMessageInputContent>(Surface, "$");
+        }
+    }
+
     ConversationDecodeResult<typed::CommandAction> decodeCommandAction(const Json& value) noexcept {
         constexpr std::string_view Surface = "CommandAction";
         try {
@@ -506,6 +591,56 @@ namespace ai::openai::codex::detail {
         }
     }
 
+    ConversationDecodeResult<typed::ContentItem> decodeContentItem(const Json& value) noexcept {
+        constexpr std::string_view Surface = "ContentItem";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::ContentItem, typed::UnknownContentItem>(value, resolved.discriminator, Surface, "$.type");
+            }
+
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            const ConversationUnionTarget target = resolved.descriptor->target;
+            if (target == ConversationUnionTarget::ContentItemInputText) {
+                typed::InputTextContentItem result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ContentItem>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::ContentItemInputImage) {
+                typed::InputImageContentItem result;
+                if (!requiredString(value, "image_url", result.imageUrl, Surface, diagnostic) ||
+                    !optionalNullable(value, "detail", result.detail, Surface, diagnostic, decodeImageDetail)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                diagnostic = imageDetailDiagnostic(result.detail, Surface);
+                if (diagnostic) {
+                    result.diagnostics.push_back(*diagnostic);
+                }
+                result.raw = value;
+                return decoded<typed::ContentItem>(std::move(result), std::move(diagnostic));
+            }
+            if (target == ConversationUnionTarget::ContentItemOutputText) {
+                typed::OutputTextContentItem result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ContentItem>(std::move(result));
+            }
+            return malformed<typed::ContentItem>(Surface, "$.type");
+        } catch (const std::exception&) {
+            return malformed<typed::ContentItem>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::ContentItem>(Surface, "$");
+        }
+    }
+
     ConversationDecodeResult<typed::DynamicToolCallOutputContentItem> decodeDynamicToolCallOutputContentItem(const Json& value) noexcept {
         constexpr std::string_view Surface = "DynamicToolCallOutputContentItem";
         try {
@@ -543,6 +678,89 @@ namespace ai::openai::codex::detail {
         }
     }
 
+    ConversationDecodeResult<typed::FunctionCallOutputContentItem> decodeFunctionCallOutputContentItem(const Json& value) noexcept {
+        constexpr std::string_view Surface = "FunctionCallOutputContentItem";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::FunctionCallOutputContentItem, typed::UnknownFunctionCallOutputContentItem>(
+                    value, resolved.discriminator, Surface, "$.type");
+            }
+
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            const ConversationUnionTarget target = resolved.descriptor->target;
+            if (target == ConversationUnionTarget::FunctionCallOutputContentItemInputText) {
+                typed::InputTextFunctionCallOutputContentItem result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::FunctionCallOutputContentItem>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::FunctionCallOutputContentItemInputImage) {
+                typed::InputImageFunctionCallOutputContentItem result;
+                if (!requiredString(value, "image_url", result.imageUrl, Surface, diagnostic) ||
+                    !optionalNullable(value, "detail", result.detail, Surface, diagnostic, decodeImageDetail)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                diagnostic = imageDetailDiagnostic(result.detail, Surface);
+                if (diagnostic) {
+                    result.diagnostics.push_back(*diagnostic);
+                }
+                result.raw = value;
+                return decoded<typed::FunctionCallOutputContentItem>(std::move(result), std::move(diagnostic));
+            }
+            if (target == ConversationUnionTarget::FunctionCallOutputContentItemEncryptedContent) {
+                typed::EncryptedContentFunctionCallOutputContentItem result;
+                if (!requiredString(value, "encrypted_content", result.encryptedContent, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::FunctionCallOutputContentItem>(std::move(result));
+            }
+            return malformed<typed::FunctionCallOutputContentItem>(Surface, "$.type");
+        } catch (const std::exception&) {
+            return malformed<typed::FunctionCallOutputContentItem>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::FunctionCallOutputContentItem>(Surface, "$");
+        }
+    }
+
+    ConversationDecodeResult<typed::LocalShellAction> decodeLocalShellAction(const Json& value) noexcept {
+        constexpr std::string_view Surface = "LocalShellAction";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::LocalShellAction, typed::UnknownLocalShellAction>(value, resolved.discriminator, Surface, "$.type");
+            }
+            if (resolved.descriptor->target != ConversationUnionTarget::LocalShellActionExec) {
+                return malformed<typed::LocalShellAction>(Surface, "$.type");
+            }
+
+            typed::ExecLocalShellAction result;
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            if (!requiredStringArray(value, "command", result.command, Surface, diagnostic) ||
+                !optionalNullable(value, "env", result.env, Surface, diagnostic, decodeStringMap) ||
+                !optionalNullable(value, "timeout_ms", result.timeoutMs, Surface, diagnostic, decodeUint64) ||
+                !optionalNullable(value, "user", result.user, Surface, diagnostic, decodeStringValue) ||
+                !optionalNullable(value, "working_directory", result.workingDirectory, Surface, diagnostic, decodeStringValue)) {
+                return {std::nullopt, std::move(diagnostic)};
+            }
+            result.raw = value;
+            return decoded<typed::LocalShellAction>(std::move(result));
+        } catch (const std::exception&) {
+            return malformed<typed::LocalShellAction>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::LocalShellAction>(Surface, "$");
+        }
+    }
+
     ConversationDecodeResult<typed::PatchChangeKind> decodePatchChangeKind(const Json& value) noexcept {
         constexpr std::string_view Surface = "PatchChangeKind";
         try {
@@ -574,6 +792,124 @@ namespace ai::openai::codex::detail {
             return malformed<typed::PatchChangeKind>(Surface, "$");
         } catch (...) {
             return malformed<typed::PatchChangeKind>(Surface, "$");
+        }
+    }
+
+    ConversationDecodeResult<typed::ReasoningItemContent> decodeReasoningItemContent(const Json& value) noexcept {
+        constexpr std::string_view Surface = "ReasoningItemContent";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::ReasoningItemContent, typed::UnknownReasoningItemContent>(
+                    value, resolved.discriminator, Surface, "$.type");
+            }
+
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            const ConversationUnionTarget target = resolved.descriptor->target;
+            if (target == ConversationUnionTarget::ReasoningItemContentReasoningText) {
+                typed::ReasoningTextReasoningItemContent result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ReasoningItemContent>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::ReasoningItemContentText) {
+                typed::TextReasoningItemContent result;
+                if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ReasoningItemContent>(std::move(result));
+            }
+            return malformed<typed::ReasoningItemContent>(Surface, "$.type");
+        } catch (const std::exception&) {
+            return malformed<typed::ReasoningItemContent>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::ReasoningItemContent>(Surface, "$");
+        }
+    }
+
+    ConversationDecodeResult<typed::ReasoningItemReasoningSummary> decodeReasoningItemReasoningSummary(const Json& value) noexcept {
+        constexpr std::string_view Surface = "ReasoningItemReasoningSummary";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::ReasoningItemReasoningSummary, typed::UnknownReasoningItemReasoningSummary>(
+                    value, resolved.discriminator, Surface, "$.type");
+            }
+            if (resolved.descriptor->target != ConversationUnionTarget::ReasoningItemReasoningSummarySummaryText) {
+                return malformed<typed::ReasoningItemReasoningSummary>(Surface, "$.type");
+            }
+
+            typed::SummaryTextReasoningItemReasoningSummary result;
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            if (!requiredString(value, "text", result.text, Surface, diagnostic)) {
+                return {std::nullopt, std::move(diagnostic)};
+            }
+            result.raw = value;
+            return decoded<typed::ReasoningItemReasoningSummary>(std::move(result));
+        } catch (const std::exception&) {
+            return malformed<typed::ReasoningItemReasoningSummary>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::ReasoningItemReasoningSummary>(Surface, "$");
+        }
+    }
+
+    ConversationDecodeResult<typed::ResponsesApiWebSearchAction> decodeResponsesApiWebSearchAction(const Json& value) noexcept {
+        constexpr std::string_view Surface = "ResponsesApiWebSearchAction";
+        try {
+            ResolvedDiscriminator resolved = resolveInternal(value, Surface);
+            if (resolved.malformed()) {
+                return {std::nullopt, std::move(resolved.diagnostic)};
+            }
+            if (resolved.unknown()) {
+                return unknown<typed::ResponsesApiWebSearchAction, typed::UnknownResponsesApiWebSearchAction>(
+                    value, resolved.discriminator, Surface, "$.type");
+            }
+
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+            const ConversationUnionTarget target = resolved.descriptor->target;
+            if (target == ConversationUnionTarget::ResponsesApiWebSearchActionSearch) {
+                typed::SearchResponsesApiWebSearchAction result;
+                if (!optionalNullable(value, "queries", result.queries, Surface, diagnostic, decodeStringArray) ||
+                    !optionalNullable(value, "query", result.query, Surface, diagnostic, decodeStringValue)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ResponsesApiWebSearchAction>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::ResponsesApiWebSearchActionOpenPage) {
+                typed::OpenPageResponsesApiWebSearchAction result;
+                if (!optionalNullable(value, "url", result.url, Surface, diagnostic, decodeStringValue)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ResponsesApiWebSearchAction>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::ResponsesApiWebSearchActionFindInPage) {
+                typed::FindInPageResponsesApiWebSearchAction result;
+                if (!optionalNullable(value, "pattern", result.pattern, Surface, diagnostic, decodeStringValue) ||
+                    !optionalNullable(value, "url", result.url, Surface, diagnostic, decodeStringValue)) {
+                    return {std::nullopt, std::move(diagnostic)};
+                }
+                result.raw = value;
+                return decoded<typed::ResponsesApiWebSearchAction>(std::move(result));
+            }
+            if (target == ConversationUnionTarget::ResponsesApiWebSearchActionOther) {
+                return decoded<typed::ResponsesApiWebSearchAction>(typed::OtherResponsesApiWebSearchAction{value, {}});
+            }
+            return malformed<typed::ResponsesApiWebSearchAction>(Surface, "$.type");
+        } catch (const std::exception&) {
+            return malformed<typed::ResponsesApiWebSearchAction>(Surface, "$");
+        } catch (...) {
+            return malformed<typed::ResponsesApiWebSearchAction>(Surface, "$");
         }
     }
 

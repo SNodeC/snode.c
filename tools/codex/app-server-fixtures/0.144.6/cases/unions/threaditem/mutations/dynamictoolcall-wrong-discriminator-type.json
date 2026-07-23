@@ -1,0 +1,16 @@
+{
+  "arguments": {},
+  "contentItems": [
+    {
+      "text": "synthetic-462c66bbfb",
+      "type": "inputText"
+    }
+  ],
+  "durationMs": 0,
+  "id": "synthetic-78c81808b3",
+  "namespace": "synthetic-ccc2ed7075",
+  "status": "inProgress",
+  "success": false,
+  "tool": "synthetic-48d957aada",
+  "type": null
+}

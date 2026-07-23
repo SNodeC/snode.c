@@ -45,9 +45,11 @@ namespace ai::openai::codex::backend {
         }
 
         Json userMessageData(const typed::UserMessageItem& item) {
-            const std::size_t originalContentBytes = item.content.dump().size();
-            const std::size_t originalContentItems = item.content.size();
-            const Json clientId = item.clientId ? Json(*item.clientId) : Json(nullptr);
+            const auto rawContent = item.metadata.raw.find("content");
+            const Json content = rawContent != item.metadata.raw.end() && rawContent->is_array() ? *rawContent : Json::array();
+            const std::size_t originalContentBytes = content.dump().size();
+            const std::size_t originalContentItems = content.size();
+            const Json clientId = item.clientId ? Json(item.clientId->value) : Json(nullptr);
             Json retainedContent = Json::array();
             std::size_t retainedContentBytes = retainedContent.dump().size();
             std::size_t retainedContentItems = 0;
@@ -62,7 +64,7 @@ namespace ai::openai::codex::backend {
                                      {"retainedContentItems", static_cast<std::uint64_t>(contentItems)}});
             };
 
-            for (const Json& contentEntry : item.content) {
+            for (const Json& contentEntry : content) {
                 const std::size_t separatorBytes = retainedContentItems == 0 ? 0 : 1;
                 const std::size_t contentEntryBytes = contentEntry.dump().size();
                 if (retainedContentBytes > MaxSerializedUserMessageDataBytes - separatorBytes ||
@@ -246,56 +248,66 @@ namespace ai::openai::codex::backend {
             snapshot.completedAtMs = state.completedAtMs;
             snapshot.extensions = boundedJson(state.extensions);
 
-            std::visit(Overloaded{[&snapshot](const typed::AgentMessageItem& value) {
-                                      if (value.phase) {
-                                          snapshot.data["phase"] = *value.phase;
-                                      }
-                                  },
-                                  [&snapshot](const typed::UserMessageItem& value) {
-                                      snapshot.data = userMessageData(value);
-                                  },
-                                  [&snapshot](const typed::ReasoningItem&) {
-                                      snapshot.data["hasSummary"] = !snapshot.reasoningSummary.empty();
-                                  },
-                                  [&snapshot](const typed::CommandExecutionItem& value) {
-                                      snapshot.data =
-                                          Json::object({{"command", value.command}, {"cwd", value.cwd}, {"status", value.status}});
-                                      if (value.processId) {
-                                          snapshot.data["processId"] = *value.processId;
-                                      }
-                                      if (value.exitCode) {
-                                          snapshot.data["exitCode"] = *value.exitCode;
-                                      }
-                                      if (value.durationMs) {
-                                          snapshot.data["durationMs"] = *value.durationMs;
-                                      }
-                                  },
-                                  [&snapshot](const typed::FileChangeItem& value) {
-                                      snapshot.data = Json::object({{"status", value.status}, {"changes", boundedJson(value.changes)}});
-                                  },
-                                  [&snapshot](const typed::ToolCallItem& value) {
-                                      snapshot.data = Json::object(
-                                          {{"tool", value.tool}, {"status", value.status}, {"hasResult", !value.result.is_null()}});
-                                      if (value.server) {
-                                          snapshot.data["server"] = *value.server;
-                                      }
-                                      if (value.nameSpace) {
-                                          snapshot.data["namespace"] = *value.nameSpace;
-                                      }
-                                  },
-                                  [&snapshot](const typed::WebSearchItem& value) {
-                                      snapshot.data = Json::object({{"query", value.query}});
-                                  },
-                                  [&snapshot](const typed::UnknownItem& value) {
-                                      snapshot.data = Json::object();
-                                      if (value.type) {
-                                          snapshot.data["codexType"] = *value.type;
-                                      }
-                                      if (value.decodingError) {
-                                          snapshot.data["decodingError"] = *value.decodingError;
-                                      }
-                                  }},
-                       state.item);
+            std::visit(
+                Overloaded{[&snapshot](const typed::AgentMessageItem& value) {
+                               if (value.phase) {
+                                   snapshot.data["phase"] = value.phase->value;
+                               }
+                           },
+                           [&snapshot](const typed::UserMessageItem& value) {
+                               snapshot.data = userMessageData(value);
+                           },
+                           [&snapshot](const typed::ReasoningItem&) {
+                               snapshot.data["hasSummary"] = !snapshot.reasoningSummary.empty();
+                           },
+                           [&snapshot](const typed::CommandExecutionItem& value) {
+                               snapshot.data =
+                                   Json::object({{"command", value.command}, {"cwd", value.cwd.value}, {"status", value.status.value}});
+                               if (value.processId) {
+                                   snapshot.data["processId"] = *value.processId;
+                               }
+                               if (value.exitCode) {
+                                   snapshot.data["exitCode"] = *value.exitCode;
+                               }
+                               if (value.durationMs) {
+                                   snapshot.data["durationMs"] = *value.durationMs;
+                               }
+                           },
+                           [&snapshot](const typed::FileChangeItem& value) {
+                               const auto changes = value.metadata.raw.find("changes");
+                               snapshot.data = Json::object(
+                                   {{"status", value.status.value},
+                                    {"changes",
+                                     changes != value.metadata.raw.end() && changes->is_array() ? boundedJson(*changes) : Json::array()}});
+                           },
+                           [&snapshot](const typed::ToolCallItem& value) {
+                               snapshot.data = Json::object(
+                                   {{"tool", value.tool}, {"status", value.status.value}, {"hasResult", value.result.hasValue()}});
+                               snapshot.data["server"] = value.server;
+                           },
+                           [&snapshot](const typed::DynamicToolCallThreadItem& value) {
+                               snapshot.data = Json::object(
+                                   {{"tool", value.tool}, {"status", value.status.value}, {"hasResult", value.contentItems.hasValue()}});
+                               if (value.nameSpace) {
+                                   snapshot.data["namespace"] = *value.nameSpace;
+                               }
+                           },
+                           [&snapshot](const typed::WebSearchItem& value) {
+                               snapshot.data = Json::object({{"query", value.query}});
+                           },
+                           [&snapshot](const typed::UnknownItem& value) {
+                               snapshot.data = Json::object();
+                               if (value.type) {
+                                   snapshot.data["codexType"] = *value.type;
+                               }
+                               if (value.decodingError) {
+                                   snapshot.data["decodingError"] = *value.decodingError;
+                               }
+                           },
+                           [&snapshot](const auto&) {
+                               snapshot.data = Json::object({{"codexType", snapshot.type}});
+                           }},
+                state.item);
             return snapshot;
         }
 

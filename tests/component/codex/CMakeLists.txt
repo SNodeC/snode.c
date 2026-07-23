@@ -316,7 +316,8 @@ foreach(
     ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
           CodexTypedItemDecoderTest CodexTypedEventDecoderTest
           CodexTypedServerRequestDecoderTest CodexErrorInfoCodecTest
-          CodexConversationCodecTest
+          CodexConversationCodecTest CodexConversationB3NestedCodecTest
+          CodexA11ItemCodecTest
 )
     snodec_add_test(${typed_test} ${typed_test}.cpp)
     target_link_libraries(
@@ -337,6 +338,14 @@ target_compile_definitions(
     CodexConversationCodecTest
     PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
 )
+target_compile_definitions(
+    CodexConversationB3NestedCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+target_compile_definitions(
+    CodexA11ItemCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
 
 snodec_add_test(CodexBackendReducerTest CodexBackendReducerTest.cpp)
 target_link_libraries(
@@ -347,6 +356,27 @@ target_compile_features(CodexBackendReducerTest PRIVATE cxx_std_20)
 set_tests_properties(
     CodexBackendReducerTest
     PROPERTIES LABELS "component;ai;openai;codex;backend;reducer"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexThreadItemBackendParityTest
+    CodexThreadItemBackendParityTest.cpp
+)
+target_link_libraries(
+    CodexThreadItemBackendParityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexThreadItemBackendParityTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexThreadItemBackendParityTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+set_tests_properties(
+    CodexThreadItemBackendParityTest
+    PROPERTIES LABELS "component;ai;openai;codex;typed;backend;reducer;parity"
                SKIP_RETURN_CODE 77 TIMEOUT 10
 )
 

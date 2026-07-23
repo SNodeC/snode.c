@@ -20,17 +20,9 @@
 
 namespace ai::openai::codex::typed {
 
-    enum class DecodeIssueKind {
-        UnknownMethod,
-        UnknownDiscriminator,
-        UnknownEnumValue,
-        MalformedKnownPayload
-    };
+    enum class DecodeIssueKind { UnknownMethod, UnknownDiscriminator, UnknownEnumValue, MalformedKnownPayload };
 
-    enum class DecodeIssueSeverity {
-        ForwardCompatibility,
-        ProtocolWarning
-    };
+    enum class DecodeIssueSeverity { ForwardCompatibility, ProtocolWarning };
 
     struct DecodeDiagnostic {
         DecodeIssueKind kind = DecodeIssueKind::MalformedKnownPayload;
@@ -214,6 +206,12 @@ namespace ai::openai::codex::typed {
         auto operator<=>(const TurnId&) const = default;
     };
 
+    struct ClientUserMessageId {
+        std::string value;
+
+        auto operator<=>(const ClientUserMessageId&) const = default;
+    };
+
     struct ItemId {
         std::string value;
 
@@ -224,6 +222,18 @@ namespace ai::openai::codex::typed {
         std::string value;
 
         auto operator<=>(const ModelId&) const = default;
+    };
+
+    struct ResponseCallId {
+        std::string value;
+
+        auto operator<=>(const ResponseCallId&) const = default;
+    };
+
+    struct ResponseItemId {
+        std::string value;
+
+        auto operator<=>(const ResponseItemId&) const = default;
     };
 
     struct ReasoningEffort {

@@ -105,6 +105,28 @@ namespace ai::openai::codex::detail {
 
 #undef CODEX_CONVERSATION_UNION_CODEC_DESCRIPTOR
 
+#define CODEX_THREAD_ITEM_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                                       \
+    {{category, domain, field, name}, target, shape, direction},
+
+        constexpr ThreadItemCodecDescriptor ThreadItemDescriptors[] = {
+#include "ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
+        };
+        static_assert(sizeof(ThreadItemDescriptors) / sizeof(*ThreadItemDescriptors) ==
+                      static_cast<std::size_t>(ItemDiscriminatorTarget::Count));
+
+#undef CODEX_THREAD_ITEM_CODEC_DESCRIPTOR
+
+#define CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                                     \
+    {{category, domain, field, name}, target, shape, direction},
+
+        constexpr ResponseItemCodecDescriptor ResponseItemDescriptors[] = {
+#include "ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
+        };
+        static_assert(sizeof(ResponseItemDescriptors) / sizeof(*ResponseItemDescriptors) ==
+                      static_cast<std::size_t>(ResponseItemTarget::Count));
+
+#undef CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR
+
         const char* categoryName(SurfaceCategory category) noexcept {
             switch (category) {
                 case SurfaceCategory::ClientRequest:
@@ -164,6 +186,8 @@ namespace ai::openai::codex::detail {
                     } else if constexpr (std::is_same_v<Target, ServerRequestTarget>) {
                         return SurfaceCategory::ServerRequest;
                     } else if constexpr (std::is_same_v<Target, ItemDiscriminatorTarget>) {
+                        return SurfaceCategory::ItemDiscriminator;
+                    } else if constexpr (std::is_same_v<Target, ResponseItemTarget>) {
                         return SurfaceCategory::ItemDiscriminator;
                     } else if constexpr (std::is_same_v<Target, CodexErrorInfoTarget>) {
                         return SurfaceCategory::TaggedUnionDiscriminator;
@@ -277,7 +301,9 @@ namespace ai::openai::codex::detail {
         TypedSchemaStatus
         derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry,
                                  std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
-                                 std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors) noexcept {
+                                 std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                 std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                 std::span<const ResponseItemCodecDescriptor> responseItemDescriptors) noexcept {
             if (entry.a1Slice == A1Slice::InventoryOnly || entry.typedImplementation == TypedImplementationStatus::NotApplicable) {
                 return TypedSchemaStatus::NotApplicable;
             }
@@ -288,6 +314,10 @@ namespace ai::openai::codex::detail {
                 canonicalDescriptorForTarget<CodexErrorInfoTarget>(entry, codexErrorInfoCodecDescriptors());
             const ConversationUnionCodecDescriptor* canonicalConversationUnion =
                 canonicalDescriptorForTarget<ConversationUnionTarget>(entry, conversationUnionCodecDescriptors());
+            const ThreadItemCodecDescriptor* canonicalThreadItem =
+                canonicalDescriptorForTarget<ItemDiscriminatorTarget>(entry, threadItemCodecDescriptors());
+            const ResponseItemCodecDescriptor* canonicalResponseItem =
+                canonicalDescriptorForTarget<ResponseItemTarget>(entry, responseItemCodecDescriptors());
             const bool codexErrorInfoDecoderMatches =
                 !std::holds_alternative<CodexErrorInfoTarget>(entry.runtimeTarget) ||
                 (canonicalCodexErrorInfo != nullptr && canonicalCodexErrorInfo->key == entry.key &&
@@ -296,7 +326,16 @@ namespace ai::openai::codex::detail {
                 !std::holds_alternative<ConversationUnionTarget>(entry.runtimeTarget) ||
                 (canonicalConversationUnion != nullptr && canonicalConversationUnion->key == entry.key &&
                  matchingCodecDescriptor<ConversationUnionTarget>(entry, conversationUnionDescriptors) != nullptr);
-            const bool decoderMatches = codexErrorInfoDecoderMatches && conversationUnionDecoderMatches;
+            const bool threadItemDecoderMatches =
+                !std::holds_alternative<ItemDiscriminatorTarget>(entry.runtimeTarget) ||
+                (canonicalThreadItem != nullptr && canonicalThreadItem->key == entry.key &&
+                 matchingCodecDescriptor<ItemDiscriminatorTarget>(entry, threadItemDescriptors) != nullptr);
+            const bool responseItemDecoderMatches =
+                !std::holds_alternative<ResponseItemTarget>(entry.runtimeTarget) ||
+                (canonicalResponseItem != nullptr && canonicalResponseItem->key == entry.key &&
+                 matchingCodecDescriptor<ResponseItemTarget>(entry, responseItemDescriptors) != nullptr);
+            const bool decoderMatches =
+                codexErrorInfoDecoderMatches && conversationUnionDecoderMatches && threadItemDecoderMatches && responseItemDecoderMatches;
             return completeSchemaEvidence(entry.schemaCompleteness) && decoderMatches ? TypedSchemaStatus::Complete
                                                                                       : TypedSchemaStatus::Partial;
         }
@@ -381,12 +420,13 @@ namespace ai::openai::codex::detail {
             }
         }
 
-        void validateConversationUnionDescriptorMetadata(std::span<const ConversationUnionCodecDescriptor> descriptors,
-                                                         std::span<const ConversationUnionCodecDescriptor> expectedDescriptors,
-                                                         ProtocolSurfaceValidation& result) {
-            for (const ConversationUnionCodecDescriptor& descriptor : descriptors) {
+        template <typename Descriptor>
+        void validateTaggedUnionDescriptorMetadata(std::span<const Descriptor> descriptors,
+                                                   std::span<const Descriptor> expectedDescriptors,
+                                                   ProtocolSurfaceValidation& result) {
+            for (const Descriptor& descriptor : descriptors) {
                 const auto expected = std::find_if(
-                    expectedDescriptors.begin(), expectedDescriptors.end(), [&](const ConversationUnionCodecDescriptor& candidate) {
+                    expectedDescriptors.begin(), expectedDescriptors.end(), [&](const Descriptor& candidate) {
                         return candidate.target == descriptor.target;
                     });
                 const bool shapeMatchesField =
@@ -445,6 +485,10 @@ namespace ai::openai::codex::detail {
         return findTarget(target);
     }
 
+    const ProtocolSurfaceEntry& entryFor(ResponseItemTarget target) {
+        return findTarget(target);
+    }
+
     const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target) {
         return findTarget(target);
     }
@@ -457,28 +501,64 @@ namespace ai::openai::codex::detail {
         return ConversationUnionDescriptors;
     }
 
+    std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept {
+        return ThreadItemDescriptors;
+    }
+
+    std::span<const ResponseItemCodecDescriptor> responseItemCodecDescriptors() noexcept {
+        return ResponseItemDescriptors;
+    }
+
     TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept {
-        return derivedTypedSchemaStatus(entry, codexErrorInfoCodecDescriptors(), conversationUnionCodecDescriptors());
+        return derivedTypedSchemaStatus(entry,
+                                        codexErrorInfoCodecDescriptors(),
+                                        conversationUnionCodecDescriptors(),
+                                        threadItemCodecDescriptors(),
+                                        responseItemCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries) {
-        return validateProtocolSurface(entries, codexErrorInfoCodecDescriptors(), conversationUnionCodecDescriptors());
+        return validateProtocolSurface(entries,
+                                       codexErrorInfoCodecDescriptors(),
+                                       conversationUnionCodecDescriptors(),
+                                       threadItemCodecDescriptors(),
+                                       responseItemCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
                                                       std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors) {
-        return validateProtocolSurface(entries, codexErrorInfoDescriptors, conversationUnionCodecDescriptors());
+        return validateProtocolSurface(entries,
+                                       codexErrorInfoDescriptors,
+                                       conversationUnionCodecDescriptors(),
+                                       threadItemCodecDescriptors(),
+                                       responseItemCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
                                                       std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors) {
-        return validateProtocolSurface(entries, codexErrorInfoCodecDescriptors(), conversationUnionDescriptors);
+        return validateProtocolSurface(entries,
+                                       codexErrorInfoCodecDescriptors(),
+                                       conversationUnionDescriptors,
+                                       threadItemCodecDescriptors(),
+                                       responseItemCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
                                                       std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
                                                       std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors) {
-        static_assert(std::variant_size_v<RuntimeTarget> == 8, "new runtime target type needs an explicit validateTargets invocation");
+        return validateProtocolSurface(entries,
+                                       codexErrorInfoDescriptors,
+                                       conversationUnionDescriptors,
+                                       threadItemCodecDescriptors(),
+                                       responseItemCodecDescriptors());
+    }
+
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                                      std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                                      std::span<const ResponseItemCodecDescriptor> responseItemDescriptors) {
+        static_assert(std::variant_size_v<RuntimeTarget> == 9, "new runtime target type needs an explicit validateTargets invocation");
 
         ProtocolSurfaceValidation result;
 
@@ -575,8 +655,8 @@ namespace ai::openai::codex::detail {
                     {ProtocolSurfaceErrorCode::MissingSliceAssignment, keyName(entry.key) + " has no fixed A1 slice assignment"});
             }
 
-            const TypedSchemaStatus derivedStatus =
-                derivedTypedSchemaStatus(entry, codexErrorInfoDescriptors, conversationUnionDescriptors);
+            const TypedSchemaStatus derivedStatus = derivedTypedSchemaStatus(
+                entry, codexErrorInfoDescriptors, conversationUnionDescriptors, threadItemDescriptors, responseItemDescriptors);
             if (entry.typedSchemaStatus == TypedSchemaStatus::Complete && derivedStatus != TypedSchemaStatus::Complete &&
                 entry.typedImplementation == TypedImplementationStatus::Implemented && entry.a1Slice != A1Slice::InventoryOnly) {
                 const SchemaCompletenessEvidence& evidence = entry.schemaCompleteness;
@@ -739,15 +819,26 @@ namespace ai::openai::codex::detail {
         validateTargets(entries, ServerNotificationTarget::Count, "server notification", result);
         validateTargets(entries, ServerRequestTarget::Count, "server request", result);
         validateTargets(entries, ItemDiscriminatorTarget::Count, "item discriminator", result);
+        validateTargets(entries, ResponseItemTarget::Count, "response item discriminator", result);
         validateTargets(entries, CodexErrorInfoTarget::Count, "CodexErrorInfo discriminator", result);
         validateCodecDescriptors<CodexErrorInfoTarget>(
             entries, codexErrorInfoDescriptors, codexErrorInfoCodecDescriptors(), "CodexErrorInfo", result);
 
         if (!conversationUnionDescriptors.empty() || containsRuntimeTarget<ConversationUnionTarget>(entries)) {
             validateTargets(entries, ConversationUnionTarget::Count, "conversation union discriminator", result);
-            validateConversationUnionDescriptorMetadata(conversationUnionDescriptors, conversationUnionCodecDescriptors(), result);
+            validateTaggedUnionDescriptorMetadata(conversationUnionDescriptors, conversationUnionCodecDescriptors(), result);
             validateCodecDescriptors<ConversationUnionTarget>(
                 entries, conversationUnionDescriptors, conversationUnionCodecDescriptors(), "conversation union", result);
+        }
+        if (!threadItemDescriptors.empty() || containsRuntimeTarget<ItemDiscriminatorTarget>(entries)) {
+            validateTaggedUnionDescriptorMetadata(threadItemDescriptors, threadItemCodecDescriptors(), result);
+            validateCodecDescriptors<ItemDiscriminatorTarget>(
+                entries, threadItemDescriptors, threadItemCodecDescriptors(), "ThreadItem", result);
+        }
+        if (!responseItemDescriptors.empty() || containsRuntimeTarget<ResponseItemTarget>(entries)) {
+            validateTaggedUnionDescriptorMetadata(responseItemDescriptors, responseItemCodecDescriptors(), result);
+            validateCodecDescriptors<ResponseItemTarget>(
+                entries, responseItemDescriptors, responseItemCodecDescriptors(), "ResponseItem", result);
         }
 
         return result;

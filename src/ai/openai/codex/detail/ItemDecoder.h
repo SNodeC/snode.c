@@ -10,15 +10,21 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/typed/Items.h"
-#include "ai/openai/codex/typed/Types.h"
 
 #include <optional>
 #include <string>
+
+namespace ai::openai::codex::typed {
+    struct ThreadId;
+    struct TurnId;
+} // namespace ai::openai::codex::typed
 
 namespace ai::openai::codex::detail {
 
     std::optional<typed::Item>
     decodeItem(const Json& value, std::optional<typed::ThreadId> threadId, std::optional<typed::TurnId> turnId, std::string& error);
+
+    std::optional<typed::ResponseItem> decodeResponseItem(const Json& value, std::string& error);
 
 } // namespace ai::openai::codex::detail
 

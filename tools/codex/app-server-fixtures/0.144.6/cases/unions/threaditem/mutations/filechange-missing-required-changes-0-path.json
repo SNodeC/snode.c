@@ -1,0 +1,13 @@
+{
+  "changes": [
+    {
+      "diff": "synthetic-fa70917427",
+      "kind": {
+        "type": "add"
+      }
+    }
+  ],
+  "id": "synthetic-c7ef218134",
+  "status": "inProgress",
+  "type": "fileChange"
+}

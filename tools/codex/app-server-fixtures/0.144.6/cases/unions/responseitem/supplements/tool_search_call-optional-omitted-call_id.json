@@ -1,0 +1,10 @@
+{
+  "arguments": {},
+  "execution": "synthetic-a024195969",
+  "id": "synthetic-7e03dfde32",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "status": "synthetic-9190ee00d4",
+  "type": "tool_search_call"
+}

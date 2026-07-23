@@ -209,7 +209,11 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(len(keys), 26)
 
         mutated = copy.deepcopy(assignments)
-        removed = keys[0]
+        removed = next(
+            key
+            for key in keys
+            if key.category == tool.TAGGED_UNION_DISCRIMINATOR
+        )
         mutated[removed] = {
             **mutated[removed],
             "classification": "SharedWithinSlice",
@@ -219,6 +223,62 @@ class AppServerFixtureToolTest(unittest.TestCase):
             "A1.1 SharedCommon assignment mismatch: count=25",
         ):
             tool.derive_b2_shared_common_keys(mutated)
+
+    def test_b3_item_assignment_key_set_is_exact(self) -> None:
+        assignment_document = json.loads(
+            (
+                arguments().evidence_root
+                / "module-slice-assignment.json"
+            ).read_text(encoding="utf-8")
+        )
+        assignments = {
+            tool.SurfaceKey.from_contract(record["surface_key"]): record
+            for record in assignment_document["assignments"]
+        }
+        keys = tool.derive_b3_item_keys(assignments)
+        actual_by_family: dict[str, set[str]] = {}
+        for key in keys:
+            actual_by_family.setdefault(key.domain, set()).add(key.name)
+        self.assertEqual(
+            actual_by_family,
+            {
+                domain: set(identities)
+                for domain, identities in (
+                    tool.B3_ITEM_FAMILY_IDENTITIES.items()
+                )
+            },
+        )
+        self.assertEqual(len(keys), 50)
+        self.assertEqual(
+            sum(
+                key.category == tool.ITEM_DISCRIMINATOR
+                for key in keys
+            ),
+            34,
+        )
+        self.assertEqual(
+            sum(
+                key.category == tool.TAGGED_UNION_DISCRIMINATOR
+                for key in keys
+            ),
+            16,
+        )
+
+        mutated = copy.deepcopy(assignments)
+        removed = next(
+            key
+            for key in keys
+            if key.category == tool.TAGGED_UNION_DISCRIMINATOR
+        )
+        mutated[removed] = {
+            **mutated[removed],
+            "classification": "SharedWithinSlice",
+        }
+        with self.assertRaisesRegex(
+            tool.FixtureError,
+            "A1.1 item assignment mismatch: count=49",
+        ):
+            tool.derive_b3_item_keys(mutated)
 
     def test_b2_shared_common_indexed_schema_closure_is_exact(self) -> None:
         configured = arguments()
@@ -249,6 +309,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
         records_by_id = {
             record["id"]: record for record in index["fixtures"]
         }
+
         base_ids = {
             f"union:{key.domain}:{key.name}" for key in assignment_keys
         }
@@ -262,6 +323,10 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             sum(
                 record["role"] == "union_optional_omitted"
+                and tool.SurfaceKey.from_contract(
+                    record["protocol_surface_key"]
+                )
+                in assignment_keys
                 for record in index["fixtures"]
             ),
             21,
@@ -269,6 +334,10 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             sum(
                 record["role"] == "union_nullable_null"
+                and tool.SurfaceKey.from_contract(
+                    record["protocol_surface_key"]
+                )
+                in assignment_keys
                 for record in index["fixtures"]
             ),
             12,
@@ -401,6 +470,687 @@ class AppServerFixtureToolTest(unittest.TestCase):
                 ["enum_mismatch"],
             )
 
+    def test_b3_item_indexed_schema_closure_is_exact(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        coverage = json.loads(
+            (
+                configured.evidence_root / "fixture-coverage.json"
+            ).read_text(encoding="utf-8")
+        )
+        b3 = index["a1_1_item_models"]
+        assignment_keys = {
+            tool.SurfaceKey.from_contract(value)
+            for value in b3["assignment_derived_keys"]
+        }
+        self.assertEqual(len(assignment_keys), 50)
+        self.assertEqual(
+            b3["negative_coverage"]["family_counts"],
+            tool.B3_ITEM_FAMILY_COUNTS,
+        )
+        self.assertEqual(len(b3["indexed_schema_coverage"]), 50)
+
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def fixture_value(fixture_id: str) -> object:
+            record = records_by_id[fixture_id]
+            return json.loads(
+                (
+                    configured.fixture_root / record["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        def value_at_path(value: object, path: tuple[object, ...]) -> object:
+            current = value
+            for component in path:
+                if isinstance(component, int):
+                    self.assertIsInstance(current, list)
+                    current = current[component]
+                else:
+                    self.assertIsInstance(current, dict)
+                    current = current[component]
+            return current
+
+        base_ids = {
+            f"union:{key.domain}:{key.name}" for key in assignment_keys
+        }
+        self.assertTrue(base_ids <= set(records_by_id))
+        self.assertTrue(
+            all(
+                records_by_id[fixture_id]["role"] == "union_branch"
+                for fixture_id in base_ids
+            )
+        )
+        alternatives = b3["negative_coverage"]["alternatives"]
+        expected_reachable_fixture_ids = {
+            "item_discriminator:ResponseItem:type:agent_message": {
+                "union:ResponseItem:agent_message",
+                (
+                    "union:ResponseItem:agent_message:nested:"
+                    "AgentMessageInputContent:encrypted_content:content-0"
+                ),
+            },
+            (
+                "item_discriminator:ResponseItem:"
+                "type:custom_tool_call_output"
+            ): {
+                (
+                    "union:ResponseItem:custom_tool_call_output:"
+                    "body-content-array"
+                ),
+            },
+            "item_discriminator:ResponseItem:type:function_call_output": {
+                (
+                    "union:ResponseItem:function_call_output:"
+                    "body-content-array"
+                ),
+            },
+            "item_discriminator:ResponseItem:type:local_shell_call": {
+                "union:ResponseItem:local_shell_call",
+            },
+            "item_discriminator:ResponseItem:type:message": {
+                "union:ResponseItem:message",
+                (
+                    "union:ResponseItem:message:nested:"
+                    "ContentItem:input_image:content-0"
+                ),
+                (
+                    "union:ResponseItem:message:nested:"
+                    "ContentItem:output_text:content-0"
+                ),
+            },
+            "item_discriminator:ResponseItem:type:reasoning": {
+                "union:ResponseItem:reasoning",
+                (
+                    "union:ResponseItem:reasoning:nested:"
+                    "ReasoningItemContent:text:content-0"
+                ),
+            },
+            "item_discriminator:ResponseItem:type:web_search_call": {
+                "union:ResponseItem:web_search_call",
+                (
+                    "union:ResponseItem:web_search_call:nested:"
+                    "ResponsesApiWebSearchAction:find_in_page:action"
+                ),
+                (
+                    "union:ResponseItem:web_search_call:nested:"
+                    "ResponsesApiWebSearchAction:open_page:action"
+                ),
+                (
+                    "union:ResponseItem:web_search_call:nested:"
+                    "ResponsesApiWebSearchAction:other:action"
+                ),
+            },
+            "item_discriminator:ThreadItem:type:commandExecution": {
+                "union:ThreadItem:commandExecution",
+                (
+                    "union:ThreadItem:commandExecution:nested:"
+                    "CommandAction:listFiles:commandactions-0"
+                ),
+                (
+                    "union:ThreadItem:commandExecution:nested:"
+                    "CommandAction:search:commandactions-0"
+                ),
+                (
+                    "union:ThreadItem:commandExecution:nested:"
+                    "CommandAction:unknown:commandactions-0"
+                ),
+            },
+            "item_discriminator:ThreadItem:type:dynamicToolCall": {
+                "union:ThreadItem:dynamicToolCall",
+                (
+                    "union:ThreadItem:dynamicToolCall:nested:"
+                    "DynamicToolCallOutputContentItem:"
+                    "inputImage:contentitems-0"
+                ),
+            },
+            "item_discriminator:ThreadItem:type:fileChange": {
+                "union:ThreadItem:fileChange",
+                (
+                    "union:ThreadItem:fileChange:nested:"
+                    "PatchChangeKind:delete:changes-0-kind"
+                ),
+                (
+                    "union:ThreadItem:fileChange:nested:"
+                    "PatchChangeKind:update:changes-0-kind"
+                ),
+            },
+            "item_discriminator:ThreadItem:type:userMessage": {
+                "union:ThreadItem:userMessage",
+                (
+                    "union:ThreadItem:userMessage:nested:"
+                    "UserInput:image:content-0"
+                ),
+                (
+                    "union:ThreadItem:userMessage:nested:"
+                    "UserInput:localImage:content-0"
+                ),
+                (
+                    "union:ThreadItem:userMessage:nested:"
+                    "UserInput:mention:content-0"
+                ),
+                (
+                    "union:ThreadItem:userMessage:nested:"
+                    "UserInput:skill:content-0"
+                ),
+            },
+            "item_discriminator:ThreadItem:type:webSearch": {
+                "union:ThreadItem:webSearch",
+                (
+                    "union:ThreadItem:webSearch:nested:"
+                    "WebSearchAction:findInPage:action"
+                ),
+                (
+                    "union:ThreadItem:webSearch:nested:"
+                    "WebSearchAction:openPage:action"
+                ),
+                (
+                    "union:ThreadItem:webSearch:nested:"
+                    "WebSearchAction:other:action"
+                ),
+            },
+        }
+        actual_reachable_fixture_ids = {
+            compact: set(record["reachable_union_fixture_ids"])
+            for compact, record in alternatives.items()
+            if record["reachable_union_fixture_ids"]
+        }
+        self.assertEqual(
+            actual_reachable_fixture_ids,
+            expected_reachable_fixture_ids,
+        )
+
+        nested_identity_expectations = {
+            "item_discriminator:ResponseItem:type:agent_message": (
+                (("content", 0), {"encrypted_content", "input_text"}),
+            ),
+            "item_discriminator:ResponseItem:type:local_shell_call": (
+                (("action",), {"exec"}),
+            ),
+            "item_discriminator:ResponseItem:type:message": (
+                (
+                    ("content", 0),
+                    {"input_image", "input_text", "output_text"},
+                ),
+            ),
+            "item_discriminator:ResponseItem:type:reasoning": (
+                (("content", 0), {"reasoning_text", "text"}),
+                (("summary", 0), {"summary_text"}),
+            ),
+            "item_discriminator:ResponseItem:type:web_search_call": (
+                (
+                    ("action",),
+                    {"find_in_page", "open_page", "other", "search"},
+                ),
+            ),
+            "item_discriminator:ThreadItem:type:commandExecution": (
+                (
+                    ("commandActions", 0),
+                    {"listFiles", "read", "search", "unknown"},
+                ),
+            ),
+            "item_discriminator:ThreadItem:type:dynamicToolCall": (
+                (("contentItems", 0), {"inputImage", "inputText"}),
+            ),
+            "item_discriminator:ThreadItem:type:fileChange": (
+                (("changes", 0, "kind"), {"add", "delete", "update"}),
+            ),
+            "item_discriminator:ThreadItem:type:userMessage": (
+                (
+                    ("content", 0),
+                    {"image", "localImage", "mention", "skill", "text"},
+                ),
+            ),
+            "item_discriminator:ThreadItem:type:webSearch": (
+                (
+                    ("action",),
+                    {"findInPage", "openPage", "other", "search"},
+                ),
+            ),
+        }
+        for compact, expectations in nested_identity_expectations.items():
+            fixture_ids = actual_reachable_fixture_ids[compact]
+            payloads = [
+                fixture_value(fixture_id) for fixture_id in fixture_ids
+            ]
+            for path, expected_identities in expectations:
+                self.assertEqual(
+                    {
+                        value_at_path(payload, path)["type"]
+                        for payload in payloads
+                    },
+                    expected_identities,
+                    f"{compact}:{path}",
+                )
+
+        for identity in (
+            "custom_tool_call_output",
+            "function_call_output",
+        ):
+            compact = (
+                "item_discriminator:ResponseItem:type:" f"{identity}"
+            )
+            record = alternatives[compact]
+            base = fixture_value(record["base_fixture_id"])
+            self.assertIsInstance(base["output"], str)
+            array_id = (
+                f"union:ResponseItem:{identity}:body-content-array"
+            )
+            self.assertEqual(record["helper_union_fixture_ids"], [array_id])
+            self.assertEqual(
+                record["reachable_union_fixture_ids"], [array_id]
+            )
+            array_value = fixture_value(array_id)
+            self.assertEqual(
+                [item["type"] for item in array_value["output"]],
+                ["encrypted_content", "input_image", "input_text"],
+            )
+
+        local_shell_container_mutations = {
+            (
+                "union:ResponseItem:local_shell_call:"
+                "wrong-nested-type:action-command-0"
+            ): ("action", "command", 0),
+            (
+                "union:ResponseItem:local_shell_call:"
+                "wrong-nested-type:action-env-synthetickey"
+            ): ("action", "env", "syntheticKey"),
+            (
+                "union:LocalShellAction:exec:"
+                "wrong-nested-type:command-0"
+            ): ("command", 0),
+            (
+                "union:LocalShellAction:exec:"
+                "wrong-nested-type:env-synthetickey"
+            ): ("env", "syntheticKey"),
+        }
+        self.assertTrue(
+            set(local_shell_container_mutations)
+            <= set(
+                alternatives[
+                    "item_discriminator:ResponseItem:"
+                    "type:local_shell_call"
+                ]["wrong_nested_type_fixture_ids"]
+            )
+            | set(
+                alternatives[
+                    "tagged_union_discriminator:"
+                    "LocalShellAction:type:exec"
+                ]["wrong_nested_type_fixture_ids"]
+            )
+        )
+        for fixture_id, path in local_shell_container_mutations.items():
+            record = records_by_id[fixture_id]
+            self.assertEqual(record["role"], "malformed_known_wrong_type")
+            self.assertEqual(record["negative_case"], "wrong_nested_type")
+            self.assertEqual(
+                record["expected_diagnostic_codes"], ["one_of_zero"]
+            )
+            self.assertIsNone(value_at_path(fixture_value(fixture_id), path))
+
+        coverage_by_key = {
+            tool.SurfaceKey.from_contract(
+                record["protocol_surface_key"]
+            ): record
+            for record in coverage["identity_coverage"]
+        }
+        for key in assignment_keys:
+            record = coverage_by_key[key]
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertEqual(
+                record["schema_directions_exercised"],
+                ["Decode"],
+            )
+            self.assertTrue(
+                all(record["completeness_evidence"].values()),
+                key.compact(),
+            )
+
+        negative = b3["negative_coverage"]
+        self.assertEqual(
+            negative["counts"],
+            {
+                "empty_constrained_string": 1,
+                "future_discriminator": 9,
+                "future_discriminator_generated": 7,
+                "future_discriminator_reused": 2,
+                "future_open_enum": 24,
+                "helper_union_future": 4,
+                "helper_union_positive": 24,
+                "missing_discriminator": 50,
+                "missing_required": 127,
+                "nullable_null": 111,
+                "optional_omitted": 112,
+                "required_nullable": 3,
+                "wrong_discriminator_type": 50,
+                "wrong_nested_type": 257,
+                "wrong_nested_type_generated": 255,
+                "wrong_nested_type_reused": 2,
+                "wrong_type_opaque_exclusions": 7,
+            },
+        )
+        alternatives = negative["alternatives"]
+        self.assertEqual(len(alternatives), 50)
+        self.assertEqual(
+            sum(
+                len(record["optional_omitted_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            112,
+        )
+        self.assertEqual(
+            sum(
+                len(record["nullable_null_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            111,
+        )
+        self.assertEqual(
+            sum(
+                len(record["required_nullable_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            3,
+        )
+        self.assertEqual(
+            sum(
+                len(record["missing_required_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            127,
+        )
+        self.assertEqual(
+            sum(
+                len(record["wrong_nested_type_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            257,
+        )
+        self.assertEqual(
+            sum(
+                len(record["reused_wrong_nested_type_fixture_ids"])
+                for record in alternatives.values()
+            ),
+            2,
+        )
+        self.assertEqual(
+            sum(
+                len(record["wrong_type_opaque_exclusions"])
+                for record in alternatives.values()
+            ),
+            7,
+        )
+        self.assertEqual(
+            {
+                (
+                    compact,
+                    exclusion["instance_path"],
+                    exclusion["schema_path"],
+                    exclusion["reason"],
+                )
+                for compact, record in alternatives.items()
+                for exclusion in record[
+                    "wrong_type_opaque_exclusions"
+                ]
+            },
+            {
+                (
+                    "item_discriminator:ResponseItem:"
+                    "type:tool_search_call",
+                    "$/arguments",
+                    (
+                        "#/definitions/ResponseItem/oneOf/5/"
+                        "properties/arguments"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ResponseItem:"
+                    "type:tool_search_output",
+                    "$/tools/0",
+                    (
+                        "#/definitions/ResponseItem/oneOf/9/"
+                        "properties/tools/items"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ThreadItem:"
+                    "type:dynamicToolCall",
+                    "$/arguments",
+                    (
+                        "#/definitions/ThreadItem/oneOf/8/"
+                        "properties/arguments"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ThreadItem:type:mcpToolCall",
+                    "$/arguments",
+                    (
+                        "#/definitions/ThreadItem/oneOf/7/"
+                        "properties/arguments"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ThreadItem:type:mcpToolCall",
+                    "$/result/_meta",
+                    (
+                        "#/definitions/McpToolCallResult/"
+                        "properties/_meta"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ThreadItem:type:mcpToolCall",
+                    "$/result/content/0",
+                    (
+                        "#/definitions/McpToolCallResult/"
+                        "properties/content/items"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+                (
+                    "item_discriminator:ThreadItem:type:mcpToolCall",
+                    "$/result/structuredContent",
+                    (
+                        "#/definitions/McpToolCallResult/"
+                        "properties/structuredContent"
+                    ),
+                    (
+                        "schema accepts every deterministic JSON-type "
+                        "candidate; the protocol defines this field as "
+                        "semantically arbitrary JSON"
+                    ),
+                ),
+            },
+        )
+
+        malformed_ids = {
+            fixture_id
+            for record in alternatives.values()
+            for field in (
+                "missing_required_fixture_ids",
+                "missing_discriminator_fixture_ids",
+                "wrong_nested_type_fixture_ids",
+                "wrong_discriminator_type_fixture_ids",
+            )
+            for fixture_id in record[field]
+        }
+        self.assertEqual(len(malformed_ids), 484)
+        self.assertTrue(
+            all(
+                records_by_id[fixture_id][
+                    "expected_diagnostic_codes"
+                ]
+                == ["one_of_zero"]
+                for fixture_id in malformed_ids
+            )
+        )
+
+        families = negative["families"]
+        self.assertEqual(
+            set(families), set(tool.B3_ITEM_FAMILY_IDENTITIES)
+        )
+        future_ids = {
+            record["future_discriminator_fixture_id"]
+            for record in families.values()
+        }
+        self.assertEqual(len(future_ids), 9)
+        self.assertTrue(
+            all(
+                records_by_id[fixture_id][
+                    "expected_diagnostic_codes"
+                ]
+                == ["one_of_zero"]
+                for fixture_id in future_ids
+            )
+        )
+        self.assertTrue(
+            all(
+                not record["conflicting_discriminator_fixture_ids"]
+                and record["conflicting_discriminator_exclusion"]
+                for record in families.values()
+            )
+        )
+
+        future_open_enum_ids = {
+            fixture_id
+            for record in alternatives.values()
+            for fixture_id in record["future_open_enum_fixture_ids"]
+        }
+        self.assertEqual(len(future_open_enum_ids), 24)
+        self.assertEqual(
+            sum(":empty-open-enum:" in fixture_id for fixture_id in future_open_enum_ids),
+            12,
+        )
+        self.assertEqual(
+            sum(":future-open-enum:" in fixture_id for fixture_id in future_open_enum_ids),
+            12,
+        )
+        self.assertTrue(
+            all(
+                records_by_id[fixture_id][
+                    "expected_diagnostic_codes"
+                ]
+                == ["one_of_zero"]
+                for fixture_id in future_open_enum_ids
+            )
+        )
+        helper_ids = {
+            fixture_id
+            for record in alternatives.values()
+            for fixture_id in record["helper_union_fixture_ids"]
+        }
+        helper_future_ids = {
+            fixture_id
+            for record in alternatives.values()
+            for fixture_id in record[
+                "helper_union_future_fixture_ids"
+            ]
+        }
+        self.assertEqual(
+            helper_ids,
+            {
+                (
+                    "union:ResponseItem:custom_tool_call_output:"
+                    "body-content-array"
+                ),
+                (
+                    "union:ResponseItem:function_call_output:"
+                    "body-content-array"
+                ),
+                "union:ResponseItem:message:phase-final_answer",
+                "union:ThreadItem:agentMessage:phase-final_answer",
+            },
+        )
+        self.assertEqual(len(helper_future_ids), 4)
+        self.assertEqual(
+            sum(":phase-empty-unknown" in fixture_id for fixture_id in helper_future_ids),
+            2,
+        )
+        self.assertEqual(
+            sum(":phase-future-unknown" in fixture_id for fixture_id in helper_future_ids),
+            2,
+        )
+        self.assertTrue(
+            all(
+                records_by_id[fixture_id][
+                    "expected_diagnostic_codes"
+                ]
+                == ["one_of_zero"]
+                for fixture_id in helper_future_ids
+            )
+        )
+        constrained_string_ids = {
+            fixture_id
+            for record in alternatives.values()
+            for fixture_id in record["constrained_string_fixture_ids"]
+        }
+        self.assertEqual(
+            constrained_string_ids,
+            {
+                (
+                    "union:ThreadItem:collabAgentToolCall:"
+                    "empty-constrained-string:reasoningeffort"
+                )
+            },
+        )
+        constrained = records_by_id[next(iter(constrained_string_ids))]
+        self.assertEqual(
+            constrained["role"], "malformed_known_empty_string"
+        )
+        self.assertEqual(
+            constrained["expected_diagnostic_codes"], ["one_of_zero"]
+        )
+
+        enum_coverage = negative["open_string_enums"]
+        self.assertEqual(set(enum_coverage), set(tool.B3_OPEN_STRING_ENUMS))
+        self.assertEqual(
+            sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            ),
+            39,
+        )
+        for record in enum_coverage.values():
+            future = records_by_id[record["future_value_fixture_id"]]
+            self.assertEqual(
+                future["expected_diagnostic_codes"],
+                ["enum_mismatch"],
+            )
+
     def test_committed_corpus_is_deterministic_current_and_valid(self) -> None:
         configured = arguments()
         first, first_index = tool.generated_outputs(configured)
@@ -413,28 +1163,29 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 482,
-                "positive": 352,
-                "negative": 130,
+                "total": 1324,
+                "positive": 654,
+                "negative": 670,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
                     "existing_typed_identity": 34,
                     "malformed_known": 1,
-                    "malformed_known_missing_discriminator": 23,
-                    "malformed_known_missing_required": 21,
-                    "malformed_known_wrong_discriminator_type": 23,
-                    "malformed_known_wrong_type": 42,
+                    "malformed_known_empty_string": 1,
+                    "malformed_known_missing_discriminator": 73,
+                    "malformed_known_missing_required": 148,
+                    "malformed_known_wrong_discriminator_type": 73,
+                    "malformed_known_wrong_type": 297,
                     "nested_union_failure": 3,
-                    "open_enum_known_value": 6,
+                    "open_enum_known_value": 45,
                     "server_request_params": 10,
                     "server_request_response": 10,
-                    "union_branch": 76,
-                    "union_branch_supplement": 9,
-                    "union_nullable_null": 12,
-                    "union_optional_omitted": 21,
-                    "unknown_discriminator": 10,
-                    "unknown_enum_value": 3,
+                    "union_branch": 92,
+                    "union_branch_supplement": 33,
+                    "union_nullable_null": 123,
+                    "union_optional_omitted": 133,
+                    "unknown_discriminator": 17,
+                    "unknown_enum_value": 53,
                     "unknown_method": 4,
                 },
             },
@@ -442,15 +1193,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 1373,
-                "required_locations": 1373,
-                "required_field_removals_rejected": 1373,
-                "wrong_type_mutations_rejected": 1360,
-                "wrong_type_unconstrained_exclusions": 13,
+                "selected_branch_required_locations": 2590,
+                "required_locations": 2590,
+                "required_field_removals_rejected": 2590,
+                "wrong_type_mutations_rejected": 2529,
+                "wrong_type_unconstrained_exclusions": 61,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 1126,
-                "globally_optional_locations": 1126,
-                "optional_omissions_accepted": 1126,
+                "optional_present_locations": 2257,
+                "globally_optional_locations": 2257,
+                "optional_omissions_accepted": 2257,
                 "optional_cross_fragment_exclusions": 0,
             },
         )
@@ -496,21 +1247,21 @@ class AppServerFixtureToolTest(unittest.TestCase):
         completeness = json.loads(first[completeness_path].decode("utf-8"))
         self.assertEqual(completeness["counts"]["surface_identities"], 387)
         self.assertEqual(
-            completeness["counts"]["identities_with_positive_fixtures"], 188
+            completeness["counts"]["identities_with_positive_fixtures"], 204
         )
         self.assertEqual(
             completeness["counts"]["facts_true_by_field"],
             {
-                "authoritative_root_association": 188,
-                "fixture_current": 188,
-                "independently_schema_validated": 188,
-                "nullable_semantics_exercised": 42,
-                "optional_omitted_exercised": 188,
-                "optional_present_exercised": 188,
-                "positive_fixture_coverage": 188,
-                "reachable_union_alternatives_exercised": 42,
-                "required_fields_exercised": 188,
-                "schema_properties_exercised": 42,
+                "authoritative_root_association": 204,
+                "fixture_current": 204,
+                "independently_schema_validated": 204,
+                "nullable_semantics_exercised": 92,
+                "optional_omitted_exercised": 204,
+                "optional_present_exercised": 204,
+                "positive_fixture_coverage": 204,
+                "reachable_union_alternatives_exercised": 92,
+                "required_fields_exercised": 204,
+                "schema_properties_exercised": 92,
             },
         )
         self.assertEqual(len(completeness["records"]), 387)
@@ -531,7 +1282,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
             for mutation in record["validation"]["wrong_types"]
             if mutation["exclusion"] is not None
         ]
-        self.assertEqual(len(exclusions), 13)
+        self.assertEqual(len(exclusions), 61)
         self.assertTrue(
             all(
                 mutation == {

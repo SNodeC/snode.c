@@ -1,0 +1,10 @@
+{
+  "call_id": null,
+  "id": "synthetic-5f2d8ec5b1",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "name": "synthetic-9ba139a334",
+  "output": "synthetic-c612aa66e8",
+  "type": "custom_tool_call_output"
+}

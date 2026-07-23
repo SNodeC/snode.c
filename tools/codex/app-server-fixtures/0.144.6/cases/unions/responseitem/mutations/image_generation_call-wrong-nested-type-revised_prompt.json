@@ -1,0 +1,10 @@
+{
+  "id": "synthetic-1097c400b8",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "result": "synthetic-228bfb1514",
+  "revised_prompt": false,
+  "status": "synthetic-51468b3bde",
+  "type": "image_generation_call"
+}

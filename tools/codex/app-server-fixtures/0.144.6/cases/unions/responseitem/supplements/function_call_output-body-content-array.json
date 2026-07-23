@@ -1,0 +1,23 @@
+{
+  "call_id": "synthetic-7d19e28bf2",
+  "id": "synthetic-1ff78d3b74",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "output": [
+    {
+      "encrypted_content": "synthetic-1f1478d93c",
+      "type": "encrypted_content"
+    },
+    {
+      "detail": "auto",
+      "image_url": "synthetic-d92c72ed23",
+      "type": "input_image"
+    },
+    {
+      "text": "synthetic-0cfccc505a",
+      "type": "input_text"
+    }
+  ],
+  "type": "function_call_output"
+}

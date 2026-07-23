@@ -373,17 +373,17 @@ def test_conversation_descriptor_guards(
             "private conversation-union descriptor data is stale"
         )
     if (
-        len(tool.CONVERSATION_UNION_CODECS) != 26
+        len(tool.CONVERSATION_UNION_CODECS) != 42
         or len(
             {
                 metadata[0]
                 for metadata in tool.CONVERSATION_UNION_CODECS.values()
             }
         )
-        != 26
+        != 42
     ):
         raise AssertionError(
-            "conversation-union descriptor map is not an exact 26-key/26-target bijection"
+            "conversation-union descriptor map is not an exact 42-key/42-target bijection"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -454,9 +454,16 @@ def test_conversation_descriptor_guards(
             "duplicate one private descriptor runtime target",
         )
         tool.CONVERSATION_UNION_CODECS[keys[1]] = second
-        tool.CONVERSATION_UNION_CODECS[keys[0]] = (
-            first[0],
-            first[1],
+        bidirectional_key = next(
+            key
+            for key, metadata in original_codecs.items()
+            if metadata[2]
+            == "ConversationUnionCodecDirection::Bidirectional"
+        )
+        bidirectional = original_codecs[bidirectional_key]
+        tool.CONVERSATION_UNION_CODECS[bidirectional_key] = (
+            bidirectional[0],
+            bidirectional[1],
             "ConversationUnionCodecDirection::DecodeOnly",
         )
         expect_surface_error_code(
@@ -470,6 +477,180 @@ def test_conversation_descriptor_guards(
     finally:
         tool.CONVERSATION_UNION_CODECS.clear()
         tool.CONVERSATION_UNION_CODECS.update(original_codecs)
+
+
+def test_item_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_root: Path,
+) -> None:
+    families = (
+        (
+            "ThreadItem",
+            "ItemDiscriminatorTarget",
+            "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+            18,
+            descriptor_root / "ThreadItemCodecDescriptors.inc",
+        ),
+        (
+            "ResponseItem",
+            "ResponseItemTarget",
+            "CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR",
+            16,
+            descriptor_root / "ResponseItemCodecDescriptors.inc",
+        ),
+    )
+    generated_by_domain: dict[str, str] = {}
+    for domain, target_prefix, macro, count, path in families:
+        generated = tool.generate_item_codec_descriptor_data(
+            manifest,
+            schema_root,
+            domain,
+            target_prefix,
+            macro,
+            count,
+            evidence,
+        )
+        generated_by_domain[domain] = generated
+        if generated != tool.generate_item_codec_descriptor_data(
+            manifest,
+            schema_root,
+            domain,
+            target_prefix,
+            macro,
+            count,
+            evidence,
+        ):
+            raise AssertionError(
+                f"{domain} descriptor generation is not deterministic"
+            )
+        if generated != path.read_text(encoding="utf-8"):
+            raise AssertionError(
+                f"private {domain} descriptor data is stale"
+            )
+        descriptor_lines = [
+            line
+            for line in generated.splitlines()
+            if line.startswith(macro + "(")
+        ]
+        if len(descriptor_lines) != count:
+            raise AssertionError(
+                f"{domain} descriptor artifact does not contain exactly "
+                f"{count} generated rows"
+            )
+        targets = {
+            match.group(1)
+            for line in descriptor_lines
+            if (
+                match := re.search(
+                    rf", ({re.escape(target_prefix)}::[A-Za-z0-9_]+), "
+                    r"ConversationUnionCodecShape::",
+                    line,
+                )
+            )
+        }
+        if len(targets) != count:
+            raise AssertionError(
+                f"{domain} descriptor targets are not an exact bijection"
+            )
+
+        wrong_assignment = copy.deepcopy(evidence)
+        assignment = next(
+            row
+            for row in wrong_assignment["assignments"]["assignments"]
+            if tool.surface_key(row)[0:2]
+            == ("item_discriminator", domain)
+        )
+        assignment["classification"] = "SharedWithinSlice"
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_item_codec_descriptor_data(
+                manifest,
+                schema_root,
+                domain,
+                target_prefix,
+                macro,
+                count,
+                wrong_assignment,
+            ),
+            "ItemCodecDescriptorAssignmentMismatch",
+            f"remove one exact {domain} assignment",
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-item-descriptors-"
+    ) as raw:
+        temporary = Path(raw)
+        copied_schema_root = temporary / "schema"
+        stable = copied_schema_root / "stable"
+        stable.mkdir(parents=True)
+        aggregate_name = "codex_app_server_protocol.schemas.json"
+        source_aggregate = load_json(
+            schema_root / "stable" / aggregate_name
+        )
+        for domain, target_prefix, macro, count, _ in families:
+            aggregate = copy.deepcopy(source_aggregate)
+            aggregate["definitions"]["v2"][domain]["oneOf"][0][
+                "type"
+            ] = "array"
+            write_json(stable / aggregate_name, aggregate)
+            expect_surface_error_code(
+                tool,
+                lambda: tool.generate_item_codec_descriptor_data(
+                    manifest,
+                    copied_schema_root,
+                    domain,
+                    target_prefix,
+                    macro,
+                    count,
+                    evidence,
+                ),
+                "ConversationUnionDescriptorSchemaMismatch",
+                f"change one reviewed {domain} descriptor branch shape",
+            )
+
+        for domain, _, _, _, _ in families:
+            generated = generated_by_domain[domain]
+            stale = temporary / f"{domain}CodecDescriptors.inc"
+            stale.write_text(generated + " ", encoding="utf-8")
+            expect_surface_error_code(
+                tool,
+                lambda: tool.write_or_check_item_codec_descriptors(
+                    stale, generated, True
+                ),
+                "StaleGeneratedItemCodecDescriptors",
+                f"change the checked-in {domain} descriptor artifact",
+            )
+
+    original_targets = dict(tool.RUNTIME_TARGETS)
+    try:
+        thread_keys = sorted(
+            key
+            for key in tool.RUNTIME_TARGETS
+            if key[0:2] == ("item_discriminator", "ThreadItem")
+        )
+        tool.RUNTIME_TARGETS[thread_keys[1]] = tool.RUNTIME_TARGETS[
+            thread_keys[0]
+        ]
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_item_codec_descriptor_data(
+                manifest,
+                schema_root,
+                "ThreadItem",
+                "ItemDiscriminatorTarget",
+                "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+                18,
+                evidence,
+            ),
+            "ItemCodecDescriptorAssignmentMismatch",
+            "duplicate one private ThreadItem descriptor target",
+        )
+    finally:
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
 
 
 def test_generated_artifacts(
@@ -490,6 +671,13 @@ def test_generated_artifacts(
         schema_root,
         evidence,
         registry_path.with_name("ConversationUnionCodecDescriptors.inc"),
+    )
+    test_item_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.parent,
     )
     generated_registry = tool.generate_registry_data(manifest)
     if generated_registry != registry_path.read_text(encoding="utf-8"):

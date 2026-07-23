@@ -31,6 +31,8 @@ set(AI_OPENAI_CODEX_H
     detail/CodexErrorInfoCodec.h
     detail/ConversationCodec.h
     detail/ConversationUnionCodecDescriptors.inc
+    detail/ThreadItemCodecDescriptors.inc
+    detail/ResponseItemCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h

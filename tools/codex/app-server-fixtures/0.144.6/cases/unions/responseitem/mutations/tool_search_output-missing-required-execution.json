@@ -1,0 +1,12 @@
+{
+  "call_id": "synthetic-dc36b7ee4f",
+  "id": "synthetic-46c45c8cd6",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "status": "synthetic-c260d1c15e",
+  "tools": [
+    {}
+  ],
+  "type": "tool_search_output"
+}

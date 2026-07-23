@@ -69,6 +69,14 @@ python3 tools/codex/app_server_surface.py conversation-descriptors \
   --output src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc \
   --check
 
+python3 tools/codex/app_server_surface.py item-descriptors \
+  --manifest "$SURFACE" \
+  --schema-root "$SCHEMA_ROOT" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --thread-output src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc \
+  --response-output src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc \
+  --check
+
 python3 tools/codex/app_server_surface.py docs \
   --manifest "$SURFACE" \
   --registry "$REGISTRY" \
@@ -334,6 +342,8 @@ Do not hand-edit these generated artifacts:
 - `app-server-evidence/0.144.6/a1-1-type-closure.json`;
 - `app-server-fixtures/0.144.6/`;
 - `ConversationUnionCodecDescriptors.inc`;
+- `ThreadItemCodecDescriptors.inc`;
+- `ResponseItemCodecDescriptors.inc`;
 - `ProtocolSurfaceRegistryData.inc`;
 - `docs/ai/openai/codex/app-server-api-coverage.md`; or
 - `docs/ai/openai/codex/app-server-security-decisions.md`.

@@ -10,6 +10,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/typed/Conversation.h"
+#include "ai/openai/codex/typed/Items.h"
 #include "ai/openai/codex/typed/Types.h"
 
 #include <optional>
@@ -28,9 +29,16 @@ namespace ai::openai::codex::detail {
     };
 
     ConversationDecodeResult<typed::AskForApproval> decodeAskForApproval(const Json& value) noexcept;
+    ConversationDecodeResult<typed::AgentMessageInputContent> decodeAgentMessageInputContent(const Json& value) noexcept;
     ConversationDecodeResult<typed::CommandAction> decodeCommandAction(const Json& value) noexcept;
+    ConversationDecodeResult<typed::ContentItem> decodeContentItem(const Json& value) noexcept;
     ConversationDecodeResult<typed::DynamicToolCallOutputContentItem> decodeDynamicToolCallOutputContentItem(const Json& value) noexcept;
+    ConversationDecodeResult<typed::FunctionCallOutputContentItem> decodeFunctionCallOutputContentItem(const Json& value) noexcept;
+    ConversationDecodeResult<typed::LocalShellAction> decodeLocalShellAction(const Json& value) noexcept;
     ConversationDecodeResult<typed::PatchChangeKind> decodePatchChangeKind(const Json& value) noexcept;
+    ConversationDecodeResult<typed::ReasoningItemContent> decodeReasoningItemContent(const Json& value) noexcept;
+    ConversationDecodeResult<typed::ReasoningItemReasoningSummary> decodeReasoningItemReasoningSummary(const Json& value) noexcept;
+    ConversationDecodeResult<typed::ResponsesApiWebSearchAction> decodeResponsesApiWebSearchAction(const Json& value) noexcept;
     ConversationDecodeResult<typed::SandboxPolicy> decodeSandboxPolicy(const Json& value) noexcept;
     ConversationDecodeResult<typed::UserInput> decodeUserInput(const Json& value) noexcept;
     ConversationDecodeResult<typed::WebSearchAction> decodeWebSearchAction(const Json& value) noexcept;

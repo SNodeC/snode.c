@@ -16549,7 +16549,7 @@
   "sources": {
     "app_server_surface_generator": {
       "path": "tools/codex/app_server_surface.py",
-      "sha256": "127aa87d3e3fef6f2436ef95b741943005f97dff273a54c59848cf9966b5e5e3"
+      "sha256": "81361d4242303701f7916ee7cecfb62a6012b6d2a2a6123b28cdd6ea625c777c"
     },
     "assignments": {
       "path": "tools/codex/app-server-evidence/0.144.6/module-slice-assignment.json",
@@ -16561,11 +16561,11 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "f207a04d319a235a2998c313b0ccdc921f58e03da8ab933eff595d7ae9f0f919"
+      "sha256": "b6573075207d92b5e9e2e42154cd44e6d59b8eadaabf49b2a494acecde89d8c3"
     },
     "fixture_index": {
       "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
-      "sha256": "db4a2c3b7a68de561cb96df27af6bbd13871cf74da1bf83eb9bc1fd1aeac3f3d"
+      "sha256": "74789dbf9bed1dfdf51d73fdd4e804a6312059c45ebf2a9fbfde1320c9598967"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_1.py",

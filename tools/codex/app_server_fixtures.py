@@ -229,6 +229,142 @@ B2_OPEN_STRING_ENUMS = {
     "NetworkAccess": ("restricted", "enabled"),
 }
 
+# Commit B3 owns both directionally distinct item families and the nested
+# tagged unions that are reachable only through those item roots.  Assignment
+# evidence chooses the exact keys; these family/value maps are bidirectional
+# ratchets against the vendored schema pin.
+B3_ITEM_FAMILY_IDENTITIES = {
+    "AgentMessageInputContent": (
+        "encrypted_content",
+        "input_text",
+    ),
+    "ContentItem": (
+        "input_image",
+        "input_text",
+        "output_text",
+    ),
+    "FunctionCallOutputContentItem": (
+        "encrypted_content",
+        "input_image",
+        "input_text",
+    ),
+    "LocalShellAction": ("exec",),
+    "ReasoningItemContent": (
+        "reasoning_text",
+        "text",
+    ),
+    "ReasoningItemReasoningSummary": ("summary_text",),
+    "ResponseItem": (
+        "agent_message",
+        "compaction",
+        "compaction_trigger",
+        "context_compaction",
+        "custom_tool_call",
+        "custom_tool_call_output",
+        "function_call",
+        "function_call_output",
+        "image_generation_call",
+        "local_shell_call",
+        "message",
+        "other",
+        "reasoning",
+        "tool_search_call",
+        "tool_search_output",
+        "web_search_call",
+    ),
+    "ResponsesApiWebSearchAction": (
+        "find_in_page",
+        "open_page",
+        "other",
+        "search",
+    ),
+    "ThreadItem": (
+        "agentMessage",
+        "collabAgentToolCall",
+        "commandExecution",
+        "contextCompaction",
+        "dynamicToolCall",
+        "enteredReviewMode",
+        "exitedReviewMode",
+        "fileChange",
+        "hookPrompt",
+        "imageGeneration",
+        "imageView",
+        "mcpToolCall",
+        "plan",
+        "reasoning",
+        "sleep",
+        "subAgentActivity",
+        "userMessage",
+        "webSearch",
+    ),
+}
+B3_ITEM_FAMILY_COUNTS = {
+    domain: len(identities)
+    for domain, identities in B3_ITEM_FAMILY_IDENTITIES.items()
+}
+B3_OPEN_STRING_ENUMS = {
+    "CollabAgentStatus": (
+        "pendingInit",
+        "running",
+        "interrupted",
+        "completed",
+        "errored",
+        "shutdown",
+        "notFound",
+    ),
+    "CollabAgentTool": (
+        "spawnAgent",
+        "sendInput",
+        "resumeAgent",
+        "wait",
+        "closeAgent",
+    ),
+    "CollabAgentToolCallStatus": (
+        "inProgress",
+        "completed",
+        "failed",
+    ),
+    "CommandExecutionSource": (
+        "agent",
+        "userShell",
+        "unifiedExecStartup",
+        "unifiedExecInteraction",
+    ),
+    "CommandExecutionStatus": (
+        "inProgress",
+        "completed",
+        "failed",
+        "declined",
+    ),
+    "DynamicToolCallStatus": (
+        "inProgress",
+        "completed",
+        "failed",
+    ),
+    "LocalShellStatus": (
+        "completed",
+        "in_progress",
+        "incomplete",
+    ),
+    "McpToolCallStatus": (
+        "inProgress",
+        "completed",
+        "failed",
+    ),
+    "PatchApplyStatus": (
+        "inProgress",
+        "completed",
+        "failed",
+        "declined",
+    ),
+    "SubAgentActivityKind": (
+        "started",
+        "interacted",
+        "interrupted",
+    ),
+}
+
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -474,6 +610,55 @@ def derive_b2_shared_common_keys(
             "A1.1 SharedCommon assignment mismatch: "
             f"count={len(keys)} "
             f"families={dict(sorted(family_counts.items()))}"
+        )
+    return keys
+
+
+def derive_b3_item_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[SurfaceKey, ...]:
+    keys = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.1"
+            and (
+                key.category == ITEM_DISCRIMINATOR
+                or assignment["classification"] == "RootOwnedNestedUnion"
+            )
+        )
+    )
+    family_counts: dict[str, int] = {}
+    family_identities: dict[str, set[str]] = {}
+    for key in keys:
+        if key.category not in {
+            ITEM_DISCRIMINATOR,
+            TAGGED_UNION_DISCRIMINATOR,
+        }:
+            raise FixtureError(
+                "A1.1 item batch contains a non-union identity: "
+                f"{key.compact()}"
+            )
+        if key.discriminator_field != "type":
+            raise FixtureError(
+                "A1.1 item batch contains a non-type discriminator: "
+                f"{key.compact()}"
+            )
+        family_counts[key.domain] = family_counts.get(key.domain, 0) + 1
+        family_identities.setdefault(key.domain, set()).add(key.name)
+    expected_identities = {
+        domain: set(identities)
+        for domain, identities in B3_ITEM_FAMILY_IDENTITIES.items()
+    }
+    if (
+        len(keys) != 50
+        or family_counts != B3_ITEM_FAMILY_COUNTS
+        or family_identities != expected_identities
+    ):
+        raise FixtureError(
+            "A1.1 item assignment mismatch: "
+            f"count={len(keys)} "
+            f"families={dict(sorted(family_identities.items()))}"
         )
     return keys
 
@@ -1102,6 +1287,278 @@ class RequiredLocation:
     required_owner_instance_path: tuple[str | int, ...]
     required_owner_schema: Any
     required_owner_schema_path: str
+
+
+@dataclass(frozen=True)
+class ContainerValueLocation:
+    instance_path: tuple[str | int, ...]
+    schema: Any
+    schema_path: str
+
+
+@dataclass(frozen=True)
+class ReferencedDefinitionLocation:
+    instance_path: tuple[str | int, ...]
+    definition_name: str
+    schema_path: str
+
+
+def collect_referenced_definition_locations(
+    catalog: SchemaCatalog,
+    target: SchemaTarget,
+    instance: Any,
+    definition_names: frozenset[str],
+) -> list[ReferencedDefinitionLocation]:
+    """Locate selected, exercised references by instance path.
+
+    This is deliberately instance-sensitive: for a tagged union it follows
+    only the branch selected by the root fixture.  The resulting paths let the
+    generator prove nested-union reachability through each owning root instead
+    of crediting an unrelated standalone fixture elsewhere in the corpus.
+    """
+
+    validator = catalog.target_validator(target)
+    found: dict[
+        tuple[tuple[str | int, ...], str], ReferencedDefinitionLocation
+    ] = {}
+    active: set[tuple[tuple[str | int, ...], str]] = set()
+
+    def walk(
+        value: Any,
+        schema: Any,
+        schema_path: str,
+        instance_path: tuple[str | int, ...],
+    ) -> None:
+        if isinstance(schema, bool) or not isinstance(schema, dict):
+            return
+        reference = schema.get("$ref")
+        if isinstance(reference, str):
+            match = re.fullmatch(
+                r"#/definitions/(?:(?:v2)/)?([^/]+)", reference
+            )
+            if match:
+                name = match.group(1).replace("~1", "/").replace("~0", "~")
+                if name in definition_names:
+                    key = (instance_path, name)
+                    found.setdefault(
+                        key,
+                        ReferencedDefinitionLocation(
+                            instance_path,
+                            name,
+                            pointer_child(schema_path, "$ref"),
+                        ),
+                    )
+            resolved, resolved_path = validator.resolve_reference(
+                reference, pointer_child(schema_path, "$ref")
+            )
+            marker = (instance_path, resolved_path)
+            if marker in active:
+                return
+            active.add(marker)
+            walk(value, resolved, resolved_path, instance_path)
+            active.remove(marker)
+            return
+
+        for index, child in enumerate(schema.get("allOf", [])):
+            walk(
+                value,
+                child,
+                pointer_child(pointer_child(schema_path, "allOf"), index),
+                instance_path,
+            )
+        for keyword in ("oneOf", "anyOf"):
+            branches = schema.get(keyword, [])
+            matches = [
+                (index, child)
+                for index, child in enumerate(branches)
+                if not validator.validate_subschema(
+                    value,
+                    child,
+                    pointer_child(pointer_child(schema_path, keyword), index),
+                )
+            ]
+            if keyword == "anyOf":
+                matches = matches[:1]
+            for index, child in matches:
+                walk(
+                    value,
+                    child,
+                    pointer_child(pointer_child(schema_path, keyword), index),
+                    instance_path,
+                )
+
+        if isinstance(value, dict):
+            properties = schema.get("properties", {})
+            for name, child in properties.items():
+                if name in value:
+                    walk(
+                        value[name],
+                        child,
+                        pointer_child(
+                            pointer_child(schema_path, "properties"), name
+                        ),
+                        instance_child(instance_path, name),
+                    )
+            additional = schema.get("additionalProperties", True)
+            if isinstance(additional, dict):
+                for name in sorted(set(value) - set(properties)):
+                    walk(
+                        value[name],
+                        additional,
+                        pointer_child(schema_path, "additionalProperties"),
+                        instance_child(instance_path, name),
+                    )
+        elif isinstance(value, list):
+            items = schema.get("items")
+            if isinstance(items, list):
+                for index, (child_value, child) in enumerate(zip(value, items)):
+                    walk(
+                        child_value,
+                        child,
+                        pointer_child(pointer_child(schema_path, "items"), index),
+                        instance_child(instance_path, index),
+                    )
+            elif isinstance(items, (bool, dict)):
+                for index, child_value in enumerate(value):
+                    walk(
+                        child_value,
+                        items,
+                        pointer_child(schema_path, "items"),
+                        instance_child(instance_path, index),
+                    )
+
+    walk(instance, target.schema, target.schema_path, ())
+    return [
+        found[key]
+        for key in sorted(
+            found,
+            key=lambda value: (
+                tuple(map(str, value[0])),
+                value[1],
+            ),
+        )
+    ]
+
+
+def collect_container_value_locations(
+    catalog: SchemaCatalog,
+    target: SchemaTarget,
+    instance: Any,
+) -> list[ContainerValueLocation]:
+    """Collect exercised array elements and typed map values.
+
+    Object-property mutations alone do not exercise element/value codecs.  In
+    particular, replacing an entire ``array<string>`` with a scalar never
+    reaches the decoder branch that validates ``array[0]``.  Keep these
+    locations separate from required/optional object properties so removal
+    semantics remain tied only to actual properties.
+    """
+
+    validator = catalog.target_validator(target)
+    found: dict[tuple[str | int, ...], ContainerValueLocation] = {}
+    active: set[tuple[tuple[str | int, ...], str]] = set()
+
+    def walk(
+        value: Any,
+        schema: Any,
+        schema_path: str,
+        instance_path: tuple[str | int, ...],
+    ) -> None:
+        if isinstance(schema, bool) or not isinstance(schema, dict):
+            return
+        if "$ref" in schema:
+            resolved, resolved_path = validator.resolve_reference(
+                schema["$ref"], pointer_child(schema_path, "$ref")
+            )
+            marker = (instance_path, resolved_path)
+            if marker in active:
+                return
+            active.add(marker)
+            walk(value, resolved, resolved_path, instance_path)
+            active.remove(marker)
+            return
+
+        for index, child in enumerate(schema.get("allOf", [])):
+            walk(
+                value,
+                child,
+                pointer_child(pointer_child(schema_path, "allOf"), index),
+                instance_path,
+            )
+        for keyword in ("oneOf", "anyOf"):
+            branches = schema.get(keyword, [])
+            matches = [
+                (index, child)
+                for index, child in enumerate(branches)
+                if not validator.validate_subschema(
+                    value,
+                    child,
+                    pointer_child(pointer_child(schema_path, keyword), index),
+                )
+            ]
+            if keyword == "anyOf":
+                matches = matches[:1]
+            for index, child in matches:
+                walk(
+                    value,
+                    child,
+                    pointer_child(pointer_child(schema_path, keyword), index),
+                    instance_path,
+                )
+
+        if isinstance(value, dict):
+            properties = schema.get("properties", {})
+            for name, child in properties.items():
+                if name in value:
+                    walk(
+                        value[name],
+                        child,
+                        pointer_child(
+                            pointer_child(schema_path, "properties"), name
+                        ),
+                        instance_child(instance_path, name),
+                    )
+            additional = schema.get("additionalProperties", True)
+            if isinstance(additional, dict):
+                for name in sorted(set(value) - set(properties)):
+                    path = instance_child(instance_path, name)
+                    location = ContainerValueLocation(
+                        path,
+                        additional,
+                        pointer_child(schema_path, "additionalProperties"),
+                    )
+                    found.setdefault(path, location)
+                    walk(
+                        value[name],
+                        additional,
+                        location.schema_path,
+                        path,
+                    )
+        elif isinstance(value, list):
+            items = schema.get("items")
+            if isinstance(items, list):
+                for index, (child_value, child) in enumerate(zip(value, items)):
+                    path = instance_child(instance_path, index)
+                    location = ContainerValueLocation(
+                        path,
+                        child,
+                        pointer_child(pointer_child(schema_path, "items"), index),
+                    )
+                    found.setdefault(path, location)
+                    walk(child_value, child, location.schema_path, path)
+            elif isinstance(items, (bool, dict)):
+                for index, child_value in enumerate(value):
+                    path = instance_child(instance_path, index)
+                    location = ContainerValueLocation(
+                        path,
+                        items,
+                        pointer_child(schema_path, "items"),
+                    )
+                    found.setdefault(path, location)
+                    walk(child_value, items, location.schema_path, path)
+
+    walk(instance, target.schema, target.schema_path, ())
+    return [found[path] for path in sorted(found, key=lambda item: tuple(map(str, item)))]
 
 
 def _collect_property_locations(
@@ -2409,6 +2866,9 @@ class CorpusBuilder:
         self.b2_shared_common_keys: tuple[SurfaceKey, ...] = ()
         self.b2_negative_coverage: dict[str, Any] = {}
         self.b2_indexed_coverage: dict[str, Any] = {}
+        self.b3_item_keys: tuple[SurfaceKey, ...] = ()
+        self.b3_negative_coverage: dict[str, Any] = {}
+        self.b3_indexed_coverage: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
 
@@ -2560,11 +3020,13 @@ class CorpusBuilder:
         self.b2_shared_common_keys = derive_b2_shared_common_keys(
             self.assignments
         )
+        self.b3_item_keys = derive_b3_item_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_baseline_fixtures()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
+        self._build_b3_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -2622,6 +3084,7 @@ class CorpusBuilder:
         self._apply_b2_indexed_completeness(
             positive_records, positive_fixture_ids
         )
+        self._apply_b3_indexed_completeness(positive_records)
         mutation_counts = {
             "selected_branch_required_locations": sum(
                 record["validation"]["selected_branch_required_locations"]
@@ -2718,6 +3181,13 @@ class CorpusBuilder:
                 "indexed_schema_coverage": self.b2_indexed_coverage,
                 "negative_coverage": self.b2_negative_coverage,
             },
+            "a1_1_item_models": {
+                "assignment_derived_keys": [
+                    key.to_json() for key in self.b3_item_keys
+                ],
+                "indexed_schema_coverage": self.b3_indexed_coverage,
+                "negative_coverage": self.b3_negative_coverage,
+            },
             "fixtures": self.records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -2772,6 +3242,21 @@ class CorpusBuilder:
                 if is_b2_shared_common
                 else {}
             )
+            is_b3_item = key in self.b3_item_keys
+            b3_schema_facts = (
+                self.b3_indexed_coverage.get(key.compact(), {}).get(
+                    "schema_fixture_facts", {}
+                )
+                if is_b3_item
+                else {}
+            )
+            indexed_coverage = (
+                self.b2_indexed_coverage.get(key.compact(), {})
+                if is_b2_shared_common
+                else self.b3_indexed_coverage.get(key.compact(), {})
+                if is_b3_item
+                else {}
+            )
             coverage_records.append(
                 {
                     "protocol_surface_key": key.to_json(),
@@ -2792,14 +3277,12 @@ class CorpusBuilder:
                         for record in records
                     ),
                     "schema_directions_exercised": (
-                        self.b2_indexed_coverage.get(
-                            key.compact(), {}
-                        ).get("directions_exercised", [])
+                        indexed_coverage.get("directions_exercised", [])
                     ),
                     "schema_direction_coverage": bool(
-                        self.b2_indexed_coverage.get(
-                            key.compact(), {}
-                        ).get("schema_direction_coverage", False)
+                        indexed_coverage.get(
+                            "schema_direction_coverage", False
+                        )
                     ),
                     "completeness_evidence": {
                         "authoritative_root_association": bool(records),
@@ -2809,6 +3292,11 @@ class CorpusBuilder:
                             codex_properties_exercised
                             or bool(
                                 b2_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
+                            or bool(
+                                b3_schema_facts.get(
                                     "schema_properties_exercised", False
                                 )
                             )
@@ -2834,6 +3322,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                b3_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -2842,6 +3335,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 b2_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                b3_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -2897,6 +3396,13 @@ class CorpusBuilder:
                 ],
                 "indexed_schema_coverage": self.b2_indexed_coverage,
                 "negative_coverage": self.b2_negative_coverage,
+            },
+            "a1_1_item_models": {
+                "assignment_derived_keys": [
+                    key.to_json() for key in self.b3_item_keys
+                ],
+                "indexed_schema_coverage": self.b3_indexed_coverage,
+                "negative_coverage": self.b3_negative_coverage,
             },
             "fixtures": [
                 record
@@ -3060,6 +3566,195 @@ class CorpusBuilder:
             }
         self.b2_indexed_coverage = dict(sorted(indexed_coverage.items()))
 
+    def _apply_b3_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+    ) -> None:
+        records_by_key: dict[
+            SurfaceKey, list[MutableMapping[str, Any]]
+        ] = {}
+        for record in positive_records:
+            key_record = record.get("protocol_surface_key")
+            if isinstance(key_record, dict):
+                records_by_key.setdefault(
+                    SurfaceKey.from_contract(key_record), []
+                ).append(record)
+
+        alternative_evidence = self.b3_negative_coverage.get("alternatives")
+        if not isinstance(alternative_evidence, dict):
+            raise FixtureError(
+                "B3 root-specific reachability evidence is unavailable"
+            )
+        indexed_coverage: dict[str, Any] = {}
+        property_count = 0
+        optional_count = 0
+        nullable_count = 0
+
+        for key in self.b3_item_keys:
+            records = records_by_key.get(key, [])
+            base_id = f"union:{key.domain}:{key.name}"
+            base_records = [
+                record for record in records if record["id"] == base_id
+            ]
+            if len(base_records) != 1:
+                raise FixtureError(
+                    f"B3 identity lacks exactly one base fixture: {key.compact()}"
+                )
+            base_coverage = base_records[0].get("schema_fixture_coverage")
+            if not isinstance(base_coverage, dict):
+                raise FixtureError(
+                    f"B3 base fixture lacks indexed schema coverage: {key.compact()}"
+                )
+            expected_properties = set(
+                base_coverage["property_schema_paths_present"]
+            )
+            expected_optional = set(
+                base_coverage[
+                    "optional_property_schema_paths_present"
+                ]
+            )
+            expected_nullable = set(
+                base_coverage["nullable_property_schema_paths"]
+            )
+            property_count += len(expected_properties)
+            optional_count += len(expected_optional)
+            nullable_count += len(expected_nullable)
+
+            schema_records = [
+                record
+                for record in records
+                if isinstance(record.get("schema_fixture_coverage"), dict)
+            ]
+            present = {
+                path
+                for record in schema_records
+                for path in record["schema_fixture_coverage"][
+                    "property_schema_paths_present"
+                ]
+            }
+            optional_present = {
+                path
+                for record in schema_records
+                for path in record["schema_fixture_coverage"][
+                    "optional_property_schema_paths_present"
+                ]
+            }
+            optional_omitted = {
+                path
+                for record in schema_records
+                for path in record["schema_fixture_coverage"][
+                    "optional_property_schema_paths_omitted"
+                ]
+            }
+            nullable_value = {
+                path
+                for record in schema_records
+                for path in record["schema_fixture_coverage"][
+                    "nullable_value_schema_paths"
+                ]
+            }
+            nullable_null = {
+                path
+                for record in schema_records
+                for path in record["schema_fixture_coverage"][
+                    "nullable_null_schema_paths"
+                ]
+            }
+            directions = {
+                direction
+                for record in schema_records
+                for direction in record["schema_fixture_coverage"][
+                    "directions_exercised"
+                ]
+            }
+            optional_nullable = expected_nullable & expected_optional
+            per_root_evidence = alternative_evidence.get(key.compact())
+            if not isinstance(per_root_evidence, dict):
+                raise FixtureError(
+                    "B3 root lacks exact nested reachability evidence: "
+                    f"{key.compact()}"
+                )
+            required_reachable_ids = set(
+                per_root_evidence.get(
+                    "reachable_union_fixture_ids", ()
+                )
+            )
+            required_helper_ids = set(
+                per_root_evidence.get("helper_union_fixture_ids", ())
+            )
+            root_positive_fixture_ids = {
+                str(record["id"]) for record in records
+            }
+            facts = {
+                "schema_properties_exercised": (
+                    expected_properties <= present
+                    and required_helper_ids <= root_positive_fixture_ids
+                ),
+                "optional_present_exercised": (
+                    expected_optional <= optional_present
+                ),
+                "optional_omitted_exercised": (
+                    expected_optional <= optional_omitted
+                ),
+                "nullable_semantics_exercised": (
+                    expected_nullable <= nullable_value
+                    and expected_nullable <= nullable_null
+                    and optional_nullable <= optional_omitted
+                ),
+                "reachable_union_alternatives_exercised": (
+                    required_reachable_ids <= root_positive_fixture_ids
+                ),
+            }
+            required_directions = {"Decode"}
+            direction_coverage = required_directions <= directions
+            if not all(facts.values()) or not direction_coverage:
+                raise FixtureError(
+                    "B3 indexed fixture completeness is incomplete for "
+                    f"{key.compact()}: facts={facts} "
+                    f"directions={sorted(directions)}"
+                )
+            for record in records:
+                record["completeness_evidence"].update(facts)
+            indexed_coverage[key.compact()] = {
+                "base_fixture_id": base_id,
+                "property_schema_paths": sorted(expected_properties),
+                "optional_property_schema_paths": sorted(
+                    expected_optional
+                ),
+                "nullable_property_schema_paths": sorted(
+                    expected_nullable
+                ),
+                "required_nullable_property_schema_paths": sorted(
+                    expected_nullable - expected_optional
+                ),
+                "optional_nullable_property_schema_paths": sorted(
+                    optional_nullable
+                ),
+                "required_directions": sorted(required_directions),
+                "reachable_union_fixture_ids": sorted(
+                    required_reachable_ids
+                ),
+                "helper_union_fixture_ids": sorted(required_helper_ids),
+                "directions_exercised": sorted(directions),
+                "schema_direction_coverage": direction_coverage,
+                "schema_fixture_facts": facts,
+            }
+
+        if (
+            len(indexed_coverage) != 50
+            or property_count != 289
+            or optional_count != 112
+            or nullable_count != 111
+        ):
+            raise FixtureError(
+                "B3 indexed schema-path accounting changed: "
+                f"identities={len(indexed_coverage)} "
+                f"properties={property_count} "
+                f"optional={optional_count} "
+                f"nullable={nullable_count}"
+            )
+        self.b3_indexed_coverage = dict(sorted(indexed_coverage.items()))
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -3182,11 +3877,15 @@ class CorpusBuilder:
         b2_domains = tuple(
             sorted({key.domain for key in self.b2_shared_common_keys})
         )
+        b3_domains = tuple(sorted({key.domain for key in self.b3_item_keys}))
         for domain in (
             "CodexErrorInfo",
-            "ResponseItem",
-            "ThreadItem",
             *b2_domains,
+            *(
+                candidate
+                for candidate in b3_domains
+                if candidate not in b2_domains
+            ),
         ):
             target = self.catalog.union_target(domain)
             if domain in b2_domains:
@@ -3194,6 +3893,15 @@ class CorpusBuilder:
                     (
                         key
                         for key in self.b2_shared_common_keys
+                        if key.domain == domain
+                    ),
+                    key=lambda key: key.name,
+                )
+            elif domain in b3_domains:
+                identities = sorted(
+                    (
+                        key
+                        for key in self.b3_item_keys
                         if key.domain == domain
                     ),
                     key=lambda key: key.name,
@@ -3254,12 +3962,17 @@ class CorpusBuilder:
                     value,
                     key,
                     intended,
-                    directions_exercised=B2_SHARED_COMMON_DIRECTIONS.get(
-                        domain, ()
+                    directions_exercised=(
+                        B2_SHARED_COMMON_DIRECTIONS[domain]
+                        if domain in B2_SHARED_COMMON_DIRECTIONS
+                        else ("Decode",)
+                        if domain in b3_domains
+                        else ()
                     ),
                 )
 
         self._build_b2_union_supplements(known_union_values)
+        self._build_b3_union_supplements(known_union_values)
 
         target = codex_error_target
         for name in CODEX_ERROR_INFO_HTTP_IDENTITIES:
@@ -3819,6 +4532,831 @@ class CorpusBuilder:
             "families": dict(sorted(family_coverage.items())),
         }
 
+    def _build_b3_union_supplements(
+        self,
+        known_union_values: Mapping[
+            tuple[str, str], tuple[SchemaTarget, Any]
+        ],
+    ) -> None:
+        alternative_coverage: dict[str, Any] = {}
+        family_coverage: dict[str, Any] = {}
+        open_enum_names = set(B2_OPEN_STRING_ENUMS) | set(
+            B3_OPEN_STRING_ENUMS
+        )
+        reused_wrong_type_fixtures = {
+            ("ThreadItem", "agentMessage", "$/id"): (
+                "union:ThreadItem:nested-wrong-type"
+            ),
+            ("ResponseItem", "agent_message", "$/content"): (
+                "union:ResponseItem:nested-wrong-type"
+            ),
+        }
+        reused_future_fixtures = {
+            "ThreadItem": "union:ThreadItem:future-unknown",
+            "ResponseItem": "union:ResponseItem:future-unknown",
+        }
+        counts: dict[str, int] = {
+            "optional_omitted": 0,
+            "nullable_null": 0,
+            "required_nullable": 0,
+            "missing_required": 0,
+            "missing_discriminator": 0,
+            "wrong_discriminator_type": 0,
+            "wrong_nested_type": 0,
+            "wrong_nested_type_generated": 0,
+            "wrong_nested_type_reused": 0,
+            "wrong_type_opaque_exclusions": 0,
+            "future_discriminator": 0,
+            "future_discriminator_generated": 0,
+            "future_discriminator_reused": 0,
+            "future_open_enum": 0,
+            "empty_constrained_string": 0,
+            "helper_union_positive": 0,
+            "helper_union_future": 0,
+        }
+        registered_nested_families = frozenset(
+            (
+                set(B2_SHARED_COMMON_FAMILY_COUNTS)
+                | set(B3_ITEM_FAMILY_COUNTS)
+            )
+            - {"ThreadItem", "ResponseItem"}
+        )
+        referenced_definition_names = (
+            registered_nested_families | {"FunctionCallOutputBody"}
+        )
+        b2_family_identities: dict[str, tuple[str, ...]] = {
+            domain: tuple(
+                sorted(
+                    key.name
+                    for key in self.b2_shared_common_keys
+                    if key.domain == domain
+                )
+            )
+            for domain in B2_SHARED_COMMON_FAMILY_COUNTS
+        }
+        if {
+            domain: len(names)
+            for domain, names in b2_family_identities.items()
+        } != B2_SHARED_COMMON_FAMILY_COUNTS:
+            raise FixtureError(
+                "B3 nested reachability cannot derive the exact B2 families"
+            )
+
+        for key in self.b3_item_keys:
+            target, base_value = known_union_values[(key.domain, key.name)]
+            index, _, _, _ = branch_for_union_identity(
+                self.catalog,
+                target,
+                key.discriminator_field,
+                key.name,
+            )
+            intended = (index,) if "oneOf" in target.schema else ()
+            directions = ("Decode",)
+            validator = self.catalog.target_validator(target)
+            required_locations = collect_required_locations(
+                self.catalog, target, base_value
+            )
+            optional_locations = collect_optional_present_locations(
+                self.catalog, target, base_value
+            )
+            discriminator_locations = [
+                location
+                for location in required_locations
+                if location.instance_path == ("type",)
+            ]
+            if len(discriminator_locations) != 1:
+                raise FixtureError(
+                    "B3 alternative lacks exactly one type discriminator: "
+                    f"{key.compact()}"
+                )
+            payload_required_locations = [
+                location
+                for location in required_locations
+                if location.instance_path != ("type",)
+            ]
+
+            optional_fixture_ids: list[str] = []
+            nullable_null_fixture_ids: list[str] = []
+            required_nullable_fixture_ids: list[str] = []
+            missing_required_fixture_ids: list[str] = []
+            wrong_nested_type_fixture_ids: list[str] = []
+            wrong_nested_type_reused_fixture_ids: list[str] = []
+            wrong_type_opaque_exclusions: list[dict[str, str]] = []
+            future_open_enum_fixture_ids: list[str] = []
+            helper_union_fixture_ids: list[str] = []
+            helper_union_future_fixture_ids: list[str] = []
+            reachable_union_fixture_ids: list[str] = []
+            constrained_string_fixture_ids: list[str] = []
+
+            for location in optional_locations:
+                path_name = json_path(location.instance_path)
+                path_slug = slug(path_name)
+                omitted = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    omitted, location.instance_path
+                )
+                if not isinstance(parent, dict) or not isinstance(field, str):
+                    raise FixtureError(
+                        "B3 optional property is not an object field: "
+                        f"{key.compact()}:{path_name}"
+                    )
+                parent.pop(field)
+                if validator.validate_subschema(
+                    omitted, target.schema, target.schema_path
+                ):
+                    raise FixtureError(
+                        "B3 optional omission was rejected by the full schema: "
+                        f"{key.compact()}:{path_name}"
+                    )
+                fixture_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"optional-omitted:{path_slug}"
+                )
+                self.add_positive(
+                    fixture_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/supplements/"
+                        f"{slug(key.name)}-optional-omitted-{path_slug}.json"
+                    ),
+                    "union_optional_omitted",
+                    target,
+                    omitted,
+                    key,
+                    intended,
+                    omitted_schema_paths=(location.schema_path,),
+                    directions_exercised=directions,
+                )
+                optional_fixture_ids.append(fixture_id)
+                counts["optional_omitted"] += 1
+
+            for requiredness, locations in (
+                ("required", required_locations),
+                ("optional", optional_locations),
+            ):
+                for location in locations:
+                    if validator.validate_subschema(
+                        None, location.schema, location.schema_path
+                    ):
+                        continue
+                    path_name = json_path(location.instance_path)
+                    path_slug = slug(path_name)
+                    if (
+                        get_instance_path(
+                            base_value, location.instance_path
+                        )
+                        is None
+                    ):
+                        raise FixtureError(
+                            "B3 base fixture must exercise a non-null "
+                            f"nullable value: {key.compact()}:{path_name}"
+                        )
+                    null_value = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        null_value, location.instance_path
+                    )
+                    parent[field] = None
+                    if validator.validate_subschema(
+                        null_value, target.schema, target.schema_path
+                    ):
+                        raise FixtureError(
+                            "B3 nullable-null mutation was rejected: "
+                            f"{key.compact()}:{path_name}"
+                        )
+                    fixture_id = (
+                        f"union:{key.domain}:{key.name}:"
+                        f"nullable-null:{path_slug}"
+                    )
+                    self.add_positive(
+                        fixture_id,
+                        (
+                            f"cases/unions/{slug(key.domain)}/supplements/"
+                            f"{slug(key.name)}-nullable-null-{path_slug}.json"
+                        ),
+                        "union_nullable_null",
+                        target,
+                        null_value,
+                        key,
+                        intended,
+                        directions_exercised=directions,
+                    )
+                    nullable_null_fixture_ids.append(fixture_id)
+                    counts["nullable_null"] += 1
+                    if requiredness == "required":
+                        required_nullable_fixture_ids.append(fixture_id)
+                        counts["required_nullable"] += 1
+
+            discriminator = discriminator_locations[0]
+            missing_discriminator = copy.deepcopy(base_value)
+            parent, field = get_parent_path(
+                missing_discriminator, discriminator.instance_path
+            )
+            parent.pop(field)
+            missing_discriminator_id = (
+                f"union:{key.domain}:{key.name}:missing-discriminator"
+            )
+            self.add_negative(
+                missing_discriminator_id,
+                (
+                    f"cases/unions/{slug(key.domain)}/mutations/"
+                    f"{slug(key.name)}-missing-discriminator.json"
+                ),
+                "malformed_known_missing_discriminator",
+                target,
+                missing_discriminator,
+                ["one_of_zero"],
+                key,
+                "missing_discriminator",
+            )
+            counts["missing_discriminator"] += 1
+
+            wrong_discriminator = copy.deepcopy(base_value)
+            parent, field = get_parent_path(
+                wrong_discriminator, discriminator.instance_path
+            )
+            parent[field] = None
+            wrong_discriminator_id = (
+                f"union:{key.domain}:{key.name}:"
+                "wrong-discriminator-type"
+            )
+            self.add_negative(
+                wrong_discriminator_id,
+                (
+                    f"cases/unions/{slug(key.domain)}/mutations/"
+                    f"{slug(key.name)}-wrong-discriminator-type.json"
+                ),
+                "malformed_known_wrong_discriminator_type",
+                target,
+                wrong_discriminator,
+                ["one_of_zero"],
+                key,
+                "wrong_discriminator_type",
+            )
+            counts["wrong_discriminator_type"] += 1
+
+            for location in payload_required_locations:
+                path_name = json_path(location.instance_path)
+                path_slug = slug(path_name)
+                missing = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    missing, location.instance_path
+                )
+                if not isinstance(parent, dict) or not isinstance(field, str):
+                    raise FixtureError(
+                        "B3 required property is not an object field: "
+                        f"{key.compact()}:{path_name}"
+                    )
+                parent.pop(field)
+                fixture_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"missing-required:{path_slug}"
+                )
+                self.add_negative(
+                    fixture_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-missing-required-{path_slug}.json"
+                    ),
+                    "malformed_known_missing_required",
+                    target,
+                    missing,
+                    ["one_of_zero"],
+                    key,
+                    "missing_required",
+                )
+                missing_required_fixture_ids.append(fixture_id)
+                counts["missing_required"] += 1
+
+            payload_locations = {
+                location.instance_path: location
+                for location in (
+                    *payload_required_locations,
+                    *optional_locations,
+                    *collect_container_value_locations(
+                        self.catalog, target, base_value
+                    ),
+                )
+            }
+            for location in (
+                payload_locations[path]
+                for path in sorted(
+                    payload_locations,
+                    key=lambda value: tuple(map(str, value)),
+                )
+            ):
+                path_name = json_path(location.instance_path)
+                path_slug = slug(path_name)
+                original = get_instance_path(
+                    base_value, location.instance_path
+                )
+                wrong_value: Any = NO_WRONG_TYPE_MUTATION
+                for candidate in WRONG_TYPE_CANDIDATES:
+                    if canonical_json(candidate) == canonical_json(original):
+                        continue
+                    mutated = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        mutated, location.instance_path
+                    )
+                    parent[field] = copy.deepcopy(candidate)
+                    if validator.validate_subschema(
+                        mutated, target.schema, target.schema_path
+                    ):
+                        wrong_value = mutated
+                        break
+                if wrong_value is NO_WRONG_TYPE_MUTATION:
+                    wrong_type_opaque_exclusions.append(
+                        {
+                            "instance_path": path_name,
+                            "schema_path": location.schema_path,
+                            "reason": (
+                                "schema accepts every deterministic JSON-type "
+                                "candidate; the protocol defines this field "
+                                "as semantically arbitrary JSON"
+                            ),
+                        }
+                    )
+                    counts["wrong_type_opaque_exclusions"] += 1
+                    continue
+
+                reused_id = reused_wrong_type_fixtures.get(
+                    (key.domain, key.name, path_name)
+                )
+                if reused_id is not None:
+                    wrong_nested_type_fixture_ids.append(reused_id)
+                    wrong_nested_type_reused_fixture_ids.append(reused_id)
+                    counts["wrong_nested_type"] += 1
+                    counts["wrong_nested_type_reused"] += 1
+                    continue
+
+                fixture_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"wrong-nested-type:{path_slug}"
+                )
+                self.add_negative(
+                    fixture_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-wrong-nested-type-{path_slug}.json"
+                    ),
+                    "malformed_known_wrong_type",
+                    target,
+                    wrong_value,
+                    ["one_of_zero"],
+                    key,
+                    "wrong_nested_type",
+                )
+                wrong_nested_type_fixture_ids.append(fixture_id)
+                counts["wrong_nested_type"] += 1
+                counts["wrong_nested_type_generated"] += 1
+
+            for location in (*required_locations, *optional_locations):
+                referenced_enums = sorted(
+                    {
+                        identity.name
+                        for identity in schema_references(location.schema)
+                    }
+                    & open_enum_names
+                )
+                for enum_name in referenced_enums:
+                    path_name = json_path(location.instance_path)
+                    path_slug = slug(path_name)
+                    future_value = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        future_value, location.instance_path
+                    )
+                    parent[field] = f"future{enum_name}Value"
+                    diagnostics = validator.validate_subschema(
+                        future_value, target.schema, target.schema_path
+                    )
+                    codes = sorted({item.code for item in diagnostics})
+                    if codes != ["one_of_zero"]:
+                        raise FixtureError(
+                            "B3 future open-enum mutation diagnostic changed: "
+                            f"{key.compact()}:{path_name}:{codes}"
+                        )
+                    fixture_id = (
+                        f"union:{key.domain}:{key.name}:"
+                        f"future-open-enum:{slug(enum_name)}:{path_slug}"
+                    )
+                    self.add_negative(
+                        fixture_id,
+                        (
+                            f"cases/unions/{slug(key.domain)}/mutations/"
+                            f"{slug(key.name)}-future-open-enum-"
+                            f"{slug(enum_name)}-{path_slug}.json"
+                        ),
+                        "unknown_enum_value",
+                        target,
+                        future_value,
+                        ["one_of_zero"],
+                        key,
+                        "future_open_enum_value",
+                    )
+                    future_open_enum_fixture_ids.append(fixture_id)
+                    counts["future_open_enum"] += 1
+
+                    empty_value = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        empty_value, location.instance_path
+                    )
+                    parent[field] = ""
+                    empty_codes = sorted(
+                        {
+                            item.code
+                            for item in validator.validate_subschema(
+                                empty_value,
+                                target.schema,
+                                target.schema_path,
+                            )
+                        }
+                    )
+                    if empty_codes != ["one_of_zero"]:
+                        raise FixtureError(
+                            "B3 empty open-enum mutation diagnostic changed: "
+                            f"{key.compact()}:{path_name}:{empty_codes}"
+                        )
+                    empty_id = (
+                        f"union:{key.domain}:{key.name}:"
+                        f"empty-open-enum:{slug(enum_name)}:{path_slug}"
+                    )
+                    self.add_negative(
+                        empty_id,
+                        (
+                            f"cases/unions/{slug(key.domain)}/mutations/"
+                            f"{slug(key.name)}-empty-open-enum-"
+                            f"{slug(enum_name)}-{path_slug}.json"
+                        ),
+                        "unknown_enum_value",
+                        target,
+                        empty_value,
+                        ["one_of_zero"],
+                        key,
+                        "empty_open_enum_value",
+                    )
+                    future_open_enum_fixture_ids.append(empty_id)
+                    counts["future_open_enum"] += 1
+
+            referenced_locations = collect_referenced_definition_locations(
+                self.catalog,
+                target,
+                base_value,
+                frozenset(referenced_definition_names),
+            )
+            for location in referenced_locations:
+                if location.definition_name == "FunctionCallOutputBody":
+                    continue
+                identities = (
+                    b2_family_identities.get(
+                        location.definition_name
+                    )
+                    or B3_ITEM_FAMILY_IDENTITIES.get(
+                        location.definition_name
+                    )
+                )
+                if identities is None:
+                    raise FixtureError(
+                        "B3 root reaches an unreviewed registered union family: "
+                        f"{key.compact()}:{location.definition_name}"
+                    )
+                for identity_name in identities:
+                    nested_value = copy.deepcopy(
+                        known_union_values[
+                            (location.definition_name, identity_name)
+                        ][1]
+                    )
+                    if canonical_json(
+                        get_instance_path(
+                            base_value, location.instance_path
+                        )
+                    ) == canonical_json(nested_value):
+                        reachable_union_fixture_ids.append(
+                            f"union:{key.domain}:{key.name}"
+                        )
+                        continue
+                    nested_root = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        nested_root, location.instance_path
+                    )
+                    parent[field] = nested_value
+                    fixture_id = (
+                        f"union:{key.domain}:{key.name}:nested:"
+                        f"{location.definition_name}:{identity_name}:"
+                        f"{slug(json_path(location.instance_path))}"
+                    )
+                    self.add_positive(
+                        fixture_id,
+                        (
+                            f"cases/unions/{slug(key.domain)}/supplements/"
+                            f"{slug(key.name)}-nested-"
+                            f"{slug(location.definition_name)}-"
+                            f"{slug(identity_name)}-"
+                            f"{slug(json_path(location.instance_path))}.json"
+                        ),
+                        "union_branch_supplement",
+                        target,
+                        nested_root,
+                        key,
+                        intended,
+                        directions_exercised=directions,
+                    )
+                    reachable_union_fixture_ids.append(fixture_id)
+                    counts["helper_union_positive"] += 1
+
+            if (
+                key.domain,
+                key.name,
+            ) in {
+                ("ThreadItem", "agentMessage"),
+                ("ResponseItem", "message"),
+            }:
+                final_phase = copy.deepcopy(base_value)
+                if (
+                    not isinstance(final_phase, dict)
+                    or final_phase.get("phase") != "commentary"
+                ):
+                    raise FixtureError(
+                        "B3 MessagePhase base fixture no longer selects "
+                        f"commentary: {key.compact()}"
+                    )
+                final_phase["phase"] = "final_answer"
+                final_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    "phase-final_answer"
+                )
+                self.add_positive(
+                    final_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/supplements/"
+                        f"{slug(key.name)}-phase-final_answer.json"
+                    ),
+                    "union_branch_supplement",
+                    target,
+                    final_phase,
+                    key,
+                    intended,
+                    directions_exercised=directions,
+                )
+                helper_union_fixture_ids.append(final_id)
+                counts["helper_union_positive"] += 1
+
+                future_phase = copy.deepcopy(base_value)
+                future_phase["phase"] = "futureMessagePhase"
+                future_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    "phase-future-unknown"
+                )
+                self.add_negative(
+                    future_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-phase-future-unknown.json"
+                    ),
+                    "unknown_enum_value",
+                    target,
+                    future_phase,
+                    ["one_of_zero"],
+                    key,
+                    "future_unregistered_string_union_value",
+                )
+                helper_union_future_fixture_ids.append(future_id)
+                counts["helper_union_future"] += 1
+
+                empty_phase = copy.deepcopy(base_value)
+                empty_phase["phase"] = ""
+                empty_phase_id = (
+                    f"union:{key.domain}:{key.name}:phase-empty-unknown"
+                )
+                self.add_negative(
+                    empty_phase_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-phase-empty-unknown.json"
+                    ),
+                    "unknown_enum_value",
+                    target,
+                    empty_phase,
+                    ["one_of_zero"],
+                    key,
+                    "empty_unregistered_string_union_value",
+                )
+                helper_union_future_fixture_ids.append(empty_phase_id)
+                counts["helper_union_future"] += 1
+
+            if (
+                key.domain == "ThreadItem"
+                and key.name == "collabAgentToolCall"
+            ):
+                empty_effort = copy.deepcopy(base_value)
+                if not isinstance(
+                    empty_effort.get("reasoningEffort"), str
+                ):
+                    raise FixtureError(
+                        "B3 collabAgentToolCall base no longer exercises "
+                        "ReasoningEffort"
+                    )
+                empty_effort["reasoningEffort"] = ""
+                empty_effort_id = (
+                    "union:ThreadItem:collabAgentToolCall:"
+                    "empty-constrained-string:reasoningeffort"
+                )
+                self.add_negative(
+                    empty_effort_id,
+                    (
+                        "cases/unions/threaditem/mutations/"
+                        "collabagenttoolcall-empty-constrained-string-"
+                        "reasoningeffort.json"
+                    ),
+                    "malformed_known_empty_string",
+                    target,
+                    empty_effort,
+                    ["one_of_zero"],
+                    key,
+                    "empty_constrained_string",
+                )
+                constrained_string_fixture_ids.append(empty_effort_id)
+                counts["empty_constrained_string"] += 1
+
+            if key.domain == "ResponseItem" and key.name in {
+                "custom_tool_call_output",
+                "function_call_output",
+            }:
+                content_values = [
+                    copy.deepcopy(
+                        known_union_values[
+                            ("FunctionCallOutputContentItem", identity_name)
+                        ][1]
+                    )
+                    for identity_name in B3_ITEM_FAMILY_IDENTITIES[
+                        "FunctionCallOutputContentItem"
+                    ]
+                ]
+                array_body = copy.deepcopy(base_value)
+                if (
+                    not isinstance(array_body, dict)
+                    or not isinstance(array_body.get("output"), str)
+                ):
+                    raise FixtureError(
+                        "B3 FunctionCallOutputBody base fixture no longer "
+                        "selects its string branch"
+                    )
+                array_body["output"] = content_values
+                array_id = (
+                    f"union:ResponseItem:{key.name}:"
+                    "body-content-array"
+                )
+                self.add_positive(
+                    array_id,
+                    (
+                        "cases/unions/responseitem/supplements/"
+                        f"{key.name}-body-content-array.json"
+                    ),
+                    "union_branch_supplement",
+                    target,
+                    array_body,
+                    key,
+                    intended,
+                    directions_exercised=directions,
+                )
+                helper_union_fixture_ids.append(array_id)
+                reachable_union_fixture_ids.append(array_id)
+                counts["helper_union_positive"] += 1
+
+            alternative_coverage[key.compact()] = {
+                "base_fixture_id": f"union:{key.domain}:{key.name}",
+                "optional_omitted_fixture_ids": sorted(
+                    optional_fixture_ids
+                ),
+                "nullable_null_fixture_ids": sorted(
+                    nullable_null_fixture_ids
+                ),
+                "required_nullable_fixture_ids": sorted(
+                    required_nullable_fixture_ids
+                ),
+                "missing_required_fixture_ids": sorted(
+                    missing_required_fixture_ids
+                ),
+                "missing_discriminator_fixture_ids": [
+                    missing_discriminator_id
+                ],
+                "wrong_nested_type_fixture_ids": sorted(
+                    wrong_nested_type_fixture_ids
+                ),
+                "reused_wrong_nested_type_fixture_ids": sorted(
+                    wrong_nested_type_reused_fixture_ids
+                ),
+                "wrong_type_opaque_exclusions": sorted(
+                    wrong_type_opaque_exclusions,
+                    key=lambda record: (
+                        record["schema_path"],
+                        record["instance_path"],
+                    ),
+                ),
+                "wrong_discriminator_type_fixture_ids": [
+                    wrong_discriminator_id
+                ],
+                "future_open_enum_fixture_ids": sorted(
+                    future_open_enum_fixture_ids
+                ),
+                "helper_union_fixture_ids": sorted(
+                    helper_union_fixture_ids
+                ),
+                "reachable_union_fixture_ids": sorted(
+                    set(reachable_union_fixture_ids)
+                ),
+                "helper_union_future_fixture_ids": sorted(
+                    helper_union_future_fixture_ids
+                ),
+                "constrained_string_fixture_ids": sorted(
+                    constrained_string_fixture_ids
+                ),
+                "conflicting_discriminator_fixture_ids": [],
+                "conflicting_discriminator_exclusion": (
+                    "the pinned JSON representation has exactly one type "
+                    "property, so multiple discriminator values are not "
+                    "structurally representable"
+                ),
+                "malformed_known_exclusion": (
+                    None
+                    if wrong_nested_type_fixture_ids
+                    else (
+                        "alternative has no non-discriminator payload field "
+                        "with a schema-rejected JSON type"
+                    )
+                ),
+            }
+
+        for domain in sorted(B3_ITEM_FAMILY_COUNTS):
+            keys = [
+                key for key in self.b3_item_keys if key.domain == domain
+            ]
+            representative = keys[0]
+            target, future_value = known_union_values[
+                (domain, representative.name)
+            ]
+            future_value = copy.deepcopy(future_value)
+            if not isinstance(future_value, dict):
+                raise FixtureError(
+                    f"B3 {domain} sample lacks its type discriminator"
+                )
+            future_value["type"] = f"future{domain}Alternative"
+            fixture_id = reused_future_fixtures.get(domain)
+            if fixture_id is None:
+                fixture_id = f"union:{domain}:future-unknown"
+                self.add_negative(
+                    fixture_id,
+                    f"cases/unions/{slug(domain)}/future-unknown.json",
+                    "unknown_discriminator",
+                    target,
+                    future_value,
+                    ["one_of_zero"],
+                    negative_case="future_discriminator",
+                )
+                counts["future_discriminator_generated"] += 1
+            else:
+                counts["future_discriminator_reused"] += 1
+            counts["future_discriminator"] += 1
+            family_coverage[domain] = {
+                "future_discriminator_fixture_id": fixture_id,
+                "known_alternative_count": len(keys),
+                "conflicting_discriminator_fixture_ids": [],
+                "conflicting_discriminator_exclusion": (
+                    "the pinned JSON representation has exactly one type "
+                    "property, so multiple discriminator values are not "
+                    "structurally representable"
+                ),
+            }
+
+        expected_counts = {
+            "optional_omitted": 112,
+            "nullable_null": 111,
+            "required_nullable": 3,
+            "missing_required": 127,
+            "missing_discriminator": 50,
+            "wrong_discriminator_type": 50,
+            "wrong_nested_type": 257,
+            "wrong_nested_type_generated": 255,
+            "wrong_nested_type_reused": 2,
+            "wrong_type_opaque_exclusions": 7,
+            "future_discriminator": 9,
+            "future_discriminator_generated": 7,
+            "future_discriminator_reused": 2,
+            "future_open_enum": 24,
+            "empty_constrained_string": 1,
+            "helper_union_positive": 24,
+            "helper_union_future": 4,
+        }
+        if counts != expected_counts:
+            raise FixtureError(
+                "B3 fixture/mutation accounting changed: "
+                f"{dict(sorted(counts.items()))}"
+            )
+        self.b3_negative_coverage = {
+            "assignment_derived_key_count": len(self.b3_item_keys),
+            "family_counts": dict(sorted(B3_ITEM_FAMILY_COUNTS.items())),
+            "counts": dict(sorted(counts.items())),
+            "alternatives": dict(sorted(alternative_coverage.items())),
+            "families": dict(sorted(family_coverage.items())),
+        }
+
     def _build_b2_open_enum_fixtures(self) -> None:
         enum_coverage: dict[str, Any] = {}
         for domain, expected_values in sorted(B2_OPEN_STRING_ENUMS.items()):
@@ -3859,14 +5397,98 @@ class CorpusBuilder:
                 ["enum_mismatch"],
                 negative_case="future_open_enum_value",
             )
+            empty_id = f"enum:{domain}:empty-unknown"
+            self.add_negative(
+                empty_id,
+                f"cases/enums/{slug(domain)}/empty-unknown.json",
+                "unknown_enum_value",
+                target,
+                "",
+                ["enum_mismatch"],
+                negative_case="empty_open_enum_value",
+            )
             enum_coverage[domain] = {
                 "known_value_fixture_ids": known_ids,
                 "future_value_fixture_id": future_id,
+                "empty_value_fixture_id": empty_id,
                 "future_value_schema_diagnostic_codes": [
                     "enum_mismatch"
                 ],
             }
         self.b2_negative_coverage["open_string_enums"] = dict(
+            sorted(enum_coverage.items())
+        )
+
+    def _build_b3_open_enum_fixtures(self) -> None:
+        enum_coverage: dict[str, Any] = {}
+        for domain, expected_values in sorted(B3_OPEN_STRING_ENUMS.items()):
+            target = self.catalog.union_target(domain)
+            resolved, _ = self.catalog.resolve(
+                target, target.schema, target.schema_path
+            )
+            actual_values = (
+                tuple(resolved.get("enum", ()))
+                if isinstance(resolved, dict)
+                else ()
+            )
+            if actual_values != expected_values:
+                raise FixtureError(
+                    f"B3 open-enum pin mismatch for {domain}: "
+                    f"{actual_values!r}"
+                )
+            known_ids: list[str] = []
+            for value in expected_values:
+                fixture_id = f"enum:{domain}:{value}"
+                self.add_positive(
+                    fixture_id,
+                    f"cases/enums/{slug(domain)}/{slug(value)}.json",
+                    "open_enum_known_value",
+                    target,
+                    value,
+                    None,
+                    directions_exercised=("Decode",),
+                )
+                known_ids.append(fixture_id)
+            future_id = f"enum:{domain}:future-unknown"
+            self.add_negative(
+                future_id,
+                f"cases/enums/{slug(domain)}/future-unknown.json",
+                "unknown_enum_value",
+                target,
+                f"future{domain}",
+                ["enum_mismatch"],
+                negative_case="future_open_enum_value",
+            )
+            empty_id = f"enum:{domain}:empty-unknown"
+            self.add_negative(
+                empty_id,
+                f"cases/enums/{slug(domain)}/empty-unknown.json",
+                "unknown_enum_value",
+                target,
+                "",
+                ["enum_mismatch"],
+                negative_case="empty_open_enum_value",
+            )
+            enum_coverage[domain] = {
+                "known_value_fixture_ids": known_ids,
+                "future_value_fixture_id": future_id,
+                "empty_value_fixture_id": empty_id,
+                "future_value_schema_diagnostic_codes": [
+                    "enum_mismatch"
+                ],
+            }
+        if (
+            len(enum_coverage) != 10
+            or sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            )
+            != 39
+        ):
+            raise FixtureError(
+                "B3 open-enum fixture accounting changed"
+            )
+        self.b3_negative_coverage["open_string_enums"] = dict(
             sorted(enum_coverage.items())
         )
 
