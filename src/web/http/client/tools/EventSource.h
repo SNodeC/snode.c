@@ -303,17 +303,17 @@ namespace web::http::client::tools {
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnect";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    web::http::client::semantic::httpClientLog().debug() << socketConnection->getConnectionName() << " : OnDisconnect";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -353,9 +353,9 @@ namespace web::http::client::tools {
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](
                     const std::shared_ptr<MasterRequest>& masterRequest) {
-                    const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
+                    auto* socketConnection = masterRequest->getSocketContext()->getSocketConnection();
 
-                    web::http::client::semantic::httpClientLog().debug() << connectionName << ": OnRequestStart";
+                    web::http::client::semantic::httpClientLog(*socketConnection).debug() << "OnRequestStart";
 
                     if (sharedConfig->reconnectScheduled) {
                         sharedConfig->reconnectScheduled = false;
@@ -369,7 +369,7 @@ namespace web::http::client::tools {
 
                     if (!masterRequest->requestEventSource(
                             sharedState->path,
-                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, connectionName]()
+                            [masterRequestWeak = std::weak_ptr<MasterRequest>(masterRequest), sharedState, sharedConfig, socketConnection]()
                                 -> std::size_t {
                                 std::size_t consumed = 0;
 
@@ -383,19 +383,18 @@ namespace web::http::client::tools {
                                         masterRequest->getSocketContext()->close();
                                     }
                                 } else {
-                                    web::http::client::semantic::httpClientLog().debug()
-                                        << connectionName << ": server-sent event: server disconnect";
+                                    web::http::client::semantic::httpClientLog(*socketConnection).debug()
+                                        << "server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
-                            [sharedState, sharedConfig, connectionName]() {
+                            [sharedState, sharedConfig, socketConnection]() {
                                 if (sharedState->ready == ReadyState::CLOSED) {
                                     return;
                                 }
 
-                                web::http::client::semantic::httpClientLog().debug()
-                                    << connectionName << ": server-sent event stream start";
+                                web::http::client::semantic::httpClientLog(*socketConnection).debug() << "server-sent event stream start";
 
                                 sharedState->ready = ReadyState::OPEN;
 
@@ -417,9 +416,9 @@ namespace web::http::client::tools {
                                     onOpen();
                                 }
                             },
-                            [sharedState, connectionName]() {
-                                web::http::client::semantic::httpClientLog().debug()
-                                    << connectionName << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
+                            [sharedState, socketConnection]() {
+                                web::http::client::semantic::httpClientLog(*socketConnection).debug()
+                                    << "not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
                                 if (auto it = sharedState->onEventListener.find("error"); it != sharedState->onEventListener.end()) {
                                     EventSource::MessageEvent e{"error", "", sharedState->lastId, sharedState->origin};
 
@@ -437,8 +436,13 @@ namespace web::http::client::tools {
                         }
                     }
                 },
-                [](const std::shared_ptr<Request>& req) {
-                    web::http::client::semantic::httpClientLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                [eventSourceWeak](const std::shared_ptr<Request>& req) {
+                    if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock();
+                        eventSource && eventSource->socketConnection != nullptr) {
+                        web::http::client::semantic::httpClientLog(*eventSource->socketConnection).debug() << "OnRequestEnd";
+                    } else {
+                        web::http::client::semantic::httpClientLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                    }
                 });
 
             client->getConfig()->Remote::setSocketAddress(socketAddress);

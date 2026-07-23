@@ -23,6 +23,20 @@ namespace {
         return false;
     }
 
+    bool requireCount(std::string_view source, std::string_view fragment, std::size_t expected, const std::filesystem::path& path) {
+        std::size_t count = 0;
+        for (std::size_t position = 0; (position = source.find(fragment, position)) != std::string_view::npos;
+             position += fragment.size()) {
+            ++count;
+        }
+        if (count == expected) {
+            return true;
+        }
+        std::cerr << "Unexpected Phase 3 lifecycle policy count in " << path << ": " << fragment << " (expected " << expected << ", got "
+                  << count << ")\n";
+        return false;
+    }
+
     std::string functionBody(std::string_view source, std::string_view begin, std::string_view end) {
         const std::size_t first = source.find(begin);
         const std::size_t last = first == std::string_view::npos ? std::string_view::npos : source.find(end, first + begin.size());
@@ -69,6 +83,10 @@ int main() {
 
     const auto serverHttpPath = root / "src/web/http/server/SocketContext.cpp";
     const auto clientHttpPath = root / "src/web/http/client/SocketContext.cpp";
+    const auto serverResponsePath = root / "src/web/http/server/Response.cpp";
+    const auto serverResponseHeaderPath = root / "src/web/http/server/Response.h";
+    const auto clientRequestPath = root / "src/web/http/client/Request.cpp";
+    const auto clientRequestHeaderPath = root / "src/web/http/client/Request.h";
     const auto eventSourcePath = root / "src/web/http/client/tools/EventSource.h";
     const auto webSocketPath = root / "src/web/websocket/SocketContextUpgrade.hpp";
     const auto subProtocolPath = root / "src/web/websocket/SubProtocol.hpp";
@@ -91,6 +109,10 @@ int main() {
 
     const std::string serverHttp = source_policy::readSourcePolicyFile(serverHttpPath);
     const std::string clientHttp = source_policy::readSourcePolicyFile(clientHttpPath);
+    const std::string serverResponse = source_policy::readSourcePolicyFile(serverResponsePath);
+    const std::string serverResponseHeader = source_policy::readSourcePolicyFile(serverResponseHeaderPath);
+    const std::string clientRequest = source_policy::readSourcePolicyFile(clientRequestPath);
+    const std::string clientRequestHeader = source_policy::readSourcePolicyFile(clientRequestHeaderPath);
     const std::string eventSource = source_policy::readSourcePolicyFile(eventSourcePath);
     const std::string webSocket = source_policy::readSourcePolicyFile(webSocketPath);
     const std::string subProtocol = source_policy::readSourcePolicyFile(subProtocolPath);
@@ -118,6 +140,40 @@ int main() {
     }
     ok &= forbid(serverHttp + clientHttp, "Request start", root / "src/web/http");
     ok &= forbid(serverHttp + clientHttp, "Request (\" << request->count << \") completed", root / "src/web/http");
+
+    const std::string serverUpgrade = functionBody(serverResponse, "void Response::upgrade", "void Response::sendFile");
+    const std::string clientUpgrade = functionBody(clientRequest, "bool MasterRequest::upgrade(", "bool MasterRequest::requestEventSource");
+    const std::string clientEventSourceRequest =
+        functionBody(clientRequest, "bool MasterRequest::requestEventSource", "bool MasterRequest::sendFile");
+    const std::string clientExecuteUpgrade =
+        functionBody(clientRequest, "bool MasterRequest::executeUpgrade", "bool MasterRequest::executeEnd");
+    ok &= requireCount(serverUpgrade, "semantic::httpServerLog(*", 1, serverResponsePath);
+    ok &= requireCount(serverUpgrade, "semantic::httpServerLog()", 1, serverResponsePath);
+    ok &= forbid(serverUpgrade, "connectionName", serverResponsePath);
+    ok &= forbid(serverUpgrade, "getConnectionName()", serverResponsePath);
+    ok &= forbid(serverUpgrade, "HTTP:", serverResponsePath);
+    ok &= forbid(serverUpgrade, "HTTP upgrade:", serverResponsePath);
+    for (const auto payload : {"Initiating upgrade:",
+                               "SocketContextUpgradeFactory create success",
+                               "Response to upgrade request:",
+                               "Upgrade bootstrap",
+                               "Protocol selected:"}) {
+        ok &= require(serverUpgrade, payload, serverResponsePath);
+    }
+
+    ok &= requireCount(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "semantic::httpClientLog(*", 3, clientRequestPath);
+    ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "semantic::httpClientLog()", clientRequestPath);
+    ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "connectionName", clientRequestPath);
+    ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "getConnectionName()", clientRequestPath);
+    ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "HTTP:", clientRequestPath);
+    ok &= forbid(clientUpgrade + clientEventSourceRequest + clientExecuteUpgrade, "HTTP upgrade:", clientRequestPath);
+
+    ok &= requireCount(eventSource, "httpClientLog(*", 8, eventSourcePath);
+    ok &= forbid(eventSource, "socketConnection->getConnectionName()", eventSourcePath);
+    ok &= requireCount(eventSource, "getConnectionName()", 1, eventSourcePath);
+    ok &= requireCount(eventSource, "\": OnRequestEnd\"", 1, eventSourcePath);
+    ok &= forbid(serverResponseHeader + clientRequestHeader + eventSource, "BoundaryLogger", root / "src/web/http");
+    ok &= forbid(serverResponseHeader + clientRequestHeader + eventSource, "LogScopeOwner", root / "src/web/http");
 
     for (const auto event : {"event source started",
                              "event stream established",

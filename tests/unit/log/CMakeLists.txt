@@ -112,7 +112,7 @@ set_tests_properties(HttpClientMigration07aTest PROPERTIES LABELS "unit;log;migr
 snodec_add_test(HttpServerMigration07bTest HttpServerMigration07bTest.cpp)
 target_include_directories(HttpServerMigration07bTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(HttpServerMigration07bTest PRIVATE cxx_std_20)
-target_link_libraries(HttpServerMigration07bTest PRIVATE snodec-test-support snodec::logger)
+target_link_libraries(HttpServerMigration07bTest PRIVATE snodec-test-support snodec::net snodec::core-socket-stream snodec::logger)
 set_tests_properties(HttpServerMigration07bTest PROPERTIES LABELS "unit;log;migration07b")
 
 snodec_add_test(WebSocketMigration07cTest WebSocketMigration07cTest.cpp)
