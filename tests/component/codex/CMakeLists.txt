@@ -109,6 +109,52 @@ set_tests_properties(
         TIMEOUT 30
 )
 
+set(CODEX_PHASE_A1_1_EVIDENCE_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+add_test(
+    NAME CodexA11AuditToolTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA11AuditToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_1.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --registry
+        ${CODEX_PHASE_A0_REGISTRY}
+        --schema-root
+        ${CODEX_PHASE_A0_SCHEMA_ROOT}
+        --assignments
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/module-slice-assignment.json
+        --reachability
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/nested-reachability.json
+        --contracts
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/operation-contracts.json
+        --schema-completeness
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/schema-completeness-evidence.json
+        --fixture-coverage
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/fixture-coverage.json
+        --fixture-index
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
+        --draft07-validator
+        ${PROJECT_SOURCE_DIR}/tools/codex/draft07.py
+        --start-state
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-start-state.json
+        --plan-output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-implementation-plan.json
+        --closure-output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-type-closure.json
+)
+set_tests_properties(
+    CodexA11AuditToolTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;schema;audit;generated"
+        TIMEOUT 60
+)
+
 add_test(
     NAME CodexDraft07ValidatorTest
     COMMAND

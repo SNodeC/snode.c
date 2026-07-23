@@ -154,7 +154,7 @@ assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 300)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 7)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 10)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
@@ -168,10 +168,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 5)
+if(NOT top_level_codex_tool_count EQUAL 6)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 5, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 6, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -212,15 +212,21 @@ set(
     "tools/codex/app-server-evidence/0.144.6/schema-completeness-evidence.json"
     "tools/codex/app-server-evidence/0.144.6/fixture-coverage.json"
     "tools/codex/app-server-evidence/0.144.6/schema-keywords.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-start-state.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-implementation-plan.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-type-closure.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
+    "tools/codex/app_server_a1_1.py"
     "tools/codex/app_server_surface.py"
     "tools/codex/app_server_contracts.py"
     "tools/codex/app_server_fixtures.py"
     "tools/codex/draft07.py"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
+    "tests/component/codex/CodexA11AuditToolTest.py"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
+    "docs/ai/openai/codex/a1-1-conversation-domain.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
 )
 foreach(required_entry IN LISTS required_source_entries)
@@ -335,6 +341,20 @@ run_extracted_check(
     --evidence-root
     "${extracted_evidence_root}"
     --check
+)
+run_extracted_check(
+    "A1.1 implementation-plan/type-closure audit"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_1.py"
+    check
+    --repo-root
+    "${extracted_root}"
+    --start-state
+    "${extracted_evidence_root}/a1-1-start-state.json"
+    --plan-output
+    "${extracted_evidence_root}/a1-1-implementation-plan.json"
+    --closure-output
+    "${extracted_evidence_root}/a1-1-type-closure.json"
 )
 run_extracted_check(
     "fixture deterministic check"
