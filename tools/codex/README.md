@@ -13,6 +13,22 @@ The authoritative vendored inputs are:
 Ordinary builds and tests consume these files. They do not invoke Codex, use
 the network, or require an account, credentials, or quota.
 
+## Upstream provenance and attribution
+
+The authority executable is byte-identical to the executable in OpenAI
+Codex's official `rust-v0.144.6` Linux release asset. The annotated release
+tag resolves to source commit
+`5d1fbf26c43abc65a203928b2e31561cb039e06d`. The tag and commit are unsigned,
+so this record does not claim Git signature verification. The exact executable
+and release-archive hashes, tag object, source commit, and verification method
+are pinned in `PROVENANCE.json`.
+
+The tagged upstream source is licensed as `Apache-2.0` and includes a NOTICE.
+Byte-exact copies are retained as `LICENSE.openai-codex` and
+`NOTICE.openai-codex` beside the schemas; their sizes, SHA-256 values, Git blob
+identities, and source URLs are guarded by the offline provenance test. The
+generated schema files remain unmodified.
+
 ## Offline verification and reproduction
 
 Run these commands from the repository root:
@@ -52,7 +68,8 @@ python3 tools/codex/app_server_surface.py docs \
 ```
 
 `verify` treats a missing, added, or hash-mismatched vendored schema as an
-error. Extraction resolves repository-local references, rejects an unknown
+error. It also treats missing, altered, or mismatched upstream attribution as
+an error. Extraction resolves repository-local references, rejects an unknown
 schema layout, scans both the combined and standalone v2 aggregate definitions,
 and compares the resulting manifest exactly. The two extraction runs
 demonstrate deterministic output independently of the upstream generator's
@@ -150,6 +167,36 @@ maintained prose, not census authorities.
 Registration is not implementation. Raw-preserved, opaque-preserved,
 unsupported, deferred, and owner-decision-required entries do not count as
 typed, BackendCore, canonical-state, or frontend support.
+
+## Typed-coverage no-regression floor
+
+`tests/component/codex/CodexTypedSurfaceBaseline.h` is an intentionally
+reviewed, non-generated floor containing the 34 exact stable typed identities
+implemented at A0: seven client requests, one client notification, fourteen
+server notifications, four server requests, and eight `ThreadItem`
+discriminators. The coverage guard requires the current implemented stable
+typed identity set to be a superset of that floor.
+
+Coverage may grow without changing the baseline. Decreasing coverage or
+replacing a locked identity requires an explicit reviewed baseline change and
+an explanation. A later A1 change may deliberately advance the baseline to
+lock in newly reviewed typed coverage. The floor is a no-regression ratchet,
+not evidence of future completeness.
+
+## Packaging policy
+
+The schema trees and A0 support artifacts are source and test inputs. Explicit
+CMake install rules and CPack binary packages exclude the schemas, provenance
+tool, manifest, fixtures, and private registry headers/data. The staged
+installed-consumer test recursively guards that exclusion.
+
+CPack source packages retain the vendored schemas, attribution files, manifest,
+tool, fixtures, and private registry sources so the offline A0 tests remain
+self-consistent. The generated schemas and provenance occupy approximately
+6 MiB before archive compression. The repository's existing CPack source
+configuration assumes a build-artifact-free source checkout; Git cleanliness
+alone is insufficient because an ignored in-tree build is not excluded. CMake
+exposes `package_source`; there is no separate `dist` target.
 
 ## Phase sequencing
 

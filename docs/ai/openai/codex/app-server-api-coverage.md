@@ -5,6 +5,9 @@
 Authoritative target: `codex-cli 0.144.6` generated from the locally installed Codex binary.
 Starting SNode.C commit: `138f5022c19b24847bee42a21242aaaf7dde5a04`.
 
+Upstream source: [OpenAI Codex](https://github.com/openai/codex) release `rust-v0.144.6` at source commit `5d1fbf26c43abc65a203928b2e31561cb039e06d`.
+License: `Apache-2.0`; the exact upstream license and NOTICE are retained beside the vendored schemas.
+
 The vendored JSON Schema is the inventory authority. The private production
 `ProtocolSurfaceRegistry` is the local disposition authority and the runtime
 method/discriminator dispatch source. Registration is not implementation.

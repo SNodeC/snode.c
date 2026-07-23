@@ -81,6 +81,21 @@ def test_vendored(
     provenance = load_json(provenance_path)
     if not isinstance(provenance, dict):
         raise AssertionError("provenance must be a JSON object")
+    if provenance.get("format_version") != tool.PROVENANCE_FORMAT_VERSION:
+        raise AssertionError("provenance format version is not the pinned version")
+    if provenance.get("upstream") != tool.UPSTREAM_PROVENANCE:
+        raise AssertionError("provenance lacks the exact pinned upstream attribution")
+
+    for field in ("license_file", "notice_file"):
+        expected_file = provenance["upstream"]["license"][field]
+        data = (schema_root / expected_file["path"]).read_bytes()
+        if (
+            len(data) != expected_file["bytes"]
+            or hashlib.sha256(data).hexdigest() != expected_file["sha256"]
+        ):
+            raise AssertionError(
+                f"required upstream {field} does not match provenance"
+            )
 
     for stability in ("stable", "experimental"):
         records = independent_tree_records(schema_root / stability)
@@ -104,6 +119,38 @@ def test_vendored(
         copied_root = temporary / "schema"
         shutil.copytree(schema_root, copied_root)
         copied_provenance = copied_root / "PROVENANCE.json"
+
+        license_record = provenance["upstream"]["license"]["license_file"]
+        copied_license = copied_root / license_record["path"]
+        source_license = schema_root / license_record["path"]
+        copied_license.unlink()
+        expect_surface_error(
+            tool,
+            lambda: tool.verify_provenance(copied_root, copied_provenance),
+            "remove the required upstream license",
+        )
+        shutil.copy2(source_license, copied_license)
+
+        notice_record = provenance["upstream"]["license"]["notice_file"]
+        copied_notice = copied_root / notice_record["path"]
+        source_notice = schema_root / notice_record["path"]
+        copied_notice.write_bytes(copied_notice.read_bytes() + b"\n")
+        expect_surface_error(
+            tool,
+            lambda: tool.verify_provenance(copied_root, copied_provenance),
+            "corrupt the required upstream notice",
+        )
+        shutil.copy2(source_notice, copied_notice)
+
+        corrupted_attribution = copy.deepcopy(provenance)
+        corrupted_attribution["upstream"]["release"]["source_commit_sha"] = "0" * 40
+        write_json(copied_provenance, corrupted_attribution)
+        expect_surface_error(
+            tool,
+            lambda: tool.verify_provenance(copied_root, copied_provenance),
+            "change the pinned upstream source revision",
+        )
+        write_json(copied_provenance, provenance)
 
         first_record = provenance["schema_trees"]["stable"]["files"][0]
         relative = Path(first_record["path"])

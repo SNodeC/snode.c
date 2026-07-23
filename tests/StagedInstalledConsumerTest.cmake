@@ -36,6 +36,29 @@ foreach(
     endif()
 endforeach()
 file(
+    GLOB_RECURSE installed_entries
+    LIST_DIRECTORIES TRUE
+    "${prefix}/*"
+)
+foreach(installed_entry IN LISTS installed_entries)
+    string(REPLACE "\\" "/" installed_entry "${installed_entry}")
+    get_filename_component(installed_name "${installed_entry}" NAME)
+    if(installed_entry MATCHES "/tools/codex/"
+       OR installed_entry MATCHES "/tests/component/codex/fixtures/"
+       OR installed_entry MATCHES "/app-server-schema/"
+       OR installed_entry MATCHES "/app-server-surface/"
+       OR installed_name STREQUAL "app_server_surface.py"
+       OR installed_name STREQUAL "PROVENANCE.json"
+       OR installed_name STREQUAL "LICENSE.openai-codex"
+       OR installed_name STREQUAL "NOTICE.openai-codex"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistry.cpp"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistry.h"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
+    )
+        message(FATAL_ERROR "private A0 artifact installed: ${installed_entry}")
+    endif()
+endforeach()
+file(
     WRITE "${consumer}"
     "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n"
 )

@@ -19,8 +19,68 @@ from typing import Any, Iterator, Sequence
 
 
 FORMAT_VERSION = 1
+PROVENANCE_FORMAT_VERSION = 2
 CODEX_VERSION = "codex-cli 0.144.6"
 STARTING_SNODEC_SHA = "138f5022c19b24847bee42a21242aaaf7dde5a04"
+UPSTREAM_PROVENANCE = {
+    "project": "OpenAI Codex",
+    "repository": "https://github.com/openai/codex",
+    "release": {
+        "tag": "rust-v0.144.6",
+        "url": "https://github.com/openai/codex/releases/tag/rust-v0.144.6",
+        "published_at": "2026-07-18T13:51:52Z",
+        "annotated_tag_object_sha": "1e66aaa95b5ab39d3ef3057cd50bdecd576a8356",
+        "source_commit_sha": "5d1fbf26c43abc65a203928b2e31561cb039e06d",
+        "tag_signature_status": "unsigned",
+        "commit_signature_status": "unsigned",
+    },
+    "authority_binary": {
+        "version_output": CODEX_VERSION,
+        "target": "x86_64-unknown-linux-musl",
+        "executable_bytes": 298516528,
+        "executable_sha256": "a31ae9450a26216eb1e7c53102fd42123dd675974310b0e2ca3aa4cb622a2c15",
+        "release_asset": "codex-x86_64-unknown-linux-musl.tar.gz",
+        "release_asset_url": (
+            "https://github.com/openai/codex/releases/download/rust-v0.144.6/"
+            "codex-x86_64-unknown-linux-musl.tar.gz"
+        ),
+        "release_asset_bytes": 109369631,
+        "release_asset_sha256": "6a9def51a0ad8cea6684d8eb3bf033c89f33e3bc5cfe492f1a1e0a718451a1c6",
+        "source_revision_verification": (
+            "The installed executable was byte-identical to the executable extracted from the official "
+            "rust-v0.144.6 GitHub release asset; the annotated release tag resolves to source commit "
+            "5d1fbf26c43abc65a203928b2e31561cb039e06d. The Git tag and commit are unsigned, "
+            "so this record does not claim Git signature verification."
+        ),
+    },
+    "license": {
+        "spdx_identifier": "Apache-2.0",
+        "copyright": "Copyright 2025 OpenAI",
+        "license_file": {
+            "path": "LICENSE.openai-codex",
+            "source_url": "https://github.com/openai/codex/blob/rust-v0.144.6/LICENSE",
+            "git_blob_sha": "4606e72e042564097e8780d66c1d4dcb611869bd",
+            "bytes": 10926,
+            "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+        },
+        "notice_file": {
+            "path": "NOTICE.openai-codex",
+            "source_url": "https://github.com/openai/codex/blob/rust-v0.144.6/NOTICE",
+            "git_blob_sha": "2805899d56d0332d175cfc613c67d45d6f006db7",
+            "bytes": 242,
+            "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915",
+        },
+        "notice_attributions": [
+            "OpenAI Codex; Copyright 2025 OpenAI",
+            "Ratatui-derived code under the MIT license; Copyright (c) 2016-2022 Florian Dehau",
+            "Ratatui-derived code under the MIT license; Copyright (c) 2023-2025 The Ratatui Developers",
+        ],
+        "redistribution": (
+            "The exact upstream Apache-2.0 license and NOTICE accompany the generated schemas in source "
+            "distributions. The vendored generated schema files themselves remain unmodified."
+        ),
+    },
+}
 REQUIRED_SCHEMA_FILES = (
     "ClientNotification.json",
     "ClientRequest.json",
@@ -1522,10 +1582,22 @@ def extract_surface(schema_version_root: Path) -> dict[str, Any]:
 
 def verify_provenance(schema_version_root: Path, provenance_path: Path) -> None:
     provenance = load_json(provenance_path)
-    if provenance.get("format_version") != FORMAT_VERSION:
+    if provenance.get("format_version") != PROVENANCE_FORMAT_VERSION:
         raise SurfaceError("unsupported provenance format_version")
     if provenance.get("codex_version") != CODEX_VERSION:
         raise SurfaceError("provenance Codex version does not match the pinned tool")
+    if provenance.get("upstream") != UPSTREAM_PROVENANCE:
+        raise SurfaceError("provenance upstream attribution does not match the pinned tool")
+    license_provenance = UPSTREAM_PROVENANCE["license"]
+    for field in ("license_file", "notice_file"):
+        expected_file = license_provenance[field]
+        path = schema_version_root / expected_file["path"]
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            raise SurfaceError(f"unable to read required upstream attribution file {path}: {error}") from error
+        if len(data) != expected_file["bytes"] or hashlib.sha256(data).hexdigest() != expected_file["sha256"]:
+            raise SurfaceError(f"required upstream attribution file does not match provenance: {path}")
     for stability in ("stable", "experimental"):
         expected = provenance.get("schema_trees", {}).get(stability)
         if not isinstance(expected, dict):
@@ -1554,9 +1626,10 @@ def build_provenance(
     ts_stable_records = tree_records(ts_stable)
     ts_experimental_records = tree_records(ts_experimental)
     return {
-        "format_version": FORMAT_VERSION,
+        "format_version": PROVENANCE_FORMAT_VERSION,
         "codex_version": CODEX_VERSION,
         "starting_snodec_sha": STARTING_SNODEC_SHA,
+        "upstream": copy.deepcopy(UPSTREAM_PROVENANCE),
         "generation_commands": [
             'CODEX_BIN="${CODEX_BIN:-codex}"',
             '"$CODEX_BIN" --version',
@@ -2080,6 +2153,7 @@ def render_coverage_document(
     category_names = sorted(
         key for key in counts["experimental_inclusive"] if key != "total"
     )
+    upstream = provenance["upstream"]
     lines = [
         "# Codex App Server API coverage",
         "",
@@ -2087,6 +2161,11 @@ def render_coverage_document(
         "",
         f"Authoritative target: `{manifest['codex_version']}` generated from the locally installed Codex binary.",
         f"Starting SNode.C commit: `{manifest['starting_snodec_sha']}`.",
+        "",
+        f"Upstream source: [{upstream['project']}]({upstream['repository']}) release "
+        f"`{upstream['release']['tag']}` at source commit `{upstream['release']['source_commit_sha']}`.",
+        f"License: `{upstream['license']['spdx_identifier']}`; the exact upstream license and NOTICE "
+        "are retained beside the vendored schemas.",
         "",
         "The vendored JSON Schema is the inventory authority. The private production",
         "`ProtocolSurfaceRegistry` is the local disposition authority and the runtime",
