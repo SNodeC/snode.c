@@ -82,9 +82,25 @@ int main(int argc, char* argv[]) {
                     testResult.expectEqual(1,
                                            capture.count(records, "web.websocket.subprotocol", instance, "subprotocol stopped:"),
                                            "subprotocol stops once for " + std::string(instance));
+                    testResult.expectEqual(1,
+                                           capture.count(records, "web.websocket.subprotocol", instance, "       Total Payload sent:"),
+                                           "subprotocol sent-payload summary is connection-bound for " + std::string(instance));
+                    testResult.expectEqual(
+                        1,
+                        capture.count(records, "web.websocket.subprotocol", instance, "  Total Payload processed:"),
+                        "subprotocol processed-payload summary is connection-bound for " + std::string(instance));
                     testResult.expectTrue(
                         capture.matchingIdentityAndLevel(records, "web.websocket.subprotocol", instance, "websocket ", "info"),
                         "WebSocket lifecycle has matching connection identity and Info level for " + std::string(instance));
+                    testResult.expectTrue(
+                        capture.matchingIdentityAndLevel(
+                            records, "web.websocket.subprotocol", instance, "       Total Payload sent:", "debug"),
+                        "subprotocol sent-payload summary uses connection identity and Debug level for " + std::string(instance));
+                    testResult.expectTrue(
+                        capture.matchingIdentityAndLevel(
+                            records, "web.websocket.subprotocol", instance, "  Total Payload processed:", "debug"),
+                        "subprotocol processed-payload summary uses connection identity and Debug level for " +
+                            std::string(instance));
                     testResult.expectEqual(1,
                                            capture.count(records, httpComponent, instance, "request completed:"),
                                            "HTTP upgrade has one completion for " + std::string(instance));

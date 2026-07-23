@@ -151,10 +151,11 @@ namespace web::websocket {
     void SubProtocol<SocketContextUpgrade>::detach() {
         onDisconnected();
 
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).info() << "subprotocol stopped: " << name;
+        const auto log = semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection());
 
-        semantic::webSocketSubProtocolLog().debug() << "       Total Payload sent: " << getPayloadTotalSent();
-        semantic::webSocketSubProtocolLog().debug() << "  Total Payload processed: " << getPayloadTotalRead();
+        log.info() << "subprotocol stopped: " << name;
+        log.debug() << "       Total Payload sent: " << getPayloadTotalSent();
+        log.debug() << "  Total Payload processed: " << getPayloadTotalRead();
     }
 
     template <typename SocketContextUpgrade>
