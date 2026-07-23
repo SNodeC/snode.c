@@ -1,5 +1,5 @@
-#ifndef TESTS_SUPPORT_PHASE3SEMANTICLOGCAPTURE_H
-#define TESTS_SUPPORT_PHASE3SEMANTICLOGCAPTURE_H
+#ifndef TESTS_SUPPORT_SEMANTICLOGCAPTURE_H
+#define TESTS_SUPPORT_SEMANTICLOGCAPTURE_H
 
 #include "core/SNodeC.h"
 #include "log/Logger.h"
@@ -16,9 +16,9 @@
 
 namespace tests::support {
 
-    class Phase3SemanticLogCapture {
+    class SemanticLogCapture {
     public:
-        explicit Phase3SemanticLogCapture(std::string testName)
+        explicit SemanticLogCapture(std::string testName)
             : path(std::filesystem::temp_directory_path() / (std::move(testName) + ".jsonl")) {
             std::error_code error;
             std::filesystem::remove(path, error);
@@ -29,15 +29,15 @@ namespace tests::support {
             logger::Logger::logToFile(path.string());
         }
 
-        ~Phase3SemanticLogCapture() {
+        ~SemanticLogCapture() {
             logger::Logger::disableLogToFile();
             logger::Logger::init();
             logger::LogManager::init();
             errno = 0;
         }
 
-        Phase3SemanticLogCapture(const Phase3SemanticLogCapture&) = delete;
-        Phase3SemanticLogCapture& operator=(const Phase3SemanticLogCapture&) = delete;
+        SemanticLogCapture(const SemanticLogCapture&) = delete;
+        SemanticLogCapture& operator=(const SemanticLogCapture&) = delete;
 
         void initCore(const char* testName) {
             arguments = {testName, "--log-level=6", "--log-format=json", "--quiet"};
@@ -118,4 +118,4 @@ namespace tests::support {
 
 } // namespace tests::support
 
-#endif // TESTS_SUPPORT_PHASE3SEMANTICLOGCAPTURE_H
+#endif // TESTS_SUPPORT_SEMANTICLOGCAPTURE_H

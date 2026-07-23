@@ -22,3 +22,39 @@ set_tests_properties(HttpResponseFormatterRawWireTest PROPERTIES LABELS "unit;ht
 set_tests_properties(HttpMessagePresentationTest PROPERTIES LABELS "unit;http;message;format;presentation" TIMEOUT 5)
 set_tests_properties(HttpMessageHeaderCasingTest PROPERTIES LABELS "unit;http;message;headers" TIMEOUT 5)
 set_tests_properties(HttpMessageTargetQueryEdgeTest PROPERTIES LABELS "unit;http;message;target;query" TIMEOUT 5)
+
+snodec_add_test(
+    HttpServerUpgradeMissingRequestTest HttpServerUpgradeMissingRequestTest.cpp
+)
+target_include_directories(
+    HttpServerUpgradeMissingRequestTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_compile_features(
+    HttpServerUpgradeMissingRequestTest PRIVATE cxx_std_20
+)
+target_link_libraries(
+    HttpServerUpgradeMissingRequestTest
+    PRIVATE snodec-test-support snodec::http-server snodec::net
+            snodec::core-socket-stream snodec::logger
+)
+set_tests_properties(
+    HttpServerUpgradeMissingRequestTest
+    PROPERTIES LABELS "unit;http;lifecycle;log" TIMEOUT 5
+)
+
+snodec_add_test(
+    HttpStreamingSourceFailureTest HttpStreamingSourceFailureTest.cpp
+)
+target_include_directories(
+    HttpStreamingSourceFailureTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_compile_features(HttpStreamingSourceFailureTest PRIVATE cxx_std_20)
+target_link_libraries(
+    HttpStreamingSourceFailureTest
+    PRIVATE snodec-test-support snodec::http-server snodec::net
+            snodec::core-socket-stream snodec::logger
+)
+set_tests_properties(
+    HttpStreamingSourceFailureTest
+    PROPERTIES LABELS "unit;http;streaming;lifecycle;log" TIMEOUT 5
+)

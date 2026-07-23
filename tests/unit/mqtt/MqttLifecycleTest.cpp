@@ -6,7 +6,7 @@
 #include "iot/mqtt/server/Mqtt.h"
 #include "iot/mqtt/server/broker/Broker.h"
 #include "log/Logger.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
 
 #include <algorithm>
@@ -192,7 +192,7 @@ namespace {
 
 int main() {
     tests::support::TestResult result;
-    tests::support::Phase3SemanticLogCapture capture("snodec-phase3-mqtt-lifecycle");
+    tests::support::SemanticLogCapture capture("snodec-mqtt-lifecycle");
     logger::Logger::setLogLevel(6);
     logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
     logger::LogManager::setFormat(logger::LogManager::Format::Json);

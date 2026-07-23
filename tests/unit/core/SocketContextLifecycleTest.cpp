@@ -46,7 +46,7 @@ namespace {
             logger::Logger::setQuiet(true);
             logger::Logger::setDisableColor(true);
             logger::Logger::setTickResolver([]() {
-                return std::string("CONTEXTLIFECYCLEPHASE1TICK");
+                return std::string("CONTEXTLIFECYCLESOCKET_CONTEXTTICK");
             });
             logger::Logger::logToFile(logFile);
             logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
@@ -217,7 +217,7 @@ namespace {
     };
 
     std::filesystem::path tempLogPath() {
-        const auto path = std::filesystem::temp_directory_path() / "snodec-context-lifecycle-phase1.jsonl";
+        const auto path = std::filesystem::temp_directory_path() / "snodec-socket-context-lifecycle.jsonl";
         std::error_code error;
         std::filesystem::remove(path, error);
         std::filesystem::remove(path.string() + ".1", error);
@@ -285,7 +285,7 @@ namespace {
 int main() {
     tests::support::TestResult result;
 
-    const std::string expectedInstance = "phase1-instance";
+    const std::string expectedInstance = "socket-context-lifecycle-instance";
     const std::string expectedConnection = "99";
     TestSocketConnection connection(expectedInstance, 99);
     TestSocketContext::ObservedLifecycleState oldState;

@@ -1,5 +1,5 @@
 #include "InetWebSocketBehaviorRunner.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 
 #include <string>
 #include <utility>
@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetWebSocketServerClientCloseHandshakeTest");
     } else {
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-websocket-close-handshake");
+        tests::support::SemanticLogCapture capture("snodec-phase3-websocket-close-handshake");
         char testName[] = "InetWebSocketServerClientCloseHandshakeTest";
         char logLevel[] = "--log-level=6";
         char logFormat[] = "--log-format=json";

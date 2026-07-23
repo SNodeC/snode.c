@@ -1,7 +1,7 @@
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "tests/component/codex/CodexBackendTestSupport.h"
 #include "utils/Timeval.h"
@@ -30,9 +30,9 @@ namespace {
             tests::codex::installInitializingFake(
                 transport, [](const codex::Json& message, const codex::detail::TransportCallbacks& callbacks) {
                     const std::string method = message.value("method", "");
-                    if (method == "phase3/success") {
+                    if (method == "request-lifecycle/success") {
                         tests::codex::inject(callbacks, {{"id", message.at("id")}, {"result", {{"ok", true}}}});
-                    } else if (method == "phase3/error") {
+                    } else if (method == "request-lifecycle/error") {
                         tests::codex::inject(
                             callbacks,
                             {{"id", message.at("id")}, {"error", {{"code", -32003}, {"message", "deterministic remote error"}}}});
@@ -41,7 +41,7 @@ namespace {
 
             client = std::make_unique<tests::codex::FakeAppServerClient>(transport);
             client->raw().setOnNotification([this](const codex::Notification& notification) {
-                if (notification.method == "phase3/incoming-notification") {
+                if (notification.method == "request-lifecycle/incoming-notification") {
                     ++incomingNotifications;
                 }
             });
@@ -88,9 +88,9 @@ namespace {
         }
 
         void submitRequests() {
-            const auto success = client->raw().request("phase3/success", codex::Json::object(), [this](const codex::Response& response) {
+            const auto success = client->raw().request("request-lifecycle/success", codex::Json::object(), [this](const codex::Response& response) {
                 ++successCallbacks;
-                result.expectTrue(response.kind == codex::Response::Kind::Result && response.method == "phase3/success",
+                result.expectTrue(response.kind == codex::Response::Kind::Result && response.method == "request-lifecycle/success",
                                   "successful request callback preserves its result and method");
             });
             result.expectTrue(static_cast<bool>(success), "successful lifecycle request is accepted");
@@ -98,9 +98,9 @@ namespace {
                 successId = success.id->value();
             }
 
-            const auto remoteError = client->raw().request("phase3/error", codex::Json::object(), [this](const codex::Response& response) {
+            const auto remoteError = client->raw().request("request-lifecycle/error", codex::Json::object(), [this](const codex::Response& response) {
                 ++errorCallbacks;
-                result.expectTrue(response.kind == codex::Response::Kind::RemoteError && response.method == "phase3/error",
+                result.expectTrue(response.kind == codex::Response::Kind::RemoteError && response.method == "request-lifecycle/error",
                                   "remote-error callback preserves its error outcome and method");
             });
             result.expectTrue(static_cast<bool>(remoteError), "remote-error lifecycle request is accepted");
@@ -108,9 +108,9 @@ namespace {
                 errorId = remoteError.id->value();
             }
 
-            const auto pending = client->raw().request("phase3/pending", codex::Json::object(), [this](const codex::Response& response) {
+            const auto pending = client->raw().request("request-lifecycle/pending", codex::Json::object(), [this](const codex::Response& response) {
                 ++cancellationCallbacks;
-                result.expectTrue(response.kind == codex::Response::Kind::Cancelled && response.method == "phase3/pending",
+                result.expectTrue(response.kind == codex::Response::Kind::Cancelled && response.method == "request-lifecycle/pending",
                                   "intentional stop preserves the existing cancellation callback semantics");
             });
             result.expectTrue(static_cast<bool>(pending), "pending lifecycle request is accepted before intentional stop");
@@ -118,9 +118,9 @@ namespace {
                 pendingId = pending.id->value();
             }
 
-            const auto notification = client->raw().notify("phase3/outgoing-notification", {{"value", 1}});
+            const auto notification = client->raw().notify("request-lifecycle/outgoing-notification", {{"value", 1}});
             result.expectTrue(static_cast<bool>(notification), "outgoing JSON-RPC notification is accepted");
-            transport->inject({{"method", "phase3/incoming-notification"}, {"params", {{"value", 2}}}});
+            transport->inject({{"method", "request-lifecycle/incoming-notification"}, {"params", {{"value", 2}}}});
         }
 
         tests::support::TestResult& result;
@@ -160,8 +160,8 @@ namespace {
     bool notificationHasNoRequestRecord(const std::vector<nlohmann::json>& records) {
         for (const nlohmann::json& record : records) {
             const std::string message = record.value("message", "");
-            if (message.starts_with("request ") && (message.find("phase3/outgoing-notification") != std::string::npos ||
-                                                    message.find("phase3/incoming-notification") != std::string::npos)) {
+            if (message.starts_with("request ") && (message.find("request-lifecycle/outgoing-notification") != std::string::npos ||
+                                                    message.find("request-lifecycle/incoming-notification") != std::string::npos)) {
                 return false;
             }
         }
@@ -174,10 +174,10 @@ int main() {
     int returnCode = tests::support::cTestSkipReturnCode;
 
     if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
-        tests::support::printRootWithoutSNodeCGroupSkipMessage("Phase3AppServerClientLifecycleTest");
+        tests::support::printRootWithoutSNodeCGroupSkipMessage("AppServerClientRequestLifecycleTest");
     } else {
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-app-server-client-lifecycle");
-        capture.initCore("Phase3AppServerClientLifecycleTest");
+        tests::support::SemanticLogCapture capture("snodec-app-server-client-request-lifecycle");
+        capture.initCore("AppServerClientRequestLifecycleTest");
 
         bool timedOut = false;
         LifecycleRunner runner(result);
@@ -198,9 +198,9 @@ int main() {
         const std::vector<nlohmann::json> records = capture.finish();
         result.expectTrue(runner.successId && runner.errorId && runner.pendingId, "all accepted requests retain their JSON-RPC IDs");
         if (runner.successId && runner.errorId && runner.pendingId) {
-            const std::string successIdentity = "id=" + std::to_string(*runner.successId) + " method=phase3/success";
-            const std::string errorIdentity = "id=" + std::to_string(*runner.errorId) + " method=phase3/error";
-            const std::string pendingIdentity = "id=" + std::to_string(*runner.pendingId) + " method=phase3/pending";
+            const std::string successIdentity = "id=" + std::to_string(*runner.successId) + " method=request-lifecycle/success";
+            const std::string errorIdentity = "id=" + std::to_string(*runner.errorId) + " method=request-lifecycle/error";
+            const std::string pendingIdentity = "id=" + std::to_string(*runner.pendingId) + " method=request-lifecycle/pending";
 
             result.expectEqual(1, countMessage(records, "request started: " + successIdentity), "successful request starts once");
             result.expectEqual(1, countMessage(records, "request completed: " + successIdentity), "successful request completes once");

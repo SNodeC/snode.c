@@ -496,3 +496,39 @@ set_tests_properties(
     PROPERTIES LABELS "component;ai;openai;codex;stdio;lifecycle"
                SKIP_RETURN_CODE 77 TIMEOUT 8
 )
+
+snodec_add_test(CodexBackendLifecycleTest CodexBackendLifecycleTest.cpp)
+target_include_directories(
+    CodexBackendLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_compile_features(CodexBackendLifecycleTest PRIVATE cxx_std_20)
+target_link_libraries(
+    CodexBackendLifecycleTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend snodec::logger
+)
+set_tests_properties(
+    CodexBackendLifecycleTest
+    PROPERTIES LABELS "component;codex;backend;thread;turn;lifecycle;log"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(
+    AppServerClientRequestLifecycleTest
+    AppServerClientRequestLifecycleTest.cpp
+)
+target_include_directories(
+    AppServerClientRequestLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_compile_features(
+    AppServerClientRequestLifecycleTest PRIVATE cxx_std_20
+)
+target_link_libraries(
+    AppServerClientRequestLifecycleTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+            snodec::logger
+)
+set_tests_properties(
+    AppServerClientRequestLifecycleTest
+    PROPERTIES LABELS "component;codex;protocol;request;lifecycle;log"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)

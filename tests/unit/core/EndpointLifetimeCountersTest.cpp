@@ -499,7 +499,7 @@ namespace {
     }
 } // namespace
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
     const std::vector<std::string> scenarios = {
         "server-terminal",
         "server-retry",

@@ -1,6 +1,6 @@
 #include "HttpServerClientRoundTripTest.h"
 #include "net/in/SocketAddress.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
 
@@ -15,7 +15,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpServerClientGetRoundTripTest");
     } else {
         tests::component::http::RoundTripState state;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-success");
+        tests::support::SemanticLogCapture capture("snodec-phase3-http-success");
 
         capture.initCore("InetHttpServerClientGetRoundTripTest");
 

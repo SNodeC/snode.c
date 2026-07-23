@@ -43,7 +43,7 @@ namespace {
     };
 
     std::filesystem::path tempLogPath() {
-        const auto path = std::filesystem::temp_directory_path() / "snodec-phase2-listener-start-failure.jsonl";
+        const auto path = std::filesystem::temp_directory_path() / "snodec-listener-start-failure.jsonl";
         std::error_code error;
         std::filesystem::remove(path, error);
         std::filesystem::remove(path.string() + ".1", error);
@@ -192,7 +192,7 @@ int main() {
 
     {
         LoggerStateGuard guard(logPath.string());
-        auto config = std::make_shared<TestConfig>("phase2-failing-listener");
+        auto config = std::make_shared<TestConfig>("failing-listener");
         auto* acceptor = new FailingAcceptor(config, statusCallbacks, initStateCallbacks);
         acceptor->init();
     }
@@ -211,7 +211,7 @@ int main() {
         if (message == "listener start failed") {
             ++startFailed;
             result.expectTrue(record.at("level") == "debug" && record.at("origin") == "framework" && record.at("boundary") == "instance" &&
-                                  record.at("component") == "core.socket.stream" && record.at("instance") == "phase2-failing-listener" &&
+                                  record.at("component") == "core.socket.stream" && record.at("instance") == "failing-listener" &&
                                   record.at("role") == "server" && !record.contains("connection"),
                               "listener startup failure carries server endpoint identity at Debug");
         } else if (message == "listener started") {

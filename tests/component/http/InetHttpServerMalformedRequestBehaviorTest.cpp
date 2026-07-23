@@ -5,7 +5,7 @@
 #include "core/socket/stream/SocketContextFactory.h"
 #include "net/in/SocketAddress.h"
 #include "net/in/stream/legacy/SocketClient.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 #include "web/http/legacy/in/Server.h"
@@ -79,7 +79,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("InetHttpServerMalformedRequestBehaviorTest");
     } else {
         State state;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-malformed-request");
+        tests::support::SemanticLogCapture capture("snodec-phase3-http-malformed-request");
         capture.initCore("InetHttpServerMalformedRequestBehaviorTest");
         using Server = web::http::legacy::in::Server;
         const Server server("ipv4-http-malformed-request-server", [&state](const auto&, const auto& response) {

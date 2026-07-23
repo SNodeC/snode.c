@@ -3,7 +3,7 @@
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 #include "log/Logger.h"
-#include "tests/support/Phase3SemanticLogCapture.h"
+#include "tests/support/SemanticLogCapture.h"
 #include "tests/support/TestResult.h"
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContext.h"
@@ -41,14 +41,14 @@ namespace {
     class TestSocketAddress : public core::socket::SocketAddress {
     public:
         std::string toString(bool = true) const override {
-            return "phase3-http-source-failure-address";
+            return "http-source-failure-address";
         }
     };
 
     class TestSocketConnection : public core::socket::stream::SocketConnection {
     public:
         TestSocketConnection()
-            : SocketConnection(42, 315, "phase3-http-source-failure-server", nullptr) {
+            : SocketConnection(42, 315, "http-streaming-source-failure-server", nullptr) {
         }
 
         ~TestSocketConnection() override = default;
@@ -185,7 +185,7 @@ namespace {
 
 int main() {
     tests::support::TestResult result;
-    tests::support::Phase3SemanticLogCapture capture("snodec-phase3-http-streaming-source-failure");
+    tests::support::SemanticLogCapture capture("snodec-http-streaming-source-failure");
     logger::Logger::setLogLevel(6);
     logger::LogManager::setGlobalLevel(logger::LogLevel::Debug);
     logger::LogManager::setFormat(logger::LogManager::Format::Json);
@@ -235,7 +235,7 @@ int main() {
     int responseErrorDiagnosticCount = 0;
 
     for (const nlohmann::json& record : records) {
-        if (value(record, "component") == "web.http.server" && value(record, "instance") == "phase3-http-source-failure-server") {
+        if (value(record, "component") == "web.http.server" && value(record, "instance") == "http-streaming-source-failure-server") {
             const std::string message = value(record, "message");
             if (message.starts_with("request started:")) {
                 started.push_back(record);
@@ -259,7 +259,7 @@ int main() {
     result.expectTrue(responseErrorDiagnosticCount >= 1, "existing response-error diagnostic remains available");
 
     if (started.size() == 1 && failed.size() == 1) {
-        constexpr std::string_view expectedInstance = "phase3-http-source-failure-server";
+        constexpr std::string_view expectedInstance = "http-streaming-source-failure-server";
         constexpr std::string_view expectedConnection = "315";
         for (const nlohmann::json* record : {&started.front(), &failed.front()}) {
             result.expectTrue(value(*record, "level") == "debug" && value(*record, "origin") == "framework" &&

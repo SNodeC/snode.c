@@ -10,7 +10,7 @@
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "net/in/SocketAddress.h"
-#include "support/Phase3SemanticLogCapture.h"
+#include "support/SemanticLogCapture.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 #include "web/http/CiStringMap.h"
@@ -311,7 +311,7 @@ namespace tests::component::eventsource {
     struct CloseState : State {};
 
     inline int runInetEventSourceClientCloseAfterEventTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], CloseState& state) {
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-close");
+        tests::support::SemanticLogCapture capture("snodec-phase3-eventsource-close");
         char testName[] = "InetSseEventSourceClientCloseAfterEventTest";
         char logLevel[] = "--log-level=6";
         char logFormat[] = "--log-format=json";
@@ -365,7 +365,7 @@ namespace tests::component::eventsource {
 
     inline int runInetEventSourceReconnectLifecycleTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], ReconnectState& state) {
         state.allowReconnect = true;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-reconnect");
+        tests::support::SemanticLogCapture capture("snodec-phase3-eventsource-reconnect");
         char testName[] = "InetSseEventSourceReconnectLifecycleTest";
         char logLevel[] = "--log-level=6";
         char logFormat[] = "--log-format=json";
@@ -428,7 +428,7 @@ namespace tests::component::eventsource {
     inline int
     runInetEventSourceDestructionLifecycleTest([[maybe_unused]] int argc, [[maybe_unused]] char* argv[], DestructionState& state) {
         state.destroyAfterExpectedEvents = true;
-        tests::support::Phase3SemanticLogCapture capture("snodec-phase3-eventsource-destruction");
+        tests::support::SemanticLogCapture capture("snodec-phase3-eventsource-destruction");
         {
             auto unconfigured = std::make_shared<class web::http::legacy::in::EventSource>();
             unconfigured.reset();

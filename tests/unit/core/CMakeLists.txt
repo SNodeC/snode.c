@@ -191,6 +191,71 @@ foreach(
     )
 endforeach()
 
+snodec_add_test(SocketContextLifecycleTest SocketContextLifecycleTest.cpp)
+target_include_directories(SocketContextLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SocketContextLifecycleTest PRIVATE cxx_std_20)
+target_link_libraries(
+    SocketContextLifecycleTest
+    PRIVATE snodec-test-support snodec::core-socket-stream snodec::logger
+)
+set_tests_properties(
+    SocketContextLifecycleTest PROPERTIES LABELS "unit;core;lifecycle"
+)
+
+snodec_add_test(ListenerLifecycleTest ListenerLifecycleTest.cpp)
+target_include_directories(ListenerLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(ListenerLifecycleTest PRIVATE cxx_std_20)
+target_compile_definitions(ListenerLifecycleTest PRIVATE SNODEC_INTREE_BUILD)
+target_link_libraries(
+    ListenerLifecycleTest
+    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
+)
+set_tests_properties(
+    ListenerLifecycleTest PROPERTIES LABELS "unit;core;lifecycle;listener"
+)
+
+snodec_add_test(EndpointLifetimeCountersTest EndpointLifetimeCountersTest.cpp)
+target_include_directories(EndpointLifetimeCountersTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(EndpointLifetimeCountersTest PRIVATE cxx_std_20)
+target_link_libraries(
+    EndpointLifetimeCountersTest
+    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
+)
+set_tests_properties(
+    EndpointLifetimeCountersTest
+    PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter"
+)
+
+snodec_add_test(
+    ConnectionAttemptLifecycleTest ConnectionAttemptLifecycleTest.cpp
+)
+target_include_directories(
+    ConnectionAttemptLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_compile_features(ConnectionAttemptLifecycleTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    ConnectionAttemptLifecycleTest PRIVATE SNODEC_BUILD_TESTS SNODEC_INTREE_BUILD
+)
+target_link_libraries(
+    ConnectionAttemptLifecycleTest
+    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
+)
+set_tests_properties(
+    ConnectionAttemptLifecycleTest
+    PROPERTIES LABELS "unit;core;lifecycle;connection"
+)
+
+snodec_add_test(TlsOpenSslLoggingTest TlsOpenSslLoggingTest.cpp)
+target_include_directories(TlsOpenSslLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(TlsOpenSslLoggingTest PRIVATE cxx_std_20)
+target_link_libraries(
+    TlsOpenSslLoggingTest
+    PRIVATE snodec-test-support snodec::core-socket-stream-tls
+)
+set_tests_properties(
+    TlsOpenSslLoggingTest PROPERTIES LABELS "unit;core;tls;log"
+)
+
 add_executable(TLSFrameworkShutdownTest TLSFrameworkShutdownTest.cpp)
 
 target_include_directories(
