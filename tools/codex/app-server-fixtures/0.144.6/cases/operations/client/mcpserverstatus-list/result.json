@@ -1,0 +1,58 @@
+{
+  "data": [
+    {
+      "authStatus": "unsupported",
+      "name": "synthetic-5621a4e270",
+      "resourceTemplates": [
+        {
+          "annotations": {},
+          "description": "synthetic-d47b3b4147",
+          "mimeType": "synthetic-61c37ec241",
+          "name": "synthetic-1f20a79e67",
+          "title": "synthetic-ade3f85560",
+          "uriTemplate": "synthetic-a658a8b6e5"
+        }
+      ],
+      "resources": [
+        {
+          "_meta": {},
+          "annotations": {},
+          "description": "synthetic-3605dc2307",
+          "icons": [
+            {}
+          ],
+          "mimeType": "synthetic-639961f5e0",
+          "name": "synthetic-fac38e4c03",
+          "size": 0,
+          "title": "synthetic-a6da8a2f48",
+          "uri": "synthetic-536b8bfb70"
+        }
+      ],
+      "serverInfo": {
+        "description": "synthetic-086fe0c47a",
+        "icons": [
+          {}
+        ],
+        "name": "synthetic-b41ee4e947",
+        "title": "synthetic-13901a1ff7",
+        "version": "synthetic-6b6ee8ec74",
+        "websiteUrl": "synthetic-e6d5a146e6"
+      },
+      "tools": {
+        "syntheticKey": {
+          "_meta": {},
+          "annotations": {},
+          "description": "synthetic-f37910aed1",
+          "icons": [
+            {}
+          ],
+          "inputSchema": {},
+          "name": "synthetic-a5eca0db48",
+          "outputSchema": {},
+          "title": "synthetic-f37d9436df"
+        }
+      }
+    }
+  ],
+  "nextCursor": "synthetic-9e08152d99"
+}

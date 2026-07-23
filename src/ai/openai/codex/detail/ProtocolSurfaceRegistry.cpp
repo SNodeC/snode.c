@@ -18,6 +18,36 @@ namespace ai::openai::codex::detail {
 
     namespace {
 
+        constexpr SchemaCompletenessEvidence schemaCompletenessEvidence(bool authoritativeRootAssociation,
+                                                                        bool positiveFixtureCoverage,
+                                                                        bool requiredFieldsExercised,
+                                                                        bool schemaPropertiesExercised,
+                                                                        bool optionalPresentExercised,
+                                                                        bool optionalOmittedExercised,
+                                                                        bool nullableSemanticsExercised,
+                                                                        bool reachableUnionAlternativesExercised,
+                                                                        bool directionAssertionsExercised,
+                                                                        bool fixtureCurrent,
+                                                                        bool runtimeDecoderMatchesRegistry,
+                                                                        bool opaqueFieldsDeclared,
+                                                                        bool independentlySchemaValidated,
+                                                                        bool noKnownSchemaFieldsDropped) noexcept {
+            return {authoritativeRootAssociation,
+                    positiveFixtureCoverage,
+                    requiredFieldsExercised,
+                    schemaPropertiesExercised,
+                    optionalPresentExercised,
+                    optionalOmittedExercised,
+                    nullableSemanticsExercised,
+                    reachableUnionAlternativesExercised,
+                    directionAssertionsExercised,
+                    fixtureCurrent,
+                    runtimeDecoderMatchesRegistry,
+                    opaqueFieldsDeclared,
+                    independentlySchemaValidated,
+                    noKnownSchemaFieldsDropped};
+        }
+
 #define CODEX_PROTOCOL_SURFACE_ENTRY(category,                                                                                             \
                                      domain,                                                                                               \
                                      field,                                                                                                \
@@ -30,7 +60,16 @@ namespace ai::openai::codex::detail {
                                      canonicalState,                                                                                       \
                                      frontendProtocol,                                                                                     \
                                      frontendSecurity,                                                                                     \
-                                     runtimeTarget)                                                                                        \
+                                     runtimeTarget,                                                                                        \
+                                     parameterTypeIdentity,                                                                                \
+                                     resultTypeIdentity,                                                                                   \
+                                     resultContractKind,                                                                                   \
+                                     associationEvidenceKind,                                                                              \
+                                     associationEvidenceKey,                                                                               \
+                                     typedModule,                                                                                          \
+                                     a1Slice,                                                                                              \
+                                     typedSchemaStatus,                                                                                    \
+                                     schemaCompleteness)                                                                                   \
     {{category, domain, field, name},                                                                                                      \
      stability,                                                                                                                            \
      deprecated,                                                                                                                           \
@@ -40,7 +79,12 @@ namespace ai::openai::codex::detail {
      canonicalState,                                                                                                                       \
      frontendProtocol,                                                                                                                     \
      frontendSecurity,                                                                                                                     \
-     RuntimeTarget{runtimeTarget}},
+     RuntimeTarget{runtimeTarget},                                                                                                         \
+     {parameterTypeIdentity, resultTypeIdentity, resultContractKind, associationEvidenceKind, associationEvidenceKey},                     \
+     typedModule,                                                                                                                          \
+     a1Slice,                                                                                                                              \
+     typedSchemaStatus,                                                                                                                    \
+     schemaCompleteness},
 
         constexpr ProtocolSurfaceEntry Registry[] = {
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
@@ -72,6 +116,10 @@ namespace ai::openai::codex::detail {
         bool isMethodCategory(SurfaceCategory category) noexcept {
             return category == SurfaceCategory::ClientRequest || category == SurfaceCategory::ClientNotification ||
                    category == SurfaceCategory::ServerNotification || category == SurfaceCategory::ServerRequest;
+        }
+
+        bool isRequestCategory(SurfaceCategory category) noexcept {
+            return category == SurfaceCategory::ClientRequest || category == SurfaceCategory::ServerRequest;
         }
 
         std::string keyName(const ProtocolSurfaceKey& key) {
@@ -163,6 +211,20 @@ namespace ai::openai::codex::detail {
             }
         }
 
+        bool completeSchemaEvidence(const SchemaCompletenessEvidence& evidence) noexcept {
+            return evidence.authoritativeRootAssociation && evidence.positiveFixtureCoverage && evidence.requiredFieldsExercised &&
+                   evidence.schemaPropertiesExercised && evidence.optionalPresentExercised && evidence.optionalOmittedExercised &&
+                   evidence.nullableSemanticsExercised && evidence.reachableUnionAlternativesExercised &&
+                   evidence.directionAssertionsExercised && evidence.fixtureCurrent && evidence.runtimeDecoderMatchesRegistry &&
+                   evidence.opaqueFieldsDeclared && evidence.independentlySchemaValidated && evidence.noKnownSchemaFieldsDropped;
+        }
+
+        bool hasOperationContract(const OperationContract& contract) noexcept {
+            return !contract.parameterTypeIdentity.empty() || !contract.resultTypeIdentity.empty() ||
+                   contract.resultKind != ResultContractKind::NotApplicable ||
+                   contract.evidenceKind != AssociationEvidenceKind::NotApplicable || !contract.evidenceKey.empty();
+        }
+
     } // namespace
 
     std::span<const ProtocolSurfaceEntry> protocolSurfaceRegistry() noexcept {
@@ -198,6 +260,16 @@ namespace ai::openai::codex::detail {
 
     const ProtocolSurfaceEntry& entryFor(ItemDiscriminatorTarget target) {
         return findTarget(target);
+    }
+
+    TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept {
+        if (entry.a1Slice == A1Slice::InventoryOnly || entry.typedImplementation == TypedImplementationStatus::NotApplicable) {
+            return TypedSchemaStatus::NotApplicable;
+        }
+        if (entry.typedImplementation != TypedImplementationStatus::Implemented) {
+            return TypedSchemaStatus::NotImplemented;
+        }
+        return completeSchemaEvidence(entry.schemaCompleteness) ? TypedSchemaStatus::Complete : TypedSchemaStatus::Partial;
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries) {
@@ -243,6 +315,134 @@ namespace ai::openai::codex::detail {
                 result.errors.push_back({ProtocolSurfaceErrorCode::ImplementedWithoutTypedDisposition,
                                          keyName(entry.key) + " claims typed implementation without typed runtime disposition"});
             }
+
+            const bool requestCategory = isRequestCategory(entry.key.category);
+            const bool contractPresent = hasOperationContract(entry.operationContract);
+            if (!requestCategory) {
+                if (contractPresent) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::ContractOnNonRequest,
+                                             keyName(entry.key) + " has an operation contract on a non-request row"});
+                }
+            } else if (entry.stability == Stability::ExperimentalOnly) {
+                if (contractPresent) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::ExperimentalAssociationCountedAsStable,
+                                             keyName(entry.key) + " experimental association must remain inventory-only"});
+                }
+            } else {
+                const OperationContract& contract = entry.operationContract;
+                if (contract.parameterTypeIdentity.empty() || contract.resultKind == ResultContractKind::Unresolved ||
+                    contract.resultKind == ResultContractKind::NotApplicable ||
+                    contract.evidenceKind == AssociationEvidenceKind::NotApplicable || contract.evidenceKey.empty()) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::MissingAssociation,
+                                             keyName(entry.key) + " lacks one authoritative operation association"});
+                } else {
+                    const AssociationEvidenceKind expectedEvidence = entry.key.category == SurfaceCategory::ClientRequest
+                                                                         ? AssociationEvidenceKind::VendoredRust
+                                                                         : AssociationEvidenceKind::VendoredSchemaPair;
+                    if (contract.evidenceKind != expectedEvidence) {
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::ConflictingAssociationEvidence,
+                             keyName(entry.key) + " uses evidence that conflicts with the category's authoritative source"});
+                    }
+                    if (contract.resultKind == ResultContractKind::Unit && contract.resultTypeIdentity != "()" &&
+                        contract.resultTypeIdentity != "Unit") {
+                        result.errors.push_back({ProtocolSurfaceErrorCode::UnitWithNonUnitResultType,
+                                                 keyName(entry.key) + " declares Unit without an explicit unit result identity"});
+                    } else if (contract.resultKind == ResultContractKind::Concrete && contract.resultTypeIdentity.empty()) {
+                        result.errors.push_back({ProtocolSurfaceErrorCode::ConcreteWithoutResultType,
+                                                 keyName(entry.key) + " declares Concrete without a result type identity"});
+                    } else if ((contract.resultKind == ResultContractKind::Nullable ||
+                                contract.resultKind == ResultContractKind::ProtocolSpecial) &&
+                               contract.resultTypeIdentity.empty()) {
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::WrongResultType,
+                             keyName(entry.key) + " declares a result contract that requires a non-empty result type identity"});
+                    }
+                }
+            }
+
+            if (entry.typedModule.empty()) {
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::MissingTypedModuleAssignment, keyName(entry.key) + " has no fixed typed module assignment"});
+            }
+            if (entry.a1Slice == A1Slice::Unassigned) {
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::MissingSliceAssignment, keyName(entry.key) + " has no fixed A1 slice assignment"});
+            }
+
+            const TypedSchemaStatus derivedStatus = derivedTypedSchemaStatus(entry);
+            if (entry.typedSchemaStatus == TypedSchemaStatus::Complete && derivedStatus != TypedSchemaStatus::Complete &&
+                entry.typedImplementation == TypedImplementationStatus::Implemented && entry.a1Slice != A1Slice::InventoryOnly) {
+                const SchemaCompletenessEvidence& evidence = entry.schemaCompleteness;
+                if (!evidence.authoritativeRootAssociation) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::ClaimedCompleteWithoutAuthoritativeAssociation,
+                                             keyName(entry.key) + " claims schema completeness without an authoritative root association"});
+                }
+                if (!evidence.positiveFixtureCoverage) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::ClaimedCompleteWithoutPositiveFixtureCoverage,
+                         keyName(entry.key) + " claims schema completeness without positive schema-derived fixture coverage"});
+                }
+                if (!evidence.requiredFieldsExercised) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::RequiredFieldNotExercised,
+                                             keyName(entry.key) + " claims schema completeness without exercising every required field"});
+                }
+                if (!evidence.schemaPropertiesExercised) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::SchemaPropertyNotExercised,
+                         keyName(entry.key) + " claims schema completeness without exercising every represented schema property"});
+                }
+                if (!evidence.optionalPresentExercised) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::OptionalPresentCaseMissing,
+                                             keyName(entry.key) + " claims schema completeness without optional-present fixture coverage"});
+                }
+                if (!evidence.optionalOmittedExercised) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::OptionalOmittedCaseMissing,
+                                             keyName(entry.key) + " claims schema completeness without optional-omitted fixture coverage"});
+                }
+                if (!evidence.nullableSemanticsExercised) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::NullableSemanticsMissing,
+                         keyName(entry.key) + " claims schema completeness without nullable/null/value/omitted coverage"});
+                }
+                if (!evidence.reachableUnionAlternativesExercised) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::ReachableUnionAlternativeMissing,
+                         keyName(entry.key) + " claims schema completeness without every reachable known union alternative"});
+                }
+                if (!evidence.directionAssertionsExercised) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::DirectionAssertionMissing,
+                         keyName(entry.key) + " claims schema completeness without direction-specific codec assertions"});
+                }
+                if (!evidence.fixtureCurrent) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::StaleFixture,
+                                             keyName(entry.key) + " claims schema completeness with stale fixture evidence"});
+                }
+                if (!evidence.runtimeDecoderMatchesRegistry) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::CompletenessRuntimeTargetMismatch,
+                         keyName(entry.key) + " claims schema completeness without a matching production runtime decoder target"});
+                }
+                if (!evidence.opaqueFieldsDeclared) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::UnrecordedOpaqueField,
+                                             keyName(entry.key) + " claims schema completeness with an unrecorded protocol-opaque field"});
+                }
+                if (!evidence.independentlySchemaValidated) {
+                    result.errors.push_back({ProtocolSurfaceErrorCode::ClaimedCompleteWithoutIndependentValidation,
+                                             keyName(entry.key) + " claims schema completeness without independent schema validation"});
+                }
+                if (!evidence.noKnownSchemaFieldsDropped) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::KnownSchemaFieldDropped,
+                         keyName(entry.key) + " claims schema completeness while a known schema field is silently dropped"});
+                }
+            } else if (entry.typedSchemaStatus != derivedStatus) {
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::TypedSchemaStatusMismatch,
+                     keyName(entry.key) + " schema status differs from the mechanically derived completeness predicate"});
+            }
+
             switch (entry.frontendProtocol) {
                 case FrontendExposure::ExistingOperationSubset:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingOperationSubsetExpansionUnresolved) {
@@ -315,6 +515,15 @@ namespace ai::openai::codex::detail {
                     isMethodCategory(entry.key.category) && candidate.key.name == entry.key.name) {
                     result.errors.push_back(
                         {ProtocolSurfaceErrorCode::MethodCategoryCollision, "protocol method category collision: " + keyName(entry.key)});
+                }
+                if (candidate.key != entry.key && candidate.stability == Stability::Stable && entry.stability == Stability::Stable &&
+                    isRequestCategory(candidate.key.category) && isRequestCategory(entry.key.category) &&
+                    hasOperationContract(candidate.operationContract) && hasOperationContract(entry.operationContract) &&
+                    candidate.operationContract.evidenceKind == entry.operationContract.evidenceKind &&
+                    candidate.operationContract.evidenceKey == entry.operationContract.evidenceKey) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::DuplicateAssociation,
+                         keyName(entry.key) + " reuses authoritative operation evidence owned by " + keyName(candidate.key)});
                 }
             }
         }

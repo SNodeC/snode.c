@@ -239,6 +239,7 @@ int main() {
     const auto recategorized =
         findEntry(wrongCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     recategorized->key.category = detail::SurfaceCategory::TaggedUnionDiscriminator;
+    recategorized->operationContract = {};
     std::sort(wrongCategory.begin(), wrongCategory.end(), [](const auto& left, const auto& right) {
         return left.key < right.key;
     });
@@ -249,6 +250,7 @@ int main() {
     const auto restabilized =
         findEntry(wrongStability, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     restabilized->stability = detail::Stability::ExperimentalOnly;
+    restabilized->operationContract = {};
     result.expectTrue(hasExactCoverageCodes(wrongStability, manifest, {ErrorCode::WrongStability}),
                       "coverage guard reports only WrongStability for wrong stable/experimental membership");
 
@@ -257,6 +259,7 @@ int main() {
         findEntry(falseTyped, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     unimplemented->runtimeDisposition = detail::RuntimeDisposition::Typed;
     unimplemented->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    unimplemented->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     result.expectTrue(hasExactCoverageCodes(falseTyped, manifest, {ErrorCode::TypedWithoutRuntimeTarget}),
                       "coverage guard reports only TypedWithoutRuntimeTarget for a false typed claim");
 
@@ -265,6 +268,7 @@ int main() {
         findEntry(duplicateRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     duplicateTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     duplicateTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    duplicateTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     duplicateTarget->runtimeTarget = detail::ClientRequestTarget::Initialize;
     result.expectTrue(
         hasExactCodes(detail::validateProtocolSurface(duplicateRuntimeTarget), {ErrorCode::DuplicateRuntimeTargetRegistration}),
@@ -274,6 +278,7 @@ int main() {
     const auto wrongTargetCategory =
         findEntry(wrongRuntimeTargetCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "initialize");
     wrongTargetCategory->key.category = detail::SurfaceCategory::TaggedUnionDiscriminator;
+    wrongTargetCategory->operationContract = {};
     std::sort(wrongRuntimeTargetCategory.begin(), wrongRuntimeTargetCategory.end(), [](const auto& left, const auto& right) {
         return left.key < right.key;
     });
@@ -285,6 +290,7 @@ int main() {
         findEntry(sentinelRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     sentinelTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     sentinelTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    sentinelTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     sentinelTarget->runtimeTarget = detail::ClientRequestTarget::Count;
     result.expectTrue(hasExactCodes(detail::validateProtocolSurface(sentinelRuntimeTarget), {ErrorCode::InvalidRuntimeTarget}),
                       "registry validation reports only InvalidRuntimeTarget for a Count sentinel");
@@ -317,6 +323,7 @@ int main() {
     const auto demoted = findEntry(demotedTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "initialize");
     demoted->runtimeDisposition = detail::RuntimeDisposition::Deferred;
     demoted->typedImplementation = detail::TypedImplementationStatus::NotImplemented;
+    demoted->typedSchemaStatus = detail::TypedSchemaStatus::NotImplemented;
     result.expectTrue(hasExactCodes(detail::validateProtocolSurface(demotedTarget), {ErrorCode::RuntimeTargetWithoutTypedImplementation}),
                       "runtime dispatch target is not represented by an implemented typed registry row: demotion reports only "
                       "RuntimeTargetWithoutTypedImplementation");

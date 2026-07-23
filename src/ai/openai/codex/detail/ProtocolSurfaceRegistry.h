@@ -34,6 +34,14 @@ namespace ai::openai::codex::detail {
 
     enum class TypedImplementationStatus { Implemented, NotImplemented, NotApplicable };
 
+    enum class ResultContractKind { Concrete, Unit, Nullable, ProtocolSpecial, Unresolved, NotApplicable };
+
+    enum class AssociationEvidenceKind { VendoredRust, VendoredSchemaPair, VendoredTypeScriptCrossCheck, NotApplicable };
+
+    enum class A1Slice { A1_0, A1_1, A1_2, A1_3, A1_4, InventoryOnly, Unassigned };
+
+    enum class TypedSchemaStatus { Complete, Partial, NotImplemented, NotApplicable };
+
     enum class LayerStatus { Implemented, NotImplemented, NotApplicable };
 
     enum class FrontendExposure {
@@ -114,6 +122,31 @@ namespace ai::openai::codex::detail {
         auto operator<=>(const ProtocolSurfaceKey&) const = default;
     };
 
+    struct OperationContract {
+        std::string_view parameterTypeIdentity;
+        std::string_view resultTypeIdentity;
+        ResultContractKind resultKind = ResultContractKind::NotApplicable;
+        AssociationEvidenceKind evidenceKind = AssociationEvidenceKind::NotApplicable;
+        std::string_view evidenceKey;
+    };
+
+    struct SchemaCompletenessEvidence {
+        bool authoritativeRootAssociation = false;
+        bool positiveFixtureCoverage = false;
+        bool requiredFieldsExercised = false;
+        bool schemaPropertiesExercised = false;
+        bool optionalPresentExercised = false;
+        bool optionalOmittedExercised = false;
+        bool nullableSemanticsExercised = false;
+        bool reachableUnionAlternativesExercised = false;
+        bool directionAssertionsExercised = false;
+        bool fixtureCurrent = false;
+        bool runtimeDecoderMatchesRegistry = false;
+        bool opaqueFieldsDeclared = false;
+        bool independentlySchemaValidated = false;
+        bool noKnownSchemaFieldsDropped = false;
+    };
+
     struct ProtocolSurfaceEntry {
         ProtocolSurfaceKey key;
         Stability stability = Stability::Stable;
@@ -125,6 +158,11 @@ namespace ai::openai::codex::detail {
         FrontendExposure frontendProtocol = FrontendExposure::NotExposed;
         FrontendSecurityDecision frontendSecurity = FrontendSecurityDecision::Unresolved;
         RuntimeTarget runtimeTarget;
+        OperationContract operationContract;
+        std::string_view typedModule;
+        A1Slice a1Slice = A1Slice::Unassigned;
+        TypedSchemaStatus typedSchemaStatus = TypedSchemaStatus::NotImplemented;
+        SchemaCompletenessEvidence schemaCompleteness;
     };
 
     enum class ProtocolSurfaceErrorCode {
@@ -148,7 +186,35 @@ namespace ai::openai::codex::detail {
         WrongCategory,
         WrongStability,
         WrongDeprecation,
-        StaleRegistryEntry
+        StaleRegistryEntry,
+        MissingAssociation,
+        DuplicateAssociation,
+        StaleAssociation,
+        WrongAssociationCategory,
+        WrongParameterType,
+        WrongResultType,
+        ConflictingAssociationEvidence,
+        UnitWithNonUnitResultType,
+        ConcreteWithoutResultType,
+        ContractOnNonRequest,
+        ExperimentalAssociationCountedAsStable,
+        MissingTypedModuleAssignment,
+        MissingSliceAssignment,
+        RequiredFieldNotExercised,
+        SchemaPropertyNotExercised,
+        OptionalPresentCaseMissing,
+        OptionalOmittedCaseMissing,
+        NullableSemanticsMissing,
+        ReachableUnionAlternativeMissing,
+        DirectionAssertionMissing,
+        StaleFixture,
+        CompletenessRuntimeTargetMismatch,
+        UnrecordedOpaqueField,
+        ClaimedCompleteWithoutAuthoritativeAssociation,
+        ClaimedCompleteWithoutPositiveFixtureCoverage,
+        ClaimedCompleteWithoutIndependentValidation,
+        KnownSchemaFieldDropped,
+        TypedSchemaStatusMismatch
     };
 
     struct ProtocolSurfaceDiagnostic {
@@ -174,6 +240,8 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ServerNotificationTarget target);
     const ProtocolSurfaceEntry& entryFor(ServerRequestTarget target);
     const ProtocolSurfaceEntry& entryFor(ItemDiscriminatorTarget target);
+
+    TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept;
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries);
 

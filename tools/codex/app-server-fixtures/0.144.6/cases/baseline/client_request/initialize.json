@@ -1,0 +1,19 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "initialize",
+  "params": {
+    "capabilities": {
+      "experimentalApi": false,
+      "mcpServerOpenaiFormElicitation": false,
+      "optOutNotificationMethods": [
+        "synthetic-2691fae90e"
+      ],
+      "requestAttestation": false
+    },
+    "clientInfo": {
+      "name": "synthetic-a76b30a151",
+      "title": "synthetic-c95c29e604",
+      "version": "synthetic-ecd35844dc"
+    }
+  }
+}

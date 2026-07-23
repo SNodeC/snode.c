@@ -1,0 +1,304 @@
+{
+  "audit_note": "The deterministic scanner was run over the exact pinned stable and experimental generated trees at the recorded aggregate and path-set hashes. Every client method literal occurs only in ClientRequest.ts, whose union arms contain method/id/params and no response/result association. The only parameter/response co-reference files are flat export indexes; no conditional, mapped, or broadly named association construct was found.",
+  "audit_procedure": {
+    "command": "python3 tools/codex/app_server_contracts.py --check --ts-stable <stable-generate-ts-root> --ts-experimental <experimental-generate-ts-root>",
+    "mapping_criteria": [
+      "locate every exact ClientRequest method literal across the complete generated tree",
+      "reject a client method outside ClientRequest.ts or a method-union response/result field",
+      "reject any ClientResponse.ts path or ClientResponse type/interface declaration",
+      "review every file co-referencing a ClientRequest parameter type and a response-named type; only flat index exports are accepted",
+      "enumerate broader Request/Response/Result/Map names and reject conditional or mapped association constructs"
+    ],
+    "path_identity": "sha256 of sorted '<relative-path>\\n' records",
+    "scope": "all files in both exact pinned generate-ts trees; the trees are audit inputs and are not runtime or source-package inputs",
+    "tree_identity": "sha256 of sorted '<file-sha256>  <relative-path>\\n' records"
+  },
+  "audited_trees": {
+    "experimental": {
+      "aggregate_sha256": "d561ef0b4ef8a921fff50de4e3c662a0fdff643e82868f2b05a3e71f912aec8c",
+      "association_construct_candidates": [],
+      "broader_name_review_files": [
+        {
+          "path": "v2/CommandExecutionRequestApprovalResponse.ts",
+          "sha256": "454ceee4decc66a9c070273d4344fa8a0187732cd884b8b60edda3a17766aa95"
+        },
+        {
+          "path": "v2/FileChangeRequestApprovalResponse.ts",
+          "sha256": "527a9af90f753e2b7f1852415523443fc9745376bb2c4b0b735f900c8da8fc71"
+        },
+        {
+          "path": "v2/McpServerElicitationRequestResponse.ts",
+          "sha256": "391007144a7dac5cdc57a065de5aaab130d4f7a45b5c9d7fae801c674498a3ee"
+        },
+        {
+          "path": "v2/PermissionsRequestApprovalResponse.ts",
+          "sha256": "60259c885b04fe35e3596d74921b3ca8c8cba3cb5bd582305b9d90e14fff9930"
+        },
+        {
+          "path": "v2/ToolRequestUserInputResponse.ts",
+          "sha256": "39e4959095a1b31de3f7bf28422a6536d51d651581ad1f50bc5e30c02140498b"
+        }
+      ],
+      "client_method_literal_files": [
+        {
+          "method_literal_count": 125,
+          "path": "ClientRequest.ts",
+          "sha256": "ba1f52da673f4a64b730dcdf5c89a87ea45a82b4dc7c8686bde530a677ddb6a7"
+        }
+      ],
+      "client_parameter_type_count": 115,
+      "client_request": {
+        "bytes": 19941,
+        "method_arms": 125,
+        "path": "ClientRequest.ts",
+        "sha256": "ba1f52da673f4a64b730dcdf5c89a87ea45a82b4dc7c8686bde530a677ddb6a7"
+      },
+      "client_response_declarations": [],
+      "client_response_named_paths": [],
+      "file_count": 671,
+      "parameter_response_coreference_files": [
+        {
+          "classification": "flat_export_index",
+          "client_parameter_reference_count": 8,
+          "path": "index.ts",
+          "response_type_reference_count": 10,
+          "sha256": "80712d84db9dce8d91bf8a5368e66a790b3c8df4875eb7c18258f405201c372d"
+        },
+        {
+          "classification": "flat_export_index",
+          "client_parameter_reference_count": 107,
+          "path": "v2/index.ts",
+          "response_type_reference_count": 125,
+          "sha256": "a28f8dccd991f1c5bdc068afa644e478b46b491f67a81b1c16251e82a6742362"
+        }
+      ],
+      "path_set_sha256": "e3df803b3bd79b66df8117cd71c03e5489c726e933ffdf4263e07168f8be692e",
+      "request_response_mapping_candidates": [],
+      "response_named_file_count": 137,
+      "response_type_name_count": 135
+    },
+    "stable": {
+      "aggregate_sha256": "73c95b6a19d5559939519a771e0f7285cc60bbfaa1aac8bd9c52ba308c6e6811",
+      "association_construct_candidates": [],
+      "broader_name_review_files": [
+        {
+          "path": "v2/CommandExecutionRequestApprovalResponse.ts",
+          "sha256": "454ceee4decc66a9c070273d4344fa8a0187732cd884b8b60edda3a17766aa95"
+        },
+        {
+          "path": "v2/FileChangeRequestApprovalResponse.ts",
+          "sha256": "527a9af90f753e2b7f1852415523443fc9745376bb2c4b0b735f900c8da8fc71"
+        },
+        {
+          "path": "v2/McpServerElicitationRequestResponse.ts",
+          "sha256": "391007144a7dac5cdc57a065de5aaab130d4f7a45b5c9d7fae801c674498a3ee"
+        },
+        {
+          "path": "v2/PermissionsRequestApprovalResponse.ts",
+          "sha256": "60259c885b04fe35e3596d74921b3ca8c8cba3cb5bd582305b9d90e14fff9930"
+        },
+        {
+          "path": "v2/ToolRequestUserInputResponse.ts",
+          "sha256": "39e4959095a1b31de3f7bf28422a6536d51d651581ad1f50bc5e30c02140498b"
+        }
+      ],
+      "client_method_literal_files": [
+        {
+          "method_literal_count": 90,
+          "path": "ClientRequest.ts",
+          "sha256": "b91a43a7f5006cdd0fec35a482f585affc2e1055ffd854936f7b32bd986f6bf2"
+        }
+      ],
+      "client_parameter_type_count": 82,
+      "client_request": {
+        "bytes": 13794,
+        "method_arms": 90,
+        "path": "ClientRequest.ts",
+        "sha256": "b91a43a7f5006cdd0fec35a482f585affc2e1055ffd854936f7b32bd986f6bf2"
+      },
+      "client_response_declarations": [],
+      "client_response_named_paths": [],
+      "file_count": 598,
+      "parameter_response_coreference_files": [
+        {
+          "classification": "flat_export_index",
+          "client_parameter_reference_count": 5,
+          "path": "index.ts",
+          "response_type_reference_count": 7,
+          "sha256": "8ce45a1eba375e35bccb5cd66a07b39dafad49c8adaa591f90620457e42eb319"
+        },
+        {
+          "classification": "flat_export_index",
+          "client_parameter_reference_count": 77,
+          "path": "v2/index.ts",
+          "response_type_reference_count": 92,
+          "sha256": "9380aa176e8f845ebbe4842edb8f2a7ed6fedd5c1c36f2d4e4922072574dadf5"
+        }
+      ],
+      "path_set_sha256": "07387afea381dca83e7ee178f0e3f06af39e4227a7e7a64fb9959c5e7f429489",
+      "request_response_mapping_candidates": [],
+      "response_named_file_count": 101,
+      "response_type_name_count": 99
+    }
+  },
+  "client_response_file_present": false,
+  "codex_version": "0.144.6",
+  "existing_surface_cross_check": {
+    "authority_rule": "TypeScript is an independent cross-check only. TypeScript-only entries are recorded as discrepancies and are not inserted into the JSON-schema-derived manifest.",
+    "experimental": {
+      "aggregate_sha256": "d561ef0b4ef8a921fff50de4e3c662a0fdff643e82868f2b05a3e71f912aec8c",
+      "discrepancies": {
+        "discriminators": {
+          "aliases": [
+            {
+              "reason": "unique discriminator field/value signature match",
+              "schema_domain": "ResponsesApiWebSearchAction",
+              "typescript_domain": "WebSearchAction",
+              "typescript_source": "WebSearchAction.ts"
+            }
+          ],
+          "schema_only": [],
+          "typescript_only": [
+            {
+              "field": "$variant",
+              "typescript_domain": "SessionSource",
+              "typescript_source": "SessionSource.ts",
+              "values": [
+                "cli",
+                "custom",
+                "exec",
+                "internal",
+                "mcp",
+                "subagent",
+                "unknown",
+                "vscode"
+              ]
+            }
+          ]
+        },
+        "explanations": [
+          {
+            "discrepancy": "TypeScript-only getAuthStatus, getConversationSummary, and gitDiffToRemote client requests, plus rawResponseItem/completed server notification",
+            "explanation": "The generated TypeScript envelope unions contain these entries while the generated JSON Schema envelope unions omit them. JSON Schema remains authoritative for the vendored manifest; the entries are not merged into it."
+          },
+          {
+            "discrepancy": "TypeScript-only root SessionSource tagged union",
+            "explanation": "This legacy root type is reachable from the TypeScript-only getConversationSummary surface. The distinct v2/SessionSource.ts union matches the JSON v2 SessionSource definition and is cross-checked separately."
+          },
+          {
+            "discrepancy": "ResponsesApiWebSearchAction JSON/TypeScript type-name difference",
+            "explanation": "The JSON definition matches root WebSearchAction.ts by its unique type discriminator value signature. The distinct v2 WebSearchAction matches v2/WebSearchAction.ts."
+          }
+        ],
+        "methods": {
+          "client_notification": {
+            "schema_only": [],
+            "typescript_only": []
+          },
+          "client_request": {
+            "schema_only": [],
+            "typescript_only": [
+              "getAuthStatus",
+              "getConversationSummary",
+              "gitDiffToRemote"
+            ]
+          },
+          "server_notification": {
+            "schema_only": [],
+            "typescript_only": [
+              "rawResponseItem/completed"
+            ]
+          },
+          "server_request": {
+            "schema_only": [],
+            "typescript_only": []
+          }
+        }
+      },
+      "file_count": 671
+    },
+    "stable": {
+      "aggregate_sha256": "73c95b6a19d5559939519a771e0f7285cc60bbfaa1aac8bd9c52ba308c6e6811",
+      "discrepancies": {
+        "discriminators": {
+          "aliases": [
+            {
+              "reason": "unique discriminator field/value signature match",
+              "schema_domain": "ResponsesApiWebSearchAction",
+              "typescript_domain": "WebSearchAction",
+              "typescript_source": "WebSearchAction.ts"
+            }
+          ],
+          "schema_only": [],
+          "typescript_only": [
+            {
+              "field": "$variant",
+              "typescript_domain": "SessionSource",
+              "typescript_source": "SessionSource.ts",
+              "values": [
+                "cli",
+                "custom",
+                "exec",
+                "internal",
+                "mcp",
+                "subagent",
+                "unknown",
+                "vscode"
+              ]
+            }
+          ]
+        },
+        "explanations": [
+          {
+            "discrepancy": "TypeScript-only getAuthStatus, getConversationSummary, and gitDiffToRemote client requests, plus rawResponseItem/completed server notification",
+            "explanation": "The generated TypeScript envelope unions contain these entries while the generated JSON Schema envelope unions omit them. JSON Schema remains authoritative for the vendored manifest; the entries are not merged into it."
+          },
+          {
+            "discrepancy": "TypeScript-only root SessionSource tagged union",
+            "explanation": "This legacy root type is reachable from the TypeScript-only getConversationSummary surface. The distinct v2/SessionSource.ts union matches the JSON v2 SessionSource definition and is cross-checked separately."
+          },
+          {
+            "discrepancy": "ResponsesApiWebSearchAction JSON/TypeScript type-name difference",
+            "explanation": "The JSON definition matches root WebSearchAction.ts by its unique type discriminator value signature. The distinct v2 WebSearchAction matches v2/WebSearchAction.ts."
+          }
+        ],
+        "methods": {
+          "client_notification": {
+            "schema_only": [],
+            "typescript_only": []
+          },
+          "client_request": {
+            "schema_only": [],
+            "typescript_only": [
+              "getAuthStatus",
+              "getConversationSummary",
+              "gitDiffToRemote"
+            ]
+          },
+          "server_notification": {
+            "schema_only": [],
+            "typescript_only": [
+              "rawResponseItem/completed"
+            ]
+          },
+          "server_request": {
+            "schema_only": [],
+            "typescript_only": []
+          }
+        }
+      },
+      "file_count": 598
+    }
+  },
+  "finding": {
+    "action": "do not vendor the TypeScript tree; Rust remains authoritative for client successful-result associations",
+    "broader_name_review": "five server-request response type names in each tree; none co-reference a ClientRequest parameter or method",
+    "client_request_mapping": "method -> params only",
+    "independent_request_response_mapping": false,
+    "parameter_response_coreferences": "only generated flat export indexes; no association construct",
+    "response_export": "individual response type files and index exports; no ClientResponse.ts envelope or method association"
+  },
+  "format_version": 1,
+  "generated_notice": "GENERATED by tools/codex/app_server_contracts.py; do not edit.",
+  "source_commit_sha": "5d1fbf26c43abc65a203928b2e31561cb039e06d"
+}

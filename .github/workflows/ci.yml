@@ -10,7 +10,7 @@ on:
       - 'tests/**'
       - 'tools/**'
       - 'docs/ai/openai/codex/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/**'
   pull_request:
     paths:
       - 'CMakeLists.txt'
@@ -19,7 +19,7 @@ on:
       - 'tests/**'
       - 'tools/**'
       - 'docs/ai/openai/codex/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/**'
 
 jobs:
   gcc-debug:

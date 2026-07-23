@@ -1,0 +1,35 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "turn/start",
+  "params": {
+    "approvalPolicy": "untrusted",
+    "approvalsReviewer": "user",
+    "clientUserMessageId": "synthetic-2c8edf99e6",
+    "cwd": "synthetic-95c909b27a",
+    "effort": "synthetic-b43c9594ba",
+    "input": [
+      {
+        "text": "synthetic-796383c7b4",
+        "text_elements": [
+          {
+            "byteRange": {
+              "end": 0,
+              "start": 0
+            },
+            "placeholder": "synthetic-3cb304aacb"
+          }
+        ],
+        "type": "text"
+      }
+    ],
+    "model": "synthetic-82f3294eaa",
+    "outputSchema": {},
+    "personality": "none",
+    "sandboxPolicy": {
+      "type": "dangerFullAccess"
+    },
+    "serviceTier": "synthetic-df82577922",
+    "summary": "auto",
+    "threadId": "synthetic-1bd2a7e384"
+  }
+}

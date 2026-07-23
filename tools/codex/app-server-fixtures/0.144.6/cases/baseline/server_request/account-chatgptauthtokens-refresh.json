@@ -1,0 +1,8 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "account/chatgptAuthTokens/refresh",
+  "params": {
+    "previousAccountId": "synthetic-c5dd31c8dc",
+    "reason": "unauthorized"
+  }
+}

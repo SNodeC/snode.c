@@ -1,0 +1,12 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "item/fileChange/requestApproval",
+  "params": {
+    "grantRoot": "synthetic-960817c3a1",
+    "itemId": "synthetic-59d5dd060f",
+    "reason": "synthetic-f7076a5f63",
+    "startedAtMs": 0,
+    "threadId": "synthetic-7c15d06f6e",
+    "turnId": "synthetic-cb2d5c08ff"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "thread/read",
+  "params": {
+    "includeTurns": false,
+    "threadId": "synthetic-a625e86a0b"
+  }
+}

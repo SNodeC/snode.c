@@ -65,6 +65,36 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
+# Source packages are reproducibility artifacts, so they retain vendored
+# protocol evidence, schemas, fixtures, generators, tests, and documentation.
+# Keep local build products and execution-environment metadata out of those
+# archives. CPack's default ignore list does not exclude an in-tree build.
+set(
+    CPACK_SOURCE_IGNORE_FILES
+    "/CVS/"
+    "/\\.svn/"
+    "/\\.bzr/"
+    "/\\.hg/"
+    "/\\.git/"
+    "/\\.agents/"
+    "/\\.codex/"
+    "/\\.cache/"
+    "/\\.kdev4/"
+    "/\\.qtcreator/"
+    "/\\.vscode/"
+    "/_CPack_Packages/"
+    "/build[^/]*/"
+    "/softwipe_build/"
+    "/test1-cppcheck-build-dir/"
+    "/__pycache__/"
+    "\\.kdev4$"
+    "\\.py[cod]$"
+    "\\.swp$"
+    "\\.#"
+    "/#"
+    "~$"
+)
+
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)

@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "cwd": "synthetic-f8fd38b679",
+      "description": "synthetic-16ace1437a",
+      "details": {
+        "commands": [
+          {
+            "name": "synthetic-7c98ab787d"
+          }
+        ],
+        "hooks": [
+          {
+            "name": "synthetic-5076cd0a78"
+          }
+        ],
+        "mcpServers": [
+          {
+            "name": "synthetic-9410f1eb2a"
+          }
+        ],
+        "plugins": [
+          {
+            "marketplaceName": "synthetic-712fbe94ff",
+            "pluginNames": [
+              "synthetic-4d23eccbe6"
+            ]
+          }
+        ],
+        "sessions": [
+          {
+            "cwd": "synthetic-6026922e4c",
+            "path": "synthetic-3af24c152a",
+            "title": "synthetic-3259fc4a15"
+          }
+        ],
+        "skills": [
+          {
+            "name": "synthetic-9baef5fcca"
+          }
+        ],
+        "subagents": [
+          {
+            "name": "synthetic-3116ca5d44"
+          }
+        ]
+      },
+      "itemType": "AGENTS_MD"
+    }
+  ]
+}

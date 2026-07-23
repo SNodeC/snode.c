@@ -122,7 +122,7 @@ int main() {
         "tests/**",
         "tools/**",
         "docs/ai/openai/codex/**",
-        ".github/workflows/ci.yml",
+        ".github/workflows/**",
     };
 
     bool ok = triggerPaths.foundOn;

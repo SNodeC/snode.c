@@ -1,0 +1,24 @@
+{
+  "command": [
+    "synthetic-3b6317cbcb"
+  ],
+  "cwd": "synthetic-5d9a348799",
+  "disableOutputCap": false,
+  "disableTimeout": false,
+  "env": {
+    "syntheticKey": "synthetic-f85dcbbe48"
+  },
+  "outputBytesCap": 0,
+  "processId": "synthetic-d443e16aea",
+  "sandboxPolicy": {
+    "type": "dangerFullAccess"
+  },
+  "size": {
+    "cols": 0,
+    "rows": 0
+  },
+  "streamStdin": false,
+  "streamStdoutStderr": false,
+  "timeoutMs": 0,
+  "tty": false
+}

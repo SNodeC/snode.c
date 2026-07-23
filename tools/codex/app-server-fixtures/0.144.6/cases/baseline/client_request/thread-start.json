@@ -1,0 +1,21 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "thread/start",
+  "params": {
+    "approvalPolicy": "untrusted",
+    "approvalsReviewer": "user",
+    "baseInstructions": "synthetic-f8923dbee6",
+    "config": {},
+    "cwd": "synthetic-bf0b4f49dd",
+    "developerInstructions": "synthetic-148b7bdd67",
+    "ephemeral": false,
+    "model": "synthetic-50ab870193",
+    "modelProvider": "synthetic-47e791e66b",
+    "personality": "none",
+    "sandbox": "read-only",
+    "serviceName": "synthetic-6698bee658",
+    "serviceTier": "synthetic-0f9f53b193",
+    "sessionStartSource": "startup",
+    "threadSource": "synthetic-2db5dd3788"
+  }
+}
