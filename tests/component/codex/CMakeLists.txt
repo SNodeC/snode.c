@@ -316,6 +316,7 @@ foreach(
     ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
           CodexTypedItemDecoderTest CodexTypedEventDecoderTest
           CodexTypedServerRequestDecoderTest CodexErrorInfoCodecTest
+          CodexConversationCodecTest
 )
     snodec_add_test(${typed_test} ${typed_test}.cpp)
     target_link_libraries(
@@ -330,6 +331,10 @@ endforeach()
 
 target_compile_definitions(
     CodexErrorInfoCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+target_compile_definitions(
+    CodexConversationCodecTest
     PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
 )
 

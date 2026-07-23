@@ -1,0 +1,9 @@
+{
+  "excludeSlashTmp": false,
+  "excludeTmpdirEnvVar": false,
+  "networkAccess": null,
+  "type": "workspaceWrite",
+  "writableRoots": [
+    "synthetic-75177d933c"
+  ]
+}

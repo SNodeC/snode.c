@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/detail/TurnCodec.h"
 
+#include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
 
 #include <cstdint>
@@ -15,7 +16,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -116,91 +116,10 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
-        std::optional<Json> encodeSandboxPolicy(const typed::SandboxPolicy& policy, std::string& error) {
-            return std::visit(
-                [&error](const auto& value) -> std::optional<Json> {
-                    using Policy = std::decay_t<decltype(value)>;
-
-                    if constexpr (std::is_same_v<Policy, typed::DangerFullAccessSandboxPolicy>) {
-                        return std::optional<Json>{Json::object({{"type", "dangerFullAccess"}})};
-                    } else if constexpr (std::is_same_v<Policy, typed::ReadOnlySandboxPolicy>) {
-                        Json encoded = Json::object({{"type", "readOnly"}});
-                        if (value.networkAccess.has_value()) {
-                            encoded.emplace("networkAccess", *value.networkAccess);
-                        }
-                        return std::optional<Json>{std::move(encoded)};
-                    } else if constexpr (std::is_same_v<Policy, typed::ExternalSandboxPolicy>) {
-                        Json encoded = Json::object({{"type", "externalSandbox"}});
-                        if (value.networkAccess.has_value()) {
-                            if (value.networkAccess->value.empty()) {
-                                error = "external sandbox network access value must not be empty";
-                                return std::nullopt;
-                            }
-                            encoded.emplace("networkAccess", value.networkAccess->value);
-                        }
-                        return std::optional<Json>{std::move(encoded)};
-                    } else {
-                        Json encoded = Json::object({{"type", "workspaceWrite"}});
-                        if (!value.writableRoots.empty()) {
-                            encoded.emplace("writableRoots", value.writableRoots);
-                        }
-                        if (value.networkAccess.has_value()) {
-                            encoded.emplace("networkAccess", *value.networkAccess);
-                        }
-                        if (value.excludeTmpdirEnvVar.has_value()) {
-                            encoded.emplace("excludeTmpdirEnvVar", *value.excludeTmpdirEnvVar);
-                        }
-                        if (value.excludeSlashTmp.has_value()) {
-                            encoded.emplace("excludeSlashTmp", *value.excludeSlashTmp);
-                        }
-                        return std::optional<Json>{std::move(encoded)};
-                    }
-                },
-                policy);
-        }
-
     } // namespace
 
     std::optional<Json> encodeTurnInput(const typed::TurnInput& input, std::string& error) {
-        try {
-            error.clear();
-
-            return std::visit(
-                [&error](const auto& value) -> std::optional<Json> {
-                    using Input = std::decay_t<decltype(value)>;
-
-                    if constexpr (std::is_same_v<Input, typed::TextInput>) {
-                        return std::optional<Json>{
-                            Json::object({{"type", "text"}, {"text", value.text}, {"text_elements", Json::array()}})};
-                    } else if constexpr (std::is_same_v<Input, typed::ImageUrlInput>) {
-                        Json result = Json::object({{"type", "image"}, {"url", value.url}});
-                        if (value.detail.has_value()) {
-                            result.emplace("detail", value.detail->value);
-                        }
-                        return std::optional<Json>{std::move(result)};
-                    } else if constexpr (std::is_same_v<Input, typed::LocalImageInput>) {
-                        Json result = Json::object({{"type", "localImage"}, {"path", value.path}});
-                        if (value.detail.has_value()) {
-                            result.emplace("detail", value.detail->value);
-                        }
-                        return std::optional<Json>{std::move(result)};
-                    } else if constexpr (std::is_same_v<Input, typed::SkillInput>) {
-                        return std::optional<Json>{Json::object({{"type", "skill"}, {"name", value.name}, {"path", value.path}})};
-                    } else if constexpr (std::is_same_v<Input, typed::MentionInput>) {
-                        return std::optional<Json>{Json::object({{"type", "mention"}, {"name", value.name}, {"path", value.path}})};
-                    } else {
-                        error = "unknown turn input cannot be encoded; use the raw protocol API";
-                        return std::nullopt;
-                    }
-                },
-                input);
-        } catch (const std::exception& exception) {
-            error = std::string("failed to encode turn input: ") + exception.what();
-        } catch (...) {
-            error = "failed to encode turn input: unknown local exception";
-        }
-
-        return std::nullopt;
+        return encodeUserInput(input, error);
     }
 
     std::optional<Json> encodeTurnStartParams(const typed::ThreadId& threadId,

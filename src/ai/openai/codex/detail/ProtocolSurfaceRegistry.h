@@ -132,13 +132,48 @@ namespace ai::openai::codex::detail {
         ActiveTurnNotSteerableObject
     };
 
+    enum class ConversationUnionTarget {
+        AskForApprovalGranular,
+        AskForApprovalNever,
+        AskForApprovalOnRequest,
+        AskForApprovalUntrusted,
+        CommandActionListFiles,
+        CommandActionRead,
+        CommandActionSearch,
+        CommandActionUnknown,
+        DynamicToolCallOutputContentItemInputImage,
+        DynamicToolCallOutputContentItemInputText,
+        PatchChangeKindAdd,
+        PatchChangeKindDelete,
+        PatchChangeKindUpdate,
+        SandboxPolicyDangerFullAccess,
+        SandboxPolicyExternalSandbox,
+        SandboxPolicyReadOnly,
+        SandboxPolicyWorkspaceWrite,
+        UserInputImage,
+        UserInputLocalImage,
+        UserInputMention,
+        UserInputSkill,
+        UserInputText,
+        WebSearchActionFindInPage,
+        WebSearchActionOpenPage,
+        WebSearchActionOther,
+        WebSearchActionSearch,
+        Count
+    };
+
+    enum class ConversationUnionCodecShape { ScalarString, ExternallyTaggedObject, InternallyTaggedObject, Count };
+
+    enum class ConversationUnionCodecDirection { DecodeOnly, Bidirectional, Count };
+
     using RuntimeTarget = std::variant<std::monostate,
                                        ClientRequestTarget,
                                        ClientNotificationTarget,
                                        ServerNotificationTarget,
                                        ServerRequestTarget,
                                        ItemDiscriminatorTarget,
-                                       CodexErrorInfoTarget>;
+                                       CodexErrorInfoTarget,
+                                       ConversationUnionTarget>;
 
     struct ProtocolSurfaceKey {
         SurfaceCategory category = SurfaceCategory::TaggedUnionDiscriminator;
@@ -153,6 +188,13 @@ namespace ai::openai::codex::detail {
         ProtocolSurfaceKey key;
         CodexErrorInfoTarget target = CodexErrorInfoTarget::Count;
         CodexErrorInfoCodecShape shape = CodexErrorInfoCodecShape::Scalar;
+    };
+
+    struct ConversationUnionCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ConversationUnionTarget target = ConversationUnionTarget::Count;
+        ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
+        ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
     };
 
     struct OperationContract {
@@ -216,10 +258,14 @@ namespace ai::openai::codex::detail {
         MissingRuntimeTargetRegistration,
         DuplicateCodecDescriptor,
         CodecDescriptorWithoutRegistryRow,
+        CodecDescriptorCanonicalKeyMismatch,
         CodecDescriptorTargetMismatch,
         CodecDescriptorWithoutTypedRegistryRow,
+        RuntimeTargetCanonicalKeyMismatch,
         RegistryRowWithoutCodecDescriptor,
         CompleteWithoutCodecDescriptor,
+        InvalidCodecDescriptorShape,
+        InvalidCodecDescriptorDirection,
         DuplicateManifestEntry,
         MissingRegistryEntry,
         WrongCategory,
@@ -280,13 +326,20 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ServerRequestTarget target);
     const ProtocolSurfaceEntry& entryFor(ItemDiscriminatorTarget target);
     const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target);
+    const ProtocolSurfaceEntry& entryFor(ConversationUnionTarget target);
+
+    std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
 
     TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept;
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries);
-    ProtocolSurfaceValidation validateProtocolSurface(
-        std::span<const ProtocolSurfaceEntry> entries,
-        std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors);
 
 } // namespace ai::openai::codex::detail
 

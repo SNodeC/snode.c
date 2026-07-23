@@ -9,6 +9,7 @@
 #define AI_OPENAI_CODEX_TYPED_TURNS_H
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Items.h"
 #include "ai/openai/codex/typed/Results.h"
 
@@ -20,57 +21,6 @@
 #include <vector>
 
 namespace ai::openai::codex::typed {
-
-    struct TextInput {
-        std::string text;
-    };
-
-    struct ImageUrlInput {
-        std::string url;
-        std::optional<ImageDetail> detail;
-    };
-
-    struct LocalImageInput {
-        std::string path;
-        std::optional<ImageDetail> detail;
-    };
-
-    struct SkillInput {
-        std::string name;
-        std::string path;
-    };
-
-    struct MentionInput {
-        std::string name;
-        std::string path;
-    };
-
-    struct UnknownTurnInput {
-        std::optional<std::string> type;
-        Json raw;
-    };
-
-    using TurnInput = std::variant<TextInput, ImageUrlInput, LocalImageInput, SkillInput, MentionInput, UnknownTurnInput>;
-
-    struct DangerFullAccessSandboxPolicy {};
-
-    struct ReadOnlySandboxPolicy {
-        std::optional<bool> networkAccess;
-    };
-
-    struct ExternalSandboxPolicy {
-        std::optional<NetworkAccess> networkAccess;
-    };
-
-    struct WorkspaceWriteSandboxPolicy {
-        std::vector<std::string> writableRoots;
-        std::optional<bool> networkAccess;
-        std::optional<bool> excludeTmpdirEnvVar;
-        std::optional<bool> excludeSlashTmp;
-    };
-
-    using SandboxPolicy =
-        std::variant<DangerFullAccessSandboxPolicy, ReadOnlySandboxPolicy, ExternalSandboxPolicy, WorkspaceWriteSandboxPolicy>;
 
     struct Turn {
         TurnId id;

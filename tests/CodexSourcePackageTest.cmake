@@ -147,10 +147,10 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 299 index records resolve to the retained files
+# additionally proves that all 482 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 300)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 483)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
@@ -221,10 +221,16 @@ set(
     "tools/codex/app_server_contracts.py"
     "tools/codex/app_server_fixtures.py"
     "tools/codex/draft07.py"
+    "src/ai/openai/codex/detail/ConversationCodec.cpp"
+    "src/ai/openai/codex/detail/ConversationCodec.h"
+    "src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
+    "src/ai/openai/codex/typed/Conversation.h"
+    "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
     "tests/component/codex/CodexA11AuditToolTest.py"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
+    "tests/component/codex/CodexConversationCodecTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "docs/ai/openai/codex/a1-1-conversation-domain.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
@@ -340,6 +346,21 @@ run_extracted_check(
     "${extracted_schema_root}/PROVENANCE.json"
     --evidence-root
     "${extracted_evidence_root}"
+    --check
+)
+run_extracted_check(
+    "A1.1 shared conversation descriptor generation"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    conversation-descriptors
+    --manifest
+    "${extracted_surface}"
+    --schema-root
+    "${extracted_schema_root}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --output
+    "${extracted_root}/src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
     --check
 )
 run_extracted_check(

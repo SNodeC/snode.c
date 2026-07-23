@@ -104,7 +104,7 @@
       "conflicting_discriminator_applicable": 4,
       "conflicting_discriminator_cases": 151,
       "conflicting_discriminator_not_applicable": 147,
-      "current_a1_1_positive_records": 104,
+      "current_a1_1_positive_records": 163,
       "future_discriminator_applicable": 151,
       "future_discriminator_cases": 151,
       "future_discriminator_not_applicable": 0,
@@ -129,7 +129,7 @@
       "optional_field_omission_applicable": 477,
       "optional_field_omission_cases": 477,
       "optional_field_omission_not_applicable": 0,
-      "planned_positive_fixtures": 83,
+      "planned_positive_fixtures": 57,
       "required_field_removal_applicable": 810,
       "required_field_removal_cases": 810,
       "required_field_removal_not_applicable": 0,
@@ -64670,7 +64670,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:AskForApproval:granular",
+        "union:AskForApproval:granular:optional-omitted:granular-request_permissions",
+        "union:AskForApproval:granular:optional-omitted:granular-skill_approval"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -65040,13 +65044,15 @@
               "pointer": "#/definitions/AskForApproval",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:AskForApproval:granular"
+        "existing_fixture_ids": [
+          "union:AskForApproval:granular",
+          "union:AskForApproval:granular:optional-omitted:granular-request_permissions",
+          "union:AskForApproval:granular:optional-omitted:granular-skill_approval"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:AskForApproval:granular"
         ]
@@ -65079,7 +65085,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:AskForApproval:never"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -65263,13 +65271,13 @@
               "pointer": "#/definitions/AskForApproval",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:AskForApproval:never"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:AskForApproval:never"
         ]
@@ -65302,7 +65310,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:AskForApproval:on-request"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -65486,13 +65496,13 @@
               "pointer": "#/definitions/AskForApproval",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:AskForApproval:on-request"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:AskForApproval:on-request"
         ]
@@ -65525,7 +65535,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:AskForApproval:untrusted"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -65709,13 +65721,13 @@
               "pointer": "#/definitions/AskForApproval",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:AskForApproval:untrusted"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:AskForApproval:untrusted"
         ]
@@ -65748,7 +65760,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:CommandAction:listFiles",
+        "union:CommandAction:listFiles:nullable-null:path",
+        "union:CommandAction:listFiles:optional-omitted:path"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -66169,13 +66185,15 @@
               "pointer": "#/definitions/CommandAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:CommandAction:listFiles"
+        "existing_fixture_ids": [
+          "union:CommandAction:listFiles",
+          "union:CommandAction:listFiles:nullable-null:path",
+          "union:CommandAction:listFiles:optional-omitted:path"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:CommandAction:listFiles"
         ]
@@ -66208,7 +66226,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:CommandAction:read"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -66629,13 +66649,13 @@
               "pointer": "#/definitions/CommandAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:CommandAction:read"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:CommandAction:read"
         ]
@@ -66668,7 +66688,13 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:CommandAction:search",
+        "union:CommandAction:search:nullable-null:path",
+        "union:CommandAction:search:nullable-null:query",
+        "union:CommandAction:search:optional-omitted:path",
+        "union:CommandAction:search:optional-omitted:query"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -67145,13 +67171,17 @@
               "pointer": "#/definitions/CommandAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:CommandAction:search"
+        "existing_fixture_ids": [
+          "union:CommandAction:search",
+          "union:CommandAction:search:nullable-null:path",
+          "union:CommandAction:search:nullable-null:query",
+          "union:CommandAction:search:optional-omitted:path",
+          "union:CommandAction:search:optional-omitted:query"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:CommandAction:search"
         ]
@@ -67184,7 +67214,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:CommandAction:unknown"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -67545,13 +67577,13 @@
               "pointer": "#/definitions/CommandAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:CommandAction:unknown"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:CommandAction:unknown"
         ]
@@ -68334,7 +68366,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:DynamicToolCallOutputContentItem:inputImage"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -68695,13 +68729,13 @@
               "pointer": "#/definitions/DynamicToolCallOutputContentItem",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:DynamicToolCallOutputContentItem:inputImage"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:DynamicToolCallOutputContentItem:inputImage"
         ]
@@ -68734,7 +68768,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:DynamicToolCallOutputContentItem:inputText"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -69095,13 +69131,13 @@
               "pointer": "#/definitions/DynamicToolCallOutputContentItem",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:DynamicToolCallOutputContentItem:inputText"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:DynamicToolCallOutputContentItem:inputText"
         ]
@@ -70336,7 +70372,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:PatchChangeKind:add"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -70663,13 +70701,13 @@
               "pointer": "#/definitions/PatchChangeKind",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:PatchChangeKind:add"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:PatchChangeKind:add"
         ]
@@ -70702,7 +70740,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:PatchChangeKind:delete"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -71029,13 +71069,13 @@
               "pointer": "#/definitions/PatchChangeKind",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:PatchChangeKind:delete"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:PatchChangeKind:delete"
         ]
@@ -71068,7 +71108,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:PatchChangeKind:update",
+        "union:PatchChangeKind:update:nullable-null:move_path",
+        "union:PatchChangeKind:update:optional-omitted:move_path"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -71459,13 +71503,15 @@
               "pointer": "#/definitions/PatchChangeKind",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:PatchChangeKind:update"
+        "existing_fixture_ids": [
+          "union:PatchChangeKind:update",
+          "union:PatchChangeKind:update:nullable-null:move_path",
+          "union:PatchChangeKind:update:optional-omitted:move_path"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:PatchChangeKind:update"
         ]
@@ -73234,7 +73280,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:SandboxPolicy:dangerFullAccess"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -73446,13 +73494,13 @@
               "pointer": "#/definitions/SandboxPolicy",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:SandboxPolicy:dangerFullAccess"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:SandboxPolicy:dangerFullAccess"
         ]
@@ -73485,7 +73533,10 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:SandboxPolicy:externalSandbox",
+        "union:SandboxPolicy:externalSandbox:optional-omitted:networkaccess"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -73746,13 +73797,14 @@
               "pointer": "#/definitions/SandboxPolicy",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:SandboxPolicy:externalSandbox"
+        "existing_fixture_ids": [
+          "union:SandboxPolicy:externalSandbox",
+          "union:SandboxPolicy:externalSandbox:optional-omitted:networkaccess"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:SandboxPolicy:externalSandbox"
         ]
@@ -73787,7 +73839,10 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:SandboxPolicy:readOnly",
+        "union:SandboxPolicy:readOnly:optional-omitted:networkaccess"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -74030,13 +74085,14 @@
               "pointer": "#/definitions/SandboxPolicy",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:SandboxPolicy:readOnly"
+        "existing_fixture_ids": [
+          "union:SandboxPolicy:readOnly",
+          "union:SandboxPolicy:readOnly:optional-omitted:networkaccess"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:SandboxPolicy:readOnly"
         ]
@@ -74069,7 +74125,13 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:SandboxPolicy:workspaceWrite",
+        "union:SandboxPolicy:workspaceWrite:optional-omitted:excludeslashtmp",
+        "union:SandboxPolicy:workspaceWrite:optional-omitted:excludetmpdirenvvar",
+        "union:SandboxPolicy:workspaceWrite:optional-omitted:networkaccess",
+        "union:SandboxPolicy:workspaceWrite:optional-omitted:writableroots"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -74390,13 +74452,17 @@
               "pointer": "#/definitions/SandboxPolicy",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:SandboxPolicy:workspaceWrite"
+        "existing_fixture_ids": [
+          "union:SandboxPolicy:workspaceWrite",
+          "union:SandboxPolicy:workspaceWrite:optional-omitted:excludeslashtmp",
+          "union:SandboxPolicy:workspaceWrite:optional-omitted:excludetmpdirenvvar",
+          "union:SandboxPolicy:workspaceWrite:optional-omitted:networkaccess",
+          "union:SandboxPolicy:workspaceWrite:optional-omitted:writableroots"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:SandboxPolicy:workspaceWrite"
         ]
@@ -79037,7 +79103,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:UserInput:image",
+        "union:UserInput:image:nullable-null:detail",
+        "union:UserInput:image:optional-omitted:detail"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -79476,13 +79546,15 @@
               "pointer": "#/definitions/UserInput",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:UserInput:image"
+        "existing_fixture_ids": [
+          "union:UserInput:image",
+          "union:UserInput:image:nullable-null:detail",
+          "union:UserInput:image:optional-omitted:detail"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:UserInput:image"
         ]
@@ -79517,7 +79589,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:UserInput:localImage",
+        "union:UserInput:localImage:nullable-null:detail",
+        "union:UserInput:localImage:optional-omitted:detail"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -79956,13 +80032,15 @@
               "pointer": "#/definitions/UserInput",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:UserInput:localImage"
+        "existing_fixture_ids": [
+          "union:UserInput:localImage",
+          "union:UserInput:localImage:nullable-null:detail",
+          "union:UserInput:localImage:optional-omitted:detail"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:UserInput:localImage"
         ]
@@ -79997,7 +80075,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:UserInput:mention"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -80388,13 +80468,13 @@
               "pointer": "#/definitions/UserInput",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:UserInput:mention"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:UserInput:mention"
         ]
@@ -80429,7 +80509,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:UserInput:skill"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -80820,13 +80902,13 @@
               "pointer": "#/definitions/UserInput",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:UserInput:skill"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:UserInput:skill"
         ]
@@ -80861,7 +80943,12 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:UserInput:text",
+        "union:UserInput:text:nullable-null:text_elements-0-placeholder",
+        "union:UserInput:text:optional-omitted:text_elements",
+        "union:UserInput:text:optional-omitted:text_elements-0-placeholder"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -81398,13 +81485,16 @@
               "pointer": "#/definitions/UserInput",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:UserInput:text"
+        "existing_fixture_ids": [
+          "union:UserInput:text",
+          "union:UserInput:text:nullable-null:text_elements-0-placeholder",
+          "union:UserInput:text:optional-omitted:text_elements",
+          "union:UserInput:text:optional-omitted:text_elements-0-placeholder"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:UserInput:text"
         ]
@@ -81439,7 +81529,13 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:WebSearchAction:findInPage",
+        "union:WebSearchAction:findInPage:nullable-null:pattern",
+        "union:WebSearchAction:findInPage:nullable-null:url",
+        "union:WebSearchAction:findInPage:optional-omitted:pattern",
+        "union:WebSearchAction:findInPage:optional-omitted:url"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -81875,13 +81971,17 @@
               "pointer": "#/definitions/WebSearchAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:WebSearchAction:findInPage"
+        "existing_fixture_ids": [
+          "union:WebSearchAction:findInPage",
+          "union:WebSearchAction:findInPage:nullable-null:pattern",
+          "union:WebSearchAction:findInPage:nullable-null:url",
+          "union:WebSearchAction:findInPage:optional-omitted:pattern",
+          "union:WebSearchAction:findInPage:optional-omitted:url"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:WebSearchAction:findInPage"
         ]
@@ -81914,7 +82014,11 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:WebSearchAction:openPage",
+        "union:WebSearchAction:openPage:nullable-null:url",
+        "union:WebSearchAction:openPage:optional-omitted:url"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -82294,13 +82398,15 @@
               "pointer": "#/definitions/WebSearchAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:WebSearchAction:openPage"
+        "existing_fixture_ids": [
+          "union:WebSearchAction:openPage",
+          "union:WebSearchAction:openPage:nullable-null:url",
+          "union:WebSearchAction:openPage:optional-omitted:url"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:WebSearchAction:openPage"
         ]
@@ -82333,7 +82439,9 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:WebSearchAction:other"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -82649,13 +82757,13 @@
               "pointer": "#/definitions/WebSearchAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
+        "existing_fixture_ids": [
           "union:WebSearchAction:other"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:WebSearchAction:other"
         ]
@@ -82688,7 +82796,13 @@
     {
       "category": "tagged_union_discriminator",
       "classification": "SharedCommon",
-      "current_fixture_ids": [],
+      "current_fixture_ids": [
+        "union:WebSearchAction:search",
+        "union:WebSearchAction:search:nullable-null:queries",
+        "union:WebSearchAction:search:nullable-null:query",
+        "union:WebSearchAction:search:optional-omitted:queries",
+        "union:WebSearchAction:search:optional-omitted:query"
+      ],
       "current_implementation_status": "NotImplemented",
       "current_runtime_disposition": "OpaquePreserved",
       "current_runtime_target": "std::monostate{}",
@@ -83124,13 +83238,17 @@
               "pointer": "#/definitions/WebSearchAction",
               "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
             },
-            "status": "planned"
+            "status": "existing"
           }
         ],
-        "existing_fixture_ids": [],
-        "planned_fixture_ids": [
-          "union:WebSearchAction:search"
+        "existing_fixture_ids": [
+          "union:WebSearchAction:search",
+          "union:WebSearchAction:search:nullable-null:queries",
+          "union:WebSearchAction:search:nullable-null:query",
+          "union:WebSearchAction:search:optional-omitted:queries",
+          "union:WebSearchAction:search:optional-omitted:query"
         ],
+        "planned_fixture_ids": [],
         "required_fixture_ids": [
           "union:WebSearchAction:search"
         ]
@@ -83178,7 +83296,7 @@
   "sources": {
     "app_server_surface_generator": {
       "path": "tools/codex/app_server_surface.py",
-      "sha256": "55f59170aca23aaa9d05be815390409b73cf79b0ad4d68ae91eebf758b9de3ef"
+      "sha256": "127aa87d3e3fef6f2436ef95b741943005f97dff273a54c59848cf9966b5e5e3"
     },
     "assignments": {
       "path": "tools/codex/app-server-evidence/0.144.6/module-slice-assignment.json",
@@ -83190,11 +83308,11 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "3bf355cffe2fa889d41f647b32b952aed4b68084573103b8b8c67e087fd6b1da"
+      "sha256": "f207a04d319a235a2998c313b0ccdc921f58e03da8ab933eff595d7ae9f0f919"
     },
     "fixture_index": {
       "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
-      "sha256": "7e8dfed1dff2685400bafa225b9ee53ccc6cb2be3e31b679a48525c8d70d464b"
+      "sha256": "db4a2c3b7a68de561cb96df27af6bbd13871cf74da1bf83eb9bc1fd1aeac3f3d"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_1.py",

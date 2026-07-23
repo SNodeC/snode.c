@@ -19,6 +19,8 @@ foreach(
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
           ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/ConversationCodec.h
+          ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc
           ai/openai/codex/detail/DecodeDiagnostic.h
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
@@ -65,6 +67,9 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.cpp"
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.h"
        OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
+       OR installed_name STREQUAL "ConversationCodec.cpp"
+       OR installed_name STREQUAL "ConversationCodec.h"
+       OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
        OR installed_name STREQUAL "operation-contracts.json"
        OR installed_name STREQUAL "module-slice-assignment.json"
        OR installed_name STREQUAL "nested-reachability.json"

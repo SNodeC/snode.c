@@ -450,6 +450,271 @@ def schema_result_contract_kind(document: dict[str, Any]) -> str:
     ):
         return "Unit"
     return "Concrete"
+
+
+CONVERSATION_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "granular",
+    ): (
+        "ConversationUnionTarget::AskForApprovalGranular",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "never",
+    ): (
+        "ConversationUnionTarget::AskForApprovalNever",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "on-request",
+    ): (
+        "ConversationUnionTarget::AskForApprovalOnRequest",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "untrusted",
+    ): (
+        "ConversationUnionTarget::AskForApprovalUntrusted",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "listFiles",
+    ): (
+        "ConversationUnionTarget::CommandActionListFiles",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "read",
+    ): (
+        "ConversationUnionTarget::CommandActionRead",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::CommandActionSearch",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "unknown",
+    ): (
+        "ConversationUnionTarget::CommandActionUnknown",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "DynamicToolCallOutputContentItem",
+        "type",
+        "inputImage",
+    ): (
+        "ConversationUnionTarget::DynamicToolCallOutputContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "DynamicToolCallOutputContentItem",
+        "type",
+        "inputText",
+    ): (
+        "ConversationUnionTarget::DynamicToolCallOutputContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "add",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindAdd",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "delete",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindDelete",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "update",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindUpdate",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "dangerFullAccess",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyDangerFullAccess",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "externalSandbox",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyExternalSandbox",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "readOnly",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyReadOnly",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "workspaceWrite",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyWorkspaceWrite",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "image",
+    ): (
+        "ConversationUnionTarget::UserInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "localImage",
+    ): (
+        "ConversationUnionTarget::UserInputLocalImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "mention",
+    ): (
+        "ConversationUnionTarget::UserInputMention",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "skill",
+    ): (
+        "ConversationUnionTarget::UserInputSkill",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "text",
+    ): (
+        "ConversationUnionTarget::UserInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "findInPage",
+    ): (
+        "ConversationUnionTarget::WebSearchActionFindInPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "openPage",
+    ): (
+        "ConversationUnionTarget::WebSearchActionOpenPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "other",
+    ): (
+        "ConversationUnionTarget::WebSearchActionOther",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::WebSearchActionSearch",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+}
+
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
     ("client_request", "ClientRequest", "method", "thread/start"): "ClientRequestTarget::ThreadStart",
@@ -652,6 +917,16 @@ RUNTIME_TARGETS = {
         "usageLimitExceeded",
     ): "CodexErrorInfoTarget::UsageLimitExceeded",
 }
+
+if set(RUNTIME_TARGETS) & set(CONVERSATION_UNION_CODECS):
+    raise AssertionError("conversation-union runtime targets duplicate an existing mapping")
+RUNTIME_TARGETS.update(
+    {
+        key: descriptor[0]
+        for key, descriptor in CONVERSATION_UNION_CODECS.items()
+    }
+)
+
 EXISTING_FRONTEND_OPERATION_DETAILS = {
     (
         "client_request",
@@ -3682,6 +3957,16 @@ def registry_statuses(
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
+    if identity in CONVERSATION_UNION_CODECS and target is not None:
+        # The exact B2 descriptor set is generated from the same mapping that
+        # supplies the canonical registry targets. Its direction-specific
+        # codec tests guard raw retention and every reviewed public field.
+        # Keep this override exact-keyed: other A1.1 unions advance only with
+        # their own production descriptor and codec batches.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
     schema_status = derived_schema_status(
         typed_status.removeprefix("TypedImplementationStatus::"),
         slice_name,
@@ -3759,6 +4044,172 @@ def generate_registry_data(
             *statuses,
         )
         lines.append("CODEX_PROTOCOL_SURFACE_ENTRY(" + ", ".join(arguments) + ")")
+    return "\n".join(lines) + "\n"
+
+
+def _conversation_union_schema_branch(
+    entry: dict[str, Any], schema_root: Path
+) -> dict[str, Any]:
+    sources = entry.get("sources")
+    if not isinstance(sources, list):
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} has no schema sources"
+        )
+    source = next(
+        (
+            candidate
+            for candidate in sources
+            if isinstance(candidate, dict)
+            and candidate.get("file") == "codex_app_server_protocol.schemas.json"
+            and isinstance(candidate.get("pointer"), str)
+            and candidate["pointer"].startswith("/definitions/v2/")
+        ),
+        None,
+    )
+    if source is None:
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} has no stable v2 aggregate source"
+        )
+    path = schema_root / "stable" / source["file"]
+    document = load_json(path)
+    branch = json_pointer(document, source["pointer"], str(path))
+    if not isinstance(branch, dict):
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} does not resolve to an object-valued schema branch"
+        )
+    return branch
+
+
+def _validate_conversation_union_descriptor_shape(
+    entry: dict[str, Any], branch: dict[str, Any], shape: str
+) -> None:
+    key = surface_key(entry)
+    field = entry["discriminator_field"]
+    name = entry["name"]
+    if shape == "ConversationUnionCodecShape::ScalarString":
+        valid = (
+            field == "$variant"
+            and branch.get("type") == "string"
+            and isinstance(branch.get("enum"), list)
+            and name in branch["enum"]
+        )
+    elif shape == "ConversationUnionCodecShape::ExternallyTaggedObject":
+        properties = branch.get("properties")
+        valid = (
+            field == "$variant"
+            and branch.get("type") == "object"
+            and isinstance(properties, dict)
+            and set(properties) == {name}
+            and branch.get("required") == [name]
+        )
+    elif shape == "ConversationUnionCodecShape::InternallyTaggedObject":
+        properties = branch.get("properties")
+        discriminator = (
+            properties.get(field) if isinstance(properties, dict) else None
+        )
+        valid = (
+            field == "type"
+            and branch.get("type") == "object"
+            and isinstance(discriminator, dict)
+            and discriminator.get("enum") == [name]
+            and field in branch.get("required", [])
+        )
+    else:
+        valid = False
+    if not valid:
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{key} does not match reviewed codec shape {shape}"
+        )
+
+
+def generate_conversation_union_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate private codec metadata from one reviewed exact-key mapping."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "SharedCommon"
+        and assignment.get("module") == "Common"
+        and assignment.get("stability") == "stable"
+    }
+    descriptor_keys = set(CONVERSATION_UNION_CODECS)
+    if expected_keys != descriptor_keys or len(descriptor_keys) != 26:
+        raise SurfaceError(
+            "ConversationUnionDescriptorAssignmentMismatch: "
+            "reviewed descriptor keys must equal the exact 26 stable "
+            "A1.1 SharedCommon/Common assignments"
+        )
+
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    targets = [metadata[0] for metadata in CONVERSATION_UNION_CODECS.values()]
+    if len(set(targets)) != 26:
+        raise SurfaceError(
+            "DuplicateConversationUnionDescriptorTarget: "
+            "each exact key must own one unique runtime target"
+        )
+    if (
+        sum(
+            metadata[2] == "ConversationUnionCodecDirection::Bidirectional"
+            for metadata in CONVERSATION_UNION_CODECS.values()
+        )
+        != 13
+        or sum(
+            metadata[2] == "ConversationUnionCodecDirection::DecodeOnly"
+            for metadata in CONVERSATION_UNION_CODECS.values()
+        )
+        != 13
+    ):
+        raise SurfaceError(
+            "ConversationUnionDescriptorDirectionMismatch: "
+            "reviewed B2 direction split must remain 13 bidirectional/13 decode-only"
+        )
+
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py conversation-descriptors; do not edit.",
+        "// Exact keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Shape and direction are private codec metadata, not production dispositions.",
+    ]
+    for key in sorted(descriptor_keys):
+        entry = manifest_entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category") != "tagged_union_discriminator"
+        ):
+            raise SurfaceError(
+                "ConversationUnionDescriptorAssignmentMismatch: "
+                f"missing stable tagged-union manifest entry for {key}"
+            )
+        target, shape, direction = CONVERSATION_UNION_CODECS[key]
+        branch = _conversation_union_schema_branch(entry, schema_root)
+        _validate_conversation_union_descriptor_shape(entry, branch, shape)
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            target,
+            shape,
+            direction,
+        )
+        lines.append(
+            "CODEX_CONVERSATION_UNION_CODEC_DESCRIPTOR("
+            + ", ".join(arguments)
+            + ")"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -4509,6 +4960,38 @@ def command_registry(arguments: argparse.Namespace) -> None:
         arguments.output.write_text(generated, encoding="utf-8")
 
 
+def command_conversation_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_conversation_union_descriptor_data(
+        manifest, arguments.schema_root, evidence
+    )
+    write_or_check_conversation_union_descriptors(
+        arguments.output, generated, arguments.check
+    )
+
+
+def write_or_check_conversation_union_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedConversationUnionDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedConversationUnionDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
 def command_docs(arguments: argparse.Namespace) -> None:
     manifest = load_json(arguments.manifest)
     provenance = load_json(arguments.provenance)
@@ -4572,6 +5055,25 @@ def parser() -> argparse.ArgumentParser:
     registry.add_argument("--output", type=Path, required=True)
     registry.add_argument("--check", action="store_true")
     registry.set_defaults(function=command_registry)
+
+    conversation_descriptors = subparsers.add_parser(
+        "conversation-descriptors",
+        help="generate private A1.1 shared conversation-union codec descriptors",
+    )
+    conversation_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    conversation_descriptors.add_argument(
+        "--schema-root", type=Path, required=True
+    )
+    conversation_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    conversation_descriptors.add_argument("--output", type=Path, required=True)
+    conversation_descriptors.add_argument("--check", action="store_true")
+    conversation_descriptors.set_defaults(
+        function=command_conversation_descriptors
+    )
 
     docs = subparsers.add_parser(
         "docs", help="generate coverage and owner security worksheet documents"

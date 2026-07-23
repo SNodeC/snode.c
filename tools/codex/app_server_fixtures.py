@@ -202,6 +202,33 @@ CODEX_ERROR_INFO_HTTP_IDENTITIES = (
     "responseTooManyFailedAttempts",
 )
 
+# Commit B2 owns the exact A1.1 SharedCommon tagged-union batch.  The keys
+# themselves are derived from module-slice-assignment evidence below; these
+# reviewed counts and directions are only bidirectional audit ratchets for the
+# fixture plan, not a runtime disposition or dispatch registry.
+B2_SHARED_COMMON_FAMILY_COUNTS = {
+    "AskForApproval": 4,
+    "CommandAction": 4,
+    "DynamicToolCallOutputContentItem": 2,
+    "PatchChangeKind": 3,
+    "SandboxPolicy": 4,
+    "UserInput": 5,
+    "WebSearchAction": 4,
+}
+B2_SHARED_COMMON_DIRECTIONS = {
+    "AskForApproval": ("Decode", "Encode"),
+    "CommandAction": ("Decode",),
+    "DynamicToolCallOutputContentItem": ("Decode",),
+    "PatchChangeKind": ("Decode",),
+    "SandboxPolicy": ("Decode", "Encode"),
+    "UserInput": ("Decode", "Encode"),
+    "WebSearchAction": ("Decode",),
+}
+B2_OPEN_STRING_ENUMS = {
+    "ImageDetail": ("auto", "low", "high", "original"),
+    "NetworkAccess": ("restricted", "enabled"),
+}
+
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -417,6 +444,38 @@ class SurfaceKey:
             f"{self.category}:{self.domain}:"
             f"{self.discriminator_field}:{self.name}"
         )
+
+
+def derive_b2_shared_common_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[SurfaceKey, ...]:
+    keys = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.1"
+            and assignment["classification"] == "SharedCommon"
+        )
+    )
+    family_counts: dict[str, int] = {}
+    for key in keys:
+        if key.category != TAGGED_UNION_DISCRIMINATOR:
+            raise FixtureError(
+                "A1.1 SharedCommon batch contains a non-union identity: "
+                f"{key.compact()}"
+            )
+        family_counts[key.domain] = family_counts.get(key.domain, 0) + 1
+    if (
+        len(keys) != 26
+        or family_counts != B2_SHARED_COMMON_FAMILY_COUNTS
+        or set(family_counts) != set(B2_SHARED_COMMON_DIRECTIONS)
+    ):
+        raise FixtureError(
+            "A1.1 SharedCommon assignment mismatch: "
+            f"count={len(keys)} "
+            f"families={dict(sorted(family_counts.items()))}"
+        )
+    return keys
 
 
 @dataclass(frozen=True)
@@ -1196,6 +1255,58 @@ def collect_optional_present_locations(
         instance,
         required_properties=False,
     )
+
+
+def schema_fixture_coverage(
+    catalog: SchemaCatalog,
+    target: SchemaTarget,
+    instance: Any,
+    *,
+    omitted_schema_paths: Sequence[str] = (),
+    directions_exercised: Sequence[str] = (),
+) -> dict[str, Any]:
+    """Describe schema facts proved by one independently validated fixture.
+
+    Property paths are schema paths rather than C++ field names.  That keeps
+    the evidence tied to the vendored pin and lets completeness be recomputed
+    solely from the indexed corpus.  Omitted paths are explicit because an
+    absent property cannot be discovered by walking an instance.
+    """
+
+    required = collect_required_locations(catalog, target, instance)
+    optional = collect_optional_present_locations(catalog, target, instance)
+    locations = {
+        location.schema_path: location
+        for location in (*required, *optional)
+    }
+    validator = catalog.target_validator(target)
+    nullable = {
+        schema_path
+        for schema_path, location in locations.items()
+        if not validator.validate_subschema(
+            None, location.schema, location.schema_path
+        )
+    }
+    nullable_null = {
+        location.schema_path
+        for location in (*required, *optional)
+        if location.schema_path in nullable
+        and get_instance_path(instance, location.instance_path) is None
+    }
+    nullable_value = nullable - nullable_null
+    return {
+        "property_schema_paths_present": sorted(locations),
+        "optional_property_schema_paths_present": sorted(
+            location.schema_path for location in optional
+        ),
+        "optional_property_schema_paths_omitted": sorted(
+            set(omitted_schema_paths)
+        ),
+        "nullable_property_schema_paths": sorted(nullable),
+        "nullable_value_schema_paths": sorted(nullable_value),
+        "nullable_null_schema_paths": sorted(nullable_null),
+        "directions_exercised": sorted(set(directions_exercised)),
+    }
 
 
 WRONG_TYPE_CANDIDATES = (None, False, 0, "wrong-type", [], {})
@@ -2295,6 +2406,9 @@ class CorpusBuilder:
             for entry in self.manifest["entries"]
         }
         self.assignments: dict[SurfaceKey, Mapping[str, Any]] = {}
+        self.b2_shared_common_keys: tuple[SurfaceKey, ...] = ()
+        self.b2_negative_coverage: dict[str, Any] = {}
+        self.b2_indexed_coverage: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
 
@@ -2307,6 +2421,8 @@ class CorpusBuilder:
         value: Any,
         surface_key: SurfaceKey | None,
         intended_branch_indices: tuple[int, ...] = (),
+        omitted_schema_paths: Sequence[str] = (),
+        directions_exercised: Sequence[str] = (),
     ) -> None:
         validator = self.catalog.target_validator(target)
         diagnostics = validator.validate_subschema(
@@ -2370,6 +2486,14 @@ class CorpusBuilder:
             },
             "completeness_evidence": completeness_evidence,
         }
+        if omitted_schema_paths or directions_exercised:
+            record["schema_fixture_coverage"] = schema_fixture_coverage(
+                self.catalog,
+                target,
+                value,
+                omitted_schema_paths=omitted_schema_paths,
+                directions_exercised=directions_exercised,
+            )
         if surface_key is not None:
             record["protocol_surface_key"] = surface_key.to_json()
         if assignment is not None:
@@ -2384,6 +2508,8 @@ class CorpusBuilder:
         target: SchemaTarget,
         value: Any,
         expected_codes: Sequence[str],
+        surface_key: SurfaceKey | None = None,
+        negative_case: str | None = None,
     ) -> None:
         diagnostics = self.catalog.target_validator(target).validate_subschema(
             value, target.schema, target.schema_path
@@ -2396,17 +2522,23 @@ class CorpusBuilder:
             )
         payload = encoded_json(value)
         self.files[relative_file] = payload
-        self.records.append(
-            {
-                "id": fixture_id,
-                "file": relative_file,
-                "file_sha256": sha256_bytes(payload),
-                "role": role,
-                "schema": target.to_json(),
-                "expected_valid": False,
-                "expected_diagnostic_codes": actual_codes,
-            }
-        )
+        record: dict[str, Any] = {
+            "id": fixture_id,
+            "file": relative_file,
+            "file_sha256": sha256_bytes(payload),
+            "role": role,
+            "schema": target.to_json(),
+            "expected_valid": False,
+            "expected_diagnostic_codes": actual_codes,
+        }
+        if surface_key is not None:
+            record["protocol_surface_key"] = surface_key.to_json()
+            assignment = self.assignments.get(surface_key)
+            if assignment is not None:
+                record["a1_slice"] = assignment["a1_slice"]
+        if negative_case is not None:
+            record["negative_case"] = negative_case
+        self.records.append(record)
 
     def build(
         self,
@@ -2425,10 +2557,14 @@ class CorpusBuilder:
             SurfaceKey.from_contract(record["surface_key"]): record
             for record in assignment_document["assignments"]
         }
+        self.b2_shared_common_keys = derive_b2_shared_common_keys(
+            self.assignments
+        )
 
         self._build_operation_fixtures()
         self._build_baseline_fixtures()
         self._build_union_fixtures()
+        self._build_b2_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -2483,6 +2619,9 @@ class CorpusBuilder:
             facts["reachable_union_alternatives_exercised"] = (
                 all_codex_error_alternatives_exercised
             )
+        self._apply_b2_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
         mutation_counts = {
             "selected_branch_required_locations": sum(
                 record["validation"]["selected_branch_required_locations"]
@@ -2572,6 +2711,13 @@ class CorpusBuilder:
                 "by_role": dict(sorted(fixture_counts.items())),
             },
             "mutation_counts": mutation_counts,
+            "a1_1_shared_common": {
+                "assignment_derived_keys": [
+                    key.to_json() for key in self.b2_shared_common_keys
+                ],
+                "indexed_schema_coverage": self.b2_indexed_coverage,
+                "negative_coverage": self.b2_negative_coverage,
+            },
             "fixtures": self.records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -2618,6 +2764,14 @@ class CorpusBuilder:
                 if key.name in CODEX_ERROR_INFO_HTTP_IDENTITIES
                 else is_codex_error
             )
+            is_b2_shared_common = key in self.b2_shared_common_keys
+            b2_schema_facts = (
+                self.b2_indexed_coverage.get(key.compact(), {}).get(
+                    "schema_fixture_facts", {}
+                )
+                if is_b2_shared_common
+                else {}
+            )
             coverage_records.append(
                 {
                     "protocol_surface_key": key.to_json(),
@@ -2637,11 +2791,28 @@ class CorpusBuilder:
                         record["validation"]["wrong_type_mutations"]
                         for record in records
                     ),
+                    "schema_directions_exercised": (
+                        self.b2_indexed_coverage.get(
+                            key.compact(), {}
+                        ).get("directions_exercised", [])
+                    ),
+                    "schema_direction_coverage": bool(
+                        self.b2_indexed_coverage.get(
+                            key.compact(), {}
+                        ).get("schema_direction_coverage", False)
+                    ),
                     "completeness_evidence": {
                         "authoritative_root_association": bool(records),
                         "positive_fixture_coverage": bool(records),
                         "required_fields_exercised": bool(records),
-                        "schema_properties_exercised": codex_properties_exercised,
+                        "schema_properties_exercised": (
+                            codex_properties_exercised
+                            or bool(
+                                b2_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
+                        ),
                         "optional_present_exercised": bool(records)
                         and all(
                             record["completeness_evidence"][
@@ -2656,10 +2827,25 @@ class CorpusBuilder:
                             ]
                             for record in records
                         ),
-                        "nullable_semantics_exercised": codex_nullable_exercised,
+                        "nullable_semantics_exercised": (
+                            codex_nullable_exercised
+                            or bool(
+                                b2_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
+                        ),
                         "reachable_union_alternatives_exercised": (
-                            is_codex_error
-                            and all_codex_error_alternatives_exercised
+                            (
+                                is_codex_error
+                                and all_codex_error_alternatives_exercised
+                            )
+                            or bool(
+                                b2_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
                         ),
                         "fixture_current": bool(records),
                         "independently_schema_validated": bool(records),
@@ -2705,6 +2891,13 @@ class CorpusBuilder:
                     "wrong_type_unconstrained_exclusions"
                 ],
             },
+            "a1_1_shared_common": {
+                "assignment_derived_keys": [
+                    key.to_json() for key in self.b2_shared_common_keys
+                ],
+                "indexed_schema_coverage": self.b2_indexed_coverage,
+                "negative_coverage": self.b2_negative_coverage,
+            },
             "fixtures": [
                 record
                 for record in positive_records
@@ -2733,6 +2926,139 @@ class CorpusBuilder:
             "validator_sha256": sha256_file(self.draft07_path),
             "generator_sha256": sha256_file(Path(__file__).resolve()),
         }
+
+    def _apply_b2_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        records_by_key: dict[
+            SurfaceKey, list[MutableMapping[str, Any]]
+        ] = {}
+        for record in positive_records:
+            key_record = record.get("protocol_surface_key")
+            if isinstance(key_record, dict):
+                records_by_key.setdefault(
+                    SurfaceKey.from_contract(key_record), []
+                ).append(record)
+
+        indexed_coverage: dict[str, Any] = {}
+        for key in self.b2_shared_common_keys:
+            records = records_by_key.get(key, [])
+            base_id = f"union:{key.domain}:{key.name}"
+            base_records = [
+                record for record in records if record["id"] == base_id
+            ]
+            if len(base_records) != 1:
+                raise FixtureError(
+                    f"B2 identity lacks exactly one base fixture: {key.compact()}"
+                )
+            base_coverage = base_records[0]["schema_fixture_coverage"]
+            expected_properties = set(
+                base_coverage["property_schema_paths_present"]
+            )
+            expected_optional = set(
+                base_coverage[
+                    "optional_property_schema_paths_present"
+                ]
+            )
+            expected_nullable = set(
+                base_coverage["nullable_property_schema_paths"]
+            )
+            present = {
+                path
+                for record in records
+                for path in record["schema_fixture_coverage"][
+                    "property_schema_paths_present"
+                ]
+            }
+            optional_present = {
+                path
+                for record in records
+                for path in record["schema_fixture_coverage"][
+                    "optional_property_schema_paths_present"
+                ]
+            }
+            optional_omitted = {
+                path
+                for record in records
+                for path in record["schema_fixture_coverage"][
+                    "optional_property_schema_paths_omitted"
+                ]
+            }
+            nullable_value = {
+                path
+                for record in records
+                for path in record["schema_fixture_coverage"][
+                    "nullable_value_schema_paths"
+                ]
+            }
+            nullable_null = {
+                path
+                for record in records
+                for path in record["schema_fixture_coverage"][
+                    "nullable_null_schema_paths"
+                ]
+            }
+            directions = {
+                direction
+                for record in records
+                for direction in record["schema_fixture_coverage"][
+                    "directions_exercised"
+                ]
+            }
+            family_base_ids = {
+                f"union:{candidate.domain}:{candidate.name}"
+                for candidate in self.b2_shared_common_keys
+                if candidate.domain == key.domain
+            }
+            facts = {
+                "schema_properties_exercised": (
+                    expected_properties <= present
+                ),
+                "optional_present_exercised": (
+                    expected_optional <= optional_present
+                ),
+                "optional_omitted_exercised": (
+                    expected_optional <= optional_omitted
+                ),
+                "nullable_semantics_exercised": (
+                    expected_nullable <= nullable_value
+                    and expected_nullable <= nullable_null
+                    and expected_nullable <= optional_omitted
+                ),
+                "reachable_union_alternatives_exercised": (
+                    family_base_ids <= positive_fixture_ids
+                ),
+            }
+            required_directions = set(
+                B2_SHARED_COMMON_DIRECTIONS[key.domain]
+            )
+            direction_coverage = required_directions <= directions
+            if not all(facts.values()) or not direction_coverage:
+                raise FixtureError(
+                    "B2 indexed fixture completeness is incomplete for "
+                    f"{key.compact()}: facts={facts} "
+                    f"directions={sorted(directions)}"
+                )
+            for record in records:
+                record_facts = record["completeness_evidence"]
+                record_facts.update(facts)
+            indexed_coverage[key.compact()] = {
+                "base_fixture_id": base_id,
+                "property_schema_paths": sorted(expected_properties),
+                "optional_property_schema_paths": sorted(
+                    expected_optional
+                ),
+                "nullable_property_schema_paths": sorted(
+                    expected_nullable
+                ),
+                "required_directions": sorted(required_directions),
+                "directions_exercised": sorted(directions),
+                "schema_direction_coverage": direction_coverage,
+                "schema_fixture_facts": facts,
+            }
+        self.b2_indexed_coverage = dict(sorted(indexed_coverage.items()))
 
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
@@ -2853,19 +3179,40 @@ class CorpusBuilder:
             self.manifest, codex_error_target.schema
         )
         known_union_values: dict[tuple[str, str], tuple[SchemaTarget, Any]] = {}
-        for domain in ("CodexErrorInfo", "ResponseItem", "ThreadItem"):
+        b2_domains = tuple(
+            sorted({key.domain for key in self.b2_shared_common_keys})
+        )
+        for domain in (
+            "CodexErrorInfo",
+            "ResponseItem",
+            "ThreadItem",
+            *b2_domains,
+        ):
             target = self.catalog.union_target(domain)
-            identities = sorted(
-                (
-                    SurfaceKey.from_manifest(entry)
-                    for entry in self.manifest["entries"]
-                    if entry["stability"] == "stable"
-                    and entry["domain"] == domain
-                    and entry["category"]
-                    in {ITEM_DISCRIMINATOR, TAGGED_UNION_DISCRIMINATOR}
-                ),
-                key=lambda key: key.name,
-            )
+            if domain in b2_domains:
+                identities = sorted(
+                    (
+                        key
+                        for key in self.b2_shared_common_keys
+                        if key.domain == domain
+                    ),
+                    key=lambda key: key.name,
+                )
+            else:
+                identities = sorted(
+                    (
+                        SurfaceKey.from_manifest(entry)
+                        for entry in self.manifest["entries"]
+                        if entry["stability"] == "stable"
+                        and entry["domain"] == domain
+                        and entry["category"]
+                        in {
+                            ITEM_DISCRIMINATOR,
+                            TAGGED_UNION_DISCRIMINATOR,
+                        }
+                    ),
+                    key=lambda key: key.name,
+                )
             for key in identities:
                 index, branch, forced_scalar, forced_property = (
                     branch_for_union_identity(
@@ -2907,7 +3254,12 @@ class CorpusBuilder:
                     value,
                     key,
                     intended,
+                    directions_exercised=B2_SHARED_COMMON_DIRECTIONS.get(
+                        domain, ()
+                    ),
                 )
+
+        self._build_b2_union_supplements(known_union_values)
 
         target = codex_error_target
         for name in CODEX_ERROR_INFO_HTTP_IDENTITIES:
@@ -3074,6 +3426,448 @@ class CorpusBuilder:
             target,
             {"activeTurnNotSteerable": {"turnKind": 0}},
             ["one_of_zero"],
+        )
+
+    def _build_b2_union_supplements(
+        self,
+        known_union_values: Mapping[
+            tuple[str, str], tuple[SchemaTarget, Any]
+        ],
+    ) -> None:
+        alternative_coverage: dict[str, Any] = {}
+        family_coverage: dict[str, Any] = {}
+
+        for key in self.b2_shared_common_keys:
+            target, base_value = known_union_values[(key.domain, key.name)]
+            index, _, _, _ = branch_for_union_identity(
+                self.catalog,
+                target,
+                key.discriminator_field,
+                key.name,
+            )
+            intended = (index,) if "oneOf" in target.schema else ()
+            directions = B2_SHARED_COMMON_DIRECTIONS[key.domain]
+            optional_locations = collect_optional_present_locations(
+                self.catalog, target, base_value
+            )
+            validator = self.catalog.target_validator(target)
+            optional_fixture_ids: list[str] = []
+            nullable_null_fixture_ids: list[str] = []
+            nullable_paths: list[str] = []
+
+            for location in optional_locations:
+                path_slug = slug(json_path(location.instance_path))
+                omitted = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    omitted, location.instance_path
+                )
+                if not isinstance(parent, dict) or not isinstance(field, str):
+                    raise FixtureError(
+                        "B2 optional property is not an object field: "
+                        f"{key.compact()}:{json_path(location.instance_path)}"
+                    )
+                parent.pop(field)
+                if validator.validate_subschema(
+                    omitted, target.schema, target.schema_path
+                ):
+                    raise FixtureError(
+                        "B2 optional omission was rejected by the full schema: "
+                        f"{key.compact()}:{json_path(location.instance_path)}"
+                    )
+                omitted_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"optional-omitted:{path_slug}"
+                )
+                self.add_positive(
+                    omitted_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/supplements/"
+                        f"{slug(key.name)}-optional-omitted-{path_slug}.json"
+                    ),
+                    "union_optional_omitted",
+                    target,
+                    omitted,
+                    key,
+                    intended,
+                    omitted_schema_paths=(location.schema_path,),
+                    directions_exercised=directions,
+                )
+                optional_fixture_ids.append(omitted_id)
+
+                nullable = not validator.validate_subschema(
+                    None, location.schema, location.schema_path
+                )
+                if not nullable:
+                    continue
+                if (
+                    get_instance_path(base_value, location.instance_path)
+                    is None
+                ):
+                    raise FixtureError(
+                        "B2 base fixture must exercise a non-null nullable "
+                        f"value: {key.compact()}:{json_path(location.instance_path)}"
+                    )
+                nullable_paths.append(location.schema_path)
+                null_value = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    null_value, location.instance_path
+                )
+                parent[field] = None
+                null_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"nullable-null:{path_slug}"
+                )
+                self.add_positive(
+                    null_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/supplements/"
+                        f"{slug(key.name)}-nullable-null-{path_slug}.json"
+                    ),
+                    "union_nullable_null",
+                    target,
+                    null_value,
+                    key,
+                    intended,
+                    directions_exercised=directions,
+                )
+                nullable_null_fixture_ids.append(null_id)
+
+            required_locations = collect_required_locations(
+                self.catalog, target, base_value
+            )
+            discriminator_locations = [
+                location
+                for location in required_locations
+                if (
+                    (
+                        key.discriminator_field != "$variant"
+                        and location.instance_path
+                        == (key.discriminator_field,)
+                    )
+                    or (
+                        key.discriminator_field == "$variant"
+                        and location.instance_path == (key.name,)
+                    )
+                )
+            ]
+            if len(discriminator_locations) > 1:
+                raise FixtureError(
+                    "B2 alternative has multiple discriminator locations: "
+                    f"{key.compact()}"
+                )
+            missing_required_locations = [
+                location
+                for location in required_locations
+                if not (
+                    (
+                        key.discriminator_field != "$variant"
+                        and location.instance_path
+                        == (key.discriminator_field,)
+                    )
+                    or (
+                        key.discriminator_field == "$variant"
+                        and location.instance_path == (key.name,)
+                    )
+                )
+            ]
+            wrong_type_locations = {
+                location.schema_path: location
+                for location in (
+                    *missing_required_locations,
+                    *optional_locations,
+                )
+            }
+            missing_fixture_ids: list[str] = []
+            wrong_type_fixture_ids: list[str] = []
+            missing_discriminator_fixture_ids: list[str] = []
+            wrong_discriminator_fixture_ids: list[str] = []
+
+            for location in discriminator_locations:
+                missing_discriminator = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    missing_discriminator, location.instance_path
+                )
+                if not isinstance(parent, dict) or not isinstance(field, str):
+                    raise FixtureError(
+                        "B2 discriminator is not an object field: "
+                        f"{key.compact()}"
+                    )
+                parent.pop(field)
+                missing_discriminator_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    "missing-discriminator"
+                )
+                self.add_negative(
+                    missing_discriminator_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-missing-discriminator.json"
+                    ),
+                    "malformed_known_missing_discriminator",
+                    target,
+                    missing_discriminator,
+                    ["one_of_zero"],
+                    key,
+                    "missing_discriminator",
+                )
+                missing_discriminator_fixture_ids.append(
+                    missing_discriminator_id
+                )
+
+                wrong_discriminator = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    wrong_discriminator, location.instance_path
+                )
+                parent[field] = None
+                wrong_discriminator_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    "wrong-discriminator-type"
+                )
+                self.add_negative(
+                    wrong_discriminator_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-wrong-discriminator-type.json"
+                    ),
+                    "malformed_known_wrong_discriminator_type",
+                    target,
+                    wrong_discriminator,
+                    ["one_of_zero"],
+                    key,
+                    "wrong_discriminator_type",
+                )
+                wrong_discriminator_fixture_ids.append(
+                    wrong_discriminator_id
+                )
+
+            for location in missing_required_locations:
+                path_slug = slug(json_path(location.instance_path))
+                missing = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    missing, location.instance_path
+                )
+                if not isinstance(parent, dict) or not isinstance(field, str):
+                    raise FixtureError(
+                        "B2 required property is not an object field: "
+                        f"{key.compact()}:{json_path(location.instance_path)}"
+                    )
+                parent.pop(field)
+                missing_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"missing-required:{path_slug}"
+                )
+                self.add_negative(
+                    missing_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-missing-required-{path_slug}.json"
+                    ),
+                    "malformed_known_missing_required",
+                    target,
+                    missing,
+                    ["one_of_zero"],
+                    key,
+                    "missing_required",
+                )
+                missing_fixture_ids.append(missing_id)
+
+            for location in (
+                wrong_type_locations[path]
+                for path in sorted(wrong_type_locations)
+            ):
+                path_slug = slug(json_path(location.instance_path))
+                original = get_instance_path(
+                    base_value, location.instance_path
+                )
+                wrong_value: Any = NO_WRONG_TYPE_MUTATION
+                for candidate in WRONG_TYPE_CANDIDATES:
+                    if canonical_json(candidate) == canonical_json(original):
+                        continue
+                    mutated = copy.deepcopy(base_value)
+                    parent, field = get_parent_path(
+                        mutated, location.instance_path
+                    )
+                    parent[field] = copy.deepcopy(candidate)
+                    if validator.validate_subschema(
+                        mutated, target.schema, target.schema_path
+                    ):
+                        wrong_value = mutated
+                        break
+                if wrong_value is NO_WRONG_TYPE_MUTATION:
+                    raise FixtureError(
+                        "B2 property has no rejecting wrong-type "
+                        f"mutation: {key.compact()}:{json_path(location.instance_path)}"
+                    )
+                wrong_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"wrong-nested-type:{path_slug}"
+                )
+                self.add_negative(
+                    wrong_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/mutations/"
+                        f"{slug(key.name)}-wrong-nested-type-{path_slug}.json"
+                    ),
+                    "malformed_known_wrong_type",
+                    target,
+                    wrong_value,
+                    ["one_of_zero"],
+                    key,
+                    "wrong_nested_type",
+                )
+                wrong_type_fixture_ids.append(wrong_id)
+
+            alternative_coverage[key.compact()] = {
+                "base_fixture_id": f"union:{key.domain}:{key.name}",
+                "optional_omitted_fixture_ids": sorted(
+                    optional_fixture_ids
+                ),
+                "nullable_null_fixture_ids": sorted(
+                    nullable_null_fixture_ids
+                ),
+                "nullable_schema_paths": sorted(nullable_paths),
+                "missing_required_fixture_ids": sorted(
+                    missing_fixture_ids
+                ),
+                "missing_discriminator_fixture_ids": sorted(
+                    missing_discriminator_fixture_ids
+                ),
+                "wrong_nested_type_fixture_ids": sorted(
+                    wrong_type_fixture_ids
+                ),
+                "wrong_discriminator_type_fixture_ids": sorted(
+                    wrong_discriminator_fixture_ids
+                ),
+                "missing_discriminator_exclusion": (
+                    None
+                    if discriminator_locations
+                    else (
+                        "scalar externally selected alternative has no "
+                        "discriminator property"
+                    )
+                ),
+                "missing_required_exclusion": (
+                    None
+                    if missing_required_locations
+                    else (
+                        "alternative has no non-discriminator required "
+                        "payload field"
+                    )
+                ),
+                "malformed_known_exclusion": (
+                    None
+                    if wrong_type_locations
+                    else (
+                        "alternative has no non-discriminator payload field"
+                    )
+                ),
+                "conflicting_discriminator_exclusion": (
+                    "JSON value shape provides exactly one scalar or object "
+                    "discriminator slot"
+                ),
+            }
+
+        for domain in sorted(B2_SHARED_COMMON_FAMILY_COUNTS):
+            keys = [
+                key
+                for key in self.b2_shared_common_keys
+                if key.domain == domain
+            ]
+            representative = keys[0]
+            target, future_value = known_union_values[
+                (domain, representative.name)
+            ]
+            future_name = f"future{domain}"
+            if representative.discriminator_field == "$variant":
+                future_value = future_name
+            else:
+                future_value = copy.deepcopy(future_value)
+                if not isinstance(future_value, dict):
+                    raise FixtureError(
+                        f"{domain} sample lacks its object discriminator"
+                    )
+                future_value[representative.discriminator_field] = future_name
+            future_id = f"union:{domain}:future-unknown"
+            self.add_negative(
+                future_id,
+                f"cases/unions/{slug(domain)}/future-unknown.json",
+                "unknown_discriminator",
+                target,
+                future_value,
+                ["one_of_zero"],
+                negative_case="future_discriminator",
+            )
+            family_coverage[domain] = {
+                "future_discriminator_fixture_id": future_id,
+                "known_alternative_count": len(keys),
+                "conflicting_discriminator_fixture_ids": [],
+                "conflicting_discriminator_exclusion": (
+                    "the pinned JSON representation has exactly one "
+                    "discriminator slot, so multiple discriminator values "
+                    "are not structurally representable"
+                ),
+            }
+
+        self.b2_negative_coverage = {
+            "assignment_derived_key_count": len(
+                self.b2_shared_common_keys
+            ),
+            "family_counts": dict(
+                sorted(B2_SHARED_COMMON_FAMILY_COUNTS.items())
+            ),
+            "alternatives": dict(sorted(alternative_coverage.items())),
+            "families": dict(sorted(family_coverage.items())),
+        }
+
+    def _build_b2_open_enum_fixtures(self) -> None:
+        enum_coverage: dict[str, Any] = {}
+        for domain, expected_values in sorted(B2_OPEN_STRING_ENUMS.items()):
+            target = self.catalog.union_target(domain)
+            resolved, _ = self.catalog.resolve(
+                target, target.schema, target.schema_path
+            )
+            actual_values = (
+                tuple(resolved.get("enum", ()))
+                if isinstance(resolved, dict)
+                else ()
+            )
+            if actual_values != expected_values:
+                raise FixtureError(
+                    f"B2 open-enum pin mismatch for {domain}: "
+                    f"{actual_values!r}"
+                )
+            known_ids: list[str] = []
+            for value in expected_values:
+                fixture_id = f"enum:{domain}:{value}"
+                self.add_positive(
+                    fixture_id,
+                    f"cases/enums/{slug(domain)}/{slug(value)}.json",
+                    "open_enum_known_value",
+                    target,
+                    value,
+                    None,
+                    directions_exercised=("Decode", "Encode"),
+                )
+                known_ids.append(fixture_id)
+            future_id = f"enum:{domain}:future-unknown"
+            self.add_negative(
+                future_id,
+                f"cases/enums/{slug(domain)}/future-unknown.json",
+                "unknown_enum_value",
+                target,
+                f"future{domain}",
+                ["enum_mismatch"],
+                negative_case="future_open_enum_value",
+            )
+            enum_coverage[domain] = {
+                "known_value_fixture_ids": known_ids,
+                "future_value_fixture_id": future_id,
+                "future_value_schema_diagnostic_codes": [
+                    "enum_mismatch"
+                ],
+            }
+        self.b2_negative_coverage["open_string_enums"] = dict(
+            sorted(enum_coverage.items())
         )
 
 
@@ -3308,6 +4102,30 @@ def validate_committed(arguments: argparse.Namespace) -> None:
                 raise FixtureError(
                     f"committed mutation evidence is stale: {relative}"
                 )
+            committed_schema_coverage = record.get(
+                "schema_fixture_coverage"
+            )
+            if committed_schema_coverage is not None:
+                if not isinstance(committed_schema_coverage, dict):
+                    raise FixtureError(
+                        f"positive fixture has invalid schema coverage: {relative}"
+                    )
+                recomputed_schema_coverage = schema_fixture_coverage(
+                    catalog,
+                    target,
+                    value,
+                    omitted_schema_paths=committed_schema_coverage.get(
+                        "optional_property_schema_paths_omitted", []
+                    ),
+                    directions_exercised=committed_schema_coverage.get(
+                        "directions_exercised", []
+                    ),
+                )
+                if recomputed_schema_coverage != committed_schema_coverage:
+                    raise FixtureError(
+                        "committed schema fixture coverage is stale: "
+                        f"{relative}"
+                    )
     actual_files = {
         path.relative_to(arguments.fixture_root).as_posix()
         for path in arguments.fixture_root.rglob("*.json")

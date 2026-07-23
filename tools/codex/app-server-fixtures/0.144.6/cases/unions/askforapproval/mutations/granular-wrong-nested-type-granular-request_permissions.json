@@ -1,0 +1,9 @@
+{
+  "granular": {
+    "mcp_elicitations": false,
+    "request_permissions": null,
+    "rules": false,
+    "sandbox_approval": false,
+    "skill_approval": false
+  }
+}

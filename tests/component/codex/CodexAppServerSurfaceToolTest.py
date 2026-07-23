@@ -52,6 +52,24 @@ def expect_surface_error(
     raise AssertionError(f"negative guard mutation did not fail: {description}")
 
 
+def expect_surface_error_code(
+    tool: ModuleType,
+    action: Callable[[], object],
+    expected_code: str,
+    description: str,
+) -> None:
+    try:
+        action()
+    except tool.SurfaceError as error:
+        actual_code = str(error).split(":", 1)[0]
+        if actual_code != expected_code:
+            raise AssertionError(
+                f"{description} emitted {actual_code}, expected {expected_code}"
+            ) from error
+        return
+    raise AssertionError(f"negative guard mutation did not fail: {description}")
+
+
 def independent_tree_records(root: Path) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     for path in sorted(candidate for candidate in root.rglob("*") if candidate.is_file()):
@@ -336,8 +354,127 @@ def test_extraction(
         )
 
 
+def test_conversation_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_conversation_union_descriptor_data(
+        manifest, schema_root, evidence
+    )
+    if generated != tool.generate_conversation_union_descriptor_data(
+        manifest, schema_root, evidence
+    ):
+        raise AssertionError("conversation-union descriptor generation is not deterministic")
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private conversation-union descriptor data is stale"
+        )
+    if (
+        len(tool.CONVERSATION_UNION_CODECS) != 26
+        or len(
+            {
+                metadata[0]
+                for metadata in tool.CONVERSATION_UNION_CODECS.values()
+            }
+        )
+        != 26
+    ):
+        raise AssertionError(
+            "conversation-union descriptor map is not an exact 26-key/26-target bijection"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row) in tool.CONVERSATION_UNION_CODECS
+    )
+    assignment["classification"] = "SharedWithinSlice"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_conversation_union_descriptor_data(
+            manifest, schema_root, wrong_assignment
+        ),
+        "ConversationUnionDescriptorAssignmentMismatch",
+        "remove one descriptor identity from the exact SharedCommon assignment set",
+    )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-conversation-descriptors-"
+    ) as raw:
+        temporary = Path(raw)
+        copied_schema_root = temporary / "schema"
+        stable = copied_schema_root / "stable"
+        stable.mkdir(parents=True)
+        aggregate_name = "codex_app_server_protocol.schemas.json"
+        aggregate = load_json(schema_root / "stable" / aggregate_name)
+        aggregate["definitions"]["v2"]["AskForApproval"]["oneOf"][1][
+            "type"
+        ] = "array"
+        write_json(stable / aggregate_name, aggregate)
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, copied_schema_root, evidence
+            ),
+            "ConversationUnionDescriptorSchemaMismatch",
+            "change a reviewed descriptor branch shape",
+        )
+
+        stale = temporary / "ConversationUnionCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_conversation_union_descriptors(
+                stale, generated, True
+            ),
+            "StaleGeneratedConversationUnionDescriptors",
+            "change the checked-in generated descriptor artifact",
+        )
+
+    original_codecs = dict(tool.CONVERSATION_UNION_CODECS)
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.CONVERSATION_UNION_CODECS[keys[1]] = (
+            first[0],
+            second[1],
+            second[2],
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, schema_root, evidence
+            ),
+            "DuplicateConversationUnionDescriptorTarget",
+            "duplicate one private descriptor runtime target",
+        )
+        tool.CONVERSATION_UNION_CODECS[keys[1]] = second
+        tool.CONVERSATION_UNION_CODECS[keys[0]] = (
+            first[0],
+            first[1],
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, schema_root, evidence
+            ),
+            "ConversationUnionDescriptorDirectionMismatch",
+            "change the reviewed codec-direction split",
+        )
+    finally:
+        tool.CONVERSATION_UNION_CODECS.clear()
+        tool.CONVERSATION_UNION_CODECS.update(original_codecs)
+
+
 def test_generated_artifacts(
     tool: ModuleType,
+    schema_root: Path,
     manifest_path: Path,
     provenance_path: Path,
     registry_path: Path,
@@ -346,13 +483,20 @@ def test_generated_artifacts(
 ) -> None:
     manifest = load_json(manifest_path)
     provenance = load_json(provenance_path)
+    evidence = tool.load_a1_registry_evidence()
+    test_conversation_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.with_name("ConversationUnionCodecDescriptors.inc"),
+    )
     generated_registry = tool.generate_registry_data(manifest)
     if generated_registry != registry_path.read_text(encoding="utf-8"):
         raise AssertionError(
             "canonical production registry data is stale against local status mappings"
         )
     registry_entries = tool.parse_registry_data(registry_path)
-    evidence = tool.load_a1_registry_evidence()
     test_operation_association_guards(tool, manifest, evidence, registry_entries)
     test_assignment_reachability_guards(tool, manifest, evidence)
     test_evidence_authority_boundaries(tool, manifest, evidence)
@@ -1715,6 +1859,7 @@ def main() -> int:
     elif arguments.mode == "artifacts":
         test_generated_artifacts(
             tool,
+            arguments.schema_root,
             arguments.manifest,
             arguments.provenance,
             arguments.registry,

@@ -12,6 +12,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -22,6 +23,7 @@ namespace {
     using ai::openai::codex::detail::encodeTurnInput;
     using ai::openai::codex::detail::encodeTurnInterruptParams;
     using ai::openai::codex::detail::encodeTurnStartParams;
+    using ai::openai::codex::typed::AbsolutePathBuf;
     using ai::openai::codex::typed::ApprovalPolicy;
     using ai::openai::codex::typed::DangerFullAccessSandboxPolicy;
     using ai::openai::codex::typed::ExternalSandboxPolicy;
@@ -201,7 +203,12 @@ namespace {
         options.model = ModelId{"gpt-5.4"};
         options.reasoningEffort = ReasoningEffort{"xhigh"};
         options.approvalPolicy = ApprovalPolicy{"on-request"};
-        options.sandboxPolicy = WorkspaceWriteSandboxPolicy{{"/tmp/project"}, true, true, false};
+        WorkspaceWriteSandboxPolicy workspacePolicy;
+        workspacePolicy.writableRoots = std::vector<AbsolutePathBuf>{{"/tmp/project"}};
+        workspacePolicy.networkAccess = true;
+        workspacePolicy.excludeTmpdirEnvVar = true;
+        workspacePolicy.excludeSlashTmp = false;
+        options.sandboxPolicy = std::move(workspacePolicy);
 
         std::string error;
         const std::optional<Json> encoded = encodeTurnStartParams(ThreadId{"thread-1"}, inputs, options, error);

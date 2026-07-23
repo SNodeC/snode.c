@@ -8,8 +8,28 @@
 
 #include <ai/openai/codex/stdio/Client.h>
 #include <ai/openai/codex/typed/Client.h>
+#include <ai/openai/codex/typed/Conversation.h>
+#include <optional>
+#include <type_traits>
+#include <variant>
+#include <vector>
 
 int main() {
+    namespace typed = ai::openai::codex::typed;
+
+    static_assert(std::is_same_v<typed::TextInput, typed::TextUserInput>);
+    static_assert(std::is_same_v<typed::ImageUrlInput, typed::ImageUserInput>);
+    static_assert(std::is_same_v<typed::LocalImageInput, typed::LocalImageUserInput>);
+    static_assert(std::is_same_v<typed::SkillInput, typed::SkillUserInput>);
+    static_assert(std::is_same_v<typed::MentionInput, typed::MentionUserInput>);
+    static_assert(std::is_same_v<typed::UnknownTurnInput, typed::UnknownUserInput>);
+    static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
+    static_assert(std::is_same_v<typed::ExternalSandboxPolicy, typed::ExternalSandboxSandboxPolicy>);
+
+    [[maybe_unused]] typed::TurnInput legacyInput =
+        typed::ImageUrlInput{.url = "https://example.test/image", .detail = std::optional{typed::ImageDetail::high()}};
+    [[maybe_unused]] typed::SandboxPolicy legacySandbox = typed::WorkspaceWriteSandboxPolicy::fromLegacy({"/tmp"}, false, false, false);
+
     ai::openai::codex::stdio::Client client;
     const ai::openai::codex::AppServerClient& constClient = client;
 

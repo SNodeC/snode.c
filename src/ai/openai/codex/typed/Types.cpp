@@ -80,12 +80,20 @@ namespace ai::openai::codex::typed {
         return {"original"};
     }
 
+    bool ImageDetail::isKnown() const noexcept {
+        return value == "auto" || value == "low" || value == "high" || value == "original";
+    }
+
     NetworkAccess NetworkAccess::restricted() {
         return {"restricted"};
     }
 
     NetworkAccess NetworkAccess::enabled() {
         return {"enabled"};
+    }
+
+    bool NetworkAccess::isKnown() const noexcept {
+        return value == "restricted" || value == "enabled";
     }
 
     TurnStatus TurnStatus::completed() {
