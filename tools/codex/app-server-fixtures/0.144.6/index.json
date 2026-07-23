@@ -10,12 +10,14 @@
       "server_request_params": 10,
       "server_request_response": 10,
       "union_branch": 50,
+      "union_branch_supplement": 9,
       "unknown_discriminator": 3,
+      "unknown_enum_value": 1,
       "unknown_method": 4
     },
-    "negative": 11,
-    "positive": 278,
-    "total": 289
+    "negative": 12,
+    "positive": 287,
+    "total": 299
   },
   "fixtures": [
     {
@@ -33999,13 +34001,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/activeturnnotsteerable.json",
       "file_sha256": "d7293e91a5091ba350687729f04fa5dc238069743854c4296eae1823be63c366",
@@ -34082,18 +34084,121 @@
       }
     },
     {
+      "expected_diagnostic_codes": [
+        "one_of_zero"
+      ],
+      "expected_valid": false,
+      "file": "cases/unions/codexerrorinfo/activeturnnotsteerable-future-turn-kind.json",
+      "file_sha256": "4b5cf556f0e366b7fbc023270f6494b001f8721da39eb50d0f083750b51604da",
+      "id": "union:CodexErrorInfo:activeTurnNotSteerable:future-turn-kind",
+      "role": "unknown_enum_value",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      }
+    },
+    {
       "a1_slice": "A1.0",
       "completeness_evidence": {
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/activeturnnotsteerable-turn-kind-compact.json",
+      "file_sha256": "e4c33039a41b93db566533bf9ea4b1eabc6aecce469f27fa35cbe734b5438e3c",
+      "fixture_sha256": "e4c33039a41b93db566533bf9ea4b1eabc6aecce469f27fa35cbe734b5438e3c",
+      "id": "union:CodexErrorInfo:activeTurnNotSteerable:turn-kind-compact",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "activeTurnNotSteerable"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 0,
+        "independent": true,
+        "one_of_branch_indices": [
+          5
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 0,
+        "optional_omissions": [],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/activeTurnNotSteerable",
+            "validation_scope": "root_schema"
+          },
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/activeTurnNotSteerable/turnKind",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 2,
+        "required_locations": 2,
+        "selected_branch_optional_present_locations": 0,
+        "selected_branch_required_locations": 2,
+        "wrong_type_mutations": 2,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/activeTurnNotSteerable",
+            "mutation_found": true,
+            "replacement_type": "null"
+          },
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/activeTurnNotSteerable/turnKind",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/badrequest.json",
       "file_sha256": "48a45918c1fbf8914cf5d37942314e16e54d508bb3e0b1ff11b8da96dc4ada62",
@@ -34141,13 +34246,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/contextwindowexceeded.json",
       "file_sha256": "2cf5b6b59f50135f55d92b682daa8965eed6ac35a578ff9ff8dd855c78417c81",
@@ -34195,13 +34300,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/cyberpolicy.json",
       "file_sha256": "71c6e33b9a41e84fb083149fc92aca883d0f670f9ea459a8a395ecc4def3ab01",
@@ -34264,13 +34369,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/httpconnectionfailed.json",
       "file_sha256": "38cdcfb0a2b7534110dc6db7961a53bee35aeeeac2d5708c96270462b081a266",
@@ -34341,13 +34446,162 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/httpconnectionfailed-http-status-null.json",
+      "file_sha256": "1b8ba774e325b6448c33b06e5c2191e2da07bbf7df32048b54a7686442e6b0b4",
+      "fixture_sha256": "1b8ba774e325b6448c33b06e5c2191e2da07bbf7df32048b54a7686442e6b0b4",
+      "id": "union:CodexErrorInfo:httpConnectionFailed:http-status-null",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "httpConnectionFailed"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 1,
+        "independent": true,
+        "one_of_branch_indices": [
+          1
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 1,
+        "optional_omissions": [
+          {
+            "accepted": true,
+            "instance_path": "$/httpConnectionFailed/httpStatusCode"
+          }
+        ],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/httpConnectionFailed",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 1,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/httpConnectionFailed",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/httpconnectionfailed-http-status-omitted.json",
+      "file_sha256": "97f67088589111452e8703ca61003bfffe02f80209ad04f066ec828900b8c42e",
+      "fixture_sha256": "97f67088589111452e8703ca61003bfffe02f80209ad04f066ec828900b8c42e",
+      "id": "union:CodexErrorInfo:httpConnectionFailed:http-status-omitted",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "httpConnectionFailed"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 0,
+        "independent": true,
+        "one_of_branch_indices": [
+          1
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 0,
+        "optional_omissions": [],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/httpConnectionFailed",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 0,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/httpConnectionFailed",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/internalservererror.json",
       "file_sha256": "563a36217598845a7d4a6be692f38812a1fe57bacb32ff847eec3e75500fc295",
@@ -34425,13 +34679,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/other.json",
       "file_sha256": "c494f200f7f18a48d81653a80ac7f0eeba86a208b72efa78571fa93662be5e19",
@@ -34479,13 +34733,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/responsestreamconnectionfailed.json",
       "file_sha256": "d6cb431c6a190a74f195e896c99697cd3c2ac308abfe2d35ee33551add478add",
@@ -34556,13 +34810,162 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsestreamconnectionfailed-http-status-null.json",
+      "file_sha256": "74fc0644866654248b16e9e658a8e2860a098f4da4b6561b0d21ea348f3f7974",
+      "fixture_sha256": "74fc0644866654248b16e9e658a8e2860a098f4da4b6561b0d21ea348f3f7974",
+      "id": "union:CodexErrorInfo:responseStreamConnectionFailed:http-status-null",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamConnectionFailed"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 1,
+        "independent": true,
+        "one_of_branch_indices": [
+          2
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 1,
+        "optional_omissions": [
+          {
+            "accepted": true,
+            "instance_path": "$/responseStreamConnectionFailed/httpStatusCode"
+          }
+        ],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseStreamConnectionFailed",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 1,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseStreamConnectionFailed",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsestreamconnectionfailed-http-status-omitted.json",
+      "file_sha256": "debd85354c303cacdc4aef3f72249f282acf87359d29ff646389d65c8accadf3",
+      "fixture_sha256": "debd85354c303cacdc4aef3f72249f282acf87359d29ff646389d65c8accadf3",
+      "id": "union:CodexErrorInfo:responseStreamConnectionFailed:http-status-omitted",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamConnectionFailed"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 0,
+        "independent": true,
+        "one_of_branch_indices": [
+          2
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 0,
+        "optional_omissions": [],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseStreamConnectionFailed",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 0,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseStreamConnectionFailed",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/responsestreamdisconnected.json",
       "file_sha256": "a7192736ee5b7b80398d525d7d3b4f3a09dfdda2dfaf1d7535f280d83465cca6",
@@ -34633,13 +35036,162 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsestreamdisconnected-http-status-null.json",
+      "file_sha256": "796ec015349ae94f282a867431bcf45f23f47506c3c3df911c6842a2e4f91077",
+      "fixture_sha256": "796ec015349ae94f282a867431bcf45f23f47506c3c3df911c6842a2e4f91077",
+      "id": "union:CodexErrorInfo:responseStreamDisconnected:http-status-null",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamDisconnected"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 1,
+        "independent": true,
+        "one_of_branch_indices": [
+          3
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 1,
+        "optional_omissions": [
+          {
+            "accepted": true,
+            "instance_path": "$/responseStreamDisconnected/httpStatusCode"
+          }
+        ],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseStreamDisconnected",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 1,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseStreamDisconnected",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsestreamdisconnected-http-status-omitted.json",
+      "file_sha256": "51aee835e2cf4b0639f2314dfff0b11548ff61ce4ce4aa7cd5f32664c9694075",
+      "fixture_sha256": "51aee835e2cf4b0639f2314dfff0b11548ff61ce4ce4aa7cd5f32664c9694075",
+      "id": "union:CodexErrorInfo:responseStreamDisconnected:http-status-omitted",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamDisconnected"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 0,
+        "independent": true,
+        "one_of_branch_indices": [
+          3
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 0,
+        "optional_omissions": [],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseStreamDisconnected",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 0,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseStreamDisconnected",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/responsetoomanyfailedattempts.json",
       "file_sha256": "bff0596bcdf51a4879c9e7a6a8a9bf8a8d04fbb8a3b3c7d88ca11576bb5de32e",
@@ -34710,13 +35262,162 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsetoomanyfailedattempts-http-status-null.json",
+      "file_sha256": "757877063b173ef632e7d9606d5a6ed387764f88e82e149d298e085272a1db5a",
+      "fixture_sha256": "757877063b173ef632e7d9606d5a6ed387764f88e82e149d298e085272a1db5a",
+      "id": "union:CodexErrorInfo:responseTooManyFailedAttempts:http-status-null",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseTooManyFailedAttempts"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 1,
+        "independent": true,
+        "one_of_branch_indices": [
+          4
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 1,
+        "optional_omissions": [
+          {
+            "accepted": true,
+            "instance_path": "$/responseTooManyFailedAttempts/httpStatusCode"
+          }
+        ],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseTooManyFailedAttempts",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 1,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseTooManyFailedAttempts",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
+      },
+      "file": "cases/unions/codexerrorinfo/responsetoomanyfailedattempts-http-status-omitted.json",
+      "file_sha256": "e9e3b41f024c90033cfeda804ef68577ad30a23b7506f8a8644f72265addd8eb",
+      "fixture_sha256": "e9e3b41f024c90033cfeda804ef68577ad30a23b7506f8a8644f72265addd8eb",
+      "id": "union:CodexErrorInfo:responseTooManyFailedAttempts:http-status-omitted",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseTooManyFailedAttempts"
+      },
+      "role": "union_branch_supplement",
+      "schema": {
+        "file": "stable/codex_app_server_protocol.v2.schemas.json",
+        "pointer": "#/definitions/CodexErrorInfo",
+        "sha256": "ffbe34c1b8e9ebeef3f23859a3dcc3d8cb26044d7799557ba688e39bff1c656a"
+      },
+      "validation": {
+        "all_globally_optional_omissions_accepted": true,
+        "all_required_field_mutations_rejected": true,
+        "alternative_branch_acceptances": 0,
+        "alternative_branch_removals": [],
+        "globally_optional_present_locations": 0,
+        "independent": true,
+        "one_of_branch_indices": [
+          4
+        ],
+        "optional_not_globally_optional": [],
+        "optional_not_globally_optional_locations": 0,
+        "optional_omission_mutations": 0,
+        "optional_omissions": [],
+        "removals": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "instance_path": "$/responseTooManyFailedAttempts",
+            "validation_scope": "root_schema"
+          }
+        ],
+        "required_field_mutations": 1,
+        "required_locations": 1,
+        "selected_branch_optional_present_locations": 0,
+        "selected_branch_required_locations": 1,
+        "wrong_type_mutations": 1,
+        "wrong_type_unconstrained_exclusions": 0,
+        "wrong_types": [
+          {
+            "diagnostic_codes": [
+              "one_of_zero"
+            ],
+            "exclusion": null,
+            "instance_path": "$/responseTooManyFailedAttempts",
+            "mutation_found": true,
+            "replacement_type": "null"
+          }
+        ]
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "completeness_evidence": {
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/sandboxerror.json",
       "file_sha256": "cfb8480a9adfe82621263aa8aa8a011376984a458b1e0d26dd3610d5e55ebda4",
@@ -34764,13 +35465,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/serveroverloaded.json",
       "file_sha256": "0dc9c759e0f93f7504eaa42d43cf800e839bd72ed8b52e5d6a9be6447936b31b",
@@ -34818,13 +35519,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/sessionbudgetexceeded.json",
       "file_sha256": "5c4cb0cd529b9ef3b0c9801e81bc6fcefbda725613ff7fb7c1ac64e8f4cbd003",
@@ -34872,13 +35573,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/threadrollbackfailed.json",
       "file_sha256": "d553a1a231599d11439c94c4ab902761f07ef654f50c3b2a7da5c31eacd98529",
@@ -34926,13 +35627,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/unauthorized.json",
       "file_sha256": "de2a398b6ea0440accc0af4a91f82db3140883d9ce257cfcb0dcaf3c23a7effe",
@@ -34980,13 +35681,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
         "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       },
       "file": "cases/unions/codexerrorinfo/usagelimitexceeded.json",
       "file_sha256": "7b4b0ebf6f6b5c83a1f365e79708d16167afc0696f74ce57eeb2ac777940039c",
@@ -39802,20 +40503,20 @@
   "generated_notice": "Generated by tools/codex/app_server_fixtures.py; do not edit.",
   "mutation_counts": {
     "alternative_branch_acceptances": 1,
-    "globally_optional_locations": 1061,
+    "globally_optional_locations": 1065,
     "optional_cross_fragment_exclusions": 0,
-    "optional_omissions_accepted": 1061,
-    "optional_present_locations": 1061,
-    "required_field_removals_rejected": 1261,
-    "required_locations": 1261,
-    "selected_branch_required_locations": 1261,
-    "wrong_type_mutations_rejected": 1248,
+    "optional_omissions_accepted": 1065,
+    "optional_present_locations": 1065,
+    "required_field_removals_rejected": 1271,
+    "required_locations": 1271,
+    "selected_branch_required_locations": 1271,
+    "wrong_type_mutations_rejected": 1258,
     "wrong_type_unconstrained_exclusions": 13
   },
-  "rules_version": 1,
+  "rules_version": 2,
   "sources": {
     "experimental_schema_aggregate_sha256": "4a0ef96787255364d99b15fe40fcfd6227901978d0cddc8b20340bfef98a0d1b",
-    "generator_sha256": "af049abf5462f14b6d3f352d668fdcee02b85cb089c80fb5e44f37474392e77c",
+    "generator_sha256": "3bf355cffe2fa889d41f647b32b952aed4b68084573103b8b8c67e087fd6b1da",
     "operation_contracts_sha256": "226c552c5602301966c39539bbf466f345d4aa625e06d6ca603a9dbcd25e3a9e",
     "stable_schema_aggregate_sha256": "cee1ac3bcaf95e5fcdcf07499c7e6b00fc423b90c670ea3380f1799434b72add",
     "surface_manifest_sha256": "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021",

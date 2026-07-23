@@ -9,6 +9,7 @@ pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 
 set(AI_OPENAI_CODEX_CPP
     AppServerClient.cpp
+    detail/CodexErrorInfoCodec.cpp
     detail/EventDecoder.cpp
     detail/ItemDecoder.cpp
     detail/ProtocolCodec.cpp
@@ -26,6 +27,8 @@ set(AI_OPENAI_CODEX_CPP
 set(AI_OPENAI_CODEX_H
     AppServerClient.h
     Protocol.h
+    detail/CodexErrorInfoCodec.h
+    detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h
     detail/ProtocolCodec.h
@@ -38,6 +41,7 @@ set(AI_OPENAI_CODEX_H
     stdio/Client.h
     stdio/StdioTransport.h
     typed/Client.h
+    typed/CodexErrorInfo.h
     typed/Events.h
     typed/Items.h
     typed/Results.h
@@ -82,6 +86,7 @@ install(
 
 install(
     FILES typed/Client.h
+          typed/CodexErrorInfo.h
           typed/Events.h
           typed/Items.h
           typed/Results.h

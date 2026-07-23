@@ -254,14 +254,21 @@ typed, BackendCore, canonical-state, or frontend support.
 reviewed, non-generated floor containing the 34 exact stable typed identities
 implemented at A0: seven client requests, one client notification, fourteen
 server notifications, four server requests, and eight `ThreadItem`
-discriminators. The coverage guard requires the current implemented stable
-typed identity set to be a superset of that floor.
+discriminators. A1.0 adds the separate reviewed
+`CodexErrorInfoTypedSurfaceBaseline.h`, containing the 16 exact stable
+`CodexErrorInfo` discriminator identities. The coverage guard requires the
+current implemented stable typed identity set to equal the union of both
+headers, so the A1.0 no-regression floor and implementation ceiling are both
+exactly 50 identities. This strict equality prevents unreviewed identities
+from crossing the A1.0 boundary.
 
-Coverage may grow without changing the baseline. Decreasing coverage or
-replacing a locked identity requires an explicit reviewed baseline change and
-an explanation. A later A1 change may deliberately advance the baseline to
-lock in newly reviewed typed coverage. The floor is a no-regression ratchet,
-not evidence of future completeness.
+Each later A1 domain slice must advance the exact reviewed baseline and its
+corresponding equality guard in the same change. Decreasing coverage,
+replacing a locked identity, or adding an identity outside its assigned slice
+requires an explicit reviewed baseline change and an explanation. The guard
+is an identity ratchet, not a count-only completeness claim: at A1.0 the 16
+error identities are mechanically `Complete`, while the original 34 remain
+`Partial`.
 
 ## Packaging policy
 

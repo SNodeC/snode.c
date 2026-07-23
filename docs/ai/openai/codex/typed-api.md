@@ -10,13 +10,20 @@ Include `ai/openai/codex/typed/Client.h` and use the facades returned by an
 existing `AppServerClient`:
 
 ```cpp
-client.threads().start({.cwd = "/tmp/project"}, handler);
-client.threads().resume(threadId, {}, handler);
-client.threads().list({}, handler);
-client.threads().read(threadId, handler);
-client.turns().start(threadId, {typed::TextInput{"Hello"}}, {}, handler);
-client.turns().interrupt(threadId, turnId, handler);
+client.typed().threads().start({.cwd = "/tmp/project"}, handler);
+client.typed().threads().resume(threadId, {}, handler);
+client.typed().threads().list({}, handler);
+client.typed().threads().read(threadId, handler);
+client.typed().turns().start(threadId, {typed::TextInput{"Hello"}}, {}, handler);
+client.typed().turns().interrupt(threadId, turnId, handler);
 ```
+
+`typed::Client` is the installed, PIMPL-backed grouped facade. Its current
+accessors return the one existing `Threads`, `Turns`, `Events`, and `Requests`
+object owned by the `AppServerClient`; they do not allocate a second protocol
+engine. The old direct accessors remain source-compatible deprecated
+forwarders, for example `client.threads()` forwards to
+`client.typed().threads()`. New code should use the grouped form.
 
 Unsupported or newly introduced operations remain available through
 `client.raw()`.
@@ -37,13 +44,16 @@ including stability membership, lives in
 [coverage report](app-server-api-coverage.md) records inventory and
 implementation coverage as separate metrics. A private production
 `ProtocolSurfaceRegistry` is both the local disposition inventory checked by
-the coverage guard and the source used by runtime method and discriminator
-dispatch. Registration in that registry does not claim a typed implementation.
+the coverage guard and the source used by runtime method, top-level message,
+and implemented nested-union dispatch. A1.0 extends those same rows with
+offline authoritative request/result contracts, fixed domain slices, and
+mechanically derived completeness evidence. Registration alone still does not
+claim a typed implementation or schema completeness.
 
-This A0 census does not expand the typed API described below. Unimplemented
-entries remain raw- or opaque-preserved according to their runtime disposition.
-Adding the owner-frozen stable typed request, notification, server-request,
-item, and delta surface is A1 work.
+The grouped API described below remains the pre-A1 request surface plus the
+A1.0 cross-cutting error model. Other stable operations remain raw- or
+opaque-preserved according to their registry disposition until their fixed
+A1.1–A1.4 domain slice.
 
 The typed operation set is `thread/start`, `thread/resume`, `thread/list`,
 `thread/read`, `turn/start`, and `turn/interrupt`.
@@ -76,6 +86,16 @@ It also retains the client request ID and the original raw result JSON. A typed
 decode failure affects only that operation; it is not promoted to a transport
 or connection failure.
 
+For a remote JSON-RPC error, `remoteError` remains the authoritative raw
+`ProtocolError`, including its code, message, and optional data. When that
+data has the pinned `TurnError` shape, the adapter additionally exposes
+`codexErrorInfo` and `codexErrorDiagnostic`. Failure to decode this structured
+supplement never changes the remote-error classification or the connection.
+The placement is proven by pinned production source: the
+`ActiveTurnNotSteerable` handler serializes a `TurnError` and assigns it to the
+JSON-RPC error's `data`; the otherwise unconstrained data field is not decoded
+by name similarity.
+
 Submission failures are returned synchronously through the unchanged
 `RawProtocol::Submission` and do not invoke the completion. Accepted
 completions remain asynchronous. Typed adapters add neither a pending registry
@@ -87,8 +107,8 @@ handlers remain installed across an explicit stop/start.
 
 ## Events and items
 
-`client.events().setOnEvent()` receives an `Event` variant. The typed methods
-currently include:
+`client.typed().events().setOnEvent()` receives an `Event` variant. The typed
+methods currently include:
 
 - thread started and thread status changed;
 - turn started, completed, and failed completion classification;
@@ -118,6 +138,11 @@ complete `UserMessageItem::content` value held by the typed layer.
 completeness marker and any future string; an omitted marker has the
 schema-defined `full` default.
 
+The current public item union is named `ThreadItem`, with `Item` retained as a
+source-compatible alias. `ResponseItem` is deliberately a distinct public type
+direction; A1.0 does not combine its pinned alternatives with `ThreadItem` or
+invent the A1.1 alternatives.
+
 Unknown notification methods become `UnknownEvent`. Unknown item
 discriminators become `UnknownItem`. Unknown items retain any valid common item
 ID plus the thread and turn IDs supplied by their notification or parent turn.
@@ -126,9 +151,43 @@ A malformed item-local field also degrades to `UnknownItem` with a
 envelope becomes `UnknownEvent`. These values retain their original raw JSON
 and do not fail the connection.
 
+## Structured decode diagnostics and Codex errors
+
+Typed forward-compatibility handling has a structured diagnostic in addition
+to the temporarily retained optional string error:
+
+```cpp
+struct DecodeDiagnostic {
+    DecodeIssueKind kind;
+    DecodeIssueSeverity severity;
+    std::string surface;
+    std::string fieldPath;
+    std::string message;
+};
+```
+
+`UnknownMethod`, `UnknownDiscriminator`, and `UnknownEnumValue` use
+`ForwardCompatibility`. A known method or discriminator with an invalid
+payload uses `MalformedKnownPayload` and `ProtocolWarning`. Diagnostic text
+contains protocol identities and paths, not payload values; the complete raw
+JSON is retained separately. Neither class alone fails the connection.
+
+`CodexErrorInfo` has one public alternative for each of the 16 pinned known
+discriminators and an explicit `UnknownCodexErrorInfo` alternative. The four
+HTTP alternatives distinguish an omitted status from explicit `null` and a
+numeric value. `activeTurnNotSteerable.turnKind` is an open string-backed enum
+with helpers for `review` and `compact`; a future value remains typed and
+receives an `UnknownEnumValue` diagnostic. Every alternative retains its
+complete raw JSON.
+
+The `error` notification preserves its legacy raw `TurnError` JSON and adds a
+structured `TurnError` view. That view distinguishes omitted, null, and value
+semantics for `additionalDetails` and `codexErrorInfo`. Malformed known error
+payloads degrade to the raw-preserving compatibility path.
+
 ## Server requests
 
-`client.requests().setOnRequest()` currently classifies:
+`client.typed().requests().setOnRequest()` currently classifies:
 
 - `item/commandExecution/requestApproval`;
 - `item/fileChange/requestApproval`;
@@ -184,23 +243,25 @@ through the event loop.
 
 ## ABI and forward compatibility
 
-Task 3 adds public methods to `AppServerClient`, private implementation state,
-and new exported typed C++ classes. The `AppServerClient` object still
-contains only its existing `Impl` pointer, so its object layout is unchanged.
-`Protocol::ServerRequest` gains a `ServerRequestToken` field for occurrence
-ownership, which is a public raw-protocol type layout change. The library's
-normal C++ ABI/versioning policy applies to that change and to the new exported
-symbols and types.
+A1 is one deliberate in-progress C++ rebuild boundary. A1.0 adds
+`AppServerClient::typed()`, the one-pointer-PIMPL `typed::Client`, structured
+diagnostics, and public error variants. `AppServerClient` itself still contains
+only its existing `Impl` pointer; all grouped facades use the same raw engine.
+Public `std::variant` and aggregate layouts changed where the typed model
+required it, and this documentation does not claim binary compatibility for
+already-built consumers.
+
+SOVERSION remains unchanged in A1.0. The single A1 SOVERSION action is deferred
+to A1 closure in A1.4.
 
 Typed public headers are installed. Decoder headers under `detail/` remain
 private. Raw JSON on results, threads, turns, items, events, and server requests
 is the forward-compatibility escape hatch, and `client.raw()` remains
 available for protocol additions not yet represented by the typed layer.
 
-Adding `UserMessageItem` extends the public `Item` variant, and adding partial
-common metadata enlarges the public `UnknownItem` structure. Existing variant
-indices are retained and the new `UnknownItem` member is appended, preserving
-ordinary field access and existing three-field aggregate initializers at source
-level. The layouts are not binary-compatible, however, and exhaustive item
-visitors must handle the new alternative; already-built C++ consumers must be
-rebuilt.
+The legacy direct facade accessors remain available at source level with
+deprecation diagnostics. `Item` remains an alias of `ThreadItem`. Existing
+optional string decode errors remain while structured classification becomes
+authoritative. Raw JSON on results, threads, turns, items, events, server
+requests, and Codex error alternatives remains the escape hatch for protocol
+growth.

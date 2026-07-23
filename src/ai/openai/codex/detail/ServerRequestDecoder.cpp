@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 
+#include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
 #include <cstddef>
@@ -24,7 +25,17 @@ namespace ai::openai::codex::detail {
 
     namespace {
         typed::UnknownServerRequest unknownRequest(const ServerRequest& request, std::optional<std::string> decodingError = std::nullopt) {
-            return {request.id, request.token, request.method, request.params, request.raw, std::move(decodingError)};
+            const bool malformed = decodingError.has_value();
+            return {request.id,
+                    request.token,
+                    request.method,
+                    request.params,
+                    request.raw,
+                    std::move(decodingError),
+                    malformed ? std::optional<typed::DecodeDiagnostic>{
+                                    malformedKnownDiagnostic(request.method, "$.params")}
+                              : std::optional<typed::DecodeDiagnostic>{
+                                    unknownMethodDiagnostic(request.method)}};
         }
 
         bool requireObject(const Json& value, std::string_view context, std::string& error) {

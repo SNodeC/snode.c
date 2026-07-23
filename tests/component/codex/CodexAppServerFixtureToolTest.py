@@ -110,6 +110,45 @@ class AppServerFixtureToolTest(unittest.TestCase):
             "name='plugin/futureStableOperation'",
         )
 
+    def test_codex_error_rules_are_exactly_bidirectional_with_pin(self) -> None:
+        configured = arguments()
+        draft07 = tool.load_draft07(configured.validator)
+        catalog = tool.SchemaCatalog(configured.schema_root, draft07)
+        manifest = tool.load_json(configured.manifest)
+        schema = catalog.union_target("CodexErrorInfo").schema
+        tool.validate_codex_error_rule_sets(manifest, schema)
+
+        extra_identity = copy.deepcopy(manifest)
+        template = next(
+            entry
+            for entry in extra_identity["entries"]
+            if entry["domain"] == "CodexErrorInfo"
+        )
+        added = copy.deepcopy(template)
+        added["id"] = "tagged_union_discriminator:CodexErrorInfo:$variant:futurePinnedError"
+        added["name"] = "futurePinnedError"
+        extra_identity["entries"].append(added)
+        with self.assertRaisesRegex(
+            tool.FixtureError,
+            "CODEX_ERROR_INFO_MANIFEST_RULE_MISMATCH",
+        ):
+            tool.validate_codex_error_rule_sets(extra_identity, schema)
+
+        wrong_http_shape = copy.deepcopy(schema)
+        http_branch = next(
+            branch
+            for branch in wrong_http_shape["oneOf"]
+            if "httpConnectionFailed" in branch.get("properties", {})
+        )
+        http_branch["properties"]["httpConnectionFailed"]["properties"][
+            "httpStatusCode"
+        ]["type"] = ["string", "null"]
+        with self.assertRaisesRegex(
+            tool.FixtureError,
+            "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH",
+        ):
+            tool.validate_codex_error_rule_sets(manifest, wrong_http_shape)
+
     def test_committed_corpus_is_deterministic_current_and_valid(self) -> None:
         configured = arguments()
         first, first_index = tool.generated_outputs(configured)
@@ -122,9 +161,9 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 289,
-                "positive": 278,
-                "negative": 11,
+                "total": 299,
+                "positive": 287,
+                "negative": 12,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
@@ -134,7 +173,9 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "server_request_params": 10,
                     "server_request_response": 10,
                     "union_branch": 50,
+                    "union_branch_supplement": 9,
                     "unknown_discriminator": 3,
+                    "unknown_enum_value": 1,
                     "unknown_method": 4,
                 },
             },
@@ -142,15 +183,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 1261,
-                "required_locations": 1261,
-                "required_field_removals_rejected": 1261,
-                "wrong_type_mutations_rejected": 1248,
+                "selected_branch_required_locations": 1271,
+                "required_locations": 1271,
+                "required_field_removals_rejected": 1271,
+                "wrong_type_mutations_rejected": 1258,
                 "wrong_type_unconstrained_exclusions": 13,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 1061,
-                "globally_optional_locations": 1061,
-                "optional_omissions_accepted": 1061,
+                "optional_present_locations": 1065,
+                "globally_optional_locations": 1065,
+                "optional_omissions_accepted": 1065,
                 "optional_cross_fragment_exclusions": 0,
             },
         )

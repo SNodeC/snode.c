@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
  */
 
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "support/TestResult.h"
 
@@ -162,8 +163,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 0 && schemaPartial == 34 && schemaNotImplemented == 305 && schemaNotApplicable == 48,
-                      "Commit 1 keeps the existing 34 typed identities honestly partial and all 48 inventory-only rows inapplicable");
+    result.expectTrue(schemaComplete == 16 && schemaPartial == 34 && schemaNotImplemented == 289 && schemaNotApplicable == 48,
+                      "A1.0 completes exactly 16 CodexErrorInfo identities while the existing 34 identities remain honestly partial");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -212,6 +213,80 @@ int main() {
         std::array<std::string_view, 8>{
             "agentMessage", "userMessage", "reasoning", "commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "webSearch"},
         "every existing typed item dispatch target resolves to its exact registered discriminator");
+    expectTargets<detail::CodexErrorInfoTarget>(
+        result,
+        std::array<std::string_view, 16>{"activeTurnNotSteerable",
+                                         "badRequest",
+                                         "contextWindowExceeded",
+                                         "cyberPolicy",
+                                         "httpConnectionFailed",
+                                         "internalServerError",
+                                         "other",
+                                         "responseStreamConnectionFailed",
+                                         "responseStreamDisconnected",
+                                         "responseTooManyFailedAttempts",
+                                         "sandboxError",
+                                         "serverOverloaded",
+                                         "sessionBudgetExceeded",
+                                         "threadRollbackFailed",
+                                         "unauthorized",
+                                         "usageLimitExceeded"},
+        "every CodexErrorInfo decoder target resolves to its exact canonical tagged-union identity");
+
+    const std::span<const detail::CodexErrorInfoCodecDescriptor> codecDescriptors =
+        detail::codexErrorInfoCodecDescriptors();
+    result.expectTrue(codecDescriptors.size() == 16,
+                      "the production CodexErrorInfo decoder exposes exactly 16 private descriptors");
+
+    std::vector<detail::CodexErrorInfoCodecDescriptor> duplicateCodecDescriptors(codecDescriptors.begin(), codecDescriptors.end());
+    duplicateCodecDescriptors.push_back(codecDescriptors.front());
+    result.expectTrue(
+        hasExactCodes(detail::validateProtocolSurface(registry, duplicateCodecDescriptors),
+                      {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+        "duplicate private decoder descriptor fails with exactly DuplicateCodecDescriptor");
+
+    std::vector<detail::CodexErrorInfoCodecDescriptor> missingCodecDescriptor(codecDescriptors.begin(), codecDescriptors.end());
+    missingCodecDescriptor.erase(missingCodecDescriptor.begin());
+    result.expectTrue(
+        hasExactCodes(detail::validateProtocolSurface(registry, missingCodecDescriptor),
+                      {detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                       detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+        "a complete typed row without a production decoder fails with exact row-without-decoder diagnostics");
+
+    std::vector<detail::CodexErrorInfoCodecDescriptor> staleCodecDescriptor(codecDescriptors.begin(), codecDescriptors.end());
+    staleCodecDescriptor.front().key.name = "staleCodexErrorInfo";
+    result.expectTrue(
+        hasExactCodes(detail::validateProtocolSurface(registry, staleCodecDescriptor),
+                      {detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                       detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                       detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+        "a production decoder descriptor without an exact registry row fails with the exact stale-descriptor diagnostics");
+
+    std::vector<detail::ProtocolSurfaceEntry> targetWithoutImplementedRow(registry.begin(), registry.end());
+    const auto unimplementedTarget =
+        findEntry(targetWithoutImplementedRow, detail::SurfaceCategory::TaggedUnionDiscriminator, "activeTurnNotSteerable");
+    unimplementedTarget->runtimeDisposition = detail::RuntimeDisposition::Deferred;
+    unimplementedTarget->typedImplementation = detail::TypedImplementationStatus::NotImplemented;
+    unimplementedTarget->typedSchemaStatus = detail::TypedSchemaStatus::NotImplemented;
+    unimplementedTarget->schemaCompleteness = {};
+    result.expectTrue(
+        hasExactCodes(detail::validateProtocolSurface(targetWithoutImplementedRow),
+                      {detail::ProtocolSurfaceErrorCode::RuntimeTargetWithoutTypedImplementation,
+                       detail::ProtocolSurfaceErrorCode::CodecDescriptorWithoutTypedRegistryRow}),
+        "a nested-union target without an implemented row fails with exact target/disposition diagnostics");
+
+    std::vector<detail::ProtocolSurfaceEntry> completeRowWithoutTarget(registry.begin(), registry.end());
+    const auto targetlessComplete =
+        findEntry(completeRowWithoutTarget, detail::SurfaceCategory::TaggedUnionDiscriminator, "activeTurnNotSteerable");
+    targetlessComplete->runtimeTarget = std::monostate{};
+    result.expectTrue(
+        hasExactCodes(detail::validateProtocolSurface(completeRowWithoutTarget),
+                      {detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+                       detail::ProtocolSurfaceErrorCode::MissingRuntimeTargetRegistration,
+                       detail::ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                       detail::ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                       detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
+        "a complete nested-union row without target/decoder fails with the exact bidirectional diagnostic multiset");
 
     const detail::ProtocolSurfaceEntry* deferred =
         detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");

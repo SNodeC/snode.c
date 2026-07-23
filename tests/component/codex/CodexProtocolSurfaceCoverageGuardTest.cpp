@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "component/codex/CodexErrorInfoTypedSurfaceBaseline.h"
 #include "component/codex/CodexTypedSurfaceBaseline.h"
 #include "support/TestResult.h"
 
@@ -155,14 +156,14 @@ namespace {
 
     std::vector<TypedCoverageRatchetDiagnostic> typedCoverageRatchetErrors(std::span<const detail::ProtocolSurfaceEntry> registry) {
         std::vector<TypedCoverageRatchetDiagnostic> errors;
-        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity : tests::component::codex::TypedSurfaceBaseline) {
+        const auto validateIdentity = [&](const tests::component::codex::TypedSurfaceIdentity& baselineIdentity) {
             const auto iterator = std::find_if(registry.begin(), registry.end(), [&](const detail::ProtocolSurfaceEntry& entry) {
                 return entry.key.category == baselineIdentity.category && entry.key.domain == baselineIdentity.domain &&
                        entry.key.field == baselineIdentity.field && entry.key.name == baselineIdentity.name;
             });
             if (iterator == registry.end()) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityMissing, "locked stable typed identity is absent"});
-                continue;
+                return;
             }
             if (iterator->stability != detail::Stability::Stable) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotStable, "locked typed identity is no longer stable"});
@@ -172,6 +173,13 @@ namespace {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotImplemented,
                                   "locked stable typed identity is no longer implemented"});
             }
+        };
+        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity : tests::component::codex::TypedSurfaceBaseline) {
+            validateIdentity(baselineIdentity);
+        }
+        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity :
+             tests::component::codex::CodexErrorInfoTypedSurfaceBaseline) {
+            validateIdentity(baselineIdentity);
         }
         return errors;
     }
@@ -220,8 +228,9 @@ int main() {
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}) &&
-                          typedIdentityCount(baseline) >= tests::component::codex::TypedSurfaceBaseline.size(),
-                      "all 34 independently locked stable typed identities are implemented and additive coverage is allowed");
+                          typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
+                                                              tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size(),
+                      "the exact A1.0 ratchet contains the original 34 identities plus all 16 CodexErrorInfo alternatives");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry = findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");

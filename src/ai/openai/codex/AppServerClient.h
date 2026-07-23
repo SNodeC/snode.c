@@ -22,6 +22,7 @@ namespace ai::openai::codex::detail {
 }
 
 namespace ai::openai::codex::typed {
+    class Client;
     class Events;
     class Requests;
     class Threads;
@@ -77,16 +78,27 @@ namespace ai::openai::codex {
         RawProtocol& raw() noexcept;
         const RawProtocol& raw() const noexcept;
 
+        typed::Client& typed() noexcept;
+        const typed::Client& typed() const noexcept;
+
+        [[deprecated("use typed().threads()")]]
         typed::Threads& threads() noexcept;
+        [[deprecated("use typed().threads()")]]
         const typed::Threads& threads() const noexcept;
 
+        [[deprecated("use typed().turns()")]]
         typed::Turns& turns() noexcept;
+        [[deprecated("use typed().turns()")]]
         const typed::Turns& turns() const noexcept;
 
+        [[deprecated("use typed().events()")]]
         typed::Events& events() noexcept;
+        [[deprecated("use typed().events()")]]
         const typed::Events& events() const noexcept;
 
+        [[deprecated("use typed().requests()")]]
         typed::Requests& requests() noexcept;
+        [[deprecated("use typed().requests()")]]
         const typed::Requests& requests() const noexcept;
 
         std::optional<InitializeResult> getInitializeResult() const;

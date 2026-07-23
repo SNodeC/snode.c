@@ -90,16 +90,25 @@ namespace ai::openai::codex::typed {
         Json raw;
         std::optional<std::string> decodingError;
         UnknownItemMetadata metadata = {};
+        std::optional<DecodeDiagnostic> diagnostic;
     };
 
-    using Item = std::variant<AgentMessageItem,
-                              ReasoningItem,
-                              CommandExecutionItem,
-                              FileChangeItem,
-                              ToolCallItem,
-                              WebSearchItem,
-                              UnknownItem,
-                              UserMessageItem>;
+    using ThreadItem = std::variant<AgentMessageItem,
+                                    ReasoningItem,
+                                    CommandExecutionItem,
+                                    FileChangeItem,
+                                    ToolCallItem,
+                                    WebSearchItem,
+                                    UnknownItem,
+                                    UserMessageItem>;
+
+    // The pinned protocol has a separate ResponseItem union. Its domain
+    // alternatives belong to A1.1, so A1.0 establishes only the distinct type
+    // direction and does not merge those alternatives into ThreadItem.
+    struct ResponseItem;
+
+    // Transitional source compatibility for the A0 public name.
+    using Item = ThreadItem;
 
 } // namespace ai::openai::codex::typed
 

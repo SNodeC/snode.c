@@ -188,46 +188,16 @@ namespace ai::openai::codex {
             return rawProtocol;
         }
 
-        void installTypedFacades(std::unique_ptr<typed::Threads> threads,
-                                 std::unique_ptr<typed::Turns> turns,
-                                 std::unique_ptr<typed::Events> events,
-                                 std::unique_ptr<typed::Requests> requests) {
-            typedThreads = std::move(threads);
-            typedTurns = std::move(turns);
-            typedEvents = std::move(events);
-            typedRequests = std::move(requests);
+        void installTypedClient(std::unique_ptr<typed::Client> client) {
+            typedClient = std::move(client);
         }
 
-        typed::Threads& threads() noexcept {
-            return *typedThreads;
+        typed::Client& typed() noexcept {
+            return *typedClient;
         }
 
-        const typed::Threads& threads() const noexcept {
-            return *typedThreads;
-        }
-
-        typed::Turns& turns() noexcept {
-            return *typedTurns;
-        }
-
-        const typed::Turns& turns() const noexcept {
-            return *typedTurns;
-        }
-
-        typed::Events& events() noexcept {
-            return *typedEvents;
-        }
-
-        const typed::Events& events() const noexcept {
-            return *typedEvents;
-        }
-
-        typed::Requests& requests() noexcept {
-            return *typedRequests;
-        }
-
-        const typed::Requests& requests() const noexcept {
-            return *typedRequests;
+        const typed::Client& typed() const noexcept {
+            return *typedClient;
         }
 
         std::optional<InitializeResult> getInitializeResult() const {
@@ -1070,10 +1040,7 @@ namespace ai::openai::codex {
         bool stateDispatchScheduled = false;
         std::shared_ptr<Lifetime> lifetime;
         RawProtocol rawProtocol;
-        std::unique_ptr<typed::Threads> typedThreads;
-        std::unique_ptr<typed::Turns> typedTurns;
-        std::unique_ptr<typed::Events> typedEvents;
-        std::unique_ptr<typed::Requests> typedRequests;
+        std::unique_ptr<typed::Client> typedClient;
 
         logger::LogScopeOwner logScope;
     };
@@ -1139,10 +1106,11 @@ namespace ai::openai::codex {
 
     AppServerClient::AppServerClient(std::unique_ptr<detail::Transport> transport, ClientInfo clientInfo)
         : impl(std::make_unique<Impl>(std::move(transport), std::move(clientInfo))) {
-        impl->installTypedFacades(std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
-                                  std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
-                                  std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),
-                                  std::unique_ptr<typed::Requests>(new typed::Requests(impl->raw())));
+        impl->installTypedClient(std::unique_ptr<typed::Client>(
+            new typed::Client(std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
+                              std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
+                              std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),
+                              std::unique_ptr<typed::Requests>(new typed::Requests(impl->raw())))));
     }
 
     AppServerClient::~AppServerClient() = default;
@@ -1171,36 +1139,44 @@ namespace ai::openai::codex {
         return impl->raw();
     }
 
+    typed::Client& AppServerClient::typed() noexcept {
+        return impl->typed();
+    }
+
+    const typed::Client& AppServerClient::typed() const noexcept {
+        return impl->typed();
+    }
+
     typed::Threads& AppServerClient::threads() noexcept {
-        return impl->threads();
+        return typed().threads();
     }
 
     const typed::Threads& AppServerClient::threads() const noexcept {
-        return impl->threads();
+        return typed().threads();
     }
 
     typed::Turns& AppServerClient::turns() noexcept {
-        return impl->turns();
+        return typed().turns();
     }
 
     const typed::Turns& AppServerClient::turns() const noexcept {
-        return impl->turns();
+        return typed().turns();
     }
 
     typed::Events& AppServerClient::events() noexcept {
-        return impl->events();
+        return typed().events();
     }
 
     const typed::Events& AppServerClient::events() const noexcept {
-        return impl->events();
+        return typed().events();
     }
 
     typed::Requests& AppServerClient::requests() noexcept {
-        return impl->requests();
+        return typed().requests();
     }
 
     const typed::Requests& AppServerClient::requests() const noexcept {
-        return impl->requests();
+        return typed().requests();
     }
 
     std::optional<InitializeResult> AppServerClient::getInitializeResult() const {

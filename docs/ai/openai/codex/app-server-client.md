@@ -40,8 +40,24 @@ void setOnStateChanged(ai::openai::codex::Callbacks::StateChanged callback);
 void setOnDiagnostic(ai::openai::codex::Callbacks::DiagnosticReceived callback);
 
 ai::openai::codex::AppServerClient::RawProtocol& raw() noexcept;
+ai::openai::codex::typed::Client& typed() noexcept;
 std::optional<ai::openai::codex::InitializeResult> getInitializeResult() const;
 ```
+
+Const overloads are available for both `raw()` and `typed()`. Include
+`ai/openai/codex/typed/Client.h` when calling grouped typed accessors:
+
+```cpp
+client.typed().threads();
+client.typed().turns();
+client.typed().events();
+client.typed().requests();
+```
+
+`typed::Client` delegates to the four facade objects attached to the same raw
+protocol engine. The legacy direct `threads()`, `turns()`, `events()`, and
+`requests()` accessors remain deprecated source-compatible forwarders; no
+future domain facade is added directly to `AppServerClient`.
 
 The default constructor runs:
 

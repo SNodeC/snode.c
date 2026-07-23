@@ -16,6 +16,28 @@
 
 namespace ai::openai::codex::typed {
 
+    enum class DecodeIssueKind {
+        UnknownMethod,
+        UnknownDiscriminator,
+        UnknownEnumValue,
+        MalformedKnownPayload
+    };
+
+    enum class DecodeIssueSeverity {
+        ForwardCompatibility,
+        ProtocolWarning
+    };
+
+    struct DecodeDiagnostic {
+        DecodeIssueKind kind = DecodeIssueKind::MalformedKnownPayload;
+        DecodeIssueSeverity severity = DecodeIssueSeverity::ProtocolWarning;
+        std::string surface;
+        std::string fieldPath;
+        std::string message;
+
+        auto operator<=>(const DecodeDiagnostic&) const = default;
+    };
+
     struct ThreadId {
         std::string value;
 

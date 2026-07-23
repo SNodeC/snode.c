@@ -9,6 +9,7 @@
 #define AI_OPENAI_CODEX_TYPED_RESULTS_H
 
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/typed/CodexErrorInfo.h"
 
 #include <optional>
 
@@ -24,6 +25,8 @@ namespace ai::openai::codex::typed {
         std::optional<Error> localError;
         std::optional<ClientRequestId> requestId;
         Json raw = nullptr;
+        std::optional<CodexErrorInfo> codexErrorInfo;
+        std::optional<DecodeDiagnostic> codexErrorDiagnostic;
 
         explicit operator bool() const noexcept {
             return kind == Kind::Success && value.has_value();

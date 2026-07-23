@@ -106,12 +106,39 @@ namespace ai::openai::codex::detail {
         Count
     };
 
+    enum class CodexErrorInfoTarget {
+        ActiveTurnNotSteerable,
+        BadRequest,
+        ContextWindowExceeded,
+        CyberPolicy,
+        HttpConnectionFailed,
+        InternalServerError,
+        Other,
+        ResponseStreamConnectionFailed,
+        ResponseStreamDisconnected,
+        ResponseTooManyFailedAttempts,
+        SandboxError,
+        ServerOverloaded,
+        SessionBudgetExceeded,
+        ThreadRollbackFailed,
+        Unauthorized,
+        UsageLimitExceeded,
+        Count
+    };
+
+    enum class CodexErrorInfoCodecShape {
+        Scalar,
+        HttpStatusObject,
+        ActiveTurnNotSteerableObject
+    };
+
     using RuntimeTarget = std::variant<std::monostate,
                                        ClientRequestTarget,
                                        ClientNotificationTarget,
                                        ServerNotificationTarget,
                                        ServerRequestTarget,
-                                       ItemDiscriminatorTarget>;
+                                       ItemDiscriminatorTarget,
+                                       CodexErrorInfoTarget>;
 
     struct ProtocolSurfaceKey {
         SurfaceCategory category = SurfaceCategory::TaggedUnionDiscriminator;
@@ -120,6 +147,12 @@ namespace ai::openai::codex::detail {
         std::string_view name;
 
         auto operator<=>(const ProtocolSurfaceKey&) const = default;
+    };
+
+    struct CodexErrorInfoCodecDescriptor {
+        ProtocolSurfaceKey key;
+        CodexErrorInfoTarget target = CodexErrorInfoTarget::Count;
+        CodexErrorInfoCodecShape shape = CodexErrorInfoCodecShape::Scalar;
     };
 
     struct OperationContract {
@@ -181,6 +214,12 @@ namespace ai::openai::codex::detail {
         MethodCategoryCollision,
         DuplicateRuntimeTargetRegistration,
         MissingRuntimeTargetRegistration,
+        DuplicateCodecDescriptor,
+        CodecDescriptorWithoutRegistryRow,
+        CodecDescriptorTargetMismatch,
+        CodecDescriptorWithoutTypedRegistryRow,
+        RegistryRowWithoutCodecDescriptor,
+        CompleteWithoutCodecDescriptor,
         DuplicateManifestEntry,
         MissingRegistryEntry,
         WrongCategory,
@@ -240,10 +279,14 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ServerNotificationTarget target);
     const ProtocolSurfaceEntry& entryFor(ServerRequestTarget target);
     const ProtocolSurfaceEntry& entryFor(ItemDiscriminatorTarget target);
+    const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target);
 
     TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept;
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries);
+    ProtocolSurfaceValidation validateProtocolSurface(
+        std::span<const ProtocolSurfaceEntry> entries,
+        std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors);
 
 } // namespace ai::openai::codex::detail
 

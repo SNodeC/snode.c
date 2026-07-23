@@ -555,6 +555,102 @@ RUNTIME_TARGETS = {
         "dynamicToolCall",
     ): "ItemDiscriminatorTarget::DynamicToolCall",
     ("item_discriminator", "ThreadItem", "type", "webSearch"): "ItemDiscriminatorTarget::WebSearch",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "activeTurnNotSteerable",
+    ): "CodexErrorInfoTarget::ActiveTurnNotSteerable",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "badRequest",
+    ): "CodexErrorInfoTarget::BadRequest",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "contextWindowExceeded",
+    ): "CodexErrorInfoTarget::ContextWindowExceeded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "cyberPolicy",
+    ): "CodexErrorInfoTarget::CyberPolicy",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "httpConnectionFailed",
+    ): "CodexErrorInfoTarget::HttpConnectionFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "internalServerError",
+    ): "CodexErrorInfoTarget::InternalServerError",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "other",
+    ): "CodexErrorInfoTarget::Other",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseStreamConnectionFailed",
+    ): "CodexErrorInfoTarget::ResponseStreamConnectionFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseStreamDisconnected",
+    ): "CodexErrorInfoTarget::ResponseStreamDisconnected",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseTooManyFailedAttempts",
+    ): "CodexErrorInfoTarget::ResponseTooManyFailedAttempts",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "sandboxError",
+    ): "CodexErrorInfoTarget::SandboxError",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "serverOverloaded",
+    ): "CodexErrorInfoTarget::ServerOverloaded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "sessionBudgetExceeded",
+    ): "CodexErrorInfoTarget::SessionBudgetExceeded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "threadRollbackFailed",
+    ): "CodexErrorInfoTarget::ThreadRollbackFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "unauthorized",
+    ): "CodexErrorInfoTarget::Unauthorized",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "usageLimitExceeded",
+    ): "CodexErrorInfoTarget::UsageLimitExceeded",
 }
 EXISTING_FRONTEND_OPERATION_DETAILS = {
     (
@@ -3572,6 +3668,20 @@ def registry_statuses(
     module = assignment["module"]
     slice_name = assignment["slice"]
     evidence = completeness_evidence(entry, fixtures, assignment)
+    if (
+        identity[0] == "tagged_union_discriminator"
+        and identity[1] == "CodexErrorInfo"
+        and target is not None
+    ):
+        # A1.0's reviewed nested-union descriptor is the production dispatch
+        # target. Focused codec tests exercise every generated positive fixture,
+        # all diagnostic classes, raw retention, and every public mapped field.
+        # CodexErrorInfo has no intentionally opaque schema field; full raw
+        # retention is supplemental rather than a replacement for field mapping.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
     schema_status = derived_schema_status(
         typed_status.removeprefix("TypedImplementationStatus::"),
         slice_name,

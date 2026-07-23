@@ -7,6 +7,8 @@
 
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <optional>
@@ -152,6 +154,8 @@ namespace ai::openai::codex::detail {
                         return SurfaceCategory::ServerRequest;
                     } else if constexpr (std::is_same_v<Target, ItemDiscriminatorTarget>) {
                         return SurfaceCategory::ItemDiscriminator;
+                    } else if constexpr (std::is_same_v<Target, CodexErrorInfoTarget>) {
+                        return SurfaceCategory::TaggedUnionDiscriminator;
                     } else {
                         static_assert(std::is_same_v<Target, void>, "new runtime target type needs an explicit surface category");
                     }
@@ -225,6 +229,96 @@ namespace ai::openai::codex::detail {
                    contract.evidenceKind != AssociationEvidenceKind::NotApplicable || !contract.evidenceKey.empty();
         }
 
+        bool isCodexErrorInfoRow(const ProtocolSurfaceEntry& entry) noexcept {
+            return entry.key.category == SurfaceCategory::TaggedUnionDiscriminator && entry.key.domain == "CodexErrorInfo" &&
+                   entry.key.field == "$variant";
+        }
+
+        const CodexErrorInfoCodecDescriptor*
+        matchingCodecDescriptor(const ProtocolSurfaceEntry& entry,
+                                std::span<const CodexErrorInfoCodecDescriptor> descriptors) noexcept {
+            const CodexErrorInfoTarget* target = std::get_if<CodexErrorInfoTarget>(&entry.runtimeTarget);
+            if (target == nullptr) {
+                return nullptr;
+            }
+            const auto descriptor =
+                std::find_if(descriptors.begin(), descriptors.end(), [&](const CodexErrorInfoCodecDescriptor& candidate) {
+                    return candidate.key == entry.key && candidate.target == *target;
+                });
+            return descriptor == descriptors.end() ? nullptr : &*descriptor;
+        }
+
+        TypedSchemaStatus derivedTypedSchemaStatus(
+            const ProtocolSurfaceEntry& entry,
+            std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors) noexcept {
+            if (entry.a1Slice == A1Slice::InventoryOnly || entry.typedImplementation == TypedImplementationStatus::NotApplicable) {
+                return TypedSchemaStatus::NotApplicable;
+            }
+            if (entry.typedImplementation != TypedImplementationStatus::Implemented) {
+                return TypedSchemaStatus::NotImplemented;
+            }
+            const bool decoderMatches =
+                !isCodexErrorInfoRow(entry) || matchingCodecDescriptor(entry, codexErrorInfoDescriptors) != nullptr;
+            return completeSchemaEvidence(entry.schemaCompleteness) && decoderMatches ? TypedSchemaStatus::Complete
+                                                                                     : TypedSchemaStatus::Partial;
+        }
+
+        void validateCodexErrorInfoCodecDescriptors(
+            std::span<const ProtocolSurfaceEntry> entries,
+            std::span<const CodexErrorInfoCodecDescriptor> descriptors,
+            ProtocolSurfaceValidation& result) {
+            for (std::size_t index = 0; index < descriptors.size(); ++index) {
+                const CodexErrorInfoCodecDescriptor& descriptor = descriptors[index];
+                for (std::size_t previous = 0; previous < index; ++previous) {
+                    if (descriptors[previous].key == descriptor.key || descriptors[previous].target == descriptor.target) {
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::DuplicateCodecDescriptor,
+                             "CodexErrorInfo codec descriptor duplicates an exact key or runtime target"});
+                    }
+                }
+
+                const auto row =
+                    std::find_if(entries.begin(), entries.end(), [&](const ProtocolSurfaceEntry& candidate) {
+                        return candidate.key == descriptor.key;
+                    });
+                if (row == entries.end()) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::CodecDescriptorWithoutRegistryRow,
+                         "CodexErrorInfo production codec descriptor has no exact canonical registry row"});
+                    continue;
+                }
+                const CodexErrorInfoTarget* target = std::get_if<CodexErrorInfoTarget>(&row->runtimeTarget);
+                if (target == nullptr || *target != descriptor.target) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::CodecDescriptorTargetMismatch,
+                         keyName(row->key) + " does not carry the runtime target declared by its production codec descriptor"});
+                    continue;
+                }
+                if (row->runtimeDisposition != RuntimeDisposition::Typed ||
+                    row->typedImplementation != TypedImplementationStatus::Implemented) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::CodecDescriptorWithoutTypedRegistryRow,
+                         keyName(row->key) + " has a production codec descriptor but is not an implemented typed registry row"});
+                }
+            }
+
+            for (const ProtocolSurfaceEntry& entry : entries) {
+                if (!isCodexErrorInfoRow(entry) || entry.typedImplementation != TypedImplementationStatus::Implemented) {
+                    continue;
+                }
+                if (matchingCodecDescriptor(entry, descriptors) == nullptr) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::RegistryRowWithoutCodecDescriptor,
+                         keyName(entry.key) + " claims typed implementation without an exact production codec descriptor"});
+                    if (entry.typedSchemaStatus == TypedSchemaStatus::Complete) {
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor,
+                             keyName(entry.key) + " claims schema completeness without an exact production codec descriptor"});
+                    }
+                }
+            }
+        }
+
     } // namespace
 
     std::span<const ProtocolSurfaceEntry> protocolSurfaceRegistry() noexcept {
@@ -262,18 +356,22 @@ namespace ai::openai::codex::detail {
         return findTarget(target);
     }
 
+    const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target) {
+        return findTarget(target);
+    }
+
     TypedSchemaStatus derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry) noexcept {
-        if (entry.a1Slice == A1Slice::InventoryOnly || entry.typedImplementation == TypedImplementationStatus::NotApplicable) {
-            return TypedSchemaStatus::NotApplicable;
-        }
-        if (entry.typedImplementation != TypedImplementationStatus::Implemented) {
-            return TypedSchemaStatus::NotImplemented;
-        }
-        return completeSchemaEvidence(entry.schemaCompleteness) ? TypedSchemaStatus::Complete : TypedSchemaStatus::Partial;
+        return derivedTypedSchemaStatus(entry, codexErrorInfoCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries) {
-        static_assert(std::variant_size_v<RuntimeTarget> == 6, "new runtime target type needs an explicit validateTargets invocation");
+        return validateProtocolSurface(entries, codexErrorInfoCodecDescriptors());
+    }
+
+    ProtocolSurfaceValidation validateProtocolSurface(
+        std::span<const ProtocolSurfaceEntry> entries,
+        std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors) {
+        static_assert(std::variant_size_v<RuntimeTarget> == 7, "new runtime target type needs an explicit validateTargets invocation");
 
         ProtocolSurfaceValidation result;
 
@@ -370,7 +468,7 @@ namespace ai::openai::codex::detail {
                     {ProtocolSurfaceErrorCode::MissingSliceAssignment, keyName(entry.key) + " has no fixed A1 slice assignment"});
             }
 
-            const TypedSchemaStatus derivedStatus = derivedTypedSchemaStatus(entry);
+            const TypedSchemaStatus derivedStatus = derivedTypedSchemaStatus(entry, codexErrorInfoDescriptors);
             if (entry.typedSchemaStatus == TypedSchemaStatus::Complete && derivedStatus != TypedSchemaStatus::Complete &&
                 entry.typedImplementation == TypedImplementationStatus::Implemented && entry.a1Slice != A1Slice::InventoryOnly) {
                 const SchemaCompletenessEvidence& evidence = entry.schemaCompleteness;
@@ -533,6 +631,8 @@ namespace ai::openai::codex::detail {
         validateTargets(entries, ServerNotificationTarget::Count, "server notification", result);
         validateTargets(entries, ServerRequestTarget::Count, "server request", result);
         validateTargets(entries, ItemDiscriminatorTarget::Count, "item discriminator", result);
+        validateTargets(entries, CodexErrorInfoTarget::Count, "CodexErrorInfo discriminator", result);
+        validateCodexErrorInfoCodecDescriptors(entries, codexErrorInfoDescriptors, result);
 
         return result;
     }

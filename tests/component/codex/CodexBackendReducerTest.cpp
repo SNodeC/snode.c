@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/backend/Reducer.h"
 #include "ai/openai/codex/backend/Snapshot.h"
+#include "ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h"
 #include "support/TestResult.h"
 
 #include <algorithm>
@@ -643,17 +644,112 @@ namespace {
                               std::get<typed::UnknownItem>(unknownState->item).raw == unknown.raw,
                           "unknown typed items with stable IDs remain visible with their extension payload");
 
-        const typed::UnknownEvent unknownEvent{
-            "future/event", Json{{"value", 7}}, Json{{"method", "future/event"}}, std::string("future decoder")};
+        const typed::DecodeDiagnostic futureDiagnostic{typed::DecodeIssueKind::UnknownMethod,
+                                                       typed::DecodeIssueSeverity::ForwardCompatibility,
+                                                       "future/event",
+                                                       "$.method",
+                                                       "unrecognized App Server notification method"};
+        const typed::UnknownEvent unknownEvent{"future/event",
+                                               Json{{"value", 7}},
+                                               Json{{"method", "future/event"}},
+                                               std::string("future decoder"),
+                                               futureDiagnostic};
         const std::vector<backend::BackendEvent> translated = reducer.translate(typed::Event{unknownEvent});
         const auto* extension = translated.size() == 1 ? std::get_if<backend::CodexExtensionReceived>(&translated[0]) : nullptr;
         result.expectTrue(extension && extension->method == "future/event" && extension->payload == unknownEvent.params &&
-                              extension->decodingError == "future decoder",
-                          "unknown typed Codex events translate to deliberately namespaced backend extensions");
+                              extension->decodingError == "future decoder" && extension->diagnostic &&
+                              extension->diagnostic->kind == futureDiagnostic.kind &&
+                              extension->diagnostic->severity == futureDiagnostic.severity &&
+                              extension->diagnostic->surface == futureDiagnostic.surface &&
+                              extension->diagnostic->fieldPath == futureDiagnostic.fieldPath,
+                          "unknown typed Codex events translate to deliberately namespaced backend extensions with structured classification");
 
         if (extension) {
             reducer.apply(state, *extension);
         }
+        const backend::ExtensionRecord* retainedUnknown =
+            state.recentExtensions.size() == 1 ? &state.recentExtensions.front() : nullptr;
+        result.expectTrue(retainedUnknown && retainedUnknown->method == "future/event" &&
+                              retainedUnknown->payload == unknownEvent.params && retainedUnknown->diagnostic &&
+                              retainedUnknown->diagnostic->kind == futureDiagnostic.kind &&
+                              retainedUnknown->diagnostic->surface == futureDiagnostic.surface &&
+                              retainedUnknown->diagnostic->severity == typed::DecodeIssueSeverity::ForwardCompatibility,
+                          "the bounded preservation state retains the raw future payload and forward-compatibility classification");
+
+        struct SyntheticUnmodeledTypedEvent {
+            std::string surface;
+            Json raw;
+            std::optional<std::string> decodingError;
+            std::optional<typed::DecodeDiagnostic> diagnostic;
+        };
+        const SyntheticUnmodeledTypedEvent synthetic{
+            "future/modeled-but-unreduced",
+            Json{{"threadId", "thread-unmodeled"}, {"future", Json::array({"kept", 9})}},
+            "known payload did not satisfy the typed shape",
+            typed::DecodeDiagnostic{typed::DecodeIssueKind::MalformedKnownPayload,
+                                    typed::DecodeIssueSeverity::ProtocolWarning,
+                                    "future/modeled-but-unreduced",
+                                    "$.params.future[1]",
+                                    "expected a string"}};
+        const backend::CodexExtensionReceived syntheticExtension = backend::detail::preserveUnmodeledTypedEvent(
+            {synthetic.surface, synthetic.raw, synthetic.decodingError, synthetic.diagnostic});
+        backend::BackendState syntheticState;
+        reducer.apply(syntheticState, syntheticExtension);
+        const backend::ExtensionRecord* retainedSynthetic =
+            syntheticState.recentExtensions.size() == 1 ? &syntheticState.recentExtensions.front() : nullptr;
+        result.expectTrue(
+            syntheticExtension.method == synthetic.surface && syntheticExtension.payload == synthetic.raw &&
+                syntheticExtension.diagnostic && synthetic.diagnostic &&
+                syntheticExtension.diagnostic->kind == synthetic.diagnostic->kind &&
+                syntheticExtension.diagnostic->severity == synthetic.diagnostic->severity &&
+                syntheticExtension.diagnostic->fieldPath == synthetic.diagnostic->fieldPath && retainedSynthetic &&
+                retainedSynthetic->method == synthetic.surface && retainedSynthetic->payload == synthetic.raw &&
+                retainedSynthetic->diagnostic && retainedSynthetic->diagnostic->surface == synthetic.surface &&
+                retainedSynthetic->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                retainedSynthetic->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning,
+            "a private synthetic typed-but-unmodeled event uses the production preservation helper and retains malformed-known classification");
+        result.expectTrue(
+            syntheticState.lifecycle == backend::BackendLifecycle::Stopped && syntheticState.threads.empty() &&
+                syntheticState.threadOrder.empty() && syntheticState.pendingRequests.empty() && syntheticState.sessions.empty() &&
+                !syntheticState.controller && syntheticState.diagnostics.received == 0 && syntheticState.recentExtensions.size() == 1,
+            "typed-but-unmodeled preservation introduces no canonical domain state or reducer semantics");
+
+        backend::ReducerOptions structuredBounds;
+        structuredBounds.retainedExtensions = 1;
+        structuredBounds.maxExtensionMethodBytes = 12;
+        structuredBounds.maxExtensionBytes = 64;
+        structuredBounds.maxExtensionDecodingErrorBytes = 16;
+        backend::Reducer structuredReducer(structuredBounds);
+        backend::BackendState structuredState;
+        const std::string oversizedSyntheticPayload(256, 'r');
+        const std::string diagnosticSurface(20, 's');
+        const std::string diagnosticPath(24, 'p');
+        const std::string diagnosticMessage(28, 'm');
+        structuredReducer.apply(
+            structuredState,
+            backend::detail::preserveUnmodeledTypedEvent(
+                {"future/bounded",
+                 Json{{"kept", oversizedSyntheticPayload}},
+                 std::nullopt,
+                 typed::DecodeDiagnostic{typed::DecodeIssueKind::MalformedKnownPayload,
+                                         typed::DecodeIssueSeverity::ProtocolWarning,
+                                         diagnosticSurface,
+                                         diagnosticPath,
+                                         diagnosticMessage}}));
+        const backend::ExtensionRecord* boundedStructured =
+            structuredState.recentExtensions.size() == 1 ? &structuredState.recentExtensions.front() : nullptr;
+        result.expectTrue(
+            boundedStructured && boundedStructured->diagnostic && boundedStructured->diagnostic->surface.size() == 12 &&
+                boundedStructured->diagnostic->fieldPath.size() == 16 && boundedStructured->diagnostic->message.size() == 16 &&
+                boundedStructured->originalPayloadBytes.has_value() && boundedStructured->payload.value("truncated", false) &&
+                boundedStructured->payload.value("omitted", false) &&
+                boundedStructured->payload.dump().find(oversizedSyntheticPayload) == std::string::npos &&
+                boundedStructured->originalDiagnosticBytes ==
+                    diagnosticSurface.size() + diagnosticPath.size() + diagnosticMessage.size() &&
+                boundedStructured->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                boundedStructured->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning,
+            "structured compatibility diagnostics retain exact classification while every text field is bounded with original-size accounting");
+
         reducer.apply(state, backend::CodexExtensionReceived{"future/two", Json{{"value", 2}}, std::nullopt});
         reducer.apply(state, backend::CodexExtensionReceived{"future/three", Json{{"value", 3}}, std::nullopt});
         result.expectTrue(state.recentExtensions.size() == 2 && state.recentExtensions[0].method == "future/two" &&
@@ -716,7 +812,8 @@ namespace {
             typed::ThreadId{"thread-extension"}, typed::TurnId{"turn-extension"}, typed::ItemId{"unknown-item"}, "x", Json::object()};
         const std::vector<backend::BackendEvent> translatedDelta = reducer.translate(typed::Event{delta});
         const auto* content = translatedDelta.size() == 1 ? std::get_if<backend::ItemContentChanged>(&translatedDelta[0]) : nullptr;
-        result.expectTrue(content && content->kind == backend::ItemContentChanged::Kind::AgentText && content->delta == "x",
+        result.expectTrue(content && content->kind == backend::ItemContentChanged::Kind::AgentText && content->delta == "x" &&
+                              !std::holds_alternative<backend::CodexExtensionReceived>(translatedDelta[0]),
                           "known typed deltas normalize to backend content changes instead of raw envelopes");
     }
 
@@ -761,7 +858,8 @@ namespace {
             "future/request",
             Json{{"safe", "visible"}, {"accessToken", unknownAccessToken}, {"question", {{"secret", true}, {"text", unknownSecretAnswer}}}},
             Json{{"occurrenceToken", occurrenceSentinel}},
-            unknownDecodingError};
+            unknownDecodingError,
+            std::nullopt};
         reducer.apply(state,
                       backend::PendingRequestAdded{
                           backend::PendingRequestState{backend::PendingRequestId{10}, typed::TypedServerRequest{unknownRequest}, 3}});

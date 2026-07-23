@@ -19,9 +19,14 @@ set(AI_OPENAI_CODEX_BACKEND_H
     Snapshot.h
 )
 
+set(AI_OPENAI_CODEX_BACKEND_PRIVATE_H
+    detail/PreserveUnmodeledTypedEvent.h
+)
+
 add_library(
     ai-openai-codex-backend SHARED ${AI_OPENAI_CODEX_BACKEND_CPP}
                                    ${AI_OPENAI_CODEX_BACKEND_H}
+                                   ${AI_OPENAI_CODEX_BACKEND_PRIVATE_H}
 )
 add_library(snodec::ai-openai-codex-backend ALIAS ai-openai-codex-backend)
 

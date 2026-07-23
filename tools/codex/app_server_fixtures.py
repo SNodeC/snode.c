@@ -34,7 +34,7 @@ sys.dont_write_bytecode = True
 
 FORMAT_VERSION = 1
 CODEX_VERSION = "codex-cli 0.144.6"
-RULES_VERSION = 1
+RULES_VERSION = 2
 
 CLIENT_REQUEST = "client_request"
 CLIENT_NOTIFICATION = "client_notification"
@@ -174,6 +174,32 @@ EXISTING_TYPED_FIXTURE_IDENTITIES = (
     (ITEM_DISCRIMINATOR, "ThreadItem", "type", "reasoning"),
     (ITEM_DISCRIMINATOR, "ThreadItem", "type", "userMessage"),
     (ITEM_DISCRIMINATOR, "ThreadItem", "type", "webSearch"),
+)
+
+CODEX_ERROR_INFO_IDENTITIES = (
+    "activeTurnNotSteerable",
+    "badRequest",
+    "contextWindowExceeded",
+    "cyberPolicy",
+    "httpConnectionFailed",
+    "internalServerError",
+    "other",
+    "responseStreamConnectionFailed",
+    "responseStreamDisconnected",
+    "responseTooManyFailedAttempts",
+    "sandboxError",
+    "serverOverloaded",
+    "sessionBudgetExceeded",
+    "threadRollbackFailed",
+    "unauthorized",
+    "usageLimitExceeded",
+)
+
+CODEX_ERROR_INFO_HTTP_IDENTITIES = (
+    "httpConnectionFailed",
+    "responseStreamConnectionFailed",
+    "responseStreamDisconnected",
+    "responseTooManyFailedAttempts",
 )
 
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
@@ -1476,6 +1502,150 @@ def branch_for_union_identity(
     return matches[0]
 
 
+def validate_codex_error_rule_sets(
+    manifest: Mapping[str, Any], schema: Mapping[str, Any]
+) -> None:
+    manifest_names = {
+        str(entry["name"])
+        for entry in manifest["entries"]
+        if entry["stability"] == "stable"
+        and entry["category"] == TAGGED_UNION_DISCRIMINATOR
+        and entry["domain"] == "CodexErrorInfo"
+        and entry["discriminator_field"] == "$variant"
+    }
+    reviewed_names = set(CODEX_ERROR_INFO_IDENTITIES)
+    if (
+        len(CODEX_ERROR_INFO_IDENTITIES) != len(reviewed_names)
+        or manifest_names != reviewed_names
+    ):
+        raise FixtureError(
+            "CODEX_ERROR_INFO_MANIFEST_RULE_MISMATCH: "
+            f"missing={sorted(manifest_names - reviewed_names)!r} "
+            f"stale={sorted(reviewed_names - manifest_names)!r}"
+        )
+
+    reviewed_http_names = set(CODEX_ERROR_INFO_HTTP_IDENTITIES)
+    if (
+        len(CODEX_ERROR_INFO_HTTP_IDENTITIES) != len(reviewed_http_names)
+        or not reviewed_http_names < reviewed_names
+        or "activeTurnNotSteerable" in reviewed_http_names
+    ):
+        raise FixtureError(
+            "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: invalid reviewed HTTP "
+            "identity subset"
+        )
+
+    branches = schema.get("oneOf")
+    if not isinstance(branches, list):
+        raise FixtureError(
+            "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: CodexErrorInfo is not "
+            "an exact oneOf union"
+        )
+
+    scalar_names: set[str] = set()
+    object_schemas: dict[str, Mapping[str, Any]] = {}
+    for branch in branches:
+        if not isinstance(branch, dict):
+            raise FixtureError(
+                "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: non-object branch"
+            )
+        if branch.get("type") == "string":
+            values = branch.get("enum")
+            if not isinstance(values, list) or not all(
+                isinstance(value, str) for value in values
+            ):
+                raise FixtureError(
+                    "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: scalar branch "
+                    "lacks a string enum"
+                )
+            scalar_names.update(values)
+            continue
+        if branch.get("type") != "object":
+            raise FixtureError(
+                "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: unsupported branch "
+                "shape"
+            )
+        required = branch.get("required")
+        properties = branch.get("properties")
+        if (
+            not isinstance(required, list)
+            or len(required) != 1
+            or not isinstance(required[0], str)
+            or not isinstance(properties, dict)
+            or set(properties) != {required[0]}
+            or branch.get("additionalProperties") is not False
+            or not isinstance(properties[required[0]], dict)
+        ):
+            raise FixtureError(
+                "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: object branch does "
+                "not have one exact discriminator property"
+            )
+        name = required[0]
+        if name in object_schemas:
+            raise FixtureError(
+                "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: duplicate object "
+                f"branch {name!r}"
+            )
+        object_schemas[name] = properties[name]
+
+    expected_scalar_names = (
+        reviewed_names - reviewed_http_names - {"activeTurnNotSteerable"}
+    )
+    if (
+        scalar_names != expected_scalar_names
+        or set(object_schemas)
+        != reviewed_http_names | {"activeTurnNotSteerable"}
+        or scalar_names | set(object_schemas) != manifest_names
+    ):
+        raise FixtureError(
+            "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: reviewed scalar/object "
+            "partition differs from the pinned schema"
+        )
+
+    for name in reviewed_http_names:
+        nested = object_schemas[name]
+        properties = nested.get("properties")
+        status = (
+            properties.get("httpStatusCode")
+            if isinstance(properties, dict)
+            else None
+        )
+        if (
+            nested.get("type") != "object"
+            or nested.get("required", []) != []
+            or not isinstance(properties, dict)
+            or set(properties) != {"httpStatusCode"}
+            or not isinstance(status, dict)
+            or set(status.get("type", [])) != {"integer", "null"}
+            or status.get("format") != "uint16"
+            or status.get("minimum") != 0.0
+        ):
+            raise FixtureError(
+                "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: reviewed HTTP "
+                f"shape differs for {name!r}"
+            )
+
+    active = object_schemas["activeTurnNotSteerable"]
+    active_properties = active.get("properties")
+    turn_kind = (
+        active_properties.get("turnKind")
+        if isinstance(active_properties, dict)
+        else None
+    )
+    if (
+        active.get("type") != "object"
+        or active.get("required") != ["turnKind"]
+        or not isinstance(active_properties, dict)
+        or set(active_properties) != {"turnKind"}
+        or not isinstance(turn_kind, dict)
+        or turn_kind.get("$ref") != "#/definitions/NonSteerableTurnKind"
+    ):
+        raise FixtureError(
+            "CODEX_ERROR_INFO_SCHEMA_RULE_MISMATCH: reviewed "
+            "activeTurnNotSteerable shape differs"
+        )
+
+
 def schema_target_from_record(
     catalog: SchemaCatalog, schema_record: Mapping[str, Any]
 ) -> SchemaTarget:
@@ -2271,6 +2441,48 @@ class CorpusBuilder:
             for record in self.records
             if record.get("expected_valid", True)
         ]
+        positive_fixture_ids = {
+            str(record["id"]) for record in positive_records
+        }
+        all_codex_error_alternatives_exercised = all(
+            f"union:CodexErrorInfo:{name}" in positive_fixture_ids
+            for name in CODEX_ERROR_INFO_IDENTITIES
+        )
+        for record in positive_records:
+            key_record = record.get("protocol_surface_key")
+            if not isinstance(key_record, dict):
+                continue
+            key = SurfaceKey.from_contract(key_record)
+            if (
+                key.category != TAGGED_UNION_DISCRIMINATOR
+                or key.domain != "CodexErrorInfo"
+                or key.name not in CODEX_ERROR_INFO_IDENTITIES
+            ):
+                continue
+            if key.name in CODEX_ERROR_INFO_HTTP_IDENTITIES:
+                required_fixtures = {
+                    f"union:CodexErrorInfo:{key.name}",
+                    f"union:CodexErrorInfo:{key.name}:http-status-null",
+                    f"union:CodexErrorInfo:{key.name}:http-status-omitted",
+                }
+            elif key.name == "activeTurnNotSteerable":
+                required_fixtures = {
+                    "union:CodexErrorInfo:activeTurnNotSteerable",
+                    "union:CodexErrorInfo:activeTurnNotSteerable:turn-kind-compact",
+                }
+            else:
+                required_fixtures = {f"union:CodexErrorInfo:{key.name}"}
+            properties_exercised = required_fixtures <= positive_fixture_ids
+            facts = record["completeness_evidence"]
+            facts["schema_properties_exercised"] = properties_exercised
+            facts["nullable_semantics_exercised"] = (
+                properties_exercised
+                if key.name in CODEX_ERROR_INFO_HTTP_IDENTITIES
+                else True
+            )
+            facts["reachable_union_alternatives_exercised"] = (
+                all_codex_error_alternatives_exercised
+            )
         mutation_counts = {
             "selected_branch_required_locations": sum(
                 record["validation"]["selected_branch_required_locations"]
@@ -2374,6 +2586,38 @@ class CorpusBuilder:
         coverage_records: list[dict[str, Any]] = []
         for key in sorted(self.manifest_by_key):
             records = coverage_by_key.get(key, [])
+            record_ids = {str(record["id"]) for record in records}
+            is_codex_error = (
+                key.category == TAGGED_UNION_DISCRIMINATOR
+                and key.domain == "CodexErrorInfo"
+                and key.name in CODEX_ERROR_INFO_IDENTITIES
+            )
+            if key.name in CODEX_ERROR_INFO_HTTP_IDENTITIES and is_codex_error:
+                expected_property_fixtures = {
+                    f"union:CodexErrorInfo:{key.name}",
+                    f"union:CodexErrorInfo:{key.name}:http-status-null",
+                    f"union:CodexErrorInfo:{key.name}:http-status-omitted",
+                }
+            elif key.name == "activeTurnNotSteerable" and is_codex_error:
+                expected_property_fixtures = {
+                    "union:CodexErrorInfo:activeTurnNotSteerable",
+                    "union:CodexErrorInfo:activeTurnNotSteerable:turn-kind-compact",
+                }
+            elif is_codex_error:
+                expected_property_fixtures = {
+                    f"union:CodexErrorInfo:{key.name}"
+                }
+            else:
+                expected_property_fixtures = set()
+            codex_properties_exercised = (
+                is_codex_error
+                and expected_property_fixtures <= record_ids
+            )
+            codex_nullable_exercised = (
+                codex_properties_exercised
+                if key.name in CODEX_ERROR_INFO_HTTP_IDENTITIES
+                else is_codex_error
+            )
             coverage_records.append(
                 {
                     "protocol_surface_key": key.to_json(),
@@ -2397,7 +2641,7 @@ class CorpusBuilder:
                         "authoritative_root_association": bool(records),
                         "positive_fixture_coverage": bool(records),
                         "required_fields_exercised": bool(records),
-                        "schema_properties_exercised": False,
+                        "schema_properties_exercised": codex_properties_exercised,
                         "optional_present_exercised": bool(records)
                         and all(
                             record["completeness_evidence"][
@@ -2412,8 +2656,11 @@ class CorpusBuilder:
                             ]
                             for record in records
                         ),
-                        "nullable_semantics_exercised": False,
-                        "reachable_union_alternatives_exercised": False,
+                        "nullable_semantics_exercised": codex_nullable_exercised,
+                        "reachable_union_alternatives_exercised": (
+                            is_codex_error
+                            and all_codex_error_alternatives_exercised
+                        ),
                         "fixture_current": bool(records),
                         "independently_schema_validated": bool(records),
                     },
@@ -2601,6 +2848,10 @@ class CorpusBuilder:
             )
 
     def _build_union_fixtures(self) -> None:
+        codex_error_target = self.catalog.union_target("CodexErrorInfo")
+        validate_codex_error_rule_sets(
+            self.manifest, codex_error_target.schema
+        )
         known_union_values: dict[tuple[str, str], tuple[SchemaTarget, Any]] = {}
         for domain in ("CodexErrorInfo", "ResponseItem", "ThreadItem"):
             target = self.catalog.union_target(domain)
@@ -2658,13 +2909,67 @@ class CorpusBuilder:
                     intended,
                 )
 
-        target = self.catalog.union_target("CodexErrorInfo")
+        target = codex_error_target
+        for name in CODEX_ERROR_INFO_HTTP_IDENTITIES:
+            key = SurfaceKey(
+                TAGGED_UNION_DISCRIMINATOR,
+                "CodexErrorInfo",
+                "$variant",
+                name,
+            )
+            index, _, _, _ = branch_for_union_identity(
+                self.catalog, target, "$variant", name
+            )
+            for case, nested in (
+                ("http-status-null", {"httpStatusCode": None}),
+                ("http-status-omitted", {}),
+            ):
+                self.add_positive(
+                    f"union:CodexErrorInfo:{name}:{case}",
+                    (
+                        "cases/unions/codexerrorinfo/"
+                        f"{slug(name)}-{case}.json"
+                    ),
+                    "union_branch_supplement",
+                    target,
+                    {name: nested},
+                    key,
+                    (index,),
+                )
+
+        active_key = SurfaceKey(
+            TAGGED_UNION_DISCRIMINATOR,
+            "CodexErrorInfo",
+            "$variant",
+            "activeTurnNotSteerable",
+        )
+        active_index, _, _, _ = branch_for_union_identity(
+            self.catalog, target, "$variant", "activeTurnNotSteerable"
+        )
+        self.add_positive(
+            "union:CodexErrorInfo:activeTurnNotSteerable:turn-kind-compact",
+            "cases/unions/codexerrorinfo/activeturnnotsteerable-turn-kind-compact.json",
+            "union_branch_supplement",
+            target,
+            {"activeTurnNotSteerable": {"turnKind": "compact"}},
+            active_key,
+            (active_index,),
+        )
+
         self.add_negative(
             "union:CodexErrorInfo:future-unknown",
             "cases/unions/codexerrorinfo/future-unknown.json",
             "unknown_discriminator",
             target,
             "futureCodexErrorInfo",
+            ["one_of_zero"],
+        )
+        self.add_negative(
+            "union:CodexErrorInfo:activeTurnNotSteerable:future-turn-kind",
+            "cases/unions/codexerrorinfo/activeturnnotsteerable-future-turn-kind.json",
+            "unknown_enum_value",
+            target,
+            {"activeTurnNotSteerable": {"turnKind": "futureTurnKind"}},
             ["one_of_zero"],
         )
 

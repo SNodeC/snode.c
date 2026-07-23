@@ -9,6 +9,7 @@
 
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
@@ -24,6 +25,8 @@
 #include <cerrno>
 #include <exception>
 #include <functional>
+#include <memory>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <set>
@@ -33,6 +36,65 @@
 #include <vector>
 
 namespace ai::openai::codex::typed {
+
+    class Client::Impl {
+    public:
+        Impl(std::unique_ptr<Threads> threads,
+             std::unique_ptr<Turns> turns,
+             std::unique_ptr<Events> events,
+             std::unique_ptr<Requests> requests)
+            : threads(std::move(threads))
+            , turns(std::move(turns))
+            , events(std::move(events))
+            , requests(std::move(requests)) {
+        }
+
+        std::unique_ptr<Threads> threads;
+        std::unique_ptr<Turns> turns;
+        std::unique_ptr<Events> events;
+        std::unique_ptr<Requests> requests;
+    };
+
+    Client::Client(std::unique_ptr<Threads> threads,
+                   std::unique_ptr<Turns> turns,
+                   std::unique_ptr<Events> events,
+                   std::unique_ptr<Requests> requests)
+        : impl(std::make_unique<Impl>(std::move(threads), std::move(turns), std::move(events), std::move(requests))) {
+    }
+
+    Client::~Client() = default;
+
+    Threads& Client::threads() noexcept {
+        return *impl->threads;
+    }
+
+    const Threads& Client::threads() const noexcept {
+        return *impl->threads;
+    }
+
+    Turns& Client::turns() noexcept {
+        return *impl->turns;
+    }
+
+    const Turns& Client::turns() const noexcept {
+        return *impl->turns;
+    }
+
+    Events& Client::events() noexcept {
+        return *impl->events;
+    }
+
+    const Events& Client::events() const noexcept {
+        return *impl->events;
+    }
+
+    Requests& Client::requests() noexcept {
+        return *impl->requests;
+    }
+
+    const Requests& Client::requests() const noexcept {
+        return *impl->requests;
+    }
 
     namespace {
         AppServerClient::RawProtocol::Submission submissionFailure(std::string message) {
@@ -54,6 +116,10 @@ namespace ai::openai::codex::typed {
                     case Response::Kind::RemoteError:
                         result.kind = OperationResult<T>::Kind::RemoteError;
                         result.remoteError = response.remoteError;
+                        if (result.remoteError) {
+                            detail::decodeProtocolErrorTurnInfo(
+                                *result.remoteError, result.codexErrorInfo, result.codexErrorDiagnostic);
+                        }
                         break;
                     case Response::Kind::Cancelled:
                         result.kind = OperationResult<T>::Kind::Cancelled;

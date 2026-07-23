@@ -147,10 +147,10 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 289 index records resolve to the retained files
+# additionally proves that all 299 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 290)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 300)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )

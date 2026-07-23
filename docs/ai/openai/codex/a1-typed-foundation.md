@@ -219,6 +219,20 @@ Runtime target matching, direction assertions, opaque-field declarations, and
 no-dropped-field evidence remain implementation-owned facts in the production
 registry.
 
+At the A1.0 pull-request head, the 16 `CodexErrorInfo` identities satisfy that
+predicate. The original 34 runtime identities remain honestly partial:
+
+```text
+Complete           16
+Partial            34
+NotImplemented    289
+NotApplicable      48
+```
+
+The exact reviewed runtime ratchet is therefore 50 identities: the unchanged
+34-identity A0 floor plus all 16 `CodexErrorInfo` discriminators. This does not
+claim that A1, threads, turns, or their item unions are complete.
+
 ## Offline Draft-07 subset
 
 `tools/codex/draft07.py` is independent of the production C++ codecs. It
@@ -296,6 +310,77 @@ explicit exclusions because their schemas accept every JSON type candidate.
 The same independent mutation pass exercises 1,061 optional properties in
 both present and omitted forms; every omission remains schema-valid.
 
+Commit 2 extends the same generator rules, without consulting the C++ decoder,
+for the complete A1.0 error model. The final corpus has 299 indexed cases: 287
+positive and twelve negative. In addition to one canonical fixture for each of
+the 16 known error discriminators, it has four HTTP-status `null` cases, four
+HTTP-status omitted cases, an `activeTurnNotSteerable` `compact` case, a future
+open-enum value, a future discriminator, a malformed known value, and a nested
+wrong-type case. Final validation rejects 1,271 required-field removals and
+1,258 wrong-type mutations and exercises 1,065 optional present/omitted
+locations.
+
+## Grouped client and decode foundation
+
+`AppServerClient::typed()` returns the installed, one-pointer-PIMPL
+`typed::Client`. Its const and non-const accessors delegate to the one existing
+`Threads`, `Turns`, `Events`, and `Requests` facade object. Those objects retain
+the existing raw connection, request-ID allocator, pending registries,
+generation checks, callback order, observer slots, cancellation behavior, and
+occurrence-token ownership. No second protocol engine or request registry is
+introduced.
+
+The old direct accessors remain deprecated source-compatible forwarders. All
+production SNode.C callers use `client.typed()`. Project-wide `-Werror` remains
+enabled; only the tests that deliberately compile the deprecated API suppress
+`-Wdeprecated-declarations`, at target scope.
+
+Nested-union dispatch extends the canonical registry's existing runtime-target
+variant with a private `CodexErrorInfo` target family. The production decoder
+looks up the exact `ProtocolSurfaceKey`; bidirectional registry validation
+rejects a missing or duplicate target, a target without an implemented row, a
+row without a target, a wrong category, or a false completeness claim. No
+test-only dispatch table is used.
+
+`DecodeDiagnostic` classifies unknown methods, discriminators, and open-enum
+values as `ForwardCompatibility`; a known identity with an invalid payload is
+`ProtocolWarning`. Diagnostics carry an identity and field path but no payload
+value, and raw JSON is retained separately. Typed decoding alone never fails
+the connection.
+
+The public `CodexErrorInfo` variant has one explicit type for each pinned known
+alternative plus `UnknownCodexErrorInfo`. HTTP status fields preserve omitted,
+explicit-null, and numeric-value semantics. The nested non-steerable turn kind
+is open and string-backed, with helpers for `review` and `compact`. A future
+turn kind remains a typed known outer alternative with an unknown-enum
+diagnostic. The typed error notification exposes a structured `TurnError`
+alongside its legacy raw JSON.
+
+For request failures, the raw `ProtocolError` remains authoritative. The typed
+result adapter decodes its `data` only when it has the pinned upstream
+`TurnError` placement, then exposes the nested structured error and diagnostic
+without discarding raw error code, message, or data. A failed supplemental
+decode does not change `RemoteError`.
+
+That placement is not inferred from the unconstrained JSON-RPC schema. At
+source commit `5d1fbf26c43abc65a203928b2e31561cb039e06d`,
+`codex-rs/app-server/src/request_processors/turn_processor.rs` handles
+`ActiveTurnNotSteerable` by constructing a `TurnError`, serializing it with
+`serde_json::to_value`, and assigning the result to the JSON-RPC error's
+`data`. Other arbitrary error-data shapes are left raw and are not interpreted
+as structured Codex errors.
+
+The item direction is now explicit: `ThreadItem` is the existing variant,
+`Item` remains its compatibility alias, and `ResponseItem` is a separate public
+type direction. Missing A1.1 alternatives are not invented or merged in A1.0.
+
+BackendCore uses the grouped facade and routes typed-but-A2-unmodeled events
+through one production preservation helper into the existing bounded
+`CodexExtensionReceived` path. Surface identity, raw payload, and structured
+classification survive that path; modeled reducers are unchanged. No
+BackendCommand, canonical domain state, Frontend Protocol field, remotely
+callable operation, or security disposition is added.
+
 ## Generated review reports
 
 The checked-in, reproducibly guarded reports under
@@ -310,7 +395,8 @@ The checked-in, reproducibly guarded reports under
   shared/unreachable classifications;
 - `schema-completeness-evidence.json`, schema/fixture facts for all 387
   identities without any self-asserted runtime status;
-- `fixture-coverage.json`, the 289-case corpus coverage and mutation summary;
+- `fixture-coverage.json`, the final 299-case corpus coverage and mutation
+  summary;
 - `schema-keywords.json`, validating-keyword use and the supported/unsupported
   audit.
 

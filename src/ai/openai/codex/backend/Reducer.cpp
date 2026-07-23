@@ -7,10 +7,13 @@
 
 #include "ai/openai/codex/backend/Reducer.h"
 
+#include "ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <cstdint>
+#include <limits>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -26,6 +29,17 @@ namespace ai::openai::codex::backend {
 
         template <typename... Visitors>
         Overloaded(Visitors...) -> Overloaded<Visitors...>;
+
+        template <typename Unsigned>
+        std::uint64_t saturatingUint64(Unsigned value) noexcept {
+            static_assert(std::is_unsigned_v<Unsigned>);
+            if constexpr (std::numeric_limits<Unsigned>::digits > std::numeric_limits<std::uint64_t>::digits) {
+                if (value > static_cast<Unsigned>(std::numeric_limits<std::uint64_t>::max())) {
+                    return std::numeric_limits<std::uint64_t>::max();
+                }
+            }
+            return static_cast<std::uint64_t>(value);
+        }
 
         logger::BoundaryLogger lifecycleLog() {
             static const logger::LogScopeOwner scope(
@@ -272,6 +286,35 @@ namespace ai::openai::codex::backend {
                 extension.originalDecodingErrorBytes = static_cast<std::uint64_t>(extension.decodingError->size());
                 extension.decodingError->resize(decodingErrorByteLimit);
             }
+            if (extension.diagnostic) {
+                std::uint64_t originalDiagnosticBytes = 0;
+                const auto account = [&originalDiagnosticBytes](std::size_t bytes) {
+                    const std::uint64_t value = saturatingUint64(bytes);
+                    originalDiagnosticBytes =
+                        value > std::numeric_limits<std::uint64_t>::max() - originalDiagnosticBytes
+                        ? std::numeric_limits<std::uint64_t>::max()
+                        : originalDiagnosticBytes + value;
+                };
+                account(extension.diagnostic->surface.size());
+                account(extension.diagnostic->fieldPath.size());
+                account(extension.diagnostic->message.size());
+                bool diagnosticTruncated = false;
+                if (extension.diagnostic->surface.size() > methodByteLimit) {
+                    extension.diagnostic->surface.resize(methodByteLimit);
+                    diagnosticTruncated = true;
+                }
+                if (extension.diagnostic->fieldPath.size() > decodingErrorByteLimit) {
+                    extension.diagnostic->fieldPath.resize(decodingErrorByteLimit);
+                    diagnosticTruncated = true;
+                }
+                if (extension.diagnostic->message.size() > decodingErrorByteLimit) {
+                    extension.diagnostic->message.resize(decodingErrorByteLimit);
+                    diagnosticTruncated = true;
+                }
+                if (diagnosticTruncated) {
+                    extension.originalDiagnosticBytes = originalDiagnosticBytes;
+                }
+            }
             try {
                 const std::string encoded = extension.payload.dump();
                 if (encoded.size() > payloadByteLimit) {
@@ -292,6 +335,13 @@ namespace ai::openai::codex::backend {
             }
         }
     } // namespace
+
+    CodexExtensionReceived detail::preserveUnmodeledTypedEvent(UnmodeledTypedEvent event) {
+        return {.method = std::move(event.surface),
+                .payload = std::move(event.rawPayload),
+                .decodingError = std::move(event.decodingError),
+                .diagnostic = std::move(event.diagnostic)};
+    }
 
     Reducer::Reducer(ReducerOptions options)
         : options(std::move(options)) {
@@ -399,21 +449,24 @@ namespace ai::openai::codex::backend {
                         return Reduction{true, value.lifecycle == ItemLifecycle::Completed || value.lifecycle == ItemLifecycle::Failed};
                     }
                     retainExtension(state,
-                                    {"codex/item-without-id",
-                                     std::visit(
-                                         [](const auto& item) {
-                                             using Item = std::decay_t<decltype(item)>;
-                                             if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
-                                                 return item.raw;
-                                             } else {
-                                                 return item.metadata.raw;
-                                             }
-                                         },
-                                         value.item),
-                                     "typed item has no stable id",
-                                     std::nullopt,
-                                     std::nullopt,
-                                     std::nullopt},
+                                    {.method = "codex/item-without-id",
+                                     .payload =
+                                         std::visit(
+                                             [](const auto& item) {
+                                                 using Item = std::decay_t<decltype(item)>;
+                                                 if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
+                                                     return item.raw;
+                                                 } else {
+                                                     return item.metadata.raw;
+                                                 }
+                                             },
+                                             value.item),
+                                     .decodingError = "typed item has no stable id",
+                                     .originalMethodBytes = std::nullopt,
+                                     .originalPayloadBytes = std::nullopt,
+                                     .originalDecodingErrorBytes = std::nullopt,
+                                     .diagnostic = std::nullopt,
+                                     .originalDiagnosticBytes = std::nullopt},
                                     options.retainedExtensions,
                                     options.maxExtensionMethodBytes,
                                     options.maxExtensionBytes,
@@ -532,7 +585,14 @@ namespace ai::openai::codex::backend {
                 },
                 [this, &state](const CodexExtensionReceived& value) {
                     retainExtension(state,
-                                    {value.method, value.payload, value.decodingError, std::nullopt, std::nullopt, std::nullopt},
+                                    {.method = value.method,
+                                     .payload = value.payload,
+                                     .decodingError = value.decodingError,
+                                     .originalMethodBytes = std::nullopt,
+                                     .originalPayloadBytes = std::nullopt,
+                                     .originalDecodingErrorBytes = std::nullopt,
+                                     .diagnostic = value.diagnostic,
+                                     .originalDiagnosticBytes = std::nullopt},
                                     options.retainedExtensions,
                                     options.maxExtensionMethodBytes,
                                     options.maxExtensionBytes,
@@ -565,14 +625,16 @@ namespace ai::openai::codex::backend {
                 [](const typed::ItemStarted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{"item/started", value.raw, "item event omitted threadId or turnId"}};
+                        return {CodexExtensionReceived{
+                            "item/started", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Started, value.startedAtMs}};
                 },
                 [](const typed::ItemCompleted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{"item/completed", value.raw, "item event omitted threadId or turnId"}};
+                        return {CodexExtensionReceived{
+                            "item/completed", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Completed, value.completedAtMs}};
                 },
@@ -607,7 +669,8 @@ namespace ai::openai::codex::backend {
                     return {TurnErrorUpdated{value.threadId, value.turnId, value.error, value.willRetry}};
                 },
                 [](const typed::UnknownEvent& value) -> std::vector<BackendEvent> {
-                    return {CodexExtensionReceived{value.method, value.params, value.decodingError}};
+                    return {detail::preserveUnmodeledTypedEvent(
+                        {value.method, value.params, value.decodingError, value.diagnostic})};
                 }},
             event);
     }

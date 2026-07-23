@@ -8,6 +8,8 @@
 #include "ai/openai/codex/detail/EventDecoder.h"
 
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
@@ -124,7 +126,16 @@ namespace ai::openai::codex::detail {
         }
 
         typed::Event unknownEvent(const Notification& notification, std::optional<std::string> decodingError = std::nullopt) {
-            return typed::Event{typed::UnknownEvent{notification.method, notification.params, notification.raw, std::move(decodingError)}};
+            const bool malformed = decodingError.has_value();
+            return typed::Event{typed::UnknownEvent{
+                notification.method,
+                notification.params,
+                notification.raw,
+                std::move(decodingError),
+                malformed ? std::optional<typed::DecodeDiagnostic>{
+                                malformedKnownDiagnostic(notification.method, "$.params")}
+                          : std::optional<typed::DecodeDiagnostic>{
+                                unknownMethodDiagnostic(notification.method)}}};
         }
 
         typed::Event malformedEvent(const Notification& notification, std::string error) {
@@ -387,12 +398,22 @@ namespace ai::openai::codex::detail {
                 return malformedEvent(notification, std::move(decodingError));
             }
 
-            std::string message;
-            if (!requireString(*turnError, "message", message, decodingError)) {
-                return malformedEvent(notification, "error: " + std::move(decodingError));
+            std::optional<typed::DecodeDiagnostic> turnDiagnostic;
+            std::optional<typed::TurnError> typedError = detail::decodeTurnError(*turnError, turnDiagnostic);
+            if (!typedError) {
+                return typed::Event{typed::UnknownEvent{notification.method,
+                                                        notification.params,
+                                                        notification.raw,
+                                                        notification.method + ": error payload could not be decoded",
+                                                        std::move(turnDiagnostic)}};
             }
             return typed::Event{typed::TurnErrorEvent{
-                typed::ThreadId{std::move(threadId)}, typed::TurnId{std::move(turnId)}, *turnError, willRetry, notification.raw}};
+                typed::ThreadId{std::move(threadId)},
+                typed::TurnId{std::move(turnId)},
+                *turnError,
+                willRetry,
+                notification.raw,
+                std::move(typedError)}};
         }
 
     } // namespace
@@ -446,13 +467,15 @@ namespace ai::openai::codex::detail {
             try {
                 return unknownEvent(notification, std::string("event decoding failed: ") + exception.what());
             } catch (...) {
-                return typed::Event{typed::UnknownEvent{"", nullptr, nullptr, "event decoding failed"}};
+                return typed::Event{typed::UnknownEvent{
+                    "", nullptr, nullptr, "event decoding failed", malformedKnownDiagnostic("ServerNotification", "$")}};
             }
         } catch (...) {
             try {
                 return unknownEvent(notification, "event decoding failed with an unknown exception");
             } catch (...) {
-                return typed::Event{typed::UnknownEvent{"", nullptr, nullptr, "event decoding failed"}};
+                return typed::Event{typed::UnknownEvent{
+                    "", nullptr, nullptr, "event decoding failed", malformedKnownDiagnostic("ServerNotification", "$")}};
             }
         }
     }

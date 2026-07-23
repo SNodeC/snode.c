@@ -18,6 +18,8 @@ foreach(
           core/EventMultiplexer.h
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
+          ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/DecodeDiagnostic.h
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
@@ -29,6 +31,7 @@ foreach(
           ai/openai/codex/detail/TurnCodec.h
           ai/openai/codex/stdio/StdioTransport.h
           ai/openai/codex/backend/detail/BackendCoreImpl.h
+          ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h
           ai/openai/codex/frontend/detail/CodecImpl.h
 )
     if(EXISTS "${prefix}/include/snode.c/${private_header}")

@@ -23,7 +23,7 @@ contexts, JSONL framing, Qt, WebSocket, or browser code. In particular, a Unix
 socket path is not backend state. Concrete listener and framing code belongs in
 `src/apps/codex-backend`.
 
-## Phase A0 census boundary
+## Phase A0 census and A1 compatibility boundary
 
 Phase A0 pins the Codex CLI 0.144.6 stable and experimental App Server schemas
 and registers every mechanically discovered protocol entry in the private
@@ -39,6 +39,16 @@ merely to improve those metrics. A2 will add the owner-frozen transport-neutral
 commands and state transitions after A1 completes the typed App Server layer.
 Unknown and future input continues through the existing bounded extension
 records in the meantime.
+
+A1.0 migrates BackendCore to the grouped `client.typed()` accessors and adds no
+domain command or canonical-state meaning. A single production preservation
+helper converts typed-but-A2-unmodeled events into the existing
+`CodexExtensionReceived` path. It retains the surface identity, bounded raw
+payload, legacy optional decode error, and structured unknown-versus-malformed
+classification. Modeled events continue through their existing reducer cases.
+The structured classification is internal compatibility metadata; Frontend
+Protocol v1, its schema, snapshots, and remotely callable operations are
+unchanged.
 
 ## Ownership and construction
 
@@ -146,7 +156,9 @@ not create duplicate state.
 The default reducer retains 64 diagnostics and 64 Codex extensions.
 Individual diagnostic messages are capped at 16 KiB. Canonical extension
 records cap the method at 4 KiB, the serialized payload at 64 KiB, and a
-decoding error at 16 KiB. Model reroutes are capped at 64 per turn, and each
+decoding error at 16 KiB. Structured decode-diagnostic surface, field path, and
+message text use the corresponding method/error bounds and retain saturated
+original-size accounting when truncated. Model reroutes are capped at 64 per turn, and each
 accumulated item-content stream at 4 MiB. When accumulated content exceeds its bound, the reducer retains the
 newest suffix and increments `droppedContentBytes`. Snapshots expose both the
 dropped byte count and `contentTruncated`, so a consumer never mistakes a
@@ -187,8 +199,9 @@ valid location but no stable ID remains observable through the bounded
 `codex/item-without-id` extension fallback. Unknown events, or malformed future
 item events that cannot identify an owning thread and turn, remain observable
 as bounded `CodexExtensionReceived` records with their original method or
-deliberate extension name, payload, and optional decoding error. They do not
-fail the backend and are not silently discarded.
+deliberate extension name, payload, optional decoding error, and structured
+forward-compatibility or protocol-warning classification. They do not fail the
+backend and are not silently discarded.
 
 The immutable public snapshot retains the newest 64 extension records under
 stricter frontend-safe bounds: 1 KiB of UTF-8 method, 32 KiB of serialized
