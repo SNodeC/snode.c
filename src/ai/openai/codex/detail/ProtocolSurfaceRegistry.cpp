@@ -154,9 +154,11 @@ namespace ai::openai::codex::detail {
                         return entryTarget != nullptr && *entryTarget == target;
                     }));
                 if (count != 1) {
-                    result.errors.emplace_back(
-                        std::string(category) + " runtime target " + std::to_string(static_cast<std::size_t>(target)) +
-                        (count == 0 ? " is absent from the protocol surface registry" : " is duplicated in the protocol surface registry"));
+                    result.errors.push_back({count == 0 ? ProtocolSurfaceErrorCode::MissingRuntimeTargetRegistration
+                                                        : ProtocolSurfaceErrorCode::DuplicateRuntimeTargetRegistration,
+                                             std::string(category) + " runtime target " + std::to_string(static_cast<std::size_t>(target)) +
+                                                 (count == 0 ? " is absent from the protocol surface registry"
+                                                             : " is duplicated in the protocol surface registry")});
                 }
             }
         }
@@ -206,95 +208,113 @@ namespace ai::openai::codex::detail {
         for (std::size_t index = 0; index < entries.size(); ++index) {
             const ProtocolSurfaceEntry& entry = entries[index];
             if (entry.key.name.empty()) {
-                result.errors.emplace_back("protocol surface entry has an empty name");
+                result.errors.push_back({ProtocolSurfaceErrorCode::EmptyName, "protocol surface entry has an empty name"});
             }
             if (entry.key.field.empty()) {
-                result.errors.emplace_back(keyName(entry.key) + " has an empty discriminator field");
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::EmptyDiscriminatorField, keyName(entry.key) + " has an empty discriminator field"});
             }
 
             const std::optional<SurfaceCategory> expectedCategory = targetCategory(entry.runtimeTarget);
             if (!validTarget(entry.runtimeTarget)) {
-                result.errors.emplace_back(keyName(entry.key) + " uses an invalid runtime target sentinel");
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::InvalidRuntimeTarget, keyName(entry.key) + " uses an invalid runtime target sentinel"});
             }
             if (expectedCategory && *expectedCategory != entry.key.category) {
-                result.errors.emplace_back(keyName(entry.key) + " has a runtime target for the wrong category");
+                result.errors.push_back({ProtocolSurfaceErrorCode::WrongRuntimeTargetCategory,
+                                         keyName(entry.key) + " has a runtime target for the wrong category"});
             }
             if (entry.typedImplementation == TypedImplementationStatus::Implemented && !expectedCategory) {
-                result.errors.emplace_back(keyName(entry.key) + " claims typed implementation without a runtime target");
+                result.errors.push_back({ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+                                         keyName(entry.key) + " claims typed implementation without a runtime target"});
             }
             if (expectedCategory && entry.typedImplementation != TypedImplementationStatus::Implemented) {
-                result.errors.emplace_back(keyName(entry.key) + " has a runtime target without typed implementation");
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::RuntimeTargetWithoutTypedImplementation,
+                     keyName(entry.key) + " runtime dispatch target is not represented by an implemented typed registry row"});
             }
             if (entry.runtimeDisposition == RuntimeDisposition::Typed &&
                 entry.typedImplementation != TypedImplementationStatus::Implemented) {
-                result.errors.emplace_back(keyName(entry.key) + " has typed runtime disposition without typed implementation");
+                result.errors.push_back({ProtocolSurfaceErrorCode::TypedDispositionWithoutImplementation,
+                                         keyName(entry.key) + " has typed runtime disposition without typed implementation"});
             }
             if (entry.typedImplementation == TypedImplementationStatus::Implemented &&
                 entry.runtimeDisposition != RuntimeDisposition::Typed) {
-                result.errors.emplace_back(keyName(entry.key) + " claims typed implementation without typed runtime disposition");
+                result.errors.push_back({ProtocolSurfaceErrorCode::ImplementedWithoutTypedDisposition,
+                                         keyName(entry.key) + " claims typed implementation without typed runtime disposition"});
             }
             switch (entry.frontendProtocol) {
                 case FrontendExposure::ExistingOperationSubset:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingOperationSubsetExpansionUnresolved) {
-                        result.errors.emplace_back(keyName(entry.key) + " has existing operation-subset frontend exposure without its "
-                                                                        "expansion decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) + " has existing operation-subset frontend exposure without its expansion decision"});
                     }
                     break;
                 case FrontendExposure::GenericUnknownRequest:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingGenericContractDedicatedUnresolved) {
-                        result.errors.emplace_back(keyName(entry.key) +
-                                                   " has generic-unknown-request frontend exposure without its dedicated-method decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) + " has generic-unknown-request frontend exposure without its dedicated-method decision"});
                     }
                     break;
                 case FrontendExposure::ExistingEventSubset:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingEventSubsetContract) {
-                        result.errors.emplace_back(keyName(entry.key) + " has existing event-subset frontend exposure without its existing "
-                                                                        "contract decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) + " has existing event-subset frontend exposure without its existing contract decision"});
                     }
                     break;
                 case FrontendExposure::GenericExtension:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingRedactedExtensionContract) {
-                        result.errors.emplace_back(keyName(entry.key) + " has generic-extension frontend exposure without its existing "
-                                                                        "redacted-extension contract decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) +
+                                 " has generic-extension frontend exposure without its existing redacted-extension contract decision"});
                     }
                     break;
                 case FrontendExposure::ExistingUnknownItemSubset:
                     if (entry.frontendSecurity != FrontendSecurityDecision::ExistingUnknownItemMetadataContract) {
-                        result.errors.emplace_back(keyName(entry.key) + " has unknown-item subset frontend exposure without its existing "
-                                                                        "metadata-only contract decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) +
+                                 " has unknown-item subset frontend exposure without its existing metadata-only contract decision"});
                     }
                     break;
                 case FrontendExposure::NotExposed:
                     if (entry.frontendSecurity != FrontendSecurityDecision::Unresolved) {
-                        result.errors.emplace_back(keyName(entry.key) + " is not frontend-exposed but lacks an unresolved owner decision");
+                        result.errors.push_back({ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                                                 keyName(entry.key) + " is not frontend-exposed but lacks an unresolved owner decision"});
                     }
                     break;
                 case FrontendExposure::NotApplicable:
                     if (entry.frontendSecurity != FrontendSecurityDecision::NotApplicable) {
-                        result.errors.emplace_back(keyName(entry.key) +
-                                                   " has inapplicable frontend exposure with an applicable security decision");
+                        result.errors.push_back(
+                            {ProtocolSurfaceErrorCode::FrontendSecurityMismatch,
+                             keyName(entry.key) + " has inapplicable frontend exposure with an applicable security decision"});
                     }
                     break;
             }
             if (index != 0 && entry.key < entries[index - 1].key) {
-                result.errors.emplace_back("protocol surface registry is not sorted at " + keyName(entry.key));
+                result.errors.push_back(
+                    {ProtocolSurfaceErrorCode::UnsortedRegistry, "protocol surface registry is not sorted at " + keyName(entry.key)});
             }
 
             for (std::size_t previous = 0; previous < index; ++previous) {
                 const ProtocolSurfaceEntry& candidate = entries[previous];
                 if (candidate.key == entry.key) {
-                    result.errors.emplace_back("duplicate protocol surface entry: " + keyName(entry.key));
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::DuplicateRegistryEntry, "duplicate protocol surface entry: " + keyName(entry.key)});
                 }
                 if (candidate.key.category != entry.key.category && candidate.key.domain == entry.key.domain &&
                     candidate.key.field == entry.key.field && candidate.key.name == entry.key.name) {
-                    result.errors.emplace_back("protocol discriminator category collision: " + keyName(entry.key));
+                    result.errors.push_back({ProtocolSurfaceErrorCode::DiscriminatorCategoryCollision,
+                                             "protocol discriminator category collision: " + keyName(entry.key)});
                 }
                 if (candidate.key.category != entry.key.category && isMethodCategory(candidate.key.category) &&
                     isMethodCategory(entry.key.category) && candidate.key.name == entry.key.name) {
-                    result.errors.emplace_back("protocol method category collision: " + keyName(entry.key));
-                }
-                if (!std::holds_alternative<std::monostate>(entry.runtimeTarget) && candidate.runtimeTarget == entry.runtimeTarget) {
-                    result.errors.emplace_back("duplicate protocol runtime target: " + keyName(entry.key));
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::MethodCategoryCollision, "protocol method category collision: " + keyName(entry.key)});
                 }
             }
         }

@@ -127,8 +127,37 @@ namespace ai::openai::codex::detail {
         RuntimeTarget runtimeTarget;
     };
 
+    enum class ProtocolSurfaceErrorCode {
+        EmptyName,
+        EmptyDiscriminatorField,
+        InvalidRuntimeTarget,
+        WrongRuntimeTargetCategory,
+        TypedWithoutRuntimeTarget,
+        RuntimeTargetWithoutTypedImplementation,
+        TypedDispositionWithoutImplementation,
+        ImplementedWithoutTypedDisposition,
+        FrontendSecurityMismatch,
+        UnsortedRegistry,
+        DuplicateRegistryEntry,
+        DiscriminatorCategoryCollision,
+        MethodCategoryCollision,
+        DuplicateRuntimeTargetRegistration,
+        MissingRuntimeTargetRegistration,
+        DuplicateManifestEntry,
+        MissingRegistryEntry,
+        WrongCategory,
+        WrongStability,
+        WrongDeprecation,
+        StaleRegistryEntry
+    };
+
+    struct ProtocolSurfaceDiagnostic {
+        ProtocolSurfaceErrorCode code;
+        std::string message;
+    };
+
     struct ProtocolSurfaceValidation {
-        std::vector<std::string> errors;
+        std::vector<ProtocolSurfaceDiagnostic> errors;
 
         explicit operator bool() const noexcept {
             return errors.empty();

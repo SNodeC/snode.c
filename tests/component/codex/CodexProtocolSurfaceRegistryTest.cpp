@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <initializer_list>
+#include <iterator>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -28,6 +30,22 @@ namespace {
                       entry.stability == detail::Stability::Stable;
         }
         result.expectTrue(matches, description);
+    }
+
+    bool hasExactCodes(const detail::ProtocolSurfaceValidation& validation,
+                       std::initializer_list<detail::ProtocolSurfaceErrorCode> expected) {
+        std::vector<detail::ProtocolSurfaceErrorCode> actualCodes;
+        actualCodes.reserve(validation.errors.size());
+        std::transform(validation.errors.begin(),
+                       validation.errors.end(),
+                       std::back_inserter(actualCodes),
+                       [](const detail::ProtocolSurfaceDiagnostic& diagnostic) {
+                           return diagnostic.code;
+                       });
+        std::vector<detail::ProtocolSurfaceErrorCode> expectedCodes(expected);
+        std::sort(actualCodes.begin(), actualCodes.end());
+        std::sort(expectedCodes.begin(), expectedCodes.end());
+        return actualCodes == expectedCodes;
     }
 } // namespace
 
@@ -140,8 +158,10 @@ int main() {
         result.expectTrue(false, "registry contains an unknown-item metadata subset for negative validation");
     } else {
         wrongUnknownItem->frontendSecurity = detail::FrontendSecurityDecision::ExistingRedactedExtensionContract;
-        result.expectTrue(!detail::validateProtocolSurface(wrongUnknownItemPair),
-                          "registry validation rejects an unknown-item subset mislabeled as a raw extension contract");
+        result.expectTrue(
+            hasExactCodes(detail::validateProtocolSurface(wrongUnknownItemPair),
+                          {detail::ProtocolSurfaceErrorCode::FrontendSecurityMismatch}),
+            "registry validation reports only FrontendSecurityMismatch for an unknown-item subset mislabeled as a raw extension contract");
     }
 
     return result.processResult();
