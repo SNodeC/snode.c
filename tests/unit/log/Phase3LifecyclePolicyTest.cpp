@@ -1,5 +1,6 @@
 #include "SourcePolicyTestRoot.h"
 
+#include <cctype>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -27,6 +28,17 @@ namespace {
         const std::size_t last = first == std::string_view::npos ? std::string_view::npos : source.find(end, first + begin.size());
         return first == std::string_view::npos || last == std::string_view::npos ? std::string()
                                                                                  : std::string(source.substr(first, last - first));
+    }
+
+    std::string withoutWhitespace(std::string_view source) {
+        std::string compact;
+        compact.reserve(source.size());
+        for (const unsigned char character : source) {
+            if (std::isspace(character) == 0) {
+                compact.push_back(static_cast<char>(character));
+            }
+        }
+        return compact;
     }
 
     bool privateDeclaration(std::string_view source, std::string_view declaration, const std::filesystem::path& path) {
@@ -63,6 +75,14 @@ int main() {
     const auto mqttHeaderPath = root / "src/iot/mqtt/Mqtt.h";
     const auto mqttPath = root / "src/iot/mqtt/Mqtt.cpp";
     const auto mqttWsPath = root / "src/iot/mqtt/SubProtocol.hpp";
+    const auto mqttClientPath = root / "src/iot/mqtt/client/Mqtt.cpp";
+    const auto mqttClientHeaderPath = root / "src/iot/mqtt/client/Mqtt.h";
+    const auto mqttServerPath = root / "src/iot/mqtt/server/Mqtt.cpp";
+    const auto mqttServerHeaderPath = root / "src/iot/mqtt/server/Mqtt.h";
+    const auto mqttBrokerPath = root / "src/iot/mqtt/server/broker/Broker.cpp";
+    const auto mqttRetainPath = root / "src/iot/mqtt/server/broker/RetainTree.cpp";
+    const auto mqttSessionPath = root / "src/iot/mqtt/server/broker/Session.cpp";
+    const auto mqttSubscriptionPath = root / "src/iot/mqtt/server/broker/SubscriptionTree.cpp";
     const auto codexPath = root / "src/ai/openai/codex/AppServerClient.cpp";
     const auto backendEventPath = root / "src/ai/openai/codex/backend/BackendEvent.h";
     const auto backendStatePath = root / "src/ai/openai/codex/backend/BackendState.h";
@@ -77,6 +97,14 @@ int main() {
     const std::string mqttHeader = source_policy::readSourcePolicyFile(mqttHeaderPath);
     const std::string mqtt = source_policy::readSourcePolicyFile(mqttPath);
     const std::string mqttWs = source_policy::readSourcePolicyFile(mqttWsPath);
+    const std::string mqttClient = source_policy::readSourcePolicyFile(mqttClientPath);
+    const std::string mqttClientHeader = source_policy::readSourcePolicyFile(mqttClientHeaderPath);
+    const std::string mqttServer = source_policy::readSourcePolicyFile(mqttServerPath);
+    const std::string mqttServerHeader = source_policy::readSourcePolicyFile(mqttServerHeaderPath);
+    const std::string mqttBroker = source_policy::readSourcePolicyFile(mqttBrokerPath);
+    const std::string mqttRetain = source_policy::readSourcePolicyFile(mqttRetainPath);
+    const std::string mqttSession = source_policy::readSourcePolicyFile(mqttSessionPath);
+    const std::string mqttSubscription = source_policy::readSourcePolicyFile(mqttSubscriptionPath);
     const std::string codex = source_policy::readSourcePolicyFile(codexPath);
     const std::string backendEvent = source_policy::readSourcePolicyFile(backendEventPath);
     const std::string backendState = source_policy::readSourcePolicyFile(backendStatePath);
@@ -119,6 +147,37 @@ int main() {
     ok &= privateDeclaration(mqttHeader, "sessionRejected(const std::string& rejectedClientId", mqttHeaderPath);
     ok &= forbid(mqttWs, "WsMqtt: connected", mqttWsPath);
     ok &= forbid(mqttWs, "WsMqtt: disconnected", mqttWsPath);
+
+    const std::string mqttProduction = mqtt + mqttWs + mqttClient + mqttServer + mqttBroker + mqttRetain + mqttSession + mqttSubscription;
+    for (const auto prefix : {"MQTT:", "MQTT Client:", "MQTT Broker:", "WsMqtt:"}) {
+        ok &= forbid(mqttProduction, prefix, root / "src/iot/mqtt");
+    }
+    ok &= forbid(withoutWhitespace(mqtt), "<<connectionName", mqttPath);
+    ok &= forbid(withoutWhitespace(mqtt), "emitPresentedTrace(log(),connectionName", mqttPath);
+
+    const std::string clientBound = functionBody(mqttClient, "bool Mqtt::onSignal", "} // namespace iot::mqtt::client");
+    ok &= forbid(withoutWhitespace(clientBound), "<<connectionName", mqttClientPath);
+    ok &= require(mqttClient, "\"iot.mqtt.client\"", mqttClientPath);
+    ok &= require(mqttClient, "logger::LogRole::Client", mqttClientPath);
+    ok &= forbid(mqttClientHeader, "clientLog(", mqttClientHeaderPath);
+    ok &= require(mqttClient, "{}: ... Could not read session store", mqttClientPath);
+    ok &= require(mqttClient, "{}: Could not write session store", mqttClientPath);
+
+    const std::string serverNegotiation = functionBody(mqttServer, "bool Mqtt::initSession", "void Mqtt::releaseSession");
+    const std::string serverLive = functionBody(mqttServer, "void Mqtt::distributePublish", "} // namespace iot::mqtt::server");
+    ok &= forbid(withoutWhitespace(serverNegotiation + serverLive), "<<connectionName", mqttServerPath);
+    ok &= require(mqttServer, "\"iot.mqtt.server\"", mqttServerPath);
+    ok &= require(mqttServer, "logger::LogRole::Server", mqttServerPath);
+    ok &= forbid(mqttServerHeader, "serverLog(", mqttServerHeaderPath);
+    ok &= privateDeclaration(mqttServerHeader, "releaseSession(logger::BoundaryLogger", mqttServerHeaderPath);
+    ok &= require(withoutWhitespace(mqttServer), "connectionName+\":\"", mqttServerPath);
+    ok &= require(withoutWhitespace(mqttServer), "releaseSession(serverLog(*this),{})", mqttServerPath);
+
+    for (const auto domainField : {"client=", "Topic:", "PacketIdentifier", "QoS:", "DUP:", "Retain:"}) {
+        ok &= require(mqttProduction, domainField, root / "src/iot/mqtt");
+    }
+    ok &= forbid(mqttProduction, "transport connected", root / "src/iot/mqtt");
+    ok &= forbid(mqttProduction, "transport disconnected", root / "src/iot/mqtt");
 
     for (const auto event : {"app-server session started",
                              "app-server session stopped",

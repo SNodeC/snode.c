@@ -256,8 +256,8 @@ namespace web::http::server {
             if (request != nullptr) {
                 auto log = semantic::httpServerLog();
                 if (log.enabled(logger::LogLevel::Debug)) {
-                    const std::string prefix = connectionName + " HTTP: Initiating upgrade: " + request->method + " " + request->url +
-                                               " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) + "\n";
+                    const std::string prefix = connectionName + ": Initiating upgrade: " + request->method + " " + request->url + " HTTP/" +
+                                               std::to_string(httpMajor) + "." + std::to_string(httpMinor) + "\n";
                     const auto formatted = httputils::toStringPresentation(request->method,
                                                                            request->url,
                                                                            "HTTP/" + std::to_string(request->httpMajor) + "." +
@@ -278,21 +278,20 @@ namespace web::http::server {
                         socketContextUpgradeName = socketContextUpgradeFactory->name();
 
                         semantic::httpServerLog().debug()
-                            << connectionName
-                            << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
+                            << connectionName << ": SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
                             semantic::httpServerLog().debug()
-                                << connectionName << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
+                                << connectionName << ": SocketContextUpgrade create success for: " << socketContextUpgradeName;
 
                             auto responseLog = semantic::httpServerLog();
                             if (responseLog.enabled(logger::LogLevel::Debug)) {
-                                const std::string prefix =
-                                    connectionName + " HTTP upgrade: Response to upgrade request: " + request->method + " " + request->url +
-                                    " HTTP/" + std::to_string(request->httpMajor) + "." + std::to_string(request->httpMinor) + "\n";
+                                const std::string prefix = connectionName + ": Response to upgrade request: " + request->method + " " +
+                                                           request->url + " HTTP/" + std::to_string(request->httpMajor) + "." +
+                                                           std::to_string(request->httpMinor) + "\n";
                                 const auto formatted =
                                     httputils::toStringPresentation("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
                                                                     std::to_string(statusCode),
@@ -308,7 +307,7 @@ namespace web::http::server {
                             socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
                             semantic::httpServerLog().debug()
-                                << connectionName << " HTTP upgrade: SocketContextUpgrade create failed for: " << socketContextUpgradeName;
+                                << connectionName << ": SocketContextUpgrade create failed for: " << socketContextUpgradeName;
 
                             set("Connection", "close").status(404);
                         }
@@ -319,17 +318,17 @@ namespace web::http::server {
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    semantic::httpServerLog().debug() << connectionName << " HTTP upgrade: No upgrade requested";
+                    semantic::httpServerLog().debug() << connectionName << ": No upgrade requested";
 
                     set("Connection", "close").status(400);
                 }
             } else {
-                semantic::httpServerLog().error() << connectionName << " HTTP upgrade: Request has gone away";
+                semantic::httpServerLog().error() << connectionName << ": Upgrade request has gone away";
 
                 set("Connection", "close").status(500);
             }
 
-            semantic::httpServerLog().debug() << connectionName << " HTTP: Upgrade bootstrap "
+            semantic::httpServerLog().debug() << connectionName << ": Upgrade bootstrap "
                                               << (!socketContextUpgradeName.empty() ? "success" : "failed");
             semantic::httpServerLog().debug() << "      Protocol selected: " << socketContextUpgradeName;
             semantic::httpServerLog().debug() << "              requested: " << request->get("upgrade");
@@ -338,7 +337,7 @@ namespace web::http::server {
 
             status(socketContextUpgradeName);
         } else {
-            semantic::httpServerLog().error() << "HTTP upgrade: Unexpected disconnect";
+            semantic::httpServerLog().error() << "Upgrade: Unexpected disconnect";
         }
     }
 

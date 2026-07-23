@@ -80,12 +80,12 @@ namespace ai::openai::codex {
                 callback();
             } catch (const std::exception& exception) {
                 try {
-                    callbackLogger.error("Exception escaped Codex app-server public callback: {}", exception.what());
+                    callbackLogger.error("Exception escaped app-server public callback: {}", exception.what());
                 } catch (...) {
                 }
             } catch (...) {
                 try {
-                    callbackLogger.error("Unknown exception escaped Codex app-server public callback");
+                    callbackLogger.error("Unknown exception escaped app-server public callback");
                 } catch (...) {
                 }
             }
@@ -494,8 +494,7 @@ namespace ai::openai::codex {
             const State previous = state;
             state = next;
             stateChanges.push_back({previous, next, std::move(error)});
-            logScope.logger(logger::Logger::semanticSink())
-                .trace("Codex app-server client: {} -> {}", stateName(previous), stateName(next));
+            logScope.logger(logger::Logger::semanticSink()).trace("app-server client: {} -> {}", stateName(previous), stateName(next));
             scheduleStateDispatch();
         }
 
@@ -961,7 +960,7 @@ namespace ai::openai::codex {
                 return;
             }
 
-            logScope.logger(logger::Logger::semanticSink()).error("Codex app-server client failed: {}", error.message);
+            logScope.logger(logger::Logger::semanticSink()).error("app-server client failed: {}", error.message);
             if (!protocolSessionStarted && (state == State::Starting || state == State::Initializing)) {
                 logScope.logger(logger::Logger::semanticSink()).debug("app-server session start failed");
             }

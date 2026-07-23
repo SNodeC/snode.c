@@ -71,7 +71,7 @@ namespace web::websocket {
                         flyingPings++;
                     } else {
                         semantic::webSocketSubProtocolLog(*this->subProtocolContext->getSocketConnection()).warn()
-                            << "Subprotocol '" << this->name << "': MaxFlyingPings exceeded - closing";
+                            << "subprotocol='" << this->name << "': MaxFlyingPings exceeded - closing";
 
                         sendClose();
                         stop();
@@ -130,7 +130,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::sendPing(const char* reason, std::size_t reasonLength) const {
-        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "Subprotocol '" << name << "': Ping sent";
+        semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug() << "subprotocol='" << name << "': Ping sent";
 
         subProtocolContext->sendPing(reason, reasonLength);
     }
@@ -160,7 +160,7 @@ namespace web::websocket {
     template <typename SocketContextUpgrade>
     void SubProtocol<SocketContextUpgrade>::onPongReceived() {
         semantic::webSocketSubProtocolLog(*subProtocolContext->getSocketConnection()).debug()
-            << "Subprotocol '" << name << "': Pong received";
+            << "subprotocol='" << name << "': Pong received";
 
         flyingPings = 0;
     }

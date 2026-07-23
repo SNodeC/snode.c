@@ -67,7 +67,7 @@ namespace web::http::client {
 
 #if !defined(NDEBUG)
         if (const char* httpUpgradeInstallLibdirEnv = std::getenv("HTTP_UPGRADE_INSTALL_LIBDIR")) {
-            semantic::httpClientUpgradeLog().warn() << "HTTP upgrade: Overriding http upgrade library dir";
+            semantic::httpClientUpgradeLog().warn() << "Overriding http upgrade library dir";
             httpUpgradeInstallLibdir = std::string(httpUpgradeInstallLibdirEnv);
         }
 #endif

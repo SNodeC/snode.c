@@ -152,9 +152,9 @@ namespace web::websocket {
         if (payloadLength > 0) {
             if (frameLog().enabled(logger::LogLevel::Trace)) {
                 const auto dump = utils::hexDumpPresentation(payload, payloadLength, 32, true);
-                frameLog().emit(logger::LogLevel::Trace,
-                                logger::PresentedMessage{.plain = "WebSocket send: Frame data\n" + dump.plain,
-                                                         .terminal = "WebSocket send: Frame data\n" + dump.terminal});
+                frameLog().emit(
+                    logger::LogLevel::Trace,
+                    logger::PresentedMessage{.plain = "send: Frame data\n" + dump.plain, .terminal = "send: Frame data\n" + dump.terminal});
             }
         }
 

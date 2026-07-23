@@ -164,6 +164,16 @@ namespace {
         return count;
     }
 
+    const nlohmann::json*
+    findRecord(const std::vector<nlohmann::json>& records, std::string_view component, std::string_view messagePrefix) {
+        for (const nlohmann::json& record : records) {
+            if (record.value("component", "") == component && record.value("message", "").starts_with(messagePrefix)) {
+                return &record;
+            }
+        }
+        return nullptr;
+    }
+
     bool matchingLevel(const std::vector<nlohmann::json>& records, std::string_view prefix, std::string_view level) {
         bool found = false;
         for (const nlohmann::json& record : records) {
@@ -191,8 +201,8 @@ int main() {
     const auto broker = std::make_shared<iot::mqtt::server::broker::Broker>(2, "");
 
     {
-        FakeSocketConnection socket(1, "accepted");
-        BufferContext context(new iot::mqtt::server::Mqtt("accepted", broker), socket, connectPacket("client-established", true));
+        FakeSocketConnection socket(1, "socket-accepted");
+        BufferContext context(new iot::mqtt::server::Mqtt("display-accepted", broker), socket, connectPacket("client-established", true));
         context.onConnected();
         context.onConnected();
         context.process();
@@ -203,8 +213,8 @@ int main() {
     broker->newSession("client-resumed", nullptr);
     broker->retainSession("client-resumed");
     {
-        FakeSocketConnection socket(2, "resumed");
-        BufferContext context(new iot::mqtt::server::Mqtt("resumed", broker), socket, connectPacket("client-resumed", false));
+        FakeSocketConnection socket(2, "socket-resumed");
+        BufferContext context(new iot::mqtt::server::Mqtt("display-resumed", broker), socket, connectPacket("client-resumed", false));
         context.onConnected();
         context.process();
         context.onDisconnected();
@@ -219,8 +229,8 @@ int main() {
             *protocolBegin = 'X';
         }
 
-        FakeSocketConnection socket(3, "rejected");
-        BufferContext context(new iot::mqtt::server::Mqtt("rejected", broker), socket, std::move(packet));
+        FakeSocketConnection socket(3, "socket-rejected");
+        BufferContext context(new iot::mqtt::server::Mqtt("display-rejected", broker), socket, std::move(packet));
         context.onConnected();
         context.onConnected();
         context.process();
@@ -250,6 +260,58 @@ int main() {
     result.expectTrue(matchingLevel(records, "mqtt session resumed", "info"), "MQTT session resume uses Info");
     result.expectTrue(matchingLevel(records, "mqtt session ended", "info"), "MQTT session end uses Info");
     result.expectTrue(matchingLevel(records, "mqtt session rejected", "debug"), "MQTT session rejection uses Debug");
+
+    const nlohmann::json* commonDiagnostic = findRecord(records, "iot.mqtt", "Fixed Header: PacketType:");
+    result.expectTrue(commonDiagnostic != nullptr, "common MQTT diagnostic is captured after connection binding");
+    if (commonDiagnostic != nullptr) {
+        const std::string message = commonDiagnostic->value("message", "");
+        result.expectTrue(commonDiagnostic->value("origin", "") == "framework", "common MQTT diagnostic uses framework origin");
+        result.expectTrue(commonDiagnostic->value("boundary", "") == "connection", "common MQTT diagnostic uses connection boundary");
+        result.expectTrue(commonDiagnostic->value("instance", "") == "socket-accepted", "common MQTT diagnostic carries socket instance");
+        result.expectTrue(commonDiagnostic->value("connection", "") == "1", "common MQTT diagnostic carries connection ID");
+        result.expectTrue(!message.starts_with("display-accepted"), "common MQTT message does not repeat display connection identity");
+        result.expectTrue(message.find("MQTT:") == std::string::npos, "common MQTT message does not repeat its component label");
+        result.expectTrue(message.find("CONNECT") != std::string::npos, "common MQTT message retains packet-type domain data");
+
+        const std::string component = commonDiagnostic->value("component", "");
+        const std::string instance = commonDiagnostic->value("instance", "");
+        const std::string connection = commonDiagnostic->value("connection", "");
+        const logger::LogRecord textRecord = logger::materialize(
+            {logger::LogOrigin::Framework, logger::LogBoundary::Connection, component, instance, logger::LogRole::Unknown, connection},
+            logger::LogLevel::Debug,
+            message);
+        const std::string text = logger::formatText(textRecord, false);
+        const std::string_view formatterSeparator = " — ";
+        const std::size_t separator = text.find(formatterSeparator);
+        result.expectTrue(separator != std::string::npos, "text MQTT output contains the formatter separator");
+        if (separator != std::string::npos) {
+            const std::string metadata = text.substr(0, separator);
+            const std::string payload = text.substr(separator + formatterSeparator.size());
+            result.expectTrue(metadata.find("iot.mqtt") != std::string::npos &&
+                                  metadata.find("inst=socket-accepted") != std::string::npos &&
+                                  metadata.find("conn=1") != std::string::npos,
+                              "text MQTT output renders structured architectural identity before the payload separator");
+            result.expectTrue(payload.starts_with("Fixed Header: PacketType:"),
+                              "text MQTT payload starts with the diagnostic rather than architectural identity");
+            result.expectTrue(!payload.starts_with("display-accepted") && payload.find("MQTT:") == std::string::npos,
+                              "text MQTT payload does not repeat connection or component identity");
+        }
+    }
+
+    const nlohmann::json* serverDiagnostic = findRecord(records, "iot.mqtt.server", "ClientID: client-established");
+    result.expectTrue(serverDiagnostic != nullptr, "role-specific server diagnostic is captured after connection binding");
+    if (serverDiagnostic != nullptr) {
+        const std::string message = serverDiagnostic->value("message", "");
+        result.expectTrue(serverDiagnostic->value("origin", "") == "framework", "server diagnostic uses framework origin");
+        result.expectTrue(serverDiagnostic->value("boundary", "") == "connection", "server diagnostic uses connection boundary");
+        result.expectTrue(serverDiagnostic->value("component", "") == "iot.mqtt.server", "server diagnostic uses server component");
+        result.expectTrue(serverDiagnostic->value("role", "") == "server", "server diagnostic carries server role");
+        result.expectTrue(serverDiagnostic->value("instance", "") == "socket-accepted", "server diagnostic carries socket instance");
+        result.expectTrue(serverDiagnostic->value("connection", "") == "1", "server diagnostic carries connection ID");
+        result.expectTrue(!message.starts_with("display-accepted") && message.find("MQTT Broker:") == std::string::npos,
+                          "server message does not repeat connection or component identity");
+        result.expectTrue(message.find("client-established") != std::string::npos, "server message retains MQTT client ID domain data");
+    }
 
     return result.processResult();
 }

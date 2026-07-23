@@ -107,7 +107,7 @@ namespace web::http::tls::rc {
 
             eventSource = EventSource(scheme, net::rc::SocketAddress(addr, chan), path + query);
         } else {
-            web::http::client::semantic::httpClientEventSourceLog().error() << "EventSource RFCOMM url not accepted: " << url;
+            web::http::client::semantic::httpClientEventSourceLog().error() << "RFCOMM url not accepted: " << url;
         }
 
         return eventSource;

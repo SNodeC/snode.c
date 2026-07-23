@@ -117,7 +117,7 @@ namespace web::websocket {
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
             semantic::webSocketSubProtocolLog(*this->getSocketConnection()).trace()
-                << "WebSocketContext: Subprotocol '" << subProtocol->name << "' sending close to peer";
+                << "subprotocol='" << subProtocol->name << "' sending close to peer";
 
             sendMessage(8, message, messageLength);
 
@@ -189,12 +189,12 @@ namespace web::websocket {
                 if (closeSent) { // active close
                     closeSent = false;
                     semantic::webSocketSubProtocolLog(*getSocketConnection()).trace()
-                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close confirmed from peer";
+                        << "subprotocol='" << subProtocol->name << "' close confirmed from peer";
 
                     shutdownWrite();
                 } else { // passive close
                     semantic::webSocketSubProtocolLog(*getSocketConnection()).trace()
-                        << "WebSocketContext: Subprotocol '" << subProtocol->name << "' close request received - replying with close";
+                        << "subprotocol='" << subProtocol->name << "' close request received - replying with close";
 
                     sendClose(pongCloseData.data(), pongCloseData.length());
                     pongCloseData.clear();

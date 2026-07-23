@@ -79,8 +79,13 @@ namespace iot::mqtt {
 #include <list>
 #include <memory>
 #include <string>
+#include <string_view>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+namespace logger {
+    class BoundaryLogger;
+}
 
 namespace iot::mqtt::server {
 
@@ -102,7 +107,7 @@ namespace iot::mqtt::server {
 
         using Super::initSession;
         bool initSession(const utils::Timeval& keepAlive);
-        void releaseSession();
+        void releaseSession(logger::BoundaryLogger log, std::string_view prefix);
 
         virtual void onConnect(const iot::mqtt::packets::Connect& connect);
         virtual void onSubscribe(const iot::mqtt::packets::Subscribe& subscribe);

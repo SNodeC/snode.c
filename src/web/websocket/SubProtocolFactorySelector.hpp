@@ -68,13 +68,13 @@ namespace web::websocket {
                 subProtocolFactory = getSubProtocolFactory();
                 if (subProtocolFactory != nullptr) {
                     subProtocolFactory->setHandle(handle);
-                    semantic::webSocketFactoryLog().debug() << "WebSocket: SubProtocolFactory create success: " << subProtocolName;
+                    semantic::webSocketFactoryLog().debug() << "SubProtocolFactory create success: " << subProtocolName;
                 } else {
-                    semantic::webSocketFactoryLog().debug() << "WebSocket: SubProtocolFactory create failed: " << subProtocolName;
+                    semantic::webSocketFactoryLog().debug() << "SubProtocolFactory create failed: " << subProtocolName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                semantic::webSocketFactoryLog().debug() << "WebSocket: Optaining function \"" << subProtocolFactoryFunctionName
+                semantic::webSocketFactoryLog().debug() << "Optaining function \"" << subProtocolFactoryFunctionName
                                                         << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }
@@ -91,22 +91,19 @@ namespace web::websocket {
         if (subProtocolFactories.contains(subProtocolName)) {
             subProtocolFactory = subProtocolFactories[subProtocolName];
 
-            semantic::webSocketFactoryLog().debug()
-                << "WebSocket subprotocol: plugin '" << subProtocolName << "' selected from dynamic cache";
+            semantic::webSocketFactoryLog().debug() << "subprotocol plugin '" << subProtocolName << "' selected from dynamic cache";
         } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
             SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
             subProtocolFactory = plugin();
 
-            semantic::webSocketFactoryLog().debug()
-                << "WebSocket subprotocol: plugin '" << subProtocolName << "' selected from static cache";
+            semantic::webSocketFactoryLog().debug() << "subprotocol plugin '" << subProtocolName << "' selected from static cache";
         } else if (!onlyLinked) {
             subProtocolFactory = load(subProtocolName);
             subProtocolFactories.insert({subProtocolName, subProtocolFactory});
 
-            semantic::webSocketFactoryLog().debug()
-                << "WebSocket subprotocol: plugin '" << subProtocolName << "' loaded and added to dynamic cache";
+            semantic::webSocketFactoryLog().debug() << "subprotocol plugin '" << subProtocolName << "' loaded and added to dynamic cache";
         } else {
-            semantic::webSocketFactoryLog().warn() << "WebSocket subprotocol: plugin '" << subProtocolName << "' not found";
+            semantic::webSocketFactoryLog().warn() << "subprotocol plugin '" << subProtocolName << "' not found";
         }
 
         return subProtocolFactory;

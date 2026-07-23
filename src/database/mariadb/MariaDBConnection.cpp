@@ -99,21 +99,19 @@ namespace database::mariadb {
                             ExceptionalConditionEventReceiver::disable();
                         }
 
-                        snode::semantic::mariaDbLog().error()
-                            << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
+                        snode::semantic::mariaDbLog().error() << this->connectionName << ": Descriptor not registered in SNode.C eventloop";
                     }
                 }
             },
             [this]() {
-                snode::semantic::mariaDbLog().debug() << this->connectionName << " MariaDB connect: success";
+                snode::semantic::mariaDbLog().debug() << this->connectionName << ": connect: success";
                 this->sessionEstablished = true;
                 snode::semantic::mariaDbLog().info() << "database session established: connection=" << this->connectionName;
 
                 this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
-                snode::semantic::mariaDbLog().warn()
-                    << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
+                snode::semantic::mariaDbLog().warn() << this->connectionName << ": connect: error: " << errorString << " : " << errorNumber;
 
                 this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
             }))));
@@ -325,7 +323,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::unobservedEvent() {
         if (!closing) {
-            snode::semantic::mariaDbLog().error() << connectionName << " MariaDB: Lost connection";
+            snode::semantic::mariaDbLog().error() << connectionName << ": Lost connection";
         }
 
         if (mariaDBClient != nullptr) {

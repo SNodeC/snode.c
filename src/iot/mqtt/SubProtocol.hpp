@@ -106,17 +106,17 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "WsMqtt: protocol adapter attached";
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "protocol adapter attached";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).error() << "WsMqtt: Wrong Opcode: " << opCode << " (TEXT)";
+            iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).error() << "Wrong Opcode: " << opCode << " (TEXT)";
             this->close();
         } else {
-            iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).debug() << "WsMqtt: Message START: " << opCode << " (BIN)";
+            iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).debug() << "Message START: " << opCode << " (BIN)";
         }
     }
 
@@ -127,7 +127,7 @@ namespace iot::mqtt {
         auto log = iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection());
         if (log.enabled(logger::LogLevel::Debug)) {
             const auto dump = utils::hexDumpPresentation(std::vector<char>(chunk, chunk + chunkLen), 32);
-            const std::string prefix = "WsMqtt: Frame Data:\n";
+            const std::string prefix = "Frame Data:\n";
             const std::string indentation(32, ' ');
             log.emit(
                 logger::LogLevel::Debug,
@@ -137,7 +137,7 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).debug() << "WsMqtt: Message END";
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).debug() << "Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -153,20 +153,20 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).error() << "WsMqtt: Message error: " << errnum;
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).error() << "Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
         iot::mqtt::MqttContext::onDisconnected();
-        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "WsMqtt: protocol adapter detached";
+        iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).trace() << "protocol adapter detached";
     }
 
     template <typename WSSubProtocolRole>
     bool SubProtocol<WSSubProtocolRole>::onSignal(int sig) {
         bool ret = iot::mqtt::MqttContext::onSignal(sig);
         iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection()).info()
-            << "WsMqtt: exit due to signal SIG" << utils::system::sigabbrev_np(sig) << " (" << sig << ")";
+            << "exit due to signal SIG" << utils::system::sigabbrev_np(sig) << " (" << sig << ")";
 
         this->sendClose();
 

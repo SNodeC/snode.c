@@ -153,20 +153,20 @@ namespace web::websocket {
             if (rsvSet) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: RSV bits are not supported without negotiated extensions";
+                frameLog().error() << "RSV bits are not supported without negotiated extensions";
             } else if (!isKnownOpCode(opCode)) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: Reserved or unknown opcode";
+                frameLog().error() << "Reserved or unknown opcode";
             } else if (currentFrameIsControl && !fin) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: Control frames must not be fragmented";
+                frameLog().error() << "Control frames must not be fragmented";
             } else if (opCode == 0) {
                 if (!fragmentedMessageActive) {
                     parserState = ParserState::ERROR;
                     errorState = ProtocolError;
-                    frameLog().error() << "WebSocket: Continuation frame without active fragmented message";
+                    frameLog().error() << "Continuation frame without active fragmented message";
                 } else {
                     parserState = ParserState::LENGTH;
                 }
@@ -176,7 +176,7 @@ namespace web::websocket {
             } else if (fragmentedMessageActive) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: New data frame before fragmented message completed";
+                frameLog().error() << "New data frame before fragmented message completed";
             } else {
                 onMessageStart(opCode);
                 if (!fin) {
@@ -205,7 +205,7 @@ namespace web::websocket {
                 if (currentFrameIsControl && payloadLengthCode > 125) {
                     parserState = ParserState::ERROR;
                     errorState = ProtocolError;
-                    frameLog().error() << "WebSocket: Control frame uses extended payload length";
+                    frameLog().error() << "Control frame uses extended payload length";
                 } else if (payloadNumBytes > 125) {
                     switch (payloadNumBytes) {
                         case 126:
@@ -232,7 +232,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: Frame masking does not match endpoint role";
+                frameLog().error() << "Frame masking does not match endpoint role";
             }
         }
 
@@ -291,15 +291,15 @@ namespace web::websocket {
             if ((payloadNumBytes & (static_cast<uint64_t>(0x01) << 63)) != 0) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: 64-bit payload length has MSB set";
+                frameLog().error() << "64-bit payload length has MSB set";
             } else if ((payloadLengthCode == 126 && payloadNumBytes < 126) || (payloadLengthCode == 127 && payloadNumBytes < 65536)) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: Non-minimal payload length encoding";
+                frameLog().error() << "Non-minimal payload length encoding";
             } else if (payloadNumBytes > static_cast<uint64_t>(std::numeric_limits<std::size_t>::max())) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
-                frameLog().error() << "WebSocket: Payload length exceeds platform size limits";
+                frameLog().error() << "Payload length exceeds platform size limits";
             } else if (masked) {
                 parserState = ParserState::MASKINGKEY;
             } else {
@@ -358,8 +358,8 @@ namespace web::websocket {
             if (frameLog().enabled(logger::LogLevel::Trace)) {
                 const auto dump = utils::hexDumpPresentation(payloadChunk, payloadChunkLen, 32, true);
                 frameLog().emit(logger::LogLevel::Trace,
-                                logger::PresentedMessage{.plain = "WebSocket receive: Frame data\n" + dump.plain,
-                                                         .terminal = "WebSocket receive: Frame data\n" + dump.terminal});
+                                logger::PresentedMessage{.plain = "receive: Frame data\n" + dump.plain,
+                                                         .terminal = "receive: Frame data\n" + dump.terminal});
             }
 
             if (currentFrameIsControl) {
@@ -380,14 +380,14 @@ namespace web::websocket {
                 if (controlPayload.size() == 1) {
                     parserState = ParserState::ERROR;
                     errorState = ProtocolError;
-                    frameLog().error() << "WebSocket: Close frame payload length 1 is invalid";
+                    frameLog().error() << "Close frame payload length 1 is invalid";
                 } else if (controlPayload.size() >= 2) {
                     const uint16_t closeStatus = (static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
                                                  static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1]));
                     if (!isValidCloseStatus(closeStatus)) {
                         parserState = ParserState::ERROR;
                         errorState = ProtocolError;
-                        frameLog().error() << "WebSocket: Close frame status code is invalid";
+                        frameLog().error() << "Close frame status code is invalid";
                     }
                 }
             }

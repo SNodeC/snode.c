@@ -248,7 +248,7 @@ namespace web::http {
         MimeTypes::magic = magic_open(MAGIC_MIME);
 
         if (magic_load(magic, nullptr) != 0) {
-            snode::semantic::webHttpLog().debug() << "HTTP: Cannot load magic database - " + std::string(magic_error(magic));
+            snode::semantic::webHttpLog().debug() << "Cannot load magic database - " + std::string(magic_error(magic));
             magic_close(magic);
             magic = nullptr;
         }
