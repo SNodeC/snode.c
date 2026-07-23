@@ -128,6 +128,7 @@ namespace ai::openai::codex::backend {
         std::string method;
         Json payload = nullptr;
         std::optional<std::string> decodingError;
+        std::optional<typed::DecodeDiagnostic> diagnostic = std::nullopt;
     };
 
     using BackendEvent = std::variant<LifecycleChanged,

@@ -84,6 +84,70 @@ set_tests_properties(
     PROPERTIES LABELS "component;ai;openai;codex;phase-a0;schema" TIMEOUT 30
 )
 
+add_test(
+    NAME CodexAppServerOperationContractsTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerContractsToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_contracts.py
+        --source-root
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-protocol-source/0.144.6
+        --schema-root
+        ${CODEX_PHASE_A0_SCHEMA_ROOT}
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --schema-provenance
+        ${CODEX_PHASE_A0_PROVENANCE}
+        --evidence-root
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+set_tests_properties(
+    CodexAppServerOperationContractsTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-0;schema;operation-contract"
+        TIMEOUT 30
+)
+
+add_test(
+    NAME CodexDraft07ValidatorTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexDraft07ValidatorTest.py
+)
+set_tests_properties(
+    CodexDraft07ValidatorTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a1-0;schema;validator"
+               TIMEOUT 10
+)
+
+add_test(
+    NAME CodexAppServerFixtureInfrastructureTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerFixtureToolTest.py
+)
+set_tests_properties(
+    CodexAppServerFixtureInfrastructureTest
+    PROPERTIES LABELS
+               "component;ai;openai;codex;phase-a1-0;schema;fixtures"
+               TIMEOUT 60
+)
+
+add_test(
+    NAME CodexFrontendProtocolByteIdentityTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexFrontendProtocolByteIdentityTest.py
+        --schema
+        ${PROJECT_SOURCE_DIR}/docs/ai/openai/codex/frontend-protocol-v1.schema.json
+)
+set_tests_properties(
+    CodexFrontendProtocolByteIdentityTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a1-0;frontend;guard"
+               TIMEOUT 5
+)
+
 snodec_add_test(
     CodexProtocolSurfaceRegistryTest CodexProtocolSurfaceRegistryTest.cpp
 )
@@ -205,7 +269,7 @@ foreach(
     typed_test IN
     ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
           CodexTypedItemDecoderTest CodexTypedEventDecoderTest
-          CodexTypedServerRequestDecoderTest
+          CodexTypedServerRequestDecoderTest CodexErrorInfoCodecTest
 )
     snodec_add_test(${typed_test} ${typed_test}.cpp)
     target_link_libraries(
@@ -217,6 +281,11 @@ foreach(
                                  SKIP_RETURN_CODE 77 TIMEOUT 5
     )
 endforeach()
+
+target_compile_definitions(
+    CodexErrorInfoCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
 
 snodec_add_test(CodexBackendReducerTest CodexBackendReducerTest.cpp)
 target_link_libraries(
@@ -479,6 +548,34 @@ set_tests_properties(
     CodexTypedProtocolEngineTest
     PROPERTIES LABELS "component;ai;openai;codex;typed;protocol;engine"
                SKIP_RETURN_CODE 77 TIMEOUT 30
+)
+
+snodec_add_test(CodexTypedClientFacadeTest CodexTypedClientFacadeTest.cpp)
+target_link_libraries(
+    CodexTypedClientFacadeTest PRIVATE snodec-test-support
+                                       snodec::ai-openai-codex
+)
+target_compile_features(CodexTypedClientFacadeTest PRIVATE cxx_std_20)
+target_compile_options(
+    CodexTypedClientFacadeTest PRIVATE -Wno-deprecated-declarations
+)
+set_tests_properties(
+    CodexTypedClientFacadeTest
+    PROPERTIES LABELS "component;ai;openai;codex;typed;facade;compatibility"
+               TIMEOUT 5
+)
+
+add_test(
+    NAME CodexTypedFacadeUsageGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexTypedFacadeUsageGuardTest.py
+        --source-root ${PROJECT_SOURCE_DIR}/src
+)
+set_tests_properties(
+    CodexTypedFacadeUsageGuardTest
+    PROPERTIES LABELS "component;ai;openai;codex;typed;facade;policy"
+               TIMEOUT 5
 )
 
 add_executable(CodexStdioScenarioTest CodexStdioScenarioTest.cpp)

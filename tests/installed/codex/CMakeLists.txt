@@ -20,6 +20,22 @@ target_link_libraries(
 )
 
 add_executable(
+    SNodeCInstalledCodexDeprecatedTypedConsumer
+    CodexDeprecatedTypedConsumer.cpp
+)
+target_compile_features(
+    SNodeCInstalledCodexDeprecatedTypedConsumer PRIVATE cxx_std_20
+)
+target_compile_options(
+    SNodeCInstalledCodexDeprecatedTypedConsumer
+    PRIVATE -Werror -Wno-deprecated-declarations
+)
+target_link_libraries(
+    SNodeCInstalledCodexDeprecatedTypedConsumer
+    PRIVATE snodec::ai-openai-codex
+)
+
+add_executable(
     SNodeCInstalledCodexBackendFrontendConsumer
     CodexBackendFrontendConsumer.cpp
 )

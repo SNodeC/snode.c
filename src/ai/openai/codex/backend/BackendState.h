@@ -154,6 +154,8 @@ namespace ai::openai::codex::backend {
         std::optional<std::uint64_t> originalMethodBytes;
         std::optional<std::uint64_t> originalPayloadBytes;
         std::optional<std::uint64_t> originalDecodingErrorBytes;
+        std::optional<typed::DecodeDiagnostic> diagnostic = std::nullopt;
+        std::optional<std::uint64_t> originalDiagnosticBytes = std::nullopt;
     };
 
     struct BackendState {

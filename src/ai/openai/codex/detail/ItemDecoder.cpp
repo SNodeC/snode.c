@@ -8,6 +8,7 @@
 #include "ai/openai/codex/detail/ItemDecoder.h"
 
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
 #include <cstdint>
@@ -180,7 +181,7 @@ namespace ai::openai::codex::detail {
                                            const std::optional<typed::ThreadId>& threadId,
                                            const std::optional<typed::TurnId>& turnId,
                                            std::optional<std::string> decodingError = std::nullopt) {
-            typed::UnknownItem item{std::move(type), value, std::move(decodingError), {}};
+            typed::UnknownItem item{std::move(type), value, std::move(decodingError), {}, std::nullopt};
             item.metadata.threadId = threadId;
             item.metadata.turnId = turnId;
 
@@ -204,6 +205,10 @@ namespace ai::openai::codex::detail {
                 }
             }
 
+            item.diagnostic = item.decodingError
+                                  ? std::optional<typed::DecodeDiagnostic>{malformedKnownDiagnostic("ThreadItem", "$")}
+                                  : std::optional<typed::DecodeDiagnostic>{
+                                        unknownDiscriminatorDiagnostic("ThreadItem", "$.type")};
             return item;
         }
 

@@ -18,6 +18,8 @@ foreach(
           core/EventMultiplexer.h
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
+          ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/DecodeDiagnostic.h
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
@@ -29,6 +31,7 @@ foreach(
           ai/openai/codex/detail/TurnCodec.h
           ai/openai/codex/stdio/StdioTransport.h
           ai/openai/codex/backend/detail/BackendCoreImpl.h
+          ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h
           ai/openai/codex/frontend/detail/CodecImpl.h
 )
     if(EXISTS "${prefix}/include/snode.c/${private_header}")
@@ -47,15 +50,31 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_entry MATCHES "/tests/component/codex/fixtures/"
        OR installed_entry MATCHES "/app-server-schema/"
        OR installed_entry MATCHES "/app-server-surface/"
+       OR installed_entry MATCHES "/app-server-evidence/"
+       OR installed_entry MATCHES "/app-server-fixtures/"
+       OR installed_entry MATCHES "/app-server-protocol-source/"
        OR installed_name STREQUAL "app_server_surface.py"
+       OR installed_name STREQUAL "app_server_contracts.py"
+       OR installed_name STREQUAL "app_server_fixtures.py"
+       OR installed_name STREQUAL "draft07.py"
        OR installed_name STREQUAL "PROVENANCE.json"
        OR installed_name STREQUAL "LICENSE.openai-codex"
        OR installed_name STREQUAL "NOTICE.openai-codex"
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.cpp"
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.h"
        OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
+       OR installed_name STREQUAL "operation-contracts.json"
+       OR installed_name STREQUAL "module-slice-assignment.json"
+       OR installed_name STREQUAL "nested-reachability.json"
+       OR installed_name STREQUAL "schema-completeness-evidence.json"
+       OR installed_name STREQUAL "fixture-coverage.json"
+       OR installed_name STREQUAL "schema-keywords.json"
+       OR installed_name STREQUAL "typescript-audit.json"
+       OR installed_name MATCHES "^Protocol.*(Data|Evidence|Descriptors)\\.inc$"
+       OR (installed_entry MATCHES "/ai/openai/codex/"
+           AND installed_name MATCHES "\\.inc$")
     )
-        message(FATAL_ERROR "private A0 artifact installed: ${installed_entry}")
+        message(FATAL_ERROR "private Codex evidence artifact installed: ${installed_entry}")
     endif()
 endforeach()
 file(

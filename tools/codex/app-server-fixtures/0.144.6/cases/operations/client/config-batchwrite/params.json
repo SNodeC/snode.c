@@ -1,0 +1,12 @@
+{
+  "edits": [
+    {
+      "keyPath": "synthetic-59c11105fc",
+      "mergeStrategy": "replace",
+      "value": {}
+    }
+  ],
+  "expectedVersion": "synthetic-2de204010f",
+  "filePath": "synthetic-7d05afac47",
+  "reloadUserConfig": false
+}

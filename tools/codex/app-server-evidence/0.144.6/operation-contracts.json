@@ -1,0 +1,2388 @@
+{
+  "authority": {
+    "client_requests": "VendoredRust",
+    "server_requests": "VendoredSchemaPair",
+    "typescript": "negative audit only; no request-to-response mapping"
+  },
+  "codex_version": "0.144.6",
+  "contracts": [
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CancelLoginAccount",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/CancelLoginAccountParams.json",
+      "parameter_type_identity": "CancelLoginAccountParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/CancelLoginAccountResponse.json",
+      "result_schema_type_identity": "CancelLoginAccountResponse",
+      "result_type_identity": "CancelLoginAccountResponse",
+      "rust": {
+        "parameter_type": "v2::CancelLoginAccountParams",
+        "result_type": "v2::CancelLoginAccountResponse",
+        "variant": "CancelLoginAccount",
+        "wire_method": "account/login/cancel"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/login/cancel"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/LoginAccount",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/LoginAccountParams.json",
+      "parameter_type_identity": "LoginAccountParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/LoginAccountResponse.json",
+      "result_schema_type_identity": "LoginAccountResponse",
+      "result_type_identity": "LoginAccountResponse",
+      "rust": {
+        "parameter_type": "v2::LoginAccountParams",
+        "result_type": "v2::LoginAccountResponse",
+        "variant": "LoginAccount",
+        "wire_method": "account/login/start"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/login/start"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/LogoutAccount",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/LogoutAccountResponse.json",
+      "result_schema_type_identity": "LogoutAccountResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::LogoutAccountResponse",
+        "variant": "LogoutAccount",
+        "wire_method": "account/logout"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/logout"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ConsumeAccountRateLimitResetCredit",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ConsumeAccountRateLimitResetCreditParams.json",
+      "parameter_type_identity": "ConsumeAccountRateLimitResetCreditParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ConsumeAccountRateLimitResetCreditResponse.json",
+      "result_schema_type_identity": "ConsumeAccountRateLimitResetCreditResponse",
+      "result_type_identity": "ConsumeAccountRateLimitResetCreditResponse",
+      "rust": {
+        "parameter_type": "v2::ConsumeAccountRateLimitResetCreditParams",
+        "result_type": "v2::ConsumeAccountRateLimitResetCreditResponse",
+        "variant": "ConsumeAccountRateLimitResetCredit",
+        "wire_method": "account/rateLimitResetCredit/consume"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/rateLimitResetCredit/consume"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/GetAccountRateLimits",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/GetAccountRateLimitsResponse.json",
+      "result_schema_type_identity": "GetAccountRateLimitsResponse",
+      "result_type_identity": "GetAccountRateLimitsResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::GetAccountRateLimitsResponse",
+        "variant": "GetAccountRateLimits",
+        "wire_method": "account/rateLimits/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/rateLimits/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/GetAccount",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/GetAccountParams.json",
+      "parameter_type_identity": "GetAccountParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/GetAccountResponse.json",
+      "result_schema_type_identity": "GetAccountResponse",
+      "result_type_identity": "GetAccountResponse",
+      "rust": {
+        "parameter_type": "v2::GetAccountParams",
+        "result_type": "v2::GetAccountResponse",
+        "variant": "GetAccount",
+        "wire_method": "account/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SendAddCreditsNudgeEmail",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/SendAddCreditsNudgeEmailParams.json",
+      "parameter_type_identity": "SendAddCreditsNudgeEmailParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/SendAddCreditsNudgeEmailResponse.json",
+      "result_schema_type_identity": "SendAddCreditsNudgeEmailResponse",
+      "result_type_identity": "SendAddCreditsNudgeEmailResponse",
+      "rust": {
+        "parameter_type": "v2::SendAddCreditsNudgeEmailParams",
+        "result_type": "v2::SendAddCreditsNudgeEmailResponse",
+        "variant": "SendAddCreditsNudgeEmail",
+        "wire_method": "account/sendAddCreditsNudgeEmail"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/sendAddCreditsNudgeEmail"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/GetAccountTokenUsage",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/GetAccountTokenUsageResponse.json",
+      "result_schema_type_identity": "GetAccountTokenUsageResponse",
+      "result_type_identity": "GetAccountTokenUsageResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::GetAccountTokenUsageResponse",
+        "variant": "GetAccountTokenUsage",
+        "wire_method": "account/usage/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/usage/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/GetWorkspaceMessages",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/GetWorkspaceMessagesResponse.json",
+      "result_schema_type_identity": "GetWorkspaceMessagesResponse",
+      "result_type_identity": "GetWorkspaceMessagesResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::GetWorkspaceMessagesResponse",
+        "variant": "GetWorkspaceMessages",
+        "wire_method": "account/workspaceMessages/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "account/workspaceMessages/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/AppsList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/AppsListParams.json",
+      "parameter_type_identity": "AppsListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/AppsListResponse.json",
+      "result_schema_type_identity": "AppsListResponse",
+      "result_type_identity": "AppsListResponse",
+      "rust": {
+        "parameter_type": "v2::AppsListParams",
+        "result_type": "v2::AppsListResponse",
+        "variant": "AppsList",
+        "wire_method": "app/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "app/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/OneOffCommandExec",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/CommandExecParams.json",
+      "parameter_type_identity": "CommandExecParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/CommandExecResponse.json",
+      "result_schema_type_identity": "CommandExecResponse",
+      "result_type_identity": "CommandExecResponse",
+      "rust": {
+        "parameter_type": "v2::CommandExecParams",
+        "result_type": "v2::CommandExecResponse",
+        "variant": "OneOffCommandExec",
+        "wire_method": "command/exec"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "command/exec"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecResize",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/CommandExecResizeParams.json",
+      "parameter_type_identity": "CommandExecResizeParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/CommandExecResizeResponse.json",
+      "result_schema_type_identity": "CommandExecResizeResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::CommandExecResizeParams",
+        "result_type": "v2::CommandExecResizeResponse",
+        "variant": "CommandExecResize",
+        "wire_method": "command/exec/resize"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "command/exec/resize"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecTerminate",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/CommandExecTerminateParams.json",
+      "parameter_type_identity": "CommandExecTerminateParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/CommandExecTerminateResponse.json",
+      "result_schema_type_identity": "CommandExecTerminateResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::CommandExecTerminateParams",
+        "result_type": "v2::CommandExecTerminateResponse",
+        "variant": "CommandExecTerminate",
+        "wire_method": "command/exec/terminate"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "command/exec/terminate"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecWrite",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/CommandExecWriteParams.json",
+      "parameter_type_identity": "CommandExecWriteParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/CommandExecWriteResponse.json",
+      "result_schema_type_identity": "CommandExecWriteResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::CommandExecWriteParams",
+        "result_type": "v2::CommandExecWriteResponse",
+        "variant": "CommandExecWrite",
+        "wire_method": "command/exec/write"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "command/exec/write"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ConfigBatchWrite",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ConfigBatchWriteParams.json",
+      "parameter_type_identity": "ConfigBatchWriteParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ConfigWriteResponse.json",
+      "result_schema_type_identity": "ConfigWriteResponse",
+      "result_type_identity": "ConfigWriteResponse",
+      "rust": {
+        "parameter_type": "v2::ConfigBatchWriteParams",
+        "result_type": "v2::ConfigWriteResponse",
+        "variant": "ConfigBatchWrite",
+        "wire_method": "config/batchWrite"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "config/batchWrite"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerRefresh",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/McpServerRefreshResponse.json",
+      "result_schema_type_identity": "McpServerRefreshResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::McpServerRefreshResponse",
+        "variant": "McpServerRefresh",
+        "wire_method": "config/mcpServer/reload"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "config/mcpServer/reload"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ConfigRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ConfigReadParams.json",
+      "parameter_type_identity": "ConfigReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ConfigReadResponse.json",
+      "result_schema_type_identity": "ConfigReadResponse",
+      "result_type_identity": "ConfigReadResponse",
+      "rust": {
+        "parameter_type": "v2::ConfigReadParams",
+        "result_type": "v2::ConfigReadResponse",
+        "variant": "ConfigRead",
+        "wire_method": "config/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "config/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ConfigValueWrite",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ConfigValueWriteParams.json",
+      "parameter_type_identity": "ConfigValueWriteParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ConfigWriteResponse.json",
+      "result_schema_type_identity": "ConfigWriteResponse",
+      "result_type_identity": "ConfigWriteResponse",
+      "rust": {
+        "parameter_type": "v2::ConfigValueWriteParams",
+        "result_type": "v2::ConfigWriteResponse",
+        "variant": "ConfigValueWrite",
+        "wire_method": "config/value/write"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "config/value/write"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ConfigRequirementsRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ConfigRequirementsReadResponse.json",
+      "result_schema_type_identity": "ConfigRequirementsReadResponse",
+      "result_type_identity": "ConfigRequirementsReadResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::ConfigRequirementsReadResponse",
+        "variant": "ConfigRequirementsRead",
+        "wire_method": "configRequirements/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "configRequirements/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExperimentalFeatureEnablementSet",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ExperimentalFeatureEnablementSetParams.json",
+      "parameter_type_identity": "ExperimentalFeatureEnablementSetParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ExperimentalFeatureEnablementSetResponse.json",
+      "result_schema_type_identity": "ExperimentalFeatureEnablementSetResponse",
+      "result_type_identity": "ExperimentalFeatureEnablementSetResponse",
+      "rust": {
+        "parameter_type": "v2::ExperimentalFeatureEnablementSetParams",
+        "result_type": "v2::ExperimentalFeatureEnablementSetResponse",
+        "variant": "ExperimentalFeatureEnablementSet",
+        "wire_method": "experimentalFeature/enablement/set"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "experimentalFeature/enablement/set"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExperimentalFeatureList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ExperimentalFeatureListParams.json",
+      "parameter_type_identity": "ExperimentalFeatureListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ExperimentalFeatureListResponse.json",
+      "result_schema_type_identity": "ExperimentalFeatureListResponse",
+      "result_type_identity": "ExperimentalFeatureListResponse",
+      "rust": {
+        "parameter_type": "v2::ExperimentalFeatureListParams",
+        "result_type": "v2::ExperimentalFeatureListResponse",
+        "variant": "ExperimentalFeatureList",
+        "wire_method": "experimentalFeature/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "experimentalFeature/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigDetect",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ExternalAgentConfigDetectParams.json",
+      "parameter_type_identity": "ExternalAgentConfigDetectParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ExternalAgentConfigDetectResponse.json",
+      "result_schema_type_identity": "ExternalAgentConfigDetectResponse",
+      "result_type_identity": "ExternalAgentConfigDetectResponse",
+      "rust": {
+        "parameter_type": "v2::ExternalAgentConfigDetectParams",
+        "result_type": "v2::ExternalAgentConfigDetectResponse",
+        "variant": "ExternalAgentConfigDetect",
+        "wire_method": "externalAgentConfig/detect"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "externalAgentConfig/detect"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigImport",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ExternalAgentConfigImportParams.json",
+      "parameter_type_identity": "ExternalAgentConfigImportParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ExternalAgentConfigImportResponse.json",
+      "result_schema_type_identity": "ExternalAgentConfigImportResponse",
+      "result_type_identity": "ExternalAgentConfigImportResponse",
+      "rust": {
+        "parameter_type": "v2::ExternalAgentConfigImportParams",
+        "result_type": "v2::ExternalAgentConfigImportResponse",
+        "variant": "ExternalAgentConfigImport",
+        "wire_method": "externalAgentConfig/import"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "externalAgentConfig/import"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigImportHistoriesRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ExternalAgentConfigImportHistoriesReadResponse.json",
+      "result_schema_type_identity": "ExternalAgentConfigImportHistoriesReadResponse",
+      "result_type_identity": "ExternalAgentConfigImportHistoriesReadResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::ExternalAgentConfigImportHistoriesReadResponse",
+        "variant": "ExternalAgentConfigImportHistoriesRead",
+        "wire_method": "externalAgentConfig/import/readHistories"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "externalAgentConfig/import/readHistories"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FeedbackUpload",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FeedbackUploadParams.json",
+      "parameter_type_identity": "FeedbackUploadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/FeedbackUploadResponse.json",
+      "result_schema_type_identity": "FeedbackUploadResponse",
+      "result_type_identity": "FeedbackUploadResponse",
+      "rust": {
+        "parameter_type": "v2::FeedbackUploadParams",
+        "result_type": "v2::FeedbackUploadResponse",
+        "variant": "FeedbackUpload",
+        "wire_method": "feedback/upload"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "feedback/upload"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsCopy",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsCopyParams.json",
+      "parameter_type_identity": "FsCopyParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/FsCopyResponse.json",
+      "result_schema_type_identity": "FsCopyResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::FsCopyParams",
+        "result_type": "v2::FsCopyResponse",
+        "variant": "FsCopy",
+        "wire_method": "fs/copy"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/copy"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsCreateDirectory",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsCreateDirectoryParams.json",
+      "parameter_type_identity": "FsCreateDirectoryParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/FsCreateDirectoryResponse.json",
+      "result_schema_type_identity": "FsCreateDirectoryResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::FsCreateDirectoryParams",
+        "result_type": "v2::FsCreateDirectoryResponse",
+        "variant": "FsCreateDirectory",
+        "wire_method": "fs/createDirectory"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/createDirectory"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsGetMetadata",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsGetMetadataParams.json",
+      "parameter_type_identity": "FsGetMetadataParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/FsGetMetadataResponse.json",
+      "result_schema_type_identity": "FsGetMetadataResponse",
+      "result_type_identity": "FsGetMetadataResponse",
+      "rust": {
+        "parameter_type": "v2::FsGetMetadataParams",
+        "result_type": "v2::FsGetMetadataResponse",
+        "variant": "FsGetMetadata",
+        "wire_method": "fs/getMetadata"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/getMetadata"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsReadDirectory",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsReadDirectoryParams.json",
+      "parameter_type_identity": "FsReadDirectoryParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/FsReadDirectoryResponse.json",
+      "result_schema_type_identity": "FsReadDirectoryResponse",
+      "result_type_identity": "FsReadDirectoryResponse",
+      "rust": {
+        "parameter_type": "v2::FsReadDirectoryParams",
+        "result_type": "v2::FsReadDirectoryResponse",
+        "variant": "FsReadDirectory",
+        "wire_method": "fs/readDirectory"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/readDirectory"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsReadFile",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsReadFileParams.json",
+      "parameter_type_identity": "FsReadFileParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/FsReadFileResponse.json",
+      "result_schema_type_identity": "FsReadFileResponse",
+      "result_type_identity": "FsReadFileResponse",
+      "rust": {
+        "parameter_type": "v2::FsReadFileParams",
+        "result_type": "v2::FsReadFileResponse",
+        "variant": "FsReadFile",
+        "wire_method": "fs/readFile"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/readFile"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsRemove",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsRemoveParams.json",
+      "parameter_type_identity": "FsRemoveParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/FsRemoveResponse.json",
+      "result_schema_type_identity": "FsRemoveResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::FsRemoveParams",
+        "result_type": "v2::FsRemoveResponse",
+        "variant": "FsRemove",
+        "wire_method": "fs/remove"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/remove"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsUnwatch",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsUnwatchParams.json",
+      "parameter_type_identity": "FsUnwatchParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/FsUnwatchResponse.json",
+      "result_schema_type_identity": "FsUnwatchResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::FsUnwatchParams",
+        "result_type": "v2::FsUnwatchResponse",
+        "variant": "FsUnwatch",
+        "wire_method": "fs/unwatch"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/unwatch"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsWatch",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsWatchParams.json",
+      "parameter_type_identity": "FsWatchParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/FsWatchResponse.json",
+      "result_schema_type_identity": "FsWatchResponse",
+      "result_type_identity": "FsWatchResponse",
+      "rust": {
+        "parameter_type": "v2::FsWatchParams",
+        "result_type": "v2::FsWatchResponse",
+        "variant": "FsWatch",
+        "wire_method": "fs/watch"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/watch"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsWriteFile",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/FsWriteFileParams.json",
+      "parameter_type_identity": "FsWriteFileParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/FsWriteFileResponse.json",
+      "result_schema_type_identity": "FsWriteFileResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::FsWriteFileParams",
+        "result_type": "v2::FsWriteFileResponse",
+        "variant": "FsWriteFile",
+        "wire_method": "fs/writeFile"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fs/writeFile"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FuzzyFileSearch",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/FuzzyFileSearchParams.json",
+      "parameter_type_identity": "FuzzyFileSearchParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/FuzzyFileSearchResponse.json",
+      "result_schema_type_identity": "FuzzyFileSearchResponse",
+      "result_type_identity": "FuzzyFileSearchResponse",
+      "rust": {
+        "parameter_type": "FuzzyFileSearchParams",
+        "result_type": "FuzzyFileSearchResponse",
+        "variant": "FuzzyFileSearch",
+        "wire_method": "fuzzyFileSearch"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "fuzzyFileSearch"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/HooksList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/HooksListParams.json",
+      "parameter_type_identity": "HooksListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/HooksListResponse.json",
+      "result_schema_type_identity": "HooksListResponse",
+      "result_type_identity": "HooksListResponse",
+      "rust": {
+        "parameter_type": "v2::HooksListParams",
+        "result_type": "v2::HooksListResponse",
+        "variant": "HooksList",
+        "wire_method": "hooks/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "hooks/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/Initialize",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v1/InitializeParams.json",
+      "parameter_type_identity": "InitializeParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v1/InitializeResponse.json",
+      "result_schema_type_identity": "InitializeResponse",
+      "result_type_identity": "InitializeResponse",
+      "rust": {
+        "parameter_type": "v1::InitializeParams",
+        "result_type": "v1::InitializeResponse",
+        "variant": "Initialize",
+        "wire_method": "initialize"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "initialize"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceAdd",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/MarketplaceAddParams.json",
+      "parameter_type_identity": "MarketplaceAddParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/MarketplaceAddResponse.json",
+      "result_schema_type_identity": "MarketplaceAddResponse",
+      "result_type_identity": "MarketplaceAddResponse",
+      "rust": {
+        "parameter_type": "v2::MarketplaceAddParams",
+        "result_type": "v2::MarketplaceAddResponse",
+        "variant": "MarketplaceAdd",
+        "wire_method": "marketplace/add"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "marketplace/add"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceRemove",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/MarketplaceRemoveParams.json",
+      "parameter_type_identity": "MarketplaceRemoveParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/MarketplaceRemoveResponse.json",
+      "result_schema_type_identity": "MarketplaceRemoveResponse",
+      "result_type_identity": "MarketplaceRemoveResponse",
+      "rust": {
+        "parameter_type": "v2::MarketplaceRemoveParams",
+        "result_type": "v2::MarketplaceRemoveResponse",
+        "variant": "MarketplaceRemove",
+        "wire_method": "marketplace/remove"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "marketplace/remove"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceUpgrade",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/MarketplaceUpgradeParams.json",
+      "parameter_type_identity": "MarketplaceUpgradeParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/MarketplaceUpgradeResponse.json",
+      "result_schema_type_identity": "MarketplaceUpgradeResponse",
+      "result_type_identity": "MarketplaceUpgradeResponse",
+      "rust": {
+        "parameter_type": "v2::MarketplaceUpgradeParams",
+        "result_type": "v2::MarketplaceUpgradeResponse",
+        "variant": "MarketplaceUpgrade",
+        "wire_method": "marketplace/upgrade"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "marketplace/upgrade"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerOauthLogin",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/McpServerOauthLoginParams.json",
+      "parameter_type_identity": "McpServerOauthLoginParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/McpServerOauthLoginResponse.json",
+      "result_schema_type_identity": "McpServerOauthLoginResponse",
+      "result_type_identity": "McpServerOauthLoginResponse",
+      "rust": {
+        "parameter_type": "v2::McpServerOauthLoginParams",
+        "result_type": "v2::McpServerOauthLoginResponse",
+        "variant": "McpServerOauthLogin",
+        "wire_method": "mcpServer/oauth/login"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "mcpServer/oauth/login"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpResourceRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/McpResourceReadParams.json",
+      "parameter_type_identity": "McpResourceReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/McpResourceReadResponse.json",
+      "result_schema_type_identity": "McpResourceReadResponse",
+      "result_type_identity": "McpResourceReadResponse",
+      "rust": {
+        "parameter_type": "v2::McpResourceReadParams",
+        "result_type": "v2::McpResourceReadResponse",
+        "variant": "McpResourceRead",
+        "wire_method": "mcpServer/resource/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "mcpServer/resource/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerToolCall",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/McpServerToolCallParams.json",
+      "parameter_type_identity": "McpServerToolCallParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/McpServerToolCallResponse.json",
+      "result_schema_type_identity": "McpServerToolCallResponse",
+      "result_type_identity": "McpServerToolCallResponse",
+      "rust": {
+        "parameter_type": "v2::McpServerToolCallParams",
+        "result_type": "v2::McpServerToolCallResponse",
+        "variant": "McpServerToolCall",
+        "wire_method": "mcpServer/tool/call"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "mcpServer/tool/call"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerStatusList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ListMcpServerStatusParams.json",
+      "parameter_type_identity": "ListMcpServerStatusParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ListMcpServerStatusResponse.json",
+      "result_schema_type_identity": "ListMcpServerStatusResponse",
+      "result_type_identity": "ListMcpServerStatusResponse",
+      "rust": {
+        "parameter_type": "v2::ListMcpServerStatusParams",
+        "result_type": "v2::ListMcpServerStatusResponse",
+        "variant": "McpServerStatusList",
+        "wire_method": "mcpServerStatus/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "mcpServerStatus/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ModelList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ModelListParams.json",
+      "parameter_type_identity": "ModelListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ModelListResponse.json",
+      "result_schema_type_identity": "ModelListResponse",
+      "result_type_identity": "ModelListResponse",
+      "rust": {
+        "parameter_type": "v2::ModelListParams",
+        "result_type": "v2::ModelListResponse",
+        "variant": "ModelList",
+        "wire_method": "model/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "model/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ModelProviderCapabilitiesRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ModelProviderCapabilitiesReadParams.json",
+      "parameter_type_identity": "ModelProviderCapabilitiesReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ModelProviderCapabilitiesReadResponse.json",
+      "result_schema_type_identity": "ModelProviderCapabilitiesReadResponse",
+      "result_type_identity": "ModelProviderCapabilitiesReadResponse",
+      "rust": {
+        "parameter_type": "v2::ModelProviderCapabilitiesReadParams",
+        "result_type": "v2::ModelProviderCapabilitiesReadResponse",
+        "variant": "ModelProviderCapabilitiesRead",
+        "wire_method": "modelProvider/capabilities/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "modelProvider/capabilities/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PermissionProfileList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PermissionProfileListParams.json",
+      "parameter_type_identity": "PermissionProfileListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PermissionProfileListResponse.json",
+      "result_schema_type_identity": "PermissionProfileListResponse",
+      "result_type_identity": "PermissionProfileListResponse",
+      "rust": {
+        "parameter_type": "v2::PermissionProfileListParams",
+        "result_type": "v2::PermissionProfileListResponse",
+        "variant": "PermissionProfileList",
+        "wire_method": "permissionProfile/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "permissionProfile/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginInstall",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginInstallParams.json",
+      "parameter_type_identity": "PluginInstallParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginInstallResponse.json",
+      "result_schema_type_identity": "PluginInstallResponse",
+      "result_type_identity": "PluginInstallResponse",
+      "rust": {
+        "parameter_type": "v2::PluginInstallParams",
+        "result_type": "v2::PluginInstallResponse",
+        "variant": "PluginInstall",
+        "wire_method": "plugin/install"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/install"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginInstalled",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginInstalledParams.json",
+      "parameter_type_identity": "PluginInstalledParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginInstalledResponse.json",
+      "result_schema_type_identity": "PluginInstalledResponse",
+      "result_type_identity": "PluginInstalledResponse",
+      "rust": {
+        "parameter_type": "v2::PluginInstalledParams",
+        "result_type": "v2::PluginInstalledResponse",
+        "variant": "PluginInstalled",
+        "wire_method": "plugin/installed"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/installed"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginListParams.json",
+      "parameter_type_identity": "PluginListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginListResponse.json",
+      "result_schema_type_identity": "PluginListResponse",
+      "result_type_identity": "PluginListResponse",
+      "rust": {
+        "parameter_type": "v2::PluginListParams",
+        "result_type": "v2::PluginListResponse",
+        "variant": "PluginList",
+        "wire_method": "plugin/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginReadParams.json",
+      "parameter_type_identity": "PluginReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginReadResponse.json",
+      "result_schema_type_identity": "PluginReadResponse",
+      "result_type_identity": "PluginReadResponse",
+      "rust": {
+        "parameter_type": "v2::PluginReadParams",
+        "result_type": "v2::PluginReadResponse",
+        "variant": "PluginRead",
+        "wire_method": "plugin/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareCheckout",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginShareCheckoutParams.json",
+      "parameter_type_identity": "PluginShareCheckoutParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginShareCheckoutResponse.json",
+      "result_schema_type_identity": "PluginShareCheckoutResponse",
+      "result_type_identity": "PluginShareCheckoutResponse",
+      "rust": {
+        "parameter_type": "v2::PluginShareCheckoutParams",
+        "result_type": "v2::PluginShareCheckoutResponse",
+        "variant": "PluginShareCheckout",
+        "wire_method": "plugin/share/checkout"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/share/checkout"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareDelete",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginShareDeleteParams.json",
+      "parameter_type_identity": "PluginShareDeleteParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/PluginShareDeleteResponse.json",
+      "result_schema_type_identity": "PluginShareDeleteResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::PluginShareDeleteParams",
+        "result_type": "v2::PluginShareDeleteResponse",
+        "variant": "PluginShareDelete",
+        "wire_method": "plugin/share/delete"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/share/delete"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginShareListParams.json",
+      "parameter_type_identity": "PluginShareListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginShareListResponse.json",
+      "result_schema_type_identity": "PluginShareListResponse",
+      "result_type_identity": "PluginShareListResponse",
+      "rust": {
+        "parameter_type": "v2::PluginShareListParams",
+        "result_type": "v2::PluginShareListResponse",
+        "variant": "PluginShareList",
+        "wire_method": "plugin/share/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/share/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareSave",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginShareSaveParams.json",
+      "parameter_type_identity": "PluginShareSaveParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginShareSaveResponse.json",
+      "result_schema_type_identity": "PluginShareSaveResponse",
+      "result_type_identity": "PluginShareSaveResponse",
+      "rust": {
+        "parameter_type": "v2::PluginShareSaveParams",
+        "result_type": "v2::PluginShareSaveResponse",
+        "variant": "PluginShareSave",
+        "wire_method": "plugin/share/save"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/share/save"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareUpdateTargets",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginShareUpdateTargetsParams.json",
+      "parameter_type_identity": "PluginShareUpdateTargetsParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginShareUpdateTargetsResponse.json",
+      "result_schema_type_identity": "PluginShareUpdateTargetsResponse",
+      "result_type_identity": "PluginShareUpdateTargetsResponse",
+      "rust": {
+        "parameter_type": "v2::PluginShareUpdateTargetsParams",
+        "result_type": "v2::PluginShareUpdateTargetsResponse",
+        "variant": "PluginShareUpdateTargets",
+        "wire_method": "plugin/share/updateTargets"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/share/updateTargets"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginSkillRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginSkillReadParams.json",
+      "parameter_type_identity": "PluginSkillReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/PluginSkillReadResponse.json",
+      "result_schema_type_identity": "PluginSkillReadResponse",
+      "result_type_identity": "PluginSkillReadResponse",
+      "rust": {
+        "parameter_type": "v2::PluginSkillReadParams",
+        "result_type": "v2::PluginSkillReadResponse",
+        "variant": "PluginSkillRead",
+        "wire_method": "plugin/skill/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/skill/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginUninstall",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/PluginUninstallParams.json",
+      "parameter_type_identity": "PluginUninstallParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/PluginUninstallResponse.json",
+      "result_schema_type_identity": "PluginUninstallResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::PluginUninstallParams",
+        "result_type": "v2::PluginUninstallResponse",
+        "variant": "PluginUninstall",
+        "wire_method": "plugin/uninstall"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "plugin/uninstall"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ReviewStart",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ReviewStartParams.json",
+      "parameter_type_identity": "ReviewStartParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ReviewStartResponse.json",
+      "result_schema_type_identity": "ReviewStartResponse",
+      "result_type_identity": "ReviewStartResponse",
+      "rust": {
+        "parameter_type": "v2::ReviewStartParams",
+        "result_type": "v2::ReviewStartResponse",
+        "variant": "ReviewStart",
+        "wire_method": "review/start"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "review/start"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsConfigWrite",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/SkillsConfigWriteParams.json",
+      "parameter_type_identity": "SkillsConfigWriteParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/SkillsConfigWriteResponse.json",
+      "result_schema_type_identity": "SkillsConfigWriteResponse",
+      "result_type_identity": "SkillsConfigWriteResponse",
+      "rust": {
+        "parameter_type": "v2::SkillsConfigWriteParams",
+        "result_type": "v2::SkillsConfigWriteResponse",
+        "variant": "SkillsConfigWrite",
+        "wire_method": "skills/config/write"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "skills/config/write"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsExtraRootsSet",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/SkillsExtraRootsSetParams.json",
+      "parameter_type_identity": "SkillsExtraRootsSetParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/SkillsExtraRootsSetResponse.json",
+      "result_schema_type_identity": "SkillsExtraRootsSetResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::SkillsExtraRootsSetParams",
+        "result_type": "v2::SkillsExtraRootsSetResponse",
+        "variant": "SkillsExtraRootsSet",
+        "wire_method": "skills/extraRoots/set"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "skills/extraRoots/set"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/SkillsListParams.json",
+      "parameter_type_identity": "SkillsListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/SkillsListResponse.json",
+      "result_schema_type_identity": "SkillsListResponse",
+      "result_type_identity": "SkillsListResponse",
+      "rust": {
+        "parameter_type": "v2::SkillsListParams",
+        "result_type": "v2::SkillsListResponse",
+        "variant": "SkillsList",
+        "wire_method": "skills/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "skills/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadApproveGuardianDeniedAction",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadApproveGuardianDeniedActionParams.json",
+      "parameter_type_identity": "ThreadApproveGuardianDeniedActionParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadApproveGuardianDeniedActionResponse.json",
+      "result_schema_type_identity": "ThreadApproveGuardianDeniedActionResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadApproveGuardianDeniedActionParams",
+        "result_type": "v2::ThreadApproveGuardianDeniedActionResponse",
+        "variant": "ThreadApproveGuardianDeniedAction",
+        "wire_method": "thread/approveGuardianDeniedAction"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/approveGuardianDeniedAction"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadArchive",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadArchiveParams.json",
+      "parameter_type_identity": "ThreadArchiveParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadArchiveResponse.json",
+      "result_schema_type_identity": "ThreadArchiveResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadArchiveParams",
+        "result_type": "v2::ThreadArchiveResponse",
+        "variant": "ThreadArchive",
+        "wire_method": "thread/archive"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/archive"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadCompactStart",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadCompactStartParams.json",
+      "parameter_type_identity": "ThreadCompactStartParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadCompactStartResponse.json",
+      "result_schema_type_identity": "ThreadCompactStartResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadCompactStartParams",
+        "result_type": "v2::ThreadCompactStartResponse",
+        "variant": "ThreadCompactStart",
+        "wire_method": "thread/compact/start"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/compact/start"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadDelete",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadDeleteParams.json",
+      "parameter_type_identity": "ThreadDeleteParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadDeleteResponse.json",
+      "result_schema_type_identity": "ThreadDeleteResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadDeleteParams",
+        "result_type": "v2::ThreadDeleteResponse",
+        "variant": "ThreadDelete",
+        "wire_method": "thread/delete"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/delete"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadFork",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadForkParams.json",
+      "parameter_type_identity": "ThreadForkParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadForkResponse.json",
+      "result_schema_type_identity": "ThreadForkResponse",
+      "result_type_identity": "ThreadForkResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadForkParams",
+        "result_type": "v2::ThreadForkResponse",
+        "variant": "ThreadFork",
+        "wire_method": "thread/fork"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/fork"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadGoalClear",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadGoalClearParams.json",
+      "parameter_type_identity": "ThreadGoalClearParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadGoalClearResponse.json",
+      "result_schema_type_identity": "ThreadGoalClearResponse",
+      "result_type_identity": "ThreadGoalClearResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadGoalClearParams",
+        "result_type": "v2::ThreadGoalClearResponse",
+        "variant": "ThreadGoalClear",
+        "wire_method": "thread/goal/clear"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/goal/clear"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadGoalGet",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadGoalGetParams.json",
+      "parameter_type_identity": "ThreadGoalGetParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadGoalGetResponse.json",
+      "result_schema_type_identity": "ThreadGoalGetResponse",
+      "result_type_identity": "ThreadGoalGetResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadGoalGetParams",
+        "result_type": "v2::ThreadGoalGetResponse",
+        "variant": "ThreadGoalGet",
+        "wire_method": "thread/goal/get"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/goal/get"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadGoalSet",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadGoalSetParams.json",
+      "parameter_type_identity": "ThreadGoalSetParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadGoalSetResponse.json",
+      "result_schema_type_identity": "ThreadGoalSetResponse",
+      "result_type_identity": "ThreadGoalSetResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadGoalSetParams",
+        "result_type": "v2::ThreadGoalSetResponse",
+        "variant": "ThreadGoalSet",
+        "wire_method": "thread/goal/set"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/goal/set"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadInjectItems",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadInjectItemsParams.json",
+      "parameter_type_identity": "ThreadInjectItemsParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadInjectItemsResponse.json",
+      "result_schema_type_identity": "ThreadInjectItemsResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadInjectItemsParams",
+        "result_type": "v2::ThreadInjectItemsResponse",
+        "variant": "ThreadInjectItems",
+        "wire_method": "thread/inject_items"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/inject_items"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadListParams.json",
+      "parameter_type_identity": "ThreadListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadListResponse.json",
+      "result_schema_type_identity": "ThreadListResponse",
+      "result_type_identity": "ThreadListResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadListParams",
+        "result_type": "v2::ThreadListResponse",
+        "variant": "ThreadList",
+        "wire_method": "thread/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadLoadedList",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadLoadedListParams.json",
+      "parameter_type_identity": "ThreadLoadedListParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadLoadedListResponse.json",
+      "result_schema_type_identity": "ThreadLoadedListResponse",
+      "result_type_identity": "ThreadLoadedListResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadLoadedListParams",
+        "result_type": "v2::ThreadLoadedListResponse",
+        "variant": "ThreadLoadedList",
+        "wire_method": "thread/loaded/list"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/loaded/list"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadMetadataUpdate",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadMetadataUpdateParams.json",
+      "parameter_type_identity": "ThreadMetadataUpdateParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadMetadataUpdateResponse.json",
+      "result_schema_type_identity": "ThreadMetadataUpdateResponse",
+      "result_type_identity": "ThreadMetadataUpdateResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadMetadataUpdateParams",
+        "result_type": "v2::ThreadMetadataUpdateResponse",
+        "variant": "ThreadMetadataUpdate",
+        "wire_method": "thread/metadata/update"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/metadata/update"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadSetName",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadSetNameParams.json",
+      "parameter_type_identity": "ThreadSetNameParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadSetNameResponse.json",
+      "result_schema_type_identity": "ThreadSetNameResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadSetNameParams",
+        "result_type": "v2::ThreadSetNameResponse",
+        "variant": "ThreadSetName",
+        "wire_method": "thread/name/set"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/name/set"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadRead",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadReadParams.json",
+      "parameter_type_identity": "ThreadReadParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadReadResponse.json",
+      "result_schema_type_identity": "ThreadReadResponse",
+      "result_type_identity": "ThreadReadResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadReadParams",
+        "result_type": "v2::ThreadReadResponse",
+        "variant": "ThreadRead",
+        "wire_method": "thread/read"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/read"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadResume",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadResumeParams.json",
+      "parameter_type_identity": "ThreadResumeParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadResumeResponse.json",
+      "result_schema_type_identity": "ThreadResumeResponse",
+      "result_type_identity": "ThreadResumeResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadResumeParams",
+        "result_type": "v2::ThreadResumeResponse",
+        "variant": "ThreadResume",
+        "wire_method": "thread/resume"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/resume"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadRollback",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadRollbackParams.json",
+      "parameter_type_identity": "ThreadRollbackParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadRollbackResponse.json",
+      "result_schema_type_identity": "ThreadRollbackResponse",
+      "result_type_identity": "ThreadRollbackResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadRollbackParams",
+        "result_type": "v2::ThreadRollbackResponse",
+        "variant": "ThreadRollback",
+        "wire_method": "thread/rollback"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/rollback"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadShellCommand",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadShellCommandParams.json",
+      "parameter_type_identity": "ThreadShellCommandParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/ThreadShellCommandResponse.json",
+      "result_schema_type_identity": "ThreadShellCommandResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::ThreadShellCommandParams",
+        "result_type": "v2::ThreadShellCommandResponse",
+        "variant": "ThreadShellCommand",
+        "wire_method": "thread/shellCommand"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/shellCommand"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadStart",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadStartParams.json",
+      "parameter_type_identity": "ThreadStartParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadStartResponse.json",
+      "result_schema_type_identity": "ThreadStartResponse",
+      "result_type_identity": "ThreadStartResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadStartParams",
+        "result_type": "v2::ThreadStartResponse",
+        "variant": "ThreadStart",
+        "wire_method": "thread/start"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/start"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadUnarchive",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadUnarchiveParams.json",
+      "parameter_type_identity": "ThreadUnarchiveParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadUnarchiveResponse.json",
+      "result_schema_type_identity": "ThreadUnarchiveResponse",
+      "result_type_identity": "ThreadUnarchiveResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadUnarchiveParams",
+        "result_type": "v2::ThreadUnarchiveResponse",
+        "variant": "ThreadUnarchive",
+        "wire_method": "thread/unarchive"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/unarchive"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadUnsubscribe",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/ThreadUnsubscribeParams.json",
+      "parameter_type_identity": "ThreadUnsubscribeParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/ThreadUnsubscribeResponse.json",
+      "result_schema_type_identity": "ThreadUnsubscribeResponse",
+      "result_type_identity": "ThreadUnsubscribeResponse",
+      "rust": {
+        "parameter_type": "v2::ThreadUnsubscribeParams",
+        "result_type": "v2::ThreadUnsubscribeResponse",
+        "variant": "ThreadUnsubscribe",
+        "wire_method": "thread/unsubscribe"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "thread/unsubscribe"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/TurnInterrupt",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/TurnInterruptParams.json",
+      "parameter_type_identity": "TurnInterruptParams",
+      "result_contract_kind": "Unit",
+      "result_schema": "stable/v2/TurnInterruptResponse.json",
+      "result_schema_type_identity": "TurnInterruptResponse",
+      "result_type_identity": "Unit",
+      "rust": {
+        "parameter_type": "v2::TurnInterruptParams",
+        "result_type": "v2::TurnInterruptResponse",
+        "variant": "TurnInterrupt",
+        "wire_method": "turn/interrupt"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "turn/interrupt"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/TurnStart",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/TurnStartParams.json",
+      "parameter_type_identity": "TurnStartParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/TurnStartResponse.json",
+      "result_schema_type_identity": "TurnStartResponse",
+      "result_type_identity": "TurnStartResponse",
+      "rust": {
+        "parameter_type": "v2::TurnStartParams",
+        "result_type": "v2::TurnStartResponse",
+        "variant": "TurnStart",
+        "wire_method": "turn/start"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "turn/start"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/TurnSteer",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/TurnSteerParams.json",
+      "parameter_type_identity": "TurnSteerParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/TurnSteerResponse.json",
+      "result_schema_type_identity": "TurnSteerResponse",
+      "result_type_identity": "TurnSteerResponse",
+      "rust": {
+        "parameter_type": "v2::TurnSteerParams",
+        "result_type": "v2::TurnSteerResponse",
+        "variant": "TurnSteer",
+        "wire_method": "turn/steer"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "turn/steer"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/WindowsSandboxReadiness",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": null,
+      "parameter_type_identity": "Unit",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/WindowsSandboxReadinessResponse.json",
+      "result_schema_type_identity": "WindowsSandboxReadinessResponse",
+      "result_type_identity": "WindowsSandboxReadinessResponse",
+      "rust": {
+        "parameter_type": "#[ts(type = \"undefined\")] #[serde(skip_serializing_if = \"Option::is_none\")] Option<()>",
+        "result_type": "v2::WindowsSandboxReadinessResponse",
+        "variant": "WindowsSandboxReadiness",
+        "wire_method": "windowsSandbox/readiness"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "windowsSandbox/readiness"
+      }
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/WindowsSandboxSetupStart",
+      "association_evidence_kind": "VendoredRust",
+      "cross_check_evidence": [],
+      "parameter_schema": "stable/v2/WindowsSandboxSetupStartParams.json",
+      "parameter_type_identity": "WindowsSandboxSetupStartParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/v2/WindowsSandboxSetupStartResponse.json",
+      "result_schema_type_identity": "WindowsSandboxSetupStartResponse",
+      "result_type_identity": "WindowsSandboxSetupStartResponse",
+      "rust": {
+        "parameter_type": "v2::WindowsSandboxSetupStartParams",
+        "result_type": "v2::WindowsSandboxSetupStartResponse",
+        "variant": "WindowsSandboxSetupStart",
+        "wire_method": "windowsSandbox/setupStart"
+      },
+      "surface_key": {
+        "category": "client_request",
+        "domain": "ClientRequest",
+        "field": "method",
+        "name": "windowsSandbox/setupStart"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/6+stable/ChatgptAuthTokensRefreshResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/ChatgptAuthTokensRefresh",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "ChatgptAuthTokensRefreshParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "ChatgptAuthTokensRefreshResponse",
+          "result_type_identity": "ChatgptAuthTokensRefreshResponse"
+        }
+      ],
+      "parameter_schema": "stable/ChatgptAuthTokensRefreshParams.json",
+      "parameter_type_identity": "ChatgptAuthTokensRefreshParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/ChatgptAuthTokensRefreshResponse.json",
+      "result_schema_type_identity": "ChatgptAuthTokensRefreshResponse",
+      "result_type_identity": "ChatgptAuthTokensRefreshResponse",
+      "schema_pair": {
+        "branch": 6,
+        "parameter_schema": "stable/ChatgptAuthTokensRefreshParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/ChatgptAuthTokensRefreshResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "account/chatgptAuthTokens/refresh"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/8+stable/ApplyPatchApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/ApplyPatchApproval",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "ApplyPatchApprovalParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "ApplyPatchApprovalResponse",
+          "result_type_identity": "ApplyPatchApprovalResponse"
+        }
+      ],
+      "parameter_schema": "stable/ApplyPatchApprovalParams.json",
+      "parameter_type_identity": "ApplyPatchApprovalParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/ApplyPatchApprovalResponse.json",
+      "result_schema_type_identity": "ApplyPatchApprovalResponse",
+      "result_type_identity": "ApplyPatchApprovalResponse",
+      "schema_pair": {
+        "branch": 8,
+        "parameter_schema": "stable/ApplyPatchApprovalParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/ApplyPatchApprovalResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "applyPatchApproval"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/7+stable/AttestationGenerateResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/AttestationGenerate",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "AttestationGenerateParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "AttestationGenerateResponse",
+          "result_type_identity": "AttestationGenerateResponse"
+        }
+      ],
+      "parameter_schema": "stable/AttestationGenerateParams.json",
+      "parameter_type_identity": "AttestationGenerateParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/AttestationGenerateResponse.json",
+      "result_schema_type_identity": "AttestationGenerateResponse",
+      "result_type_identity": "AttestationGenerateResponse",
+      "schema_pair": {
+        "branch": 7,
+        "parameter_schema": "stable/AttestationGenerateParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/AttestationGenerateResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "attestation/generate"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/9+stable/ExecCommandApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/ExecCommandApproval",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "ExecCommandApprovalParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "ExecCommandApprovalResponse",
+          "result_type_identity": "ExecCommandApprovalResponse"
+        }
+      ],
+      "parameter_schema": "stable/ExecCommandApprovalParams.json",
+      "parameter_type_identity": "ExecCommandApprovalParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/ExecCommandApprovalResponse.json",
+      "result_schema_type_identity": "ExecCommandApprovalResponse",
+      "result_type_identity": "ExecCommandApprovalResponse",
+      "schema_pair": {
+        "branch": 9,
+        "parameter_schema": "stable/ExecCommandApprovalParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/ExecCommandApprovalResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "execCommandApproval"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/0+stable/CommandExecutionRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/CommandExecutionRequestApproval",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "CommandExecutionRequestApprovalParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "CommandExecutionRequestApprovalResponse",
+          "result_type_identity": "CommandExecutionRequestApprovalResponse"
+        }
+      ],
+      "parameter_schema": "stable/CommandExecutionRequestApprovalParams.json",
+      "parameter_type_identity": "CommandExecutionRequestApprovalParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/CommandExecutionRequestApprovalResponse.json",
+      "result_schema_type_identity": "CommandExecutionRequestApprovalResponse",
+      "result_type_identity": "CommandExecutionRequestApprovalResponse",
+      "schema_pair": {
+        "branch": 0,
+        "parameter_schema": "stable/CommandExecutionRequestApprovalParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/CommandExecutionRequestApprovalResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "item/commandExecution/requestApproval"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/1+stable/FileChangeRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/FileChangeRequestApproval",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "FileChangeRequestApprovalParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "FileChangeRequestApprovalResponse",
+          "result_type_identity": "FileChangeRequestApprovalResponse"
+        }
+      ],
+      "parameter_schema": "stable/FileChangeRequestApprovalParams.json",
+      "parameter_type_identity": "FileChangeRequestApprovalParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/FileChangeRequestApprovalResponse.json",
+      "result_schema_type_identity": "FileChangeRequestApprovalResponse",
+      "result_type_identity": "FileChangeRequestApprovalResponse",
+      "schema_pair": {
+        "branch": 1,
+        "parameter_schema": "stable/FileChangeRequestApprovalParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/FileChangeRequestApprovalResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "item/fileChange/requestApproval"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/4+stable/PermissionsRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/PermissionsRequestApproval",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "PermissionsRequestApprovalParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "PermissionsRequestApprovalResponse",
+          "result_type_identity": "PermissionsRequestApprovalResponse"
+        }
+      ],
+      "parameter_schema": "stable/PermissionsRequestApprovalParams.json",
+      "parameter_type_identity": "PermissionsRequestApprovalParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/PermissionsRequestApprovalResponse.json",
+      "result_schema_type_identity": "PermissionsRequestApprovalResponse",
+      "result_type_identity": "PermissionsRequestApprovalResponse",
+      "schema_pair": {
+        "branch": 4,
+        "parameter_schema": "stable/PermissionsRequestApprovalParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/PermissionsRequestApprovalResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "item/permissions/requestApproval"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/5+stable/DynamicToolCallResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/DynamicToolCall",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "DynamicToolCallParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "DynamicToolCallResponse",
+          "result_type_identity": "DynamicToolCallResponse"
+        }
+      ],
+      "parameter_schema": "stable/DynamicToolCallParams.json",
+      "parameter_type_identity": "DynamicToolCallParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/DynamicToolCallResponse.json",
+      "result_schema_type_identity": "DynamicToolCallResponse",
+      "result_type_identity": "DynamicToolCallResponse",
+      "schema_pair": {
+        "branch": 5,
+        "parameter_schema": "stable/DynamicToolCallParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/DynamicToolCallResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "item/tool/call"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/2+stable/ToolRequestUserInputResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/ToolRequestUserInput",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "ToolRequestUserInputParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "ToolRequestUserInputResponse",
+          "result_type_identity": "ToolRequestUserInputResponse"
+        }
+      ],
+      "parameter_schema": "stable/ToolRequestUserInputParams.json",
+      "parameter_type_identity": "ToolRequestUserInputParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/ToolRequestUserInputResponse.json",
+      "result_schema_type_identity": "ToolRequestUserInputResponse",
+      "result_type_identity": "ToolRequestUserInputResponse",
+      "schema_pair": {
+        "branch": 2,
+        "parameter_schema": "stable/ToolRequestUserInputParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/ToolRequestUserInputResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "item/tool/requestUserInput"
+      }
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/3+stable/McpServerElicitationRequestResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "cross_check_evidence": [
+        {
+          "agrees": true,
+          "key": "codex-rs/app-server-protocol/src/protocol/common.rs#server_request_definitions!/McpServerElicitationRequest",
+          "kind": "VendoredRust",
+          "parameter_type_identity": "McpServerElicitationRequestParams",
+          "result_contract_kind": "Concrete",
+          "result_schema_type_identity": "McpServerElicitationRequestResponse",
+          "result_type_identity": "McpServerElicitationRequestResponse"
+        }
+      ],
+      "parameter_schema": "stable/McpServerElicitationRequestParams.json",
+      "parameter_type_identity": "McpServerElicitationRequestParams",
+      "result_contract_kind": "Concrete",
+      "result_schema": "stable/McpServerElicitationRequestResponse.json",
+      "result_schema_type_identity": "McpServerElicitationRequestResponse",
+      "result_type_identity": "McpServerElicitationRequestResponse",
+      "schema_pair": {
+        "branch": 3,
+        "parameter_schema": "stable/McpServerElicitationRequestParams.json",
+        "request_union": "stable/ServerRequest.json",
+        "response_schema": "stable/McpServerElicitationRequestResponse.json"
+      },
+      "surface_key": {
+        "category": "server_request",
+        "domain": "ServerRequest",
+        "field": "method",
+        "name": "mcpServer/elicitation/request"
+      }
+    }
+  ],
+  "counts": {
+    "stable_client_requests": 87,
+    "stable_server_requests": 10,
+    "total": 97
+  },
+  "format_version": 1,
+  "generated_notice": "GENERATED by tools/codex/app_server_contracts.py; do not edit.",
+  "inputs": {
+    "rust_source_sha256": "5679cbc5b3e935a2edd69fbe62b82b956eff4d5d050c9969b090ccc9d367fdee",
+    "stable_schema_aggregate_sha256": "cee1ac3bcaf95e5fcdcf07499c7e6b00fc423b90c670ea3380f1799434b72add",
+    "surface_manifest_sha256": "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021"
+  },
+  "result_contract_counts": {
+    "Concrete": 76,
+    "Nullable": 0,
+    "ProtocolSpecial": 0,
+    "Unit": 21
+  },
+  "rust_nonexperimental_not_in_stable_schema": [
+    "getAuthStatus",
+    "getConversationSummary",
+    "gitDiffToRemote"
+  ],
+  "source_commit_sha": "5d1fbf26c43abc65a203928b2e31561cb039e06d",
+  "unit_result_surfaces": [
+    "account/logout",
+    "command/exec/resize",
+    "command/exec/terminate",
+    "command/exec/write",
+    "config/mcpServer/reload",
+    "fs/copy",
+    "fs/createDirectory",
+    "fs/remove",
+    "fs/unwatch",
+    "fs/writeFile",
+    "plugin/share/delete",
+    "plugin/uninstall",
+    "skills/extraRoots/set",
+    "thread/approveGuardianDeniedAction",
+    "thread/archive",
+    "thread/compact/start",
+    "thread/delete",
+    "thread/inject_items",
+    "thread/name/set",
+    "thread/shellCommand",
+    "turn/interrupt"
+  ]
+}

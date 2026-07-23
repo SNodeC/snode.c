@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "cwd": "synthetic-cf295cdac4",
+      "errors": [
+        {
+          "message": "synthetic-25061d7f56",
+          "path": "synthetic-a815c8eb04"
+        }
+      ],
+      "hooks": [
+        {
+          "command": "synthetic-3dd2a05d67",
+          "currentHash": "synthetic-c1ccefae93",
+          "displayOrder": 0,
+          "enabled": false,
+          "eventName": "preToolUse",
+          "handlerType": "command",
+          "isManaged": false,
+          "key": "synthetic-07ce8d0996",
+          "matcher": "synthetic-0816ec3ce4",
+          "pluginId": "synthetic-30dfdb6159",
+          "source": "system",
+          "sourcePath": "synthetic-75177d933c",
+          "statusMessage": "synthetic-729903bb56",
+          "timeoutSec": 0,
+          "trustStatus": "managed"
+        }
+      ],
+      "warnings": [
+        "synthetic-7d80e26d6d"
+      ]
+    }
+  ]
+}

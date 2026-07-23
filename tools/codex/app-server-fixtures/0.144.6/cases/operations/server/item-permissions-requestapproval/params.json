@@ -1,0 +1,32 @@
+{
+  "cwd": "synthetic-75177d933c",
+  "environmentId": "synthetic-52497088b0",
+  "itemId": "synthetic-3ac1ed47a9",
+  "permissions": {
+    "fileSystem": {
+      "entries": [
+        {
+          "access": "read",
+          "path": {
+            "path": "synthetic-f2afe5ff17",
+            "type": "path"
+          }
+        }
+      ],
+      "globScanMaxDepth": 1,
+      "read": [
+        "synthetic-f2afe5ff17"
+      ],
+      "write": [
+        "synthetic-f2afe5ff17"
+      ]
+    },
+    "network": {
+      "enabled": false
+    }
+  },
+  "reason": "synthetic-5bacbdb8ca",
+  "startedAtMs": 0,
+  "threadId": "synthetic-bd0d0f38fe",
+  "turnId": "synthetic-e026a1a7e9"
+}

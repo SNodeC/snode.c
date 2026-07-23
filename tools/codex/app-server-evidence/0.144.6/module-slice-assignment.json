@@ -1,0 +1,5446 @@
+{
+  "assignments": [
+    {
+      "a1_slice": "A1.0",
+      "classification": "StablePublicRoot",
+      "module": "Common",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_notification",
+        "discriminator_field": "method",
+        "domain": "ClientNotification",
+        "name": "initialized"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/login/cancel"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/login/start"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/logout"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/rateLimitResetCredit/consume"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/rateLimits/read"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/read"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/sendAddCreditsNudgeEmail"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/usage/read"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/workspaceMessages/read"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "app/list"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "collaborationMode/list"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/resize"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/terminate"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/write"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/batchWrite"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/mcpServer/reload"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/read"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/value/write"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "configRequirements/read"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "environment/add"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "environment/info"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "experimentalFeature/enablement/set"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "experimentalFeature/list"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/detect"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/import"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/import/readHistories"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "feedback/upload"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/copy"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/createDirectory"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/getMetadata"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readDirectory"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readFile"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/remove"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/unwatch"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/watch"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/writeFile"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch/sessionStart"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch/sessionStop"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch/sessionUpdate"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "hooks/list"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "StablePublicRoot",
+      "module": "Common",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "initialize"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/add"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/remove"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/upgrade"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/oauth/login"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/resource/read"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/tool/call"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServerStatus/list"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "memory/reset"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mock/experimentalMethod"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "model/list"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "modelProvider/capabilities/read"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "permissionProfile/list"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/install"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/installed"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/list"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/read"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/checkout"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/delete"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/list"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/save"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/updateTargets"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/skill/read"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/uninstall"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "process/kill"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "process/resizePty"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "process/spawn"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "process/writeStdin"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/client/list"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/client/revoke"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/disable"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/enable"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/pairing/start"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/pairing/status"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "remoteControl/status/read"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "review/start"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/config/write"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/extraRoots/set"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/list"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/approveGuardianDeniedAction"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/archive"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/backgroundTerminals/clean"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/backgroundTerminals/list"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/backgroundTerminals/terminate"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/compact/start"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/decrement_elicitation"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/delete"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/fork"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/goal/clear"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/goal/get"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/goal/set"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/increment_elicitation"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/inject_items"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/items/list"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/list"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/loaded/list"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/memoryMode/set"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/metadata/update"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/name/set"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/read"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/appendAudio"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/appendSpeech"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/appendText"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/listVoices"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/start"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/realtime/stop"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/resume"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/rollback"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/search"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/settings/update"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/shellCommand"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/start"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/turns/list"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/unarchive"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/unsubscribe"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "turn/interrupt"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "turn/start"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "turn/steer"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "windowsSandbox/readiness"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "windowsSandbox/setupStart"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "agent_message"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "compaction"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "compaction_trigger"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "context_compaction"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "custom_tool_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "custom_tool_call_output"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "function_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "function_call_output"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "image_generation_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "local_shell_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "message"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "other"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "reasoning"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "tool_search_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "tool_search_output"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ResponseItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponseItem",
+        "name": "web_search_call"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "agentMessage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "collabAgentToolCall"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "commandExecution"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "contextCompaction"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "dynamicToolCall"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "enteredReviewMode"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "exitedReviewMode"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "fileChange"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "hookPrompt"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "imageGeneration"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "imageView"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "mcpToolCall"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "plan"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "reasoning"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "sleep"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "subAgentActivity"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "userMessage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StableItemRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "ThreadItem is owned by thread/turn/session flows",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "item_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadItem",
+        "name": "webSearch"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/login/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/rateLimits/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "app/list/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "command/exec/outputDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "configWarning"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "deprecationNotice"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "StablePublicRoot",
+      "module": "Common",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "error"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "externalAgentConfig/import/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "externalAgentConfig/import/progress"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fs/changed"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionCompleted"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionUpdated"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "guardianWarning"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "hook/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "hook/started"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/agentMessage/delta"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/started"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/commandExecution/outputDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/commandExecution/terminalInteraction"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/fileChange/outputDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/fileChange/patchUpdated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/mcpToolCall/progress"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/plan/delta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/reasoning/summaryPartAdded"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/reasoning/summaryTextDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/reasoning/textDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/started"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "mcpServer/oauthLogin/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "mcpServer/startupStatus/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/rerouted"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/safetyBuffering/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/verification"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "process/exited"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "process/outputDelta"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "remoteControl/status/changed"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "serverRequest/resolved"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "skills/changed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/archived"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/closed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/compacted"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/deleted"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/goal/cleared"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/goal/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/name/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/closed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/error"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/itemAdded"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/outputAudio/delta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/sdp"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/started"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/transcript/delta"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/realtime/transcript/done"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/settings/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/started"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/status/changed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/tokenUsage/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "thread/unarchived"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "turn/completed"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "turn/diff/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "turn/moderationMetadata"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "turn/plan/updated"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "StablePublicRoot",
+      "module": "ThreadsTurnsSessions",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "turn/started"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "warning"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "windows/worldWritableWarning"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "windowsSandbox/setupCompleted"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "StablePublicRoot",
+      "module": "AccountsModelsConfiguration",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "account/chatgptAuthTokens/refresh"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "applyPatchApproval"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "attestation/generate"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "ExperimentalInventoryOnly",
+      "module": "ExperimentalInventory",
+      "reason": "experimental-only roots remain registered inventory and are not typed during A1",
+      "slice": "InventoryOnly",
+      "stability": "experimental_only",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "currentTime/read"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "execCommandApproval"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/commandExecution/requestApproval"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/fileChange/requestApproval"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "StablePublicRoot",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/permissions/requestApproval"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/tool/call"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/tool/requestUserInput"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "StablePublicRoot",
+      "module": "IntegrationsAndLongTail",
+      "reason": "fixed A1 domain-root assignment",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "mcpServer/elicitation/request"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "amazonBedrock"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "apiKey"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "chatgpt"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "AgentMessageInputContent",
+        "name": "encrypted_content"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "AgentMessageInputContent",
+        "name": "input_text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "AskForApproval",
+        "name": "granular"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "AskForApproval",
+        "name": "never"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "AskForApproval",
+        "name": "on-request"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "AskForApproval",
+        "name": "untrusted"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "CapabilityRootLocation",
+        "name": "environment"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "activeTurnNotSteerable"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "badRequest"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "contextWindowExceeded"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "cyberPolicy"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "httpConnectionFailed"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "internalServerError"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "other"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamConnectionFailed"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseStreamDisconnected"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "responseTooManyFailedAttempts"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "sandboxError"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "serverOverloaded"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "sessionBudgetExceeded"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "threadRollbackFailed"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "unauthorized"
+      }
+    },
+    {
+      "a1_slice": "A1.0",
+      "classification": "CrossCuttingA1_0Exception",
+      "module": "Common",
+      "reason": "CodexErrorInfo is the fixed cross-cutting A1.0 exception",
+      "slice": "A1.0",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CodexErrorInfo",
+        "name": "usageLimitExceeded"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "CommandAction",
+        "name": "listFiles"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "CommandAction",
+        "name": "read"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "CommandAction",
+        "name": "search"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "CommandAction",
+        "name": "unknown"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "accept"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "acceptForSession"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "acceptWithExecpolicyAmendment"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "applyNetworkPolicyAmendment"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "cancel"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "decline"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "enterpriseManaged"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "legacyManagedConfigTomlFromFile"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "legacyManagedConfigTomlFromMdm"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "mdm"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "project"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "sessionFlags"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "system"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "SharedWithinSlice",
+      "module": "AccountsModelsConfiguration",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "user"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfiguredHookHandler",
+        "name": "agent"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfiguredHookHandler",
+        "name": "command"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfiguredHookHandler",
+        "name": "prompt"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ContentItem",
+        "name": "input_image"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ContentItem",
+        "name": "input_text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ContentItem",
+        "name": "output_text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "DynamicToolCallOutputContentItem",
+        "name": "inputImage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "DynamicToolCallOutputContentItem",
+        "name": "inputText"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "DynamicToolNamespaceTool",
+        "name": "function"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "DynamicToolSpec",
+        "name": "function"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "DynamicToolSpec",
+        "name": "namespace"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "add"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "delete"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "update"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "glob_pattern"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "path"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "special"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "minimal"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "project_roots"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "root"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "slash_tmp"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "tmpdir"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "unknown"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FunctionCallOutputContentItem",
+        "name": "encrypted_content"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FunctionCallOutputContentItem",
+        "name": "input_image"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FunctionCallOutputContentItem",
+        "name": "input_text"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "applyPatch"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "command"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "execve"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "mcpToolCall"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "networkAccess"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "requestPermissions"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LocalShellAction",
+        "name": "exec"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "apiKey"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgpt"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgptAuthTokens"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgptDeviceCode"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "apiKey"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgpt"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgptAuthTokens"
+      }
+    },
+    {
+      "a1_slice": "A1.2",
+      "classification": "RootOwnedNestedUnion",
+      "module": "AccountsModelsConfiguration",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.2",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgptDeviceCode"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "RootOwnedNestedUnion",
+      "module": "IntegrationsAndLongTail",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "form"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "RootOwnedNestedUnion",
+      "module": "IntegrationsAndLongTail",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "openai/form"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "RootOwnedNestedUnion",
+      "module": "IntegrationsAndLongTail",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "url"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "MultiAgentMode",
+        "name": "custom"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "MultiAgentMode",
+        "name": "explicitRequestOnly"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "MultiAgentMode",
+        "name": "proactive"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "list_files"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "read"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "search"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "unknown"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PatchChangeKind",
+        "name": "add"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PatchChangeKind",
+        "name": "delete"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PatchChangeKind",
+        "name": "update"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "SharedWithinSlice",
+      "module": "IntegrationsAndLongTail",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "git"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "SharedWithinSlice",
+      "module": "IntegrationsAndLongTail",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "local"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "SharedWithinSlice",
+      "module": "IntegrationsAndLongTail",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "npm"
+      }
+    },
+    {
+      "a1_slice": "A1.4",
+      "classification": "SharedWithinSlice",
+      "module": "IntegrationsAndLongTail",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.4",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "remote"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReasoningItemContent",
+        "name": "reasoning_text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReasoningItemContent",
+        "name": "text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReasoningItemReasoningSummary",
+        "name": "summary_text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponsesApiWebSearchAction",
+        "name": "find_in_page"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponsesApiWebSearchAction",
+        "name": "open_page"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponsesApiWebSearchAction",
+        "name": "other"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "RootOwnedNestedUnion",
+      "module": "ThreadsTurnsSessions",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ResponsesApiWebSearchAction",
+        "name": "search"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "abort"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved_execpolicy_amendment"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved_for_session"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "denied"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "network_policy_amendment"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "SharedWithinSlice",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "timed_out"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "baseBranch"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "commit"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "custom"
+      }
+    },
+    {
+      "a1_slice": "A1.3",
+      "classification": "RootOwnedNestedUnion",
+      "module": "CommandsFilesystemReviewsApprovals",
+      "reason": "assigned to its sole reaching stable root slice",
+      "slice": "A1.3",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "uncommittedChanges"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "SandboxPolicy",
+        "name": "dangerFullAccess"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "SandboxPolicy",
+        "name": "externalSandbox"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "SandboxPolicy",
+        "name": "readOnly"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "SandboxPolicy",
+        "name": "workspaceWrite"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "appServer"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "cli"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "custom"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "exec"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "subAgent"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "unknown"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SessionSource",
+        "name": "vscode"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SubAgentSource",
+        "name": "compact"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SubAgentSource",
+        "name": "memory_consolidation"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SubAgentSource",
+        "name": "other"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SubAgentSource",
+        "name": "review"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "SubAgentSource",
+        "name": "thread_spawn"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadRealtimeStartTransport",
+        "name": "webrtc"
+      }
+    },
+    {
+      "a1_slice": "InventoryOnly",
+      "classification": "StableUnreachableInventory",
+      "module": "StableUnreachableInventory",
+      "reason": "no stable public request/result/notification/item root reaches this union",
+      "slice": "InventoryOnly",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadRealtimeStartTransport",
+        "name": "websocket"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadStatus",
+        "name": "active"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadStatus",
+        "name": "idle"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadStatus",
+        "name": "notLoaded"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedWithinSlice",
+      "module": "ThreadsTurnsSessions",
+      "reason": "shared by multiple stable roots in one fixed slice",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ThreadStatus",
+        "name": "systemError"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "UserInput",
+        "name": "image"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "UserInput",
+        "name": "localImage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "UserInput",
+        "name": "mention"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "UserInput",
+        "name": "skill"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "UserInput",
+        "name": "text"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "WebSearchAction",
+        "name": "findInPage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "WebSearchAction",
+        "name": "openPage"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "WebSearchAction",
+        "name": "other"
+      }
+    },
+    {
+      "a1_slice": "A1.1",
+      "classification": "SharedCommon",
+      "module": "Common",
+      "reason": "assigned to earliest fixed slice among multiple reaching domains",
+      "slice": "A1.1",
+      "stability": "stable",
+      "surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "WebSearchAction",
+        "name": "search"
+      }
+    }
+  ],
+  "codex_version": "codex-cli 0.144.6",
+  "counts": {
+    "by_classification": {
+      "CrossCuttingA1_0Exception": 16,
+      "ExperimentalInventoryOnly": 36,
+      "RootOwnedNestedUnion": 47,
+      "SharedCommon": 26,
+      "SharedWithinSlice": 50,
+      "StableItemRoot": 34,
+      "StablePublicRoot": 166,
+      "StableUnreachableInventory": 12
+    },
+    "by_slice": {
+      "A1.0": 19,
+      "A1.1": 151,
+      "A1.2": 45,
+      "A1.3": 68,
+      "A1.4": 56,
+      "InventoryOnly": 48
+    },
+    "total": 387
+  },
+  "format_version": 1,
+  "generated_notice": "Generated by tools/codex/app_server_fixtures.py; do not edit."
+}

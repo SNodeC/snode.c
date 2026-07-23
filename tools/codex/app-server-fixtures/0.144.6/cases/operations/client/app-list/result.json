@@ -1,0 +1,62 @@
+{
+  "data": [
+    {
+      "appMetadata": {
+        "categories": [
+          "synthetic-4834700bf7"
+        ],
+        "developer": "synthetic-4b352e7b97",
+        "firstPartyRequiresInstall": false,
+        "firstPartyType": "synthetic-7084f777b6",
+        "review": {
+          "status": "synthetic-9bd0fd5a81"
+        },
+        "screenshots": [
+          {
+            "fileId": "synthetic-734ce178d4",
+            "url": "synthetic-ca4bc15cb4",
+            "userPrompt": "synthetic-b66f2f4a13"
+          }
+        ],
+        "seoDescription": "synthetic-aed6ded1ca",
+        "showInComposerWhenUnlinked": false,
+        "subCategories": [
+          "synthetic-f41ef51a29"
+        ],
+        "version": "synthetic-93950a7b08",
+        "versionId": "synthetic-8f2bc5305d",
+        "versionNotes": "synthetic-910f4b0f5d"
+      },
+      "branding": {
+        "category": "synthetic-0889ab89e4",
+        "developer": "synthetic-2601270fe6",
+        "isDiscoverableApp": false,
+        "privacyPolicy": "synthetic-d0d77726a1",
+        "termsOfService": "synthetic-ece81561f2",
+        "website": "synthetic-4297fa2856"
+      },
+      "description": "synthetic-1433a45379",
+      "distributionChannel": "synthetic-41de71507d",
+      "iconAssets": {
+        "syntheticKey": "synthetic-10af446231"
+      },
+      "iconDarkAssets": {
+        "syntheticKey": "synthetic-f81db392a9"
+      },
+      "id": "synthetic-4327a3579f",
+      "installUrl": "synthetic-223cd1812a",
+      "isAccessible": false,
+      "isEnabled": false,
+      "labels": {
+        "syntheticKey": "synthetic-4094657ead"
+      },
+      "logoUrl": "synthetic-78ec1dd8b0",
+      "logoUrlDark": "synthetic-148a1fd780",
+      "name": "synthetic-9cae74c856",
+      "pluginDisplayNames": [
+        "synthetic-14950fe7ce"
+      ]
+    }
+  ],
+  "nextCursor": "synthetic-9e08152d99"
+}

@@ -1,0 +1,18 @@
+{
+  "approvalId": "synthetic-35d8bd51e2",
+  "callId": "synthetic-d4dfd949e5",
+  "command": [
+    "synthetic-3b6317cbcb"
+  ],
+  "conversationId": "synthetic-51ed82670e",
+  "cwd": "synthetic-5d9a348799",
+  "parsedCmd": [
+    {
+      "cmd": "synthetic-c00233343c",
+      "name": "synthetic-e3034428fb",
+      "path": "synthetic-d9a3027d97",
+      "type": "read"
+    }
+  ],
+  "reason": "synthetic-5bacbdb8ca"
+}

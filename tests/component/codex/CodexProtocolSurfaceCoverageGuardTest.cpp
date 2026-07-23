@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "component/codex/CodexErrorInfoTypedSurfaceBaseline.h"
 #include "component/codex/CodexTypedSurfaceBaseline.h"
 #include "support/TestResult.h"
 
@@ -155,14 +156,14 @@ namespace {
 
     std::vector<TypedCoverageRatchetDiagnostic> typedCoverageRatchetErrors(std::span<const detail::ProtocolSurfaceEntry> registry) {
         std::vector<TypedCoverageRatchetDiagnostic> errors;
-        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity : tests::component::codex::TypedSurfaceBaseline) {
+        const auto validateIdentity = [&](const tests::component::codex::TypedSurfaceIdentity& baselineIdentity) {
             const auto iterator = std::find_if(registry.begin(), registry.end(), [&](const detail::ProtocolSurfaceEntry& entry) {
                 return entry.key.category == baselineIdentity.category && entry.key.domain == baselineIdentity.domain &&
                        entry.key.field == baselineIdentity.field && entry.key.name == baselineIdentity.name;
             });
             if (iterator == registry.end()) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityMissing, "locked stable typed identity is absent"});
-                continue;
+                return;
             }
             if (iterator->stability != detail::Stability::Stable) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotStable, "locked typed identity is no longer stable"});
@@ -172,6 +173,13 @@ namespace {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotImplemented,
                                   "locked stable typed identity is no longer implemented"});
             }
+        };
+        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity : tests::component::codex::TypedSurfaceBaseline) {
+            validateIdentity(baselineIdentity);
+        }
+        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity :
+             tests::component::codex::CodexErrorInfoTypedSurfaceBaseline) {
+            validateIdentity(baselineIdentity);
         }
         return errors;
     }
@@ -220,8 +228,9 @@ int main() {
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}) &&
-                          typedIdentityCount(baseline) >= tests::component::codex::TypedSurfaceBaseline.size(),
-                      "all 34 independently locked stable typed identities are implemented and additive coverage is allowed");
+                          typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
+                                                              tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size(),
+                      "the exact A1.0 ratchet contains the original 34 identities plus all 16 CodexErrorInfo alternatives");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry = findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
@@ -239,6 +248,7 @@ int main() {
     const auto recategorized =
         findEntry(wrongCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     recategorized->key.category = detail::SurfaceCategory::TaggedUnionDiscriminator;
+    recategorized->operationContract = {};
     std::sort(wrongCategory.begin(), wrongCategory.end(), [](const auto& left, const auto& right) {
         return left.key < right.key;
     });
@@ -249,6 +259,7 @@ int main() {
     const auto restabilized =
         findEntry(wrongStability, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     restabilized->stability = detail::Stability::ExperimentalOnly;
+    restabilized->operationContract = {};
     result.expectTrue(hasExactCoverageCodes(wrongStability, manifest, {ErrorCode::WrongStability}),
                       "coverage guard reports only WrongStability for wrong stable/experimental membership");
 
@@ -257,6 +268,7 @@ int main() {
         findEntry(falseTyped, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     unimplemented->runtimeDisposition = detail::RuntimeDisposition::Typed;
     unimplemented->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    unimplemented->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     result.expectTrue(hasExactCoverageCodes(falseTyped, manifest, {ErrorCode::TypedWithoutRuntimeTarget}),
                       "coverage guard reports only TypedWithoutRuntimeTarget for a false typed claim");
 
@@ -265,6 +277,7 @@ int main() {
         findEntry(duplicateRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     duplicateTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     duplicateTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    duplicateTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     duplicateTarget->runtimeTarget = detail::ClientRequestTarget::Initialize;
     result.expectTrue(
         hasExactCodes(detail::validateProtocolSurface(duplicateRuntimeTarget), {ErrorCode::DuplicateRuntimeTargetRegistration}),
@@ -274,6 +287,7 @@ int main() {
     const auto wrongTargetCategory =
         findEntry(wrongRuntimeTargetCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "initialize");
     wrongTargetCategory->key.category = detail::SurfaceCategory::TaggedUnionDiscriminator;
+    wrongTargetCategory->operationContract = {};
     std::sort(wrongRuntimeTargetCategory.begin(), wrongRuntimeTargetCategory.end(), [](const auto& left, const auto& right) {
         return left.key < right.key;
     });
@@ -285,6 +299,7 @@ int main() {
         findEntry(sentinelRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     sentinelTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     sentinelTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
+    sentinelTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
     sentinelTarget->runtimeTarget = detail::ClientRequestTarget::Count;
     result.expectTrue(hasExactCodes(detail::validateProtocolSurface(sentinelRuntimeTarget), {ErrorCode::InvalidRuntimeTarget}),
                       "registry validation reports only InvalidRuntimeTarget for a Count sentinel");
@@ -317,6 +332,7 @@ int main() {
     const auto demoted = findEntry(demotedTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "initialize");
     demoted->runtimeDisposition = detail::RuntimeDisposition::Deferred;
     demoted->typedImplementation = detail::TypedImplementationStatus::NotImplemented;
+    demoted->typedSchemaStatus = detail::TypedSchemaStatus::NotImplemented;
     result.expectTrue(hasExactCodes(detail::validateProtocolSurface(demotedTarget), {ErrorCode::RuntimeTargetWithoutTypedImplementation}),
                       "runtime dispatch target is not represented by an implemented typed registry row: demotion reports only "
                       "RuntimeTargetWithoutTypedImplementation");

@@ -352,6 +352,10 @@ def test_generated_artifacts(
             "canonical production registry data is stale against local status mappings"
         )
     registry_entries = tool.parse_registry_data(registry_path)
+    evidence = tool.load_a1_registry_evidence()
+    test_operation_association_guards(tool, manifest, evidence, registry_entries)
+    test_assignment_reachability_guards(tool, manifest, evidence)
+    test_evidence_authority_boundaries(tool, manifest, evidence)
     registry = tool.registry_by_key(registry_entries)
     operations = [
         entry
@@ -399,6 +403,905 @@ def test_generated_artifacts(
         )
     if generated_security != security_path.read_text(encoding="utf-8"):
         raise AssertionError("generated owner security worksheet is stale")
+
+
+def test_operation_association_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+    registry_entries: list[dict[str, object]],
+) -> None:
+    contracts_document = evidence["operation_contracts"]
+    if not isinstance(contracts_document, dict):
+        raise AssertionError("operation-contract evidence must be an object")
+
+    def codes(
+        mutated: dict[str, object],
+        registry: list[dict[str, object]] | None = registry_entries,
+    ) -> list[str]:
+        return sorted(
+            diagnostic["code"]
+            for diagnostic in tool.association_diagnostics(
+                manifest, mutated, registry
+            )
+        )
+
+    if codes(contracts_document) != []:
+        raise AssertionError(
+            "operation evidence and canonical registry do not agree bidirectionally"
+        )
+    contracts = contracts_document["contracts"]
+    if not isinstance(contracts, list):
+        raise AssertionError("operation-contract evidence has no contracts array")
+    stable_client = [
+        contract
+        for contract in contracts
+        if contract["surface_key"]["category"] == "client_request"
+    ]
+    stable_server = [
+        contract
+        for contract in contracts
+        if contract["surface_key"]["category"] == "server_request"
+    ]
+    if len(stable_client) != 87 or len(stable_server) != 10:
+        raise AssertionError(
+            "operation evidence does not contain exact 87/87 client and 10/10 server associations"
+        )
+    concrete_results = sum(
+        contract["result_contract_kind"] == "Concrete" for contract in contracts
+    )
+    unit_results = sum(
+        contract["result_contract_kind"] == "Unit" for contract in contracts
+    )
+    if (
+        concrete_results != 76
+        or unit_results != 21
+        or any(not contract["result_type_identity"] for contract in contracts)
+        or any(
+            contract["result_type_identity"] != "Unit"
+            for contract in contracts
+            if contract["result_contract_kind"] == "Unit"
+        )
+    ):
+        raise AssertionError(
+            "operation evidence must preserve 76 Concrete and 21 explicit Unit result identities"
+        )
+
+    first_key = tool.surface_key(contracts[0])
+    missing_registry = [
+        entry
+        for entry in copy.deepcopy(registry_entries)
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        != first_key
+    ]
+    if codes(contracts_document, missing_registry) != ["StaleAssociation"]:
+        raise AssertionError(
+            "evidence without one resolving registry row emitted unrelated diagnostics"
+        )
+
+    wrong_category_registry = copy.deepcopy(registry_entries)
+    registry_contract = next(
+        entry
+        for entry in wrong_category_registry
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        == first_key
+    )
+    registry_contract["category"] = "server_notification"
+    if codes(contracts_document, wrong_category_registry) != [
+        "WrongAssociationCategory"
+    ]:
+        raise AssertionError(
+            "registry/evidence category disagreement emitted unrelated diagnostics"
+        )
+
+    def mutate_contracts(action: Callable[[list[dict[str, object]]], None]) -> dict[str, object]:
+        mutated = copy.deepcopy(contracts_document)
+        action(mutated["contracts"])
+        return mutated
+
+    missing = mutate_contracts(lambda rows: rows.pop(0))
+    if codes(missing) != ["MissingAssociation"]:
+        raise AssertionError("missing association mutation emitted unrelated diagnostics")
+
+    duplicate = mutate_contracts(lambda rows: rows.append(copy.deepcopy(rows[0])))
+    if codes(duplicate) != ["DuplicateAssociation"]:
+        raise AssertionError("duplicate association mutation emitted unrelated diagnostics")
+
+    def duplicate_primary_evidence_identity(
+        rows: list[dict[str, object]],
+    ) -> None:
+        rows[1]["association_evidence_key"] = rows[0][
+            "association_evidence_key"
+        ]
+
+    duplicate_primary = mutate_contracts(duplicate_primary_evidence_identity)
+    duplicate_primary_registry = copy.deepcopy(registry_entries)
+    duplicate_owner_key = tool.surface_key(
+        duplicate_primary["contracts"][1]
+    )
+    duplicate_owner_registry = next(
+        entry
+        for entry in duplicate_primary_registry
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        == duplicate_owner_key
+    )
+    duplicate_owner_registry["association_evidence_key"] = (
+        duplicate_primary["contracts"][1]["association_evidence_key"]
+    )
+    if codes(duplicate_primary, duplicate_primary_registry) != [
+        "DuplicateAssociation"
+    ]:
+        raise AssertionError(
+            "duplicate authoritative evidence identity emitted unrelated diagnostics"
+        )
+
+    def duplicate_cross_check_evidence_identity(
+        rows: list[dict[str, object]],
+    ) -> None:
+        server_rows = [
+            row
+            for row in rows
+            if row["surface_key"]["category"] == "server_request"
+        ]
+        server_rows[1]["cross_check_evidence"][0]["key"] = server_rows[0][
+            "cross_check_evidence"
+        ][0]["key"]
+
+    if codes(mutate_contracts(duplicate_cross_check_evidence_identity)) != [
+        "DuplicateAssociation"
+    ]:
+        raise AssertionError(
+            "duplicate cross-check evidence identity emitted unrelated diagnostics"
+        )
+
+    def add_stale(rows: list[dict[str, object]]) -> None:
+        stale = copy.deepcopy(rows[0])
+        stale["surface_key"]["name"] = "phaseA1/stale-association"
+        rows.append(stale)
+
+    if codes(mutate_contracts(add_stale)) != ["StaleAssociation"]:
+        raise AssertionError("stale association mutation emitted unrelated diagnostics")
+
+    def wrong_category(rows: list[dict[str, object]]) -> None:
+        rows[0]["surface_key"]["category"] = "server_notification"
+
+    if codes(mutate_contracts(wrong_category)) != ["WrongAssociationCategory"]:
+        raise AssertionError("wrong association category emitted unrelated diagnostics")
+
+    def wrong_parameter(rows: list[dict[str, object]]) -> None:
+        rows[0]["parameter_type_identity"] = "PhaseA1WrongParameter"
+
+    if codes(mutate_contracts(wrong_parameter)) != ["WrongParameterType"]:
+        raise AssertionError("wrong parameter identity emitted unrelated diagnostics")
+
+    coordinated_missing_parameter_schema = mutate_contracts(lambda rows: None)
+    coordinated_parameter_server = next(
+        row
+        for row in coordinated_missing_parameter_schema["contracts"]
+        if row["surface_key"]["category"] == "server_request"
+    )
+    coordinated_parameter_schema = (
+        "stable/nonexistent/"
+        f"{coordinated_parameter_server['parameter_type_identity']}.json"
+    )
+    coordinated_parameter_server[
+        "parameter_schema"
+    ] = coordinated_parameter_schema
+    coordinated_parameter_server["schema_pair"][
+        "parameter_schema"
+    ] = coordinated_parameter_schema
+    if codes(coordinated_missing_parameter_schema) != ["WrongParameterType"]:
+        raise AssertionError(
+            "coordinated nonexistent parameter-schema path emitted an "
+            "inexact diagnostic multiset"
+        )
+
+    def wrong_rust_parameter(rows: list[dict[str, object]]) -> None:
+        rows[0]["rust"]["parameter_type"] = "v2::PhaseA1WrongParameter"
+
+    if codes(mutate_contracts(wrong_rust_parameter)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError(
+            "vendored Rust parameter disagreement emitted unrelated diagnostics"
+        )
+
+    coordinated_rust_variant = mutate_contracts(lambda rows: None)
+    coordinated_client = next(
+        row
+        for row in coordinated_rust_variant["contracts"]
+        if row["surface_key"]["category"] == "client_request"
+    )
+    coordinated_client["rust"]["variant"] = "PhaseA1MissingVariant"
+    coordinated_client["association_evidence_key"] = (
+        "codex-rs/app-server-protocol/src/protocol/common.rs"
+        "#client_request_definitions!/PhaseA1MissingVariant"
+    )
+    coordinated_variant_registry = copy.deepcopy(registry_entries)
+    coordinated_client_key = tool.surface_key(coordinated_client)
+    next(
+        entry
+        for entry in coordinated_variant_registry
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        == coordinated_client_key
+    )["association_evidence_key"] = coordinated_client[
+        "association_evidence_key"
+    ]
+    if codes(coordinated_rust_variant, coordinated_variant_registry) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError(
+            "coordinated nonexistent Rust variant emitted an inexact "
+            "diagnostic multiset"
+        )
+
+    def wrong_result(rows: list[dict[str, object]]) -> None:
+        rows[0]["result_type_identity"] = "PhaseA1WrongResult"
+
+    if codes(mutate_contracts(wrong_result)) != ["WrongResultType"]:
+        raise AssertionError("wrong result identity emitted unrelated diagnostics")
+
+    def wrong_named_result(rows: list[dict[str, object]]) -> None:
+        rows[0]["result_schema_type_identity"] = "PhaseA1WrongNamedResult"
+
+    if codes(mutate_contracts(wrong_named_result)) != [
+        "ConflictingAssociationEvidence",
+        "WrongResultType",
+    ]:
+        raise AssertionError(
+            "wrong named result identity emitted an inexact diagnostic multiset"
+        )
+
+    def wrong_result_schema(rows: list[dict[str, object]]) -> None:
+        rows[0]["result_schema"] = "stable/v2/PhaseA1WrongResult.json"
+
+    if codes(mutate_contracts(wrong_result_schema)) != ["WrongResultType"]:
+        raise AssertionError(
+            "wrong result schema root emitted unrelated diagnostics"
+        )
+
+    coordinated_missing_schema = mutate_contracts(lambda rows: None)
+    coordinated_server = next(
+        row
+        for row in coordinated_missing_schema["contracts"]
+        if row["surface_key"]["category"] == "server_request"
+    )
+    coordinated_result_schema = (
+        "stable/nonexistent/"
+        f"{coordinated_server['result_schema_type_identity']}.json"
+    )
+    coordinated_server["result_schema"] = coordinated_result_schema
+    coordinated_server["schema_pair"][
+        "response_schema"
+    ] = coordinated_result_schema
+    coordinated_server["association_evidence_key"] = (
+        f"{coordinated_server['schema_pair']['request_union']}"
+        f"#/oneOf/{coordinated_server['schema_pair']['branch']}+"
+        f"{coordinated_result_schema}"
+    )
+    coordinated_registry = copy.deepcopy(registry_entries)
+    coordinated_key = tool.surface_key(coordinated_server)
+    next(
+        entry
+        for entry in coordinated_registry
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        == coordinated_key
+    )["association_evidence_key"] = coordinated_server[
+        "association_evidence_key"
+    ]
+    if codes(coordinated_missing_schema, coordinated_registry) != [
+        "WrongResultType"
+    ]:
+        raise AssertionError(
+            "coordinated nonexistent schema-pair path emitted an inexact "
+            "diagnostic multiset"
+        )
+
+    coordinated_nullable = mutate_contracts(lambda rows: None)
+    nullable_client = next(
+        row
+        for row in coordinated_nullable["contracts"]
+        if row["surface_key"]["category"] == "client_request"
+        and row["result_contract_kind"] == "Concrete"
+    )
+    nullable_client["result_contract_kind"] = "Nullable"
+    nullable_registry = copy.deepcopy(registry_entries)
+    nullable_key = tool.surface_key(nullable_client)
+    next(
+        entry
+        for entry in nullable_registry
+        if (
+            entry["category"],
+            entry["domain"],
+            entry["discriminator_field"],
+            entry["name"],
+        )
+        == nullable_key
+    )["result_contract_kind"] = "Nullable"
+    if codes(coordinated_nullable, nullable_registry) != [
+        "WrongResultType"
+    ]:
+        raise AssertionError(
+            "schema-inconsistent Nullable contract emitted an inexact "
+            "diagnostic multiset"
+        )
+
+    def wrong_rust_result(rows: list[dict[str, object]]) -> None:
+        rows[0]["rust"]["result_type"] = "v2::PhaseA1WrongResult"
+
+    if codes(mutate_contracts(wrong_rust_result)) != [
+        "ConflictingAssociationEvidence",
+    ]:
+        raise AssertionError(
+            "vendored Rust result disagreement emitted unrelated diagnostics"
+        )
+
+    def wrong_schema_pair_response(rows: list[dict[str, object]]) -> None:
+        server = next(
+            row
+            for row in rows
+            if row["surface_key"]["category"] == "server_request"
+        )
+        server["schema_pair"]["response_schema"] = (
+            "stable/PhaseA1WrongResponse.json"
+        )
+
+    if codes(mutate_contracts(wrong_schema_pair_response)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError(
+            "server schema-pair response disagreement emitted unrelated diagnostics"
+        )
+
+    def wrong_schema_pair_branch(rows: list[dict[str, object]]) -> None:
+        server = next(
+            row
+            for row in rows
+            if row["surface_key"]["category"] == "server_request"
+        )
+        server["schema_pair"]["branch"] = 999
+
+    if codes(mutate_contracts(wrong_schema_pair_branch)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError(
+            "server schema-pair branch disagreement emitted unrelated diagnostics"
+        )
+
+    def wrong_rust_cross_check_result(rows: list[dict[str, object]]) -> None:
+        server = next(
+            row
+            for row in rows
+            if row["surface_key"]["category"] == "server_request"
+        )
+        server["cross_check_evidence"][0][
+            "result_schema_type_identity"
+        ] = "PhaseA1WrongResponse"
+
+    if codes(mutate_contracts(wrong_rust_cross_check_result)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError(
+            "Rust/schema result cross-check disagreement emitted unrelated diagnostics"
+        )
+
+    def conflicting_primary(rows: list[dict[str, object]]) -> None:
+        rows[0]["association_evidence_kind"] = "VendoredSchemaPair"
+
+    if codes(mutate_contracts(conflicting_primary)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError("conflicting primary evidence emitted unrelated diagnostics")
+
+    def conflicting_cross_check(rows: list[dict[str, object]]) -> None:
+        rows[0].setdefault("cross_check_evidence", []).append(
+            {
+                "kind": "VendoredTypeScriptCrossCheck",
+                "key": "negative-test",
+                "result_type_identity": "PhaseA1ConflictingResult",
+            }
+        )
+
+    if codes(mutate_contracts(conflicting_cross_check)) != [
+        "ConflictingAssociationEvidence"
+    ]:
+        raise AssertionError("conflicting cross-check evidence emitted unrelated diagnostics")
+
+    def unit_with_non_unit(rows: list[dict[str, object]]) -> None:
+        rows[0]["result_contract_kind"] = "Unit"
+        rows[0]["result_type_identity"] = "PhaseA1NotUnit"
+
+    if codes(mutate_contracts(unit_with_non_unit)) != [
+        "UnitWithNonUnitResultType"
+    ]:
+        raise AssertionError("Unit result inconsistency emitted unrelated diagnostics")
+
+    def concrete_without_type(rows: list[dict[str, object]]) -> None:
+        rows[0]["result_contract_kind"] = "Concrete"
+        rows[0]["result_type_identity"] = ""
+
+    if codes(mutate_contracts(concrete_without_type)) != [
+        "ConcreteWithoutResultType"
+    ]:
+        raise AssertionError("empty Concrete result emitted unrelated diagnostics")
+
+    non_request_key = next(
+        {
+            "category": entry["category"],
+            "domain": entry["domain"],
+            "field": entry["discriminator_field"],
+            "name": entry["name"],
+        }
+        for entry in manifest["entries"]
+        if entry["stability"] == "stable"
+        and entry["category"] == "server_notification"
+    )
+
+    def add_non_request(rows: list[dict[str, object]]) -> None:
+        non_request = copy.deepcopy(rows[0])
+        non_request["surface_key"] = non_request_key
+        rows.append(non_request)
+
+    if codes(mutate_contracts(add_non_request)) != ["ContractOnNonRequest"]:
+        raise AssertionError("contract on non-request emitted unrelated diagnostics")
+
+    experimental_key = next(
+        {
+            "category": entry["category"],
+            "domain": entry["domain"],
+            "field": entry["discriminator_field"],
+            "name": entry["name"],
+        }
+        for entry in manifest["entries"]
+        if entry["stability"] == "experimental_only"
+        and entry["category"] in {"client_request", "server_request"}
+    )
+
+    def add_experimental(rows: list[dict[str, object]]) -> None:
+        experimental = copy.deepcopy(rows[0])
+        experimental["surface_key"] = experimental_key
+        rows.append(experimental)
+
+    if codes(mutate_contracts(add_experimental)) != [
+        "ExperimentalAssociationCountedAsStable"
+    ]:
+        raise AssertionError(
+            "experimental association stable-count mutation emitted unrelated diagnostics"
+        )
+
+
+def test_assignment_reachability_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+) -> None:
+    assignments_document = evidence["assignments"]
+    reachability_document = evidence["reachability"]
+    if not isinstance(assignments_document, dict) or not isinstance(
+        reachability_document, dict
+    ):
+        raise AssertionError("assignment/reachability evidence must be objects")
+
+    def codes(
+        assignments: dict[str, object] = assignments_document,
+        reachability: dict[str, object] = reachability_document,
+    ) -> list[str]:
+        return sorted(
+            diagnostic["code"]
+            for diagnostic in tool.assignment_reachability_diagnostics(
+                manifest, assignments, reachability
+            )
+        )
+
+    def assert_codes(
+        expected: list[str],
+        assignments: dict[str, object] = assignments_document,
+        reachability: dict[str, object] = reachability_document,
+        description: str = "assignment/reachability mutation",
+    ) -> None:
+        actual = codes(assignments, reachability)
+        if actual != expected:
+            raise AssertionError(
+                f"{description} emitted {actual}, expected exact diagnostic multiset {expected}"
+            )
+
+    assert_codes([], description="unmodified assignment/reachability evidence")
+
+    def mutate_assignments(
+        action: Callable[[list[dict[str, object]]], None],
+    ) -> dict[str, object]:
+        mutated = copy.deepcopy(assignments_document)
+        action(mutated["assignments"])
+        return mutated
+
+    duplicate_assignment = mutate_assignments(
+        lambda rows: rows.append(copy.deepcopy(rows[0]))
+    )
+    assert_codes(
+        ["DuplicateModuleSliceAssignment"],
+        assignments=duplicate_assignment,
+        description="duplicate module/slice assignment",
+    )
+
+    missing_assignment = mutate_assignments(lambda rows: rows.pop(0))
+    assert_codes(
+        ["MissingModuleSliceAssignment"],
+        assignments=missing_assignment,
+        description="missing module/slice assignment",
+    )
+
+    def add_stale_assignment(rows: list[dict[str, object]]) -> None:
+        stale = copy.deepcopy(rows[0])
+        stale["surface_key"]["name"] = "phaseA1/stale-assignment"
+        rows.append(stale)
+
+    assert_codes(
+        ["StaleModuleSliceAssignment"],
+        assignments=mutate_assignments(add_stale_assignment),
+        description="stale module/slice assignment",
+    )
+
+    wrong_stability = mutate_assignments(
+        lambda rows: rows[0].__setitem__("stability", "experimental_only")
+    )
+    assert_codes(
+        ["AssignmentStabilityMismatch"],
+        assignments=wrong_stability,
+        description="assignment stability mismatch",
+    )
+
+    wrong_classification = mutate_assignments(
+        lambda rows: rows[0].__setitem__(
+            "classification", "RootOwnedNestedUnion"
+        )
+    )
+    assert_codes(
+        ["InvalidAssignmentClassification"],
+        assignments=wrong_classification,
+        description="invalid category/classification combination",
+    )
+
+    wrong_slice_alias = mutate_assignments(
+        lambda rows: rows[0].__setitem__("a1_slice", "A1.4")
+    )
+    assert_codes(
+        ["AssignmentSliceMismatch"],
+        assignments=wrong_slice_alias,
+        description="assignment slice aliases disagree",
+    )
+
+    wrong_module = mutate_assignments(
+        lambda rows: rows[0].__setitem__("module", "ArbitraryWrongModule")
+    )
+    assert_codes(
+        ["AssignmentModuleMismatch"],
+        assignments=wrong_module,
+        description="assignment uses an arbitrary typed module",
+    )
+
+    def move_thread_root_to_wrong_domain_slice(
+        rows: list[dict[str, object]],
+    ) -> None:
+        row = next(
+            candidate
+            for candidate in rows
+            if candidate["surface_key"]["category"] == "client_request"
+            and candidate["surface_key"]["name"] == "thread/start"
+        )
+        row["slice"] = "A1.4"
+        row["a1_slice"] = "A1.4"
+        row["module"] = "IntegrationsAndLongTail"
+
+    assert_codes(
+        ["AssignmentDomainSliceMismatch"],
+        assignments=mutate_assignments(move_thread_root_to_wrong_domain_slice),
+        description="thread root moved to a coherent but wrong domain slice/module",
+    )
+
+    def mutate_reachability(
+        action: Callable[[dict[str, object]], None],
+    ) -> dict[str, object]:
+        mutated = copy.deepcopy(reachability_document)
+        action(mutated)
+        return mutated
+
+    duplicate_root = mutate_reachability(
+        lambda document: document["roots"].append(
+            copy.deepcopy(document["roots"][0])
+        )
+    )
+    assert_codes(
+        ["DuplicateReachabilityRoot"],
+        reachability=duplicate_root,
+        description="duplicate reachability root",
+    )
+
+    missing_root = mutate_reachability(lambda document: document["roots"].pop(0))
+    assert_codes(
+        ["MissingReachabilityRoot"],
+        reachability=missing_root,
+        description="missing reachability root",
+    )
+
+    def add_stale_root(document: dict[str, object]) -> None:
+        stale = copy.deepcopy(document["roots"][0])
+        stale["root_id"] = "method:phaseA1:stale-root"
+        document["roots"].append(stale)
+
+    assert_codes(
+        ["StaleReachabilityRoot"],
+        reachability=mutate_reachability(add_stale_root),
+        description="stale reachability root",
+    )
+
+    wrong_root_slice = mutate_reachability(
+        lambda document: document["roots"][0].__setitem__("slice", "A1.4")
+    )
+    assert_codes(
+        ["ReachabilityRootSetMismatch"],
+        reachability=wrong_root_slice,
+        description="root catalog slice mismatch",
+    )
+
+    duplicate_record = mutate_reachability(
+        lambda document: document["records"].append(
+            copy.deepcopy(document["records"][0])
+        )
+    )
+    assert_codes(
+        ["DuplicateReachabilityRecord"],
+        reachability=duplicate_record,
+        description="duplicate nested reachability record",
+    )
+
+    missing_record = mutate_reachability(
+        lambda document: document["records"].pop(0)
+    )
+    assert_codes(
+        ["MissingReachabilityRecord"],
+        reachability=missing_record,
+        description="missing nested reachability record",
+    )
+
+    def add_stale_record(document: dict[str, object]) -> None:
+        stale = copy.deepcopy(document["records"][0])
+        stale["surface_key"]["name"] = "phaseA1/stale-reachability"
+        document["records"].append(stale)
+
+    assert_codes(
+        ["StaleReachabilityRecord"],
+        reachability=mutate_reachability(add_stale_record),
+        description="stale nested reachability record",
+    )
+
+    wrong_assigned_slice = mutate_reachability(
+        lambda document: document["records"][0].__setitem__(
+            "assigned_slice", "A1.4"
+        )
+    )
+    assert_codes(
+        ["ReachabilityAssignedSliceMismatch"],
+        reachability=wrong_assigned_slice,
+        description="reachability/assignment slice mismatch",
+    )
+
+    root_owned_index = next(
+        index
+        for index, record in enumerate(reachability_document["records"])
+        if record["classification"] == "RootOwnedNestedUnion"
+    )
+
+    wrong_reachability_classification = mutate_reachability(
+        lambda document: document["records"][root_owned_index].__setitem__(
+            "classification", "SharedWithinSlice"
+        )
+    )
+    assert_codes(
+        ["ReachabilityClassificationMismatch"],
+        reachability=wrong_reachability_classification,
+        description="assignment/reachability classification mismatch",
+    )
+
+    wrong_root_count = mutate_reachability(
+        lambda document: document["records"][root_owned_index].__setitem__(
+            "reaching_root_count",
+            document["records"][root_owned_index]["reaching_root_count"] + 1,
+        )
+    )
+    assert_codes(
+        ["ReachabilityRootSetMismatch"],
+        reachability=wrong_root_count,
+        description="reaching root/count mismatch",
+    )
+
+    def coordinated_root_deletion(document: dict[str, object]) -> None:
+        record = next(
+            candidate
+            for candidate in document["records"]
+            if candidate["classification"] == "SharedCommon"
+            and any(
+                sum(
+                    root["slice"] == selected["slice"]
+                    for root in candidate["reaching_roots"]
+                )
+                > 1
+                for selected in candidate["reaching_roots"]
+            )
+        )
+        removable_index = next(
+            index
+            for index, selected in enumerate(record["reaching_roots"])
+            if sum(
+                root["slice"] == selected["slice"]
+                for root in record["reaching_roots"]
+            )
+            > 1
+        )
+        record["reaching_roots"].pop(removable_index)
+        record["reaching_root_count"] = len(record["reaching_roots"])
+        record["reaching_slices"] = sorted(
+            {root["slice"] for root in record["reaching_roots"]},
+            key=lambda value: tool.A1_SLICE_ORDER[value],
+        )
+
+    assert_codes(
+        ["ReachabilityRootSetMismatch"],
+        reachability=mutate_reachability(coordinated_root_deletion),
+        description="coordinated deletion from a schema-derived reaching-root set",
+    )
+
+    later_assignments = copy.deepcopy(assignments_document)
+    later_reachability = copy.deepcopy(reachability_document)
+    later_record = next(
+        record
+        for record in later_reachability["records"]
+        if record["classification"] == "RootOwnedNestedUnion"
+        and record["assigned_slice"] == "A1.2"
+    )
+    later_key = tool.surface_key(later_record)
+    later_assignment = next(
+        assignment
+        for assignment in later_assignments["assignments"]
+        if tool.surface_key(assignment) == later_key
+    )
+    later_assignment["slice"] = "A1.3"
+    later_assignment["a1_slice"] = "A1.3"
+    later_assignment["module"] = "CommandsFilesystemReviewsApprovals"
+    later_record["assigned_slice"] = "A1.3"
+    assert_codes(
+        ["ReachabilityNotEarliestSlice"],
+        assignments=later_assignments,
+        reachability=later_reachability,
+        description="nested identity assigned later than earliest reaching root",
+    )
+
+    earlier_assignments = copy.deepcopy(assignments_document)
+    earlier_reachability = copy.deepcopy(reachability_document)
+    earlier_record = next(
+        record
+        for record in earlier_reachability["records"]
+        if record["classification"] == "RootOwnedNestedUnion"
+        and record["assigned_slice"] == "A1.2"
+    )
+    earlier_key = tool.surface_key(earlier_record)
+    earlier_assignment = next(
+        assignment
+        for assignment in earlier_assignments["assignments"]
+        if tool.surface_key(assignment) == earlier_key
+    )
+    earlier_assignment["slice"] = "A1.1"
+    earlier_assignment["a1_slice"] = "A1.1"
+    earlier_assignment["module"] = "ThreadsTurnsSessions"
+    earlier_record["assigned_slice"] = "A1.1"
+    assert_codes(
+        ["ReachabilityNotEarliestSlice"],
+        assignments=earlier_assignments,
+        reachability=earlier_reachability,
+        description="nested identity assigned earlier than every reaching root",
+    )
+
+    def make_false_unreachable(document: dict[str, object]) -> None:
+        record = next(
+            candidate
+            for candidate in document["records"]
+            if candidate["classification"] == "StableUnreachableInventory"
+        )
+        root = copy.deepcopy(document["roots"][0])
+        record["reaching_roots"] = [root]
+        record["reaching_root_count"] = 1
+        record["reaching_slices"] = [root["slice"]]
+
+    assert_codes(
+        ["FalseStableUnreachable"],
+        reachability=mutate_reachability(make_false_unreachable),
+        description="reachable identity falsely classified stable-unreachable",
+    )
+
+
+def test_evidence_authority_boundaries(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+) -> None:
+    contract_disposition = copy.deepcopy(evidence["operation_contracts"])
+    contract_disposition["contracts"][0]["runtime_disposition"] = "Typed"
+    expect_surface_error(
+        tool,
+        lambda: tool.association_diagnostics(manifest, contract_disposition),
+        "operation evidence attempts to carry a local runtime disposition",
+    )
+
+    nested_contract_disposition = copy.deepcopy(
+        evidence["operation_contracts"]
+    )
+    server_contract = next(
+        contract
+        for contract in nested_contract_disposition["contracts"]
+        if contract["surface_key"]["category"] == "server_request"
+    )
+    server_contract["schema_pair"]["backend_core"] = "Implemented"
+    expect_surface_error(
+        tool,
+        lambda: tool.association_diagnostics(
+            manifest, nested_contract_disposition
+        ),
+        "nested operation evidence attempts to carry a BackendCore disposition",
+    )
+
+    assignment_disposition = copy.deepcopy(evidence)
+    assignment_disposition["assignments"]["assignments"][0][
+        "frontend_security"
+    ] = "NotApplicable"
+    expect_surface_error(
+        tool,
+        lambda: tool.generate_registry_data(manifest, assignment_disposition),
+        "module/slice evidence attempts to carry a frontend-security disposition",
+    )
+
+    assignment_completeness = copy.deepcopy(evidence)
+    assignment_completeness["assignments"]["assignments"][0][
+        "completeness_evidence"
+    ] = {"runtime_decoder_matches_registry": True}
+    expect_surface_error(
+        tool,
+        lambda: tool.generate_registry_data(manifest, assignment_completeness),
+        "module/slice evidence attempts to improve schema completeness",
+    )
+
+    fixture_completeness = copy.deepcopy(evidence)
+    fixture_completeness["fixture_coverage"]["fixtures"][0][
+        "completeness_evidence"
+    ]["runtime_decoder_matches_registry"] = True
+    expect_surface_error(
+        tool,
+        lambda: tool.generate_registry_data(manifest, fixture_completeness),
+        "schema fixture evidence attempts to carry a runtime-decoder disposition",
+    )
 
 
 SUPPORTED_SCHEMA_KEYS = {

@@ -1,0 +1,8 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "turn/interrupt",
+  "params": {
+    "threadId": "synthetic-ec8bb8971e",
+    "turnId": "synthetic-e0d8b93ab2"
+  }
+}

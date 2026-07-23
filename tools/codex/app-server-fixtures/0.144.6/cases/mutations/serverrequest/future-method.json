@@ -1,0 +1,36 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "future/serverRequest",
+  "params": {
+    "approvalId": "synthetic-53ed78aa65",
+    "command": "synthetic-838a4c071d",
+    "commandActions": [
+      {
+        "command": "synthetic-e58584e8c3",
+        "name": "synthetic-ec19991981",
+        "path": "synthetic-75177d933c",
+        "type": "read"
+      }
+    ],
+    "cwd": "synthetic-f2afe5ff17",
+    "environmentId": "synthetic-c7b165763f",
+    "itemId": "synthetic-269b7f32ef",
+    "networkApprovalContext": {
+      "host": "synthetic-d73f3cf538",
+      "protocol": "http"
+    },
+    "proposedExecpolicyAmendment": [
+      "synthetic-6539836a8a"
+    ],
+    "proposedNetworkPolicyAmendments": [
+      {
+        "action": "allow",
+        "host": "synthetic-ec2c024fcc"
+      }
+    ],
+    "reason": "synthetic-d40baa404f",
+    "startedAtMs": 0,
+    "threadId": "synthetic-6f54471e12",
+    "turnId": "synthetic-40dc81c676"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "discoverability": "LISTED",
+  "pluginPath": "synthetic-75177d933c",
+  "remotePluginId": "synthetic-c9bb99dc7a",
+  "shareTargets": [
+    {
+      "principalId": "synthetic-f6fc1bc0f6",
+      "principalType": "user",
+      "role": "reader"
+    }
+  ]
+}

@@ -37,5 +37,5 @@ snodec_add_policy_test(
 )
 snodec_add_policy_test(
     CiWorkflowPathsPolicyTest ci/CiWorkflowPathsPolicyTest.cpp
-    "ci;codex;phase-a0"
+    "ci;codex;phase-a0;phase-a1-0"
 )

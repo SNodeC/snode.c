@@ -38,6 +38,9 @@ SCHEMA_ROOT=tools/codex/app-server-schema/0.144.6
 PROVENANCE="$SCHEMA_ROOT/PROVENANCE.json"
 SURFACE=tools/codex/app-server-surface/0.144.6.json
 REGISTRY=src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
+SOURCE_ROOT=tools/codex/app-server-protocol-source/0.144.6
+EVIDENCE_ROOT=tools/codex/app-server-evidence/0.144.6
+FIXTURE_ROOT=tools/codex/app-server-fixtures/0.144.6
 
 python3 tools/codex/app_server_surface.py verify \
   --schema-root "$SCHEMA_ROOT" \
@@ -55,6 +58,7 @@ cmp /tmp/snodec-codex-surface-a.json "$SURFACE"
 
 python3 tools/codex/app_server_surface.py registry \
   --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
   --output "$REGISTRY" \
   --check
 
@@ -74,6 +78,73 @@ schema layout, scans both the combined and standalone v2 aggregate definitions,
 and compares the resulting manifest exactly. The two extraction runs
 demonstrate deterministic output independently of the upstream generator's
 object-member order.
+
+## A1.0 offline contracts and fixtures
+
+Client request/result associations are not present in the generated JSON
+Schema. A1.0 therefore retains the exact authoritative upstream Rust
+`client_request_definitions!` source at release `rust-v0.144.6`, source commit
+`5d1fbf26c43abc65a203928b2e31561cb039e06d`. The extractor verifies every
+vendored byte and derives all 87 stable client associations from that macro.
+It derives the ten stable server-request parameter/response pairs from the
+vendored schema tree, which is authoritative for those pairs.
+
+Run the complete offline checks from the repository root:
+
+```sh
+SCHEMA_ROOT=tools/codex/app-server-schema/0.144.6
+PROVENANCE="$SCHEMA_ROOT/PROVENANCE.json"
+SURFACE=tools/codex/app-server-surface/0.144.6.json
+SOURCE_ROOT=tools/codex/app-server-protocol-source/0.144.6
+EVIDENCE_ROOT=tools/codex/app-server-evidence/0.144.6
+FIXTURE_ROOT=tools/codex/app-server-fixtures/0.144.6
+
+python3 tools/codex/app_server_contracts.py \
+  --source-root "$SOURCE_ROOT" \
+  --schema-root "$SCHEMA_ROOT" \
+  --manifest "$SURFACE" \
+  --schema-provenance "$PROVENANCE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --check
+
+python3 tools/codex/app_server_fixtures.py check \
+  --schema-root "$SCHEMA_ROOT" \
+  --manifest "$SURFACE" \
+  --contracts "$EVIDENCE_ROOT/operation-contracts.json" \
+  --fixture-root "$FIXTURE_ROOT" \
+  --evidence-root "$EVIDENCE_ROOT"
+
+python3 tools/codex/app_server_fixtures.py validate \
+  --schema-root "$SCHEMA_ROOT" \
+  --manifest "$SURFACE" \
+  --contracts "$EVIDENCE_ROOT/operation-contracts.json" \
+  --fixture-root "$FIXTURE_ROOT" \
+  --evidence-root "$EVIDENCE_ROOT"
+```
+
+`generate` replaces `check` only when intentionally refreshing generated
+artifacts after reviewing an authoritative-input or deterministic-rule
+change. The fixture tool uses `draft07.py`, not a production decoder. Its
+validation mode checks every positive fixture, required-field removals,
+wrong-type mutations, discriminator mutations, and committed-output identity.
+Neither tool invokes Codex, accesses the network, or reads credentials.
+
+The TypeScript audit found method-to-parameter mapping in `ClientRequest.ts`
+but no independent request-to-response association. The generated TypeScript
+tree is consequently not vendored in bulk; its pinned hashes and the
+reproducible negative audit remain checked in. After regenerating the exact
+trees, reproduce the full-tree scanner with:
+
+```sh
+python3 tools/codex/app_server_contracts.py --check \
+  --ts-stable /tmp/snodec-codex-ts-stable \
+  --ts-experimental /tmp/snodec-codex-ts-experimental
+```
+
+The scanner anchors complete tree and path-set hashes, exact client-method
+literals, parameter/response type co-references, broader association-like
+names, and conditional/mapped constructs. Its only co-reference findings in
+this pin are flat generated export indexes.
 
 ## Re-running the pinned upstream generation
 
@@ -152,6 +223,15 @@ Do not hand-edit these generated artifacts:
 - the two vendored upstream schema trees;
 - `PROVENANCE.json`;
 - `app-server-surface/0.144.6.json`;
+- `app-server-protocol-source/0.144.6/PROVENANCE.json`;
+- `app-server-evidence/0.144.6/operation-contracts.json`;
+- `app-server-evidence/0.144.6/typescript-audit.json`;
+- `app-server-evidence/0.144.6/module-slice-assignment.json`;
+- `app-server-evidence/0.144.6/nested-reachability.json`;
+- `app-server-evidence/0.144.6/schema-completeness-evidence.json`;
+- `app-server-evidence/0.144.6/fixture-coverage.json`;
+- `app-server-evidence/0.144.6/schema-keywords.json`;
+- `app-server-fixtures/0.144.6/`;
 - `ProtocolSurfaceRegistryData.inc`;
 - `docs/ai/openai/codex/app-server-api-coverage.md`; or
 - `docs/ai/openai/codex/app-server-security-decisions.md`.
@@ -174,29 +254,38 @@ typed, BackendCore, canonical-state, or frontend support.
 reviewed, non-generated floor containing the 34 exact stable typed identities
 implemented at A0: seven client requests, one client notification, fourteen
 server notifications, four server requests, and eight `ThreadItem`
-discriminators. The coverage guard requires the current implemented stable
-typed identity set to be a superset of that floor.
+discriminators. A1.0 adds the separate reviewed
+`CodexErrorInfoTypedSurfaceBaseline.h`, containing the 16 exact stable
+`CodexErrorInfo` discriminator identities. The coverage guard requires the
+current implemented stable typed identity set to equal the union of both
+headers, so the A1.0 no-regression floor and implementation ceiling are both
+exactly 50 identities. This strict equality prevents unreviewed identities
+from crossing the A1.0 boundary.
 
-Coverage may grow without changing the baseline. Decreasing coverage or
-replacing a locked identity requires an explicit reviewed baseline change and
-an explanation. A later A1 change may deliberately advance the baseline to
-lock in newly reviewed typed coverage. The floor is a no-regression ratchet,
-not evidence of future completeness.
+Each later A1 domain slice must advance the exact reviewed baseline and its
+corresponding equality guard in the same change. Decreasing coverage,
+replacing a locked identity, or adding an identity outside its assigned slice
+requires an explicit reviewed baseline change and an explanation. The guard
+is an identity ratchet, not a count-only completeness claim: at A1.0 the 16
+error identities are mechanically `Complete`, while the original 34 remain
+`Partial`.
 
 ## Packaging policy
 
-The schema trees and A0 support artifacts are source and test inputs. Explicit
-CMake install rules and CPack binary packages exclude the schemas, provenance
-tool, manifest, fixtures, and private registry headers/data. The staged
-installed-consumer test recursively guards that exclusion.
+The schema trees and A0/A1 support artifacts are source and test inputs.
+Explicit CMake install rules and CPack binary packages exclude the schemas,
+vendored Rust, provenance, tools, manifest, fixtures, evidence reports, and
+private registry headers/data. `StagedInstalledConsumerTest` recursively
+guards that installed/binary boundary.
 
-CPack source packages retain the vendored schemas, attribution files, manifest,
-tool, fixtures, and private registry sources so the offline A0 tests remain
-self-consistent. The generated schemas and provenance occupy approximately
-6 MiB before archive compression. The repository's existing CPack source
-configuration assumes a build-artifact-free source checkout; Git cleanliness
-alone is insufficient because an ignored in-tree build is not excluded. CMake
-exposes `package_source`; there is no separate `dist` target.
+CPack source packages retain the vendored schemas and Rust evidence,
+attribution, manifest, tools, generated evidence and fixture corpus, private
+registry sources, tests, and documentation so all offline checks remain
+self-consistent. Local build trees, Python caches, VCS data, and
+execution-environment metadata are excluded. `CodexSourcePackageTest`
+generates a real TGZ source archive and verifies both retention and exclusion.
+CMake also exposes the ordinary `package_source` target; there is no separate
+`dist` target.
 
 ## Phase sequencing
 

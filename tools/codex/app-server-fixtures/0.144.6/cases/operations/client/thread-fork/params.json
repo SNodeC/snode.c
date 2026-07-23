@@ -1,0 +1,16 @@
+{
+  "approvalPolicy": "untrusted",
+  "approvalsReviewer": "user",
+  "baseInstructions": "synthetic-7f79c0118e",
+  "config": {},
+  "cwd": "synthetic-5d9a348799",
+  "developerInstructions": "synthetic-d0ce5f0564",
+  "ephemeral": false,
+  "lastTurnId": "synthetic-440f9a3f23",
+  "model": "synthetic-7ec171ea8d",
+  "modelProvider": "synthetic-fac534a664",
+  "sandbox": "read-only",
+  "serviceTier": "synthetic-df688533b9",
+  "threadId": "synthetic-bd0d0f38fe",
+  "threadSource": "synthetic-2db5dd3788"
+}

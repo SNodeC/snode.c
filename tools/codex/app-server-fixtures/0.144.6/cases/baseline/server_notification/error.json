@@ -1,0 +1,13 @@
+{
+  "method": "error",
+  "params": {
+    "error": {
+      "additionalDetails": "synthetic-e8c4a6eef9",
+      "codexErrorInfo": "contextWindowExceeded",
+      "message": "synthetic-65f454ad02"
+    },
+    "threadId": "synthetic-e90a345657",
+    "turnId": "synthetic-b602958253",
+    "willRetry": false
+  }
+}

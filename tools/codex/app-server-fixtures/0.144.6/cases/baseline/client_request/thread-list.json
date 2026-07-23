@@ -1,0 +1,20 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "thread/list",
+  "params": {
+    "archived": false,
+    "cursor": "synthetic-3b98868174",
+    "cwd": "synthetic-a1e31d316f",
+    "limit": 0,
+    "modelProviders": [
+      "synthetic-02fd3dbb1c"
+    ],
+    "searchTerm": "synthetic-75e7ad024c",
+    "sortDirection": "asc",
+    "sortKey": "created_at",
+    "sourceKinds": [
+      "cli"
+    ],
+    "useStateDbOnly": false
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "_meta": {},
+  "message": "synthetic-c026a86422",
+  "mode": "form",
+  "requestedSchema": {
+    "$schema": "synthetic-04ac157df7",
+    "properties": {
+      "syntheticKey": {
+        "default": "synthetic-bd972dd755",
+        "description": "synthetic-43b12c943a",
+        "enum": [
+          "synthetic-8111611e95"
+        ],
+        "title": "synthetic-85540f4220",
+        "type": "string"
+      }
+    },
+    "required": [
+      "synthetic-90f6a204a8"
+    ],
+    "type": "object"
+  },
+  "serverName": "synthetic-45db1cb3e6",
+  "threadId": "synthetic-bd0d0f38fe",
+  "turnId": "synthetic-e026a1a7e9"
+}

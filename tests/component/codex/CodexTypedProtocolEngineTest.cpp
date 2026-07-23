@@ -172,6 +172,14 @@ namespace {
         };
     }
 
+    Json remoteTurnErrorData() {
+        return {
+            {"message", "typed turn failure"},
+            {"additionalDetails", nullptr},
+            {"codexErrorInfo", {{"httpConnectionFailed", {{"httpStatusCode", 503}}}}},
+        };
+    }
+
     Json commandApprovalParams(std::string command) {
         return {
             {"threadId", "thread-requests"},
@@ -273,9 +281,12 @@ namespace {
                         inject(callbacks, Json{{"id", *id}, {"result", threadOperationResult("thread-destroy")}});
                     }
                 } else if (*method == "thread/resume") {
-                    inject(
-                        callbacks,
-                        Json{{"id", *id}, {"error", {{"code", -32'001}, {"message", "typed remote error"}, {"data", {{"typed", true}}}}}});
+                    inject(callbacks,
+                           Json{{"id", *id},
+                                {"error",
+                                 {{"code", -32'001},
+                                  {"message", "typed remote error"},
+                                  {"data", remoteTurnErrorData()}}}});
                 } else if (*method == "turn/start") {
                     inject(callbacks, Json{{"id", *id}, {"result", {{"turn", turnValue("turn-chain")}}}});
                 }
@@ -289,20 +300,38 @@ namespace {
 
             ThreadStartOptions notReadyOptions;
             notReadyOptions.cwd = "/not-ready";
-            const auto localFailure = client->threads().start(std::move(notReadyOptions), [this](const OperationResult<Thread>&) {
+            const auto localFailure = client->typed().threads().start(std::move(notReadyOptions), [this](const OperationResult<Thread>&) {
                 ++localSubmissionCallbacks;
             });
             expect(!localFailure && localFailure.error && localFailure.error->category == Error::Category::InvalidState,
                    "typed operation submission fails locally while the client is not ready");
 
-            client->events().setOnEvent([this](const Event& event) {
+            client->typed().events().setOnEvent([this](const Event& event) {
                 const UnknownEvent* unknown = std::get_if<UnknownEvent>(&event);
                 if (unknown == nullptr) {
                     return;
                 }
 
                 if (unknown->method == "typed/order") {
+                    expect(unknown->diagnostic &&
+                               unknown->diagnostic->kind == DecodeIssueKind::UnknownMethod &&
+                               unknown->diagnostic->severity == DecodeIssueSeverity::ForwardCompatibility &&
+                               unknown->diagnostic->surface == "typed/order" &&
+                               unknown->raw == Json{{"method", "typed/order"},
+                                                    {"params", {{"future", true}}},
+                                                    {"extension", "same-raw-message"}} &&
+                               client->isReady(),
+                           "future methods remain connected, raw-retained, and classified as ForwardCompatibility");
                     eventObserverOrder.emplace_back("typed");
+                } else if (unknown->method == "thread/started") {
+                    expect(unknown->diagnostic &&
+                               unknown->diagnostic->kind == DecodeIssueKind::MalformedKnownPayload &&
+                               unknown->diagnostic->severity == DecodeIssueSeverity::ProtocolWarning &&
+                               unknown->diagnostic->surface == "thread/started" &&
+                               unknown->raw == Json{{"method", "thread/started"}, {"params", Json::array({1})}} &&
+                               client->isReady(),
+                           "known malformed payloads remain connected, raw-retained, and classified as ProtocolWarning");
+                    ++malformedStructuredEvents;
                 } else if (unknown->method == "typed/throw") {
                     ++throwingEventCallbacks;
                     throw std::runtime_error("intentional typed event callback failure");
@@ -320,7 +349,7 @@ namespace {
                 }
             });
 
-            client->requests().setOnRequest([this](const TypedServerRequest& request) {
+            client->typed().requests().setOnRequest([this](const TypedServerRequest& request) {
                 handleTypedServerRequest(request);
             });
             client->raw().setOnServerRequest([this](const ServerRequest& request) {
@@ -353,7 +382,8 @@ namespace {
             ThreadStartOptions malformedOptions;
             malformedOptions.cwd = "/malformed";
             insideMalformedSubmission = true;
-            const auto malformed = client->threads().start(std::move(malformedOptions), [this](const OperationResult<Thread>& result) {
+            const auto malformed =
+                client->typed().threads().start(std::move(malformedOptions), [this](const OperationResult<Thread>& result) {
                 expect(!insideMalformedSubmission, "typed decoding callback remains asynchronous with a synchronous fake response");
                 expect(result.kind == OperationResult<Thread>::Kind::LocalError && result.localError &&
                            result.localError->category == Error::Category::Protocol && result.raw == malformedThreadResult,
@@ -364,18 +394,24 @@ namespace {
             expect(static_cast<bool>(malformed), "malformed-result typed operation is accepted for asynchronous completion");
 
             insideRemoteSubmission = true;
-            const auto remote = client->threads().resume(ThreadId{"thread-remote"}, {}, [this](const OperationResult<Thread>& result) {
+            const auto remote =
+                client->typed().threads().resume(ThreadId{"thread-remote"}, {}, [this](const OperationResult<Thread>& result) {
                 expect(!insideRemoteSubmission, "typed RemoteError callback remains asynchronous");
+                const auto* structuredInfo =
+                    result.codexErrorInfo ? std::get_if<HttpConnectionFailedCodexErrorInfo>(&*result.codexErrorInfo) : nullptr;
                 expect(result.kind == OperationResult<Thread>::Kind::RemoteError && result.remoteError &&
                            result.remoteError->code == -32'001 && result.remoteError->message == "typed remote error" &&
-                           result.remoteError->data == std::optional<Json>(Json{{"typed", true}}),
-                       "remote App Server failure remains a typed RemoteError with exact protocol details");
+                           result.remoteError->data == std::optional<Json>(remoteTurnErrorData()) && structuredInfo &&
+                           structuredInfo->httpStatusCode.present && structuredInfo->httpStatusCode.value == 503 &&
+                           structuredInfo->raw == Json{{"httpConnectionFailed", {{"httpStatusCode", 503}}}} &&
+                           !result.codexErrorDiagnostic,
+                       "production response adaptation preserves raw RemoteError details and adds structured CodexErrorInfo");
                 ++remoteErrorCallbacks;
             });
             insideRemoteSubmission = false;
             expect(static_cast<bool>(remote), "remote-error typed operation is submitted successfully");
 
-            const auto pendingList = client->threads().list({}, [this](const OperationResult<ThreadPage>& result) {
+            const auto pendingList = client->typed().threads().list({}, [this](const OperationResult<ThreadPage>& result) {
                 expect(result.kind == OperationResult<ThreadPage>::Kind::Cancelled && result.localError &&
                            result.localError->category == Error::Category::Cancelled,
                        "pending typed request receives a typed cancellation");
@@ -386,7 +422,8 @@ namespace {
             ThreadStartOptions chainOptions;
             chainOptions.cwd = "/chain";
             insideChainSubmission = true;
-            const auto chain = client->threads().start(std::move(chainOptions), [this](const OperationResult<Thread>& result) {
+            const auto chain =
+                client->typed().threads().start(std::move(chainOptions), [this](const OperationResult<Thread>& result) {
                 expect(!insideChainSubmission && static_cast<bool>(result) && result.value && result.value->id.value == "thread-chain",
                        "first callback in a typed operation chain is asynchronous and successfully decoded");
                 ++chainThreadCallbacks;
@@ -395,7 +432,7 @@ namespace {
                 }
 
                 insideTurnSubmission = true;
-                const auto turn = client->turns().start(
+                const auto turn = client->typed().turns().start(
                     result.value->id, {TextInput{"continue the typed chain"}}, {}, [this](const OperationResult<Turn>& turnResult) {
                         expect(!insideTurnSubmission && static_cast<bool>(turnResult) && turnResult.value &&
                                    turnResult.value->id.value == "turn-chain",
@@ -409,6 +446,7 @@ namespace {
             expect(static_cast<bool>(chain), "first typed operation in the callback chain is accepted");
 
             state->inject({{"method", "typed/order"}, {"params", {{"future", true}}}, {"extension", "same-raw-message"}});
+            state->inject({{"method", "thread/started"}, {"params", Json::array({1})}});
             state->inject({{"method", "typed/throw"}, {"params", Json::object()}});
             injectCoreServerRequests();
             defer([this]() {
@@ -449,25 +487,25 @@ namespace {
 
                     if constexpr (std::is_same_v<Request, CommandApprovalRequest>) {
                         if (id == "decision-accept") {
-                            const auto sent = client->requests().respond(typedRequest, ApprovalDecision::accept());
+                            const auto sent = client->typed().requests().respond(typedRequest, ApprovalDecision::accept());
                             expect(static_cast<bool>(sent), "accept approval response is accepted reentrantly");
-                            const auto second = client->requests().respond(typedRequest, ApprovalDecision::decline());
+                            const auto second = client->typed().requests().respond(typedRequest, ApprovalDecision::decline());
                             expect(!second && second.error && second.error->category == Error::Category::InvalidState,
                                    "second response attempt for an answered request is rejected locally");
                             secondResponseRejected = true;
                         } else if (id == "decision-session") {
-                            const auto sent = client->requests().respond(typedRequest, ApprovalDecision::acceptForSession());
+                            const auto sent = client->typed().requests().respond(typedRequest, ApprovalDecision::acceptForSession());
                             expect(static_cast<bool>(sent), "accept-for-session approval response is accepted reentrantly");
                         } else if (id == "retry-response") {
                             state->rejectNextSend = true;
                             const std::size_t before = state->outgoing.size();
-                            const auto rejected = client->requests().respond(typedRequest, ApprovalDecision::accept());
+                            const auto rejected = client->typed().requests().respond(typedRequest, ApprovalDecision::accept());
                             expect(!rejected && rejected.error && rejected.error->category == Error::Category::Enqueue,
                                    "transport enqueue failure is reported by a typed approval helper");
-                            const auto retried = client->requests().respond(typedRequest, ApprovalDecision::accept());
+                            const auto retried = client->typed().requests().respond(typedRequest, ApprovalDecision::accept());
                             expect(static_cast<bool>(retried) && state->outgoing.size() == before + 2,
                                    "failed response enqueue retains server-request ownership for an immediate retry");
-                            const auto third = client->requests().respond(typedRequest, ApprovalDecision::accept());
+                            const auto third = client->typed().requests().respond(typedRequest, ApprovalDecision::accept());
                             expect(!third && state->outgoing.size() == before + 2,
                                    "successful retry consumes ownership and a later response emits no wire message");
                             retryChecksComplete = true;
@@ -475,26 +513,27 @@ namespace {
                     } else if constexpr (std::is_same_v<Request, FileChangeApprovalRequest>) {
                         const ApprovalDecision decision =
                             id == "decision-decline" ? ApprovalDecision::decline() : ApprovalDecision::cancel();
-                        const auto sent = client->requests().respond(typedRequest, decision);
+                        const auto sent = client->typed().requests().respond(typedRequest, decision);
                         expect(static_cast<bool>(sent), "file-change approval response is accepted reentrantly");
                     } else if constexpr (std::is_same_v<Request, UserInputRequest>) {
                         const std::size_t before = state->outgoing.size();
-                        const auto invalid = client->requests().respond(typedRequest, {UserInputAnswer{"missing", {"invalid"}}});
+                        const auto invalid =
+                            client->typed().requests().respond(typedRequest, {UserInputAnswer{"missing", {"invalid"}}});
                         expect(!invalid && invalid.error && invalid.error->category == Error::Category::Protocol &&
                                    state->outgoing.size() == before,
                                "unknown user-input answer ID is rejected locally without emitting a response");
-                        const auto duplicate = client->requests().respond(
+                        const auto duplicate = client->typed().requests().respond(
                             typedRequest, {UserInputAnswer{"first", {"one"}}, UserInputAnswer{"first", {"duplicate"}}});
                         expect(!duplicate && duplicate.error && duplicate.error->category == Error::Category::Protocol &&
                                    state->outgoing.size() == before,
                                "duplicate user-input answer ID is rejected locally without consuming the request");
-                        const auto valid = client->requests().respond(
+                        const auto valid = client->typed().requests().respond(
                             typedRequest, {UserInputAnswer{"first", {"one", "two"}}, UserInputAnswer{"second", {"three"}}});
                         expect(static_cast<bool>(valid),
                                "valid user-input answers are accepted reentrantly after local validation failures");
                         userInputChecksComplete = true;
                     } else if constexpr (std::is_same_v<Request, AuthenticationRequest>) {
-                        const auto sent = client->requests().respond(
+                        const auto sent = client->typed().requests().respond(
                             typedRequest, AuthenticationResponse{"access-token", "account-new", std::string("plus")});
                         expect(static_cast<bool>(sent), "authentication response is accepted reentrantly");
                         authenticationResponseComplete = true;
@@ -502,12 +541,12 @@ namespace {
                         if (id == "no-auto-answer") {
                             unansweredRequest = typedRequest;
                         } else if (id == "typed-reject") {
-                            const auto rejected = client->requests().reject(
+                            const auto rejected = client->typed().requests().reject(
                                 typedRequest, ProtocolError{-32'777, "typed rejection", std::optional<Json>{Json{{"reason", "test"}}}});
                             expect(static_cast<bool>(rejected), "unknown server request can be rejected through the typed facade");
                             typedRejectionComplete = true;
                         } else if (id == "persist-request") {
-                            const auto responded = client->requests().respondRaw(typedRequest, Json{{"persisted", true}});
+                            const auto responded = client->typed().requests().respondRaw(typedRequest, Json{{"persisted", true}});
                             expect(static_cast<bool>(responded), "typed server-request handler remains installed across explicit restart");
                             ++persistentTypedRequests;
                         } else if (id == "reused-owned-request") {
@@ -517,7 +556,8 @@ namespace {
                             } else {
                                 const std::size_t outgoingBefore = state->outgoing.size();
                                 if (staleOwnedRequest) {
-                                    const auto staleResponse = client->requests().respondRaw(*staleOwnedRequest, Json{{"owner", "stale"}});
+                                    const auto staleResponse =
+                                        client->typed().requests().respondRaw(*staleOwnedRequest, Json{{"owner", "stale"}});
                                     expect(!staleResponse && staleResponse.error &&
                                                staleResponse.error->category == Error::Category::InvalidState &&
                                                staleResponse.error->code == ESTALE && state->outgoing.size() == outgoingBefore,
@@ -526,7 +566,8 @@ namespace {
                                     expect(false, "the first-generation typed request is retained for the ownership-token check");
                                 }
 
-                                const auto freshResponse = client->requests().respondRaw(typedRequest, Json{{"owner", "fresh"}});
+                                const auto freshResponse =
+                                    client->typed().requests().respondRaw(typedRequest, Json{{"owner", "fresh"}});
                                 expect(static_cast<bool>(freshResponse) && state->outgoing.size() == outgoingBefore + 1,
                                        "the fresh same-ID typed request remains answerable after stale ownership is rejected");
                                 staleOwnershipCheckComplete = true;
@@ -577,10 +618,10 @@ namespace {
 
         bool coreCallbacksComplete() const {
             return malformedCallbacks == 1 && remoteErrorCallbacks == 1 && chainThreadCallbacks == 1 && chainTurnCallbacks == 1 &&
-                   eventObserverOrder.size() == 2 && throwingEventCallbacks == 1 && rawAfterThrowEvents == 1 && typedServerRequests == 10 &&
-                   rawServerRequests == 10 && secondResponseRejected && retryChecksComplete && userInputChecksComplete &&
-                   authenticationResponseComplete && typedRejectionComplete && unansweredRequest.has_value() &&
-                   staleOwnedRequest.has_value();
+                   eventObserverOrder.size() == 2 && malformedStructuredEvents == 1 && throwingEventCallbacks == 1 &&
+                   rawAfterThrowEvents == 1 && typedServerRequests == 10 && rawServerRequests == 10 && secondResponseRejected &&
+                   retryChecksComplete && userInputChecksComplete && authenticationResponseComplete && typedRejectionComplete &&
+                   unansweredRequest.has_value() && staleOwnedRequest.has_value();
         }
 
         void checkCoreCallbacks() {
@@ -626,7 +667,8 @@ namespace {
             expect(responseCount("no-auto-answer") == 0, "receiving a typed unknown server request never emits an automatic answer");
 
             if (unansweredRequest) {
-                const auto rawResponse = client->requests().respondRaw(*unansweredRequest, Json{{"raw", Json::array({1, 2})}});
+                const auto rawResponse =
+                    client->typed().requests().respondRaw(*unansweredRequest, Json{{"raw", Json::array({1, 2})}});
                 expect(static_cast<bool>(rawResponse) && hasResultResponse("no-auto-answer", Json{{"raw", Json::array({1, 2})}}),
                        "unknown typed server request remains answerable with an exact raw response");
             } else {
@@ -637,7 +679,7 @@ namespace {
         }
 
         void beginGenerationChecks() {
-            const auto stale = client->threads().read(ThreadId{"thread-old"}, [this](const OperationResult<Thread>&) {
+            const auto stale = client->typed().threads().read(ThreadId{"thread-old"}, [this](const OperationResult<Thread>&) {
                 ++staleCompletionCallbacks;
             });
             expect(static_cast<bool>(stale), "generation-safety typed operation is accepted");
@@ -694,7 +736,7 @@ namespace {
             state = std::make_shared<FakeTransportState>();
             installStandardSendHook();
             client = std::make_unique<TestClient>(state);
-            client->events().setOnEvent([this](const Event&) {
+            client->typed().events().setOnEvent([this](const Event&) {
                 ++stopEventCallbacks;
                 client->stop();
             });
@@ -727,7 +769,8 @@ namespace {
                 if (change.current == State::Ready) {
                     ThreadStartOptions options;
                     options.cwd = "/destroy";
-                    const auto submission = client->threads().start(std::move(options), [this](const OperationResult<Thread>& result) {
+                    const auto submission =
+                        client->typed().threads().start(std::move(options), [this](const OperationResult<Thread>& result) {
                         expect(static_cast<bool>(result) && result.value && result.value->id.value == "thread-destroy",
                                "typed operation completion receives its value before destroying the parent client");
                         ++destroyOperationCallbacks;
@@ -750,7 +793,7 @@ namespace {
             state = std::make_shared<FakeTransportState>();
             installStandardSendHook();
             client = std::make_unique<TestClient>(state);
-            client->requests().setOnRequest([this](const TypedServerRequest&) {
+            client->typed().requests().setOnRequest([this](const TypedServerRequest&) {
                 ++destroyServerRequestCallbacks;
                 const std::size_t outgoingBefore = state->outgoing.size();
                 client.reset();
@@ -781,7 +824,7 @@ namespace {
             state = std::make_shared<FakeTransportState>();
             installStandardSendHook();
             client = std::make_unique<TestClient>(state);
-            client->events().setOnEvent([this](const Event&) {
+            client->typed().events().setOnEvent([this](const Event&) {
                 ++destroyEventCallbacks;
                 client.reset();
                 defer([this]() {
@@ -829,6 +872,7 @@ namespace {
         std::size_t cancellationCallbacks = 0;
         std::size_t staleCompletionCallbacks = 0;
         std::size_t throwingEventCallbacks = 0;
+        std::size_t malformedStructuredEvents = 0;
         std::size_t rawAfterThrowEvents = 0;
         std::size_t persistentTypedEvents = 0;
         std::size_t persistentRawEvents = 0;

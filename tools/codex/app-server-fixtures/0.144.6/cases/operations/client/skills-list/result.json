@@ -1,0 +1,43 @@
+{
+  "data": [
+    {
+      "cwd": "synthetic-9f728acfb8",
+      "errors": [
+        {
+          "message": "synthetic-9d7a370814",
+          "path": "synthetic-99c0ae0735"
+        }
+      ],
+      "skills": [
+        {
+          "dependencies": {
+            "tools": [
+              {
+                "command": "synthetic-49f65e0228",
+                "description": "synthetic-2f76cff360",
+                "transport": "synthetic-d889ec9f4e",
+                "type": "synthetic-b54b51e30a",
+                "url": "synthetic-3cc51b0094",
+                "value": "synthetic-20092fb6d0"
+              }
+            ]
+          },
+          "description": "synthetic-030044f451",
+          "enabled": false,
+          "interface": {
+            "brandColor": "synthetic-7a404de3bb",
+            "defaultPrompt": "synthetic-01859e99a2",
+            "displayName": "synthetic-a5660e1221",
+            "iconLarge": "synthetic-75177d933c",
+            "iconSmall": "synthetic-75177d933c",
+            "shortDescription": "synthetic-5726a5a749"
+          },
+          "name": "synthetic-8a8ee3be26",
+          "path": "synthetic-75177d933c",
+          "scope": "user",
+          "shortDescription": "synthetic-765d29d84f"
+        }
+      ]
+    }
+  ]
+}

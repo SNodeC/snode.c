@@ -1,0 +1,25 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "item/tool/requestUserInput",
+  "params": {
+    "autoResolutionMs": 0,
+    "itemId": "synthetic-0aa36c1b64",
+    "questions": [
+      {
+        "header": "synthetic-a37897144b",
+        "id": "synthetic-cfc4eb64af",
+        "isOther": false,
+        "isSecret": false,
+        "options": [
+          {
+            "description": "synthetic-3145f3d1f4",
+            "label": "synthetic-0776ba2fc5"
+          }
+        ],
+        "question": "synthetic-dd5ffb8425"
+      }
+    ],
+    "threadId": "synthetic-b4a7fe4f34",
+    "turnId": "synthetic-635bbe7cc3"
+  }
+}

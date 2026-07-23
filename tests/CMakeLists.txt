@@ -55,3 +55,16 @@ add_test(NAME StagedInstalledConsumerTest
                  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                  -P ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake)
 set_tests_properties(StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT 120)
+
+add_test(
+    NAME CodexSourcePackageTest
+    COMMAND
+        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+        -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexSourcePackageTest.cmake
+)
+set_tests_properties(
+    CodexSourcePackageTest
+    PROPERTIES LABELS "package;source-package;codex;phase-a1-0" TIMEOUT 180
+)

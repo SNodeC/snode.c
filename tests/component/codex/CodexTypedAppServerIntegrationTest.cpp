@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
         diagnostics.push_back(diagnostic.message);
     });
 
-    client.events().setOnEvent([&](const typed::Event& event) {
+    client.typed().events().setOnEvent([&](const typed::Event& event) {
         ++typedEventCount;
 
         if (const auto* unknown = std::get_if<typed::UnknownEvent>(&event)) {
@@ -191,10 +191,10 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    client.requests().setOnRequest([&](const typed::TypedServerRequest& request) {
+    client.typed().requests().setOnRequest([&](const typed::TypedServerRequest& request) {
         if (const auto* command = std::get_if<typed::CommandApprovalRequest>(&request)) {
             ++approvalRequestsSeen;
-            const auto response = client.requests().respond(*command, typed::ApprovalDecision::decline());
+            const auto response = client.typed().requests().respond(*command, typed::ApprovalDecision::decline());
             if (response) {
                 ++approvalRequestsDeclined;
             } else {
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
             }
         } else if (const auto* fileChange = std::get_if<typed::FileChangeApprovalRequest>(&request)) {
             ++approvalRequestsSeen;
-            const auto response = client.requests().respond(*fileChange, typed::ApprovalDecision::decline());
+            const auto response = client.typed().requests().respond(*fileChange, typed::ApprovalDecision::decline());
             if (response) {
                 ++approvalRequestsDeclined;
             } else {
@@ -232,7 +232,8 @@ int main(int argc, char* argv[]) {
             options.ephemeral = true;
 
             threadStartAttempted = true;
-            const auto submission = client.threads().start(std::move(options), [&](const typed::OperationResult<typed::Thread>& result) {
+            const auto submission =
+                client.typed().threads().start(std::move(options), [&](const typed::OperationResult<typed::Thread>& result) {
                 using Result = typed::OperationResult<typed::Thread>;
 
                 if (result.kind == Result::Kind::RemoteError) {
@@ -254,7 +255,7 @@ int main(int argc, char* argv[]) {
                 turnOptions.sandboxPolicy = typed::ReadOnlySandboxPolicy{false};
 
                 turnStartAttempted = true;
-                const auto turnSubmission = client.turns().start(
+                const auto turnSubmission = client.typed().turns().start(
                     result.value->id,
                     {typed::TextInput{"Reply with exactly OK. Do not use tools and do not modify any files."}},
                     std::move(turnOptions),

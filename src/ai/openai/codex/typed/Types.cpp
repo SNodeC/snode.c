@@ -7,9 +7,18 @@
 
 #include "ai/openai/codex/typed/Types.h"
 
+#include "ai/openai/codex/typed/CodexErrorInfo.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 
 namespace ai::openai::codex::typed {
+
+    NonSteerableTurnKind NonSteerableTurnKind::review() {
+        return {"review"};
+    }
+
+    NonSteerableTurnKind NonSteerableTurnKind::compact() {
+        return {"compact"};
+    }
 
     ReasoningEffort ReasoningEffort::minimal() {
         return {"minimal"};

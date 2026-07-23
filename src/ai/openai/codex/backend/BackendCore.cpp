@@ -13,6 +13,7 @@
 #include "ai/openai/codex/backend/BackendEvent.h"
 #include "ai/openai/codex/backend/BackendState.h"
 #include "ai/openai/codex/backend/Snapshot.h"
+#include "ai/openai/codex/typed/Client.h"
 #include "ai/openai/codex/typed/Events.h"
 #include "ai/openai/codex/typed/Items.h"
 #include "ai/openai/codex/typed/Results.h"
@@ -158,7 +159,18 @@ namespace ai::openai::codex::backend {
                            },
                            [](const CodexExtensionReceived& value) {
                                const std::size_t payload = jsonBytes(value.payload);
-                               const std::size_t text = value.method.size() + (value.decodingError ? value.decodingError->size() : 0);
+                               std::size_t text = value.method.size();
+                               const auto add = [&text](std::size_t amount) {
+                                   text = amount > std::numeric_limits<std::size_t>::max() - text
+                                       ? std::numeric_limits<std::size_t>::max()
+                                       : text + amount;
+                               };
+                               add(value.decodingError ? value.decodingError->size() : 0);
+                               if (value.diagnostic) {
+                                   add(value.diagnostic->surface.size());
+                                   add(value.diagnostic->fieldPath.size());
+                                   add(value.diagnostic->message.size());
+                               }
                                return payload > std::numeric_limits<std::size_t>::max() - text ? std::numeric_limits<std::size_t>::max()
                                                                                                : payload + text;
                            }},
@@ -318,14 +330,14 @@ namespace ai::openai::codex::backend {
                     self->publish(DiagnosticReceived{diagnostic.message});
                 }
             });
-            client.events().setOnEvent([weak](const typed::Event& event) {
+            client.typed().events().setOnEvent([weak](const typed::Event& event) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     for (BackendEvent translated : self->reducer.translate(event)) {
                         self->publish(std::move(translated));
                     }
                 }
             });
-            client.requests().setOnRequest([weak](const typed::TypedServerRequest& request) {
+            client.typed().requests().setOnRequest([weak](const typed::TypedServerRequest& request) {
                 if (const std::shared_ptr<Impl> self = weak.lock()) {
                     self->onServerRequest(request);
                 }
@@ -342,8 +354,8 @@ namespace ai::openai::codex::backend {
             observers.clear();
             activeOperations.clear();
             try {
-                client.events().setOnEvent({});
-                client.requests().setOnRequest({});
+                client.typed().events().setOnEvent({});
+                client.typed().requests().setOnRequest({});
                 client.setOnStateChanged({});
                 client.setOnDiagnostic({});
                 client.stop();
@@ -910,7 +922,8 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client.threads().start(command.options, [weak, id, requestId, operationGeneration](const auto& result) {
+            const auto submission =
+                client.typed().threads().start(command.options, [weak, id, requestId, operationGeneration](const auto& result) {
                 if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                     if (result && result.value) {
                         self->publish(ThreadUpserted{*result.value, EntityLoad::Summary});
@@ -929,8 +942,8 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission =
-                client.threads().resume(command.threadId, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
+            const auto submission = client.typed().threads().resume(
+                command.threadId, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->publish(ThreadUpserted{*result.value, EntityLoad::Summary});
@@ -949,8 +962,8 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission =
-                client.threads().list(command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
+            const auto submission = client.typed().threads().list(
+                command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->publish(ThreadListUpdated{*result.value, command.options.cursor, false});
@@ -969,7 +982,7 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client.threads().read(
+            const auto submission = client.typed().threads().read(
                 command.threadId, command.options, [weak, id, requestId, operationGeneration, command](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
@@ -990,7 +1003,7 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client.turns().start(
+            const auto submission = client.typed().turns().start(
                 command.threadId, command.input, command.options, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
@@ -1010,8 +1023,8 @@ namespace ai::openai::codex::backend {
             const std::uint64_t operationGeneration = generation;
             markOperation(id, requestId, operationGeneration);
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission =
-                client.turns().interrupt(command.threadId, command.turnId, [weak, id, requestId, operationGeneration](const auto& result) {
+            const auto submission = client.typed().turns().interrupt(
+                command.threadId, command.turnId, [weak, id, requestId, operationGeneration](const auto& result) {
                     if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                         if (result && result.value) {
                             self->complete(id, requestId, CommandResult::succeeded(*result.value));
@@ -1063,7 +1076,7 @@ namespace ai::openai::codex::backend {
                     requestId,
                     command.requestId,
                     [this, &command](const auto& request) {
-                        return client.requests().respond(request, command.decision);
+                        return client.typed().requests().respond(request, command.decision);
                     },
                     "command approval");
             } else {
@@ -1072,7 +1085,7 @@ namespace ai::openai::codex::backend {
                     requestId,
                     command.requestId,
                     [this, &command](const auto& request) {
-                        return client.requests().respond(request, command.decision);
+                        return client.typed().requests().respond(request, command.decision);
                     },
                     "file-change approval");
             }
@@ -1084,7 +1097,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client.requests().respond(request, command.answers);
+                    return client.typed().requests().respond(request, command.answers);
                 },
                 "user-input");
         }
@@ -1095,7 +1108,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client.requests().respond(request, command.response);
+                    return client.typed().requests().respond(request, command.response);
                 },
                 "authentication");
         }
@@ -1106,7 +1119,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client.requests().respondRaw(request, command.result);
+                    return client.typed().requests().respondRaw(request, command.result);
                 },
                 "unknown extension");
         }
@@ -1117,7 +1130,7 @@ namespace ai::openai::codex::backend {
                 requestId,
                 command.requestId,
                 [this, &command](const auto& request) {
-                    return client.requests().reject(request, command.error);
+                    return client.typed().requests().reject(request, command.error);
                 },
                 "unknown extension");
         }
@@ -1152,7 +1165,7 @@ namespace ai::openai::codex::backend {
             listOptions.limit = options.initialThreadListLimit;
             const std::uint64_t operationGeneration = generation;
             const std::weak_ptr<Impl> weak = weak_from_this();
-            const auto submission = client.threads().list(listOptions, [weak, operationGeneration](const auto& result) {
+            const auto submission = client.typed().threads().list(listOptions, [weak, operationGeneration](const auto& result) {
                 if (const std::shared_ptr<Impl> self = weak.lock(); self && self->acceptsCompletion(operationGeneration)) {
                     if (result && result.value) {
                         self->publish(ThreadListUpdated{*result.value, std::nullopt, true});

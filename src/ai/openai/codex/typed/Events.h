@@ -9,6 +9,7 @@
 #define AI_OPENAI_CODEX_TYPED_EVENTS_H
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/typed/CodexErrorInfo.h"
 #include "ai/openai/codex/typed/Threads.h"
 
 #include <cstdint>
@@ -116,6 +117,7 @@ namespace ai::openai::codex::typed {
         Json error;
         bool willRetry = false;
         Json raw;
+        std::optional<TurnError> typedError;
     };
 
     struct UnknownEvent {
@@ -123,6 +125,7 @@ namespace ai::openai::codex::typed {
         Json params;
         Json raw;
         std::optional<std::string> decodingError;
+        std::optional<DecodeDiagnostic> diagnostic;
     };
 
     using Event = std::variant<ThreadStarted,

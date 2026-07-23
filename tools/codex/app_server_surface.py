@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import re
 import sys
@@ -21,6 +22,9 @@ from typing import Any, Iterator, Sequence
 FORMAT_VERSION = 1
 PROVENANCE_FORMAT_VERSION = 2
 CODEX_VERSION = "codex-cli 0.144.6"
+VENDORED_RUST_COMMON_PATH = (
+    "codex-rs/app-server-protocol/src/protocol/common.rs"
+)
 STARTING_SNODEC_SHA = "138f5022c19b24847bee42a21242aaaf7dde5a04"
 UPSTREAM_PROVENANCE = {
     "project": "OpenAI Codex",
@@ -129,6 +133,323 @@ CPP_CATEGORIES = {
     "server_request": "SurfaceCategory::ServerRequest",
     "tagged_union_discriminator": "SurfaceCategory::TaggedUnionDiscriminator",
 }
+CPP_RESULT_CONTRACT_KINDS = {
+    "Concrete": "ResultContractKind::Concrete",
+    "Unit": "ResultContractKind::Unit",
+    "Nullable": "ResultContractKind::Nullable",
+    "ProtocolSpecial": "ResultContractKind::ProtocolSpecial",
+    "Unresolved": "ResultContractKind::Unresolved",
+    "NotApplicable": "ResultContractKind::NotApplicable",
+}
+CPP_ASSOCIATION_EVIDENCE_KINDS = {
+    "VendoredRust": "AssociationEvidenceKind::VendoredRust",
+    "VendoredSchemaPair": "AssociationEvidenceKind::VendoredSchemaPair",
+    "VendoredTypeScriptCrossCheck": (
+        "AssociationEvidenceKind::VendoredTypeScriptCrossCheck"
+    ),
+    "NotApplicable": "AssociationEvidenceKind::NotApplicable",
+}
+CPP_A1_SLICES = {
+    "A1.0": "A1Slice::A1_0",
+    "A1.1": "A1Slice::A1_1",
+    "A1.2": "A1Slice::A1_2",
+    "A1.3": "A1Slice::A1_3",
+    "A1.4": "A1Slice::A1_4",
+    "InventoryOnly": "A1Slice::InventoryOnly",
+}
+A1_SLICE_ORDER = {
+    "A1.0": 0,
+    "A1.1": 1,
+    "A1.2": 2,
+    "A1.3": 3,
+    "A1.4": 4,
+}
+SLICE_TYPED_MODULES = {
+    "A1.0": "Common",
+    "A1.1": "ThreadsTurnsSessions",
+    "A1.2": "AccountsModelsConfiguration",
+    "A1.3": "CommandsFilesystemReviewsApprovals",
+    "A1.4": "IntegrationsAndLongTail",
+}
+NESTED_ASSIGNMENT_CLASSIFICATIONS = frozenset(
+    {
+        "CrossCuttingA1_0Exception",
+        "RootOwnedNestedUnion",
+        "SharedCommon",
+        "SharedWithinSlice",
+        "StableUnreachableInventory",
+    }
+)
+# Reviewed stable public roots owned by the A1.4 long-tail slice. This exact
+# category-specific list intentionally mirrors (and independently checks) the
+# deterministic fixture generator's frozen routing decision.
+A1_4_PUBLIC_ROOTS = {
+    "client_request": frozenset(
+        {
+            "app/list",
+            "externalAgentConfig/detect",
+            "externalAgentConfig/import",
+            "externalAgentConfig/import/readHistories",
+            "feedback/upload",
+            "hooks/list",
+            "marketplace/add",
+            "marketplace/remove",
+            "marketplace/upgrade",
+            "mcpServer/oauth/login",
+            "mcpServer/resource/read",
+            "mcpServer/tool/call",
+            "mcpServerStatus/list",
+            "plugin/install",
+            "plugin/installed",
+            "plugin/list",
+            "plugin/read",
+            "plugin/share/checkout",
+            "plugin/share/delete",
+            "plugin/share/list",
+            "plugin/share/save",
+            "plugin/share/updateTargets",
+            "plugin/skill/read",
+            "plugin/uninstall",
+            "skills/config/write",
+            "skills/extraRoots/set",
+            "skills/list",
+            "windowsSandbox/readiness",
+            "windowsSandbox/setupStart",
+        }
+    ),
+    "server_notification": frozenset(
+        {
+            "app/list/updated",
+            "deprecationNotice",
+            "externalAgentConfig/import/completed",
+            "externalAgentConfig/import/progress",
+            "hook/completed",
+            "hook/started",
+            "mcpServer/oauthLogin/completed",
+            "mcpServer/startupStatus/updated",
+            "process/exited",
+            "process/outputDelta",
+            "remoteControl/status/changed",
+            "serverRequest/resolved",
+            "skills/changed",
+            "warning",
+            "windows/worldWritableWarning",
+            "windowsSandbox/setupCompleted",
+        }
+    ),
+    "server_request": frozenset(
+        {
+            "attestation/generate",
+            "item/tool/call",
+            "item/tool/requestUserInput",
+            "mcpServer/elicitation/request",
+        }
+    ),
+}
+# SHA-256 over the sorted stable tagged-union key -> reaching-root-id mapping,
+# using _reachability_membership_sha256(). The deterministic schema generator
+# independently regenerates the full report; this reviewed pin prevents a
+# coordinated in-memory/file mutation from remaining internally self-consistent.
+PINNED_REACHABILITY_MEMBERSHIP_SHA256 = (
+    "c60c3f978ec377f1d0f083921557433f570e3d270136c0b3eaeb02d2ace121fa"
+)
+CPP_TYPED_SCHEMA_STATUSES = {
+    "Complete": "TypedSchemaStatus::Complete",
+    "Partial": "TypedSchemaStatus::Partial",
+    "NotImplemented": "TypedSchemaStatus::NotImplemented",
+    "NotApplicable": "TypedSchemaStatus::NotApplicable",
+}
+COMPLETENESS_EVIDENCE_FIELDS = (
+    "authoritative_root_association",
+    "positive_fixture_coverage",
+    "required_fields_exercised",
+    "schema_properties_exercised",
+    "optional_present_exercised",
+    "optional_omitted_exercised",
+    "nullable_semantics_exercised",
+    "reachable_union_alternatives_exercised",
+    "direction_assertions_exercised",
+    "fixture_current",
+    "runtime_decoder_matches_registry",
+    "opaque_fields_declared",
+    "independently_schema_validated",
+    "no_known_schema_fields_dropped",
+)
+SCHEMA_FIXTURE_COMPLETENESS_FIELDS = frozenset(
+    {
+        "authoritative_root_association",
+        "positive_fixture_coverage",
+        "required_fields_exercised",
+        "schema_properties_exercised",
+        "optional_present_exercised",
+        "optional_omitted_exercised",
+        "nullable_semantics_exercised",
+        "reachable_union_alternatives_exercised",
+        "fixture_current",
+        "independently_schema_validated",
+    }
+)
+LOCAL_DISPOSITION_FIELDS = frozenset(
+    {
+        "runtime_disposition",
+        "typed_status",
+        "typed_implementation",
+        "backend_status",
+        "backend_core",
+        "canonical_state_status",
+        "canonical_state",
+        "frontend_exposure",
+        "frontend_protocol",
+        "frontend_security",
+        "runtime_target",
+        "typed_schema_status",
+        "schema_status",
+    }
+)
+ASSOCIATION_ERROR_CODES = frozenset(
+    {
+        "MissingAssociation",
+        "DuplicateAssociation",
+        "StaleAssociation",
+        "WrongAssociationCategory",
+        "WrongParameterType",
+        "WrongResultType",
+        "ConflictingAssociationEvidence",
+        "UnitWithNonUnitResultType",
+        "ConcreteWithoutResultType",
+        "ContractOnNonRequest",
+        "ExperimentalAssociationCountedAsStable",
+    }
+)
+ASSIGNMENT_ERROR_CODES = frozenset(
+    {
+        "DuplicateModuleSliceAssignment",
+        "MissingModuleSliceAssignment",
+        "StaleModuleSliceAssignment",
+        "AssignmentStabilityMismatch",
+        "InvalidAssignmentClassification",
+        "AssignmentSliceMismatch",
+        "AssignmentDomainSliceMismatch",
+        "AssignmentModuleMismatch",
+        "DuplicateReachabilityRoot",
+        "MissingReachabilityRoot",
+        "StaleReachabilityRoot",
+        "ReachabilityRootSetMismatch",
+        "DuplicateReachabilityRecord",
+        "MissingReachabilityRecord",
+        "StaleReachabilityRecord",
+        "ReachabilityAssignedSliceMismatch",
+        "ReachabilityClassificationMismatch",
+        "ReachabilityNotEarliestSlice",
+        "FalseStableUnreachable",
+    }
+)
+COMPLETENESS_ERROR_CODES = frozenset(
+    {
+        "RequiredFieldNotExercised",
+        "SchemaPropertyNotExercised",
+        "OptionalPresentCaseMissing",
+        "OptionalOmittedCaseMissing",
+        "NullableSemanticsMissing",
+        "ReachableUnionAlternativeMissing",
+        "DirectionAssertionMissing",
+        "StaleFixture",
+        "CompletenessRuntimeTargetMismatch",
+        "UnrecordedOpaqueField",
+        "ClaimedCompleteWithoutAuthoritativeAssociation",
+        "ClaimedCompleteWithoutPositiveFixtureCoverage",
+        "ClaimedCompleteWithoutIndependentValidation",
+        "KnownSchemaFieldDropped",
+        "TypedSchemaStatusMismatch",
+    }
+)
+DEFAULT_A1_EVIDENCE_ROOT = (
+    Path(__file__).resolve().parent / "app-server-evidence" / "0.144.6"
+)
+DEFAULT_PINNED_SCHEMA_ROOT = (
+    Path(__file__).resolve().parent / "app-server-schema" / "0.144.6"
+)
+DEFAULT_PINNED_PROTOCOL_SOURCE_ROOT = (
+    Path(__file__).resolve().parent
+    / "app-server-protocol-source"
+    / "0.144.6"
+)
+
+
+_VENDORED_RUST_ASSOCIATIONS: tuple[dict[str, Any], dict[str, Any]] | None = None
+
+
+def vendored_rust_associations() -> tuple[dict[str, Any], dict[str, Any]]:
+    """Reparse exact vendored Rust authority for association guard checks."""
+
+    global _VENDORED_RUST_ASSOCIATIONS
+    if _VENDORED_RUST_ASSOCIATIONS is not None:
+        return _VENDORED_RUST_ASSOCIATIONS
+
+    tool_path = Path(__file__).resolve().with_name("app_server_contracts.py")
+    specification = importlib.util.spec_from_file_location(
+        "snodec_codex_app_server_contracts_authority", tool_path
+    )
+    if specification is None or specification.loader is None:
+        raise SurfaceError(
+            f"unable to load vendored Rust association extractor: {tool_path}"
+        )
+    module = importlib.util.module_from_spec(specification)
+    sys.modules[specification.name] = module
+    try:
+        specification.loader.exec_module(module)
+        module.source_provenance(DEFAULT_PINNED_PROTOCOL_SOURCE_ROOT)
+        source = (
+            DEFAULT_PINNED_PROTOCOL_SOURCE_ROOT / module.COMMON_PATH
+        ).read_text(encoding="utf-8")
+        clients = {
+            association.method: association
+            for association in module.parse_request_macro(
+                source, "client_request_definitions"
+            )
+        }
+        servers = {
+            association.method: association
+            for association in module.parse_request_macro(
+                source, "server_request_definitions"
+            )
+        }
+    except (OSError, UnicodeError, ValueError, RuntimeError) as error:
+        raise SurfaceError(
+            f"unable to rederive vendored Rust associations: {error}"
+        ) from error
+    _VENDORED_RUST_ASSOCIATIONS = (clients, servers)
+    return _VENDORED_RUST_ASSOCIATIONS
+
+
+def schema_result_contract_kind(document: dict[str, Any]) -> str:
+    """Derive result semantics from the independently loaded schema root."""
+
+    schema_type = document.get("type")
+    if schema_type == "null" or (
+        isinstance(schema_type, list) and "null" in schema_type
+    ):
+        return "Nullable"
+    for keyword in ("oneOf", "anyOf"):
+        branches = document.get(keyword)
+        if isinstance(branches, list) and any(
+            isinstance(branch, dict) and branch.get("type") == "null"
+            for branch in branches
+        ):
+            return "Nullable"
+    properties = document.get("properties")
+    required = document.get("required")
+    if (
+        schema_type == "object"
+        and (properties is None or properties == {})
+        and (required is None or required == [])
+        and not any(
+            keyword in document
+            for keyword in ("$ref", "allOf", "anyOf", "oneOf")
+        )
+    ):
+        return "Unit"
+    return "Concrete"
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
     ("client_request", "ClientRequest", "method", "thread/start"): "ClientRequestTarget::ThreadStart",
@@ -234,6 +555,102 @@ RUNTIME_TARGETS = {
         "dynamicToolCall",
     ): "ItemDiscriminatorTarget::DynamicToolCall",
     ("item_discriminator", "ThreadItem", "type", "webSearch"): "ItemDiscriminatorTarget::WebSearch",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "activeTurnNotSteerable",
+    ): "CodexErrorInfoTarget::ActiveTurnNotSteerable",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "badRequest",
+    ): "CodexErrorInfoTarget::BadRequest",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "contextWindowExceeded",
+    ): "CodexErrorInfoTarget::ContextWindowExceeded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "cyberPolicy",
+    ): "CodexErrorInfoTarget::CyberPolicy",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "httpConnectionFailed",
+    ): "CodexErrorInfoTarget::HttpConnectionFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "internalServerError",
+    ): "CodexErrorInfoTarget::InternalServerError",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "other",
+    ): "CodexErrorInfoTarget::Other",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseStreamConnectionFailed",
+    ): "CodexErrorInfoTarget::ResponseStreamConnectionFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseStreamDisconnected",
+    ): "CodexErrorInfoTarget::ResponseStreamDisconnected",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "responseTooManyFailedAttempts",
+    ): "CodexErrorInfoTarget::ResponseTooManyFailedAttempts",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "sandboxError",
+    ): "CodexErrorInfoTarget::SandboxError",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "serverOverloaded",
+    ): "CodexErrorInfoTarget::ServerOverloaded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "sessionBudgetExceeded",
+    ): "CodexErrorInfoTarget::SessionBudgetExceeded",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "threadRollbackFailed",
+    ): "CodexErrorInfoTarget::ThreadRollbackFailed",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "unauthorized",
+    ): "CodexErrorInfoTarget::Unauthorized",
+    (
+        "tagged_union_discriminator",
+        "CodexErrorInfo",
+        "$variant",
+        "usageLimitExceeded",
+    ): "CodexErrorInfoTarget::UsageLimitExceeded",
 }
 EXISTING_FRONTEND_OPERATION_DETAILS = {
     (
@@ -1680,7 +2097,1427 @@ def build_provenance(
     }
 
 
-def registry_statuses(entry: dict[str, Any]) -> tuple[str, ...]:
+def surface_key(entry: dict[str, Any]) -> tuple[str, str, str, str]:
+    """Return the exact canonical ProtocolSurfaceKey for a manifest-like row."""
+
+    key = entry.get("surface_key", entry.get("protocol_surface_key", entry.get("key", entry)))
+    if not isinstance(key, dict):
+        raise SurfaceError("protocol evidence row has no object-valued surface key")
+    category = key.get("category")
+    domain = key.get("domain")
+    field = key.get("field", key.get("discriminator_field"))
+    name = key.get("name")
+    if not all(isinstance(value, str) and value for value in (category, domain, field, name)):
+        raise SurfaceError("protocol evidence row has an invalid exact surface key")
+    return category, domain, field, name
+
+
+def evidence_records(
+    document: dict[str, Any], names: Sequence[str], description: str
+) -> list[dict[str, Any]]:
+    reject_local_dispositions(document, description)
+    for name in names:
+        records = document.get(name)
+        if isinstance(records, list):
+            if not all(isinstance(record, dict) for record in records):
+                raise SurfaceError(f"{description} contains a non-object record")
+            return records
+    raise SurfaceError(
+        f"{description} has none of the required arrays: {', '.join(names)}"
+    )
+
+
+def reject_local_dispositions(record: Any, description: str) -> None:
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, dict):
+            prohibited = set(value) & LOCAL_DISPOSITION_FIELDS
+            if prohibited:
+                raise SurfaceError(
+                    f"{description} contains local disposition fields at "
+                    f"{path}: {sorted(prohibited)}"
+                )
+            for key, child in value.items():
+                walk(child, f"{path}/{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, f"{path}/{index}")
+
+    walk(record, "$")
+
+
+def load_a1_registry_evidence(root: Path = DEFAULT_A1_EVIDENCE_ROOT) -> dict[str, Any]:
+    filenames = {
+        "operation_contracts": "operation-contracts.json",
+        "assignments": "module-slice-assignment.json",
+        "reachability": "nested-reachability.json",
+        "fixture_coverage": "fixture-coverage.json",
+    }
+    result: dict[str, Any] = {}
+    for key, filename in filenames.items():
+        path = root / filename
+        try:
+            document = load_json(path)
+        except OSError as error:
+            raise SurfaceError(f"unable to read required A1 evidence {path}: {error}") from error
+        if not isinstance(document, dict):
+            raise SurfaceError(f"required A1 evidence is not a JSON object: {path}")
+        result[key] = document
+    return result
+
+
+def _diagnostic(code: str, key: tuple[str, str, str, str], message: str) -> dict[str, Any]:
+    if (
+        code not in ASSOCIATION_ERROR_CODES
+        and code not in ASSIGNMENT_ERROR_CODES
+        and code not in COMPLETENESS_ERROR_CODES
+    ):
+        raise AssertionError(f"unregistered protocol evidence diagnostic code: {code}")
+    return {
+        "code": code,
+        "surface_key": {
+            "category": key[0],
+            "domain": key[1],
+            "field": key[2],
+            "name": key[3],
+        },
+        "message": message,
+    }
+
+
+def association_diagnostics(
+    manifest: dict[str, Any],
+    contracts_document: dict[str, Any],
+    registry_entries: Sequence[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Validate evidence and registry associations in both directions.
+
+    The evidence contains no local dispositions. The canonical registry copies
+    its operation fields from this evidence and remains the sole runtime/local
+    disposition authority.
+    """
+
+    rust_client_authority, rust_server_authority = (
+        vendored_rust_associations()
+    )
+    manifest_entries = {surface_key(entry): entry for entry in manifest["entries"]}
+    expected = {
+        key: entry
+        for key, entry in manifest_entries.items()
+        if entry["stability"] == "stable"
+        and entry["category"] in {"client_request", "server_request"}
+    }
+    contracts = evidence_records(
+        contracts_document, ("contracts",), "operation-contract evidence"
+    )
+    by_key: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    duplicate_keys: set[tuple[str, str, str, str]] = set()
+    category_replacements: set[tuple[str, str, str, str]] = set()
+    diagnostics: list[dict[str, Any]] = []
+    evidence_identity_owners: dict[
+        tuple[str, str], tuple[str, str, str, str]
+    ] = {}
+    schema_pair_branch_owners: dict[
+        tuple[str, int], tuple[str, str, str, str]
+    ] = {}
+
+    for contract in contracts:
+        reject_local_dispositions(contract, "operation-contract evidence")
+        key = surface_key(contract)
+        if key in by_key:
+            if key not in duplicate_keys:
+                diagnostics.append(
+                    _diagnostic(
+                        "DuplicateAssociation",
+                        key,
+                        "operation evidence contains a duplicate exact ProtocolSurfaceKey",
+                    )
+                )
+                duplicate_keys.add(key)
+            continue
+
+        manifest_entry = manifest_entries.get(key)
+        if manifest_entry is None:
+            same_identity = [
+                candidate
+                for candidate in expected
+                if candidate[1:] == key[1:] and candidate[0] != key[0]
+            ]
+            if len(same_identity) == 1:
+                category_replacements.add(same_identity[0])
+                diagnostics.append(
+                    _diagnostic(
+                        "WrongAssociationCategory",
+                        key,
+                        "operation evidence uses the wrong category for an otherwise exact identity",
+                    )
+                )
+            else:
+                diagnostics.append(
+                    _diagnostic(
+                        "StaleAssociation",
+                        key,
+                        "operation evidence identity is absent from the pinned manifest",
+                    )
+                )
+            continue
+
+        if manifest_entry["category"] not in {"client_request", "server_request"}:
+            diagnostics.append(
+                _diagnostic(
+                    "ContractOnNonRequest",
+                    key,
+                    "operation evidence is attached to a non-request surface",
+                )
+            )
+            continue
+        if manifest_entry["stability"] != "stable":
+            diagnostics.append(
+                _diagnostic(
+                    "ExperimentalAssociationCountedAsStable",
+                    key,
+                    "experimental-only operation evidence cannot count toward stable coverage",
+                )
+            )
+            continue
+        by_key[key] = contract
+
+    for key in sorted(expected):
+        if key not in by_key and key not in category_replacements:
+            diagnostics.append(
+                _diagnostic(
+                    "MissingAssociation",
+                    key,
+                    "stable request has no authoritative operation association",
+                )
+            )
+
+    registry = registry_by_key(registry_entries) if registry_entries is not None else {}
+    for key, contract in sorted(by_key.items()):
+        manifest_entry = expected[key]
+        evidence_key = contract.get("association_evidence_key")
+        primary_identity_duplicate = False
+        if not isinstance(evidence_key, str) or not evidence_key:
+            diagnostics.append(
+                _diagnostic(
+                    "MissingAssociation",
+                    key,
+                    "authoritative operation association has no stable evidence key",
+                )
+            )
+        else:
+            primary_identity = (
+                str(contract.get("association_evidence_kind")),
+                evidence_key,
+            )
+            previous_owner = evidence_identity_owners.setdefault(
+                primary_identity, key
+            )
+            if previous_owner != key:
+                primary_identity_duplicate = True
+                diagnostics.append(
+                    _diagnostic(
+                        "DuplicateAssociation",
+                        key,
+                        (
+                            "authoritative evidence identity is already owned "
+                            f"by {previous_owner}"
+                        ),
+                    )
+                )
+        parameter_type = contract.get("parameter_type_identity")
+        expected_parameter = manifest_entry["params"]["type"] or "Unit"
+        parameter_schema = contract.get("parameter_schema")
+        parameter_schema_path = (
+            Path(parameter_schema)
+            if isinstance(parameter_schema, str) and parameter_schema
+            else None
+        )
+        safe_parameter_schema_path = (
+            parameter_schema_path is not None
+            and not parameter_schema_path.is_absolute()
+            and ".." not in parameter_schema_path.parts
+            and bool(parameter_schema_path.parts)
+            and parameter_schema_path.parts[0] == "stable"
+            and parameter_schema_path.suffix == ".json"
+        )
+        parameter_schema_document: Any = None
+        if safe_parameter_schema_path:
+            try:
+                parameter_schema_document = json.loads(
+                    (
+                        DEFAULT_PINNED_SCHEMA_ROOT / parameter_schema_path
+                    ).read_text(encoding="utf-8")
+                )
+            except (
+                OSError,
+                UnicodeError,
+                json.JSONDecodeError,
+            ):
+                parameter_schema_document = None
+        parameter_schema_consistent = (
+            parameter_schema is None
+            if expected_parameter == "Unit"
+            else (
+                safe_parameter_schema_path
+                and isinstance(parameter_schema_document, dict)
+                and parameter_schema_document.get("title")
+                == expected_parameter
+                and parameter_schema_path.stem == expected_parameter
+            )
+        )
+        registry_entry = registry.get(key)
+        if registry_entries is not None and registry_entry is None:
+            wrong_category = [
+                candidate
+                for candidate in registry
+                if candidate[1:] == key[1:] and candidate[0] != key[0]
+            ]
+            diagnostics.append(
+                _diagnostic(
+                    (
+                        "WrongAssociationCategory"
+                        if len(wrong_category) == 1
+                        else "StaleAssociation"
+                    ),
+                    key,
+                    (
+                        "canonical registry associates this exact identity with the wrong category"
+                        if len(wrong_category) == 1
+                        else "authoritative association does not resolve to one canonical registry row"
+                    ),
+                )
+            )
+            continue
+        registry_parameter = (
+            registry_entry.get("parameter_type_identity")
+            if registry_entry is not None
+            else parameter_type
+        )
+        parameter_identity_consistent = (
+            parameter_type == expected_parameter
+            and registry_parameter == parameter_type
+            and parameter_schema_consistent
+        )
+        if not parameter_identity_consistent:
+            diagnostics.append(
+                _diagnostic(
+                    "WrongParameterType",
+                    key,
+                    "operation parameter identity disagrees with schema or registry",
+                )
+            )
+
+        result_type = contract.get("result_type_identity")
+        named_result_type = contract.get("result_schema_type_identity")
+        result_schema = contract.get("result_schema")
+        result_kind = contract.get("result_contract_kind")
+        local_result_consistent = True
+        wrong_result_reported = False
+        if result_kind == "Unit" and result_type not in {"Unit", "()"}:
+            diagnostics.append(
+                _diagnostic(
+                    "UnitWithNonUnitResultType",
+                    key,
+                    "Unit result contract lacks an explicit unit result identity",
+                )
+            )
+            local_result_consistent = False
+        elif result_kind == "Concrete" and not result_type:
+            diagnostics.append(
+                _diagnostic(
+                    "ConcreteWithoutResultType",
+                    key,
+                    "Concrete result contract lacks a result type identity",
+                )
+            )
+            local_result_consistent = False
+        elif result_kind not in {
+            "Concrete",
+            "Unit",
+            "Nullable",
+            "ProtocolSpecial",
+        }:
+            diagnostics.append(
+                _diagnostic(
+                    "MissingAssociation",
+                    key,
+                    "stable request has an unresolved or inapplicable result contract",
+                )
+            )
+            local_result_consistent = False
+        elif result_kind in {"Nullable", "ProtocolSpecial"} and not result_type:
+            diagnostics.append(
+                _diagnostic(
+                    "WrongResultType",
+                    key,
+                    "result contract requires a non-empty result type identity",
+                )
+            )
+            local_result_consistent = False
+
+        result_schema_path = (
+            Path(result_schema)
+            if isinstance(result_schema, str) and result_schema
+            else None
+        )
+        safe_result_schema_path = (
+            result_schema_path is not None
+            and not result_schema_path.is_absolute()
+            and ".." not in result_schema_path.parts
+            and bool(result_schema_path.parts)
+            and result_schema_path.parts[0] == "stable"
+            and result_schema_path.suffix == ".json"
+        )
+        result_schema_document: Any = None
+        if safe_result_schema_path:
+            try:
+                result_schema_document = json.loads(
+                    (
+                        DEFAULT_PINNED_SCHEMA_ROOT / result_schema_path
+                    ).read_text(encoding="utf-8")
+                )
+            except (
+                OSError,
+                UnicodeError,
+                json.JSONDecodeError,
+            ):
+                result_schema_document = None
+        result_schema_identity_consistent = (
+            isinstance(named_result_type, str)
+            and bool(named_result_type)
+            and safe_result_schema_path
+            and result_schema_path.stem == named_result_type
+            and isinstance(result_schema_document, dict)
+            and result_schema_document.get("title") == named_result_type
+            and (
+                result_kind == "Unit"
+                or result_type == named_result_type
+            )
+        )
+        if local_result_consistent and not result_schema_identity_consistent:
+            diagnostics.append(
+                _diagnostic(
+                    "WrongResultType",
+                    key,
+                    (
+                        "named result identity, schema root, and canonical "
+                        "result contract disagree"
+                    ),
+                )
+            )
+            wrong_result_reported = True
+        if (
+            local_result_consistent
+            and isinstance(result_schema_document, dict)
+            and schema_result_contract_kind(result_schema_document)
+            != result_kind
+            and not wrong_result_reported
+        ):
+            diagnostics.append(
+                _diagnostic(
+                    "WrongResultType",
+                    key,
+                    (
+                        "declared result contract kind disagrees with "
+                        "independently loaded schema semantics"
+                    ),
+                )
+            )
+            wrong_result_reported = True
+
+        if registry_entry is not None and local_result_consistent:
+            if (
+                registry_entry.get("result_type_identity") != result_type
+                or registry_entry.get("result_contract_kind") != result_kind
+            ) and not wrong_result_reported:
+                diagnostics.append(
+                    _diagnostic(
+                        "WrongResultType",
+                        key,
+                        "operation result identity disagrees with canonical registry",
+                    )
+                )
+                wrong_result_reported = True
+
+        expected_evidence = (
+            "VendoredRust" if key[0] == "client_request" else "VendoredSchemaPair"
+        )
+        evidence_kind = contract.get("association_evidence_kind")
+        registry_evidence = (
+            registry_entry.get("association_evidence_kind")
+            if registry_entry is not None
+            else evidence_kind
+        )
+        conflict = evidence_kind != expected_evidence or registry_evidence != evidence_kind
+        if key[0] == "client_request":
+            rust = contract.get("rust")
+            authority = rust_client_authority.get(key[3])
+            if authority is None or authority.experimental:
+                conflict = True
+            else:
+                expected_rust_record = {
+                    "variant": authority.variant,
+                    "wire_method": authority.method,
+                    "parameter_type": authority.parameter_type,
+                    "result_type": authority.result_type,
+                }
+                expected_rust_key = (
+                    f"{VENDORED_RUST_COMMON_PATH}"
+                    f"#client_request_definitions!/{authority.variant}"
+                )
+                authoritative_parameter = (
+                    "Unit"
+                    if re.search(
+                        r"\bOption\s*<\s*\(\s*\)\s*>",
+                        authority.parameter_type,
+                    )
+                    else authority.parameter_type.rsplit("::", 1)[-1]
+                )
+                authoritative_result = authority.result_type.rsplit(
+                    "::", 1
+                )[-1]
+                if (
+                    rust != expected_rust_record
+                    or (
+                        evidence_key != expected_rust_key
+                        and not primary_identity_duplicate
+                    )
+                    or (
+                        parameter_identity_consistent
+                        and authoritative_parameter != parameter_type
+                    )
+                    or authoritative_result != named_result_type
+                ):
+                    conflict = True
+                expected_result_schema = (
+                    "stable/"
+                    + authority.result_type.replace("::", "/")
+                    + ".json"
+                )
+                if (
+                    result_schema != expected_result_schema
+                    and not wrong_result_reported
+                ):
+                    diagnostics.append(
+                        _diagnostic(
+                            "WrongResultType",
+                            key,
+                            (
+                                "result schema root disagrees with the "
+                                "vendored Rust successful result type"
+                            ),
+                        )
+                    )
+                    wrong_result_reported = True
+        else:
+            schema_pair = contract.get("schema_pair")
+            manifest_sources = manifest_entry.get("sources", [])
+            server_union_sources = [
+                source
+                for source in manifest_sources
+                if isinstance(source, dict)
+                and source.get("file") == "ServerRequest.json"
+                and isinstance(source.get("pointer"), str)
+                and re.fullmatch(r"/oneOf/[0-9]+", source["pointer"])
+            ]
+            expected_branch = (
+                int(server_union_sources[0]["pointer"].rsplit("/", 1)[-1])
+                if len(server_union_sources) == 1
+                else None
+            )
+            if not isinstance(schema_pair, dict):
+                conflict = True
+            else:
+                request_union = schema_pair.get("request_union")
+                branch = schema_pair.get("branch")
+                parameter_schema = schema_pair.get("parameter_schema")
+                response_schema = schema_pair.get("response_schema")
+                valid_branch = isinstance(branch, int) and not isinstance(
+                    branch, bool
+                ) and branch >= 0
+                expected_schema_key = (
+                    f"{request_union}#/oneOf/{branch}+{response_schema}"
+                    if isinstance(request_union, str)
+                    and valid_branch
+                    and isinstance(response_schema, str)
+                    else None
+                )
+                if (
+                    request_union != "stable/ServerRequest.json"
+                    or not valid_branch
+                    or branch != expected_branch
+                    or parameter_schema != contract.get("parameter_schema")
+                    or response_schema != result_schema
+                    or (
+                        evidence_key != expected_schema_key
+                        and not primary_identity_duplicate
+                    )
+                ):
+                    conflict = True
+                if isinstance(request_union, str) and valid_branch:
+                    branch_identity = (request_union, branch)
+                    previous_owner = schema_pair_branch_owners.setdefault(
+                        branch_identity, key
+                    )
+                    if previous_owner != key:
+                        diagnostics.append(
+                            _diagnostic(
+                                "DuplicateAssociation",
+                                key,
+                                (
+                                    "server-request schema branch is already "
+                                    f"owned by {previous_owner}"
+                                ),
+                            )
+                        )
+        cross_checks = contract.get("cross_check_evidence", [])
+        if not isinstance(cross_checks, list):
+            raise SurfaceError("operation cross_check_evidence is not an array")
+        seen_cross_checks: set[str] = set()
+        for cross_check in cross_checks:
+            if not isinstance(cross_check, dict):
+                raise SurfaceError("operation cross-check evidence contains a non-object")
+            kind = cross_check.get("kind")
+            cross_key = cross_check.get("key")
+            if (
+                not isinstance(kind, str)
+                or kind in seen_cross_checks
+                or not isinstance(cross_key, str)
+                or not cross_key
+            ):
+                conflict = True
+            if isinstance(kind, str):
+                seen_cross_checks.add(kind)
+            if (
+                isinstance(kind, str)
+                and isinstance(cross_key, str)
+                and cross_key
+            ):
+                cross_identity = (kind, cross_key)
+                previous_owner = evidence_identity_owners.setdefault(
+                    cross_identity, key
+                )
+                if previous_owner != key:
+                    diagnostics.append(
+                        _diagnostic(
+                            "DuplicateAssociation",
+                            key,
+                            (
+                                "cross-check evidence identity is already "
+                                f"owned by {previous_owner}"
+                            ),
+                        )
+                    )
+            cross_parameter = cross_check.get("parameter_type_identity", parameter_type)
+            cross_result = cross_check.get("result_type_identity", result_type)
+            cross_named_result = cross_check.get(
+                "result_schema_type_identity", named_result_type
+            )
+            cross_kind = cross_check.get("result_contract_kind", result_kind)
+            if (
+                cross_parameter != parameter_type
+                or cross_result != result_type
+                or cross_named_result != named_result_type
+                or cross_kind != result_kind
+                or cross_check.get("agrees", True) is not True
+            ):
+                conflict = True
+            if kind == "VendoredRust" and key[0] == "server_request":
+                authority = rust_server_authority.get(key[3])
+                cross_duplicate = (
+                    isinstance(cross_key, str)
+                    and evidence_identity_owners.get((kind, cross_key)) != key
+                )
+                if authority is None or authority.experimental:
+                    conflict = True
+                else:
+                    authoritative_parameter = (
+                        "Unit"
+                        if re.search(
+                            r"\bOption\s*<\s*\(\s*\)\s*>",
+                            authority.parameter_type,
+                        )
+                        else authority.parameter_type.rsplit("::", 1)[-1]
+                    )
+                    authoritative_result = authority.result_type.rsplit(
+                        "::", 1
+                    )[-1]
+                    expected_cross_key = (
+                        f"{VENDORED_RUST_COMMON_PATH}"
+                        f"#server_request_definitions!/{authority.variant}"
+                    )
+                    expected_cross_check = {
+                        "kind": "VendoredRust",
+                        "key": cross_key,
+                        "parameter_type_identity": authoritative_parameter,
+                        "result_type_identity": (
+                            "Unit"
+                            if result_kind == "Unit"
+                            else authoritative_result
+                        ),
+                        "result_schema_type_identity": authoritative_result,
+                        "result_contract_kind": result_kind,
+                        "agrees": True,
+                    }
+                    if (
+                        cross_check != expected_cross_check
+                        or (
+                            cross_key != expected_cross_key
+                            and not cross_duplicate
+                        )
+                    ):
+                        conflict = True
+        if conflict:
+            diagnostics.append(
+                _diagnostic(
+                    "ConflictingAssociationEvidence",
+                    key,
+                    "authoritative and cross-check operation evidence conflict",
+                )
+            )
+
+        if registry_entry is not None and (
+            registry_entry.get("association_evidence_key")
+            != evidence_key
+        ):
+            diagnostics.append(
+                _diagnostic(
+                    "ConflictingAssociationEvidence",
+                    key,
+                    "registry evidence key disagrees with authoritative association",
+                )
+            )
+
+    return diagnostics
+
+
+def _frozen_public_root_slice(
+    category: str, name: str
+) -> tuple[str, str] | None:
+    if category == "client_notification" and name == "initialized":
+        return "A1.0", "Common"
+    if category == "server_notification" and name == "error":
+        return "A1.0", "Common"
+    if name == "configWarning":
+        return "A1.2", SLICE_TYPED_MODULES["A1.2"]
+    if name in {
+        "guardianWarning",
+        "permissionProfile/list",
+        "thread/approveGuardianDeniedAction",
+    }:
+        return "A1.3", SLICE_TYPED_MODULES["A1.3"]
+
+    prefix = name.split("/", 1)[0]
+    if prefix in {"thread", "turn"}:
+        return "A1.1", SLICE_TYPED_MODULES["A1.1"]
+    if prefix == "item" and category == "server_notification":
+        if any(
+            marker in name
+            for marker in (
+                "autoApprovalReview",
+                "requestApproval",
+                "guardian",
+                "permissions",
+            )
+        ):
+            return "A1.3", SLICE_TYPED_MODULES["A1.3"]
+        return "A1.1", SLICE_TYPED_MODULES["A1.1"]
+    if prefix in {
+        "account",
+        "model",
+        "modelProvider",
+        "config",
+        "configRequirements",
+        "experimentalFeature",
+    }:
+        return "A1.2", SLICE_TYPED_MODULES["A1.2"]
+    if prefix in {
+        "command",
+        "fs",
+        "review",
+        "fuzzyFileSearch",
+        "execCommandApproval",
+        "applyPatchApproval",
+    }:
+        return "A1.3", SLICE_TYPED_MODULES["A1.3"]
+    if prefix == "item" and category == "server_request":
+        if any(
+            marker in name
+            for marker in ("commandExecution", "fileChange", "permissions")
+        ):
+            return "A1.3", SLICE_TYPED_MODULES["A1.3"]
+    if name == "initialize":
+        return "A1.0", "Common"
+    if name in A1_4_PUBLIC_ROOTS.get(category, frozenset()):
+        return "A1.4", SLICE_TYPED_MODULES["A1.4"]
+    return None
+
+
+def _assignment_profile(
+    entry: dict[str, Any],
+    classification: object,
+    slice_name: object,
+) -> tuple[str | None, bool]:
+    """Return the only module allowed by an assignment's semantic profile.
+
+    The boolean indicates whether the category, stability, classification, and
+    slice form one of the frozen A1 assignment profiles. Nested-union
+    classifications are additionally proven from reachability below.
+    """
+
+    category = entry["category"]
+    stability = entry["stability"]
+    if stability == "experimental_only":
+        valid = (
+            classification == "ExperimentalInventoryOnly"
+            and slice_name == "InventoryOnly"
+        )
+        return ("ExperimentalInventory" if valid else None), valid
+    if category == "item_discriminator":
+        valid = classification == "StableItemRoot" and slice_name == "A1.1"
+        return ("ThreadsTurnsSessions" if valid else None), valid
+    if category != "tagged_union_discriminator":
+        expected = _frozen_public_root_slice(category, entry["name"])
+        valid = (
+            classification == "StablePublicRoot"
+            and expected is not None
+            and slice_name == expected[0]
+        )
+        return (expected[1] if valid else None), valid
+
+    if classification not in NESTED_ASSIGNMENT_CLASSIFICATIONS:
+        return None, False
+    if classification == "CrossCuttingA1_0Exception":
+        valid = entry["domain"] == "CodexErrorInfo" and slice_name == "A1.0"
+        return ("Common" if valid else None), valid
+    if classification == "StableUnreachableInventory":
+        valid = slice_name == "InventoryOnly"
+        return ("StableUnreachableInventory" if valid else None), valid
+    if classification == "SharedCommon":
+        valid = isinstance(slice_name, str) and slice_name in A1_SLICE_ORDER
+        return ("Common" if valid else None), valid
+    valid = (
+        classification in {"RootOwnedNestedUnion", "SharedWithinSlice"}
+        and isinstance(slice_name, str)
+        and slice_name in SLICE_TYPED_MODULES
+        and slice_name != "A1.0"
+    )
+    return (SLICE_TYPED_MODULES.get(slice_name) if valid else None), valid
+
+
+def _synthetic_reachability_key(root_id: str) -> tuple[str, str, str, str]:
+    return (
+        "tagged_union_discriminator",
+        "ReachabilityRoot",
+        "root_id",
+        root_id,
+    )
+
+
+def _canonical_surface_key_object(
+    key: tuple[str, str, str, str],
+) -> dict[str, str]:
+    return {
+        "category": key[0],
+        "domain": key[1],
+        "discriminator_field": key[2],
+        "name": key[3],
+    }
+
+
+def _expected_reachability_roots(
+    manifest_entries: dict[tuple[str, str, str, str], dict[str, Any]],
+    assignments: dict[tuple[str, str, str, str], dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    roots: dict[str, dict[str, Any]] = {}
+    for key, entry in sorted(manifest_entries.items()):
+        if (
+            entry["stability"] != "stable"
+            or entry["category"]
+            not in {
+                "client_notification",
+                "client_request",
+                "server_notification",
+                "server_request",
+            }
+        ):
+            continue
+        root_id = ":".join(key)
+        roots[root_id] = {
+            "role": "method",
+            "root_id": root_id,
+            "slice": assignments[key]["slice"],
+            "surface_key": _canonical_surface_key_object(key),
+        }
+    for item_domain in ("ResponseItem", "ThreadItem"):
+        root_id = f"item_union:{item_domain}"
+        roots[root_id] = {
+            "role": "item_union",
+            "root_id": root_id,
+            "slice": "A1.1",
+        }
+    return roots
+
+
+def _root_record_matches(
+    actual: dict[str, Any], expected: dict[str, Any]
+) -> bool:
+    if (
+        actual.get("role") != expected["role"]
+        or actual.get("root_id") != expected["root_id"]
+        or actual.get("slice") != expected["slice"]
+    ):
+        return False
+    expected_key = expected.get("surface_key")
+    actual_key = actual.get("surface_key")
+    if expected_key is None:
+        return actual_key is None
+    if actual_key is None:
+        return False
+    try:
+        return surface_key({"surface_key": actual_key}) == surface_key(
+            {"surface_key": expected_key}
+        )
+    except SurfaceError:
+        return False
+
+
+def _reachability_membership_sha256(
+    records: dict[tuple[str, str, str, str], dict[str, Any]],
+) -> str:
+    membership = [
+        {
+            "surface_key": _canonical_surface_key_object(key),
+            "reaching_root_ids": sorted(
+                root["root_id"] for root in record["reaching_roots"]
+            ),
+        }
+        for key, record in sorted(records.items())
+    ]
+    return hashlib.sha256(canonical_json(membership).encode("utf-8")).hexdigest()
+
+
+def assignment_reachability_diagnostics(
+    manifest: dict[str, Any],
+    assignments_document: dict[str, Any],
+    reachability_document: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Validate frozen module/slice and nested reachability evidence.
+
+    Assignment rows join bidirectionally to the exact pinned manifest.
+    Every stable tagged-union row then joins to exactly one reachability row,
+    whose root set is checked against the frozen root catalog. Diagnostics are
+    deliberately code-stable so mutation tests can reject unrelated failures.
+    """
+
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest["entries"]
+    }
+    assignment_records = evidence_records(
+        assignments_document,
+        ("assignments", "entries", "identities"),
+        "module/slice assignment evidence",
+    )
+    assignments: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    duplicate_assignments: set[tuple[str, str, str, str]] = set()
+    diagnostics: list[dict[str, Any]] = []
+
+    for record in assignment_records:
+        reject_local_dispositions(record, "module/slice assignment evidence")
+        key = surface_key(record)
+        if key in assignments:
+            if key not in duplicate_assignments:
+                diagnostics.append(
+                    _diagnostic(
+                        "DuplicateModuleSliceAssignment",
+                        key,
+                        "module/slice evidence contains a duplicate exact ProtocolSurfaceKey",
+                    )
+                )
+                duplicate_assignments.add(key)
+            continue
+        if key not in manifest_entries:
+            diagnostics.append(
+                _diagnostic(
+                    "StaleModuleSliceAssignment",
+                    key,
+                    "module/slice evidence identity is absent from the pinned manifest",
+                )
+            )
+            continue
+        assignments[key] = record
+
+    for key in sorted(set(manifest_entries) - set(assignments)):
+        diagnostics.append(
+            _diagnostic(
+                "MissingModuleSliceAssignment",
+                key,
+                "pinned surface identity has no exact module/slice assignment",
+            )
+        )
+
+    if diagnostics:
+        return diagnostics
+
+    for key, record in sorted(assignments.items()):
+        entry = manifest_entries[key]
+        if record.get("stability") != entry["stability"]:
+            diagnostics.append(
+                _diagnostic(
+                    "AssignmentStabilityMismatch",
+                    key,
+                    "module/slice evidence stability disagrees with the pinned manifest",
+                )
+            )
+            continue
+        slice_name = record.get("slice")
+        if (
+            slice_name not in CPP_A1_SLICES
+            or record.get("a1_slice", slice_name) != slice_name
+        ):
+            diagnostics.append(
+                _diagnostic(
+                    "AssignmentSliceMismatch",
+                    key,
+                    "module/slice evidence has an invalid or internally inconsistent A1 slice",
+                )
+            )
+            continue
+        if (
+            entry["stability"] == "stable"
+            and entry["category"] != "tagged_union_discriminator"
+            and entry["category"] != "item_discriminator"
+            and record.get("classification") == "StablePublicRoot"
+        ):
+            frozen_root = _frozen_public_root_slice(
+                entry["category"], entry["name"]
+            )
+            if frozen_root is None or slice_name != frozen_root[0]:
+                diagnostics.append(
+                    _diagnostic(
+                        "AssignmentDomainSliceMismatch",
+                        key,
+                        "stable public root disagrees with its reviewed fixed domain slice",
+                    )
+                )
+                continue
+        expected_module, profile_valid = _assignment_profile(
+            entry, record.get("classification"), slice_name
+        )
+        if not profile_valid:
+            diagnostics.append(
+                _diagnostic(
+                    "InvalidAssignmentClassification",
+                    key,
+                    "category, stability, classification, and A1 slice are inconsistent",
+                )
+            )
+            continue
+        if record.get("module") != expected_module:
+            diagnostics.append(
+                _diagnostic(
+                    "AssignmentModuleMismatch",
+                    key,
+                    "typed module disagrees with the frozen classification/slice profile",
+                )
+            )
+
+    # Assignment failures are returned before reachability is evaluated so one
+    # mutated authority row cannot cause a cascade of unrelated join failures.
+    if diagnostics:
+        return diagnostics
+
+    expected_roots = _expected_reachability_roots(manifest_entries, assignments)
+    roots = evidence_records(
+        reachability_document, ("roots",), "nested-reachability root evidence"
+    )
+    roots_by_id: dict[str, dict[str, Any]] = {}
+    duplicate_roots: set[str] = set()
+    for root in roots:
+        reject_local_dispositions(root, "nested-reachability root evidence")
+        root_id = root.get("root_id")
+        if not isinstance(root_id, str) or not root_id:
+            raise SurfaceError("nested-reachability root has no stable root_id")
+        key = (
+            surface_key(root)
+            if root.get("surface_key") is not None
+            else _synthetic_reachability_key(root_id)
+        )
+        if root_id in roots_by_id:
+            if root_id not in duplicate_roots:
+                diagnostics.append(
+                    _diagnostic(
+                        "DuplicateReachabilityRoot",
+                        key,
+                        "nested-reachability evidence contains a duplicate root_id",
+                    )
+                )
+                duplicate_roots.add(root_id)
+            continue
+        if root_id not in expected_roots:
+            diagnostics.append(
+                _diagnostic(
+                    "StaleReachabilityRoot",
+                    key,
+                    "nested-reachability root is not a stable method or fixed item root",
+                )
+            )
+            continue
+        roots_by_id[root_id] = root
+
+    for root_id in sorted(set(expected_roots) - set(roots_by_id)):
+        expected = expected_roots[root_id]
+        key = (
+            surface_key(expected)
+            if expected.get("surface_key") is not None
+            else _synthetic_reachability_key(root_id)
+        )
+        diagnostics.append(
+            _diagnostic(
+                "MissingReachabilityRoot",
+                key,
+                "stable method or fixed item root is absent from reachability evidence",
+            )
+        )
+    for root_id, root in sorted(roots_by_id.items()):
+        if not _root_record_matches(root, expected_roots[root_id]):
+            expected = expected_roots[root_id]
+            key = (
+                surface_key(expected)
+                if expected.get("surface_key") is not None
+                else _synthetic_reachability_key(root_id)
+            )
+            diagnostics.append(
+                _diagnostic(
+                    "ReachabilityRootSetMismatch",
+                    key,
+                    "reachability root identity, role, or assigned slice is inconsistent",
+                )
+            )
+
+    if diagnostics:
+        return diagnostics
+
+    reachability_records = evidence_records(
+        reachability_document,
+        (
+            "reachability",
+            "entries",
+            "nested_identities",
+            "nested_union_records",
+            "records",
+        ),
+        "nested-reachability evidence",
+    )
+    expected_nested = {
+        key
+        for key, entry in manifest_entries.items()
+        if entry["stability"] == "stable"
+        and entry["category"] == "tagged_union_discriminator"
+    }
+    reachability_by_key: dict[
+        tuple[str, str, str, str], dict[str, Any]
+    ] = {}
+    duplicate_reachability: set[tuple[str, str, str, str]] = set()
+    for record in reachability_records:
+        reject_local_dispositions(record, "nested-reachability evidence")
+        key = surface_key(record)
+        if key in reachability_by_key:
+            if key not in duplicate_reachability:
+                diagnostics.append(
+                    _diagnostic(
+                        "DuplicateReachabilityRecord",
+                        key,
+                        "nested-union identity has more than one reachability record",
+                    )
+                )
+                duplicate_reachability.add(key)
+            continue
+        if key not in expected_nested:
+            diagnostics.append(
+                _diagnostic(
+                    "StaleReachabilityRecord",
+                    key,
+                    "reachability record is not a stable tagged-union identity",
+                )
+            )
+            continue
+        reachability_by_key[key] = record
+
+    for key in sorted(expected_nested - set(reachability_by_key)):
+        diagnostics.append(
+            _diagnostic(
+                "MissingReachabilityRecord",
+                key,
+                "stable tagged-union assignment has no reachability record",
+            )
+        )
+
+    if diagnostics:
+        return diagnostics
+
+    for key, record in sorted(reachability_by_key.items()):
+        assignment = assignments[key]
+        assigned_slice = record.get("assigned_slice")
+        if assigned_slice != assignment["slice"]:
+            diagnostics.append(
+                _diagnostic(
+                    "ReachabilityAssignedSliceMismatch",
+                    key,
+                    "reachability assigned slice disagrees with its exact assignment row",
+                )
+            )
+            continue
+        if record.get("classification") != assignment.get("classification"):
+            diagnostics.append(
+                _diagnostic(
+                    "ReachabilityClassificationMismatch",
+                    key,
+                    "reachability classification disagrees with its exact assignment row",
+                )
+            )
+            continue
+
+        reaching_roots = record.get("reaching_roots")
+        root_set_valid = isinstance(reaching_roots, list) and all(
+            isinstance(root, dict) for root in reaching_roots
+        )
+        root_ids: list[str] = []
+        if root_set_valid:
+            root_ids = [root.get("root_id") for root in reaching_roots]
+            root_set_valid = (
+                all(isinstance(root_id, str) and root_id for root_id in root_ids)
+                and len(set(root_ids)) == len(root_ids)
+                and all(root_id in expected_roots for root_id in root_ids)
+                and all(
+                    _root_record_matches(root, expected_roots[root_id])
+                    for root, root_id in zip(reaching_roots, root_ids)
+                )
+            )
+        root_slices = sorted(
+            {
+                expected_roots[root_id]["slice"]
+                for root_id in root_ids
+                if root_id in expected_roots
+            },
+            key=lambda value: A1_SLICE_ORDER[value],
+        )
+        if (
+            not root_set_valid
+            or record.get("reaching_root_count") != len(root_ids)
+            or record.get("reaching_slices") != root_slices
+        ):
+            diagnostics.append(
+                _diagnostic(
+                    "ReachabilityRootSetMismatch",
+                    key,
+                    "reaching roots, count, and slice set are not internally exact",
+                )
+            )
+            continue
+
+        classification = assignment["classification"]
+        if classification == "StableUnreachableInventory" and root_ids:
+            diagnostics.append(
+                _diagnostic(
+                    "FalseStableUnreachable",
+                    key,
+                    "identity classified as stable-unreachable has stable reaching roots",
+                )
+            )
+            continue
+        if not root_ids:
+            expected_classification = "StableUnreachableInventory"
+        elif manifest_entries[key]["domain"] == "CodexErrorInfo":
+            expected_classification = "CrossCuttingA1_0Exception"
+        elif len(root_ids) == 1:
+            expected_classification = "RootOwnedNestedUnion"
+        elif len(root_slices) == 1:
+            expected_classification = "SharedWithinSlice"
+        else:
+            expected_classification = "SharedCommon"
+        if classification != expected_classification:
+            diagnostics.append(
+                _diagnostic(
+                    (
+                        "FalseStableUnreachable"
+                        if classification == "StableUnreachableInventory"
+                        else "ReachabilityClassificationMismatch"
+                    ),
+                    key,
+                    "classification is not mechanically implied by its reaching root set",
+                )
+            )
+            continue
+
+        if root_slices:
+            earliest_slice = root_slices[0]
+            if assigned_slice != earliest_slice:
+                diagnostics.append(
+                    _diagnostic(
+                        "ReachabilityNotEarliestSlice",
+                        key,
+                        "nested identity is not assigned to its earliest stable reaching-root slice",
+                    )
+                )
+
+    if (
+        not diagnostics
+        and _reachability_membership_sha256(reachability_by_key)
+        != PINNED_REACHABILITY_MEMBERSHIP_SHA256
+    ):
+        diagnostics.append(
+            _diagnostic(
+                "ReachabilityRootSetMismatch",
+                (
+                    "tagged_union_discriminator",
+                    "NestedReachability",
+                    "root-set",
+                    "pinned-membership",
+                ),
+                "schema-derived nested reachability membership differs from its reviewed pin",
+            )
+        )
+
+    return diagnostics
+
+
+def assignment_by_key(
+    manifest: dict[str, Any], assignments_document: dict[str, Any]
+) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    records = evidence_records(
+        assignments_document,
+        ("assignments", "entries", "identities"),
+        "module/slice assignment evidence",
+    )
+    result: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    manifest_keys = {surface_key(entry) for entry in manifest["entries"]}
+    for record in records:
+        reject_local_dispositions(record, "module/slice assignment evidence")
+        key = surface_key(record)
+        if key in result:
+            raise SurfaceError(f"duplicate module/slice assignment: {key}")
+        if key not in manifest_keys:
+            raise SurfaceError(f"stale module/slice assignment: {key}")
+        module = record.get("module")
+        slice_name = record.get("slice", record.get("a1_slice"))
+        if not isinstance(module, str) or not module:
+            raise SurfaceError(f"module/slice assignment has no typed module: {key}")
+        if slice_name not in CPP_A1_SLICES:
+            raise SurfaceError(f"module/slice assignment has an invalid A1 slice: {key}")
+        manifest_entry = next(
+            entry for entry in manifest["entries"] if surface_key(entry) == key
+        )
+        if (
+            manifest_entry["stability"] == "experimental_only"
+            and slice_name != "InventoryOnly"
+        ):
+            raise SurfaceError(
+                f"experimental-only surface is not assigned to inventory-only: {key}"
+            )
+        normalized = dict(record)
+        normalized["slice"] = slice_name
+        result[key] = normalized
+    missing = sorted(manifest_keys - result.keys())
+    if missing:
+        raise SurfaceError(f"module/slice assignment lacks exact surface key: {missing[0]}")
+    return result
+
+
+def fixture_evidence_by_key(
+    fixture_document: dict[str, Any],
+) -> dict[tuple[str, str, str, str], list[dict[str, Any]]]:
+    fixtures = evidence_records(
+        fixture_document, ("fixtures",), "fixture-coverage evidence"
+    )
+    result: dict[tuple[str, str, str, str], list[dict[str, Any]]] = {}
+    for fixture in fixtures:
+        result.setdefault(surface_key(fixture), []).append(fixture)
+    return result
+
+
+def completeness_evidence(
+    entry: dict[str, Any],
+    fixtures: Sequence[dict[str, Any]],
+    assignment: dict[str, Any],
+) -> dict[str, bool]:
+    evidence = {field: False for field in COMPLETENESS_EVIDENCE_FIELDS}
+    if "completeness_evidence" in assignment:
+        raise SurfaceError(
+            "module/slice assignment evidence cannot carry schema-completeness or local runtime dispositions"
+        )
+
+    if fixtures:
+        for fixture in fixtures:
+            reject_local_dispositions(fixture, "fixture-coverage evidence")
+            fixture_evidence = fixture.get("completeness_evidence")
+            if fixture_evidence is None:
+                continue
+            if not isinstance(fixture_evidence, dict):
+                raise SurfaceError("fixture completeness_evidence is not an object")
+            unknown = set(fixture_evidence) - SCHEMA_FIXTURE_COMPLETENESS_FIELDS
+            if unknown:
+                raise SurfaceError(
+                    "fixture completeness evidence contains unsupported or local "
+                    f"disposition fields: {sorted(unknown)}"
+                )
+            for field, value in fixture_evidence.items():
+                if not isinstance(value, bool):
+                    raise SurfaceError(
+                        f"fixture completeness evidence {field} is not boolean"
+                    )
+                evidence[field] = evidence[field] or value
+
+        evidence["positive_fixture_coverage"] = True
+        evidence["fixture_current"] = all(
+            isinstance(
+                fixture.get("fixture_sha256", fixture.get("file_sha256")), str
+            )
+            and bool(fixture.get("fixture_sha256", fixture.get("file_sha256")))
+            for fixture in fixtures
+        )
+        evidence["independently_schema_validated"] = all(
+            fixture.get("validation", {}).get("independent") is True
+            for fixture in fixtures
+        )
+        if entry["category"] in {"client_request", "server_request"}:
+            evidence["authoritative_root_association"] = True
+    return evidence
+
+
+def derived_schema_status(
+    typed_status: str, slice_name: str, evidence: dict[str, bool]
+) -> str:
+    if slice_name == "InventoryOnly" or typed_status == "NotApplicable":
+        return "NotApplicable"
+    if typed_status != "Implemented":
+        return "NotImplemented"
+    return "Complete" if all(evidence.values()) else "Partial"
+
+
+def operation_contract_by_key(
+    manifest: dict[str, Any], contracts_document: dict[str, Any]
+) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    diagnostics = association_diagnostics(manifest, contracts_document)
+    if diagnostics:
+        first = diagnostics[0]
+        raise SurfaceError(
+            f"{first['code']}: {first['message']} at {first['surface_key']}"
+        )
+    return {
+        surface_key(contract): contract
+        for contract in evidence_records(
+            contracts_document, ("contracts",), "operation-contract evidence"
+        )
+    }
+
+
+def registry_statuses(
+    entry: dict[str, Any],
+    contract: dict[str, Any] | None,
+    assignment: dict[str, Any],
+    fixtures: Sequence[dict[str, Any]],
+) -> tuple[str, ...]:
     identity = (
         entry["category"],
         entry["domain"],
@@ -1797,6 +3634,60 @@ def registry_statuses(entry: dict[str, Any]) -> tuple[str, ...]:
         frontend_exposure = "FrontendExposure::NotApplicable"
         frontend_security = "FrontendSecurityDecision::NotApplicable"
 
+    if contract is None:
+        parameter_type_identity = ""
+        result_type_identity = ""
+        result_contract_kind = "NotApplicable"
+        association_evidence_kind = "NotApplicable"
+        association_evidence_key = ""
+    else:
+        parameter_type_identity = contract.get("parameter_type_identity")
+        result_type_identity = contract.get("result_type_identity")
+        result_contract_kind = contract.get("result_contract_kind")
+        association_evidence_kind = contract.get("association_evidence_kind")
+        association_evidence_key = contract.get("association_evidence_key")
+        if not all(
+            isinstance(value, str)
+            for value in (
+                parameter_type_identity,
+                result_type_identity,
+                result_contract_kind,
+                association_evidence_kind,
+                association_evidence_key,
+            )
+        ):
+            raise SurfaceError(f"operation contract has a non-string field: {identity}")
+    try:
+        result_contract_cpp = CPP_RESULT_CONTRACT_KINDS[result_contract_kind]
+        association_evidence_cpp = CPP_ASSOCIATION_EVIDENCE_KINDS[
+            association_evidence_kind
+        ]
+    except KeyError as error:
+        raise SurfaceError(f"operation contract has an unsupported enum: {identity}") from error
+
+    module = assignment["module"]
+    slice_name = assignment["slice"]
+    evidence = completeness_evidence(entry, fixtures, assignment)
+    if (
+        identity[0] == "tagged_union_discriminator"
+        and identity[1] == "CodexErrorInfo"
+        and target is not None
+    ):
+        # A1.0's reviewed nested-union descriptor is the production dispatch
+        # target. Focused codec tests exercise every generated positive fixture,
+        # all diagnostic classes, raw retention, and every public mapped field.
+        # CodexErrorInfo has no intentionally opaque schema field; full raw
+        # retention is supplemental rather than a replacement for field mapping.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    schema_status = derived_schema_status(
+        typed_status.removeprefix("TypedImplementationStatus::"),
+        slice_name,
+        evidence,
+    )
+
     return (
         runtime_disposition,
         typed_status,
@@ -1805,24 +3696,57 @@ def registry_statuses(entry: dict[str, Any]) -> tuple[str, ...]:
         frontend_exposure,
         frontend_security,
         target or "std::monostate{}",
+        cpp_string(parameter_type_identity),
+        cpp_string(result_type_identity),
+        result_contract_cpp,
+        association_evidence_cpp,
+        cpp_string(association_evidence_key),
+        cpp_string(module),
+        CPP_A1_SLICES[slice_name],
+        CPP_TYPED_SCHEMA_STATUSES[schema_status],
+        "schemaCompletenessEvidence("
+        + ", ".join("true" if evidence[field] else "false" for field in COMPLETENESS_EVIDENCE_FIELDS)
+        + ")",
     )
 
 
-def generate_registry_data(manifest: dict[str, Any]) -> str:
+def generate_registry_data(
+    manifest: dict[str, Any], evidence: dict[str, Any] | None = None
+) -> str:
     entries = manifest.get("entries")
     if not isinstance(entries, list):
         raise SurfaceError("surface manifest has no entries array")
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    contracts = operation_contract_by_key(manifest, evidence["operation_contracts"])
+    assignment_diagnostics = assignment_reachability_diagnostics(
+        manifest, evidence["assignments"], evidence["reachability"]
+    )
+    if assignment_diagnostics:
+        first = assignment_diagnostics[0]
+        raise SurfaceError(
+            f"{first['code']}: {first['message']} ({first['surface_key']})"
+        )
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    fixtures = fixture_evidence_by_key(evidence["fixture_coverage"])
+
     lines = [
         "// Generated by tools/codex/app_server_surface.py registry.",
         "// Inventory fields come only from the vendored JSON Schema manifest.",
-        "// Local disposition fields describe existing implementation; A0 adds no missing API.",
+        "// Operation contracts and A1 assignments come only from guarded offline evidence.",
+        "// Local disposition fields remain the sole production implementation authority.",
     ]
     for entry in entries:
         try:
             category = CPP_CATEGORIES[entry["category"]]
         except KeyError as error:
             raise SurfaceError(f"registry has unknown category: {entry.get('category')!r}") from error
-        statuses = registry_statuses(entry)
+        key = surface_key(entry)
+        statuses = registry_statuses(
+            entry,
+            contracts.get(key),
+            assignments[key],
+            fixtures.get(key, ()),
+        )
         arguments = (
             category,
             cpp_string(entry["domain"]),
@@ -1866,6 +3790,25 @@ def split_cpp_arguments(payload: str) -> list[str]:
     return arguments
 
 
+def parse_schema_completeness_argument(argument: str, path: Path, line_number: int) -> dict[str, bool]:
+    prefix = "schemaCompletenessEvidence("
+    if not argument.startswith(prefix) or not argument.endswith(")"):
+        raise SurfaceError(
+            f"invalid schema completeness evidence at {path}:{line_number}"
+        )
+    values = split_cpp_arguments(argument[len(prefix) : -1])
+    if len(values) != len(COMPLETENESS_EVIDENCE_FIELDS) or any(
+        value not in {"true", "false"} for value in values
+    ):
+        raise SurfaceError(
+            f"invalid schema completeness evidence at {path}:{line_number}"
+        )
+    return {
+        field: value == "true"
+        for field, value in zip(COMPLETENESS_EVIDENCE_FIELDS, values, strict=True)
+    }
+
+
 def parse_registry_data(path: Path) -> list[dict[str, Any]]:
     reverse_categories = {value: key for key, value in CPP_CATEGORIES.items()}
     entries: list[dict[str, Any]] = []
@@ -1880,9 +3823,9 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
         if not line.endswith(")"):
             raise SurfaceError(f"malformed registry macro at {path}:{line_number}")
         arguments = split_cpp_arguments(line[len(prefix) : -1])
-        if len(arguments) != 13:
+        if len(arguments) != 22:
             raise SurfaceError(
-                f"registry macro at {path}:{line_number} has {len(arguments)} arguments, expected 13"
+                f"registry macro at {path}:{line_number} has {len(arguments)} arguments, expected 22"
             )
         try:
             category = reverse_categories[arguments[0]]
@@ -1910,6 +3853,25 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
                     "FrontendSecurityDecision::"
                 ),
                 "runtime_target": arguments[12],
+                "parameter_type_identity": json.loads(arguments[13]),
+                "result_type_identity": json.loads(arguments[14]),
+                "result_contract_kind": arguments[15].removeprefix(
+                    "ResultContractKind::"
+                ),
+                "association_evidence_kind": arguments[16].removeprefix(
+                    "AssociationEvidenceKind::"
+                ),
+                "association_evidence_key": json.loads(arguments[17]),
+                "typed_module": json.loads(arguments[18]),
+                "a1_slice": arguments[19].removeprefix("A1Slice::").replace(
+                    "_", "."
+                ),
+                "typed_schema_status": arguments[20].removeprefix(
+                    "TypedSchemaStatus::"
+                ),
+                "schema_completeness": parse_schema_completeness_argument(
+                    arguments[21], path, line_number
+                ),
             }
         )
     if not entries:
@@ -2533,7 +4495,8 @@ def command_verify(arguments: argparse.Namespace) -> None:
 
 def command_registry(arguments: argparse.Namespace) -> None:
     manifest = load_json(arguments.manifest)
-    generated = generate_registry_data(manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_registry_data(manifest, evidence)
     if arguments.check:
         try:
             committed = arguments.output.read_text(encoding="utf-8")
@@ -2603,6 +4566,9 @@ def parser() -> argparse.ArgumentParser:
         "registry", help="generate the canonical production C++ registry data"
     )
     registry.add_argument("--manifest", type=Path, required=True)
+    registry.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
     registry.add_argument("--output", type=Path, required=True)
     registry.add_argument("--check", action="store_true")
     registry.set_defaults(function=command_registry)

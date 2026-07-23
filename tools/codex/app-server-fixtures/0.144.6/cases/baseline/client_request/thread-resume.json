@@ -1,0 +1,18 @@
+{
+  "id": "synthetic-75b01a0ef5",
+  "method": "thread/resume",
+  "params": {
+    "approvalPolicy": "untrusted",
+    "approvalsReviewer": "user",
+    "baseInstructions": "synthetic-8ce53c3ea9",
+    "config": {},
+    "cwd": "synthetic-8279d2d3f4",
+    "developerInstructions": "synthetic-4f20817a13",
+    "model": "synthetic-c26cbc7391",
+    "modelProvider": "synthetic-cb56b4f448",
+    "personality": "none",
+    "sandbox": "read-only",
+    "serviceTier": "synthetic-2b9dcb7882",
+    "threadId": "synthetic-d61737c27c"
+  }
+}
