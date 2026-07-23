@@ -39,6 +39,26 @@ See [Codex BackendCore](backend-core.md) for the canonical reducer and
 ownership model. The machine-readable contract is
 [`frontend-protocol-v1.schema.json`](frontend-protocol-v1.schema.json).
 
+## Phase A0 exposure boundary
+
+The Phase A0 App Server census does not extend Frontend Protocol v1. Complete
+upstream inventory registration, typed implementation, BackendCore support,
+canonical-state support, frontend exposure, and security disposition are
+separate metrics in the generated
+[coverage report](app-server-api-coverage.md). Registry presence therefore
+never makes an App Server operation remotely callable.
+
+The registry also distinguishes existing partial operation contracts,
+normalized event/state subsets, generic unknown server requests, and the
+bounded/redacted `codex.extension` path. None of those preservation or subset
+statuses claims full upstream method exposure.
+
+The generated [owner-review worksheet](app-server-security-decisions.md)
+preserves every existing reviewed v1 exposure and marks every new exposure
+decision `UNRESOLVED`. A0 selects no new approval, sandbox, or security-boundary
+policy. A3 may add only the operations approved after the owner freezes those
+decisions, following the A1 typed-layer and A2 BackendCore work.
+
 ## Common envelope and compatibility
 
 Every complete wire message is one JSON object containing:

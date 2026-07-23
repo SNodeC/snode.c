@@ -21,6 +21,8 @@ foreach(
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
+          ai/openai/codex/detail/ProtocolSurfaceRegistry.h
+          ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
           ai/openai/codex/detail/ServerRequestDecoder.h
           ai/openai/codex/detail/ThreadCodec.h
           ai/openai/codex/detail/Transport.h

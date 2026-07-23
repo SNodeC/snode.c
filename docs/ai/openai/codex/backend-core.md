@@ -23,6 +23,23 @@ contexts, JSONL framing, Qt, WebSocket, or browser code. In particular, a Unix
 socket path is not backend state. Concrete listener and framing code belongs in
 `src/apps/codex-backend`.
 
+## Phase A0 census boundary
+
+Phase A0 pins the Codex CLI 0.144.6 stable and experimental App Server schemas
+and registers every mechanically discovered protocol entry in the private
+production `ProtocolSurfaceRegistry`. The generated
+[coverage report](app-server-api-coverage.md) measures registry inventory,
+typed wire support, BackendCore commands, canonical reducer state, Frontend
+Protocol exposure, and owner security decisions independently. A registered
+entry or a raw-preservation disposition is not BackendCore command or state
+support.
+
+A0 changes no BackendCore commands, canonical state, or reducer semantics
+merely to improve those metrics. A2 will add the owner-frozen transport-neutral
+commands and state transitions after A1 completes the typed App Server layer.
+Unknown and future input continues through the existing bounded extension
+records in the meantime.
+
 ## Ownership and construction
 
 `BackendCore<ClientT>` directly owns exactly one concrete client:

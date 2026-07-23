@@ -30,6 +30,21 @@ Codex CLI 0.144.6 with:
 codex app-server generate-json-schema --out DIR
 ```
 
+Phase A0 pins the complete stable and experimental generated trees under
+`tools/codex/app-server-schema/0.144.6/`. The mechanically extracted inventory,
+including stability membership, lives in
+`tools/codex/app-server-surface/0.144.6.json`; the generated
+[coverage report](app-server-api-coverage.md) records inventory and
+implementation coverage as separate metrics. A private production
+`ProtocolSurfaceRegistry` is both the local disposition inventory checked by
+the coverage guard and the source used by runtime method and discriminator
+dispatch. Registration in that registry does not claim a typed implementation.
+
+This A0 census does not expand the typed API described below. Unimplemented
+entries remain raw- or opaque-preserved according to their runtime disposition.
+Adding the owner-frozen stable typed request, notification, server-request,
+item, and delta surface is A1 work.
+
 The typed operation set is `thread/start`, `thread/resume`, `thread/list`,
 `thread/read`, `turn/start`, and `turn/interrupt`.
 
