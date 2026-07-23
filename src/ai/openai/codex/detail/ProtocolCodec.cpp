@@ -9,6 +9,7 @@
 #include "ai/openai/codex/detail/ProtocolCodec.h"
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
 // IWYU pragma: no_include <map>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
@@ -183,7 +184,7 @@ namespace ai::openai::codex::detail {
     std::string ProtocolCodec::initializeRequest(std::int64_t id, const ClientInfo& clientInfo) {
         const Json params = {{"clientInfo", {{"name", clientInfo.name}, {"title", clientInfo.title}, {"version", clientInfo.version}}}};
         std::string errorMessage;
-        std::optional<std::string> message = encodeRequest(id, "initialize", params, errorMessage);
+        std::optional<std::string> message = encodeRequest(id, entryFor(ClientRequestTarget::Initialize).key.name, params, errorMessage);
         if (!message) {
             throw std::runtime_error(errorMessage);
         }
@@ -193,7 +194,8 @@ namespace ai::openai::codex::detail {
 
     std::string ProtocolCodec::initializedNotification() {
         std::string errorMessage;
-        std::optional<std::string> message = encodeNotification("initialized", Json::object(), errorMessage);
+        std::optional<std::string> message =
+            encodeNotification(entryFor(ClientNotificationTarget::Initialized).key.name, Json::object(), errorMessage);
         if (!message) {
             throw std::runtime_error(errorMessage);
         }

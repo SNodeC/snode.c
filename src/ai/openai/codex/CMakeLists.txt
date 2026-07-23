@@ -12,6 +12,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/EventDecoder.cpp
     detail/ItemDecoder.cpp
     detail/ProtocolCodec.cpp
+    detail/ProtocolSurfaceRegistry.cpp
     detail/ServerRequestDecoder.cpp
     detail/ThreadCodec.cpp
     detail/Transport.cpp
@@ -28,6 +29,8 @@ set(AI_OPENAI_CODEX_H
     detail/EventDecoder.h
     detail/ItemDecoder.h
     detail/ProtocolCodec.h
+    detail/ProtocolSurfaceRegistry.h
+    detail/ProtocolSurfaceRegistryData.inc
     detail/ServerRequestDecoder.h
     detail/ThreadCodec.h
     detail/Transport.h

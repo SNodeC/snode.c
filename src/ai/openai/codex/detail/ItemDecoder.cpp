@@ -8,13 +8,16 @@
 #include "ai/openai/codex/detail/ItemDecoder.h"
 
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
 #include <cstdint>
 #include <exception>
 #include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace ai::openai::codex::detail {
@@ -272,9 +275,10 @@ namespace ai::openai::codex::detail {
         std::optional<typed::Item> decodeMcpToolCall(const Json& value,
                                                      const std::optional<typed::ThreadId>& threadId,
                                                      const std::optional<typed::TurnId>& turnId,
+                                                     std::string_view type,
                                                      std::string& error) {
             typed::ToolCallItem item;
-            item.type = "mcpToolCall";
+            item.type = type;
             const Json* arguments = findMember(value, "arguments");
             if (!makeMetadata(value, threadId, turnId, item.metadata, error) || !readOptionalString(value, "server", item.server, error) ||
                 !requireString(value, "tool", item.tool, error) || !requireString(value, "status", item.status, error)) {
@@ -311,9 +315,10 @@ namespace ai::openai::codex::detail {
         std::optional<typed::Item> decodeDynamicToolCall(const Json& value,
                                                          const std::optional<typed::ThreadId>& threadId,
                                                          const std::optional<typed::TurnId>& turnId,
+                                                         std::string_view type,
                                                          std::string& error) {
             typed::ToolCallItem item;
-            item.type = "dynamicToolCall";
+            item.type = type;
             const Json* arguments = findMember(value, "arguments");
             if (!makeMetadata(value, threadId, turnId, item.metadata, error) ||
                 !readOptionalString(value, "namespace", item.nameSpace, error) || !requireString(value, "tool", item.tool, error) ||
@@ -388,29 +393,46 @@ namespace ai::openai::codex::detail {
                 return typed::Item{std::move(item)};
             }
 
-            std::optional<typed::Item> decoded;
-            if (type == "agentMessage") {
-                decoded = decodeAgentMessage(value, threadId, turnId, error);
-            } else if (type == "userMessage") {
-                decoded = decodeUserMessage(value, threadId, turnId, error);
-            } else if (type == "reasoning") {
-                decoded = decodeReasoning(value, threadId, turnId, error);
-            } else if (type == "commandExecution") {
-                decoded = decodeCommandExecution(value, threadId, turnId, error);
-            } else if (type == "fileChange") {
-                decoded = decodeFileChange(value, threadId, turnId, error);
-            } else if (type == "mcpToolCall") {
-                decoded = decodeMcpToolCall(value, threadId, turnId, error);
-            } else if (type == "dynamicToolCall") {
-                decoded = decodeDynamicToolCall(value, threadId, turnId, error);
-            } else if (type == "webSearch") {
-                decoded = decodeWebSearch(value, threadId, turnId, error);
-            } else {
+            const ProtocolSurfaceEntry* entry = findSurface(SurfaceCategory::ItemDiscriminator, "ThreadItem", "type", type);
+            const ItemDiscriminatorTarget* target = entry == nullptr || entry->runtimeDisposition != RuntimeDisposition::Typed
+                                                        ? nullptr
+                                                        : std::get_if<ItemDiscriminatorTarget>(&entry->runtimeTarget);
+            if (target == nullptr) {
                 return typed::Item{makeUnknownItem(value, type, threadId, turnId)};
             }
 
+            std::optional<typed::Item> decoded;
+            switch (*target) {
+                case ItemDiscriminatorTarget::AgentMessage:
+                    decoded = decodeAgentMessage(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::UserMessage:
+                    decoded = decodeUserMessage(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::Reasoning:
+                    decoded = decodeReasoning(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::CommandExecution:
+                    decoded = decodeCommandExecution(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::FileChange:
+                    decoded = decodeFileChange(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::McpToolCall:
+                    decoded = decodeMcpToolCall(value, threadId, turnId, type, error);
+                    break;
+                case ItemDiscriminatorTarget::DynamicToolCall:
+                    decoded = decodeDynamicToolCall(value, threadId, turnId, type, error);
+                    break;
+                case ItemDiscriminatorTarget::WebSearch:
+                    decoded = decodeWebSearch(value, threadId, turnId, error);
+                    break;
+                case ItemDiscriminatorTarget::Count:
+                    break;
+            }
+
             if (decoded) {
-                return decoded;
+                return std::optional<typed::Item>{std::move(*decoded)};
             }
 
             typed::UnknownItem item = makeUnknownItem(value, type, threadId, turnId, error);

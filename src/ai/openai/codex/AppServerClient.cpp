@@ -9,6 +9,7 @@
 #include "ai/openai/codex/AppServerClient.h"
 
 #include "ai/openai/codex/detail/ProtocolCodec.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/Transport.h"
 #include "ai/openai/codex/typed/Client.h"
 #include "core/EventReceiver.h"
@@ -92,7 +93,8 @@ namespace ai::openai::codex {
         }
 
         bool isReservedInitializationMethod(std::string_view method) {
-            return method == "initialize" || method == "initialized";
+            return method == detail::entryFor(detail::ClientRequestTarget::Initialize).key.name ||
+                   method == detail::entryFor(detail::ClientNotificationTarget::Initialized).key.name;
         }
 
         std::string serverRequestId(const ServerRequestId& id) {
@@ -577,8 +579,8 @@ namespace ai::openai::codex {
 
             pendingInitializeId = *requestId;
             std::string encodeError;
-            std::optional<std::string> wireMessage =
-                detail::ProtocolCodec::encodeRequest(*requestId, "initialize", initializeParams(), encodeError);
+            std::optional<std::string> wireMessage = detail::ProtocolCodec::encodeRequest(
+                *requestId, detail::entryFor(detail::ClientRequestTarget::Initialize).key.name, initializeParams(), encodeError);
             if (!wireMessage) {
                 pendingInitializeId.reset();
                 fail({Error::Category::Initialization, EINVAL, std::move(encodeError)});
@@ -686,7 +688,8 @@ namespace ai::openai::codex {
             }
 
             std::string encodeError;
-            std::optional<std::string> initialized = detail::ProtocolCodec::encodeNotification("initialized", Json::object(), encodeError);
+            std::optional<std::string> initialized = detail::ProtocolCodec::encodeNotification(
+                detail::entryFor(detail::ClientNotificationTarget::Initialized).key.name, Json::object(), encodeError);
             if (!initialized) {
                 fail({Error::Category::Initialization, EINVAL, std::move(encodeError)});
                 return;

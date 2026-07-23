@@ -9,6 +9,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 
@@ -18,6 +19,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <variant>
 
 namespace ai::openai::codex::detail {
 
@@ -397,48 +399,48 @@ namespace ai::openai::codex::detail {
 
     typed::Event decodeEvent(const Notification& notification) noexcept {
         try {
-            if (notification.method == "thread/started") {
-                return decodeThreadStarted(notification);
+            const ProtocolSurfaceEntry* entry =
+                findSurface(SurfaceCategory::ServerNotification, "ServerNotification", "method", notification.method);
+            const ServerNotificationTarget* target = entry == nullptr || entry->runtimeDisposition != RuntimeDisposition::Typed
+                                                         ? nullptr
+                                                         : std::get_if<ServerNotificationTarget>(&entry->runtimeTarget);
+            if (target == nullptr) {
+                return unknownEvent(notification);
             }
-            if (notification.method == "thread/status/changed") {
-                return decodeThreadStatusChanged(notification);
+
+            switch (*target) {
+                case ServerNotificationTarget::Error:
+                    return decodeTurnError(notification);
+                case ServerNotificationTarget::ThreadStarted:
+                    return decodeThreadStarted(notification);
+                case ServerNotificationTarget::ThreadStatusChanged:
+                    return decodeThreadStatusChanged(notification);
+                case ServerNotificationTarget::TurnStarted:
+                    return decodeTurnStarted(notification);
+                case ServerNotificationTarget::TurnCompleted:
+                    return decodeTurnCompleted(notification);
+                case ServerNotificationTarget::ItemStarted:
+                    return decodeItemLifecycle(notification, true);
+                case ServerNotificationTarget::ItemCompleted:
+                    return decodeItemLifecycle(notification, false);
+                case ServerNotificationTarget::AgentMessageDelta:
+                    return decodeAgentMessageDelta(notification);
+                case ServerNotificationTarget::ReasoningTextDelta:
+                    return decodeReasoningDelta(notification, typed::ReasoningDelta::Kind::Text);
+                case ServerNotificationTarget::ReasoningSummaryTextDelta:
+                    return decodeReasoningDelta(notification, typed::ReasoningDelta::Kind::Summary);
+                case ServerNotificationTarget::CommandExecutionOutputDelta:
+                    return decodeCommandOutputDelta(notification);
+                case ServerNotificationTarget::FileChangePatchUpdated:
+                    return decodeFileChangeUpdated(notification);
+                case ServerNotificationTarget::ThreadTokenUsageUpdated:
+                    return decodeTokenUsageUpdated(notification);
+                case ServerNotificationTarget::ModelRerouted:
+                    return decodeModelRerouted(notification);
+                case ServerNotificationTarget::Count:
+                    break;
             }
-            if (notification.method == "turn/started") {
-                return decodeTurnStarted(notification);
-            }
-            if (notification.method == "turn/completed") {
-                return decodeTurnCompleted(notification);
-            }
-            if (notification.method == "item/started") {
-                return decodeItemLifecycle(notification, true);
-            }
-            if (notification.method == "item/completed") {
-                return decodeItemLifecycle(notification, false);
-            }
-            if (notification.method == "item/agentMessage/delta") {
-                return decodeAgentMessageDelta(notification);
-            }
-            if (notification.method == "item/reasoning/textDelta") {
-                return decodeReasoningDelta(notification, typed::ReasoningDelta::Kind::Text);
-            }
-            if (notification.method == "item/reasoning/summaryTextDelta") {
-                return decodeReasoningDelta(notification, typed::ReasoningDelta::Kind::Summary);
-            }
-            if (notification.method == "item/commandExecution/outputDelta") {
-                return decodeCommandOutputDelta(notification);
-            }
-            if (notification.method == "item/fileChange/patchUpdated") {
-                return decodeFileChangeUpdated(notification);
-            }
-            if (notification.method == "thread/tokenUsage/updated") {
-                return decodeTokenUsageUpdated(notification);
-            }
-            if (notification.method == "model/rerouted") {
-                return decodeModelRerouted(notification);
-            }
-            if (notification.method == "error") {
-                return decodeTurnError(notification);
-            }
+
             return unknownEvent(notification);
         } catch (const std::exception& exception) {
             try {

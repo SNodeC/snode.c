@@ -10,6 +10,7 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
@@ -36,6 +37,10 @@ namespace ai::openai::codex::typed {
     namespace {
         AppServerClient::RawProtocol::Submission submissionFailure(std::string message) {
             return {std::nullopt, Error{Error::Category::Protocol, EINVAL, std::move(message)}};
+        }
+
+        std::string registeredMethod(detail::ClientRequestTarget target) {
+            return std::string(detail::entryFor(target).key.name);
         }
 
         template <typename T, typename Handler, typename Decoder>
@@ -98,10 +103,11 @@ namespace ai::openai::codex::typed {
                                                            : std::move(encodingError));
         }
 
-        return protocol->request(
-            "thread/start", std::move(*params), adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                return detail::decodeThreadOperationResult(value, error);
-            }));
+        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadStart),
+                                 std::move(*params),
+                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
+                                     return detail::decodeThreadOperationResult(value, error);
+                                 }));
     }
 
     Threads::Submission Threads::resume(ThreadId threadId, ThreadResumeOptions options, ThreadResultHandler handler) {
@@ -116,10 +122,11 @@ namespace ai::openai::codex::typed {
                                                            : std::move(encodingError));
         }
 
-        return protocol->request(
-            "thread/resume", std::move(*params), adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                return detail::decodeThreadOperationResult(value, error);
-            }));
+        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadResume),
+                                 std::move(*params),
+                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
+                                     return detail::decodeThreadOperationResult(value, error);
+                                 }));
     }
 
     Threads::Submission Threads::list(ThreadListOptions options, ThreadListResultHandler handler) {
@@ -134,10 +141,11 @@ namespace ai::openai::codex::typed {
                                                            : std::move(encodingError));
         }
 
-        return protocol->request(
-            "thread/list", std::move(*params), adaptResponse<ThreadPage>(std::move(handler), [](const Json& value, std::string& error) {
-                return detail::decodeThreadListResult(value, error);
-            }));
+        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadList),
+                                 std::move(*params),
+                                 adaptResponse<ThreadPage>(std::move(handler), [](const Json& value, std::string& error) {
+                                     return detail::decodeThreadListResult(value, error);
+                                 }));
     }
 
     Threads::Submission Threads::read(ThreadId threadId, ThreadResultHandler handler) {
@@ -156,10 +164,11 @@ namespace ai::openai::codex::typed {
                                                            : std::move(encodingError));
         }
 
-        return protocol->request(
-            "thread/read", std::move(*params), adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                return detail::decodeThreadReadResult(value, error);
-            }));
+        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadRead),
+                                 std::move(*params),
+                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
+                                     return detail::decodeThreadReadResult(value, error);
+                                 }));
     }
 
     Turns::Turns(AppServerClient::RawProtocol& protocol) noexcept
@@ -178,7 +187,7 @@ namespace ai::openai::codex::typed {
         }
 
         return protocol->request(
-            "turn/start",
+            registeredMethod(detail::ClientRequestTarget::TurnStart),
             std::move(*params),
             adaptResponse<Turn>(std::move(handler), [threadId = std::move(threadId)](const Json& value, std::string& error) {
                 return detail::decodeTurnStartResult(value, threadId, error);
@@ -197,7 +206,7 @@ namespace ai::openai::codex::typed {
                                                            : std::move(encodingError));
         }
 
-        return protocol->request("turn/interrupt",
+        return protocol->request(registeredMethod(detail::ClientRequestTarget::TurnInterrupt),
                                  std::move(*params),
                                  adaptResponse<TurnInterruptResult>(std::move(handler), [](const Json& value, std::string& error) {
                                      return detail::decodeTurnInterruptResult(value, error);
