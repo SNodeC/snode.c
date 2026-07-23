@@ -47,6 +47,7 @@ include(AddSNodeCTest)
 add_subdirectory(support)
 add_subdirectory(unit)
 add_subdirectory(component)
+add_subdirectory(policy)
 
 add_test(NAME StagedInstalledConsumerTest
          COMMAND ${CMAKE_COMMAND}

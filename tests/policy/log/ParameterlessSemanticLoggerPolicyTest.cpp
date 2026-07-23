@@ -1,4 +1,4 @@
-#include "SourcePolicyTestRoot.h"
+#include "tests/policy/SourcePolicyTestRoot.h"
 
 #include <algorithm>
 #include <cctype>
@@ -302,7 +302,7 @@ namespace {
         return ok && calls.size() == allowlist.size();
     }
 
-    std::vector<AllowEntry> phase3Allowlist() {
+    std::vector<AllowEntry> parameterlessAllowlist() {
         using Entry = AllowEntry;
         return {
             // Process-wide HTTP upgrade/MIME selectors.
@@ -487,7 +487,7 @@ namespace {
         };
     }
 
-    SourceMap readPhase3Sources(const std::filesystem::path& root) {
+    SourceMap readParameterlessSources(const std::filesystem::path& root) {
         SourceMap sources;
         for (const std::filesystem::path relativeRoot : {std::filesystem::path{"src/web/http"},
                                                          std::filesystem::path{"src/web/websocket"},
@@ -599,9 +599,9 @@ int main() {
     if (root.empty()) {
         return 1;
     }
-    const SourceMap sources = readPhase3Sources(root);
+    const SourceMap sources = readParameterlessSources(root);
     const std::vector<Call> calls = discover(sources);
-    const std::vector<AllowEntry> allowlist = phase3Allowlist();
+    const std::vector<AllowEntry> allowlist = parameterlessAllowlist();
     if (calls.size() != 81 || allowlist.size() != 81) {
         std::cerr << "Phase 3 parameterless semantic logger accounting changed: discovered=" << calls.size()
                   << " allowlisted=" << allowlist.size() << " expected=81\n";

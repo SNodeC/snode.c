@@ -1,5 +1,5 @@
-#ifndef TESTS_UNIT_LOG_SOURCEPOLICYTESTROOT_H
-#define TESTS_UNIT_LOG_SOURCEPOLICYTESTROOT_H
+#ifndef TESTS_POLICY_SOURCEPOLICYTESTROOT_H
+#define TESTS_POLICY_SOURCEPOLICYTESTROOT_H
 
 #include <cstdlib>
 #include <filesystem>
@@ -54,4 +54,4 @@ namespace source_policy {
 
 } // namespace source_policy
 
-#endif // TESTS_UNIT_LOG_SOURCEPOLICYTESTROOT_H
+#endif // TESTS_POLICY_SOURCEPOLICYTESTROOT_H
