@@ -1,0 +1,1 @@
+{"id":9,"method":"item/commandExecution/requestApproval","params":{"command":"printf OK","cwd":"/tmp/project","itemId":"item-3","startedAtMs":102,"threadId":"thread-1","turnId":"turn-1"}}

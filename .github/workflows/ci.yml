@@ -8,6 +8,8 @@ on:
       - 'cmake/**'
       - 'src/**'
       - 'tests/**'
+      - 'tools/**'
+      - 'docs/ai/openai/codex/**'
       - '.github/workflows/ci.yml'
   pull_request:
     paths:
@@ -15,6 +17,8 @@ on:
       - 'cmake/**'
       - 'src/**'
       - 'tests/**'
+      - 'tools/**'
+      - 'docs/ai/openai/codex/**'
       - '.github/workflows/ci.yml'
 
 jobs:

@@ -2,6 +2,139 @@
 # Copyright (C) Volker Christian <me@vchrist.at>
 #               2020, 2021, 2022, 2023, 2024, 2025, 2026
 
+find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
+
+set(CODEX_PHASE_A0_SCHEMA_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-schema/0.144.6
+)
+set(CODEX_PHASE_A0_PROVENANCE
+    ${CODEX_PHASE_A0_SCHEMA_ROOT}/PROVENANCE.json
+)
+set(CODEX_PHASE_A0_SURFACE_MANIFEST
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-surface/0.144.6.json
+)
+set(CODEX_PHASE_A0_SURFACE_TOOL
+    ${PROJECT_SOURCE_DIR}/tools/codex/app_server_surface.py
+)
+set(CODEX_PHASE_A0_TRANSCRIPT_FIXTURES
+    ${CMAKE_CURRENT_SOURCE_DIR}/fixtures/app-server-0.144.6
+)
+set(CODEX_PHASE_A0_REGISTRY
+    ${PROJECT_SOURCE_DIR}/src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
+)
+set(CODEX_PHASE_A0_COVERAGE_DOC
+    ${PROJECT_SOURCE_DIR}/docs/ai/openai/codex/app-server-api-coverage.md
+)
+set(CODEX_PHASE_A0_SECURITY_DOC
+    ${PROJECT_SOURCE_DIR}/docs/ai/openai/codex/app-server-security-decisions.md
+)
+set(
+    CODEX_PHASE_A0_PYTHON_ARGUMENTS
+    --tool
+    ${CODEX_PHASE_A0_SURFACE_TOOL}
+    --schema-root
+    ${CODEX_PHASE_A0_SCHEMA_ROOT}
+    --provenance
+    ${CODEX_PHASE_A0_PROVENANCE}
+    --manifest
+    ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+    --fixtures
+    ${CODEX_PHASE_A0_TRANSCRIPT_FIXTURES}
+    --registry
+    ${CODEX_PHASE_A0_REGISTRY}
+    --coverage-doc
+    ${CODEX_PHASE_A0_COVERAGE_DOC}
+    --security-doc
+    ${CODEX_PHASE_A0_SECURITY_DOC}
+)
+
+add_test(
+    NAME CodexVendoredAppServerSchemaTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerSurfaceToolTest.py vendored
+        ${CODEX_PHASE_A0_PYTHON_ARGUMENTS}
+)
+add_test(
+    NAME CodexAppServerSurfaceExtractionTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerSurfaceToolTest.py extraction
+        ${CODEX_PHASE_A0_PYTHON_ARGUMENTS}
+)
+add_test(
+    NAME CodexAppServerGeneratedArtifactsGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerSurfaceToolTest.py artifacts
+        ${CODEX_PHASE_A0_PYTHON_ARGUMENTS}
+)
+add_test(
+    NAME CodexSchemaTranscriptFixtureValidationTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexAppServerSurfaceToolTest.py fixtures
+        ${CODEX_PHASE_A0_PYTHON_ARGUMENTS}
+)
+set_tests_properties(
+    CodexVendoredAppServerSchemaTest
+    CodexAppServerSurfaceExtractionTest
+    CodexAppServerGeneratedArtifactsGuardTest
+    CodexSchemaTranscriptFixtureValidationTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a0;schema" TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexProtocolSurfaceRegistryTest CodexProtocolSurfaceRegistryTest.cpp
+)
+target_link_libraries(
+    CodexProtocolSurfaceRegistryTest PRIVATE snodec-test-support
+                                             snodec::ai-openai-codex
+)
+target_compile_features(CodexProtocolSurfaceRegistryTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexProtocolSurfaceRegistryTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a0;registry" TIMEOUT 5
+)
+
+snodec_add_test(
+    CodexProtocolSurfaceCoverageGuardTest
+    CodexProtocolSurfaceCoverageGuardTest.cpp
+)
+target_link_libraries(
+    CodexProtocolSurfaceCoverageGuardTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexProtocolSurfaceCoverageGuardTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexProtocolSurfaceCoverageGuardTest
+    PRIVATE CODEX_PHASE_A0_SURFACE_MANIFEST="${CODEX_PHASE_A0_SURFACE_MANIFEST}"
+)
+set_tests_properties(
+    CodexProtocolSurfaceCoverageGuardTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a0;registry;guard"
+               TIMEOUT 5
+)
+
+snodec_add_test(CodexSchemaTranscriptUnixTest CodexSchemaTranscriptUnixTest.cpp)
+target_link_libraries(
+    CodexSchemaTranscriptUnixTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(CodexSchemaTranscriptUnixTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexSchemaTranscriptUnixTest
+    PRIVATE
+        CODEX_PHASE_A0_TRANSCRIPT_FIXTURES="${CODEX_PHASE_A0_TRANSCRIPT_FIXTURES}"
+)
+set_tests_properties(
+    CodexSchemaTranscriptUnixTest
+    PROPERTIES LABELS "component;ai;openai;codex;phase-a0;schema;unix"
+               TIMEOUT 5
+)
+
 add_executable(CodexFakeAppServer CodexFakeAppServer.cpp)
 target_compile_features(CodexFakeAppServer PRIVATE cxx_std_20)
 

@@ -1,0 +1,45 @@
+{
+  "format_version": 1,
+  "fixtures": [
+    {
+      "file": "thread-list-request.jsonl",
+      "schema": "ClientRequest.json",
+      "surface": "known"
+    },
+    {
+      "file": "agent-message-delta.jsonl",
+      "schema": "ServerNotification.json",
+      "surface": "known"
+    },
+    {
+      "file": "item-started.jsonl",
+      "schema": "ServerNotification.json",
+      "surface": "known"
+    },
+    {
+      "file": "command-approval-request.jsonl",
+      "schema": "ServerRequest.json",
+      "surface": "known",
+      "optional_params": [
+        "command",
+        "cwd"
+      ]
+    },
+    {
+      "file": "unknown-notification-a.jsonl",
+      "schema": "JSONRPCNotification.json",
+      "surface": "unknown",
+      "optional_envelope": [
+        "params"
+      ]
+    },
+    {
+      "file": "unknown-notification-b.jsonl",
+      "schema": "JSONRPCNotification.json",
+      "surface": "unknown",
+      "optional_envelope": [
+        "params"
+      ]
+    }
+  ]
+}

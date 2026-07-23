@@ -21,6 +21,8 @@ foreach(
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
+          ai/openai/codex/detail/ProtocolSurfaceRegistry.h
+          ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
           ai/openai/codex/detail/ServerRequestDecoder.h
           ai/openai/codex/detail/ThreadCodec.h
           ai/openai/codex/detail/Transport.h
@@ -31,6 +33,29 @@ foreach(
 )
     if(EXISTS "${prefix}/include/snode.c/${private_header}")
         message(FATAL_ERROR "private header installed: ${private_header}")
+    endif()
+endforeach()
+file(
+    GLOB_RECURSE installed_entries
+    LIST_DIRECTORIES TRUE
+    "${prefix}/*"
+)
+foreach(installed_entry IN LISTS installed_entries)
+    string(REPLACE "\\" "/" installed_entry "${installed_entry}")
+    get_filename_component(installed_name "${installed_entry}" NAME)
+    if(installed_entry MATCHES "/tools/codex/"
+       OR installed_entry MATCHES "/tests/component/codex/fixtures/"
+       OR installed_entry MATCHES "/app-server-schema/"
+       OR installed_entry MATCHES "/app-server-surface/"
+       OR installed_name STREQUAL "app_server_surface.py"
+       OR installed_name STREQUAL "PROVENANCE.json"
+       OR installed_name STREQUAL "LICENSE.openai-codex"
+       OR installed_name STREQUAL "NOTICE.openai-codex"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistry.cpp"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistry.h"
+       OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
+    )
+        message(FATAL_ERROR "private A0 artifact installed: ${installed_entry}")
     endif()
 endforeach()
 file(

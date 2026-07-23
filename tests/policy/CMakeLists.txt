@@ -35,3 +35,7 @@ snodec_add_policy_test(
     security/SensitiveLoggingPolicyTest.cpp
     "security;log"
 )
+snodec_add_policy_test(
+    CiWorkflowPathsPolicyTest ci/CiWorkflowPathsPolicyTest.cpp
+    "ci;codex;phase-a0"
+)

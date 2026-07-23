@@ -7,27 +7,27 @@
 
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <limits>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
+#include <variant>
+#include <vector>
 
 namespace ai::openai::codex::detail {
 
     namespace {
-        constexpr const char* COMMAND_APPROVAL_METHOD = "item/commandExecution/requestApproval";
-        constexpr const char* FILE_CHANGE_APPROVAL_METHOD = "item/fileChange/requestApproval";
-        constexpr const char* USER_INPUT_METHOD = "item/tool/requestUserInput";
-        constexpr const char* AUTHENTICATION_METHOD = "account/chatgptAuthTokens/refresh";
-
         typed::UnknownServerRequest unknownRequest(const ServerRequest& request, std::optional<std::string> decodingError = std::nullopt) {
             return {request.id, request.token, request.method, request.params, request.raw, std::move(decodingError)};
         }
 
-        bool requireObject(const Json& value, const char* context, std::string& error) {
+        bool requireObject(const Json& value, std::string_view context, std::string& error) {
             if (value.is_object()) {
                 return true;
             }
@@ -36,7 +36,7 @@ namespace ai::openai::codex::detail {
             return false;
         }
 
-        bool readRequiredString(const Json& object, const char* field, const char* context, std::string& value, std::string& error) {
+        bool readRequiredString(const Json& object, const char* field, std::string_view context, std::string& value, std::string& error) {
             const auto member = object.find(field);
             if (member == object.end()) {
                 error = std::string(context) + " params is missing required string field '" + field + "'";
@@ -52,7 +52,7 @@ namespace ai::openai::codex::detail {
         }
 
         bool readOptionalString(
-            const Json& object, const char* field, const char* context, std::optional<std::string>& value, std::string& error) {
+            const Json& object, const char* field, std::string_view context, std::optional<std::string>& value, std::string& error) {
             const auto member = object.find(field);
             if (member == object.end() || member->is_null()) {
                 value.reset();
@@ -68,7 +68,7 @@ namespace ai::openai::codex::detail {
         }
 
         bool readOptionalBoolean(
-            const Json& object, const char* field, const char* context, bool defaultValue, bool& value, std::string& error) {
+            const Json& object, const char* field, std::string_view context, bool defaultValue, bool& value, std::string& error) {
             const auto member = object.find(field);
             if (member == object.end()) {
                 value = defaultValue;
@@ -83,7 +83,8 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
-        bool readRequiredInt64(const Json& object, const char* field, const char* context, std::int64_t& decodedValue, std::string& error) {
+        bool
+        readRequiredInt64(const Json& object, const char* field, std::string_view context, std::int64_t& decodedValue, std::string& error) {
             const auto member = object.find(field);
             if (member == object.end()) {
                 error = std::string(context) + " params is missing required integer field '" + field + "'";
@@ -106,7 +107,7 @@ namespace ai::openai::codex::detail {
         }
 
         bool readOptionalUint64(
-            const Json& object, const char* field, const char* context, std::optional<std::uint64_t>& value, std::string& error) {
+            const Json& object, const char* field, std::string_view context, std::optional<std::uint64_t>& value, std::string& error) {
             const auto member = object.find(field);
             if (member == object.end() || member->is_null()) {
                 value.reset();
@@ -131,7 +132,8 @@ namespace ai::openai::codex::detail {
 
         std::optional<typed::CommandApprovalRequest> decodeCommandApproval(const ServerRequest& request, std::string& error) {
             const Json& params = request.params;
-            if (!requireObject(params, COMMAND_APPROVAL_METHOD, error)) {
+            const std::string_view method = entryFor(ServerRequestTarget::CommandExecutionRequestApproval).key.name;
+            if (!requireObject(params, method, error)) {
                 return std::nullopt;
             }
 
@@ -142,13 +144,12 @@ namespace ai::openai::codex::detail {
             std::optional<std::string> command;
             std::optional<std::string> cwd;
             std::optional<std::string> reason;
-            if (!readRequiredString(params, "threadId", COMMAND_APPROVAL_METHOD, threadId, error) ||
-                !readRequiredString(params, "turnId", COMMAND_APPROVAL_METHOD, turnId, error) ||
-                !readRequiredString(params, "itemId", COMMAND_APPROVAL_METHOD, itemId, error) ||
-                !readRequiredInt64(params, "startedAtMs", COMMAND_APPROVAL_METHOD, startedAtMs, error) ||
-                !readOptionalString(params, "command", COMMAND_APPROVAL_METHOD, command, error) ||
-                !readOptionalString(params, "cwd", COMMAND_APPROVAL_METHOD, cwd, error) ||
-                !readOptionalString(params, "reason", COMMAND_APPROVAL_METHOD, reason, error)) {
+            if (!readRequiredString(params, "threadId", method, threadId, error) ||
+                !readRequiredString(params, "turnId", method, turnId, error) ||
+                !readRequiredString(params, "itemId", method, itemId, error) ||
+                !readRequiredInt64(params, "startedAtMs", method, startedAtMs, error) ||
+                !readOptionalString(params, "command", method, command, error) || !readOptionalString(params, "cwd", method, cwd, error) ||
+                !readOptionalString(params, "reason", method, reason, error)) {
                 return std::nullopt;
             }
 
@@ -167,7 +168,8 @@ namespace ai::openai::codex::detail {
 
         std::optional<typed::FileChangeApprovalRequest> decodeFileChangeApproval(const ServerRequest& request, std::string& error) {
             const Json& params = request.params;
-            if (!requireObject(params, FILE_CHANGE_APPROVAL_METHOD, error)) {
+            const std::string_view method = entryFor(ServerRequestTarget::FileChangeRequestApproval).key.name;
+            if (!requireObject(params, method, error)) {
                 return std::nullopt;
             }
 
@@ -177,12 +179,12 @@ namespace ai::openai::codex::detail {
             std::int64_t startedAtMs = 0;
             std::optional<std::string> reason;
             std::optional<std::string> grantRoot;
-            if (!readRequiredString(params, "threadId", FILE_CHANGE_APPROVAL_METHOD, threadId, error) ||
-                !readRequiredString(params, "turnId", FILE_CHANGE_APPROVAL_METHOD, turnId, error) ||
-                !readRequiredString(params, "itemId", FILE_CHANGE_APPROVAL_METHOD, itemId, error) ||
-                !readRequiredInt64(params, "startedAtMs", FILE_CHANGE_APPROVAL_METHOD, startedAtMs, error) ||
-                !readOptionalString(params, "reason", FILE_CHANGE_APPROVAL_METHOD, reason, error) ||
-                !readOptionalString(params, "grantRoot", FILE_CHANGE_APPROVAL_METHOD, grantRoot, error)) {
+            if (!readRequiredString(params, "threadId", method, threadId, error) ||
+                !readRequiredString(params, "turnId", method, turnId, error) ||
+                !readRequiredString(params, "itemId", method, itemId, error) ||
+                !readRequiredInt64(params, "startedAtMs", method, startedAtMs, error) ||
+                !readOptionalString(params, "reason", method, reason, error) ||
+                !readOptionalString(params, "grantRoot", method, grantRoot, error)) {
                 return std::nullopt;
             }
 
@@ -197,17 +199,21 @@ namespace ai::openai::codex::detail {
                                                     request.raw};
         }
 
-        bool decodeUserInputOption(
-            const Json& raw, typed::UserInputOption& option, std::string& error, std::size_t questionIndex, std::size_t optionIndex) {
+        bool decodeUserInputOption(const Json& raw,
+                                   typed::UserInputOption& option,
+                                   std::string_view method,
+                                   std::string& error,
+                                   std::size_t questionIndex,
+                                   std::size_t optionIndex) {
             const std::string context =
-                std::string(USER_INPUT_METHOD) + " question " + std::to_string(questionIndex) + " option " + std::to_string(optionIndex);
+                std::string(method) + " question " + std::to_string(questionIndex) + " option " + std::to_string(optionIndex);
             if (!raw.is_object()) {
                 error = context + " is not an object";
                 return false;
             }
 
-            if (!readRequiredString(raw, "label", context.c_str(), option.label, error) ||
-                !readRequiredString(raw, "description", context.c_str(), option.description, error)) {
+            if (!readRequiredString(raw, "label", context, option.label, error) ||
+                !readRequiredString(raw, "description", context, option.description, error)) {
                 return false;
             }
 
@@ -215,18 +221,19 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
-        bool decodeUserInputQuestion(const Json& raw, typed::UserInputQuestion& question, std::string& error, std::size_t questionIndex) {
-            const std::string context = std::string(USER_INPUT_METHOD) + " question " + std::to_string(questionIndex);
+        bool decodeUserInputQuestion(
+            const Json& raw, typed::UserInputQuestion& question, std::string_view method, std::string& error, std::size_t questionIndex) {
+            const std::string context = std::string(method) + " question " + std::to_string(questionIndex);
             if (!raw.is_object()) {
                 error = context + " is not an object";
                 return false;
             }
 
-            if (!readRequiredString(raw, "id", context.c_str(), question.id, error) ||
-                !readRequiredString(raw, "header", context.c_str(), question.header, error) ||
-                !readRequiredString(raw, "question", context.c_str(), question.prompt, error) ||
-                !readOptionalBoolean(raw, "isOther", context.c_str(), false, question.allowsFreeText, error) ||
-                !readOptionalBoolean(raw, "isSecret", context.c_str(), false, question.secret, error)) {
+            if (!readRequiredString(raw, "id", context, question.id, error) ||
+                !readRequiredString(raw, "header", context, question.header, error) ||
+                !readRequiredString(raw, "question", context, question.prompt, error) ||
+                !readOptionalBoolean(raw, "isOther", context, false, question.allowsFreeText, error) ||
+                !readOptionalBoolean(raw, "isSecret", context, false, question.secret, error)) {
                 return false;
             }
 
@@ -241,7 +248,7 @@ namespace ai::openai::codex::detail {
                 std::size_t optionIndex = 0;
                 for (const Json& rawOption : *options) {
                     typed::UserInputOption option;
-                    if (!decodeUserInputOption(rawOption, option, error, questionIndex, optionIndex)) {
+                    if (!decodeUserInputOption(rawOption, option, method, error, questionIndex, optionIndex)) {
                         return false;
                     }
                     question.options.push_back(std::move(option));
@@ -255,22 +262,23 @@ namespace ai::openai::codex::detail {
 
         std::optional<typed::UserInputRequest> decodeUserInput(const ServerRequest& request, std::string& error) {
             const Json& params = request.params;
-            if (!requireObject(params, USER_INPUT_METHOD, error)) {
+            const std::string_view method = entryFor(ServerRequestTarget::ToolRequestUserInput).key.name;
+            if (!requireObject(params, method, error)) {
                 return std::nullopt;
             }
 
             std::string threadId;
             std::string turnId;
             std::string itemId;
-            if (!readRequiredString(params, "threadId", USER_INPUT_METHOD, threadId, error) ||
-                !readRequiredString(params, "turnId", USER_INPUT_METHOD, turnId, error) ||
-                !readRequiredString(params, "itemId", USER_INPUT_METHOD, itemId, error)) {
+            if (!readRequiredString(params, "threadId", method, threadId, error) ||
+                !readRequiredString(params, "turnId", method, turnId, error) ||
+                !readRequiredString(params, "itemId", method, itemId, error)) {
                 return std::nullopt;
             }
 
             const auto questions = params.find("questions");
             if (questions == params.end() || !questions->is_array()) {
-                error = std::string(USER_INPUT_METHOD) + " params is missing required array field 'questions'";
+                error = std::string(method) + " params is missing required array field 'questions'";
                 return std::nullopt;
             }
 
@@ -279,7 +287,7 @@ namespace ai::openai::codex::detail {
             std::size_t questionIndex = 0;
             for (const Json& rawQuestion : *questions) {
                 typed::UserInputQuestion question;
-                if (!decodeUserInputQuestion(rawQuestion, question, error, questionIndex)) {
+                if (!decodeUserInputQuestion(rawQuestion, question, method, error, questionIndex)) {
                     return std::nullopt;
                 }
                 decodedQuestions.push_back(std::move(question));
@@ -287,7 +295,7 @@ namespace ai::openai::codex::detail {
             }
 
             std::optional<std::uint64_t> autoResolutionMs;
-            if (!readOptionalUint64(params, "autoResolutionMs", USER_INPUT_METHOD, autoResolutionMs, error)) {
+            if (!readOptionalUint64(params, "autoResolutionMs", method, autoResolutionMs, error)) {
                 return std::nullopt;
             }
 
@@ -303,14 +311,15 @@ namespace ai::openai::codex::detail {
 
         std::optional<typed::AuthenticationRequest> decodeAuthentication(const ServerRequest& request, std::string& error) {
             const Json& params = request.params;
-            if (!requireObject(params, AUTHENTICATION_METHOD, error)) {
+            const std::string_view method = entryFor(ServerRequestTarget::ChatgptAuthTokensRefresh).key.name;
+            if (!requireObject(params, method, error)) {
                 return std::nullopt;
             }
 
             std::string reason;
             std::optional<std::string> previousAccountId;
-            if (!readRequiredString(params, "reason", AUTHENTICATION_METHOD, reason, error) ||
-                !readOptionalString(params, "previousAccountId", AUTHENTICATION_METHOD, previousAccountId, error)) {
+            if (!readRequiredString(params, "reason", method, reason, error) ||
+                !readOptionalString(params, "previousAccountId", method, previousAccountId, error)) {
                 return std::nullopt;
             }
 
@@ -321,25 +330,37 @@ namespace ai::openai::codex::detail {
     typed::TypedServerRequest decodeServerRequest(const ServerRequest& request) noexcept {
         try {
             std::string error;
-            if (request.method == COMMAND_APPROVAL_METHOD) {
-                std::optional<typed::CommandApprovalRequest> decoded = decodeCommandApproval(request, error);
-                return decoded ? typed::TypedServerRequest{std::move(*decoded)}
-                               : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+            const ProtocolSurfaceEntry* entry = findSurface(SurfaceCategory::ServerRequest, "ServerRequest", "method", request.method);
+            const ServerRequestTarget* target = entry == nullptr || entry->runtimeDisposition != RuntimeDisposition::Typed
+                                                    ? nullptr
+                                                    : std::get_if<ServerRequestTarget>(&entry->runtimeTarget);
+            if (target == nullptr) {
+                return unknownRequest(request);
             }
-            if (request.method == FILE_CHANGE_APPROVAL_METHOD) {
-                std::optional<typed::FileChangeApprovalRequest> decoded = decodeFileChangeApproval(request, error);
-                return decoded ? typed::TypedServerRequest{std::move(*decoded)}
-                               : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
-            }
-            if (request.method == USER_INPUT_METHOD) {
-                std::optional<typed::UserInputRequest> decoded = decodeUserInput(request, error);
-                return decoded ? typed::TypedServerRequest{std::move(*decoded)}
-                               : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
-            }
-            if (request.method == AUTHENTICATION_METHOD) {
-                std::optional<typed::AuthenticationRequest> decoded = decodeAuthentication(request, error);
-                return decoded ? typed::TypedServerRequest{std::move(*decoded)}
-                               : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+
+            switch (*target) {
+                case ServerRequestTarget::CommandExecutionRequestApproval: {
+                    std::optional<typed::CommandApprovalRequest> decoded = decodeCommandApproval(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::FileChangeRequestApproval: {
+                    std::optional<typed::FileChangeApprovalRequest> decoded = decodeFileChangeApproval(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::ToolRequestUserInput: {
+                    std::optional<typed::UserInputRequest> decoded = decodeUserInput(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::ChatgptAuthTokensRefresh: {
+                    std::optional<typed::AuthenticationRequest> decoded = decodeAuthentication(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::Count:
+                    break;
             }
 
             return unknownRequest(request);
