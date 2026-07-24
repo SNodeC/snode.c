@@ -1,0 +1,15 @@
+{
+  "dailyUsageBuckets": [
+    {
+      "startDate": "synthetic-a254c4d801",
+      "tokens": 0
+    }
+  ],
+  "summary": {
+    "currentStreakDays": 0,
+    "lifetimeTokens": 0,
+    "longestRunningTurnSec": false,
+    "longestStreakDays": 0,
+    "peakDailyTokens": 0
+  }
+}

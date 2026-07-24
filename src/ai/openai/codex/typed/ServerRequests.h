@@ -9,6 +9,7 @@
 #define AI_OPENAI_CODEX_TYPED_SERVERREQUESTS_H
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Types.h"
 
 #include <cstdint>
@@ -79,7 +80,14 @@ namespace ai::openai::codex::typed {
         std::string reason;
         std::optional<std::string> previousAccountId;
         Json raw;
+        // Schema-complete canonical view. The legacy fields above remain as a
+        // source-compatible projection; only canonicalParams distinguishes an
+        // omitted previous account ID from an explicit null.
+        ChatgptAuthTokensRefreshParams canonicalParams;
+        std::vector<DecodeDiagnostic> diagnostics;
     };
+
+    using ChatgptAuthTokensRefreshRequest = AuthenticationRequest;
 
     struct UnknownServerRequest {
         ServerRequestId requestId;
@@ -126,6 +134,7 @@ namespace ai::openai::codex::typed {
         SendResult respond(const CommandApprovalRequest& request, ApprovalDecision decision);
         SendResult respond(const FileChangeApprovalRequest& request, ApprovalDecision decision);
         SendResult respond(const UserInputRequest& request, std::vector<UserInputAnswer> answers);
+        SendResult respondRefresh(const ChatgptAuthTokensRefreshRequest& request, ChatgptAuthTokensRefreshResponse response);
         SendResult respond(const AuthenticationRequest& request, AuthenticationResponse response);
         SendResult respondRaw(const UnknownServerRequest& request, Json result);
         SendResult reject(const UnknownServerRequest& request, ProtocolError error);

@@ -1,0 +1,65 @@
+{
+  "config": {
+    "analytics": {
+      "syntheticAnalyticsExtension": {
+        "synthetic": {
+          "nested": [
+            1,
+            "two",
+            null,
+            {
+              "enabled": true
+            }
+          ]
+        }
+      }
+    },
+    "desktop": {
+      "syntheticDesktopExtension": {
+        "synthetic": {
+          "nested": [
+            1,
+            "two",
+            null,
+            {
+              "enabled": true
+            }
+          ]
+        }
+      }
+    },
+    "syntheticConfigExtension": {
+      "synthetic": {
+        "nested": [
+          1,
+          "two",
+          null,
+          {
+            "enabled": true
+          }
+        ]
+      }
+    }
+  },
+  "layers": [
+    {
+      "config": {
+        "synthetic": {
+          "nested": [
+            1,
+            "two",
+            null,
+            {
+              "enabled": true
+            }
+          ]
+        }
+      },
+      "name": {
+        "type": "sessionFlags"
+      },
+      "version": "synthetic-config-version"
+    }
+  ],
+  "origins": {}
+}

@@ -1,0 +1,31 @@
+{
+  "method": "account/rateLimits/updated",
+  "params": {
+    "rateLimits": {
+      "credits": {
+        "balance": "synthetic-42701f0c63",
+        "hasCredits": false,
+        "unlimited": false
+      },
+      "individualLimit": {
+        "limit": "synthetic-4a2ce389ae",
+        "remainingPercent": 0,
+        "resetsAt": 0,
+        "used": "synthetic-5d6fd96597"
+      },
+      "limitId": "synthetic-229f18e643",
+      "limitName": "synthetic-8d89f45c19",
+      "planType": "free",
+      "primary": {
+        "usedPercent": 0,
+        "windowDurationMins": 0
+      },
+      "rateLimitReachedType": "rate_limit_reached",
+      "secondary": {
+        "resetsAt": 0,
+        "usedPercent": 0,
+        "windowDurationMins": 0
+      }
+    }
+  }
+}

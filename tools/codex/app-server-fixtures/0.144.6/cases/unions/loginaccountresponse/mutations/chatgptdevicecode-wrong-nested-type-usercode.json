@@ -1,0 +1,6 @@
+{
+  "loginId": "test-login-id",
+  "type": "chatgptDeviceCode",
+  "userCode": null,
+  "verificationUrl": "https://example.invalid/device"
+}

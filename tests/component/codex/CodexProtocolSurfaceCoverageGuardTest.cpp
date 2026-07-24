@@ -234,6 +234,13 @@ namespace {
         };
         for (const auto& descriptor :
              detail::clientOperationCodecDescriptors()) {
+            // Later A1 slices extend the one production descriptor set. The
+            // A1.1 ratchet remains an exact floor over the descriptors whose
+            // canonical production row belongs to A1.1.
+            if (detail::entryFor(descriptor.target).a1Slice !=
+                detail::A1Slice::A1_1) {
+                continue;
+            }
             const auto iterator = std::find_if(
                 registry.begin(), registry.end(),
                 [&](const detail::ProtocolSurfaceEntry& entry) {
@@ -367,6 +374,32 @@ namespace {
         return counts;
     }
 
+    SchemaStatusCounts schemaStatusCountsForSlice(
+        std::span<const detail::ProtocolSurfaceEntry> entries,
+        detail::A1Slice slice) {
+        SchemaStatusCounts counts;
+        for (const detail::ProtocolSurfaceEntry& entry : entries) {
+            if (entry.a1Slice != slice) {
+                continue;
+            }
+            switch (entry.typedSchemaStatus) {
+                case detail::TypedSchemaStatus::Complete:
+                    ++counts.complete;
+                    break;
+                case detail::TypedSchemaStatus::Partial:
+                    ++counts.partial;
+                    break;
+                case detail::TypedSchemaStatus::NotImplemented:
+                    ++counts.notImplemented;
+                    break;
+                case detail::TypedSchemaStatus::NotApplicable:
+                    ++counts.notApplicable;
+                    break;
+            }
+        }
+        return counts;
+    }
+
     Json loadManifest() {
         std::ifstream input(CODEX_PHASE_A0_SURFACE_MANIFEST);
         if (!input) {
@@ -387,26 +420,29 @@ int main() {
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}),
-                      "the staged B5 registry retains every locked A1.0 and exact A1.1 batch identity");
+                      "the B4 registry retains every locked A1.0 and exact A1.1 batch identity");
     result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
                                                           tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
-                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 99,
-                      "B3 through B5 add exactly 99 new typed identities while completing inherited partial rows");
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 142,
+                      "A1.1 B3 through B5 and A1.2 B2+B3+B4+B5 add exactly 142 typed identities while completing inherited partial rows");
     result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{151, 0, 0, 0},
                       "the final A1.1 slice is exactly Complete 151, Partial 0, NotImplemented 0, NotApplicable 0");
-    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{167, 8, 164, 48},
-                      "the staged global registry is exactly Complete 167, Partial 8, NotImplemented 164, NotApplicable 48");
+    result.expectTrue(schemaStatusCountsForSlice(baseline, detail::A1Slice::A1_2) ==
+                          SchemaStatusCounts{45, 0, 0, 0},
+                      "the final A1.2 B5 slice is exactly Complete 45, Partial 0, NotImplemented 0, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{212, 6, 121, 48},
+                      "the B5 global registry is exactly Complete 212, Partial 6, NotImplemented 121, NotApplicable 48");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry =
-        findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     missing.erase(missingEntry);
     result.expectTrue(hasExactCoverageCodes(missing, manifest, {ErrorCode::MissingRegistryEntry}),
                       "coverage guard reports only MissingRegistryEntry for removal of one untyped stable schema-derived row");
 
     std::vector<detail::ProtocolSurfaceEntry> duplicate = baseline;
     duplicate.push_back(
-        *findEntry(duplicate, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel"));
+        *findEntry(duplicate, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list"));
     std::sort(duplicate.begin(), duplicate.end(), [](const auto& left, const auto& right) {
         return left.key < right.key;
     });
@@ -415,7 +451,7 @@ int main() {
 
     std::vector<detail::ProtocolSurfaceEntry> wrongCategory = baseline;
     const auto recategorized =
-        findEntry(wrongCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(wrongCategory, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     recategorized->key.category = detail::SurfaceCategory::TaggedUnionDiscriminator;
     recategorized->operationContract = {};
     std::sort(wrongCategory.begin(), wrongCategory.end(), [](const auto& left, const auto& right) {
@@ -426,7 +462,7 @@ int main() {
 
     std::vector<detail::ProtocolSurfaceEntry> wrongStability = baseline;
     const auto restabilized =
-        findEntry(wrongStability, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(wrongStability, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     restabilized->stability = detail::Stability::ExperimentalOnly;
     restabilized->operationContract = {};
     result.expectTrue(hasExactCoverageCodes(wrongStability, manifest, {ErrorCode::WrongStability}),
@@ -434,7 +470,7 @@ int main() {
 
     std::vector<detail::ProtocolSurfaceEntry> falseTyped = baseline;
     const auto unimplemented =
-        findEntry(falseTyped, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(falseTyped, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     unimplemented->runtimeDisposition = detail::RuntimeDisposition::Typed;
     unimplemented->typedImplementation = detail::TypedImplementationStatus::Implemented;
     unimplemented->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
@@ -443,7 +479,7 @@ int main() {
 
     std::vector<detail::ProtocolSurfaceEntry> duplicateRuntimeTarget = baseline;
     const auto duplicateTarget =
-        findEntry(duplicateRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(duplicateRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     duplicateTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     duplicateTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
     duplicateTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
@@ -465,7 +501,7 @@ int main() {
 
     std::vector<detail::ProtocolSurfaceEntry> sentinelRuntimeTarget = baseline;
     const auto sentinelTarget =
-        findEntry(sentinelRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        findEntry(sentinelRuntimeTarget, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "app/list");
     sentinelTarget->runtimeDisposition = detail::RuntimeDisposition::Typed;
     sentinelTarget->typedImplementation = detail::TypedImplementationStatus::Implemented;
     sentinelTarget->typedSchemaStatus = detail::TypedSchemaStatus::Partial;

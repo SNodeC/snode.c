@@ -1,0 +1,10 @@
+{
+  "method": "model/rerouted",
+  "params": {
+    "fromModel": null,
+    "reason": "highRiskCyberActivity",
+    "threadId": "synthetic-cb3ffc8b3d",
+    "toModel": "synthetic-ae5be46ccd",
+    "turnId": "synthetic-2c96f0c508"
+  }
+}

@@ -16,14 +16,20 @@ client.typed().threads().list({}, handler);
 client.typed().threads().read(threadId, handler);
 client.typed().turns().start(threadId, {typed::TextInput{"Hello"}}, {}, handler);
 client.typed().turns().interrupt(threadId, turnId, handler);
+client.typed().accounts().read({}, accountHandler);
+client.typed().models().list({}, modelHandler);
+client.typed().configuration().read({}, configHandler);
 ```
 
 `typed::Client` is the installed, PIMPL-backed grouped facade. Its current
-accessors return the one existing `Threads`, `Turns`, `Events`, and `Requests`
-object owned by the `AppServerClient`; they do not allocate a second protocol
-engine. The old direct accessors remain source-compatible deprecated
-forwarders, for example `client.threads()` forwards to
-`client.typed().threads()`. New code should use the grouped form.
+accessors return the seven existing `Accounts`, `Models`, `Configuration`,
+`Threads`, `Turns`, `Events`, and `Requests` objects owned by the
+`AppServerClient`; they do not allocate a second protocol engine. The old
+direct conversation accessors remain source-compatible deprecated forwarders,
+for example `client.threads()` forwards to `client.typed().threads()`. There
+are deliberately no direct `AppServerClient::accounts()`, `models()`, or
+`configuration()` forwarders because those facades were introduced in grouped
+form.
 
 Unsupported or newly introduced operations remain available through
 `client.raw()`.
@@ -50,13 +56,42 @@ offline authoritative request/result contracts, fixed domain slices, and
 mechanically derived completeness evidence. Registration alone still does not
 claim a typed implementation or schema completeness.
 
-The grouped API described below remains the pre-A1 request surface plus the
-A1.0 cross-cutting error model. Other stable operations remain raw- or
-opaque-preserved according to their registry disposition until their fixed
-A1.1–A1.4 domain slice.
+The grouped API includes the conversation operations completed in A1.0 and
+A1.1 plus the stable accounts, models, and configuration slice completed in
+A1.2. Other stable operations remain raw- or opaque-preserved according to
+their registry disposition until their fixed A1.3 or A1.4 domain slice. The
+[A1.2 accounts, models, and configuration report](a1-2-accounts-models-configuration.md)
+records the frozen denominator, transitive type closure, compatibility
+boundary, and offline evidence.
 
-The typed operation set is `thread/start`, `thread/resume`, `thread/list`,
-`thread/read`, `turn/start`, and `turn/interrupt`.
+The 18 A1.2 client operations are local typed-library APIs:
+
+| Facade | Stable wire method | Public method | Result |
+| --- | --- | --- | --- |
+| `accounts()` | `account/login/cancel` | `cancelLogin` | `CancelLoginAccountResponse` |
+| `accounts()` | `account/login/start` | `startLogin` | `LoginAccountResponse` |
+| `accounts()` | `account/logout` | `logout` | `Unit` |
+| `accounts()` | `account/rateLimitResetCredit/consume` | `consumeRateLimitResetCredit` | `ConsumeAccountRateLimitResetCreditResponse` |
+| `accounts()` | `account/rateLimits/read` | `readRateLimits` | `GetAccountRateLimitsResponse` |
+| `accounts()` | `account/read` | `read` | `GetAccountResponse` |
+| `accounts()` | `account/sendAddCreditsNudgeEmail` | `sendAddCreditsNudgeEmail` | `SendAddCreditsNudgeEmailResponse` |
+| `accounts()` | `account/usage/read` | `readUsage` | `GetAccountTokenUsageResponse` |
+| `accounts()` | `account/workspaceMessages/read` | `readWorkspaceMessages` | `GetWorkspaceMessagesResponse` |
+| `models()` | `model/list` | `list` | `ModelListResponse` |
+| `models()` | `modelProvider/capabilities/read` | `readProviderCapabilities` | `ModelProviderCapabilitiesReadResponse` |
+| `configuration()` | `config/batchWrite` | `batchWrite` | `ConfigWriteResponse` |
+| `configuration()` | `config/mcpServer/reload` | `reloadMcpServers` | `Unit` |
+| `configuration()` | `config/read` | `read` | `ConfigReadResponse` |
+| `configuration()` | `config/value/write` | `writeValue` | `ConfigWriteResponse` |
+| `configuration()` | `configRequirements/read` | `readRequirements` | `ConfigRequirementsReadResponse` |
+| `configuration()` | `experimentalFeature/enablement/set` | `setExperimentalFeatureEnablement` | `ExperimentalFeatureEnablementSetResponse` |
+| `configuration()` | `experimentalFeature/list` | `listExperimentalFeatures` | `ExperimentalFeatureListResponse` |
+
+The `experimentalFeature/*` methods in this table are themselves part of the
+pinned stable schema. Typing these stable management operations does not type
+experimental-only protocol inventory. None of the 18 methods is a
+`BackendCommand`, Frontend Protocol command, REST/WebSocket/MQTT operation, or
+remotely callable backend feature.
 
 Current outgoing turn input variants are text, remote image, local image,
 skill, and mention. The current stable schema has no generic file-input
@@ -207,10 +242,17 @@ the v2 helpers.
 User-input answers are encoded as the schema-defined question-ID map of string
 arrays. The helper rejects unknown question IDs and duplicate answers. The
 schema has no required-question marker, so unanswered questions are not
-invented as a local error. Authentication token refresh has an explicit typed
-response structure. Unknown requests can be answered with `respondRaw()` or
-rejected with `reject()`; both delegate to the raw pending-server-request
-registry.
+invented as a local error. Authentication token refresh uses the canonical
+`ChatgptAuthTokensRefreshParams` and
+`ChatgptAuthTokensRefreshResponse`. Its previous account/workspace ID and
+response plan type preserve omitted, explicit-null, and value states through
+`OptionalNullable<T>`. `AuthenticationRequest` and
+`AuthenticationResponse` remain the source-compatible view and response
+shape; `Requests::respondRefresh()` is the schema-complete path, while the
+legacy `Requests::respond(AuthenticationRequest, AuthenticationResponse)`
+overload remains unambiguous for existing callers. Unknown requests can be
+answered with `respondRaw()` or rejected with `reject()`; both delegate to the
+raw pending-server-request registry.
 
 The first successfully enqueued typed or raw answer consumes the request. An
 enqueue failure retains it for retry, and a second answer is rejected. Typed
@@ -251,8 +293,8 @@ Public `std::variant` and aggregate layouts changed where the typed model
 required it, and this documentation does not claim binary compatibility for
 already-built consumers.
 
-SOVERSION remains unchanged in A1.0. The single A1 SOVERSION action is deferred
-to A1 closure in A1.4.
+SOVERSION remains unchanged through A1.2. The added facades and public
+aggregates are part of the documented A1 consumer-rebuild boundary.
 
 Typed public headers are installed. Decoder headers under `detail/` remain
 private. Raw JSON on results, threads, turns, items, events, and server requests

@@ -426,6 +426,221 @@ NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
     "tests/component/codex/CMakeLists.txt",
 )
 
+# A1.1's checked production-coverage documents are frozen historical evidence.
+# Their source inventories still describe the exact tool and CMake inputs used to
+# close that slice.  Later A1 slices may extend those two files, so retain only
+# those historical source-record values while continuing to hash every production
+# implementation/test source live.  The current CMake registrations are validated
+# independently below before either historical record is used.
+_A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
+    "src/ai/openai/codex/detail/ClientOperationCodec.cpp": {
+        "path": "src/ai/openai/codex/detail/ClientOperationCodec.cpp",
+        "bytes": 9845,
+        "sha256": (
+            "4c1f8d74cd038c5414983c76b0f1db3c51c0728e9e47d4400eb080b14ea72be7"
+        ),
+    },
+    "src/ai/openai/codex/detail/ClientOperationCodec.h": {
+        "path": "src/ai/openai/codex/detail/ClientOperationCodec.h",
+        "bytes": 4355,
+        "sha256": (
+            "1b1632f6396b5ee2582e2aabc74eedf7af180abc8c13766328ccd75a968deac7"
+        ),
+    },
+    "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc": {
+        "path": (
+            "src/ai/openai/codex/detail/"
+            "ClientOperationCodecDescriptors.inc"
+        ),
+        "bytes": 7130,
+        "sha256": (
+            "9391741313fec48ea7de1b6ae8427bf4ce0541e5a59dac4569a6c18a8ccd0b10"
+        ),
+    },
+    "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc": {
+        "path": (
+            "src/ai/openai/codex/detail/"
+            "ServerNotificationCodecDescriptors.inc"
+        ),
+        "bytes": 9229,
+        "sha256": (
+            "e40b32d3c5621ce2a943885f6e553d46738b0ac8db517cfc4c12e35af6991565"
+        ),
+    },
+    "src/ai/openai/codex/detail/EventDecoder.cpp": {
+        "path": "src/ai/openai/codex/detail/EventDecoder.cpp",
+        "bytes": 69647,
+        "sha256": (
+            "8ceeedaaac22852cef914e1fbd36eeea693a95746a079f39f33a50faed3284b3"
+        ),
+    },
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp": {
+        "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp",
+        "bytes": 66410,
+        "sha256": (
+            "99e7f73db9798125ef0b178a0472ee43aa188a6055c95d7cfb2efaca2ee656d9"
+        ),
+    },
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.h": {
+        "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.h",
+        "bytes": 20248,
+        "sha256": (
+            "ff5ddb64e3215b5f12564c9ffdd7af514da3206997563c554db9adfe7ef86347"
+        ),
+    },
+    "src/ai/openai/codex/typed/Client.cpp": {
+        "path": "src/ai/openai/codex/typed/Client.cpp",
+        "bytes": 27168,
+        "sha256": (
+            "ced9d7f1533e4ad316c2c9bc1ab51503e7947e2decccc92e13f5462f5dfd6c3d"
+        ),
+    },
+    "src/ai/openai/codex/typed/Events.h": {
+        "path": "src/ai/openai/codex/typed/Events.h",
+        "bytes": 21876,
+        "sha256": (
+            "aaaac633ae3bc3f0e023b477590f819c2930113f57678fb0907e9d0bdc50ba18"
+        ),
+    },
+    "tests/component/codex/CodexA11NotificationCodecTest.cpp": {
+        "path": (
+            "tests/component/codex/CodexA11NotificationCodecTest.cpp"
+        ),
+        "bytes": 46359,
+        "sha256": (
+            "62442ec11f51cd12a1b9ec0f57e92f5d0c396ac55eb8a54c15fdba46b52d636b"
+        ),
+    },
+    "tests/component/codex/CodexA11OperationResultCorpusTest.cpp": {
+        "path": (
+            "tests/component/codex/"
+            "CodexA11OperationResultCorpusTest.cpp"
+        ),
+        "bytes": 10657,
+        "sha256": (
+            "a3bb814bb38048ca4f1d48a9bd1efe2abea47cbea3c240399ddeaeebb286c4ac"
+        ),
+    },
+    "tests/installed/codex/CodexTypedConsumer.cpp": {
+        "path": "tests/installed/codex/CodexTypedConsumer.cpp",
+        "bytes": 8292,
+        "sha256": (
+            "97f3eacdabde7db2ba035ba1ceed0cd649ac6413b6ca2bcd16d965313968d799"
+        ),
+    },
+    "tools/codex/app_server_surface.py": {
+        "path": "tools/codex/app_server_surface.py",
+        "bytes": 323551,
+        "sha256": (
+            "628254afe57d142e8c0862d0607180a169dadb93844a1ccabc35e61921408b23"
+        ),
+    },
+    "tests/component/codex/CMakeLists.txt": {
+        "path": "tests/component/codex/CMakeLists.txt",
+        "bytes": 35990,
+        "sha256": (
+            "6f5a4fdff45cde4dc6bf7f940fb3da4904ce64964fcebbad1f357302843977e5"
+        ),
+    },
+}
+_A1_1_FROZEN_FIXTURE_INDEX_RECORD = {
+    "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
+    "bytes": 8_556_655,
+    "sha256": (
+        "022eb437aa39dceb21912947ba8bcdc1b10ff4b6c5076ba5b1713abfd762ac33"
+    ),
+}
+
+
+def _a1_1_production_coverage_source_record(
+    repo_root: Path, relative: str, missing_code: str
+) -> dict[str, Any]:
+    path = repo_root / relative
+    try:
+        data = path.read_bytes()
+    except OSError as error:
+        raise SurfaceError(
+            f"{missing_code}: unable to read {relative}: {error}"
+        ) from error
+    frozen = _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS.get(relative)
+    if frozen is not None:
+        return dict(frozen)
+    return {
+        "path": relative,
+        "bytes": len(data),
+        "sha256": sha256_bytes(data),
+    }
+
+
+def _validate_a1_1_registered_coverage_tests(
+    repo_root: Path,
+    registrations: tuple[tuple[str, str, bool], ...],
+    coverage_definition: str,
+    diagnostic_prefix: str,
+) -> None:
+    cmake_path = repo_root / "tests/component/codex/CMakeLists.txt"
+    try:
+        cmake = cmake_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise SurfaceError(
+            f"{diagnostic_prefix}RegistrationMissing: unable to read "
+            f"{cmake_path.relative_to(repo_root)}: {error}"
+        ) from error
+
+    for ctest_name, source, generic_typed_registration in registrations:
+        source_path = repo_root / source
+        if not source_path.is_file():
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"source {source} is absent"
+            )
+        source_name = source_path.name
+        if generic_typed_registration:
+            foreach_match = re.search(
+                r"foreach\s*\(\s*typed_test\b(?P<body>.*?)\)",
+                cmake,
+                flags=re.DOTALL,
+            )
+            registered = (
+                foreach_match is not None
+                and ctest_name in foreach_match.group("body").split()
+                and re.search(
+                    r"snodec_add_test\s*\(\s*\$\{typed_test\}\s+"
+                    r"\$\{typed_test\}\.cpp\s*\)",
+                    cmake,
+                )
+                is not None
+            )
+        else:
+            registered = (
+                re.search(
+                    rf"snodec_add_test\s*\(\s*{re.escape(ctest_name)}\s+"
+                    rf"{re.escape(source_name)}\s*\)",
+                    cmake,
+                )
+                is not None
+            )
+        if not registered:
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"is not registered with {source_name}"
+            )
+
+        compile_definition = re.search(
+            rf"target_compile_definitions\s*\(\s*{re.escape(ctest_name)}\b"
+            rf"(?P<body>.*?)\)",
+            cmake,
+            flags=re.DOTALL,
+        )
+        if (
+            compile_definition is None
+            or coverage_definition not in compile_definition.group("body")
+        ):
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"does not consume {coverage_definition}"
+            )
+
 
 _VENDORED_RUST_ASSOCIATIONS: tuple[dict[str, Any], dict[str, Any]] | None = None
 
@@ -1095,8 +1310,309 @@ if set(CONVERSATION_UNION_CODECS) & set(B4_CONVERSATION_UNION_CODECS):
     raise AssertionError("B4 conversation-union descriptor keys overlap B2/B3")
 CONVERSATION_UNION_CODECS.update(B4_CONVERSATION_UNION_CODECS)
 
+ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        "Account",
+        "type",
+        "amazonBedrock",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::AccountAmazonBedrock",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "Account",
+        "type",
+        "apiKey",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::AccountApiKey",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "Account",
+        "type",
+        "chatgpt",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::AccountChatgpt",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountParams",
+        "type",
+        "apiKey",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountParamsApiKey",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::EncodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountParams",
+        "type",
+        "chatgpt",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgpt",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::EncodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountParams",
+        "type",
+        "chatgptAuthTokens",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgptAuthTokens",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::EncodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountParams",
+        "type",
+        "chatgptDeviceCode",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgptDeviceCode",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::EncodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountResponse",
+        "type",
+        "apiKey",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountResponseApiKey",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountResponse",
+        "type",
+        "chatgpt",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgpt",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountResponse",
+        "type",
+        "chatgptAuthTokens",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgptAuthTokens",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LoginAccountResponse",
+        "type",
+        "chatgptDeviceCode",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgptDeviceCode",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "enterpriseManaged",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceEnterpriseManaged",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "legacyManagedConfigTomlFromFile",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromFile",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "legacyManagedConfigTomlFromMdm",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromMdm",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "mdm",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceMdm",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "project",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceProject",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "sessionFlags",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSessionFlags",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "system",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSystem",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "user",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceUser",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+}
+
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/login/cancel",
+    ): "ClientRequestTarget::AccountLoginCancel",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/login/start",
+    ): "ClientRequestTarget::AccountLoginStart",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/logout",
+    ): "ClientRequestTarget::AccountLogout",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/rateLimitResetCredit/consume",
+    ): "ClientRequestTarget::AccountRateLimitResetCreditConsume",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/rateLimits/read",
+    ): "ClientRequestTarget::AccountRateLimitsRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/read",
+    ): "ClientRequestTarget::AccountRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/sendAddCreditsNudgeEmail",
+    ): "ClientRequestTarget::AccountSendAddCreditsNudgeEmail",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/usage/read",
+    ): "ClientRequestTarget::AccountUsageRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "account/workspaceMessages/read",
+    ): "ClientRequestTarget::AccountWorkspaceMessagesRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "model/list",
+    ): "ClientRequestTarget::ModelList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "modelProvider/capabilities/read",
+    ): "ClientRequestTarget::ModelProviderCapabilitiesRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/batchWrite",
+    ): "ClientRequestTarget::ConfigBatchWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/mcpServer/reload",
+    ): "ClientRequestTarget::ConfigMcpServerReload",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/read",
+    ): "ClientRequestTarget::ConfigRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/value/write",
+    ): "ClientRequestTarget::ConfigValueWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "configRequirements/read",
+    ): "ClientRequestTarget::ConfigRequirementsRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "experimentalFeature/enablement/set",
+    ): "ClientRequestTarget::ExperimentalFeatureEnablementSet",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "experimentalFeature/list",
+    ): "ClientRequestTarget::ExperimentalFeatureList",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1181,6 +1697,24 @@ RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "turn/steer"): "ClientRequestTarget::TurnSteer",
     ("client_notification", "ClientNotification", "method", "initialized"): "ClientNotificationTarget::Initialized",
     ("server_notification", "ServerNotification", "method", "error"): "ServerNotificationTarget::Error",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "account/login/completed",
+    ): "ServerNotificationTarget::AccountLoginCompleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "account/rateLimits/updated",
+    ): "ServerNotificationTarget::AccountRateLimitsUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "account/updated",
+    ): "ServerNotificationTarget::AccountUpdated",
     ("server_notification", "ServerNotification", "method", "thread/started"): "ServerNotificationTarget::ThreadStarted",
     (
         "server_notification",
@@ -1384,6 +1918,24 @@ RUNTIME_TARGETS = {
         "method",
         "model/rerouted",
     ): "ServerNotificationTarget::ModelRerouted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "model/safetyBuffering/updated",
+    ): "ServerNotificationTarget::ModelSafetyBufferingUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "model/verification",
+    ): "ServerNotificationTarget::ModelVerification",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "configWarning",
+    ): "ServerNotificationTarget::ConfigWarning",
     (
         "server_request",
         "ServerRequest",
@@ -1648,8 +2200,27 @@ RUNTIME_TARGETS.update(
         for key, descriptor in CONVERSATION_UNION_CODECS.items()
     }
 )
+if set(RUNTIME_TARGETS) & set(
+    ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS
+):
+    raise AssertionError(
+        "accounts/models/configuration union targets duplicate an "
+        "existing runtime mapping"
+    )
+RUNTIME_TARGETS.update(
+    {
+        key: descriptor[0]
+        for key, descriptor in (
+            ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.items()
+        )
+    }
+)
 
 SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
+    "account/login/completed": "typed::AccountLoginCompletedNotification",
+    "account/rateLimits/updated": "typed::AccountRateLimitsUpdatedNotification",
+    "account/updated": "typed::AccountUpdatedNotification",
+    "configWarning": "typed::ConfigWarningNotification",
     "error": "typed::TurnErrorEvent",
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
     "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
@@ -1664,6 +2235,8 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "item/reasoning/textDelta": "typed::ReasoningTextDeltaNotification",
     "item/started": "typed::ItemStartedNotification",
     "model/rerouted": "typed::ModelRerouted",
+    "model/safetyBuffering/updated": "typed::ModelSafetyBufferingUpdatedNotification",
+    "model/verification": "typed::ModelVerificationNotification",
     "thread/archived": "typed::ThreadArchivedNotification",
     "thread/closed": "typed::ThreadClosedNotification",
     "thread/compacted": "typed::ContextCompactedNotification",
@@ -1735,7 +2308,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 39
+    len(SERVER_NOTIFICATION_CODECS) != 45
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -4804,6 +5377,88 @@ def registry_statuses(
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
     if (
+        assignment.get("slice") == "A1.2"
+        and target is not None
+        and (
+            identity
+            in ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "account/login/cancel",
+                    "account/login/start",
+                    "account/logout",
+                    "account/rateLimitResetCredit/consume",
+                    "account/rateLimits/read",
+                    "account/read",
+                    "account/sendAddCreditsNudgeEmail",
+                    "account/usage/read",
+                    "account/workspaceMessages/read",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3]
+                in {
+                    "account/login/completed",
+                    "account/rateLimits/updated",
+                    "account/updated",
+                }
+            )
+            or identity
+            == (
+                "server_request",
+                "ServerRequest",
+                "method",
+                "account/chatgptAuthTokens/refresh",
+            )
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "model/list",
+                    "modelProvider/capabilities/read",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3]
+                in {
+                    "model/rerouted",
+                    "model/safetyBuffering/updated",
+                    "model/verification",
+                }
+            )
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "config/batchWrite",
+                    "config/mcpServer/reload",
+                    "config/read",
+                    "config/value/write",
+                    "configRequirements/read",
+                    "experimentalFeature/enablement/set",
+                    "experimentalFeature/list",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3] == "configWarning"
+            )
+        )
+    ):
+        # A1.2 B2/B3/B4/B5 exact-key descriptors and independently validated
+        # fixture projections bind both wire directions to the one canonical
+        # registry target. B4's protocol-defined opaque positions are declared
+        # explicitly in the checked type closure; B5 retains arbitrary JSON
+        # only at its three schema-authorized value positions.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
         identity[0] == "client_request"
         and assignment.get("slice") == "A1.1"
         and operation_production_coverage is not None
@@ -5138,11 +5793,201 @@ def generate_conversation_union_descriptor_data(
     return "\n".join(lines) + "\n"
 
 
+def generate_accounts_models_configuration_union_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private A1.2 account/login/config union codec metadata."""
+
+    evidence = (
+        evidence if evidence is not None else load_a1_registry_evidence()
+    )
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if assignment.get("slice") == "A1.2"
+        and assignment.get("module") == "AccountsModelsConfiguration"
+        and key[0] == "tagged_union_discriminator"
+        and key[1]
+        in {
+            "Account",
+            "ConfigLayerSource",
+            "LoginAccountParams",
+            "LoginAccountResponse",
+        }
+        and assignment.get("stability") == "stable"
+    }
+    descriptor_keys = set(
+        ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS
+    )
+    if (
+        expected_keys != descriptor_keys
+        or len(descriptor_keys) != 19
+    ):
+        raise SurfaceError(
+            "AccountsModelsConfigurationUnionDescriptorAssignmentMismatch: "
+            "the exact 3 Account, 8 ConfigLayerSource, 4 LoginAccountParams, "
+            "and 4 LoginAccountResponse alternatives must each own one descriptor"
+        )
+    targets = [
+        metadata[0]
+        for metadata in (
+            ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.values()
+        )
+    ]
+    if len(set(targets)) != 19:
+        raise SurfaceError(
+            "DuplicateAccountsModelsConfigurationUnionDescriptorTarget: "
+            "each exact key must own one unique runtime target"
+        )
+    directions = [
+        metadata[2]
+        for metadata in (
+            ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.values()
+        )
+    ]
+    if (
+        directions.count(
+            "ConversationUnionCodecDirection::EncodeOnly"
+        )
+        != 4
+        or directions.count(
+            "ConversationUnionCodecDirection::DecodeOnly"
+        )
+        != 15
+    ):
+        raise SurfaceError(
+            "AccountsModelsConfigurationUnionDescriptorDirectionMismatch: "
+            "account/login/config directions must remain 4 encode-only and "
+            "15 decode-only"
+        )
+
+    entries = {
+        surface_key(entry): entry
+        for entry in manifest.get("entries", [])
+    }
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py accounts-models-configuration-union-descriptors; do not edit.",
+        "// Exact keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Shape and direction are private codec metadata, not production dispositions.",
+    ]
+    for key in sorted(descriptor_keys):
+        entry = entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category")
+            != "tagged_union_discriminator"
+        ):
+            raise SurfaceError(
+                "AccountsModelsConfigurationUnionDescriptorAssignmentMismatch: "
+                f"missing stable tagged-union manifest entry for {key}"
+            )
+        target, shape, direction = (
+            ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[key]
+        )
+        branch = _conversation_union_schema_branch(entry, schema_root)
+        _validate_conversation_union_descriptor_shape(
+            entry, branch, shape
+        )
+        lines.append(
+            "CODEX_ACCOUNTS_MODELS_CONFIGURATION_UNION_CODEC_DESCRIPTOR("
+            + ", ".join(
+                (
+                    CPP_CATEGORIES[key[0]],
+                    cpp_string(key[1]),
+                    cpp_string(key[2]),
+                    cpp_string(key[3]),
+                    target,
+                    shape,
+                    direction,
+                )
+            )
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def generate_server_request_descriptor_data(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private typed server-request contract metadata."""
+
+    evidence = (
+        evidence if evidence is not None else load_a1_registry_evidence()
+    )
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    contracts = operation_contract_by_key(
+        manifest, evidence["operation_contracts"]
+    )
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key
+        == (
+            "server_request",
+            "ServerRequest",
+            "method",
+            "account/chatgptAuthTokens/refresh",
+        )
+        and assignment.get("slice") == "A1.2"
+        and assignment.get("module") == "AccountsModelsConfiguration"
+        and assignment.get("stability") == "stable"
+    }
+    if len(expected_keys) != 1:
+        raise SurfaceError(
+            "ServerRequestDescriptorAssignmentMismatch: the exact A1.2 "
+            "B2 auth-refresh server request is absent"
+        )
+    key = next(iter(expected_keys))
+    target = RUNTIME_TARGETS.get(key)
+    contract = contracts.get(key)
+    if (
+        target != "ServerRequestTarget::ChatgptAuthTokensRefresh"
+        or contract is None
+        or contract.get("parameter_type_identity")
+        != "ChatgptAuthTokensRefreshParams"
+        or contract.get("result_type_identity")
+        != "ChatgptAuthTokensRefreshResponse"
+        or contract.get("result_contract_kind") != "Concrete"
+    ):
+        raise SurfaceError(
+            "ServerRequestDescriptorContractMismatch: auth-refresh target, "
+            "params, response, or result kind differs from authoritative "
+            "evidence"
+        )
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py server-request-descriptors; do not edit.",
+        "// Exact method keys and contracts remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Descriptor rows are private codec metadata, not a second disposition registry.",
+        "CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR("
+        + ", ".join(
+            (
+                CPP_CATEGORIES[key[0]],
+                cpp_string(key[1]),
+                cpp_string(key[2]),
+                cpp_string(key[3]),
+                target,
+                cpp_string(str(contract["parameter_type_identity"])),
+                cpp_string(str(contract["result_type_identity"])),
+                CPP_RESULT_CONTRACT_KINDS[
+                    str(contract["result_contract_kind"])
+                ],
+            )
+        )
+        + ")",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def generate_client_operation_descriptor_data(
     manifest: dict[str, Any],
     evidence: dict[str, Any] | None = None,
 ) -> str:
-    """Generate exact private method/contract metadata for the A1.1 requests."""
+    """Generate exact private metadata for completed typed client requests."""
 
     evidence = evidence if evidence is not None else load_a1_registry_evidence()
     assignments = assignment_by_key(manifest, evidence["assignments"])
@@ -5153,9 +5998,36 @@ def generate_client_operation_descriptor_data(
         key
         for key, assignment in assignments.items()
         if key[0] == "client_request"
-        and assignment.get("slice") == "A1.1"
+        and (
+            assignment.get("slice") == "A1.1"
+            or (
+                assignment.get("slice") == "A1.2"
+                and key[3]
+                in {
+                    "account/login/cancel",
+                    "account/login/start",
+                    "account/logout",
+                    "account/rateLimitResetCredit/consume",
+                    "account/rateLimits/read",
+                    "account/read",
+                    "account/sendAddCreditsNudgeEmail",
+                    "account/usage/read",
+                    "account/workspaceMessages/read",
+                    "model/list",
+                    "modelProvider/capabilities/read",
+                    "config/batchWrite",
+                    "config/mcpServer/reload",
+                    "config/read",
+                    "config/value/write",
+                    "configRequirements/read",
+                    "experimentalFeature/enablement/set",
+                    "experimentalFeature/list",
+                }
+            )
+        )
         and assignment.get("classification") == "StablePublicRoot"
-        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("module")
+        in {"ThreadsTurnsSessions", "AccountsModelsConfiguration"}
         and assignment.get("stability") == "stable"
     }
     targets = {
@@ -5164,9 +6036,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 22
+        len(expected_keys) != 40
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 22
+        or len(set(targets.values())) != 40
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -5174,8 +6046,9 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
-            "the exact 22 stable A1.1 client requests must each own one "
-            "unique ClientRequestTarget"
+            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
+            "A1.2 B4, and 5 A1.2 B5 client requests must "
+            "each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
         raise SurfaceError(
@@ -5196,10 +6069,12 @@ def generate_client_operation_descriptor_data(
         "thread/name/set",
         "thread/shellCommand",
         "turn/interrupt",
+        "account/logout",
+        "config/mcpServer/reload",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 15
+        or len(expected_keys - unit_keys) != 31
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -5207,11 +6082,27 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "A1.1 must remain exactly 7 Unit and 15 Concrete requests"
+            "typed A1.1+A1.2 B2+B3+B4+B5 requests must remain exactly 9 Unit "
+            "and 31 Concrete requests"
         )
 
     result_decoders = {
         "Unit",
+        "CancelLoginAccountResponse",
+        "ConsumeAccountRateLimitResetCreditResponse",
+        "ConfigReadResponse",
+        "ConfigRequirementsReadResponse",
+        "ConfigWriteResponse",
+        "ExperimentalFeatureEnablementSetResponse",
+        "ExperimentalFeatureListResponse",
+        "GetAccountRateLimitsResponse",
+        "GetAccountResponse",
+        "GetAccountTokenUsageResponse",
+        "GetWorkspaceMessagesResponse",
+        "LoginAccountResponse",
+        "ModelListResponse",
+        "ModelProviderCapabilitiesReadResponse",
+        "SendAddCreditsNudgeEmailResponse",
         "ThreadForkResponse",
         "ThreadGoalClearResponse",
         "ThreadGoalGetResponse",
@@ -5287,14 +6178,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 39
+        len(expected_keys) != 45
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 39
+        != 45
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 39 typed server-notification targets must own "
+            "every one of the 45 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -5304,14 +6195,48 @@ def generate_server_notification_descriptor_data(
         if assignments[key].get("slice") == "A1.1"
     }
     residual_keys = descriptor_keys - a11_keys
+    a12_b2_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.2"
+        and key[3]
+        in {
+            "account/login/completed",
+            "account/rateLimits/updated",
+            "account/updated",
+        }
+    }
+    residual_keys -= a12_b2_keys
+    a12_b3_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.2"
+        and key[3]
+        in {
+            "model/rerouted",
+            "model/safetyBuffering/updated",
+            "model/verification",
+        }
+    }
+    residual_keys -= a12_b3_keys
+    a12_b4_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.2"
+        and key[3] == "configWarning"
+    }
+    residual_keys -= a12_b4_keys
     if (
         len(a11_keys) != 37
-        or {key[3] for key in residual_keys} != {"error", "model/rerouted"}
+        or len(a12_b2_keys) != 3
+        or len(a12_b3_keys) != 3
+        or len(a12_b4_keys) != 1
+        or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
-            "descriptors must distinguish the exact 37 A1.1 rows from "
-            "residual partial error and model/rerouted rows"
+            "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
+            "3 A1.2 B3, and 1 A1.2 B4 rows from the residual partial error row"
         )
 
     lines = [
@@ -5953,6 +6878,12 @@ def generate_operation_production_coverage(
     }
     helper_records: list[dict[str, Any]] = []
     helper_counts = {domain: 0 for domain in sorted(helper_specs)}
+    later_slice_helper_counts = {
+        "ForcedChatgptWorkspaceIds": {
+            "operation_helper_union_branch": 0,
+            "operation_wrong_type": 0,
+        }
+    }
     for fixture in indexed_records:
         if not isinstance(fixture, dict):
             continue
@@ -5976,6 +6907,14 @@ def generate_operation_production_coverage(
                 f"malformed helper fixture id {fixture_id}"
             )
         domain = parts[1]
+        if domain in later_slice_helper_counts:
+            if role not in later_slice_helper_counts[domain]:
+                raise SurfaceError(
+                    "OperationProductionCoverageHelperMismatch: "
+                    f"unsupported later-slice helper fixture role {role!r}"
+                )
+            later_slice_helper_counts[domain][role] += 1
+            continue
         if domain not in helper_specs:
             raise SurfaceError(
                 "OperationProductionCoverageHelperMismatch: "
@@ -6035,6 +6974,18 @@ def generate_operation_production_coverage(
         raise SurfaceError(
             "OperationProductionCoverageHelperMismatch: "
             f"expected exact helper corpus {expected_helper_counts}, got {helper_counts}"
+        )
+    expected_later_slice_helper_counts = {
+        "ForcedChatgptWorkspaceIds": {
+            "operation_helper_union_branch": 3,
+            "operation_wrong_type": 1,
+        }
+    }
+    if later_slice_helper_counts != expected_later_slice_helper_counts:
+        raise SurfaceError(
+            "OperationProductionCoverageHelperMismatch: "
+            "expected the exact later-slice helper corpus "
+            f"{expected_later_slice_helper_counts}, got {later_slice_helper_counts}"
         )
 
     open_value_specs = {
@@ -6185,23 +7136,36 @@ def generate_operation_production_coverage(
             "expected exactly 73 unique aggregate/value fixture records"
         )
 
-    source_records: list[dict[str, Any]] = []
-    for relative in OPERATION_PRODUCTION_COVERAGE_SOURCES:
-        path = repo_root / relative
-        try:
-            data = path.read_bytes()
-        except OSError as error:
-            raise SurfaceError(
-                "OperationProductionCoverageSourceMissing: "
-                f"unable to read {relative}: {error}"
-            ) from error
-        source_records.append(
-            {
-                "path": relative,
-                "bytes": len(data),
-                "sha256": sha256_bytes(data),
-            }
+    _validate_a1_1_registered_coverage_tests(
+        repo_root,
+        (
+            (
+                "CodexA11OperationResultCorpusTest",
+                "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",
+                False,
+            ),
+            (
+                "CodexA11OperationAggregateValueCorpusTest",
+                "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp",
+                False,
+            ),
+            (
+                "CodexConversationB4NestedCodecTest",
+                "tests/component/codex/CodexConversationB4NestedCodecTest.cpp",
+                True,
+            ),
+        ),
+        "CODEX_A1_OPERATION_PRODUCTION_COVERAGE",
+        "OperationProductionCoverage",
+    )
+    source_records = [
+        _a1_1_production_coverage_source_record(
+            repo_root,
+            relative,
+            "OperationProductionCoverageSourceMissing",
         )
+        for relative in OPERATION_PRODUCTION_COVERAGE_SOURCES
+    ]
     try:
         index_data = fixture_index_path.read_bytes()
     except OSError as error:
@@ -6228,11 +7192,12 @@ def generate_operation_production_coverage(
             "tests plus the registry generator; it is not a runtime "
             "disposition or dispatch registry."
         ),
-        "fixture_index": {
-            "path": fixture_index_path.relative_to(repo_root).as_posix(),
-            "bytes": len(index_data),
-            "sha256": sha256_bytes(index_data),
-        },
+        # A1.1 is frozen historical evidence. Later slices append to the
+        # global corpus, while the exact A1.1 fixture projection and every
+        # record/count guard above remain live and byte-for-byte enforced.
+        # This index record is independently anchored by the immutable A1.2
+        # start-state capture.
+        "fixture_index": dict(_A1_1_FROZEN_FIXTURE_INDEX_RECORD),
         "registered_tests": [
             {
                 "ctest_name": "CodexA11OperationResultCorpusTest",
@@ -6675,23 +7640,26 @@ def generate_notification_production_coverage(
             "expected exactly 7 known and 6 future/empty enum records"
         )
 
-    source_records: list[dict[str, Any]] = []
-    for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES:
-        path = repo_root / relative
-        try:
-            data = path.read_bytes()
-        except OSError as error:
-            raise SurfaceError(
-                "NotificationProductionCoverageSourceMissing: "
-                f"unable to read {relative}: {error}"
-            ) from error
-        source_records.append(
-            {
-                "path": relative,
-                "bytes": len(data),
-                "sha256": sha256_bytes(data),
-            }
+    _validate_a1_1_registered_coverage_tests(
+        repo_root,
+        (
+            (
+                "CodexA11NotificationCodecTest",
+                "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+                False,
+            ),
+        ),
+        "CODEX_A1_NOTIFICATION_PRODUCTION_COVERAGE",
+        "NotificationProductionCoverage",
+    )
+    source_records = [
+        _a1_1_production_coverage_source_record(
+            repo_root,
+            relative,
+            "NotificationProductionCoverageSourceMissing",
         )
+        for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES
+    ]
     try:
         index_data = fixture_index_path.read_bytes()
     except OSError as error:
@@ -6733,11 +7701,10 @@ def generate_notification_production_coverage(
             "the notification corpus test and canonical registry generator; "
             "it is not a second runtime disposition or dispatch registry."
         ),
-        "fixture_index": {
-            "path": fixture_index_path.relative_to(repo_root).as_posix(),
-            "bytes": len(index_data),
-            "sha256": sha256_bytes(index_data),
-        },
+        # See generate_operation_production_coverage: A1.1's exact projected
+        # corpus remains live-validated even as later slices extend the global
+        # fixture index.
+        "fixture_index": dict(_A1_1_FROZEN_FIXTURE_INDEX_RECORD),
         "registered_tests": [
             {
                 "ctest_name": "CodexA11NotificationCodecTest",
@@ -7279,22 +8246,29 @@ def parse_schema_completeness_argument(argument: str, path: Path, line_number: i
 
 
 def parse_registry_data(path: Path) -> list[dict[str, Any]]:
-    reverse_categories = {value: key for key, value in CPP_CATEGORIES.items()}
-    entries: list[dict[str, Any]] = []
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        text = path.read_text(encoding="utf-8")
     except OSError as error:
         raise SurfaceError(f"unable to read production registry data {path}: {error}") from error
+    return parse_registry_data_text(text, str(path))
+
+
+def parse_registry_data_text(
+    text: str, source: str = "<generated-registry>"
+) -> list[dict[str, Any]]:
+    reverse_categories = {value: key for key, value in CPP_CATEGORIES.items()}
+    entries: list[dict[str, Any]] = []
+    lines = text.splitlines()
     prefix = "CODEX_PROTOCOL_SURFACE_ENTRY("
     for line_number, line in enumerate(lines, start=1):
         if not line.startswith(prefix):
             continue
         if not line.endswith(")"):
-            raise SurfaceError(f"malformed registry macro at {path}:{line_number}")
+            raise SurfaceError(f"malformed registry macro at {source}:{line_number}")
         arguments = split_cpp_arguments(line[len(prefix) : -1])
         if len(arguments) != 22:
             raise SurfaceError(
-                f"registry macro at {path}:{line_number} has {len(arguments)} arguments, expected 22"
+                f"registry macro at {source}:{line_number} has {len(arguments)} arguments, expected 22"
             )
         try:
             category = reverse_categories[arguments[0]]
@@ -7302,7 +8276,7 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
             field = json.loads(arguments[2])
             name = json.loads(arguments[3])
         except (KeyError, json.JSONDecodeError) as error:
-            raise SurfaceError(f"invalid registry identity at {path}:{line_number}") from error
+            raise SurfaceError(f"invalid registry identity at {source}:{line_number}") from error
         entries.append(
             {
                 "category": category,
@@ -7339,12 +8313,14 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
                     "TypedSchemaStatus::"
                 ),
                 "schema_completeness": parse_schema_completeness_argument(
-                    arguments[21], path, line_number
+                    arguments[21], Path(source), line_number
                 ),
             }
         )
     if not entries:
-        raise SurfaceError(f"production registry data contains no entries: {path}")
+        raise SurfaceError(
+            f"production registry data contains no entries: {source}"
+        )
     return entries
 
 
@@ -7989,6 +8965,40 @@ def command_conversation_descriptors(arguments: argparse.Namespace) -> None:
     )
 
 
+def command_accounts_models_configuration_union_descriptors(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = (
+        generate_accounts_models_configuration_union_descriptor_data(
+            manifest, arguments.schema_root, evidence
+        )
+    )
+    write_or_check_generated_descriptors(
+        arguments.output,
+        generated,
+        arguments.check,
+        "AccountsModelsConfigurationUnion",
+    )
+
+
+def command_server_request_descriptors(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_server_request_descriptor_data(
+        manifest, evidence
+    )
+    write_or_check_generated_descriptors(
+        arguments.output,
+        generated,
+        arguments.check,
+        "ServerRequest",
+    )
+
+
 def command_operation_descriptors(arguments: argparse.Namespace) -> None:
     manifest = load_json(arguments.manifest)
     evidence = load_a1_registry_evidence(arguments.evidence_root)
@@ -8083,6 +9093,30 @@ def write_or_check_client_operation_descriptors(
         if generated != committed:
             raise SurfaceError(
                 "StaleGeneratedClientOperationDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
+def write_or_check_generated_descriptors(
+    output: Path,
+    generated: str,
+    check: bool,
+    diagnostic_family: str,
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                f"StaleGenerated{diagnostic_family}Descriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                f"StaleGenerated{diagnostic_family}Descriptors: "
                 f"generated descriptor data differs from {output}"
             )
     else:
@@ -8267,6 +9301,49 @@ def parser() -> argparse.ArgumentParser:
     conversation_descriptors.add_argument("--check", action="store_true")
     conversation_descriptors.set_defaults(
         function=command_conversation_descriptors
+    )
+
+    amc_union_descriptors = subparsers.add_parser(
+        "accounts-models-configuration-union-descriptors",
+        help=(
+            "generate private A1.2 account/login/config-layer union codec descriptors"
+        ),
+    )
+    amc_union_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    amc_union_descriptors.add_argument(
+        "--schema-root", type=Path, required=True
+    )
+    amc_union_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    amc_union_descriptors.add_argument(
+        "--output", type=Path, required=True
+    )
+    amc_union_descriptors.add_argument("--check", action="store_true")
+    amc_union_descriptors.set_defaults(
+        function=command_accounts_models_configuration_union_descriptors
+    )
+
+    server_request_descriptors = subparsers.add_parser(
+        "server-request-descriptors",
+        help="generate private exact typed server-request descriptors",
+    )
+    server_request_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    server_request_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    server_request_descriptors.add_argument(
+        "--output", type=Path, required=True
+    )
+    server_request_descriptors.add_argument(
+        "--check", action="store_true"
+    )
+    server_request_descriptors.set_defaults(
+        function=command_server_request_descriptors
     )
 
     operation_descriptors = subparsers.add_parser(

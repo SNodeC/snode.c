@@ -1,0 +1,71 @@
+{
+  "config": {
+    "analytics": {
+      "enabled": false
+    },
+    "approval_policy": "untrusted",
+    "approvals_reviewer": "user",
+    "compact_prompt": "synthetic-49a19dfbda",
+    "desktop": {},
+    "developer_instructions": "synthetic-a2eaeb0199",
+    "forced_chatgpt_workspace_id": "synthetic-610ae3ca29",
+    "forced_login_method": "chatgpt",
+    "instructions": "synthetic-c9670efe61",
+    "model": "synthetic-6f544de778",
+    "model_auto_compact_token_limit": 0,
+    "model_auto_compact_token_limit_scope": "total",
+    "model_context_window": 0,
+    "model_provider": "synthetic-526f9981c8",
+    "model_reasoning_effort": "synthetic-b43c9594ba",
+    "model_reasoning_summary": "auto",
+    "model_verbosity": "low",
+    "review_model": "synthetic-c500847fc4",
+    "sandbox_mode": "read-only",
+    "sandbox_workspace_write": {
+      "exclude_slash_tmp": false,
+      "exclude_tmpdir_env_var": false,
+      "network_access": false,
+      "writable_roots": [
+        "synthetic-57befd0c1f"
+      ]
+    },
+    "service_tier": "synthetic-8ed1da599f",
+    "tools": {
+      "web_search": {
+        "allowed_domains": [
+          "synthetic-c2304859f3"
+        ],
+        "context_size": "low",
+        "location": {
+          "city": "synthetic-df01d4c4f3",
+          "country": "synthetic-51cb39b14a",
+          "region": "synthetic-0a356a43ac",
+          "timezone": "synthetic-67d7bfd606"
+        }
+      }
+    },
+    "web_search": "disabled"
+  },
+  "layers": [
+    {
+      "config": {},
+      "disabledReason": "synthetic-d4fe69c5b0",
+      "name": {
+        "domain": "synthetic-8c8afdab6c",
+        "key": "synthetic-d46be3e91e",
+        "type": "mdm"
+      },
+      "version": null
+    }
+  ],
+  "origins": {
+    "syntheticKey": {
+      "name": {
+        "domain": "synthetic-8c8afdab6c",
+        "key": "synthetic-d46be3e91e",
+        "type": "mdm"
+      },
+      "version": "synthetic-100d071607"
+    }
+  }
+}

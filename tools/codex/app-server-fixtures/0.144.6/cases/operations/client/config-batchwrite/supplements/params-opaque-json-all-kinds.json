@@ -1,0 +1,53 @@
+{
+  "edits": [
+    {
+      "keyPath": "synthetic.order.0",
+      "mergeStrategy": "replace",
+      "value": null
+    },
+    {
+      "keyPath": "synthetic.order.1",
+      "mergeStrategy": "upsert",
+      "value": false
+    },
+    {
+      "keyPath": "synthetic.order.2",
+      "mergeStrategy": "replace",
+      "value": 0
+    },
+    {
+      "keyPath": "synthetic.order.3",
+      "mergeStrategy": "upsert",
+      "value": 0.5
+    },
+    {
+      "keyPath": "synthetic.order.4",
+      "mergeStrategy": "replace",
+      "value": "synthetic-config-value"
+    },
+    {
+      "keyPath": "synthetic.order.5",
+      "mergeStrategy": "upsert",
+      "value": [
+        1,
+        "two",
+        null
+      ]
+    },
+    {
+      "keyPath": "synthetic.order.6",
+      "mergeStrategy": "replace",
+      "value": {
+        "nested": [
+          true,
+          2,
+          "synthetic"
+        ],
+        "nullable": null
+      }
+    }
+  ],
+  "expectedVersion": "synthetic-version",
+  "filePath": "/synthetic/config.toml",
+  "reloadUserConfig": false
+}

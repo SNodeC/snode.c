@@ -1,4 +1,4 @@
 {
   "creditId": "synthetic-e33fa1de89",
-  "idempotencyKey": "synthetic-8daa82babf"
+  "idempotencyKey": "test-idempotency-key"
 }

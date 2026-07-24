@@ -1,0 +1,9 @@
+{
+  "method": "model/verification",
+  "params": {
+    "threadId": "synthetic-36dfb46c88",
+    "verifications": [
+      "trustedAccessForCyber"
+    ]
+  }
+}

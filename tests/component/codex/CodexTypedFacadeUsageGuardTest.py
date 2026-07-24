@@ -12,7 +12,10 @@ import pathlib
 import re
 
 
-DIRECT_ACCESSOR = re.compile(r"(?:\.|->)\s*(threads|turns|events|requests)\s*\(")
+DIRECT_ACCESSOR = re.compile(
+    r"(?:\.|->)\s*"
+    r"(accounts|models|configuration|threads|turns|events|requests)\s*\("
+)
 
 
 def mask_comments_and_literals(source: str) -> str:
@@ -97,6 +100,8 @@ def self_test() -> None:
             .turns();
         const auto value = 32'001;
         client.events();
+        client.accounts();
+        client.configuration();
         // ignored.requests();
         const char* text = "ignored.requests()";
         /* ignored->threads(); */
@@ -104,6 +109,8 @@ def self_test() -> None:
     expected = [
         "synthetic.cpp:4: direct turns() accessor",
         "synthetic.cpp:6: direct events() accessor",
+        "synthetic.cpp:7: direct accounts() accessor",
+        "synthetic.cpp:8: direct configuration() accessor",
     ]
     actual = direct_accessor_violations(synthetic, pathlib.Path("synthetic.cpp"))
     if actual != expected:

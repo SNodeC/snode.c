@@ -9,15 +9,21 @@
 
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
+#include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
+#include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
+#include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Conversation.h"
+#include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Events.h"
+#include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 #include "ai/openai/codex/typed/Threads.h"
@@ -41,30 +47,72 @@ namespace ai::openai::codex::typed {
 
     class Client::Impl {
     public:
-        Impl(std::unique_ptr<Threads> threads,
+        Impl(std::unique_ptr<Accounts> accounts,
+             std::unique_ptr<Configuration> configuration,
+             std::unique_ptr<Models> models,
+             std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
              std::unique_ptr<Requests> requests)
-            : threads(std::move(threads))
+            : accounts(std::move(accounts))
+            , configuration(std::move(configuration))
+            , models(std::move(models))
+            , threads(std::move(threads))
             , turns(std::move(turns))
             , events(std::move(events))
             , requests(std::move(requests)) {
         }
 
+        std::unique_ptr<Accounts> accounts;
+        std::unique_ptr<Configuration> configuration;
+        std::unique_ptr<Models> models;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
         std::unique_ptr<Events> events;
         std::unique_ptr<Requests> requests;
     };
 
-    Client::Client(std::unique_ptr<Threads> threads,
+    Client::Client(std::unique_ptr<Accounts> accounts,
+                   std::unique_ptr<Configuration> configuration,
+                   std::unique_ptr<Models> models,
+                   std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
-        : impl(std::make_unique<Impl>(std::move(threads), std::move(turns), std::move(events), std::move(requests))) {
+        : impl(std::make_unique<Impl>(std::move(accounts),
+                                     std::move(configuration),
+                                     std::move(models),
+                                     std::move(threads),
+                                     std::move(turns),
+                                     std::move(events),
+                                     std::move(requests))) {
     }
 
     Client::~Client() = default;
+
+    Accounts& Client::accounts() noexcept {
+        return *impl->accounts;
+    }
+
+    const Accounts& Client::accounts() const noexcept {
+        return *impl->accounts;
+    }
+
+    Configuration& Client::configuration() noexcept {
+        return *impl->configuration;
+    }
+
+    const Configuration& Client::configuration() const noexcept {
+        return *impl->configuration;
+    }
+
+    Models& Client::models() noexcept {
+        return *impl->models;
+    }
+
+    const Models& Client::models() const noexcept {
+        return *impl->models;
+    }
 
     Threads& Client::threads() noexcept {
         return *impl->threads;
@@ -101,6 +149,11 @@ namespace ai::openai::codex::typed {
     namespace {
         AppServerClient::RawProtocol::Submission submissionFailure(std::string message) {
             return {std::nullopt, Error{Error::Category::Protocol, EINVAL, std::move(message)}};
+        }
+
+        std::optional<Json> encodeUnitParams(const Unit&, std::string& error) {
+            error.clear();
+            return std::optional<Json>{Json(nullptr)};
         }
 
         std::string registeredMethod(detail::ClientRequestTarget target) {
@@ -219,6 +272,144 @@ namespace ai::openai::codex::typed {
             return result;
         }
     } // namespace
+
+    Accounts::Accounts(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Accounts::Submission Accounts::cancelLogin(CancelLoginAccountParams params, CancelLoginResultHandler handler) {
+        return submitTypedRequest<CancelLoginAccountResponse>(
+            protocol, detail::ClientRequestTarget::AccountLoginCancel, params, std::move(handler), detail::encodeCancelLoginAccountParams);
+    }
+
+    Accounts::Submission Accounts::startLogin(LoginAccountParams params, StartLoginResultHandler handler) {
+        return submitTypedRequest<LoginAccountResponse>(
+            protocol, detail::ClientRequestTarget::AccountLoginStart, params, std::move(handler), detail::encodeLoginAccountParams);
+    }
+
+    Accounts::Submission Accounts::logout(Unit params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(protocol, detail::ClientRequestTarget::AccountLogout, params, std::move(handler), encodeUnitParams);
+    }
+
+    Accounts::Submission Accounts::consumeRateLimitResetCredit(ConsumeAccountRateLimitResetCreditParams params,
+                                                               ConsumeRateLimitResetCreditResultHandler handler) {
+        return submitTypedRequest<ConsumeAccountRateLimitResetCreditResponse>(
+            protocol,
+            detail::ClientRequestTarget::AccountRateLimitResetCreditConsume,
+            params,
+            std::move(handler),
+            detail::encodeConsumeAccountRateLimitResetCreditParams);
+    }
+
+    Accounts::Submission Accounts::readRateLimits(Unit params, ReadRateLimitsResultHandler handler) {
+        return submitTypedRequest<GetAccountRateLimitsResponse>(
+            protocol, detail::ClientRequestTarget::AccountRateLimitsRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Accounts::Submission Accounts::read(GetAccountParams params, ReadResultHandler handler) {
+        return submitTypedRequest<GetAccountResponse>(
+            protocol, detail::ClientRequestTarget::AccountRead, params, std::move(handler), detail::encodeGetAccountParams);
+    }
+
+    Accounts::Submission Accounts::sendAddCreditsNudgeEmail(SendAddCreditsNudgeEmailParams params,
+                                                            SendAddCreditsNudgeEmailResultHandler handler) {
+        return submitTypedRequest<SendAddCreditsNudgeEmailResponse>(protocol,
+                                                                    detail::ClientRequestTarget::AccountSendAddCreditsNudgeEmail,
+                                                                    params,
+                                                                    std::move(handler),
+                                                                    detail::encodeSendAddCreditsNudgeEmailParams);
+    }
+
+    Accounts::Submission Accounts::readUsage(Unit params, ReadUsageResultHandler handler) {
+        return submitTypedRequest<GetAccountTokenUsageResponse>(
+            protocol, detail::ClientRequestTarget::AccountUsageRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Accounts::Submission Accounts::readWorkspaceMessages(Unit params, ReadWorkspaceMessagesResultHandler handler) {
+        return submitTypedRequest<GetWorkspaceMessagesResponse>(
+            protocol, detail::ClientRequestTarget::AccountWorkspaceMessagesRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Configuration::Configuration(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Configuration::Submission Configuration::batchWrite(ConfigBatchWriteParams params, BatchWriteResultHandler handler) {
+        return submitTypedRequest<ConfigWriteResponse>(
+            protocol,
+            detail::ClientRequestTarget::ConfigBatchWrite,
+            params,
+            std::move(handler),
+            detail::encodeConfigBatchWriteParams);
+    }
+
+    Configuration::Submission Configuration::reloadMcpServers(Unit params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ConfigMcpServerReload,
+            params,
+            std::move(handler),
+            encodeUnitParams);
+    }
+
+    Configuration::Submission Configuration::read(ConfigReadParams params, ReadResultHandler handler) {
+        return submitTypedRequest<ConfigReadResponse>(
+            protocol, detail::ClientRequestTarget::ConfigRead, params, std::move(handler), detail::encodeConfigReadParams);
+    }
+
+    Configuration::Submission Configuration::readRequirements(Unit params, ReadRequirementsResultHandler handler) {
+        return submitTypedRequest<ConfigRequirementsReadResponse>(
+            protocol, detail::ClientRequestTarget::ConfigRequirementsRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Configuration::Submission Configuration::writeValue(ConfigValueWriteParams params, WriteValueResultHandler handler) {
+        return submitTypedRequest<ConfigWriteResponse>(
+            protocol,
+            detail::ClientRequestTarget::ConfigValueWrite,
+            params,
+            std::move(handler),
+            detail::encodeConfigValueWriteParams);
+    }
+
+    Configuration::Submission Configuration::setExperimentalFeatureEnablement(
+        ExperimentalFeatureEnablementSetParams params,
+        SetExperimentalFeatureEnablementResultHandler handler) {
+        return submitTypedRequest<ExperimentalFeatureEnablementSetResponse>(
+            protocol,
+            detail::ClientRequestTarget::ExperimentalFeatureEnablementSet,
+            params,
+            std::move(handler),
+            detail::encodeExperimentalFeatureEnablementSetParams);
+    }
+
+    Configuration::Submission Configuration::listExperimentalFeatures(
+        ExperimentalFeatureListParams params,
+        ListExperimentalFeaturesResultHandler handler) {
+        return submitTypedRequest<ExperimentalFeatureListResponse>(
+            protocol,
+            detail::ClientRequestTarget::ExperimentalFeatureList,
+            params,
+            std::move(handler),
+            detail::encodeExperimentalFeatureListParams);
+    }
+
+    Models::Models(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Models::Submission Models::list(ModelListParams params, ListResultHandler handler) {
+        return submitTypedRequest<ModelListResponse>(
+            protocol, detail::ClientRequestTarget::ModelList, params, std::move(handler), detail::encodeModelListParams);
+    }
+
+    Models::Submission Models::readProviderCapabilities(ModelProviderCapabilitiesReadParams params,
+                                                        ReadProviderCapabilitiesResultHandler handler) {
+        return submitTypedRequest<ModelProviderCapabilitiesReadResponse>(protocol,
+                                                                         detail::ClientRequestTarget::ModelProviderCapabilitiesRead,
+                                                                         params,
+                                                                         std::move(handler),
+                                                                         detail::encodeModelProviderCapabilitiesReadParams);
+    }
 
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept
         : protocol(&protocol) {
@@ -635,11 +826,23 @@ namespace ai::openai::codex::typed {
         return protocol->respondOwned(request.requestId, request.requestToken, Json{{"answers", std::move(encodedAnswers)}});
     }
 
+    Requests::SendResult Requests::respondRefresh(const ChatgptAuthTokensRefreshRequest& request,
+                                                  ChatgptAuthTokensRefreshResponse response) {
+        std::string error;
+        std::optional<Json> result = detail::encodeChatgptAuthTokensRefreshResponse(std::move(response), error);
+        if (!result) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId, request.requestToken, std::move(*result));
+    }
+
     Requests::SendResult Requests::respond(const AuthenticationRequest& request, AuthenticationResponse response) {
-        Json result{{"accessToken", std::move(response.accessToken)},
-                    {"chatgptAccountId", std::move(response.chatgptAccountId)},
-                    {"chatgptPlanType", response.chatgptPlanType ? Json(std::move(*response.chatgptPlanType)) : Json(nullptr)}};
-        return protocol->respondOwned(request.requestId, request.requestToken, std::move(result));
+        ChatgptAuthTokensRefreshResponse canonical{
+            std::move(response.accessToken),
+            AccountId{std::move(response.chatgptAccountId)},
+            response.chatgptPlanType ? OptionalNullable<PlanType>::withValue(PlanType{std::move(*response.chatgptPlanType)})
+                                     : OptionalNullable<PlanType>::explicitNull()};
+        return respondRefresh(request, std::move(canonical));
     }
 
     Requests::SendResult Requests::respondRaw(const UnknownServerRequest& request, Json result) {

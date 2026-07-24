@@ -1,0 +1,5 @@
+{
+  "accessToken": "test-access-token-not-real",
+  "chatgptAccountId": "test-account-id",
+  "type": "chatgptAuthTokens"
+}

@@ -19,7 +19,9 @@ foreach(
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
           ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/AccountCodec.h
           ai/openai/codex/detail/ClientOperationCodec.h
+          ai/openai/codex/detail/ConfigurationCodec.h
           ai/openai/codex/detail/ConversationCodec.h
           ai/openai/codex/detail/ClientOperationCodecDescriptors.inc
           ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc
@@ -30,6 +32,7 @@ foreach(
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
+          ai/openai/codex/detail/ModelCodec.h
           ai/openai/codex/detail/ProtocolSurfaceRegistry.h
           ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
           ai/openai/codex/detail/ServerRequestDecoder.h
@@ -65,11 +68,14 @@ set(
     "frontend/Protocol.h"
     "frontend/UpdateBatch.h"
     "stdio/Client.h"
+    "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
+    "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
     "typed/Items.h"
+    "typed/Models.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"
@@ -122,6 +128,8 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_entry MATCHES "/app-server-protocol-source/"
        OR installed_name STREQUAL "app_server_a1_1.py"
        OR installed_name STREQUAL "app_server_a1_1_closure.py"
+       OR installed_name STREQUAL "app_server_a1_2.py"
+       OR installed_name STREQUAL "app_server_a1_2_closure.py"
        OR installed_name STREQUAL "app_server_surface.py"
        OR installed_name STREQUAL "app_server_contracts.py"
        OR installed_name STREQUAL "app_server_fixtures.py"
@@ -154,6 +162,10 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "a1-1-operation-production-coverage.json"
        OR installed_name STREQUAL "a1-1-notification-production-coverage.json"
        OR installed_name STREQUAL "a1-1-closure-report.json"
+       OR installed_name STREQUAL "a1-2-start-state.json"
+       OR installed_name STREQUAL "a1-2-implementation-plan.json"
+       OR installed_name STREQUAL "a1-2-type-closure.json"
+       OR installed_name STREQUAL "a1-2-closure-report.json"
        OR installed_name STREQUAL "CodexA11OperationResultCorpusTest.cpp"
        OR installed_name STREQUAL "CodexA11OperationAggregateValueCorpusTest.cpp"
        OR installed_name STREQUAL "CodexConversationB4NestedCodecTest.cpp"

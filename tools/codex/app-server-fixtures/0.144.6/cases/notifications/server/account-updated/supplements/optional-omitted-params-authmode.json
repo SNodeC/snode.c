@@ -1,0 +1,6 @@
+{
+  "method": "account/updated",
+  "params": {
+    "planType": "free"
+  }
+}
