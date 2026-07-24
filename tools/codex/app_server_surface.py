@@ -426,6 +426,119 @@ NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
     "tests/component/codex/CMakeLists.txt",
 )
 
+# A1.1's checked production-coverage documents are frozen historical evidence.
+# Their source inventories still describe the exact tool and CMake inputs used to
+# close that slice.  Later A1 slices may extend those two files, so retain only
+# those historical source-record values while continuing to hash every production
+# implementation/test source live.  The current CMake registrations are validated
+# independently below before either historical record is used.
+_A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
+    "tools/codex/app_server_surface.py": {
+        "path": "tools/codex/app_server_surface.py",
+        "bytes": 323551,
+        "sha256": (
+            "628254afe57d142e8c0862d0607180a169dadb93844a1ccabc35e61921408b23"
+        ),
+    },
+    "tests/component/codex/CMakeLists.txt": {
+        "path": "tests/component/codex/CMakeLists.txt",
+        "bytes": 35990,
+        "sha256": (
+            "6f5a4fdff45cde4dc6bf7f940fb3da4904ce64964fcebbad1f357302843977e5"
+        ),
+    },
+}
+
+
+def _a1_1_production_coverage_source_record(
+    repo_root: Path, relative: str, missing_code: str
+) -> dict[str, Any]:
+    path = repo_root / relative
+    try:
+        data = path.read_bytes()
+    except OSError as error:
+        raise SurfaceError(
+            f"{missing_code}: unable to read {relative}: {error}"
+        ) from error
+    frozen = _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS.get(relative)
+    if frozen is not None:
+        return dict(frozen)
+    return {
+        "path": relative,
+        "bytes": len(data),
+        "sha256": sha256_bytes(data),
+    }
+
+
+def _validate_a1_1_registered_coverage_tests(
+    repo_root: Path,
+    registrations: tuple[tuple[str, str, bool], ...],
+    coverage_definition: str,
+    diagnostic_prefix: str,
+) -> None:
+    cmake_path = repo_root / "tests/component/codex/CMakeLists.txt"
+    try:
+        cmake = cmake_path.read_text(encoding="utf-8")
+    except OSError as error:
+        raise SurfaceError(
+            f"{diagnostic_prefix}RegistrationMissing: unable to read "
+            f"{cmake_path.relative_to(repo_root)}: {error}"
+        ) from error
+
+    for ctest_name, source, generic_typed_registration in registrations:
+        source_path = repo_root / source
+        if not source_path.is_file():
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"source {source} is absent"
+            )
+        source_name = source_path.name
+        if generic_typed_registration:
+            foreach_match = re.search(
+                r"foreach\s*\(\s*typed_test\b(?P<body>.*?)\)",
+                cmake,
+                flags=re.DOTALL,
+            )
+            registered = (
+                foreach_match is not None
+                and ctest_name in foreach_match.group("body").split()
+                and re.search(
+                    r"snodec_add_test\s*\(\s*\$\{typed_test\}\s+"
+                    r"\$\{typed_test\}\.cpp\s*\)",
+                    cmake,
+                )
+                is not None
+            )
+        else:
+            registered = (
+                re.search(
+                    rf"snodec_add_test\s*\(\s*{re.escape(ctest_name)}\s+"
+                    rf"{re.escape(source_name)}\s*\)",
+                    cmake,
+                )
+                is not None
+            )
+        if not registered:
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"is not registered with {source_name}"
+            )
+
+        compile_definition = re.search(
+            rf"target_compile_definitions\s*\(\s*{re.escape(ctest_name)}\b"
+            rf"(?P<body>.*?)\)",
+            cmake,
+            flags=re.DOTALL,
+        )
+        if (
+            compile_definition is None
+            or coverage_definition not in compile_definition.group("body")
+        ):
+            raise SurfaceError(
+                f"{diagnostic_prefix}RegistrationMissing: {ctest_name} "
+                f"does not consume {coverage_definition}"
+            )
+
 
 _VENDORED_RUST_ASSOCIATIONS: tuple[dict[str, Any], dict[str, Any]] | None = None
 
@@ -6185,23 +6298,36 @@ def generate_operation_production_coverage(
             "expected exactly 73 unique aggregate/value fixture records"
         )
 
-    source_records: list[dict[str, Any]] = []
-    for relative in OPERATION_PRODUCTION_COVERAGE_SOURCES:
-        path = repo_root / relative
-        try:
-            data = path.read_bytes()
-        except OSError as error:
-            raise SurfaceError(
-                "OperationProductionCoverageSourceMissing: "
-                f"unable to read {relative}: {error}"
-            ) from error
-        source_records.append(
-            {
-                "path": relative,
-                "bytes": len(data),
-                "sha256": sha256_bytes(data),
-            }
+    _validate_a1_1_registered_coverage_tests(
+        repo_root,
+        (
+            (
+                "CodexA11OperationResultCorpusTest",
+                "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",
+                False,
+            ),
+            (
+                "CodexA11OperationAggregateValueCorpusTest",
+                "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp",
+                False,
+            ),
+            (
+                "CodexConversationB4NestedCodecTest",
+                "tests/component/codex/CodexConversationB4NestedCodecTest.cpp",
+                True,
+            ),
+        ),
+        "CODEX_A1_OPERATION_PRODUCTION_COVERAGE",
+        "OperationProductionCoverage",
+    )
+    source_records = [
+        _a1_1_production_coverage_source_record(
+            repo_root,
+            relative,
+            "OperationProductionCoverageSourceMissing",
         )
+        for relative in OPERATION_PRODUCTION_COVERAGE_SOURCES
+    ]
     try:
         index_data = fixture_index_path.read_bytes()
     except OSError as error:
@@ -6675,23 +6801,26 @@ def generate_notification_production_coverage(
             "expected exactly 7 known and 6 future/empty enum records"
         )
 
-    source_records: list[dict[str, Any]] = []
-    for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES:
-        path = repo_root / relative
-        try:
-            data = path.read_bytes()
-        except OSError as error:
-            raise SurfaceError(
-                "NotificationProductionCoverageSourceMissing: "
-                f"unable to read {relative}: {error}"
-            ) from error
-        source_records.append(
-            {
-                "path": relative,
-                "bytes": len(data),
-                "sha256": sha256_bytes(data),
-            }
+    _validate_a1_1_registered_coverage_tests(
+        repo_root,
+        (
+            (
+                "CodexA11NotificationCodecTest",
+                "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+                False,
+            ),
+        ),
+        "CODEX_A1_NOTIFICATION_PRODUCTION_COVERAGE",
+        "NotificationProductionCoverage",
+    )
+    source_records = [
+        _a1_1_production_coverage_source_record(
+            repo_root,
+            relative,
+            "NotificationProductionCoverageSourceMissing",
         )
+        for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES
+    ]
     try:
         index_data = fixture_index_path.read_bytes()
     except OSError as error:
@@ -7279,22 +7408,29 @@ def parse_schema_completeness_argument(argument: str, path: Path, line_number: i
 
 
 def parse_registry_data(path: Path) -> list[dict[str, Any]]:
-    reverse_categories = {value: key for key, value in CPP_CATEGORIES.items()}
-    entries: list[dict[str, Any]] = []
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        text = path.read_text(encoding="utf-8")
     except OSError as error:
         raise SurfaceError(f"unable to read production registry data {path}: {error}") from error
+    return parse_registry_data_text(text, str(path))
+
+
+def parse_registry_data_text(
+    text: str, source: str = "<generated-registry>"
+) -> list[dict[str, Any]]:
+    reverse_categories = {value: key for key, value in CPP_CATEGORIES.items()}
+    entries: list[dict[str, Any]] = []
+    lines = text.splitlines()
     prefix = "CODEX_PROTOCOL_SURFACE_ENTRY("
     for line_number, line in enumerate(lines, start=1):
         if not line.startswith(prefix):
             continue
         if not line.endswith(")"):
-            raise SurfaceError(f"malformed registry macro at {path}:{line_number}")
+            raise SurfaceError(f"malformed registry macro at {source}:{line_number}")
         arguments = split_cpp_arguments(line[len(prefix) : -1])
         if len(arguments) != 22:
             raise SurfaceError(
-                f"registry macro at {path}:{line_number} has {len(arguments)} arguments, expected 22"
+                f"registry macro at {source}:{line_number} has {len(arguments)} arguments, expected 22"
             )
         try:
             category = reverse_categories[arguments[0]]
@@ -7302,7 +7438,7 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
             field = json.loads(arguments[2])
             name = json.loads(arguments[3])
         except (KeyError, json.JSONDecodeError) as error:
-            raise SurfaceError(f"invalid registry identity at {path}:{line_number}") from error
+            raise SurfaceError(f"invalid registry identity at {source}:{line_number}") from error
         entries.append(
             {
                 "category": category,
@@ -7339,12 +7475,14 @@ def parse_registry_data(path: Path) -> list[dict[str, Any]]:
                     "TypedSchemaStatus::"
                 ),
                 "schema_completeness": parse_schema_completeness_argument(
-                    arguments[21], path, line_number
+                    arguments[21], Path(source), line_number
                 ),
             }
         )
     if not entries:
-        raise SurfaceError(f"production registry data contains no entries: {path}")
+        raise SurfaceError(
+            f"production registry data contains no entries: {source}"
+        )
     return entries
 
 

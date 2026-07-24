@@ -154,8 +154,9 @@ assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 3715)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 13)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 16)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
+assert_retained_prefix("docs/ai/openai/codex" 15)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
 )
@@ -168,10 +169,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 7)
+if(NOT top_level_codex_tool_count EQUAL 10)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 7, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 10, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -218,9 +219,15 @@ set(
     "tools/codex/app-server-evidence/0.144.6/a1-1-operation-production-coverage.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-notification-production-coverage.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-closure-report.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-2-start-state.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-2-implementation-plan.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-2-type-closure.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
     "tools/codex/app_server_a1_1.py"
     "tools/codex/app_server_a1_1_closure.py"
+    "tools/codex/app_server_a1_2.py"
+    "tools/codex/app_server_a1_shared.py"
+    "tools/codex/app_server_schema_paths.py"
     "tools/codex/app_server_surface.py"
     "tools/codex/app_server_contracts.py"
     "tools/codex/app_server_fixtures.py"
@@ -239,7 +246,10 @@ set(
     "src/ai/openai/codex/typed/Events.h"
     "tests/CodexBinaryPackageTest.cmake"
     "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
+    "tests/component/codex/CodexA11ArtifactByteIdentityTest.py"
     "tests/component/codex/CodexA11AuditToolTest.py"
+    "tests/component/codex/CodexA12AuditToolTest.py"
+    "tests/component/codex/CodexA12DocumentationConsistencyTest.py"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
     "tests/component/codex/CodexConversationCodecTest.cpp"
@@ -252,6 +262,7 @@ set(
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "docs/ai/openai/codex/a1-1-conversation-domain.md"
     "docs/ai/openai/codex/a1-1-test-integrity.md"
+    "docs/ai/openai/codex/a1-2-accounts-models-configuration.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
 )
 foreach(required_entry IN LISTS required_source_entries)
@@ -336,9 +347,9 @@ set(extracted_fixture_root
 
 # Run the guards from the extracted archive, not the checkout. This validates
 # every schema/provenance hash, all provenance-listed Rust files, the exact
-# operation contracts/reports, the full indexed fixture corpus, deterministic
-# regeneration, and all required-field/wrong-type mutations using only
-# packaged inputs.
+# operation contracts/reports, A1.2 audit regeneration, the full indexed
+# fixture corpus, deterministic regeneration, and all required-field/wrong-type
+# mutations using only packaged inputs.
 run_extracted_check(
     "schema provenance/integrity"
     "${CODEX_PYTHON_EXECUTABLE}"
@@ -472,6 +483,20 @@ run_extracted_check(
     "${extracted_evidence_root}/a1-1-implementation-plan.json"
     --closure-output
     "${extracted_evidence_root}/a1-1-type-closure.json"
+)
+run_extracted_check(
+    "A1.2 implementation-plan/type-closure audit"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_2.py"
+    check
+    --repo-root
+    "${extracted_root}"
+    --start-state
+    "${extracted_evidence_root}/a1-2-start-state.json"
+    --plan-output
+    "${extracted_evidence_root}/a1-2-implementation-plan.json"
+    --closure-output
+    "${extracted_evidence_root}/a1-2-type-closure.json"
 )
 run_extracted_check(
     "fixture deterministic check"

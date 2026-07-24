@@ -301,6 +301,33 @@ its result codec from the generated private descriptor binding. The table
 also hashes every production/test source it claims to cover. It is reproducible
 review evidence, not a second runtime disposition or dispatch registry.
 
+## A1.2 accounts, models, and configuration audit
+
+The A1.2 entry point reuses the shared A1 evidence loader, registry-transition
+checks, schema walker, type-mapping mechanics, and fixture-obligation
+derivation. Slice-specific policy remains data in the A1.2 audit rather than a
+copy of the A1.1 generator:
+
+```sh
+python3 tools/codex/app_server_a1_2.py generate
+python3 tools/codex/app_server_a1_2.py check
+```
+
+The checked start state, implementation plan, and full transitive type/path
+closure are:
+
+- `app-server-evidence/0.144.6/a1-2-start-state.json`;
+- `app-server-evidence/0.144.6/a1-2-implementation-plan.json`; and
+- `app-server-evidence/0.144.6/a1-2-type-closure.json`.
+
+The audit derives the exact 45-identity denominator, 18 successful client
+result obligations plus the auth-refresh response obligation, four dependency
+batches, schema-authorized opaque JSON paths, and sensitivity policies from
+the pinned offline inputs. It does not write the production registry or make
+runtime dispatch decisions. The reviewed counts, public API map, and boundary
+decisions are documented in
+`docs/ai/openai/codex/a1-2-accounts-models-configuration.md`.
+
 ## Re-running the pinned upstream generation
 
 The TypeScript trees are an independent method and discriminator cross-check;

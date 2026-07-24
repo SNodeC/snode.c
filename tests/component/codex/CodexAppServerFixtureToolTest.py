@@ -38,6 +38,41 @@ def load_tool() -> ModuleType:
 tool = load_tool()
 
 
+def load_shared_tool() -> ModuleType:
+    path = REPOSITORY_ROOT / "tools/codex/app_server_a1_shared.py"
+    tool_directory = str(path.parent)
+    if tool_directory not in sys.path:
+        sys.path.insert(0, tool_directory)
+    specification = importlib.util.spec_from_file_location(
+        "snodec_codex_app_server_a1_shared_test", path
+    )
+    if specification is None or specification.loader is None:
+        raise RuntimeError(f"unable to load shared A1 tool: {path}")
+    module = importlib.util.module_from_spec(specification)
+    sys.modules[specification.name] = module
+    specification.loader.exec_module(module)
+    return module
+
+
+shared_tool = load_shared_tool()
+
+
+def load_schema_path_tool() -> ModuleType:
+    path = REPOSITORY_ROOT / "tools/codex/app_server_schema_paths.py"
+    specification = importlib.util.spec_from_file_location(
+        "snodec_codex_app_server_schema_paths_test", path
+    )
+    if specification is None or specification.loader is None:
+        raise RuntimeError(f"unable to load schema-path tool: {path}")
+    module = importlib.util.module_from_spec(specification)
+    sys.modules[specification.name] = module
+    specification.loader.exec_module(module)
+    return module
+
+
+schema_path_tool = load_schema_path_tool()
+
+
 def arguments(fixture_root: Path | None = None) -> SimpleNamespace:
     version = "0.144.6"
     return SimpleNamespace(
@@ -66,6 +101,328 @@ def arguments(fixture_root: Path | None = None) -> SimpleNamespace:
 
 
 class AppServerFixtureToolTest(unittest.TestCase):
+    def test_shared_graph_helpers_preserve_fixture_contracts(self) -> None:
+        first = tool.DefinitionId("v2", "First")
+        second = tool.DefinitionId("v2", "Second")
+        edges = {first: {second}, second: set()}
+
+        self.assertEqual(
+            frozenset({first, second}),
+            shared_tool.transitive_closure(
+                (first,),
+                edges,
+                unknown_node_error=lambda current: tool.FixtureError(
+                    f"unknown definition graph root {current}"
+                ),
+            ),
+        )
+        with self.assertRaisesRegex(
+            tool.FixtureError,
+            r"^unknown definition graph root DefinitionId"
+        ):
+            shared_tool.transitive_closure(
+                (tool.DefinitionId("v2", "Missing"),),
+                edges,
+                unknown_node_error=lambda current: tool.FixtureError(
+                    f"unknown definition graph root {current}"
+                ),
+            )
+        self.assertEqual(
+            {
+                tool.DefinitionId("legacy", "Legacy/Name"),
+                tool.DefinitionId("v2", "Future~Name"),
+            },
+            tool.schema_references(
+                {
+                    "allOf": [
+                        {"$ref": "#/definitions/Legacy~1Name"},
+                        {"$ref": "#/definitions/v2/Future~0Name"},
+                        {"$ref": "external.json#/definitions/Ignored"},
+                    ],
+                }
+            ),
+        )
+        self.assertEqual(
+            ("v2", "Future~Name"),
+            shared_tool.definition_reference_parts(
+                "#/definitions/v2/Future~0Name"
+            ),
+        )
+        self.assertEqual(
+            "#/definitions/v2/Future~0Name",
+            shared_tool.definition_path("v2", "Future~Name"),
+        )
+        self.assertIsNone(
+            shared_tool.definition_reference_parts(
+                "external.json#/definitions/Ignored"
+            )
+        )
+        self.assertFalse(shared_tool.has_dependency_cycle(edges))
+        self.assertTrue(
+            shared_tool.has_dependency_cycle(
+                {first: {second}, second: {first}}
+            )
+        )
+        self.assertEqual(
+            [first, second, first],
+            shared_tool.find_dependency_cycle(
+                {first, second},
+                {first: {second}, second: {first}},
+            ),
+        )
+
+    def test_shared_historical_source_projection_preserves_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.txt"
+            source.write_text("reviewed\n", encoding="utf-8")
+            frozen_hash = tool.sha256_file(source)
+
+            records = shared_tool.historical_source_records(
+                {"source": source},
+                root,
+                frozen_hashes={"source": frozen_hash},
+                mutable_names=(),
+                source_set_error=lambda: RuntimeError("source set"),
+                immutable_source_error=lambda relative: RuntimeError(
+                    f"immutable source: {relative}"
+                ),
+                resolve_paths=False,
+            )
+            self.assertEqual(
+                {
+                    "source": {
+                        "path": "source.txt",
+                        "sha256": frozen_hash,
+                    }
+                },
+                records,
+            )
+
+            source.write_text("drifted\n", encoding="utf-8")
+            with self.assertRaisesRegex(
+                RuntimeError,
+                r"^immutable source: source\.txt$",
+            ):
+                shared_tool.historical_source_records(
+                    {"source": source},
+                    root,
+                    frozen_hashes={"source": frozen_hash},
+                    mutable_names=(),
+                    source_set_error=lambda: RuntimeError("source set"),
+                    immutable_source_error=lambda relative: RuntimeError(
+                        f"immutable source: {relative}"
+                    ),
+                    resolve_paths=False,
+                )
+            with self.assertRaisesRegex(RuntimeError, r"^source set$"):
+                shared_tool.historical_source_records(
+                    {},
+                    root,
+                    frozen_hashes={"source": frozen_hash},
+                    mutable_names=(),
+                    source_set_error=lambda: RuntimeError("source set"),
+                    immutable_source_error=lambda relative: RuntimeError(
+                        f"immutable source: {relative}"
+                    ),
+                    resolve_paths=False,
+                )
+
+    def test_schema_path_walker_is_deterministic_and_state_carrying(
+        self,
+    ) -> None:
+        schema = {
+            "required": ["required/name"],
+            "properties": {
+                "z": {"type": "string"},
+                "required/name": {
+                    "required": ["nested"],
+                    "properties": {
+                        "nested": {"type": "integer"},
+                    },
+                },
+            },
+            "additionalProperties": {"type": "number"},
+            "items": [
+                {"type": "boolean"},
+                {"type": "null"},
+            ],
+            "allOf": [
+                {"properties": {"all": {"type": "string"}}},
+            ],
+            "anyOf": [
+                {"properties": {"any": {"type": "string"}}},
+            ],
+            "oneOf": [
+                {"properties": {"one": {"type": "string"}}},
+            ],
+        }
+
+        def transition(
+            state: tuple[str, ...],
+            kind: str,
+            token: str | int | None,
+            path: str,
+            child_schema: object,
+            required: bool | None,
+        ) -> tuple[str, ...]:
+            self.assertTrue(path.startswith("#/"))
+            self.assertIsNotNone(child_schema)
+            return (*state, f"{kind}:{token}:{required}")
+
+        visits = list(
+            schema_path_tool.walk_schema_paths(
+                schema,
+                path="#",
+                state=(),
+                transition=transition,
+            )
+        )
+        self.assertEqual(
+            [
+                "#/properties/required~1name",
+                "#/properties/required~1name/properties/nested",
+                "#/properties/z",
+                "#/additionalProperties",
+                "#/items/0",
+                "#/items/1",
+                "#/allOf/0",
+                "#/allOf/0/properties/all",
+                "#/anyOf/0",
+                "#/anyOf/0/properties/any",
+                "#/oneOf/0",
+                "#/oneOf/0/properties/one",
+            ],
+            [visit.path for visit in visits],
+        )
+        self.assertEqual(
+            [
+                schema_path_tool.PROPERTY,
+                schema_path_tool.PROPERTY,
+                schema_path_tool.PROPERTY,
+                schema_path_tool.MAP_VALUE,
+                schema_path_tool.ARRAY_ELEMENT,
+                schema_path_tool.ARRAY_ELEMENT,
+                schema_path_tool.ALLOF_BRANCH,
+                schema_path_tool.PROPERTY,
+                schema_path_tool.ANYOF_BRANCH,
+                schema_path_tool.PROPERTY,
+                schema_path_tool.ONEOF_BRANCH,
+                schema_path_tool.PROPERTY,
+            ],
+            [visit.kind for visit in visits],
+        )
+        self.assertEqual(
+            [
+                True,
+                True,
+                False,
+                None,
+                None,
+                None,
+                None,
+                False,
+                None,
+                False,
+                None,
+                False,
+            ],
+            [visit.required for visit in visits],
+        )
+        self.assertEqual(
+            (
+                "property:required/name:True",
+                "property:nested:True",
+            ),
+            visits[1].state,
+        )
+        self.assertEqual(
+            (
+                "oneOf_branch:0:None",
+                "property:one:False",
+            ),
+            visits[-1].state,
+        )
+
+        legacy_order = list(
+            schema_path_tool.walk_schema_paths(
+                schema,
+                path="#",
+                state=None,
+                value_keyword_order=("items", "additionalProperties"),
+                combinator_keyword_order=("oneOf", "anyOf", "allOf"),
+            )
+        )
+        legacy_paths = [visit.path for visit in legacy_order]
+        self.assertLess(
+            legacy_paths.index("#/items/0"),
+            legacy_paths.index("#/additionalProperties"),
+        )
+        self.assertLess(
+            legacy_paths.index("#/oneOf/0"),
+            legacy_paths.index("#/allOf/0"),
+        )
+
+    def test_schema_path_walker_handles_single_items_closed_maps_and_refs(
+        self,
+    ) -> None:
+        schema = {
+            "$ref": "#/definitions/base",
+            "properties": {"sibling": {"type": "string"}},
+            "additionalProperties": False,
+            "items": True,
+        }
+        unskipped = list(
+            schema_path_tool.walk_schema_paths(
+                schema,
+                path="#",
+                state="unchanged",
+            )
+        )
+        self.assertEqual(
+            [
+                (
+                    "#/properties/sibling",
+                    schema_path_tool.PROPERTY,
+                    False,
+                    "unchanged",
+                ),
+                (
+                    "#/items",
+                    schema_path_tool.ARRAY_ELEMENT,
+                    None,
+                    "unchanged",
+                ),
+            ],
+            [
+                (visit.path, visit.kind, visit.required, visit.state)
+                for visit in unskipped
+            ],
+        )
+        self.assertEqual(
+            [],
+            list(
+                schema_path_tool.walk_schema_paths(
+                    schema,
+                    path="#",
+                    state=None,
+                    skip_references=True,
+                )
+            ),
+        )
+
+        with self.assertRaisesRegex(
+            schema_path_tool.SchemaPathWalkError,
+            "required must be an array of strings at #",
+        ):
+            list(
+                schema_path_tool.walk_schema_paths(
+                    {"required": "not-an-array"},
+                    path="#",
+                    state=None,
+                )
+            )
+
     def test_reviewed_existing_typed_scope_matches_cpp_ratchet(self) -> None:
         header = (
             REPOSITORY_ROOT
