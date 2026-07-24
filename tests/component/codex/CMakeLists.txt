@@ -544,6 +544,44 @@ set_tests_properties(
 )
 
 snodec_add_test(
+    CodexA12ConfigurationReadCodecTest
+    CodexA12ConfigurationReadCodecTest.cpp
+)
+target_link_libraries(
+    CodexA12ConfigurationReadCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA12ConfigurationReadCodecTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ConfigurationReadCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;configuration;codec;a1-2;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA12ConfigurationReadWireTest
+    CodexA12ConfigurationReadWireTest.cpp
+)
+target_link_libraries(
+    CodexA12ConfigurationReadWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(
+    CodexA12ConfigurationReadWireTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ConfigurationReadWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;configuration;operation;wire;a1-2;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
     CodexA12AuthRefreshWireTest
     CodexA12AuthRefreshWireTest.cpp
 )
@@ -769,6 +807,25 @@ set_tests_properties(
         LABELS "component;ai;openai;codex;typed;model;backend;reducer;compatibility;preservation;a1-2;b3"
         SKIP_RETURN_CODE 77
         TIMEOUT 15
+)
+
+snodec_add_test(
+    CodexA12ConfigurationReadBackendPreservationTest
+    CodexA12ConfigurationReadBackendPreservationTest.cpp
+)
+target_link_libraries(
+    CodexA12ConfigurationReadBackendPreservationTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA12ConfigurationReadBackendPreservationTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ConfigurationReadBackendPreservationTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;configuration;backend;reducer;preservation;a1-2;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
 )
 
 snodec_add_test(CodexFrontendProtocolV1Test CodexFrontendProtocolV1Test.cpp)

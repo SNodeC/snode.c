@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 261,
-      "fixture_current": 261,
-      "independently_schema_validated": 261,
-      "nullable_semantics_exercised": 196,
-      "optional_omitted_exercised": 261,
-      "optional_present_exercised": 261,
-      "positive_fixture_coverage": 261,
-      "reachable_union_alternatives_exercised": 196,
-      "required_fields_exercised": 261,
-      "schema_properties_exercised": 196
+      "authoritative_root_association": 270,
+      "fixture_current": 270,
+      "independently_schema_validated": 270,
+      "nullable_semantics_exercised": 207,
+      "optional_omitted_exercised": 270,
+      "optional_present_exercised": 270,
+      "positive_fixture_coverage": 270,
+      "reachable_union_alternatives_exercised": 207,
+      "required_fields_exercised": 270,
+      "schema_properties_exercised": 207
     },
-    "identities_with_positive_fixtures": 261,
+    "identities_with_positive_fixtures": 270,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -554,9 +554,92 @@
     {
       "fixture_ids": [
         "operation:client_request:config/read:params",
-        "operation:client_request:config/read:result"
+        "operation:client_request:config/read:params:nullable-null:cwd",
+        "operation:client_request:config/read:params:optional-omitted:cwd",
+        "operation:client_request:config/read:params:optional-omitted:includelayers",
+        "operation:client_request:config/read:result",
+        "operation:client_request:config/read:result:authorized-opaque-values",
+        "operation:client_request:config/read:result:explicit-empty-aggregates",
+        "operation:client_request:config/read:result:explicit-empty-arrays-and-defaults",
+        "operation:client_request:config/read:result:int64-maximum",
+        "operation:client_request:config/read:result:int64-minimum",
+        "operation:client_request:config/read:result:int64-overflow",
+        "operation:client_request:config/read:result:int64-underflow",
+        "operation:client_request:config/read:result:nullable-null:config-analytics",
+        "operation:client_request:config/read:result:nullable-null:config-analytics-enabled",
+        "operation:client_request:config/read:result:nullable-null:config-approval_policy",
+        "operation:client_request:config/read:result:nullable-null:config-approvals_reviewer",
+        "operation:client_request:config/read:result:nullable-null:config-compact_prompt",
+        "operation:client_request:config/read:result:nullable-null:config-desktop",
+        "operation:client_request:config/read:result:nullable-null:config-developer_instructions",
+        "operation:client_request:config/read:result:nullable-null:config-forced_chatgpt_workspace_id",
+        "operation:client_request:config/read:result:nullable-null:config-forced_login_method",
+        "operation:client_request:config/read:result:nullable-null:config-instructions",
+        "operation:client_request:config/read:result:nullable-null:config-model",
+        "operation:client_request:config/read:result:nullable-null:config-model_auto_compact_token_limit",
+        "operation:client_request:config/read:result:nullable-null:config-model_auto_compact_token_limit_scope",
+        "operation:client_request:config/read:result:nullable-null:config-model_context_window",
+        "operation:client_request:config/read:result:nullable-null:config-model_provider",
+        "operation:client_request:config/read:result:nullable-null:config-model_reasoning_effort",
+        "operation:client_request:config/read:result:nullable-null:config-model_reasoning_summary",
+        "operation:client_request:config/read:result:nullable-null:config-model_verbosity",
+        "operation:client_request:config/read:result:nullable-null:config-review_model",
+        "operation:client_request:config/read:result:nullable-null:config-sandbox_mode",
+        "operation:client_request:config/read:result:nullable-null:config-sandbox_workspace_write",
+        "operation:client_request:config/read:result:nullable-null:config-service_tier",
+        "operation:client_request:config/read:result:nullable-null:config-tools",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-allowed_domains",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-context_size",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-city",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-country",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-region",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-timezone",
+        "operation:client_request:config/read:result:nullable-null:config-web_search",
+        "operation:client_request:config/read:result:nullable-null:layers",
+        "operation:client_request:config/read:result:nullable-null:layers-0-disabledreason",
+        "operation:client_request:config/read:result:optional-omitted:config-analytics",
+        "operation:client_request:config/read:result:optional-omitted:config-analytics-enabled",
+        "operation:client_request:config/read:result:optional-omitted:config-approval_policy",
+        "operation:client_request:config/read:result:optional-omitted:config-approvals_reviewer",
+        "operation:client_request:config/read:result:optional-omitted:config-compact_prompt",
+        "operation:client_request:config/read:result:optional-omitted:config-desktop",
+        "operation:client_request:config/read:result:optional-omitted:config-developer_instructions",
+        "operation:client_request:config/read:result:optional-omitted:config-forced_chatgpt_workspace_id",
+        "operation:client_request:config/read:result:optional-omitted:config-forced_login_method",
+        "operation:client_request:config/read:result:optional-omitted:config-instructions",
+        "operation:client_request:config/read:result:optional-omitted:config-model",
+        "operation:client_request:config/read:result:optional-omitted:config-model_auto_compact_token_limit",
+        "operation:client_request:config/read:result:optional-omitted:config-model_auto_compact_token_limit_scope",
+        "operation:client_request:config/read:result:optional-omitted:config-model_context_window",
+        "operation:client_request:config/read:result:optional-omitted:config-model_provider",
+        "operation:client_request:config/read:result:optional-omitted:config-model_reasoning_effort",
+        "operation:client_request:config/read:result:optional-omitted:config-model_reasoning_summary",
+        "operation:client_request:config/read:result:optional-omitted:config-model_verbosity",
+        "operation:client_request:config/read:result:optional-omitted:config-review_model",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_mode",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-exclude_slash_tmp",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-exclude_tmpdir_env_var",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-network_access",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-writable_roots",
+        "operation:client_request:config/read:result:optional-omitted:config-service_tier",
+        "operation:client_request:config/read:result:optional-omitted:config-tools",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-allowed_domains",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-context_size",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-city",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-country",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-region",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-timezone",
+        "operation:client_request:config/read:result:optional-omitted:config-web_search",
+        "operation:client_request:config/read:result:optional-omitted:layers",
+        "operation:client_request:config/read:result:optional-omitted:layers-0-disabledreason",
+        "operation:client_request:config/read:result:required-nullable-null:layers-0-config"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 85,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -567,13 +650,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -604,9 +687,49 @@
     {
       "fixture_ids": [
         "operation:client_request:configRequirements/read:params",
-        "operation:client_request:configRequirements/read:result"
+        "operation:client_request:configRequirements/read:result",
+        "operation:client_request:configRequirements/read:result:explicit-empty-arrays-and-maps",
+        "operation:client_request:configRequirements/read:result:explicit-empty-requirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowappshots",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedapprovalpolicies",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedpermissionprofiles",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedsandboxmodes",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedwebsearchmodes",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedwindowssandboximplementations",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowmanagedhooksonly",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowremotecontrol",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-computeruse",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-computeruse-allowlockedcomputeruse",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-defaultpermissions",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-enforceresidency",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-featurerequirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-model",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-modelreasoningeffort",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-servicetier",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowappshots",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedapprovalpolicies",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedpermissionprofiles",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedsandboxmodes",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedwebsearchmodes",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedwindowssandboximplementations",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowmanagedhooksonly",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowremotecontrol",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-computeruse",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-computeruse-allowlockedcomputeruse",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-defaultpermissions",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-enforceresidency",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-featurerequirements",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-model",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-modelreasoningeffort",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-servicetier"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 42,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -617,13 +740,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -4844,8 +4967,18 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:configWarning",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-details",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-path",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-range",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-details",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-path",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-range",
+        "baseline:server_notification:ServerNotification:method:configWarning:uint-maximum",
+        "baseline:server_notification:ServerNotification:method:configWarning:uint-overflow"
+      ],
+      "positive_fixture_count": 9,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4853,16 +4986,16 @@
         "name": "configWarning"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -7589,8 +7722,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:enterpriseManaged"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7598,21 +7733,23 @@
         "name": "enterpriseManaged"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:legacyManagedConfigTomlFromFile"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7620,21 +7757,23 @@
         "name": "legacyManagedConfigTomlFromFile"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:legacyManagedConfigTomlFromMdm"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7642,21 +7781,23 @@
         "name": "legacyManagedConfigTomlFromMdm"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:mdm"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7664,21 +7805,23 @@
         "name": "mdm"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:project"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7686,21 +7829,23 @@
         "name": "project"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:sessionFlags"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7708,21 +7853,23 @@
         "name": "sessionFlags"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:system"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7730,21 +7877,25 @@
         "name": "system"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:user",
+        "union:ConfigLayerSource:user:nullable-null:profile",
+        "union:ConfigLayerSource:user:optional-omitted:profile"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7752,16 +7903,16 @@
         "name": "user"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

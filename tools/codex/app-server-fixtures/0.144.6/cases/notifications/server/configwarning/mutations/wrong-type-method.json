@@ -1,0 +1,18 @@
+{
+  "method": null,
+  "params": {
+    "details": "synthetic-d225348762",
+    "path": "/synthetic/config.toml",
+    "range": {
+      "end": {
+        "column": 0,
+        "line": 0
+      },
+      "start": {
+        "column": 0,
+        "line": 0
+      }
+    },
+    "summary": "synthetic-6c09f2aa83"
+  }
+}

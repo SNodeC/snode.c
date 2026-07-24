@@ -101,6 +101,7 @@ def self_test() -> None:
         const auto value = 32'001;
         client.events();
         client.accounts();
+        client.configuration();
         // ignored.requests();
         const char* text = "ignored.requests()";
         /* ignored->threads(); */
@@ -109,6 +110,7 @@ def self_test() -> None:
         "synthetic.cpp:4: direct turns() accessor",
         "synthetic.cpp:6: direct events() accessor",
         "synthetic.cpp:7: direct accounts() accessor",
+        "synthetic.cpp:8: direct configuration() accessor",
     ]
     actual = direct_accessor_violations(synthetic, pathlib.Path("synthetic.cpp"))
     if actual != expected:

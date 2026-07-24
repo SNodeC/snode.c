@@ -96,7 +96,7 @@
       "StrongIdentifier": 42
     },
     "schema_path_dispositions": 302,
-    "schema_path_mapping_sha256": "62a17f36b0595b8634484f7136450b8a8a4780427a34affb899ac1db7d4ce383",
+    "schema_path_mapping_sha256": "f389864967bbda8e88535ae555167b77831b84eb750f6d78acbcbc1274b216eb",
     "schema_path_node_kinds": {
       "array_element": 21,
       "map_value": 9,
@@ -119,11 +119,11 @@
     },
     "sensitivity_classifications": {
       "AccountUsageData": 41,
-      "AccountWorkspaceIdentity": 4,
+      "AccountWorkspaceIdentity": 5,
       "AuthenticationFlowData": 13,
       "CredentialSecret": 3,
       "EphemeralAuthenticationCode": 1,
-      "NonSensitiveProtocolData": 207,
+      "NonSensitiveProtocolData": 206,
       "PersonallyIdentifyingAccountData": 7,
       "PotentialCredentialBearingConfiguration": 19,
       "WorkspaceContent": 7
@@ -11984,13 +11984,13 @@
       "semantic_map_key_type": null,
       "sensitivity": {
         "backend_canonical_state_permitted": false,
-        "classification": "NonSensitiveProtocolData",
-        "credential_or_account_value": false,
+        "classification": "AccountWorkspaceIdentity",
+        "credential_or_account_value": true,
         "diagnostic_value_permitted": false,
         "failure_output_policy": "field-path-and-stable-code-only",
-        "fixture_value_policy": "deterministic-schema-synthetic",
+        "fixture_value_policy": "deterministic-low-risk-synthetic",
         "frontend_protocol_exposure_permitted": false,
-        "log_value_permitted": true
+        "log_value_permitted": false
       }
     },
     {
@@ -19987,11 +19987,11 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "b0ff8b2fe6a5936f3d53ab3c1f88239f479cc209753cd223f204f5523d95861d"
+      "sha256": "288ae073286a48169e47a3e777050d47f1077b862baa0c5a95915d3e0f2eedca"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_2.py",
-      "sha256": "195fb966fdf4a03b8d99c747edae4df47ea608850f499f60fe13c6ebc7ef1980"
+      "sha256": "def1e1e4906270f6fd2184284c7e2444cbe19e973b71966eb309d7a976702c0d"
     },
     "manifest": {
       "path": "tools/codex/app-server-surface/0.144.6.json",

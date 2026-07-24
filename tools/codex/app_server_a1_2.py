@@ -211,7 +211,7 @@ EXPECTED_IDENTITY_FIXTURE_MAPPING_SHA256 = (
     "e5fc8a66b996b86af96f51367d8ffbc1b910a4f29e7b654bc0a191ab898dacb2"
 )
 EXPECTED_SCHEMA_PATH_MAPPING_SHA256 = (
-    "62a17f36b0595b8634484f7136450b8a8a4780427a34affb899ac1db7d4ce383"
+    "f389864967bbda8e88535ae555167b77831b84eb750f6d78acbcbc1274b216eb"
 )
 
 EXPECTED_PARTIAL_KEYS = {
@@ -1578,6 +1578,10 @@ def sensitivity_classification(path: str) -> str:
         (
             "#/definitions/v2/Config/properties/"
             "forced_chatgpt_workspace_id"
+        ),
+        (
+            "#/definitions/v2/ForcedChatgptWorkspaceIds/"
+            "anyOf/1/items"
         ),
         (
             "#/definitions/v2/ConfigRequirements/properties/"

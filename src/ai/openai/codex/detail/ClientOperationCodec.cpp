@@ -8,6 +8,7 @@
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
@@ -26,6 +27,8 @@ namespace ai::openai::codex::detail {
             "CancelLoginAccountResponse",
             "LoginAccountResponse",
             "ConsumeAccountRateLimitResetCreditResponse",
+            "ConfigReadResponse",
+            "ConfigRequirementsReadResponse",
             "GetAccountRateLimitsResponse",
             "GetAccountResponse",
             "SendAddCreditsNudgeEmailResponse",
@@ -69,6 +72,8 @@ namespace ai::openai::codex::detail {
                    target == AccountSendAddCreditsNudgeEmail ||
                    target == AccountUsageRead ||
                    target == AccountWorkspaceMessagesRead ||
+                   target == ConfigRead ||
+                   target == ConfigRequirementsRead ||
                    target == ModelList ||
                    target == ModelProviderCapabilitiesRead;
         }
@@ -186,6 +191,10 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeLoginAccountResponse(raw, error), error);
                 case ConsumeAccountRateLimitResetCreditResponse:
                     return decode(target, key, decodeConsumeAccountRateLimitResetCreditResponse(raw, error), error);
+                case ConfigReadResponse:
+                    return decode(target, key, decodeConfigReadResponse(raw, error), error);
+                case ConfigRequirementsReadResponse:
+                    return decode(target, key, decodeConfigRequirementsReadResponse(raw, error), error);
                 case GetAccountRateLimitsResponse:
                     return decode(target, key, decodeGetAccountRateLimitsResponse(raw, error), error);
                 case GetAccountResponse:

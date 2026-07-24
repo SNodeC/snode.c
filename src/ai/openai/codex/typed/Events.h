@@ -11,6 +11,7 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/CodexErrorInfo.h"
+#include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Threads.h"
 
@@ -454,6 +455,7 @@ namespace ai::openai::codex::typed {
     using CanonicalServerNotification = std::variant<AccountLoginCompletedNotification,
                                                      AccountRateLimitsUpdatedNotification,
                                                      AccountUpdatedNotification,
+                                                     ConfigWarningNotification,
                                                      ModelReroutedNotification,
                                                      ModelSafetyBufferingUpdatedNotification,
                                                      ModelVerificationNotification,
@@ -657,6 +659,7 @@ namespace ai::openai::codex::typed {
                                AccountLoginCompletedNotification,
                                AccountRateLimitsUpdatedNotification,
                                AccountUpdatedNotification,
+                               ConfigWarningNotification,
                                ModelRerouted,
                                ModelSafetyBufferingUpdatedNotification,
                                ModelVerificationNotification,

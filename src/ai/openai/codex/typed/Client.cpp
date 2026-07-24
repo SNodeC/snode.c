@@ -12,6 +12,7 @@
 #include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
+#include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
@@ -20,6 +21,7 @@
 #include "ai/openai/codex/detail/TurnCodec.h"
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Conversation.h"
+#include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Events.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
@@ -46,12 +48,14 @@ namespace ai::openai::codex::typed {
     class Client::Impl {
     public:
         Impl(std::unique_ptr<Accounts> accounts,
+             std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
              std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
              std::unique_ptr<Requests> requests)
             : accounts(std::move(accounts))
+            , configuration(std::move(configuration))
             , models(std::move(models))
             , threads(std::move(threads))
             , turns(std::move(turns))
@@ -60,6 +64,7 @@ namespace ai::openai::codex::typed {
         }
 
         std::unique_ptr<Accounts> accounts;
+        std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
@@ -68,13 +73,19 @@ namespace ai::openai::codex::typed {
     };
 
     Client::Client(std::unique_ptr<Accounts> accounts,
+                   std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
                    std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
-        : impl(std::make_unique<Impl>(
-              std::move(accounts), std::move(models), std::move(threads), std::move(turns), std::move(events), std::move(requests))) {
+        : impl(std::make_unique<Impl>(std::move(accounts),
+                                     std::move(configuration),
+                                     std::move(models),
+                                     std::move(threads),
+                                     std::move(turns),
+                                     std::move(events),
+                                     std::move(requests))) {
     }
 
     Client::~Client() = default;
@@ -85,6 +96,14 @@ namespace ai::openai::codex::typed {
 
     const Accounts& Client::accounts() const noexcept {
         return *impl->accounts;
+    }
+
+    Configuration& Client::configuration() noexcept {
+        return *impl->configuration;
+    }
+
+    const Configuration& Client::configuration() const noexcept {
+        return *impl->configuration;
     }
 
     Models& Client::models() noexcept {
@@ -309,6 +328,20 @@ namespace ai::openai::codex::typed {
     Accounts::Submission Accounts::readWorkspaceMessages(Unit params, ReadWorkspaceMessagesResultHandler handler) {
         return submitTypedRequest<GetWorkspaceMessagesResponse>(
             protocol, detail::ClientRequestTarget::AccountWorkspaceMessagesRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Configuration::Configuration(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Configuration::Submission Configuration::read(ConfigReadParams params, ReadResultHandler handler) {
+        return submitTypedRequest<ConfigReadResponse>(
+            protocol, detail::ClientRequestTarget::ConfigRead, params, std::move(handler), detail::encodeConfigReadParams);
+    }
+
+    Configuration::Submission Configuration::readRequirements(Unit params, ReadRequirementsResultHandler handler) {
+        return submitTypedRequest<ConfigRequirementsReadResponse>(
+            protocol, detail::ClientRequestTarget::ConfigRequirementsRead, params, std::move(handler), encodeUnitParams);
     }
 
     Models::Models(AppServerClient::RawProtocol& protocol) noexcept

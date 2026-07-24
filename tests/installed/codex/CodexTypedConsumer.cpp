@@ -9,6 +9,7 @@
 #include <ai/openai/codex/stdio/Client.h>
 #include <ai/openai/codex/typed/Accounts.h>
 #include <ai/openai/codex/typed/Client.h>
+#include <ai/openai/codex/typed/Configuration.h>
 #include <ai/openai/codex/typed/Conversation.h>
 #include <ai/openai/codex/typed/Events.h>
 #include <ai/openai/codex/typed/Items.h>
@@ -36,10 +37,11 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 43);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 44);
     static_assert(std::variant_size_v<typed::Account> == 4);
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
+    static_assert(std::variant_size_v<typed::ConfigLayerSource> == 9);
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
@@ -49,6 +51,7 @@ int main() {
     static_assert(!std::is_same_v<typed::AccountId, std::string>);
     static_assert(!std::is_same_v<typed::ClientUserMessageId, std::string>);
     static_assert(!std::is_same_v<typed::ModelServiceTierId, std::string>);
+    static_assert(!std::is_same_v<typed::ConfigKeyPath, std::string>);
     static_assert(sizeof(ai::openai::codex::AppServerClient) == 2 * sizeof(void*));
     static_assert(sizeof(typed::Client) == sizeof(void*));
 
@@ -210,6 +213,53 @@ int main() {
         .webSearch = true,
         .raw = {{"imageGeneration", true}, {"namespaceTools", false}, {"webSearch", true}},
     };
+    [[maybe_unused]] typed::ConfigLayerSource installedConfigLayerSource =
+        typed::UserConfigLayerSource{
+            .file = typed::AbsolutePathBuf{"/synthetic/config.toml"},
+            .profile = typed::OptionalNullable<std::string>::explicitNull(),
+        };
+    [[maybe_unused]] typed::ConfigLayerSource futureConfigLayerSource =
+        typed::UnknownConfigLayerSource{
+            .discriminator = "futureLayer",
+            .raw = {{"type", "futureLayer"}},
+            .diagnostic = diagnostic,
+        };
+    [[maybe_unused]] typed::ConfigReadParams installedConfigReadParams{
+        .cwd = typed::OptionalNullable<std::string>::withValue("/synthetic/project"),
+        .includeLayers = true,
+    };
+    [[maybe_unused]] typed::ConfigReadResponse installedConfigReadResponse{
+        .config =
+            typed::Config{
+                .model = typed::OptionalNullable<typed::ModelId>::withValue(
+                    typed::ModelId{"installed-model"}),
+                .modelVerbosity =
+                    typed::OptionalNullable<typed::Verbosity>::withValue(
+                        typed::Verbosity::medium()),
+                .webSearch =
+                    typed::OptionalNullable<typed::WebSearchMode>::withValue(
+                        typed::WebSearchMode::cached()),
+            },
+        .layers = typed::OptionalNullable<std::vector<typed::ConfigLayer>>::
+            explicitNull(),
+        .origins = {},
+        .raw = {{"config", ai::openai::codex::Json::object()},
+                {"layers", nullptr},
+                {"origins", ai::openai::codex::Json::object()}},
+    };
+    [[maybe_unused]] typed::ConfigRequirementsReadResponse
+        installedConfigRequirements{
+            .requirements =
+                typed::OptionalNullable<typed::ConfigRequirements>::withValue(
+                    typed::ConfigRequirements{
+                        .allowRemoteControl =
+                            typed::OptionalNullable<bool>::withValue(false),
+                        .allowedWebSearchModes = typed::OptionalNullable<
+                            std::vector<typed::WebSearchMode>>::withValue(
+                            {typed::WebSearchMode::disabled()}),
+                    }),
+            .raw = {{"requirements", ai::openai::codex::Json::object()}},
+        };
     typed::TurnStartParams installedStartParams;
     installedStartParams.threadId = installedThread.id;
     installedStartParams.clientUserMessageId = typed::ClientUserMessageId{"client-message"};
@@ -306,6 +356,17 @@ int main() {
         {}, [](const typed::OperationResult<typed::ModelProviderCapabilitiesReadResponse>&) {});
     (void) modelListSubmission;
     (void) providerCapabilitiesSubmission;
+
+    const auto configReadSubmission = client.typed().configuration().read(
+        std::move(installedConfigReadParams),
+        [](const typed::OperationResult<typed::ConfigReadResponse>&) {});
+    const auto configRequirementsSubmission =
+        client.typed().configuration().readRequirements(
+            {},
+            [](const typed::OperationResult<
+                typed::ConfigRequirementsReadResponse>&) {});
+    (void) configReadSubmission;
+    (void) configRequirementsSubmission;
 
     typed::ThreadStartParams launchParams;
     launchParams.cwd = typed::OptionalNullable<std::string>::withValue("/tmp");

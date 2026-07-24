@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 196 && schemaPartial == 6 && schemaNotImplemented == 137 && schemaNotApplicable == 48,
-                      "the B3 registry reaches the exact staged 196/6/137/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 207 && schemaPartial == 6 && schemaNotImplemented == 126 && schemaNotApplicable == 48,
+                      "the B4 registry reaches the exact staged 207/6/126/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -207,7 +207,7 @@ int main() {
 
     expectTargets<detail::ClientRequestTarget>(
         result,
-        std::array<std::string_view, 34>{"initialize",
+        std::array<std::string_view, 36>{"initialize",
                                          "account/login/cancel",
                                          "account/login/start",
                                          "account/logout",
@@ -217,6 +217,8 @@ int main() {
                                          "account/sendAddCreditsNudgeEmail",
                                          "account/usage/read",
                                          "account/workspaceMessages/read",
+                                         "config/read",
+                                         "configRequirements/read",
                                          "model/list",
                                          "modelProvider/capabilities/read",
                                          "thread/start",
@@ -247,10 +249,11 @@ int main() {
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 44>{"error",
+        std::array<std::string_view, 45>{"error",
                                          "account/login/completed",
                                          "account/rateLimits/updated",
                                          "account/updated",
+                                         "configWarning",
                                          "model/safetyBuffering/updated",
                                          "model/verification",
                                          "thread/started",
@@ -291,7 +294,7 @@ int main() {
                                          "turn/moderationMetadata",
                                          "turn/plan/updated",
                                          "model/rerouted"},
-        "all 44 typed notification dispatch targets resolve to their exact registered wire methods");
+        "all 45 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
         std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
@@ -1336,7 +1339,7 @@ int main() {
         const detail::AccountsModelsConfigurationUnionCodecDescriptor>
         accountUnionDescriptors =
             detail::accountsModelsConfigurationUnionCodecDescriptors();
-    constexpr std::array<detail::ProtocolSurfaceKey, 11>
+    constexpr std::array<detail::ProtocolSurfaceKey, 19>
         expectedAccountUnionKeys{{
             {detail::SurfaceCategory::TaggedUnionDiscriminator,
              "Account",
@@ -1350,6 +1353,38 @@ int main() {
              "Account",
              "type",
              "chatgpt"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "enterpriseManaged"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "legacyManagedConfigTomlFromFile"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "legacyManagedConfigTomlFromMdm"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "mdm"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "project"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "sessionFlags"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "system"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "ConfigLayerSource",
+             "type",
+             "user"},
             {detail::SurfaceCategory::TaggedUnionDiscriminator,
              "LoginAccountParams",
              "type",
@@ -1399,9 +1434,9 @@ int main() {
             descriptor = accountUnionDescriptors[index];
         const detail::ProtocolSurfaceEntry& entry = detail::entryFor(target);
         const detail::ConversationUnionCodecDirection expectedDirection =
-            index < 3 || index >= 7
-                ? detail::ConversationUnionCodecDirection::DecodeOnly
-                : detail::ConversationUnionCodecDirection::EncodeOnly;
+            index >= 11 && index < 15
+                ? detail::ConversationUnionCodecDirection::EncodeOnly
+                : detail::ConversationUnionCodecDirection::DecodeOnly;
         exactAccountUnionDescriptors =
             descriptor.target == target &&
             descriptor.key == expectedAccountUnionKeys[index] &&
@@ -1415,7 +1450,7 @@ int main() {
     }
     result.expectTrue(
         exactAccountUnionDescriptors,
-        "the generated B2 account/login union family is an exact 11-target "
+        "the generated B2+B4 account/login/config union family is an exact 19-target "
         "key/shape/direction/registry bijection");
 
     const std::span<const detail::ServerRequestCodecDescriptor>
@@ -2402,7 +2437,7 @@ int main() {
         });
 
     const detail::ProtocolSurfaceEntry* deferred =
-        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "config/read");
+        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "config/batchWrite");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
                           deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
                           std::holds_alternative<std::monostate>(deferred->runtimeTarget),

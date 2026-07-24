@@ -549,7 +549,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             "StartStateDocumentMismatch",
         )
 
-    def test_live_plan_rows_are_the_exact_b3_progress_boundary(
+    def test_live_plan_rows_are_the_exact_b4_progress_boundary(
         self,
     ) -> None:
         identities = self.plan["identities"]
@@ -562,15 +562,17 @@ class CodexA12AuditToolTest(unittest.TestCase):
             if isinstance(row, dict)
         }
         complete_keys = (
-            expected_batch_keys()["B2"] | expected_batch_keys()["B3"]
+            expected_batch_keys()["B2"]
+            | expected_batch_keys()["B3"]
+            | expected_batch_keys()["B4"]
         )
-        self.assertEqual("B3", counts["current_progress_stage"])
+        self.assertEqual("B4", counts["current_progress_stage"])
         self.assertEqual(
-            {"Complete": 29, "NotImplemented": 16},
+            {"Complete": 40, "NotImplemented": 5},
             counts["current_a1_2_schema_status"],
         )
         self.assertEqual(
-            {"Implemented": 29, "NotImplemented": 16},
+            {"Implemented": 40, "NotImplemented": 5},
             counts["current_a1_2_implementation_status"],
         )
         self.assertEqual(
@@ -1009,6 +1011,15 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 "#/definitions/v2/ConfigReadResponse/properties/config"
             ]["sensitivity"]["log_value_permitted"]
         )
+        workspace_id_items = paths_by_name[
+            "#/definitions/v2/ForcedChatgptWorkspaceIds/anyOf/1/items"
+        ]["sensitivity"]
+        self.assertEqual(
+            "AccountWorkspaceIdentity",
+            workspace_id_items["classification"],
+        )
+        self.assertTrue(workspace_id_items["credential_or_account_value"])
+        self.assertFalse(workspace_id_items["log_value_permitted"])
         self.assertEqual(
             "PersonallyIdentifyingAccountData",
             paths_by_name[

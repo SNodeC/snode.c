@@ -69,6 +69,7 @@ set(
     "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
+    "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
     "typed/Items.h"

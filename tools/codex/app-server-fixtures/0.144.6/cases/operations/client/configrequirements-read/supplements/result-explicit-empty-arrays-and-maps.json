@@ -1,0 +1,10 @@
+{
+  "requirements": {
+    "allowedApprovalPolicies": [],
+    "allowedPermissionProfiles": {},
+    "allowedSandboxModes": [],
+    "allowedWebSearchModes": [],
+    "allowedWindowsSandboxImplementations": [],
+    "featureRequirements": {}
+  }
+}

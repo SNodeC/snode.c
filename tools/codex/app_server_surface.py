@@ -1421,6 +1421,86 @@ ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS = {
         "ConversationUnionCodecShape::InternallyTaggedObject",
         "ConversationUnionCodecDirection::DecodeOnly",
     ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "enterpriseManaged",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceEnterpriseManaged",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "legacyManagedConfigTomlFromFile",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromFile",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "legacyManagedConfigTomlFromMdm",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromMdm",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "mdm",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceMdm",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "project",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceProject",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "sessionFlags",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSessionFlags",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "system",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSystem",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ConfigLayerSource",
+        "type",
+        "user",
+    ): (
+        "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceUser",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
 }
 
 RUNTIME_TARGETS = {
@@ -1491,6 +1571,18 @@ RUNTIME_TARGETS = {
         "method",
         "modelProvider/capabilities/read",
     ): "ClientRequestTarget::ModelProviderCapabilitiesRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/read",
+    ): "ClientRequestTarget::ConfigRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "configRequirements/read",
+    ): "ClientRequestTarget::ConfigRequirementsRead",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1809,6 +1901,12 @@ RUNTIME_TARGETS = {
         "model/verification",
     ): "ServerNotificationTarget::ModelVerification",
     (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "configWarning",
+    ): "ServerNotificationTarget::ConfigWarning",
+    (
         "server_request",
         "ServerRequest",
         "method",
@@ -2092,6 +2190,7 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "account/login/completed": "typed::AccountLoginCompletedNotification",
     "account/rateLimits/updated": "typed::AccountRateLimitsUpdatedNotification",
     "account/updated": "typed::AccountUpdatedNotification",
+    "configWarning": "typed::ConfigWarningNotification",
     "error": "typed::TurnErrorEvent",
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
     "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
@@ -2179,7 +2278,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 44
+    len(SERVER_NOTIFICATION_CODECS) != 45
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5301,12 +5400,24 @@ def registry_statuses(
                     "model/verification",
                 }
             )
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "config/read",
+                    "configRequirements/read",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3] == "configWarning"
+            )
         )
     ):
-        # A1.2 B2/B3 exact-key descriptors and the independently validated
-        # account/auth and model/provider fixture projections bind both wire
-        # directions to the one canonical registry target. The schema closure
-        # records no protocol-defined opaque JSON path in these batches.
+        # A1.2 B2/B3/B4 exact-key descriptors and independently validated
+        # fixture projections bind both wire directions to the one canonical
+        # registry target. B4's protocol-defined opaque positions are declared
+        # explicitly in the checked type closure.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -5651,7 +5762,7 @@ def generate_accounts_models_configuration_union_descriptor_data(
     schema_root: Path,
     evidence: dict[str, Any] | None = None,
 ) -> str:
-    """Generate exact private A1.2 account/login union codec metadata."""
+    """Generate exact private A1.2 account/login/config union codec metadata."""
 
     evidence = (
         evidence if evidence is not None else load_a1_registry_evidence()
@@ -5664,7 +5775,12 @@ def generate_accounts_models_configuration_union_descriptor_data(
         and assignment.get("module") == "AccountsModelsConfiguration"
         and key[0] == "tagged_union_discriminator"
         and key[1]
-        in {"Account", "LoginAccountParams", "LoginAccountResponse"}
+        in {
+            "Account",
+            "ConfigLayerSource",
+            "LoginAccountParams",
+            "LoginAccountResponse",
+        }
         and assignment.get("stability") == "stable"
     }
     descriptor_keys = set(
@@ -5672,12 +5788,12 @@ def generate_accounts_models_configuration_union_descriptor_data(
     )
     if (
         expected_keys != descriptor_keys
-        or len(descriptor_keys) != 11
+        or len(descriptor_keys) != 19
     ):
         raise SurfaceError(
             "AccountsModelsConfigurationUnionDescriptorAssignmentMismatch: "
-            "the exact 3 Account, 4 LoginAccountParams, and 4 "
-            "LoginAccountResponse alternatives must each own one descriptor"
+            "the exact 3 Account, 8 ConfigLayerSource, 4 LoginAccountParams, "
+            "and 4 LoginAccountResponse alternatives must each own one descriptor"
         )
     targets = [
         metadata[0]
@@ -5685,7 +5801,7 @@ def generate_accounts_models_configuration_union_descriptor_data(
             ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.values()
         )
     ]
-    if len(set(targets)) != 11:
+    if len(set(targets)) != 19:
         raise SurfaceError(
             "DuplicateAccountsModelsConfigurationUnionDescriptorTarget: "
             "each exact key must own one unique runtime target"
@@ -5704,12 +5820,12 @@ def generate_accounts_models_configuration_union_descriptor_data(
         or directions.count(
             "ConversationUnionCodecDirection::DecodeOnly"
         )
-        != 7
+        != 15
     ):
         raise SurfaceError(
             "AccountsModelsConfigurationUnionDescriptorDirectionMismatch: "
-            "account/login directions must remain 4 encode-only and "
-            "7 decode-only"
+            "account/login/config directions must remain 4 encode-only and "
+            "15 decode-only"
         )
 
     entries = {
@@ -5863,6 +5979,8 @@ def generate_client_operation_descriptor_data(
                     "account/workspaceMessages/read",
                     "model/list",
                     "modelProvider/capabilities/read",
+                    "config/read",
+                    "configRequirements/read",
                 }
             )
         )
@@ -5877,9 +5995,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 33
+        len(expected_keys) != 35
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 33
+        or len(set(targets.values())) != 35
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -5887,8 +6005,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
-            "the exact 22 stable A1.1, 9 A1.2 B2, and 2 A1.2 B3 client "
-            "requests must "
+            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
+            "A1.2 B4 client requests must "
             "each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -5914,7 +6032,7 @@ def generate_client_operation_descriptor_data(
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 25
+        or len(expected_keys - unit_keys) != 27
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -5922,14 +6040,16 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2+B3 requests must remain exactly 8 Unit and "
-            "25 Concrete requests"
+            "typed A1.1+A1.2 B2+B3+B4 requests must remain exactly 8 Unit "
+            "and 27 Concrete requests"
         )
 
     result_decoders = {
         "Unit",
         "CancelLoginAccountResponse",
         "ConsumeAccountRateLimitResetCreditResponse",
+        "ConfigReadResponse",
+        "ConfigRequirementsReadResponse",
         "GetAccountRateLimitsResponse",
         "GetAccountResponse",
         "GetAccountTokenUsageResponse",
@@ -6013,14 +6133,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 44
+        len(expected_keys) != 45
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 44
+        != 45
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 44 typed server-notification targets must own "
+            "every one of the 45 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -6054,16 +6174,24 @@ def generate_server_notification_descriptor_data(
         }
     }
     residual_keys -= a12_b3_keys
+    a12_b4_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.2"
+        and key[3] == "configWarning"
+    }
+    residual_keys -= a12_b4_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
         or len(a12_b3_keys) != 3
+        or len(a12_b4_keys) != 1
         or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
-            "descriptors must distinguish the exact 37 A1.1 and 3 A1.2 "
-            "B2 and 3 A1.2 B3 rows from the residual partial error row"
+            "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
+            "3 A1.2 B3, and 1 A1.2 B4 rows from the residual partial error row"
         )
 
     lines = [
@@ -6705,6 +6833,12 @@ def generate_operation_production_coverage(
     }
     helper_records: list[dict[str, Any]] = []
     helper_counts = {domain: 0 for domain in sorted(helper_specs)}
+    later_slice_helper_counts = {
+        "ForcedChatgptWorkspaceIds": {
+            "operation_helper_union_branch": 0,
+            "operation_wrong_type": 0,
+        }
+    }
     for fixture in indexed_records:
         if not isinstance(fixture, dict):
             continue
@@ -6728,6 +6862,14 @@ def generate_operation_production_coverage(
                 f"malformed helper fixture id {fixture_id}"
             )
         domain = parts[1]
+        if domain in later_slice_helper_counts:
+            if role not in later_slice_helper_counts[domain]:
+                raise SurfaceError(
+                    "OperationProductionCoverageHelperMismatch: "
+                    f"unsupported later-slice helper fixture role {role!r}"
+                )
+            later_slice_helper_counts[domain][role] += 1
+            continue
         if domain not in helper_specs:
             raise SurfaceError(
                 "OperationProductionCoverageHelperMismatch: "
@@ -6787,6 +6929,18 @@ def generate_operation_production_coverage(
         raise SurfaceError(
             "OperationProductionCoverageHelperMismatch: "
             f"expected exact helper corpus {expected_helper_counts}, got {helper_counts}"
+        )
+    expected_later_slice_helper_counts = {
+        "ForcedChatgptWorkspaceIds": {
+            "operation_helper_union_branch": 3,
+            "operation_wrong_type": 1,
+        }
+    }
+    if later_slice_helper_counts != expected_later_slice_helper_counts:
+        raise SurfaceError(
+            "OperationProductionCoverageHelperMismatch: "
+            "expected the exact later-slice helper corpus "
+            f"{expected_later_slice_helper_counts}, got {later_slice_helper_counts}"
         )
 
     open_value_specs = {
@@ -9107,7 +9261,7 @@ def parser() -> argparse.ArgumentParser:
     amc_union_descriptors = subparsers.add_parser(
         "accounts-models-configuration-union-descriptors",
         help=(
-            "generate private A1.2 account/login union codec descriptors"
+            "generate private A1.2 account/login/config-layer union codec descriptors"
         ),
     )
     amc_union_descriptors.add_argument(

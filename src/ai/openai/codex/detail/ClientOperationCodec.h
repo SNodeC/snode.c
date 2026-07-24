@@ -11,6 +11,7 @@
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/Threads.h"
@@ -41,6 +42,8 @@ namespace ai::openai::codex::detail {
                                                      typed::CancelLoginAccountResponse,
                                                      typed::LoginAccountResponse,
                                                      typed::ConsumeAccountRateLimitResetCreditResponse,
+                                                     typed::ConfigReadResponse,
+                                                     typed::ConfigRequirementsReadResponse,
                                                      typed::GetAccountRateLimitsResponse,
                                                      typed::GetAccountResponse,
                                                      typed::SendAddCreditsNudgeEmailResponse,

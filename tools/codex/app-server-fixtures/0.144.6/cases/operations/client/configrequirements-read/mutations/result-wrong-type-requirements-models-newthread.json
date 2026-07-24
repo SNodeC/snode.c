@@ -1,0 +1,33 @@
+{
+  "requirements": {
+    "allowAppshots": false,
+    "allowManagedHooksOnly": false,
+    "allowRemoteControl": false,
+    "allowedApprovalPolicies": [
+      "untrusted"
+    ],
+    "allowedPermissionProfiles": {
+      "syntheticKey": false
+    },
+    "allowedSandboxModes": [
+      "read-only"
+    ],
+    "allowedWebSearchModes": [
+      "disabled"
+    ],
+    "allowedWindowsSandboxImplementations": [
+      "elevated"
+    ],
+    "computerUse": {
+      "allowLockedComputerUse": false
+    },
+    "defaultPermissions": "synthetic-432403f5dc",
+    "enforceResidency": "us",
+    "featureRequirements": {
+      "syntheticKey": false
+    },
+    "models": {
+      "newThread": false
+    }
+  }
+}

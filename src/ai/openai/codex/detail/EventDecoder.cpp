@@ -11,6 +11,7 @@
 #include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ConversationCodec.h"
+#include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
@@ -546,6 +547,7 @@ namespace ai::openai::codex::detail {
             const bool exactPathNotification = notification.method == "account/login/completed" ||
                                                notification.method == "account/rateLimits/updated" ||
                                                notification.method == "account/updated" ||
+                                               notification.method == "configWarning" ||
                                                notification.method == "model/rerouted" ||
                                                notification.method == "model/safetyBuffering/updated" ||
                                                notification.method == "model/verification";
@@ -1281,6 +1283,12 @@ namespace ai::openai::codex::detail {
             return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
         }
 
+        typed::Event decodeConfigWarning(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeConfigWarningNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
+        }
+
         typed::Event decodeTurnError(const Notification& notification) {
             std::string decodingError;
             std::string threadId;
@@ -1343,6 +1351,8 @@ namespace ai::openai::codex::detail {
                     return decodeAccountRateLimitsUpdated(notification);
                 case ServerNotificationTarget::AccountUpdated:
                     return decodeAccountUpdated(notification);
+                case ServerNotificationTarget::ConfigWarning:
+                    return decodeConfigWarning(notification);
                 case ServerNotificationTarget::ModelSafetyBufferingUpdated:
                     return decodeModelSafetyBufferingUpdated(notification);
                 case ServerNotificationTarget::ModelVerification:

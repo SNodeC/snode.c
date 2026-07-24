@@ -320,23 +320,26 @@ active, authentication response payloads, and potentially credential-bearing
 configuration values are marked sensitive in the path closure.
 
 Sensitive values are never placed in diagnostics, exception messages, logs,
-generated evidence, Markdown, BackendCore state, frontend snapshots/events,
-or generic extension preservation. Tests assert stable codes and field paths,
-not values, and use only deterministic low-risk synthetic fixture data.
+generated evidence, Markdown, modeled BackendCore canonical state, or frontend
+snapshots/events. The required bounded internal preservation path may retain
+exact params for an A2-unmodeled typed notification, but recursive and
+method-specific projection redaction prevents those values from crossing the
+frontend boundary. Tests assert stable codes and field paths, not values, and
+use only deterministic low-risk synthetic fixture data.
 Secret-bearing aggregates receive no stream or formatter support. Auth-refresh
 responses remain local typed protocol responses and never become remotely
 callable.
 
-The closure records 207 NonSensitiveProtocolData, 13 AuthenticationFlowData,
+The closure records 206 NonSensitiveProtocolData, 13 AuthenticationFlowData,
 41 AccountUsageData, 7 PersonallyIdentifyingAccountData, 19
-PotentialCredentialBearingConfiguration, 7 WorkspaceContent, 4
+PotentialCredentialBearingConfiguration, 7 WorkspaceContent, 5
 AccountWorkspaceIdentity, 3 CredentialSecret, and 1
 EphemeralAuthenticationCode paths. Even non-sensitive path diagnostics are
 value-free; sensitive classifications additionally forbid logging and
-frontend/backend preservation. Aggregate, reference, map, and array paths
-inherit the strongest descendant sensitivity, so a container cannot be
-marked loggable while a nested account, workspace, token, or arbitrary
-configuration value is protected.
+frontend exposure or modeled canonical-state preservation. Aggregate,
+reference, map, and array paths inherit the strongest descendant sensitivity,
+so a container cannot be marked loggable while a nested account, workspace,
+token, or arbitrary configuration value is protected.
 
 The final closure includes a repository-level exact-path synthetic sentinel
 leak guard over build output, evidence, documentation, retained test logs, and

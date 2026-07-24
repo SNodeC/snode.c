@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 33:
+    if len(rows) != 35:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 33 rows"
+            "client-operation descriptor must contain exactly 35 rows"
         )
     method_rows = {
         match.group(1): line
@@ -414,17 +414,28 @@ def test_operation_descriptor_guards(
         "model/list",
         "modelProvider/capabilities/read",
     }
+    a1_2_b4_methods = {
+        "config/read",
+        "configRequirements/read",
+    }
     if (
-        len(method_rows) != 33
+        len(method_rows) != 35
         or len(a1_1_methods) != 22
         or set(method_rows)
-        != a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
+        != a1_1_methods
+        | a1_2_b2_methods
+        | a1_2_b3_methods
+        | a1_2_b4_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
+        or (
+            a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
+        )
+        & a1_2_b4_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
-            "nine A1.2 B2 / two A1.2 B3 slice projection"
+            "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 slice projection"
         )
     targets = {
         match.group(1)
@@ -435,7 +446,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 33:
+    if len(targets) != 35:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -462,7 +473,7 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 25
+        != 27
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -490,6 +501,11 @@ def test_operation_descriptor_guards(
             for method in a1_2_b3_methods
         )
         != 2
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_2_b4_methods
+        )
+        != 2
         or any(
             expected not in method_rows[method]
             for method, expected in {
@@ -508,6 +524,21 @@ def test_operation_descriptor_guards(
                     "ResultContractKind::Concrete, "
                     "ClientOperationResultDecoder::"
                     "ModelProviderCapabilitiesReadResponse"
+                ),
+                "config/read": (
+                    "ClientRequestTarget::ConfigRead, "
+                    '"ClientRequestTarget::ConfigRead", '
+                    '"ConfigReadParams", "ConfigReadResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::ConfigReadResponse"
+                ),
+                "configRequirements/read": (
+                    "ClientRequestTarget::ConfigRequirementsRead, "
+                    '"ClientRequestTarget::ConfigRequirementsRead", '
+                    '"Unit", "ConfigRequirementsReadResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "ConfigRequirementsReadResponse"
                 ),
             }.items()
         )
@@ -674,33 +705,42 @@ def test_notification_descriptor_guards(
         "model/safetyBuffering/updated",
         "model/verification",
     }
+    a1_2_b4_methods = {"configWarning"}
     residual_methods = {"error"}
     if (
-        len(rows) != 44
-        or len(targets) != 44
-        or len(method_rows) != 44
+        len(rows) != 45
+        or len(targets) != 45
+        or len(method_rows) != 45
         or len(a1_1_methods) != 37
         or set(method_rows)
         != (
             a1_1_methods
             | a1_2_b2_methods
             | a1_2_b3_methods
+            | a1_2_b4_methods
             | residual_methods
         )
         or (
-            a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
         )
         & residual_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
+        or (
+            a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
+        )
+        & a1_2_b4_methods
     ):
         raise AssertionError(
-            "server-notification descriptors are not an exact 44-row "
+            "server-notification descriptors are not an exact 45-row "
             "target bijection with the reviewed slice projection"
         )
     if (
         sum(line.endswith(", true)") for line in rows) != 37
-        or sum(line.endswith(", false)") for line in rows) != 7
+        or sum(line.endswith(", false)") for line in rows) != 8
         or any(
             not method_rows[method].endswith(", true)")
             for method in a1_1_methods
@@ -708,7 +748,10 @@ def test_notification_descriptor_guards(
         or any(
             not method_rows[method].endswith(", false)")
             for method in (
-                a1_2_b2_methods | a1_2_b3_methods | residual_methods
+                a1_2_b2_methods
+                | a1_2_b3_methods
+                | a1_2_b4_methods
+                | residual_methods
             )
         )
         or any(
@@ -726,12 +769,16 @@ def test_notification_descriptor_guards(
                     "ServerNotificationTarget::ModelVerification, "
                     '"typed::ModelVerificationNotification", false)'
                 ),
+                "configWarning": (
+                    "ServerNotificationTarget::ConfigWarning, "
+                    '"typed::ConfigWarningNotification", false)'
+                ),
             }.items()
         )
     ):
         raise AssertionError(
             "server-notification descriptors lost the exact 37 A1.1 / "
-            "three A1.2 B2 / three A1.2 B3 / one residual split"
+            "three A1.2 B2 / three A1.2 B3 / one A1.2 B4 / one residual split"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -932,11 +979,11 @@ def test_accounts_models_configuration_union_descriptor_guards(
         )
     ):
         raise AssertionError(
-            "account/login union descriptor generation is not deterministic"
+            "account/login/config union descriptor generation is not deterministic"
         )
     if generated != descriptor_path.read_text(encoding="utf-8"):
         raise AssertionError(
-            "private account/login union descriptor data is stale"
+            "private account/login/config union descriptor data is stale"
         )
     rows = [
         line
@@ -957,8 +1004,8 @@ def test_accounts_models_configuration_union_descriptor_guards(
         )
     }
     if (
-        len(rows) != 11
-        or len(targets) != 11
+        len(rows) != 19
+        or len(targets) != 19
         or sum(
             "ConversationUnionCodecDirection::EncodeOnly)" in line
             for line in rows
@@ -968,15 +1015,15 @@ def test_accounts_models_configuration_union_descriptor_guards(
             "ConversationUnionCodecDirection::DecodeOnly)" in line
             for line in rows
         )
-        != 7
+        != 15
         or any(
             "ConversationUnionCodecShape::InternallyTaggedObject" not in line
             for line in rows
         )
     ):
         raise AssertionError(
-            "account/login union descriptors lost the exact "
-            "11-row, 4 encode-only / 7 decode-only contract"
+            "account/login/config union descriptors lost the exact "
+            "19-row, 4 encode-only / 15 decode-only contract"
         )
 
     wrong_assignment = copy.deepcopy(evidence)

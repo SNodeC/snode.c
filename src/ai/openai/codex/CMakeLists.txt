@@ -12,6 +12,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/AccountCodec.cpp
     detail/CodexErrorInfoCodec.cpp
     detail/ClientOperationCodec.cpp
+    detail/ConfigurationCodec.cpp
     detail/ConversationCodec.cpp
     detail/EventDecoder.cpp
     detail/ItemDecoder.cpp
@@ -26,6 +27,7 @@ set(AI_OPENAI_CODEX_CPP
     stdio/StdioTransport.cpp
     typed/Accounts.cpp
     typed/Client.cpp
+    typed/Configuration.cpp
     typed/Models.cpp
     typed/Types.cpp
 )
@@ -37,6 +39,7 @@ set(AI_OPENAI_CODEX_H
     detail/AccountsModelsConfigurationUnionCodecDescriptors.inc
     detail/CodexErrorInfoCodec.h
     detail/ClientOperationCodec.h
+    detail/ConfigurationCodec.h
     detail/ConversationCodec.h
     detail/ConversationUnionCodecDescriptors.inc
     detail/ThreadItemCodecDescriptors.inc
@@ -59,6 +62,7 @@ set(AI_OPENAI_CODEX_H
     typed/Accounts.h
     typed/Client.h
     typed/CodexErrorInfo.h
+    typed/Configuration.h
     typed/Conversation.h
     typed/Events.h
     typed/Items.h
@@ -107,6 +111,7 @@ install(
     FILES typed/Accounts.h
           typed/Client.h
           typed/CodexErrorInfo.h
+          typed/Configuration.h
           typed/Conversation.h
           typed/Events.h
           typed/Items.h

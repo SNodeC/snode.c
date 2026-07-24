@@ -634,7 +634,7 @@ int main() {
                    descriptor.key.name == "error";
         }));
     result.expectTrue(residualPartialDescriptors == 1,
-                      "error remains the exact residual partial descriptor row while B3 completes model/rerouted");
+                      "error remains the exact residual partial descriptor row while B4 completes configWarning");
 
     std::map<std::string, std::size_t> roles;
     std::set<detail::ServerNotificationTarget> baseTargets;
