@@ -15,6 +15,12 @@
 
 namespace ai::openai::codex::typed {
 
+    // The single successful-result type used by every pinned empty-object
+    // operation contract. Its decoder accepts only the exact empty object.
+    struct Unit {
+        bool operator==(const Unit&) const = default;
+    };
+
     template <typename T>
     struct OperationResult {
         enum class Kind { Success, RemoteError, Cancelled, LocalError };

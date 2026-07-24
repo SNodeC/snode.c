@@ -1,0 +1,15 @@
+{
+  "archived": false,
+  "cursor": "synthetic-812497d6a7",
+  "cwd": "synthetic-a1e31d316f",
+  "modelProviders": [
+    "synthetic-987a91ec9d"
+  ],
+  "searchTerm": "synthetic-db1c2a4f35",
+  "sortDirection": "asc",
+  "sortKey": "created_at",
+  "sourceKinds": [
+    "cli"
+  ],
+  "useStateDbOnly": false
+}

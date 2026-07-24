@@ -97,6 +97,9 @@ namespace ai::openai::codex {
         std::int64_t code = 0;
         std::string message;
         std::optional<Json> data;
+        // Exact incoming JSON-RPC error object, including future fields.
+        // Outbound encoding deliberately uses only code/message/data.
+        Json raw = nullptr;
     };
 
     struct InitializeResult {

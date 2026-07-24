@@ -12,6 +12,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -25,7 +26,10 @@ namespace {
     using ai::openai::codex::detail::encodeTurnStartParams;
     using ai::openai::codex::typed::AbsolutePathBuf;
     using ai::openai::codex::typed::ApprovalPolicy;
+    using ai::openai::codex::typed::AskForApproval;
     using ai::openai::codex::typed::DangerFullAccessSandboxPolicy;
+    using ai::openai::codex::typed::DecodeIssueKind;
+    using ai::openai::codex::typed::DecodeIssueSeverity;
     using ai::openai::codex::typed::ExternalSandboxPolicy;
     using ai::openai::codex::typed::ImageDetail;
     using ai::openai::codex::typed::ImageUrlInput;
@@ -41,9 +45,22 @@ namespace {
     using ai::openai::codex::typed::Turn;
     using ai::openai::codex::typed::TurnId;
     using ai::openai::codex::typed::TurnInput;
+    using ai::openai::codex::typed::TurnStartParams;
     using ai::openai::codex::typed::TurnStartOptions;
     using ai::openai::codex::typed::UnknownTurnInput;
     using ai::openai::codex::typed::WorkspaceWriteSandboxPolicy;
+
+    using StrongClientUserMessageId =
+        ai::openai::codex::typed::OptionalNullable<
+            ai::openai::codex::typed::ClientUserMessageId>;
+    static_assert(std::is_same_v<decltype(TurnStartParams::clientUserMessageId),
+                                 StrongClientUserMessageId> &&
+                      std::is_same_v<decltype(
+                                         ai::openai::codex::typed::
+                                             TurnSteerParams::
+                                                 clientUserMessageId),
+                                     StrongClientUserMessageId>,
+                  "turn/start and turn/steer must share the strong client user-message identifier");
 
     Json validTurn(std::string status = "completed") {
         return {
@@ -67,12 +84,16 @@ namespace {
         testResult.expectTrue(error.empty(), "successful turn decoding clears a previous error");
         testResult.expectTrue(decoded && decoded->id.value == "turn-1" && decoded->threadId.value == "thread-1",
                               "turn and parent thread strong IDs are preserved without interchange");
-        testResult.expectTrue(decoded && decoded->status.value == "completed" && decoded->itemsView.value == "full",
-                              "turn status and default full items view are decoded");
+        testResult.expectTrue(decoded && decoded->status.value == "completed" &&
+                                  decoded->itemsView == ai::openai::codex::typed::TurnItemsView::full() &&
+                                  !decoded->raw.contains("itemsView"),
+                              "turn status decodes while an omitted itemsView retains the established full-view default");
         testResult.expectTrue(decoded && decoded->items.empty(), "empty current-schema turn item list is accepted");
-        testResult.expectTrue(decoded && !decoded->error && decoded->startedAt == 1'700'000'010 && decoded->completedAt == 1'700'000'015 &&
-                                  decoded->durationMs == 5'000,
-                              "turn optional error and timing fields decode with null safety");
+        testResult.expectTrue(decoded && decoded->error.isNull() && decoded->startedAt.hasValue() &&
+                                  *decoded->startedAt == 1'700'000'010 && decoded->completedAt.hasValue() &&
+                                  *decoded->completedAt == 1'700'000'015 && decoded->durationMs.hasValue() &&
+                                  *decoded->durationMs == 5'000,
+                              "turn preserves explicit-null error and valued timing tri-state fields");
         testResult.expectTrue(decoded && decoded->raw == raw, "turn raw JSON preserves unknown fields and the complete original object");
     }
 
@@ -102,9 +123,9 @@ namespace {
         optionalAbsent.erase("completedAt");
         optionalAbsent.erase("durationMs");
         const std::optional<Turn> decodedAbsent = decodeTurn(optionalAbsent, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(decodedAbsent && !decodedAbsent->error && !decodedAbsent->startedAt && !decodedAbsent->completedAt &&
-                                  !decodedAbsent->durationMs,
-                              "absent optional turn fields remain absent");
+        testResult.expectTrue(decodedAbsent && decodedAbsent->error.isOmitted() && decodedAbsent->startedAt.isOmitted() &&
+                                  decodedAbsent->completedAt.isOmitted() && decodedAbsent->durationMs.isOmitted(),
+                              "omitted nullable turn fields remain mechanically distinct");
 
         Json optionalNull = optionalAbsent;
         optionalNull["error"] = nullptr;
@@ -112,15 +133,18 @@ namespace {
         optionalNull["completedAt"] = nullptr;
         optionalNull["durationMs"] = nullptr;
         const std::optional<Turn> decodedNull = decodeTurn(optionalNull, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(decodedNull && !decodedNull->error && !decodedNull->startedAt && !decodedNull->completedAt &&
-                                  !decodedNull->durationMs,
-                              "null optional turn fields decode safely as absent");
+        testResult.expectTrue(decodedNull && decodedNull->error.isNull() && decodedNull->startedAt.isNull() &&
+                                  decodedNull->completedAt.isNull() && decodedNull->durationMs.isNull(),
+                              "explicit-null turn fields remain mechanically distinct from omission");
 
         Json failed = validTurn("failed");
         failed["error"] = Json{{"message", "remote turn failure"}, {"additionalDetails", nullptr}, {"futureErrorField", 7}};
         const std::optional<Turn> decodedFailure = decodeTurn(failed, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(decodedFailure && decodedFailure->error && *decodedFailure->error == failed.at("error"),
-                              "typed turn retains the complete current-schema error object and unknown error fields");
+        testResult.expectTrue(decodedFailure && decodedFailure->error.hasValue() &&
+                                  decodedFailure->error->message == "remote turn failure" &&
+                                  decodedFailure->error->additionalDetails.isNull() &&
+                                  decodedFailure->error->raw == failed.at("error"),
+                              "typed TurnError exposes known fields and retains its complete object including unknown fields");
 
         Json malformedError = failed;
         malformedError["error"].erase("message");
@@ -129,14 +153,40 @@ namespace {
 
         const Json unknownRaw = validTurn("futureTurnStatus");
         const std::optional<Turn> unknown = decodeTurn(unknownRaw, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(unknown && unknown->status.value == "futureTurnStatus" && unknown->raw == unknownRaw,
-                              "unknown future turn status strings remain nonfatal and raw-preserved");
+        testResult.expectTrue(unknown && unknown->status.value == "futureTurnStatus" && unknown->raw == unknownRaw &&
+                                  unknown->diagnostics.size() == 1 &&
+                                  unknown->diagnostics.front().kind == DecodeIssueKind::UnknownEnumValue &&
+                                  unknown->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  unknown->diagnostics.front().surface == "TurnStatus" &&
+                                  unknown->diagnostics.front().fieldPath == "$.status",
+                              "future TurnStatus stays typed with the exact open-enum diagnostic and raw aggregate");
 
         Json futureItemsView = validTurn();
         futureItemsView["itemsView"] = "futureView";
         const std::optional<Turn> decodedFutureItemsView = decodeTurn(futureItemsView, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(decodedFutureItemsView && decodedFutureItemsView->itemsView.value == "futureView",
-                              "unknown future turn items view strings remain nonfatal and raw-preserved");
+        testResult.expectTrue(decodedFutureItemsView && decodedFutureItemsView->itemsView.value == "futureView" &&
+                                  decodedFutureItemsView->diagnostics.size() == 1 &&
+                                  decodedFutureItemsView->diagnostics.front().kind == DecodeIssueKind::UnknownEnumValue &&
+                                  decodedFutureItemsView->diagnostics.front().severity == DecodeIssueSeverity::ForwardCompatibility &&
+                                  decodedFutureItemsView->diagnostics.front().surface == "TurnItemsView" &&
+                                  decodedFutureItemsView->diagnostics.front().fieldPath == "$.itemsView",
+                              "future TurnItemsView stays typed with the exact open-enum diagnostic");
+
+        for (const std::string_view knownView :
+             {"full", "summary", "notLoaded"}) {
+            Json knownItemsView = validTurn();
+            knownItemsView["itemsView"] = knownView;
+            const std::optional<Turn> decodedKnownItemsView =
+                decodeTurn(knownItemsView, ThreadId{"thread-1"}, error);
+            testResult.expectTrue(
+                decodedKnownItemsView &&
+                    decodedKnownItemsView->itemsView.value == knownView &&
+                    decodedKnownItemsView->itemsView.isKnown() &&
+                    decodedKnownItemsView->raw.at("itemsView") == knownView &&
+                    decodedKnownItemsView->diagnostics.empty(),
+                "Turn.itemsView decodes the known '" + std::string(knownView) +
+                    "' value through the production aggregate decoder");
+        }
 
         Json overflowTimestamp = validTurn();
         overflowTimestamp["startedAt"] = std::numeric_limits<std::uint64_t>::max();
@@ -146,7 +196,8 @@ namespace {
         Json negativeDuration = validTurn();
         negativeDuration["durationMs"] = -1;
         const std::optional<Turn> decodedNegativeDuration = decodeTurn(negativeDuration, ThreadId{"thread-1"}, error);
-        testResult.expectTrue(decodedNegativeDuration && decodedNegativeDuration->durationMs == -1,
+        testResult.expectTrue(decodedNegativeDuration && decodedNegativeDuration->durationMs.hasValue() &&
+                                  *decodedNegativeDuration->durationMs == -1,
                               "signed int64 duration is preserved exactly without inventing a schema minimum");
 
         Json overflowDuration = validTurn();
@@ -202,7 +253,7 @@ namespace {
         options.cwd = "/tmp/project";
         options.model = ModelId{"gpt-5.4"};
         options.reasoningEffort = ReasoningEffort{"xhigh"};
-        options.approvalPolicy = ApprovalPolicy{"on-request"};
+        options.approvalPolicy = ApprovalPolicy{"future-policy"};
         WorkspaceWriteSandboxPolicy workspacePolicy;
         workspacePolicy.writableRoots = std::vector<AbsolutePathBuf>{{"/tmp/project"}};
         workspacePolicy.networkAccess = true;
@@ -225,7 +276,7 @@ namespace {
             {"cwd", "/tmp/project"},
             {"model", "gpt-5.4"},
             {"effort", "xhigh"},
-            {"approvalPolicy", "on-request"},
+            {"approvalPolicy", "future-policy"},
             {"sandboxPolicy",
              {{"type", "workspaceWrite"},
               {"writableRoots", Json::array({"/tmp/project"})},
@@ -233,12 +284,29 @@ namespace {
               {"excludeTmpdirEnvVar", true},
               {"excludeSlashTmp", false}}},
         };
-        testResult.expectTrue(encoded && *encoded == expected,
-                              "turn/start encodes multiple typed inputs, strong thread ID, and every supported optional setting");
+        testResult.expectTrue(encoded && *encoded == expected && error.empty(),
+                              "deprecated turn/start preserves future approval values while encoding every supported setting");
 
         const std::optional<Json> minimum = encodeTurnStartParams(ThreadId{"thread-minimum"}, {}, {}, error);
         testResult.expectTrue(minimum && *minimum == Json{{"threadId", "thread-minimum"}, {"input", Json::array()}},
                               "turn/start omits absent settings and accepts the schema's empty input array");
+
+        TurnStartParams canonical;
+        canonical.threadId = ThreadId{"thread-canonical"};
+        canonical.approvalPolicy = AskForApproval{ApprovalPolicy{"future-canonical-policy"}};
+        const auto encodedCanonical = encodeTurnStartParams(canonical, error);
+        testResult.expectTrue(encodedCanonical &&
+                                  *encodedCanonical ==
+                                      Json{{"threadId", "thread-canonical"},
+                                           {"input", Json::array()},
+                                           {"approvalPolicy", "future-canonical-policy"}} &&
+                                  error.empty(),
+                              "canonical turn/start preserves the same open non-empty approval scalar");
+
+        TurnStartOptions invalidApproval;
+        invalidApproval.approvalPolicy = ApprovalPolicy{""};
+        testResult.expectTrue(!encodeTurnStartParams(ThreadId{"thread-1"}, {}, invalidApproval, error) && !error.empty(),
+                              "turn/start rejects an empty approval scalar prohibited by the open value contract");
 
         TurnStartOptions invalidEffort;
         invalidEffort.reasoningEffort = ReasoningEffort{""};
@@ -300,6 +368,9 @@ namespace {
                               "empty current-schema turn/interrupt response object decodes successfully");
         testResult.expectTrue(!decodeTurnInterruptResult(nullptr, error) && !error.empty(),
                               "malformed non-object turn/interrupt response is rejected");
+        testResult.expectTrue(!decodeTurnInterruptResult(Json{{"unexpected", true}}, error) &&
+                                  error == "Unit successful result must be the exact empty object",
+                              "turn/interrupt rejects a non-empty object with the exact Unit contract diagnostic");
     }
 } // namespace
 

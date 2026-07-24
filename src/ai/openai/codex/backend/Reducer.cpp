@@ -262,8 +262,8 @@ namespace ai::openai::codex::backend {
                 iterator->second.turn = value;
                 iterator->second.active = !isTerminal(value.status);
                 iterator->second.terminal = isTerminal(value.status);
-                if (value.error) {
-                    iterator->second.failure = value.error;
+                if (value.error.hasValue()) {
+                    iterator->second.failure = value.error->raw;
                 }
             }
 
@@ -419,14 +419,20 @@ namespace ai::openai::codex::backend {
                     }
                     state.threadList.hasLoadedPage = true;
                     ++state.threadList.pagesLoaded;
-                    state.threadList.nextCursor = value.page.nextCursor;
-                    state.threadList.backwardsCursor = value.page.backwardsCursor;
-                    state.threadList.complete = !value.page.nextCursor.has_value();
+                    state.threadList.nextCursor =
+                        value.page.nextCursor.hasValue() ? value.page.nextCursor.value : std::nullopt;
+                    state.threadList.backwardsCursor =
+                        value.page.backwardsCursor.hasValue() ? value.page.backwardsCursor.value : std::nullopt;
+                    state.threadList.complete = !value.page.nextCursor.hasValue();
                     return Reduction{true, false};
                 },
                 [&state](const ThreadStatusUpdated& value) {
                     ThreadState& thread = ensureThread(state, value.threadId);
                     thread.thread.status = value.status;
+                    if (thread.thread.raw.is_object() && thread.thread.raw.size() == 1 &&
+                        thread.thread.raw.value("backendPlaceholder", false)) {
+                        thread.thread.raw["backendPlaceholderStatusKnown"] = true;
+                    }
                     return Reduction{true, false};
                 },
                 [this, &state](const TurnUpserted& value) {

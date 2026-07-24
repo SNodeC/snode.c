@@ -171,8 +171,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 92 && schemaPartial == 26 && schemaNotImplemented == 221 && schemaNotApplicable == 48,
-                      "the staged B3 registry advances exactly 50 item-batch identities without promoting later batches");
+    result.expectTrue(schemaComplete == 130 && schemaPartial == 20 && schemaNotImplemented == 189 && schemaNotApplicable == 48,
+                      "the staged B4 registry advances exactly 38 operation-batch identities without promoting notifications");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -186,9 +186,30 @@ int main() {
 
     expectTargets<detail::ClientRequestTarget>(
         result,
-        std::array<std::string_view, 7>{
-            "initialize", "thread/start", "thread/resume", "thread/list", "thread/read", "turn/start", "turn/interrupt"},
-        "every existing typed outgoing request target resolves to its exact registered wire method");
+        std::array<std::string_view, 23>{"initialize",
+                                         "thread/start",
+                                         "thread/resume",
+                                         "thread/list",
+                                         "thread/read",
+                                         "turn/start",
+                                         "turn/interrupt",
+                                         "thread/archive",
+                                         "thread/compact/start",
+                                         "thread/delete",
+                                         "thread/fork",
+                                         "thread/goal/clear",
+                                         "thread/goal/get",
+                                         "thread/goal/set",
+                                         "thread/inject_items",
+                                         "thread/loaded/list",
+                                         "thread/metadata/update",
+                                         "thread/name/set",
+                                         "thread/rollback",
+                                         "thread/shellCommand",
+                                         "thread/unarchive",
+                                         "thread/unsubscribe",
+                                         "turn/steer"},
+        "every typed outgoing request target resolves to its exact registered wire method");
     expectTargets<detail::ClientNotificationTarget>(result,
                                                     std::array<std::string_view, 1>{"initialized"},
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
@@ -331,8 +352,309 @@ int main() {
                        detail::ProtocolSurfaceErrorCode::CompleteWithoutCodecDescriptor}),
         "a complete nested-union row without target/decoder fails with the exact bidirectional diagnostic multiset");
 
+    const std::span<const detail::ClientOperationCodecDescriptor> operationDescriptors =
+        detail::clientOperationCodecDescriptors();
+    constexpr std::array<std::string_view, 22> expectedOperationMethods{{
+        "thread/archive",
+        "thread/compact/start",
+        "thread/delete",
+        "thread/fork",
+        "thread/goal/clear",
+        "thread/goal/get",
+        "thread/goal/set",
+        "thread/inject_items",
+        "thread/list",
+        "thread/loaded/list",
+        "thread/metadata/update",
+        "thread/name/set",
+        "thread/read",
+        "thread/resume",
+        "thread/rollback",
+        "thread/shellCommand",
+        "thread/start",
+        "thread/unarchive",
+        "thread/unsubscribe",
+        "turn/interrupt",
+        "turn/start",
+        "turn/steer",
+    }};
+    bool exactOperationDescriptors =
+        operationDescriptors.size() == expectedOperationMethods.size();
+    std::size_t operationUnitCount = 0;
+    std::size_t operationConcreteCount = 0;
+    for (std::size_t index = 0;
+         exactOperationDescriptors && index < operationDescriptors.size();
+         ++index) {
+        const auto& descriptor = operationDescriptors[index];
+        const auto& entry = detail::entryFor(descriptor.target);
+        exactOperationDescriptors =
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ClientRequest,
+                    "ClientRequest",
+                    "method",
+                    expectedOperationMethods[index],
+                } &&
+            entry.key == descriptor.key &&
+            entry.operationContract.parameterTypeIdentity ==
+                descriptor.parameterTypeIdentity &&
+            entry.operationContract.resultTypeIdentity ==
+                descriptor.resultTypeIdentity &&
+            entry.operationContract.resultKind == descriptor.resultKind &&
+            !descriptor.runtimeTargetIdentity.empty() &&
+            descriptor.resultDecoder !=
+                detail::ClientOperationResultDecoder::Count;
+        operationUnitCount +=
+            descriptor.resultKind == detail::ResultContractKind::Unit;
+        operationConcreteCount +=
+            descriptor.resultKind == detail::ResultContractKind::Concrete;
+    }
+    result.expectTrue(
+        exactOperationDescriptors && operationUnitCount == 7 &&
+            operationConcreteCount == 15,
+        "the generated client-operation descriptor is an exact 22-row "
+        "method/target/contract bijection with 7 Unit and 15 Concrete results");
+
+    const auto validateWithOperationDescriptors =
+        [&](std::span<const detail::ProtocolSurfaceEntry> entries,
+            std::span<const detail::ClientOperationCodecDescriptor>
+                descriptors) {
+            return detail::validateProtocolSurface(
+                entries,
+                detail::codexErrorInfoCodecDescriptors(),
+                detail::conversationUnionCodecDescriptors(),
+                detail::threadItemCodecDescriptors(),
+                detail::responseItemCodecDescriptors(),
+                descriptors);
+        };
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        duplicateOperationDescriptor(
+            operationDescriptors.begin(), operationDescriptors.end());
+    duplicateOperationDescriptor.push_back(operationDescriptors.front());
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, duplicateOperationDescriptor),
+            {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+        "a duplicate client-operation descriptor fails with exactly "
+        "DuplicateCodecDescriptor");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        missingOperationDescriptor(
+            operationDescriptors.begin(), operationDescriptors.end());
+    missingOperationDescriptor.erase(missingOperationDescriptor.begin());
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, missingOperationDescriptor),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    RegistryRowWithoutCodecDescriptor,
+                detail::ProtocolSurfaceErrorCode::
+                    CompleteWithoutCodecDescriptor,
+            }),
+        "a complete operation row without its descriptor fails with the "
+        "exact missing-descriptor multiset");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        staleOperationDescriptor(
+            operationDescriptors.begin(), operationDescriptors.end());
+    staleOperationDescriptor.front().key.name = "stale/operation";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, staleOperationDescriptor),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorCanonicalKeyMismatch,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorWithoutRegistryRow,
+                detail::ProtocolSurfaceErrorCode::
+                    RegistryRowWithoutCodecDescriptor,
+                detail::ProtocolSurfaceErrorCode::
+                    CompleteWithoutCodecDescriptor,
+            }),
+        "a stale client-operation descriptor fails with the exact "
+        "canonical-key diagnostics");
+
+    const auto expectWrongOperationDescriptorKey =
+        [&](auto mutateKey, const char* description) {
+            std::vector<detail::ClientOperationCodecDescriptor> descriptors(
+                operationDescriptors.begin(), operationDescriptors.end());
+            mutateKey(descriptors.front().key);
+            result.expectTrue(
+                hasExactCodes(
+                    validateWithOperationDescriptors(registry, descriptors),
+                    {
+                        detail::ProtocolSurfaceErrorCode::
+                            CodecDescriptorCanonicalKeyMismatch,
+                        detail::ProtocolSurfaceErrorCode::
+                            CodecDescriptorWithoutRegistryRow,
+                        detail::ProtocolSurfaceErrorCode::
+                            RegistryRowWithoutCodecDescriptor,
+                        detail::ProtocolSurfaceErrorCode::
+                            CompleteWithoutCodecDescriptor,
+                    }),
+                description);
+        };
+    expectWrongOperationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.category =
+                detail::SurfaceCategory::ServerNotification;
+        },
+        "a client-operation descriptor with the wrong category fails with "
+        "the exact canonical-key diagnostics");
+    expectWrongOperationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.domain = "WrongClientRequest";
+        },
+        "a client-operation descriptor with the wrong domain fails with the "
+        "exact canonical-key diagnostics");
+    expectWrongOperationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.field = "wrongMethod";
+        },
+        "a client-operation descriptor with the wrong field fails with the "
+        "exact canonical-key diagnostics");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        duplicateOperationTarget(
+            operationDescriptors.begin(), operationDescriptors.end());
+    duplicateOperationTarget.front().target =
+        duplicateOperationTarget[1].target;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, duplicateOperationTarget),
+            {
+                detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorCanonicalKeyMismatch,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorTargetMismatch,
+                detail::ProtocolSurfaceErrorCode::
+                    RegistryRowWithoutCodecDescriptor,
+                detail::ProtocolSurfaceErrorCode::
+                    CompleteWithoutCodecDescriptor,
+            }),
+        "a duplicated client-operation descriptor target fails with the "
+        "exact target-bijection diagnostics");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        wrongOperationContract(
+            operationDescriptors.begin(), operationDescriptors.end());
+    wrongOperationContract.front().resultKind =
+        detail::ResultContractKind::Concrete;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, wrongOperationContract),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorContractMismatch,
+            }),
+        "an operation descriptor with the wrong result kind fails with "
+        "exactly CodecDescriptorContractMismatch");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        wrongOperationResultDecoder(
+            operationDescriptors.begin(), operationDescriptors.end());
+    wrongOperationResultDecoder.front().resultDecoder =
+        detail::ClientOperationResultDecoder::ThreadListResponse;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, wrongOperationResultDecoder),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorContractMismatch,
+            }),
+        "an operation descriptor bound to the wrong result decoder fails "
+        "with exactly CodecDescriptorContractMismatch");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
+        wrongOperationTargetIdentity(
+            operationDescriptors.begin(), operationDescriptors.end());
+    wrongOperationTargetIdentity.front().runtimeTargetIdentity =
+        "ClientRequestTarget::ThreadList";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, wrongOperationTargetIdentity),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorContractMismatch,
+            }),
+        "an operation descriptor with the wrong generated target identity "
+        "fails with exactly CodecDescriptorContractMismatch");
+
+    std::vector<detail::ProtocolSurfaceEntry> missingOperationTarget(
+        registry.begin(), registry.end());
+    const auto missingOperationTargetRow = findExactEntry(
+        missingOperationTarget, operationDescriptors.front().key);
+    missingOperationTargetRow->runtimeTarget = std::monostate{};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                missingOperationTarget, operationDescriptors),
+            {
+                detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+                detail::ProtocolSurfaceErrorCode::
+                    MissingRuntimeTargetRegistration,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorTargetMismatch,
+                detail::ProtocolSurfaceErrorCode::
+                    RegistryRowWithoutCodecDescriptor,
+                detail::ProtocolSurfaceErrorCode::
+                    CompleteWithoutCodecDescriptor,
+            }),
+        "removing an operation target while retaining its descriptor fails "
+        "with the exact bidirectional target diagnostics");
+
+    std::vector<detail::ProtocolSurfaceEntry> demotedOperationRow(
+        registry.begin(), registry.end());
+    const auto demotedOperation = findExactEntry(
+        demotedOperationRow, operationDescriptors.front().key);
+    demotedOperation->runtimeDisposition =
+        detail::RuntimeDisposition::Deferred;
+    demotedOperation->typedImplementation =
+        detail::TypedImplementationStatus::NotImplemented;
+    demotedOperation->typedSchemaStatus =
+        detail::TypedSchemaStatus::NotImplemented;
+    demotedOperation->schemaCompleteness = {};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                demotedOperationRow, operationDescriptors),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    RuntimeTargetWithoutTypedImplementation,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorWithoutTypedRegistryRow,
+            }),
+        "retaining an operation target/descriptor while demoting its row "
+        "fails with the exact two diagnostics");
+
+    std::vector<detail::ProtocolSurfaceEntry> removedOperationRow(
+        registry.begin(), registry.end());
+    removedOperationRow.erase(findExactEntry(
+        removedOperationRow, operationDescriptors.front().key));
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                removedOperationRow, operationDescriptors),
+            {
+                detail::ProtocolSurfaceErrorCode::
+                    MissingRuntimeTargetRegistration,
+                detail::ProtocolSurfaceErrorCode::
+                    CodecDescriptorWithoutRegistryRow,
+            }),
+        "removing an operation row while retaining its generated target and "
+        "descriptor fails with exactly two diagnostics");
+
     const std::span<const detail::ConversationUnionCodecDescriptor> conversationDescriptors = detail::conversationUnionCodecDescriptors();
-    constexpr std::array<detail::ProtocolSurfaceKey, 42> expectedConversationTargets{{
+    constexpr std::array<detail::ProtocolSurfaceKey, 58> expectedConversationTargets{{
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AgentMessageInputContent", "type", "encrypted_content"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AgentMessageInputContent", "type", "input_text"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "granular"},
@@ -366,6 +688,22 @@ int main() {
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "externalSandbox"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "readOnly"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "SandboxPolicy", "type", "workspaceWrite"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "appServer"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "cli"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "custom"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "exec"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "subAgent"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "unknown"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SessionSource", "$variant", "vscode"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SubAgentSource", "$variant", "compact"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SubAgentSource", "$variant", "memory_consolidation"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SubAgentSource", "$variant", "other"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SubAgentSource", "$variant", "review"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "SubAgentSource", "$variant", "thread_spawn"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ThreadStatus", "type", "active"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ThreadStatus", "type", "idle"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ThreadStatus", "type", "notLoaded"},
+        {detail::SurfaceCategory::TaggedUnionDiscriminator, "ThreadStatus", "type", "systemError"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "UserInput", "type", "image"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "UserInput", "type", "localImage"},
         {detail::SurfaceCategory::TaggedUnionDiscriminator, "UserInput", "type", "mention"},
@@ -385,14 +723,14 @@ int main() {
                                    detail::entryFor(target).key == expectedConversationTargets[index];
     }
     result.expectTrue(exactConversationTargets,
-                      "the generated dependency-closed B2+B3 descriptor artifact maps exactly 42 canonical keys to 42 stable targets");
+                      "the generated dependency-closed B2+B3+B4 descriptor artifact maps exactly 58 canonical keys to 58 stable targets");
 
     const std::vector<detail::ProtocolSurfaceEntry> conversationRegistry(registry.begin(), registry.end());
     result.expectTrue(static_cast<bool>(detail::validateProtocolSurface(registry)),
-                      "the canonical registry validates all 42 B2+B3 nested rows against generated production descriptors");
+                      "the canonical registry validates all 58 B2+B3+B4 nested rows against generated production descriptors");
     result.expectTrue(static_cast<bool>(detail::validateProtocolSurface(
                           conversationRegistry, detail::codexErrorInfoCodecDescriptors(), conversationDescriptors)),
-                      "the exact 42-target descriptor set validates bidirectionally against the canonical registry");
+                      "the exact 58-target descriptor set validates bidirectionally against the canonical registry");
 
     std::vector<detail::ConversationUnionCodecDescriptor> duplicateConversationDescriptor(conversationDescriptors.begin(),
                                                                                           conversationDescriptors.end());
@@ -816,7 +1154,7 @@ int main() {
         });
 
     const detail::ProtocolSurfaceEntry* deferred =
-        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
+        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
                           deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
                           std::holds_alternative<std::monostate>(deferred->runtimeTarget),
@@ -857,7 +1195,7 @@ int main() {
     }
 
     std::vector<detail::ProtocolSurfaceEntry> missingAssociation(registry.begin(), registry.end());
-    const auto missingContract = findEntry(missingAssociation, detail::SurfaceCategory::ClientRequest, "thread/archive");
+    const auto missingContract = findEntry(missingAssociation, detail::SurfaceCategory::ClientRequest, "initialize");
     missingContract->operationContract = {};
     result.expectTrue(
         hasExactCodes(detail::validateProtocolSurface(missingAssociation), {detail::ProtocolSurfaceErrorCode::MissingAssociation}),
@@ -883,7 +1221,7 @@ int main() {
                       "registry validation reports only ConflictingAssociationEvidence for a client contract attributed to schema pairing");
 
     std::vector<detail::ProtocolSurfaceEntry> unitMismatch(registry.begin(), registry.end());
-    const auto nonUnit = findEntry(unitMismatch, detail::SurfaceCategory::ClientRequest, "thread/archive");
+    const auto nonUnit = findEntry(unitMismatch, detail::SurfaceCategory::ClientRequest, "account/logout");
     nonUnit->operationContract.resultKind = detail::ResultContractKind::Unit;
     nonUnit->operationContract.resultTypeIdentity = "ThreadArchiveResponse";
     result.expectTrue(
@@ -891,7 +1229,7 @@ int main() {
         "registry validation reports only UnitWithNonUnitResultType for an inconsistent explicit unit contract");
 
     std::vector<detail::ProtocolSurfaceEntry> concreteWithoutType(registry.begin(), registry.end());
-    const auto emptyConcrete = findEntry(concreteWithoutType, detail::SurfaceCategory::ClientRequest, "thread/archive");
+    const auto emptyConcrete = findEntry(concreteWithoutType, detail::SurfaceCategory::ClientRequest, "initialize");
     emptyConcrete->operationContract.resultKind = detail::ResultContractKind::Concrete;
     emptyConcrete->operationContract.resultTypeIdentity = {};
     result.expectTrue(

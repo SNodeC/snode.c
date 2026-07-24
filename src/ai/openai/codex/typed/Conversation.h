@@ -10,6 +10,7 @@
 
 #include "ai/openai/codex/typed/Types.h"
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
@@ -17,6 +18,126 @@
 #include <vector>
 
 namespace ai::openai::codex::typed {
+
+    struct SubAgentSourceKind {
+        std::string value;
+        Json raw = nullptr;
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        static SubAgentSourceKind review() {
+            return {"review", nullptr, {}};
+        }
+
+        static SubAgentSourceKind compact() {
+            return {"compact", nullptr, {}};
+        }
+
+        static SubAgentSourceKind memoryConsolidation() {
+            return {"memory_consolidation", nullptr, {}};
+        }
+
+        [[nodiscard]] bool isKnown() const noexcept {
+            return value == "review" || value == "compact" || value == "memory_consolidation";
+        }
+
+        bool operator==(const SubAgentSourceKind&) const = default;
+    };
+
+    struct ThreadSpawnSubAgentDetails {
+        ThreadId parentThreadId;
+        std::int32_t depth = 0;
+        OptionalNullable<AgentPath> agentPath;
+        OptionalNullable<std::string> agentNickname;
+        OptionalNullable<std::string> agentRole;
+
+        bool operator==(const ThreadSpawnSubAgentDetails&) const = default;
+    };
+
+    struct ThreadSpawnSubAgentSource {
+        ThreadSpawnSubAgentDetails threadSpawn;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const ThreadSpawnSubAgentSource&) const = default;
+    };
+
+    struct OtherSubAgentSource {
+        std::string other;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const OtherSubAgentSource&) const = default;
+    };
+
+    struct UnknownSubAgentSource {
+        std::optional<std::string> discriminator;
+        Json raw = nullptr;
+        std::optional<DecodeDiagnostic> diagnostic;
+
+        bool operator==(const UnknownSubAgentSource&) const = default;
+    };
+
+    using SubAgentSource =
+        std::variant<SubAgentSourceKind, ThreadSpawnSubAgentSource, OtherSubAgentSource, UnknownSubAgentSource>;
+
+    struct SessionSourceKind {
+        std::string value;
+        Json raw = nullptr;
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        static SessionSourceKind cli() {
+            return {"cli", nullptr, {}};
+        }
+
+        static SessionSourceKind vscode() {
+            return {"vscode", nullptr, {}};
+        }
+
+        static SessionSourceKind exec() {
+            return {"exec", nullptr, {}};
+        }
+
+        static SessionSourceKind appServer() {
+            return {"appServer", nullptr, {}};
+        }
+
+        static SessionSourceKind unknown() {
+            return {"unknown", nullptr, {}};
+        }
+
+        [[nodiscard]] bool isKnown() const noexcept {
+            return value == "cli" || value == "vscode" || value == "exec" || value == "appServer" || value == "unknown";
+        }
+
+        bool operator==(const SessionSourceKind&) const = default;
+    };
+
+    struct CustomSessionSource {
+        std::string custom;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const CustomSessionSource&) const = default;
+    };
+
+    struct SubAgentSessionSource {
+        SubAgentSource subAgent;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const SubAgentSessionSource&) const = default;
+    };
+
+    struct UnknownSessionSourceAlternative {
+        std::optional<std::string> discriminator;
+        Json raw = nullptr;
+        std::optional<DecodeDiagnostic> diagnostic;
+
+        bool operator==(const UnknownSessionSourceAlternative&) const = default;
+    };
+
+    using SessionSource =
+        std::variant<SessionSourceKind, CustomSessionSource, SubAgentSessionSource, UnknownSessionSourceAlternative>;
 
     struct GranularApprovalOptions {
         bool mcpElicitations = false;

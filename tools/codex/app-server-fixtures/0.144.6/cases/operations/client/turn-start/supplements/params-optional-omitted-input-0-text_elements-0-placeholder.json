@@ -1,0 +1,30 @@
+{
+  "approvalPolicy": "untrusted",
+  "approvalsReviewer": "user",
+  "clientUserMessageId": "synthetic-e93fab63d2",
+  "cwd": "synthetic-5d9a348799",
+  "effort": "synthetic-b43c9594ba",
+  "input": [
+    {
+      "text": "synthetic-796383c7b4",
+      "text_elements": [
+        {
+          "byteRange": {
+            "end": 0,
+            "start": 0
+          }
+        }
+      ],
+      "type": "text"
+    }
+  ],
+  "model": "synthetic-7ec171ea8d",
+  "outputSchema": {},
+  "personality": "none",
+  "sandboxPolicy": {
+    "type": "dangerFullAccess"
+  },
+  "serviceTier": "synthetic-df688533b9",
+  "summary": "auto",
+  "threadId": "synthetic-bd0d0f38fe"
+}

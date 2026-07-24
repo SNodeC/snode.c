@@ -345,17 +345,30 @@ namespace ai::openai::codex::backend {
             ThreadSnapshot snapshot;
             snapshot.id = id.value;
             snapshot.title = state.thread.title;
-            snapshot.cwd = state.thread.cwd;
+            const bool backendPlaceholder =
+                state.thread.raw.is_object() &&
+                (state.thread.raw.size() == 1 || state.thread.raw.size() == 2) &&
+                state.thread.raw.value("backendPlaceholder", false) &&
+                (state.thread.raw.size() == 1 ||
+                 (state.thread.raw.size() == 2 &&
+                  state.thread.raw.value("backendPlaceholderStatusKnown", false)));
+            const bool backendPlaceholderStatusKnown =
+                backendPlaceholder && state.thread.raw.size() == 2;
+            if (!backendPlaceholder) {
+                snapshot.cwd = state.thread.cwd.value;
+            }
             if (state.thread.model) {
                 snapshot.model = state.thread.model->value;
             }
-            snapshot.modelProvider = state.thread.modelProvider;
-            snapshot.preview = state.thread.preview;
-            if (state.thread.status) {
-                snapshot.status = state.thread.status->value;
+            if (!backendPlaceholder) {
+                snapshot.modelProvider = state.thread.modelProvider;
+                snapshot.preview = state.thread.preview;
+                snapshot.createdAt = state.thread.createdAt;
+                snapshot.updatedAt = state.thread.updatedAt;
             }
-            snapshot.createdAt = state.thread.createdAt;
-            snapshot.updatedAt = state.thread.updatedAt;
+            if (!backendPlaceholder || backendPlaceholderStatusKnown) {
+                snapshot.status = typed::threadStatusDiscriminator(state.thread.status);
+            }
             snapshot.fullyLoaded = state.fullyLoaded;
             snapshot.extensions = boundedJson(state.extensions);
 

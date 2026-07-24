@@ -147,14 +147,14 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 1324 index records resolve to the retained files
+# additionally proves that all 2915 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 1325)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 2916)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 10)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 11)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
@@ -215,6 +215,7 @@ set(
     "tools/codex/app-server-evidence/0.144.6/a1-1-start-state.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-implementation-plan.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-type-closure.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-operation-production-coverage.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
     "tools/codex/app_server_a1_1.py"
     "tools/codex/app_server_surface.py"
@@ -224,6 +225,9 @@ set(
     "src/ai/openai/codex/detail/ConversationCodec.cpp"
     "src/ai/openai/codex/detail/ConversationCodec.h"
     "src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ClientOperationCodec.cpp"
+    "src/ai/openai/codex/detail/ClientOperationCodec.h"
     "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
@@ -233,6 +237,10 @@ set(
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
     "tests/component/codex/CodexConversationCodecTest.cpp"
+    "tests/component/codex/CodexA11OperationResultCorpusTest.cpp"
+    "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp"
+    "tests/component/codex/CodexConversationB4NestedCodecTest.cpp"
+    "tests/component/codex/CodexA11OperationWireTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "docs/ai/openai/codex/a1-1-conversation-domain.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
@@ -348,6 +356,36 @@ run_extracted_check(
     "${extracted_schema_root}/PROVENANCE.json"
     --evidence-root
     "${extracted_evidence_root}"
+    --check
+)
+run_extracted_check(
+    "A1.1 operation descriptor generation"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    operation-descriptors
+    --manifest
+    "${extracted_surface}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --output
+    "${extracted_root}/src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
+    --check
+)
+run_extracted_check(
+    "A1.1 operation production coverage"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    operation-production-coverage
+    --manifest
+    "${extracted_surface}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --fixture-index
+    "${extracted_fixture_root}/index.json"
+    --repo-root
+    "${extracted_root}"
+    --output
+    "${extracted_evidence_root}/a1-1-operation-production-coverage.json"
     --check
 )
 run_extracted_check(

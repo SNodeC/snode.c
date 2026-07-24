@@ -16549,7 +16549,7 @@
   "sources": {
     "app_server_surface_generator": {
       "path": "tools/codex/app_server_surface.py",
-      "sha256": "81361d4242303701f7916ee7cecfb62a6012b6d2a2a6123b28cdd6ea625c777c"
+      "sha256": "f23bf9c70c08b7c1bf2a66915a0d285cb7f5bf489597a9c9837de69d6088c79d"
     },
     "assignments": {
       "path": "tools/codex/app-server-evidence/0.144.6/module-slice-assignment.json",
@@ -16561,15 +16561,15 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "b6573075207d92b5e9e2e42154cd44e6d59b8eadaabf49b2a494acecde89d8c3"
+      "sha256": "31a2febfeab325076b1ea8aabcbdc5725834771fb3d55d01931098b7fc8eb7b5"
     },
     "fixture_index": {
       "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
-      "sha256": "74789dbf9bed1dfdf51d73fdd4e804a6312059c45ebf2a9fbfde1320c9598967"
+      "sha256": "100a09cf909c79064808d4522cdd35a688c189fb79fc45eada85926fc5813a41"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_1.py",
-      "sha256": "a957d0fb41743ab9fa4de3ae8268c55af2af71a8b79d1917b7ebb917c12446b1"
+      "sha256": "c43edb4770a1db34f2ea8c0b5d33650d1d20242229a4cd1d4428c472f8257bff"
     },
     "manifest": {
       "path": "tools/codex/app-server-surface/0.144.6.json",

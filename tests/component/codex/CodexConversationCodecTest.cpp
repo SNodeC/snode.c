@@ -674,8 +674,8 @@ int main() {
                       "an internally inconsistent omitted-plus-value tri-state is rejected synchronously");
 
     const std::span<const detail::ConversationUnionCodecDescriptor> descriptors = detail::conversationUnionCodecDescriptors();
-    result.expectTrue(descriptors.size() == 42,
-                      "generated production descriptor set contains exactly 26 B2 plus 16 dependency-closed B3 targets");
+    result.expectTrue(descriptors.size() == 58,
+                      "generated production descriptor set contains exactly 26 B2, 16 dependency-closed B3, and 16 B4 targets");
     bool descriptorAgreement = true;
     for (const auto& descriptor : descriptors) {
         const detail::ProtocolSurfaceEntry* row =

@@ -145,24 +145,16 @@ namespace ai::openai::codex::detail {
             return unknownEvent(notification, notification.method + ": " + std::move(error));
         }
 
-        std::optional<typed::ThreadStatus> decodeThreadStatus(const Json& value, std::string& error) {
-            if (!value.is_object()) {
-                error = "notification param 'status' must be an object";
-                return std::nullopt;
-            }
-
-            std::string type;
-            if (!requireString(value, "type", type, error)) {
-                return std::nullopt;
-            }
-            if (type == "active") {
-                const Json* activeFlags = nullptr;
-                if (!requireArray(value, "activeFlags", activeFlags, error)) {
-                    return std::nullopt;
+        std::optional<typed::ThreadStatus> decodeNotificationThreadStatus(const Json& value, std::string& error) {
+            auto decoded = ::ai::openai::codex::detail::decodeThreadStatus(value);
+            if (!decoded.value) {
+                error = "notification param 'status' does not match ThreadStatus";
+                if (decoded.diagnostic) {
+                    error += " at " + decoded.diagnostic->fieldPath;
                 }
+                return std::nullopt;
             }
-
-            return typed::ThreadStatus{std::move(type), value};
+            return std::move(decoded.value);
         }
 
         typed::Event decodeThreadStarted(const Notification& notification) {
@@ -188,7 +180,7 @@ namespace ai::openai::codex::detail {
                 return malformedEvent(notification, std::move(error));
             }
 
-            auto status = decodeThreadStatus(*statusValue, error);
+            auto status = decodeNotificationThreadStatus(*statusValue, error);
             if (!status.has_value()) {
                 return malformedEvent(notification, std::move(error));
             }
@@ -227,7 +219,7 @@ namespace ai::openai::codex::detail {
                 return malformedEvent(notification, "turn: " + std::move(error));
             }
             if (turn->status.value == "failed") {
-                Json turnError = turn->error.has_value() ? *turn->error : Json(nullptr);
+                Json turnError = turn->error.hasValue() ? turn->error->raw : Json(nullptr);
                 return typed::Event{typed::TurnFailed{std::move(*turn), std::move(turnError), notification.raw}};
             }
             return typed::Event{typed::TurnCompleted{std::move(*turn), notification.raw}};

@@ -19,7 +19,9 @@ foreach(
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
           ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/ClientOperationCodec.h
           ai/openai/codex/detail/ConversationCodec.h
+          ai/openai/codex/detail/ClientOperationCodecDescriptors.inc
           ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc
           ai/openai/codex/detail/ThreadItemCodecDescriptors.inc
           ai/openai/codex/detail/ResponseItemCodecDescriptors.inc
@@ -71,6 +73,9 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
        OR installed_name STREQUAL "ConversationCodec.cpp"
        OR installed_name STREQUAL "ConversationCodec.h"
+       OR installed_name STREQUAL "ClientOperationCodec.cpp"
+       OR installed_name STREQUAL "ClientOperationCodec.h"
+       OR installed_name STREQUAL "ClientOperationCodecDescriptors.inc"
        OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
        OR installed_name STREQUAL "ThreadItemCodecDescriptors.inc"
        OR installed_name STREQUAL "ResponseItemCodecDescriptors.inc"
@@ -83,6 +88,11 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "a1-1-start-state.json"
        OR installed_name STREQUAL "a1-1-implementation-plan.json"
        OR installed_name STREQUAL "a1-1-type-closure.json"
+       OR installed_name STREQUAL "a1-1-operation-production-coverage.json"
+       OR installed_name STREQUAL "CodexA11OperationResultCorpusTest.cpp"
+       OR installed_name STREQUAL "CodexA11OperationAggregateValueCorpusTest.cpp"
+       OR installed_name STREQUAL "CodexConversationB4NestedCodecTest.cpp"
+       OR installed_name STREQUAL "CodexA11OperationWireTest.cpp"
        OR installed_name STREQUAL "a1-1-conversation-domain.md"
        OR installed_name STREQUAL "typescript-audit.json"
        OR installed_name MATCHES "^Protocol.*(Data|Evidence|Descriptors)\\.inc$"

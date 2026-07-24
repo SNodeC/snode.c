@@ -1129,11 +1129,18 @@ namespace ai::openai::codex::detail {
                 [&](const auto& alternative) -> std::optional<Json> {
                     using Alternative = std::decay_t<decltype(alternative)>;
                     if constexpr (std::is_same_v<Alternative, typed::ApprovalPolicy>) {
+                        if (alternative.value.empty()) {
+                            error = "AskForApproval scalar must not be empty";
+                            return std::nullopt;
+                        }
                         const ProtocolSurfaceEntry* entry =
                             findSurface(SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", VariantField, alternative.value);
                         if (entry == nullptr) {
-                            error = "unknown AskForApproval scalar cannot be encoded; use the raw protocol API";
-                            return std::nullopt;
+                            // ApprovalPolicy was already an open string-backed
+                            // compatibility value. Preserve non-empty future
+                            // values; only pinned known values require a
+                            // registry target/descriptor agreement check.
+                            return std::optional<Json>{std::in_place, alternative.value};
                         }
                         const ConversationUnionTarget* target = std::get_if<ConversationUnionTarget>(&entry->runtimeTarget);
                         const ConversationUnionCodecDescriptor* descriptor =

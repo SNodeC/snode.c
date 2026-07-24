@@ -185,8 +185,10 @@ namespace {
         testResult.expectTrue(decodedWithData && decodedWithData->error && decodedWithData->error->data &&
                                   *decodedWithData->error->data == Json{{"reason", "example"}},
                               "remote error object data is preserved");
-        testResult.expectTrue(decodedWithData && decodedWithData->raw == errorWithData,
-                              "remote error retains unknown nested and envelope fields in raw");
+        testResult.expectTrue(decodedWithData && decodedWithData->error &&
+                                  decodedWithData->error->raw == errorWithData["error"] &&
+                                  decodedWithData->raw == errorWithData,
+                              "remote error retains exact unknown error-object and envelope fields in raw");
 
         const Json errorWithNullData = {
             {"id", 202},
@@ -302,6 +304,7 @@ namespace {
             .code = -32000,
             .message = "Request rejected",
             .data = Json{{"reason", "policy"}},
+            .raw = Json{{"code", 17}, {"message", "must not override typed fields"}, {"future", "incoming-only"}},
         };
         const std::optional<std::string> encodedRejection = ProtocolCodec::encodeErrorResponse(stringResponseId, rejection, errorMessage);
         const Json expectedRejection = {
@@ -309,7 +312,7 @@ namespace {
             {"error", {{"code", -32000}, {"message", "Request rejected"}, {"data", {{"reason", "policy"}}}}},
         };
         testResult.expectTrue(encodedRejection && Json::parse(*encodedRejection) == expectedRejection,
-                              "generic rejection encoder preserves ID, error fields, and data");
+                              "generic rejection encoder preserves typed fields and excludes incoming-only raw extensions");
         testResult.expectTrue(encodedRejection && encodedRejection->find('\n') == std::string::npos &&
                                   encodedRejection->find('\r') == std::string::npos,
                               "generic error encoder emits an unframed JSON document");

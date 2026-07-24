@@ -15,6 +15,8 @@
 #include <variant>
 
 namespace {
+    namespace typed = ai::openai::codex::typed;
+
     using ai::openai::codex::Json;
     using ai::openai::codex::Notification;
     using ai::openai::codex::detail::decodeEvent;
@@ -112,8 +114,10 @@ namespace {
         const Event startedEvent = decodeEvent(startedNotification);
         const ThreadStarted* started = as<ThreadStarted>(startedEvent);
 
-        testResult.expectTrue(started && started->thread.id.value == "thread-event" && started->thread.cwd == "/tmp/project" &&
-                                  started->thread.status && started->thread.status->value == "idle",
+        testResult.expectTrue(started && started->thread.id.value == "thread-event" &&
+                                  started->thread.cwd.value == "/tmp/project" &&
+                                  std::holds_alternative<typed::IdleThreadStatus>(started->thread.status) &&
+                                  typed::threadStatusDiscriminator(started->thread.status) == "idle",
                               "thread/started decodes the current schema Thread payload");
         testResult.expectTrue(started && started->thread.raw == thread && started->raw == startedNotification.raw,
                               "thread/started preserves exact nested thread raw and complete notification envelope");
@@ -123,8 +127,14 @@ namespace {
             makeNotification("thread/status/changed", Json{{"threadId", "thread-event"}, {"status", status}});
         const Event statusEvent = decodeEvent(statusNotification);
         const ThreadStatusChanged* changed = as<ThreadStatusChanged>(statusEvent);
-        testResult.expectTrue(changed && changed->threadId.value == "thread-event" && changed->status.value == "active" &&
-                                  changed->status.raw == status && changed->raw == statusNotification.raw,
+        const typed::ActiveThreadStatus* active =
+            changed ? std::get_if<typed::ActiveThreadStatus>(&changed->status) : nullptr;
+        testResult.expectTrue(changed && changed->threadId.value == "thread-event" && active &&
+                                  active->activeFlags.size() == 1 &&
+                                  active->activeFlags.front() == typed::ThreadActiveFlag::waitingOnApproval() &&
+                                  typed::threadStatusDiscriminator(changed->status) == "active" &&
+                                  typed::threadStatusRaw(changed->status) == status &&
+                                  changed->raw == statusNotification.raw,
                               "thread/status/changed decodes IDs, extensible status, status raw, and event raw");
     }
 

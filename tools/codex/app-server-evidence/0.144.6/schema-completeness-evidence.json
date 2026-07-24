@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 204,
-      "fixture_current": 204,
-      "independently_schema_validated": 204,
-      "nullable_semantics_exercised": 92,
-      "optional_omitted_exercised": 204,
-      "optional_present_exercised": 204,
-      "positive_fixture_coverage": 204,
-      "reachable_union_alternatives_exercised": 92,
-      "required_fields_exercised": 204,
-      "schema_properties_exercised": 92
+      "authoritative_root_association": 220,
+      "fixture_current": 220,
+      "independently_schema_validated": 220,
+      "nullable_semantics_exercised": 130,
+      "optional_omitted_exercised": 220,
+      "optional_present_exercised": 220,
+      "positive_fixture_coverage": 220,
+      "reachable_union_alternatives_exercised": 130,
+      "required_fields_exercised": 220,
+      "schema_properties_exercised": 130
     },
-    "identities_with_positive_fixtures": 204,
+    "identities_with_positive_fixtures": 220,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -2054,13 +2054,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2145,13 +2145,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2192,21 +2192,94 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:thread/fork:params",
-        "operation:client_request:thread/fork:result"
+        "operation:client_request:thread/fork:params:nullable-null:approvalpolicy",
+        "operation:client_request:thread/fork:params:nullable-null:approvalsreviewer",
+        "operation:client_request:thread/fork:params:nullable-null:baseinstructions",
+        "operation:client_request:thread/fork:params:nullable-null:config",
+        "operation:client_request:thread/fork:params:nullable-null:cwd",
+        "operation:client_request:thread/fork:params:nullable-null:developerinstructions",
+        "operation:client_request:thread/fork:params:nullable-null:lastturnid",
+        "operation:client_request:thread/fork:params:nullable-null:model",
+        "operation:client_request:thread/fork:params:nullable-null:modelprovider",
+        "operation:client_request:thread/fork:params:nullable-null:sandbox",
+        "operation:client_request:thread/fork:params:nullable-null:servicetier",
+        "operation:client_request:thread/fork:params:nullable-null:threadsource",
+        "operation:client_request:thread/fork:params:opaque-config-map-value",
+        "operation:client_request:thread/fork:params:optional-omitted:approvalpolicy",
+        "operation:client_request:thread/fork:params:optional-omitted:approvalsreviewer",
+        "operation:client_request:thread/fork:params:optional-omitted:baseinstructions",
+        "operation:client_request:thread/fork:params:optional-omitted:config",
+        "operation:client_request:thread/fork:params:optional-omitted:cwd",
+        "operation:client_request:thread/fork:params:optional-omitted:developerinstructions",
+        "operation:client_request:thread/fork:params:optional-omitted:ephemeral",
+        "operation:client_request:thread/fork:params:optional-omitted:lastturnid",
+        "operation:client_request:thread/fork:params:optional-omitted:model",
+        "operation:client_request:thread/fork:params:optional-omitted:modelprovider",
+        "operation:client_request:thread/fork:params:optional-omitted:sandbox",
+        "operation:client_request:thread/fork:params:optional-omitted:servicetier",
+        "operation:client_request:thread/fork:params:optional-omitted:threadsource",
+        "operation:client_request:thread/fork:result",
+        "operation:client_request:thread/fork:result:nullable-null:reasoningeffort",
+        "operation:client_request:thread/fork:result:nullable-null:servicetier",
+        "operation:client_request:thread/fork:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/fork:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/fork:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/fork:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/fork:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/fork:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/fork:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/fork:result:nullable-null:thread-name",
+        "operation:client_request:thread/fork:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/fork:result:nullable-null:thread-path",
+        "operation:client_request:thread/fork:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/fork:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/fork:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/fork:result:optional-omitted:instructionsources",
+        "operation:client_request:thread/fork:result:optional-omitted:reasoningeffort",
+        "operation:client_request:thread/fork:result:optional-omitted:servicetier",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-name",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-path",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/fork:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 75,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2217,13 +2290,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2242,21 +2315,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:thread/goal/get:params",
-        "operation:client_request:thread/goal/get:result"
+        "operation:client_request:thread/goal/get:result",
+        "operation:client_request:thread/goal/get:result:nullable-null:goal",
+        "operation:client_request:thread/goal/get:result:nullable-null:goal-tokenbudget",
+        "operation:client_request:thread/goal/get:result:optional-omitted:goal",
+        "operation:client_request:thread/goal/get:result:optional-omitted:goal-tokenbudget"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2267,21 +2344,29 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:thread/goal/set:params",
-        "operation:client_request:thread/goal/set:result"
+        "operation:client_request:thread/goal/set:params:nullable-null:objective",
+        "operation:client_request:thread/goal/set:params:nullable-null:status",
+        "operation:client_request:thread/goal/set:params:nullable-null:tokenbudget",
+        "operation:client_request:thread/goal/set:params:optional-omitted:objective",
+        "operation:client_request:thread/goal/set:params:optional-omitted:status",
+        "operation:client_request:thread/goal/set:params:optional-omitted:tokenbudget",
+        "operation:client_request:thread/goal/set:result",
+        "operation:client_request:thread/goal/set:result:nullable-null:goal-tokenbudget",
+        "operation:client_request:thread/goal/set:result:optional-omitted:goal-tokenbudget"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 10,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2292,13 +2377,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2339,13 +2424,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2374,9 +2459,74 @@
       "fixture_ids": [
         "baseline:client_request:ClientRequest:method:thread/list",
         "operation:client_request:thread/list:params",
-        "operation:client_request:thread/list:result"
+        "operation:client_request:thread/list:params:nullable-null:archived",
+        "operation:client_request:thread/list:params:nullable-null:cursor",
+        "operation:client_request:thread/list:params:nullable-null:cwd",
+        "operation:client_request:thread/list:params:nullable-null:limit",
+        "operation:client_request:thread/list:params:nullable-null:modelproviders",
+        "operation:client_request:thread/list:params:nullable-null:searchterm",
+        "operation:client_request:thread/list:params:nullable-null:sortdirection",
+        "operation:client_request:thread/list:params:nullable-null:sortkey",
+        "operation:client_request:thread/list:params:nullable-null:sourcekinds",
+        "operation:client_request:thread/list:params:optional-omitted:archived",
+        "operation:client_request:thread/list:params:optional-omitted:cursor",
+        "operation:client_request:thread/list:params:optional-omitted:cwd",
+        "operation:client_request:thread/list:params:optional-omitted:limit",
+        "operation:client_request:thread/list:params:optional-omitted:modelproviders",
+        "operation:client_request:thread/list:params:optional-omitted:searchterm",
+        "operation:client_request:thread/list:params:optional-omitted:sortdirection",
+        "operation:client_request:thread/list:params:optional-omitted:sortkey",
+        "operation:client_request:thread/list:params:optional-omitted:sourcekinds",
+        "operation:client_request:thread/list:params:optional-omitted:usestatedbonly",
+        "operation:client_request:thread/list:result",
+        "operation:client_request:thread/list:result:nullable-null:backwardscursor",
+        "operation:client_request:thread/list:result:nullable-null:data-0-agentnickname",
+        "operation:client_request:thread/list:result:nullable-null:data-0-agentrole",
+        "operation:client_request:thread/list:result:nullable-null:data-0-forkedfromid",
+        "operation:client_request:thread/list:result:nullable-null:data-0-gitinfo",
+        "operation:client_request:thread/list:result:nullable-null:data-0-gitinfo-branch",
+        "operation:client_request:thread/list:result:nullable-null:data-0-gitinfo-originurl",
+        "operation:client_request:thread/list:result:nullable-null:data-0-gitinfo-sha",
+        "operation:client_request:thread/list:result:nullable-null:data-0-name",
+        "operation:client_request:thread/list:result:nullable-null:data-0-parentthreadid",
+        "operation:client_request:thread/list:result:nullable-null:data-0-path",
+        "operation:client_request:thread/list:result:nullable-null:data-0-recencyat",
+        "operation:client_request:thread/list:result:nullable-null:data-0-threadsource",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-completedat",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-durationms",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-error",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-error-additionaldetails",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-items-0-clientid",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/list:result:nullable-null:data-0-turns-0-startedat",
+        "operation:client_request:thread/list:result:nullable-null:nextcursor",
+        "operation:client_request:thread/list:result:optional-omitted:backwardscursor",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-agentnickname",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-agentrole",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-forkedfromid",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-gitinfo",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-gitinfo-branch",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-gitinfo-originurl",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-gitinfo-sha",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-name",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-parentthreadid",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-path",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-recencyat",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-threadsource",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-completedat",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-durationms",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-error",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-error-additionaldetails",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-items-0-clientid",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-itemsview",
+        "operation:client_request:thread/list:result:optional-omitted:data-0-turns-0-startedat",
+        "operation:client_request:thread/list:result:optional-omitted:nextcursor"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 68,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2387,21 +2537,27 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:thread/loaded/list:params",
-        "operation:client_request:thread/loaded/list:result"
+        "operation:client_request:thread/loaded/list:params:nullable-null:cursor",
+        "operation:client_request:thread/loaded/list:params:nullable-null:limit",
+        "operation:client_request:thread/loaded/list:params:optional-omitted:cursor",
+        "operation:client_request:thread/loaded/list:params:optional-omitted:limit",
+        "operation:client_request:thread/loaded/list:result",
+        "operation:client_request:thread/loaded/list:result:nullable-null:nextcursor",
+        "operation:client_request:thread/loaded/list:result:optional-omitted:nextcursor"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 8,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2412,13 +2568,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2446,9 +2602,59 @@
     {
       "fixture_ids": [
         "operation:client_request:thread/metadata/update:params",
-        "operation:client_request:thread/metadata/update:result"
+        "operation:client_request:thread/metadata/update:params:nullable-null:gitinfo",
+        "operation:client_request:thread/metadata/update:params:nullable-null:gitinfo-branch",
+        "operation:client_request:thread/metadata/update:params:nullable-null:gitinfo-originurl",
+        "operation:client_request:thread/metadata/update:params:nullable-null:gitinfo-sha",
+        "operation:client_request:thread/metadata/update:params:optional-omitted:gitinfo",
+        "operation:client_request:thread/metadata/update:params:optional-omitted:gitinfo-branch",
+        "operation:client_request:thread/metadata/update:params:optional-omitted:gitinfo-originurl",
+        "operation:client_request:thread/metadata/update:params:optional-omitted:gitinfo-sha",
+        "operation:client_request:thread/metadata/update:result",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-name",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-path",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/metadata/update:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-name",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-path",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/metadata/update:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 52,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2459,13 +2665,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2484,22 +2690,65 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "baseline:client_request:ClientRequest:method:thread/read",
         "operation:client_request:thread/read:params",
-        "operation:client_request:thread/read:result"
+        "operation:client_request:thread/read:params:optional-omitted:includeturns",
+        "operation:client_request:thread/read:result",
+        "operation:client_request:thread/read:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/read:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/read:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/read:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/read:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/read:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/read:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/read:result:nullable-null:thread-name",
+        "operation:client_request:thread/read:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/read:result:nullable-null:thread-path",
+        "operation:client_request:thread/read:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/read:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/read:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/read:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/read:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/read:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/read:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/read:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/read:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/read:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/read:result:optional-omitted:thread-name",
+        "operation:client_request:thread/read:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/read:result:optional-omitted:thread-path",
+        "operation:client_request:thread/read:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/read:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/read:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 46,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2510,13 +2759,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2655,9 +2904,79 @@
       "fixture_ids": [
         "baseline:client_request:ClientRequest:method:thread/resume",
         "operation:client_request:thread/resume:params",
-        "operation:client_request:thread/resume:result"
+        "operation:client_request:thread/resume:params:nullable-null:approvalpolicy",
+        "operation:client_request:thread/resume:params:nullable-null:approvalsreviewer",
+        "operation:client_request:thread/resume:params:nullable-null:baseinstructions",
+        "operation:client_request:thread/resume:params:nullable-null:config",
+        "operation:client_request:thread/resume:params:nullable-null:cwd",
+        "operation:client_request:thread/resume:params:nullable-null:developerinstructions",
+        "operation:client_request:thread/resume:params:nullable-null:model",
+        "operation:client_request:thread/resume:params:nullable-null:modelprovider",
+        "operation:client_request:thread/resume:params:nullable-null:personality",
+        "operation:client_request:thread/resume:params:nullable-null:sandbox",
+        "operation:client_request:thread/resume:params:nullable-null:servicetier",
+        "operation:client_request:thread/resume:params:opaque-config-map-value",
+        "operation:client_request:thread/resume:params:optional-omitted:approvalpolicy",
+        "operation:client_request:thread/resume:params:optional-omitted:approvalsreviewer",
+        "operation:client_request:thread/resume:params:optional-omitted:baseinstructions",
+        "operation:client_request:thread/resume:params:optional-omitted:config",
+        "operation:client_request:thread/resume:params:optional-omitted:cwd",
+        "operation:client_request:thread/resume:params:optional-omitted:developerinstructions",
+        "operation:client_request:thread/resume:params:optional-omitted:model",
+        "operation:client_request:thread/resume:params:optional-omitted:modelprovider",
+        "operation:client_request:thread/resume:params:optional-omitted:personality",
+        "operation:client_request:thread/resume:params:optional-omitted:sandbox",
+        "operation:client_request:thread/resume:params:optional-omitted:servicetier",
+        "operation:client_request:thread/resume:result",
+        "operation:client_request:thread/resume:result:nullable-null:reasoningeffort",
+        "operation:client_request:thread/resume:result:nullable-null:servicetier",
+        "operation:client_request:thread/resume:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/resume:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/resume:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/resume:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/resume:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/resume:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/resume:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/resume:result:nullable-null:thread-name",
+        "operation:client_request:thread/resume:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/resume:result:nullable-null:thread-path",
+        "operation:client_request:thread/resume:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/resume:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/resume:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/resume:result:optional-omitted:instructionsources",
+        "operation:client_request:thread/resume:result:optional-omitted:reasoningeffort",
+        "operation:client_request:thread/resume:result:optional-omitted:servicetier",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-name",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-path",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/resume:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 73,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2668,21 +2987,66 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:thread/rollback:params",
-        "operation:client_request:thread/rollback:result"
+        "operation:client_request:thread/rollback:params:uint32-maximum",
+        "operation:client_request:thread/rollback:params:uint32-overflow",
+        "operation:client_request:thread/rollback:params:uint32-zero",
+        "operation:client_request:thread/rollback:result",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-name",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-path",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/rollback:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-name",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-path",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/rollback:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 47,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2693,13 +3057,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2762,22 +3126,100 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "baseline:client_request:ClientRequest:method:thread/start",
         "operation:client_request:thread/start:params",
-        "operation:client_request:thread/start:result"
+        "operation:client_request:thread/start:params:nullable-null:approvalpolicy",
+        "operation:client_request:thread/start:params:nullable-null:approvalsreviewer",
+        "operation:client_request:thread/start:params:nullable-null:baseinstructions",
+        "operation:client_request:thread/start:params:nullable-null:config",
+        "operation:client_request:thread/start:params:nullable-null:cwd",
+        "operation:client_request:thread/start:params:nullable-null:developerinstructions",
+        "operation:client_request:thread/start:params:nullable-null:ephemeral",
+        "operation:client_request:thread/start:params:nullable-null:model",
+        "operation:client_request:thread/start:params:nullable-null:modelprovider",
+        "operation:client_request:thread/start:params:nullable-null:personality",
+        "operation:client_request:thread/start:params:nullable-null:sandbox",
+        "operation:client_request:thread/start:params:nullable-null:servicename",
+        "operation:client_request:thread/start:params:nullable-null:servicetier",
+        "operation:client_request:thread/start:params:nullable-null:sessionstartsource",
+        "operation:client_request:thread/start:params:nullable-null:threadsource",
+        "operation:client_request:thread/start:params:opaque-config-map-value",
+        "operation:client_request:thread/start:params:optional-omitted:approvalpolicy",
+        "operation:client_request:thread/start:params:optional-omitted:approvalsreviewer",
+        "operation:client_request:thread/start:params:optional-omitted:baseinstructions",
+        "operation:client_request:thread/start:params:optional-omitted:config",
+        "operation:client_request:thread/start:params:optional-omitted:cwd",
+        "operation:client_request:thread/start:params:optional-omitted:developerinstructions",
+        "operation:client_request:thread/start:params:optional-omitted:ephemeral",
+        "operation:client_request:thread/start:params:optional-omitted:model",
+        "operation:client_request:thread/start:params:optional-omitted:modelprovider",
+        "operation:client_request:thread/start:params:optional-omitted:personality",
+        "operation:client_request:thread/start:params:optional-omitted:sandbox",
+        "operation:client_request:thread/start:params:optional-omitted:servicename",
+        "operation:client_request:thread/start:params:optional-omitted:servicetier",
+        "operation:client_request:thread/start:params:optional-omitted:sessionstartsource",
+        "operation:client_request:thread/start:params:optional-omitted:threadsource",
+        "operation:client_request:thread/start:result",
+        "operation:client_request:thread/start:result:nullable-null:reasoningeffort",
+        "operation:client_request:thread/start:result:nullable-null:servicetier",
+        "operation:client_request:thread/start:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/start:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/start:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/start:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/start:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/start:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/start:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/start:result:nullable-null:thread-name",
+        "operation:client_request:thread/start:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/start:result:nullable-null:thread-path",
+        "operation:client_request:thread/start:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/start:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/start:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/start:result:optional-omitted:instructionsources",
+        "operation:client_request:thread/start:result:optional-omitted:reasoningeffort",
+        "operation:client_request:thread/start:result:optional-omitted:servicetier",
+        "operation:client_request:thread/start:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/start:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/start:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/start:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/start:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/start:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/start:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/start:result:optional-omitted:thread-name",
+        "operation:client_request:thread/start:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/start:result:optional-omitted:thread-path",
+        "operation:client_request:thread/start:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/start:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/start:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 81,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2788,13 +3230,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2822,9 +3264,51 @@
     {
       "fixture_ids": [
         "operation:client_request:thread/unarchive:params",
-        "operation:client_request:thread/unarchive:result"
+        "operation:client_request:thread/unarchive:result",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-agentnickname",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-agentrole",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-forkedfromid",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-gitinfo",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-gitinfo-branch",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-gitinfo-originurl",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-gitinfo-sha",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-name",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-parentthreadid",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-path",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-recencyat",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-threadsource",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-completedat",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-durationms",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-error",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/unarchive:result:nullable-null:thread-turns-0-startedat",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-agentnickname",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-agentrole",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-forkedfromid",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-gitinfo",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-gitinfo-branch",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-gitinfo-originurl",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-gitinfo-sha",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-name",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-parentthreadid",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-path",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-recencyat",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-threadsource",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-completedat",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-durationms",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-error",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-error-additionaldetails",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-error-codexerrorinfo",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-items-0-clientid",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-itemsview",
+        "operation:client_request:thread/unarchive:result:optional-omitted:thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 44,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2835,13 +3319,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2860,13 +3344,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2886,22 +3370,65 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "baseline:client_request:ClientRequest:method:turn/start",
         "operation:client_request:turn/start:params",
-        "operation:client_request:turn/start:result"
+        "operation:client_request:turn/start:params:nullable-null:approvalpolicy",
+        "operation:client_request:turn/start:params:nullable-null:approvalsreviewer",
+        "operation:client_request:turn/start:params:nullable-null:clientusermessageid",
+        "operation:client_request:turn/start:params:nullable-null:cwd",
+        "operation:client_request:turn/start:params:nullable-null:effort",
+        "operation:client_request:turn/start:params:nullable-null:input-0-text_elements-0-placeholder",
+        "operation:client_request:turn/start:params:nullable-null:model",
+        "operation:client_request:turn/start:params:nullable-null:outputschema",
+        "operation:client_request:turn/start:params:nullable-null:personality",
+        "operation:client_request:turn/start:params:nullable-null:sandboxpolicy",
+        "operation:client_request:turn/start:params:nullable-null:servicetier",
+        "operation:client_request:turn/start:params:nullable-null:summary",
+        "operation:client_request:turn/start:params:optional-omitted:approvalpolicy",
+        "operation:client_request:turn/start:params:optional-omitted:approvalsreviewer",
+        "operation:client_request:turn/start:params:optional-omitted:clientusermessageid",
+        "operation:client_request:turn/start:params:optional-omitted:cwd",
+        "operation:client_request:turn/start:params:optional-omitted:effort",
+        "operation:client_request:turn/start:params:optional-omitted:input-0-text_elements",
+        "operation:client_request:turn/start:params:optional-omitted:input-0-text_elements-0-placeholder",
+        "operation:client_request:turn/start:params:optional-omitted:model",
+        "operation:client_request:turn/start:params:optional-omitted:outputschema",
+        "operation:client_request:turn/start:params:optional-omitted:personality",
+        "operation:client_request:turn/start:params:optional-omitted:sandboxpolicy",
+        "operation:client_request:turn/start:params:optional-omitted:servicetier",
+        "operation:client_request:turn/start:params:optional-omitted:summary",
+        "operation:client_request:turn/start:result",
+        "operation:client_request:turn/start:result:nullable-null:turn-completedat",
+        "operation:client_request:turn/start:result:nullable-null:turn-durationms",
+        "operation:client_request:turn/start:result:nullable-null:turn-error",
+        "operation:client_request:turn/start:result:nullable-null:turn-error-additionaldetails",
+        "operation:client_request:turn/start:result:nullable-null:turn-error-codexerrorinfo",
+        "operation:client_request:turn/start:result:nullable-null:turn-items-0-clientid",
+        "operation:client_request:turn/start:result:nullable-null:turn-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:turn/start:result:nullable-null:turn-startedat",
+        "operation:client_request:turn/start:result:optional-omitted:turn-completedat",
+        "operation:client_request:turn/start:result:optional-omitted:turn-durationms",
+        "operation:client_request:turn/start:result:optional-omitted:turn-error",
+        "operation:client_request:turn/start:result:optional-omitted:turn-error-additionaldetails",
+        "operation:client_request:turn/start:result:optional-omitted:turn-error-codexerrorinfo",
+        "operation:client_request:turn/start:result:optional-omitted:turn-items-0-clientid",
+        "operation:client_request:turn/start:result:optional-omitted:turn-items-0-content-0-text_elements",
+        "operation:client_request:turn/start:result:optional-omitted:turn-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:turn/start:result:optional-omitted:turn-itemsview",
+        "operation:client_request:turn/start:result:optional-omitted:turn-startedat"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 46,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2912,21 +3439,26 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:turn/steer:params",
+        "operation:client_request:turn/steer:params:nullable-null:clientusermessageid",
+        "operation:client_request:turn/steer:params:nullable-null:input-0-text_elements-0-placeholder",
+        "operation:client_request:turn/steer:params:optional-omitted:clientusermessageid",
+        "operation:client_request:turn/steer:params:optional-omitted:input-0-text_elements",
+        "operation:client_request:turn/steer:params:optional-omitted:input-0-text_elements-0-placeholder",
         "operation:client_request:turn/steer:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2937,13 +3469,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -8719,8 +9251,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:appServer"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8728,21 +9262,23 @@
         "name": "appServer"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:cli"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8750,21 +9286,23 @@
         "name": "cli"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:custom"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8772,21 +9310,23 @@
         "name": "custom"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:exec"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8794,21 +9334,23 @@
         "name": "exec"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:subAgent"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8816,21 +9358,23 @@
         "name": "subAgent"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:unknown"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8838,21 +9382,23 @@
         "name": "unknown"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SessionSource:vscode"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8860,21 +9406,23 @@
         "name": "vscode"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SubAgentSource:compact"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8882,21 +9430,23 @@
         "name": "compact"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SubAgentSource:memory_consolidation"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8904,21 +9454,23 @@
         "name": "memory_consolidation"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SubAgentSource:other"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8926,21 +9478,23 @@
         "name": "other"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SubAgentSource:review"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8948,21 +9502,29 @@
         "name": "review"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:SubAgentSource:thread_spawn",
+        "union:SubAgentSource:thread_spawn:nullable-null:thread_spawn-agent_nickname",
+        "union:SubAgentSource:thread_spawn:nullable-null:thread_spawn-agent_path",
+        "union:SubAgentSource:thread_spawn:nullable-null:thread_spawn-agent_role",
+        "union:SubAgentSource:thread_spawn:optional-omitted:thread_spawn-agent_nickname",
+        "union:SubAgentSource:thread_spawn:optional-omitted:thread_spawn-agent_path",
+        "union:SubAgentSource:thread_spawn:optional-omitted:thread_spawn-agent_role"
+      ],
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -8970,16 +9532,16 @@
         "name": "thread_spawn"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -9027,8 +9589,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ThreadStatus:active"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9036,21 +9600,23 @@
         "name": "active"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ThreadStatus:idle"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9058,21 +9624,23 @@
         "name": "idle"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ThreadStatus:notLoaded"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9080,21 +9648,23 @@
         "name": "notLoaded"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ThreadStatus:systemError"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9102,16 +9672,16 @@
         "name": "systemError"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

@@ -1151,6 +1151,365 @@ class AppServerFixtureToolTest(unittest.TestCase):
                 ["enum_mismatch"],
             )
 
+    def test_b4_operation_fixture_plan_is_exact_and_complete(self) -> None:
+        index = json.loads(
+            (arguments().fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+        b4 = index["a1_1_operations"]
+        self.assertEqual(
+            {
+                record["name"]
+                for record in b4["assignment_derived_request_keys"]
+            },
+            set(tool.B4_CLIENT_REQUEST_METHODS),
+        )
+        self.assertEqual(
+            len(b4["assignment_derived_request_keys"]), 22
+        )
+        self.assertEqual(
+            len(b4["assignment_derived_union_keys"]), 16
+        )
+        self.assertEqual(len(b4["indexed_schema_coverage"]), 38)
+        self.assertTrue(
+            all(
+                all(record["schema_fixture_facts"].values())
+                and record["schema_direction_coverage"]
+                for record in b4["indexed_schema_coverage"].values()
+            )
+        )
+
+        union_coverage = b4["negative_coverage"][
+            "operation_unions"
+        ]
+        self.assertEqual(
+            union_coverage["family_counts"],
+            {
+                domain: len(names)
+                for domain, names in (
+                    tool.B4_OPERATION_UNION_FAMILY_IDENTITIES.items()
+                )
+            },
+        )
+        self.assertEqual(
+            union_coverage["assignment_derived_key_count"], 16
+        )
+        families = union_coverage["families"]
+        self.assertEqual(
+            families["SessionSource"][
+                "future_external_discriminator_fixture_ids"
+            ],
+            ["union:SessionSource:future-object-unknown"],
+        )
+        self.assertEqual(
+            families["SubAgentSource"][
+                "future_external_discriminator_fixture_ids"
+            ],
+            ["union:SubAgentSource:future-object-unknown"],
+        )
+        for domain in ("SessionSource", "SubAgentSource"):
+            with self.subTest(future_union_family=domain):
+                self.assertEqual(
+                    families[domain][
+                        "future_discriminator_fixture_id"
+                    ],
+                    f"union:{domain}:future-unknown",
+                )
+                self.assertEqual(
+                    records_by_id[
+                        f"union:{domain}:future-unknown"
+                    ]["role"],
+                    "unknown_discriminator",
+                )
+                self.assertEqual(
+                    records_by_id[
+                        f"union:{domain}:future-object-unknown"
+                    ]["role"],
+                    "unknown_discriminator",
+                )
+        self.assertEqual(
+            families["ThreadStatus"][
+                "future_external_discriminator_fixture_ids"
+            ],
+            [],
+        )
+        self.assertEqual(
+            {
+                domain: record["wrong_outer_shape_fixture_ids"]
+                for domain, record in families.items()
+            },
+            {
+                "SessionSource": [
+                    "union:SessionSource:wrong-outer-shape"
+                ],
+                "SubAgentSource": [
+                    "union:SubAgentSource:wrong-outer-shape"
+                ],
+                "ThreadStatus": [
+                    "union:ThreadStatus:wrong-outer-shape"
+                ],
+            },
+        )
+        self.assertEqual(
+            families["SessionSource"][
+                "conflicting_discriminator_fixture_ids"
+            ],
+            ["union:SessionSource:conflicting-discriminators"],
+        )
+        self.assertEqual(
+            families["SubAgentSource"][
+                "conflicting_discriminator_fixture_ids"
+            ],
+            ["union:SubAgentSource:conflicting-discriminators"],
+        )
+        self.assertIsNone(
+            families["SessionSource"][
+                "conflicting_discriminator_exclusion"
+            ]
+        )
+        self.assertIsNone(
+            families["SubAgentSource"][
+                "conflicting_discriminator_exclusion"
+            ]
+        )
+        alternatives = union_coverage["alternatives"]
+        for compact, conflict_id in (
+            (
+                "tagged_union_discriminator:SessionSource:"
+                "$variant:custom",
+                "union:SessionSource:conflicting-discriminators",
+            ),
+            (
+                "tagged_union_discriminator:SessionSource:"
+                "$variant:subAgent",
+                "union:SessionSource:conflicting-discriminators",
+            ),
+            (
+                "tagged_union_discriminator:SubAgentSource:"
+                "$variant:other",
+                "union:SubAgentSource:conflicting-discriminators",
+            ),
+            (
+                "tagged_union_discriminator:SubAgentSource:"
+                "$variant:thread_spawn",
+                "union:SubAgentSource:conflicting-discriminators",
+            ),
+        ):
+            with self.subTest(conflicting_alternative=compact):
+                self.assertEqual(
+                    alternatives[compact][
+                        "conflicting_discriminator_fixture_ids"
+                    ],
+                    [conflict_id],
+                )
+                self.assertIsNone(
+                    alternatives[compact][
+                        "conflicting_discriminator_exclusion"
+                    ]
+                )
+        for domain, names in (
+            (
+                "SessionSource",
+                ("appServer", "cli", "exec", "unknown", "vscode"),
+            ),
+            (
+                "SubAgentSource",
+                ("compact", "memory_consolidation", "review"),
+            ),
+        ):
+            for name in names:
+                compact = (
+                    "tagged_union_discriminator:"
+                    f"{domain}:$variant:{name}"
+                )
+                with self.subTest(scalar_alternative=compact):
+                    self.assertNotIn(
+                        "conflicting_discriminator_fixture_ids",
+                        alternatives[compact],
+                    )
+                    self.assertEqual(
+                        alternatives[compact][
+                            "conflicting_discriminator_exclusion"
+                        ],
+                        (
+                            "JSON value shape provides exactly one scalar "
+                            "or object discriminator slot"
+                        ),
+                    )
+        self.assertEqual(
+            alternatives[
+                "tagged_union_discriminator:SessionSource:"
+                "$variant:subAgent"
+            ]["nested_malformed_fixture_ids"],
+            [
+                "union:SessionSource:subAgent:"
+                "nested-malformed:thread_spawn-depth"
+            ],
+        )
+        nested_future_id = (
+            "union:SessionSource:subAgent:nested-future-unknown"
+        )
+        self.assertEqual(
+            alternatives[
+                "tagged_union_discriminator:SessionSource:"
+                "$variant:subAgent"
+            ]["nested_future_discriminator_fixture_ids"],
+            [nested_future_id],
+        )
+        nested_future = records_by_id[nested_future_id]
+        self.assertEqual(nested_future["role"], "unknown_discriminator")
+        self.assertEqual(
+            nested_future["expected_diagnostic_codes"],
+            ["one_of_zero"],
+        )
+        self.assertEqual(
+            json.loads(
+                (
+                    arguments().fixture_root / nested_future["file"]
+                ).read_text(encoding="utf-8")
+            ),
+            {"subAgent": "futureSubAgentSource"},
+        )
+        self.assertIn(
+            (
+                "union:ThreadStatus:active:"
+                "wrong-nested-type:activeflags-0"
+            ),
+            alternatives[
+                "tagged_union_discriminator:"
+                "ThreadStatus:type:active"
+            ]["wrong_nested_type_fixture_ids"],
+        )
+        thread_status_wrong_outer = records_by_id[
+            "union:ThreadStatus:wrong-outer-shape"
+        ]
+        self.assertEqual(
+            json.loads(
+                (
+                    arguments().fixture_root
+                    / thread_status_wrong_outer["file"]
+                ).read_text(encoding="utf-8")
+            ),
+            "idle",
+        )
+        self.assertEqual(
+            set(
+                b4["negative_coverage"]["open_string_enums"]
+            ),
+            set(tool.B4_OPEN_STRING_ENUMS),
+        )
+
+        opaque = b4["negative_coverage"][
+            "operation_opaque_exclusions"
+        ]
+        self.assertEqual(len(opaque), 5)
+        self.assertEqual(
+            {
+                (
+                    record["operation"],
+                    record["instance_path"],
+                )
+                for record in opaque
+            },
+            {
+                ("thread/fork", "$/config/syntheticKey"),
+                ("thread/inject_items", "$/items/0"),
+                ("thread/resume", "$/config/syntheticKey"),
+                ("thread/start", "$/config/syntheticKey"),
+                ("turn/start", "$/outputSchema"),
+            },
+        )
+
+        start = b4["indexed_schema_coverage"][
+            "client_request:ClientRequest:method:thread/start"
+        ]
+        fork = b4["indexed_schema_coverage"][
+            "client_request:ClientRequest:method:thread/fork"
+        ]
+        self.assertIn(
+            "#/properties/ephemeral",
+            start["roots"]["params"][
+                "optional_property_schema_paths"
+            ],
+        )
+        self.assertIn(
+            "#/properties/ephemeral",
+            start["roots"]["params"][
+                "nullable_property_schema_paths"
+            ],
+        )
+        self.assertIn(
+            "#/properties/ephemeral",
+            fork["roots"]["params"][
+                "optional_property_schema_paths"
+            ],
+        )
+        self.assertNotIn(
+            "#/properties/ephemeral",
+            fork["roots"]["params"][
+                "nullable_property_schema_paths"
+            ],
+        )
+        self.assertIn(
+            "#/definitions/Turn/properties/itemsView",
+            start["roots"]["result"][
+                "optional_property_schema_paths"
+            ],
+        )
+        self.assertIn(
+            "#/definitions/Turn/properties/error",
+            start["roots"]["result"][
+                "nullable_property_schema_paths"
+            ],
+        )
+
+        records = {
+            record["id"]: record for record in index["fixtures"]
+        }
+        overflow = records[
+            "operation:client_request:thread/rollback:params:"
+            "uint32-overflow"
+        ]
+        self.assertNotIn("expected_valid", overflow)
+        self.assertEqual(
+            overflow["typed_state_boundary"],
+            {
+                "representable": False,
+                "production_diagnostic_expected": False,
+                "schema_path": "#/properties/numTurns",
+                "format": "uint32",
+                "maximum_representable": 4_294_967_295,
+                "production_evidence": [
+                    "ThreadRollbackParams::numTurns is std::uint32_t",
+                    "CodexA11OperationWireTest encodes uint32 maximum exactly",
+                    "compile-time numeric_limits<uint32_t> ratchet",
+                ],
+                "reason": (
+                    "Draft-07 format is annotative; the pinned format:uint32 "
+                    "value is outside the public typed state and therefore "
+                    "cannot produce a runtime codec diagnostic"
+                ),
+            },
+        )
+        self.assertEqual(
+            records[
+                "operation:client_request:thread/rollback:params:"
+                "uint32-negative"
+            ]["expected_diagnostic_codes"],
+            ["minimum"],
+        )
+        self.assertEqual(
+            records[
+                "operation:client_request:thread/rollback:params:"
+                "uint32-fractional"
+            ]["expected_diagnostic_codes"],
+            ["type_mismatch"],
+        )
+
     def test_committed_corpus_is_deterministic_current_and_valid(self) -> None:
         configured = arguments()
         first, first_index = tool.generated_outputs(configured)
@@ -1163,29 +1522,40 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 1324,
-                "positive": 654,
-                "negative": 670,
+                "total": 2915,
+                "positive": 1259,
+                "negative": 1656,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
                     "existing_typed_identity": 34,
                     "malformed_known": 1,
+                    "malformed_known_conflicting_discriminators": 2,
                     "malformed_known_empty_string": 1,
-                    "malformed_known_missing_discriminator": 73,
-                    "malformed_known_missing_required": 148,
-                    "malformed_known_wrong_discriminator_type": 73,
-                    "malformed_known_wrong_type": 297,
-                    "nested_union_failure": 3,
-                    "open_enum_known_value": 45,
+                    "malformed_known_missing_discriminator": 81,
+                    "malformed_known_missing_required": 151,
+                    "malformed_known_wrong_discriminator_type": 81,
+                    "malformed_known_wrong_outer_shape": 3,
+                    "malformed_known_wrong_type": 304,
+                    "nested_union_failure": 4,
+                    "open_enum_known_value": 86,
+                    "operation_helper_union_branch": 10,
+                    "operation_missing_required": 299,
+                    "operation_nullable_null": 250,
+                    "operation_numeric_boundary": 2,
+                    "operation_numeric_boundary_invalid": 2,
+                    "operation_opaque_value": 3,
+                    "operation_optional_omitted": 276,
+                    "operation_pinned_format_unrepresentable": 1,
+                    "operation_wrong_type": 621,
                     "server_request_params": 10,
                     "server_request_response": 10,
-                    "union_branch": 92,
+                    "union_branch": 108,
                     "union_branch_supplement": 33,
-                    "union_nullable_null": 123,
-                    "union_optional_omitted": 133,
-                    "unknown_discriminator": 17,
-                    "unknown_enum_value": 53,
+                    "union_nullable_null": 126,
+                    "union_optional_omitted": 136,
+                    "unknown_discriminator": 23,
+                    "unknown_enum_value": 79,
                     "unknown_method": 4,
                 },
             },
@@ -1193,15 +1563,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 2590,
-                "required_locations": 2590,
-                "required_field_removals_rejected": 2590,
-                "wrong_type_mutations_rejected": 2529,
+                "selected_branch_required_locations": 13359,
+                "required_locations": 13359,
+                "required_field_removals_rejected": 13359,
+                "wrong_type_mutations_rejected": 13298,
                 "wrong_type_unconstrained_exclusions": 61,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 2257,
-                "globally_optional_locations": 2257,
-                "optional_omissions_accepted": 2257,
+                "optional_present_locations": 12058,
+                "globally_optional_locations": 12058,
+                "optional_omissions_accepted": 12058,
                 "optional_cross_fragment_exclusions": 0,
             },
         )
@@ -1247,21 +1617,21 @@ class AppServerFixtureToolTest(unittest.TestCase):
         completeness = json.loads(first[completeness_path].decode("utf-8"))
         self.assertEqual(completeness["counts"]["surface_identities"], 387)
         self.assertEqual(
-            completeness["counts"]["identities_with_positive_fixtures"], 204
+            completeness["counts"]["identities_with_positive_fixtures"], 220
         )
         self.assertEqual(
             completeness["counts"]["facts_true_by_field"],
             {
-                "authoritative_root_association": 204,
-                "fixture_current": 204,
-                "independently_schema_validated": 204,
-                "nullable_semantics_exercised": 92,
-                "optional_omitted_exercised": 204,
-                "optional_present_exercised": 204,
-                "positive_fixture_coverage": 204,
-                "reachable_union_alternatives_exercised": 92,
-                "required_fields_exercised": 204,
-                "schema_properties_exercised": 92,
+                "authoritative_root_association": 220,
+                "fixture_current": 220,
+                "independently_schema_validated": 220,
+                "nullable_semantics_exercised": 130,
+                "optional_omitted_exercised": 220,
+                "optional_present_exercised": 220,
+                "positive_fixture_coverage": 220,
+                "reachable_union_alternatives_exercised": 130,
+                "required_fields_exercised": 220,
+                "schema_properties_exercised": 130,
             },
         )
         self.assertEqual(len(completeness["records"]), 387)
@@ -1279,6 +1649,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
             mutation
             for record in first_index["fixtures"]
             if record.get("expected_valid", True)
+            and "wrong_types" in record["validation"]
             for mutation in record["validation"]["wrong_types"]
             if mutation["exclusion"] is not None
         ]

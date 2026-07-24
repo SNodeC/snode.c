@@ -62,6 +62,20 @@ python3 tools/codex/app_server_surface.py registry \
   --output "$REGISTRY" \
   --check
 
+python3 tools/codex/app_server_surface.py operation-descriptors \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --output src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc \
+  --check
+
+python3 tools/codex/app_server_surface.py operation-production-coverage \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --fixture-index "$FIXTURE_ROOT/index.json" \
+  --repo-root . \
+  --output "$EVIDENCE_ROOT/a1-1-operation-production-coverage.json" \
+  --check
+
 python3 tools/codex/app_server_surface.py conversation-descriptors \
   --manifest "$SURFACE" \
   --schema-root "$SCHEMA_ROOT" \
@@ -229,8 +243,7 @@ directions are 29 encode-only, 121 decode-only, and 14 bidirectional. The 698
 schema-path mappings are 107 encode-only, 554 decode-only, and 37
 bidirectional; they include 156 exact strong-ID positions and the complete
 4/413/5/15/218 defaulted/required-value/required-nullable/optional-value/
-optional-nullable presence matrix. Cross-slice ownership is 122 A1.1-local
-definitions, 39
+optional-nullable presence matrix. Cross-slice ownership is 122 A1.1-local definitions, 39
 A1.1-owned definitions reused by later slices, and the exact three prior-slice
 reuses `CodexErrorInfo`, `NonSteerableTurnKind`, and `TurnError`.
 
@@ -250,6 +263,16 @@ schema-derived contract becomes `Concrete`, and requires the reviewed
 `EXPECTED_UNIT_RESULT_METHODS` ratchet to fail with its exact changed-identity
 diagnostic. The guard deliberately does not impose the false inverse that a
 Concrete result must have direct properties.
+
+The checked `a1-1-operation-production-coverage.json` table binds the exact 22
+operation descriptors to 1,166 indexed successful-result records (403
+accepted and 763 malformed-known), 73 aggregate/value records, 60 B4 nested
+union records, and four `ThreadActiveFlag` records. The result and
+aggregate/value corpora traverse the same structured production result
+dispatcher used by `typed::Threads` and `typed::Turns`; that dispatcher selects
+its result codec from the generated private descriptor binding. The table
+also hashes every production/test source it claims to cover. It is reproducible
+review evidence, not a second runtime disposition or dispatch registry.
 
 ## Re-running the pinned upstream generation
 
@@ -340,7 +363,9 @@ Do not hand-edit these generated artifacts:
   Commit 1 freeze; never ordinary regeneration);
 - `app-server-evidence/0.144.6/a1-1-implementation-plan.json`;
 - `app-server-evidence/0.144.6/a1-1-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-1-operation-production-coverage.json`;
 - `app-server-fixtures/0.144.6/`;
+- `ClientOperationCodecDescriptors.inc`;
 - `ConversationUnionCodecDescriptors.inc`;
 - `ThreadItemCodecDescriptors.inc`;
 - `ResponseItemCodecDescriptors.inc`;

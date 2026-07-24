@@ -26,6 +26,7 @@ int main() {
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
+    static_assert(!std::is_same_v<typed::SessionId, typed::ThreadId>);
     static_assert(!std::is_same_v<typed::ClientUserMessageId, std::string>);
 
     [[maybe_unused]] typed::DecodeDiagnostic diagnostic{
@@ -56,6 +57,10 @@ int main() {
         .raw = {{"type", "futureInput"}},
         .diagnostic = diagnostic,
     };
+    [[maybe_unused]] typed::Thread installedThread;
+    installedThread.sessionId = typed::SessionId{"app-server-session"};
+    [[maybe_unused]] typed::TurnStartParams installedStartParams;
+    installedStartParams.clientUserMessageId = typed::ClientUserMessageId{"client-message"};
 
     ai::openai::codex::stdio::Client client;
     client.typed().events().setOnEvent([](const typed::Event& event) {

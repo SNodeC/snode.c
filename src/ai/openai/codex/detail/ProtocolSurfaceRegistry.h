@@ -64,7 +64,32 @@ namespace ai::openai::codex::detail {
         NotApplicable
     };
 
-    enum class ClientRequestTarget { Initialize, ThreadStart, ThreadResume, ThreadList, ThreadRead, TurnStart, TurnInterrupt, Count };
+    enum class ClientRequestTarget {
+        Initialize,
+        ThreadStart,
+        ThreadResume,
+        ThreadList,
+        ThreadRead,
+        TurnStart,
+        TurnInterrupt,
+        ThreadArchive,
+        ThreadCompactStart,
+        ThreadDelete,
+        ThreadFork,
+        ThreadGoalClear,
+        ThreadGoalGet,
+        ThreadGoalSet,
+        ThreadInjectItems,
+        ThreadLoadedList,
+        ThreadMetadataUpdate,
+        ThreadSetName,
+        ThreadRollback,
+        ThreadShellCommand,
+        ThreadUnarchive,
+        ThreadUnsubscribe,
+        TurnSteer,
+        Count
+    };
 
     enum class ClientNotificationTarget { Initialized, Count };
 
@@ -196,6 +221,22 @@ namespace ai::openai::codex::detail {
         SandboxPolicyExternalSandbox,
         SandboxPolicyReadOnly,
         SandboxPolicyWorkspaceWrite,
+        SessionSourceAppServer,
+        SessionSourceCli,
+        SessionSourceCustom,
+        SessionSourceExec,
+        SessionSourceSubAgent,
+        SessionSourceUnknown,
+        SessionSourceVscode,
+        SubAgentSourceCompact,
+        SubAgentSourceMemoryConsolidation,
+        SubAgentSourceOther,
+        SubAgentSourceReview,
+        SubAgentSourceThreadSpawn,
+        ThreadStatusActive,
+        ThreadStatusIdle,
+        ThreadStatusNotLoaded,
+        ThreadStatusSystemError,
         UserInputImage,
         UserInputLocalImage,
         UserInputMention,
@@ -211,6 +252,26 @@ namespace ai::openai::codex::detail {
     enum class ConversationUnionCodecShape { ScalarString, ExternallyTaggedObject, InternallyTaggedObject, Count };
 
     enum class ConversationUnionCodecDirection { DecodeOnly, Bidirectional, Count };
+
+    enum class ClientOperationResultDecoder {
+        Unit,
+        ThreadForkResponse,
+        ThreadGoalClearResponse,
+        ThreadGoalGetResponse,
+        ThreadGoalSetResponse,
+        ThreadListResponse,
+        ThreadLoadedListResponse,
+        ThreadMetadataUpdateResponse,
+        ThreadReadResponse,
+        ThreadResumeResponse,
+        ThreadRollbackResponse,
+        ThreadStartResponse,
+        ThreadUnarchiveResponse,
+        ThreadUnsubscribeResponse,
+        TurnStartResponse,
+        TurnSteerResponse,
+        Count
+    };
 
     using RuntimeTarget = std::variant<std::monostate,
                                        ClientRequestTarget,
@@ -242,6 +303,16 @@ namespace ai::openai::codex::detail {
         ConversationUnionTarget target = ConversationUnionTarget::Count;
         ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
         ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
+    };
+
+    struct ClientOperationCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ClientRequestTarget target = ClientRequestTarget::Count;
+        std::string_view runtimeTargetIdentity;
+        std::string_view parameterTypeIdentity;
+        std::string_view resultTypeIdentity;
+        ResultContractKind resultKind = ResultContractKind::NotApplicable;
+        ClientOperationResultDecoder resultDecoder = ClientOperationResultDecoder::Count;
     };
 
     struct ThreadItemCodecDescriptor {
@@ -321,6 +392,7 @@ namespace ai::openai::codex::detail {
         CodecDescriptorWithoutRegistryRow,
         CodecDescriptorCanonicalKeyMismatch,
         CodecDescriptorTargetMismatch,
+        CodecDescriptorContractMismatch,
         CodecDescriptorWithoutTypedRegistryRow,
         RuntimeTargetCanonicalKeyMismatch,
         RegistryRowWithoutCodecDescriptor,
@@ -391,6 +463,7 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ConversationUnionTarget target);
 
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
+    std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept;
     std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept;
     std::span<const ResponseItemCodecDescriptor> responseItemCodecDescriptors() noexcept;
 
@@ -409,6 +482,12 @@ namespace ai::openai::codex::detail {
                                                       std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
                                                       std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
                                                       std::span<const ResponseItemCodecDescriptor> responseItemDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                                      std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                                      std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
+                                                      std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors);
 
 } // namespace ai::openai::codex::detail
 

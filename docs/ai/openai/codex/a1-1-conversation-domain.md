@@ -656,6 +656,9 @@ public member-contract corrections are unavoidable source changes:
 
 | Public item | A1.1 source change |
 |---|---|
+| `Thread` | The previously optional partial snapshot fields are replaced by the required upstream aggregate: `cwd` is `AbsolutePathBuf`, `sessionId` is the strong `SessionId`, `status` is the tagged `ThreadStatus`, timestamps and core metadata are required, and source/name/goal/agent metadata plus raw diagnostics are represented. Aggregate initialization and callers that treated required fields as absent must be updated. |
+| `ThreadPage` | The old page model is now the compatibility alias for the complete `ThreadListResponse`; its complete response fields and raw retention are therefore visible to consumers. |
+| `Turn` | `items` is the complete `ThreadItem` variant vector, `itemsView` is an open protocol value, `error` changes from `optional<Json>` to `OptionalNullable<TurnError>`, and temporal fields use explicit tri-state semantics. Raw retention and diagnostics are added, so aggregate order and field types change. |
 | `ThreadItem` | The variant expands from eight to nineteen alternatives and changes its alternative order; exhaustive visitors and index-based code must be updated. `ResponseItem` is now a separate seventeen-alternative variant. |
 | `AgentMessageItem` | `phase` changes from `optional<string>` to tri-state `MessagePhase`; `memoryCitation` and structured diagnostics are added. |
 | `UserMessageItem` | `content` changes from untyped `Json` to `vector<UserInput>`; `clientId` becomes tri-state `ClientUserMessageId` and follows `content` in aggregate order. The exact incoming content remains in `metadata.raw`. |

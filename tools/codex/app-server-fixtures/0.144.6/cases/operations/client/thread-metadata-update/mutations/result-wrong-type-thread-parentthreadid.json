@@ -1,0 +1,67 @@
+{
+  "thread": {
+    "agentNickname": "synthetic-2be1c2010f",
+    "agentRole": "synthetic-6e6c65c126",
+    "cliVersion": "synthetic-8fd2f0fd37",
+    "createdAt": 0,
+    "cwd": "synthetic-75177d933c",
+    "ephemeral": false,
+    "forkedFromId": "synthetic-d71f2c3e86",
+    "gitInfo": {
+      "branch": "synthetic-170356d5af",
+      "originUrl": "synthetic-4ca2b8d64d",
+      "sha": "synthetic-a15c69bc92"
+    },
+    "id": "synthetic-2852e52f40",
+    "modelProvider": "synthetic-d975f8e1aa",
+    "name": "synthetic-dfd2e6e7cd",
+    "parentThreadId": false,
+    "path": "synthetic-98f2b2af35",
+    "preview": "synthetic-b23c0e80e9",
+    "recencyAt": 0,
+    "sessionId": "synthetic-4d32f359ba",
+    "source": "cli",
+    "status": {
+      "type": "notLoaded"
+    },
+    "threadSource": "synthetic-2db5dd3788",
+    "turns": [
+      {
+        "completedAt": 0,
+        "durationMs": 0,
+        "error": {
+          "additionalDetails": "synthetic-e8c4a6eef9",
+          "codexErrorInfo": "contextWindowExceeded",
+          "message": "synthetic-65f454ad02"
+        },
+        "id": "synthetic-48be160827",
+        "items": [
+          {
+            "clientId": "synthetic-89fdcae681",
+            "content": [
+              {
+                "text": "synthetic-796383c7b4",
+                "text_elements": [
+                  {
+                    "byteRange": {
+                      "end": 0,
+                      "start": 0
+                    },
+                    "placeholder": "synthetic-3cb304aacb"
+                  }
+                ],
+                "type": "text"
+              }
+            ],
+            "id": "synthetic-1c287e4e0c",
+            "type": "userMessage"
+          }
+        ],
+        "itemsView": "notLoaded",
+        "startedAt": 0,
+        "status": "completed"
+      }
+    ],
+    "updatedAt": 0
+  }
+}

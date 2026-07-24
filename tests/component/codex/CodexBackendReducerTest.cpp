@@ -115,11 +115,11 @@ namespace {
         typed::Thread result;
         result.id = typed::ThreadId{threadId};
         result.title = "Thread " + threadId;
-        result.cwd = "/tmp/project";
+        result.cwd = typed::AbsolutePathBuf{"/tmp/project"};
         result.model = typed::ModelId{"gpt-5"};
         result.modelProvider = "openai";
         result.preview = "preview " + threadId;
-        result.status = typed::ThreadStatus{"idle", Json{{"type", "idle"}}};
+        result.status = typed::IdleThreadStatus{Json{{"type", "idle"}}, {}};
         result.createdAt = 1;
         result.updatedAt = 2;
         result.turns = std::move(turns);
@@ -194,8 +194,8 @@ namespace {
 
         typed::ThreadPage firstPage;
         firstPage.data = {thread("thread-list-b"), thread("thread-list-a")};
-        firstPage.nextCursor = "cursor-2";
-        firstPage.backwardsCursor = "cursor-before";
+        firstPage.nextCursor = std::string{"cursor-2"};
+        firstPage.backwardsCursor = std::string{"cursor-before"};
         reducer.apply(state, backend::ThreadListUpdated{firstPage, std::nullopt, true});
         result.expectTrue(state.threadList.hasLoadedPage && !state.threadList.complete && state.threadList.pagesLoaded == 1 &&
                               state.threadList.nextCursor == "cursor-2" && state.threads.size() == 3,
@@ -203,7 +203,7 @@ namespace {
 
         typed::ThreadPage secondPage;
         secondPage.data = {thread("thread-list-c"), thread("thread-list-b")};
-        secondPage.backwardsCursor = "cursor-1";
+        secondPage.backwardsCursor = std::string{"cursor-1"};
         reducer.apply(state, backend::ThreadListUpdated{secondPage, std::string("cursor-2"), false});
         result.expectTrue(state.threadList.complete && state.threadList.pagesLoaded == 2 && !state.threadList.nextCursor &&
                               state.threads.size() == 4,
@@ -230,6 +230,57 @@ namespace {
                               snapshot.threads.front().turns.size() == 2 && snapshot.threads.front().turns[0].id == "turn-z" &&
                               snapshot.threads.front().turns[1].id == "turn-a",
                           "snapshot preserves first-seen thread, turn, and item ordering instead of map key ordering");
+    }
+
+    void testStatusOnlyPlaceholderParity(tests::support::TestResult& result) {
+        backend::BackendState state;
+        backend::Reducer reducer;
+
+        const Json statusEnvelope = {
+            {"method", "thread/status/changed"},
+            {"params", {{"threadId", "thread-status-only"}, {"status", {{"type", "active"}, {"activeFlags", Json::array()}}}}},
+        };
+        const typed::ThreadStatus activeStatus =
+            typed::ActiveThreadStatus{{}, statusEnvelope.at("params").at("status"), {}};
+        const std::vector<backend::BackendEvent> statusEvents =
+            reducer.translate(typed::Event{typed::ThreadStatusChanged{
+                typed::ThreadId{"thread-status-only"}, activeStatus, statusEnvelope}});
+        const auto* statusUpdated =
+            statusEvents.size() == 1 ? std::get_if<backend::ThreadStatusUpdated>(&statusEvents.front()) : nullptr;
+        result.expectTrue(statusUpdated && statusUpdated->threadId.value == "thread-status-only" &&
+                              typed::threadStatusDiscriminator(statusUpdated->status) == "active",
+                          "thread/status/changed retains its existing modeled status-update translation");
+        if (statusUpdated) {
+            reducer.apply(state, *statusUpdated);
+        }
+        const backend::Snapshot statusOnlySnapshot = backend::makeSnapshot(state);
+        result.expectTrue(statusOnlySnapshot.threads.size() == 1 &&
+                              statusOnlySnapshot.threads.front().id == "thread-status-only" &&
+                              statusOnlySnapshot.threads.front().status == "active" &&
+                              !statusOnlySnapshot.threads.front().cwd &&
+                              !statusOnlySnapshot.threads.front().modelProvider &&
+                              !statusOnlySnapshot.threads.front().preview &&
+                              !statusOnlySnapshot.threads.front().createdAt &&
+                              !statusOnlySnapshot.threads.front().updatedAt,
+                          "a status-only placeholder exposes the modeled status without leaking defaults for unknown thread fields");
+
+        typed::Thread collision = thread("thread-marker-collision");
+        collision.raw["backendPlaceholder"] = true;
+        reducer.apply(state, backend::ThreadUpserted{collision, backend::EntityLoad::Summary});
+        const backend::Snapshot collisionSnapshot = backend::makeSnapshot(state);
+        const auto collisionThread =
+            std::find_if(collisionSnapshot.threads.begin(),
+                         collisionSnapshot.threads.end(),
+                         [](const backend::ThreadSnapshot& candidate) {
+                             return candidate.id == "thread-marker-collision";
+                         });
+        result.expectTrue(collisionThread != collisionSnapshot.threads.end() &&
+                              collisionThread->cwd == "/tmp/project" &&
+                              collisionThread->modelProvider == "openai" &&
+                              collisionThread->preview == "preview thread-marker-collision" &&
+                              collisionThread->status == "idle" && collisionThread->createdAt == 1 &&
+                              collisionThread->updatedAt == 2,
+                          "an unknown wire field named backendPlaceholder cannot collide with the exact internal sentinel");
     }
 
     void testItemsAndHighVolumeDeltas(tests::support::TestResult& result) {
@@ -965,6 +1016,7 @@ int main() {
 
     testInitialStateAndLifecycle(result);
     testThreadAndTurnHydration(result);
+    testStatusOnlyPlaceholderParity(result);
     testItemsAndHighVolumeDeltas(result);
     testCompletionFailureAndAuxiliaryUpdates(result);
     testUserMessageLifecycle(result);

@@ -7,15 +7,26 @@
 
 #include "ai/openai/codex/detail/TurnCodec.h"
 
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
+#include "ai/openai/codex/detail/ThreadCodec.h"
+#include "ai/openai/codex/typed/CodexErrorInfo.h"
+#include "ai/openai/codex/typed/Items.h"
+#include "ai/openai/codex/typed/Types.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <map>
+#include <nlohmann/detail/json_ref.hpp>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -24,99 +35,356 @@ namespace ai::openai::codex::detail {
 
     namespace {
 
-        const Json* findMember(const Json& object, const std::string_view name) noexcept {
+        const Json* member(const Json& object, std::string_view name) noexcept {
             if (!object.is_object()) {
                 return nullptr;
             }
-
-            const auto member = object.find(name);
-
-            return member == object.end() ? nullptr : &*member;
+            const auto iterator = object.find(name);
+            return iterator == object.end() ? nullptr : &*iterator;
         }
 
         bool fail(std::string& error, std::string message) {
             error = std::move(message);
-
             return false;
+        }
+
+        typed::DecodeDiagnostic unknownEnumDiagnostic(std::string surface, std::string path) {
+            return {typed::DecodeIssueKind::UnknownEnumValue,
+                    typed::DecodeIssueSeverity::ForwardCompatibility,
+                    std::move(surface),
+                    std::move(path),
+                    "protocol surface contains a future string-enum value"};
         }
 
         bool decodeInt64(const Json& value, std::int64_t& result) noexcept {
             if (value.is_number_unsigned()) {
-                const auto raw = value.get_ref<const Json::number_unsigned_t&>();
-
-                if (raw > static_cast<Json::number_unsigned_t>(std::numeric_limits<std::int64_t>::max())) {
+                const auto number = value.get_ref<const Json::number_unsigned_t&>();
+                if (number > static_cast<Json::number_unsigned_t>(std::numeric_limits<std::int64_t>::max())) {
                     return false;
                 }
-
-                result = static_cast<std::int64_t>(raw);
+                result = static_cast<std::int64_t>(number);
                 return true;
             }
-
             if (!value.is_number_integer()) {
                 return false;
             }
-
             result = value.get_ref<const Json::number_integer_t&>();
             return true;
         }
 
-        bool decodeOptionalInt64(const Json& object, const std::string_view name, std::optional<std::int64_t>& result, std::string& error) {
-            const Json* value = findMember(object, name);
-
-            if (value == nullptr || value->is_null()) {
-                result.reset();
-                return true;
-            }
-
-            std::int64_t decoded = 0;
-            if (!decodeInt64(*value, decoded)) {
-                return fail(error, "turn field '" + std::string(name) + "' must be an int64 integer or null");
-            }
-
-            result = decoded;
-            return true;
-        }
-
-        bool decodeOptionalError(const Json& object, std::optional<Json>& result, std::string& error) {
-            const Json* value = findMember(object, "error");
-
-            if (value == nullptr || value->is_null()) {
-                result.reset();
-                return true;
-            }
-            if (!value->is_object()) {
-                return fail(error, "turn field 'error' must be an object or null");
-            }
-
-            const Json* message = findMember(*value, "message");
-            if (message == nullptr || !message->is_string()) {
-                return fail(error, "turn field 'error.message' must be a string");
-            }
-
-            const Json* additionalDetails = findMember(*value, "additionalDetails");
-            if (additionalDetails != nullptr && !additionalDetails->is_null() && !additionalDetails->is_string()) {
-                return fail(error, "turn field 'error.additionalDetails' must be a string or null");
-            }
-
-            result = *value;
-            return true;
-        }
-
-        bool decodeItemsView(const Json& object, typed::TurnItemsView& result, std::string& error) {
-            const Json* value = findMember(object, "itemsView");
+        template <typename T, typename Decode>
+        bool decodeOptionalNullable(const Json& object,
+                                    std::string_view name,
+                                    typed::OptionalNullable<T>& result,
+                                    Decode&& decode,
+                                    std::string& error) {
+            result = typed::OptionalNullable<T>::omitted();
+            const Json* value = member(object, name);
             if (value == nullptr) {
-                result = typed::TurnItemsView::full();
                 return true;
             }
-            if (!value->is_string()) {
-                return fail(error, "turn field 'itemsView' must be a string");
+            result.present = true;
+            if (value->is_null()) {
+                return true;
             }
-
-            result.value = value->get_ref<const std::string&>();
+            T decoded;
+            if (!decode(*value, decoded)) {
+                return fail(error, "Turn field '" + std::string(name) + "' has the wrong type");
+            }
+            result.value = std::move(decoded);
             return true;
+        }
+
+        bool decodeTurnErrorValue(const Json& value,
+                                  typed::TurnError& result,
+                                  std::optional<typed::DecodeDiagnostic>& diagnostic) {
+            auto decoded = decodeTurnError(value, diagnostic);
+            if (!decoded) {
+                return false;
+            }
+            result = std::move(*decoded);
+            return true;
+        }
+
+        template <typename T, typename Encode>
+        bool encodeOptionalNullable(Json& object,
+                                    std::string_view name,
+                                    const typed::OptionalNullable<T>& value,
+                                    Encode&& encode,
+                                    std::string& error) {
+            if (value.isOmitted()) {
+                return true;
+            }
+            if (value.isNull()) {
+                object[std::string(name)] = nullptr;
+                return true;
+            }
+            std::optional<Json> encoded = encode(*value.value, error);
+            if (!encoded) {
+                return false;
+            }
+            object[std::string(name)] = std::move(*encoded);
+            return true;
+        }
+
+        template <typename T>
+        std::optional<Json> scalar(const T& value, std::string&) {
+            return std::optional<Json>{std::in_place, value};
+        }
+
+        template <typename T>
+        std::optional<Json> openValue(const T& value, std::string&) {
+            return std::optional<Json>{std::in_place, value.value};
+        }
+
+        std::optional<Json> encodeInputArray(const std::vector<typed::UserInput>& input, std::string& error) {
+            Json result = Json::array();
+            for (std::size_t index = 0; index < input.size(); ++index) {
+                std::string nestedError;
+                auto encoded = encodeUserInput(input[index], nestedError);
+                if (!encoded) {
+                    error = "turn input[" + std::to_string(index) + "]: " + nestedError;
+                    return std::nullopt;
+                }
+                result.emplace_back(std::move(*encoded));
+            }
+            return std::optional<Json>{std::in_place, std::move(result)};
         }
 
     } // namespace
+
+    bool hasMalformedKnownPayload(const typed::Turn& turn) noexcept {
+        const auto malformed = [](const typed::DecodeDiagnostic& diagnostic) {
+            return diagnostic.kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                   diagnostic.severity == typed::DecodeIssueSeverity::ProtocolWarning;
+        };
+        if (std::any_of(turn.diagnostics.begin(), turn.diagnostics.end(), malformed)) {
+            return true;
+        }
+        if (turn.error.hasValue() && turn.error->codexErrorDiagnostic &&
+            malformed(*turn.error->codexErrorDiagnostic)) {
+            return true;
+        }
+        return std::any_of(turn.items.begin(), turn.items.end(), [&](const typed::ThreadItem& item) {
+            return std::visit(
+                [&](const auto& alternative) {
+                    using Alternative = std::decay_t<decltype(alternative)>;
+                    if constexpr (std::is_same_v<Alternative, typed::UnknownItem>) {
+                        return alternative.diagnostic && malformed(*alternative.diagnostic);
+                    } else if constexpr (requires { alternative.diagnostics; }) {
+                        return std::any_of(
+                            alternative.diagnostics.begin(), alternative.diagnostics.end(), malformed);
+                    } else {
+                        return false;
+                    }
+                },
+                item);
+        });
+    }
+
+    std::optional<Json> encodeTurnInterruptParams(const typed::TurnInterruptParams& params, std::string& error) {
+        try {
+            error.clear();
+            return std::optional<Json>{
+                std::in_place, Json{{"threadId", params.threadId.value}, {"turnId", params.turnId.value}}};
+        } catch (const std::exception& exception) {
+            error = std::string("failed to encode turn/interrupt parameters: ") + exception.what();
+        } catch (...) {
+            error = "failed to encode turn/interrupt parameters";
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Json> encodeTurnStartParams(const typed::TurnStartParams& params, std::string& error) {
+        try {
+            error.clear();
+            auto input = encodeInputArray(params.input, error);
+            if (!input) {
+                return std::nullopt;
+            }
+            Json result{{"threadId", params.threadId.value}, {"input", std::move(*input)}};
+            auto encodeEffort = [](const typed::ReasoningEffort& value, std::string& nestedError) -> std::optional<Json> {
+                if (value.value.empty()) {
+                    nestedError = "turn/start reasoning effort must not be empty";
+                    return std::nullopt;
+                }
+                return std::optional<Json>{std::in_place, value.value};
+            };
+            auto encodeOpaque = [](const Json& value, std::string&) -> std::optional<Json> {
+                return std::optional<Json>{std::in_place, value};
+            };
+            if (!encodeOptionalNullable(result, "personality", params.personality, openValue<typed::Personality>, error) ||
+                !encodeOptionalNullable(result, "approvalPolicy", params.approvalPolicy, encodeAskForApproval, error) ||
+                !encodeOptionalNullable(
+                    result, "approvalsReviewer", params.approvalsReviewer, openValue<typed::ApprovalsReviewer>, error) ||
+                !encodeOptionalNullable(
+                    result, "clientUserMessageId", params.clientUserMessageId, openValue<typed::ClientUserMessageId>, error) ||
+                !encodeOptionalNullable(result, "serviceTier", params.serviceTier, scalar<std::string>, error) ||
+                !encodeOptionalNullable(result, "cwd", params.cwd, scalar<std::string>, error) ||
+                !encodeOptionalNullable(result, "effort", params.effort, encodeEffort, error) ||
+                !encodeOptionalNullable(result, "model", params.model, openValue<typed::ModelId>, error) ||
+                !encodeOptionalNullable(result, "summary", params.summary, openValue<typed::ReasoningSummary>, error) ||
+                !encodeOptionalNullable(result, "outputSchema", params.outputSchema, encodeOpaque, error) ||
+                !encodeOptionalNullable(result, "sandboxPolicy", params.sandboxPolicy, encodeSandboxPolicy, error)) {
+                return std::nullopt;
+            }
+            return std::optional<Json>{std::in_place, std::move(result)};
+        } catch (const std::exception& exception) {
+            error = std::string("failed to encode turn/start parameters: ") + exception.what();
+        } catch (...) {
+            error = "failed to encode turn/start parameters";
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Json> encodeTurnSteerParams(const typed::TurnSteerParams& params, std::string& error) {
+        try {
+            error.clear();
+            auto input = encodeInputArray(params.input, error);
+            if (!input) {
+                return std::nullopt;
+            }
+            Json result{{"threadId", params.threadId.value},
+                        {"expectedTurnId", params.expectedTurnId.value},
+                        {"input", std::move(*input)}};
+            if (!encodeOptionalNullable(
+                    result, "clientUserMessageId", params.clientUserMessageId, openValue<typed::ClientUserMessageId>, error)) {
+                return std::nullopt;
+            }
+            return std::optional<Json>{std::in_place, std::move(result)};
+        } catch (const std::exception& exception) {
+            error = std::string("failed to encode turn/steer parameters: ") + exception.what();
+        } catch (...) {
+            error = "failed to encode turn/steer parameters";
+        }
+        return std::nullopt;
+    }
+
+    std::optional<typed::Turn> decodeTurn(const Json& value, const typed::ThreadId& threadId, std::string& error) {
+        try {
+            error.clear();
+            if (!value.is_object()) {
+                fail(error, "Turn must be an object");
+                return std::nullopt;
+            }
+            const Json* id = member(value, "id");
+            const Json* status = member(value, "status");
+            const Json* items = member(value, "items");
+            if (id == nullptr || !id->is_string()) {
+                fail(error, "Turn field 'id' must be a string");
+                return std::nullopt;
+            }
+            if (status == nullptr || !status->is_string()) {
+                fail(error, "Turn field 'status' must be a string");
+                return std::nullopt;
+            }
+            if (items == nullptr || !items->is_array()) {
+                fail(error, "Turn field 'items' must be an array");
+                return std::nullopt;
+            }
+            typed::Turn result;
+            result.id.value = id->get<std::string>();
+            result.threadId = threadId;
+            result.status.value = status->get<std::string>();
+            if (!result.status.isKnown()) {
+                result.diagnostics.emplace_back(unknownEnumDiagnostic("TurnStatus", "$.status"));
+            }
+            const Json* itemsView = member(value, "itemsView");
+            if (itemsView == nullptr) {
+                result.itemsView = typed::TurnItemsView::full();
+            } else if (!itemsView->is_string()) {
+                fail(error, "Turn field 'itemsView' must be a string");
+                return std::nullopt;
+            } else {
+                result.itemsView = typed::TurnItemsView{itemsView->get<std::string>()};
+                if (!result.itemsView.isKnown()) {
+                    result.diagnostics.emplace_back(unknownEnumDiagnostic("TurnItemsView", "$.itemsView"));
+                }
+            }
+            std::optional<typed::DecodeDiagnostic> errorDiagnostic;
+            if (!decodeOptionalNullable(
+                    value,
+                    "error",
+                    result.error,
+                    [&](const Json& input, typed::TurnError& output) {
+                        return decodeTurnErrorValue(input, output, errorDiagnostic);
+                    },
+                    error) ||
+                !decodeOptionalNullable(value, "startedAt", result.startedAt, decodeInt64, error) ||
+                !decodeOptionalNullable(value, "completedAt", result.completedAt, decodeInt64, error) ||
+                !decodeOptionalNullable(value, "durationMs", result.durationMs, decodeInt64, error)) {
+                return std::nullopt;
+            }
+            if (errorDiagnostic) {
+                result.diagnostics.emplace_back(*errorDiagnostic);
+            }
+            result.items.reserve(items->size());
+            for (std::size_t index = 0; index < items->size(); ++index) {
+                std::string nestedError;
+                auto item = decodeItem((*items)[index], threadId, result.id, nestedError);
+                if (!item) {
+                    fail(error, "Turn field 'items[" + std::to_string(index) + "]': " + nestedError);
+                    return std::nullopt;
+                }
+                result.items.emplace_back(std::move(*item));
+            }
+            result.raw = value;
+            return result;
+        } catch (const std::exception& exception) {
+            error = std::string("failed to decode Turn: ") + exception.what();
+        } catch (...) {
+            error = "failed to decode Turn";
+        }
+        return std::nullopt;
+    }
+
+    std::optional<typed::TurnStartResponse>
+    decodeTurnStartResponse(const Json& value, const typed::ThreadId& threadId, std::string& error) {
+        error.clear();
+        if (!value.is_object()) {
+            fail(error, "TurnStartResponse must be an object");
+            return std::nullopt;
+        }
+        const Json* turn = member(value, "turn");
+        if (turn == nullptr) {
+            fail(error, "TurnStartResponse is missing required field 'turn'");
+            return std::nullopt;
+        }
+        auto decoded = decodeTurn(*turn, threadId, error);
+        if (!decoded) {
+            error = "TurnStartResponse field 'turn': " + error;
+            return std::nullopt;
+        }
+        if (hasMalformedKnownPayload(*decoded)) {
+            fail(error, "TurnStartResponse field 'turn' contains a malformed known payload");
+            return std::nullopt;
+        }
+        typed::TurnStartResponse result;
+        result.turn = std::move(*decoded);
+        result.raw = value;
+        return result;
+    }
+
+    std::optional<typed::TurnSteerResponse> decodeTurnSteerResponse(const Json& value, std::string& error) {
+        error.clear();
+        if (!value.is_object()) {
+            fail(error, "TurnSteerResponse must be an object");
+            return std::nullopt;
+        }
+        const Json* turnId = member(value, "turnId");
+        if (turnId == nullptr || !turnId->is_string()) {
+            fail(error, "TurnSteerResponse field 'turnId' must be a string");
+            return std::nullopt;
+        }
+        typed::TurnSteerResponse result;
+        result.turnId.value = turnId->get<std::string>();
+        result.raw = value;
+        return result;
+    }
+
+    std::optional<typed::Unit> decodeTurnInterruptResult(const Json& value, std::string& error) {
+        return decodeUnitResult(value, error);
+    }
 
     std::optional<Json> encodeTurnInput(const typed::TurnInput& input, std::string& error) {
         return encodeUserInput(input, error);
@@ -126,197 +394,22 @@ namespace ai::openai::codex::detail {
                                               const std::vector<typed::TurnInput>& input,
                                               const typed::TurnStartOptions& options,
                                               std::string& error) {
-        try {
-            error.clear();
-
-            Json encodedInput = Json::array();
-            std::size_t index = 0;
-            for (const typed::TurnInput& inputValue : input) {
-                std::string inputError;
-                std::optional<Json> encoded = encodeTurnInput(inputValue, inputError);
-
-                if (!encoded.has_value()) {
-                    fail(error, "turn input[" + std::to_string(index) + "]: " + inputError);
-                    return std::nullopt;
-                }
-
-                encodedInput.emplace_back(std::move(*encoded));
-                ++index;
-            }
-
-            Json params = Json::object({{"threadId", threadId.value}, {"input", std::move(encodedInput)}});
-
-            if (options.cwd.has_value()) {
-                params.emplace("cwd", *options.cwd);
-            }
-            if (options.model.has_value()) {
-                params.emplace("model", options.model->value);
-            }
-            if (options.reasoningEffort.has_value()) {
-                if (options.reasoningEffort->value.empty()) {
-                    fail(error, "turn reasoning effort must not be empty");
-                    return std::nullopt;
-                }
-                params.emplace("effort", options.reasoningEffort->value);
-            }
-            if (options.approvalPolicy.has_value()) {
-                params.emplace("approvalPolicy", options.approvalPolicy->value);
-            }
-            if (options.sandboxPolicy.has_value()) {
-                std::optional<Json> sandboxPolicy = encodeSandboxPolicy(*options.sandboxPolicy, error);
-                if (!sandboxPolicy.has_value()) {
-                    return std::nullopt;
-                }
-                params.emplace("sandboxPolicy", std::move(*sandboxPolicy));
-            }
-
-            return std::optional<Json>{std::move(params)};
-        } catch (const std::exception& exception) {
-            error = std::string("failed to encode turn/start parameters: ") + exception.what();
-        } catch (...) {
-            error = "failed to encode turn/start parameters: unknown local exception";
-        }
-
-        return std::nullopt;
+        return encodeTurnStartParams(typed::toTurnStartParams(threadId, input, options), error);
     }
 
-    std::optional<Json> encodeTurnInterruptParams(const typed::ThreadId& threadId, const typed::TurnId& turnId, std::string& error) {
-        try {
-            error.clear();
-            return std::optional<Json>{Json::object({{"threadId", threadId.value}, {"turnId", turnId.value}})};
-        } catch (const std::exception& exception) {
-            error = std::string("failed to encode turn/interrupt parameters: ") + exception.what();
-        } catch (...) {
-            error = "failed to encode turn/interrupt parameters: unknown local exception";
-        }
-
-        return std::nullopt;
+    std::optional<Json>
+    encodeTurnInterruptParams(const typed::ThreadId& threadId, const typed::TurnId& turnId, std::string& error) {
+        return encodeTurnInterruptParams(typed::toTurnInterruptParams(threadId, turnId), error);
     }
 
-    std::optional<typed::Turn> decodeTurn(const Json& value, const typed::ThreadId& threadId, std::string& error) {
-        try {
-            error.clear();
-
-            if (!value.is_object()) {
-                fail(error, "turn must be an object");
-                return std::nullopt;
-            }
-
-            const Json* id = findMember(value, "id");
-            if (id == nullptr) {
-                fail(error, "turn is missing required field 'id'");
-                return std::nullopt;
-            }
-            if (!id->is_string()) {
-                fail(error, "turn field 'id' must be a string");
-                return std::nullopt;
-            }
-
-            const Json* status = findMember(value, "status");
-            if (status == nullptr) {
-                fail(error, "turn is missing required field 'status'");
-                return std::nullopt;
-            }
-            if (!status->is_string()) {
-                fail(error, "turn field 'status' must be a string");
-                return std::nullopt;
-            }
-
-            const Json* items = findMember(value, "items");
-            if (items == nullptr) {
-                fail(error, "turn is missing required field 'items'");
-                return std::nullopt;
-            }
-            if (!items->is_array()) {
-                fail(error, "turn field 'items' must be an array");
-                return std::nullopt;
-            }
-
-            typed::Turn result;
-            result.id = typed::TurnId{id->get_ref<const std::string&>()};
-            result.threadId = threadId;
-            result.status = typed::TurnStatus{status->get_ref<const std::string&>()};
-
-            if (!decodeItemsView(value, result.itemsView, error) || !decodeOptionalError(value, result.error, error) ||
-                !decodeOptionalInt64(value, "startedAt", result.startedAt, error) ||
-                !decodeOptionalInt64(value, "completedAt", result.completedAt, error) ||
-                !decodeOptionalInt64(value, "durationMs", result.durationMs, error)) {
-                return std::nullopt;
-            }
-
-            result.items.reserve(items->size());
-            std::size_t index = 0;
-            for (const Json& itemValue : *items) {
-                std::string itemError;
-                std::optional<typed::Item> item =
-                    decodeItem(itemValue, std::optional<typed::ThreadId>{threadId}, std::optional<typed::TurnId>{result.id}, itemError);
-
-                if (!item.has_value()) {
-                    fail(error, "turn field 'items'[" + std::to_string(index) + "]: " + itemError);
-                    return std::nullopt;
-                }
-
-                result.items.emplace_back(std::move(*item));
-                ++index;
-            }
-
-            result.raw = value;
-            return result;
-        } catch (const std::exception& exception) {
-            error = std::string("failed to decode turn: ") + exception.what();
-        } catch (...) {
-            error = "failed to decode turn: unknown local exception";
+    std::optional<typed::Turn> decodeTurnStartResult(const Json& value,
+                                                     const typed::ThreadId& threadId,
+                                                     std::string& error) {
+        auto response = decodeTurnStartResponse(value, threadId, error);
+        if (!response) {
+            return std::nullopt;
         }
-
-        return std::nullopt;
-    }
-
-    std::optional<typed::Turn> decodeTurnStartResult(const Json& value, const typed::ThreadId& threadId, std::string& error) {
-        try {
-            error.clear();
-
-            if (!value.is_object()) {
-                fail(error, "turn/start result must be an object");
-                return std::nullopt;
-            }
-
-            const Json* turn = findMember(value, "turn");
-            if (turn == nullptr) {
-                fail(error, "turn/start result is missing required field 'turn'");
-                return std::nullopt;
-            }
-            if (!turn->is_object()) {
-                fail(error, "turn/start result field 'turn' must be an object");
-                return std::nullopt;
-            }
-
-            return decodeTurn(*turn, threadId, error);
-        } catch (const std::exception& exception) {
-            error = std::string("failed to decode turn/start result: ") + exception.what();
-        } catch (...) {
-            error = "failed to decode turn/start result: unknown local exception";
-        }
-
-        return std::nullopt;
-    }
-
-    std::optional<typed::TurnInterruptResult> decodeTurnInterruptResult(const Json& value, std::string& error) {
-        try {
-            error.clear();
-
-            if (!value.is_object()) {
-                fail(error, "turn/interrupt result must be an object");
-                return std::nullopt;
-            }
-
-            return typed::TurnInterruptResult{};
-        } catch (const std::exception& exception) {
-            error = std::string("failed to decode turn/interrupt result: ") + exception.what();
-        } catch (...) {
-            error = "failed to decode turn/interrupt result: unknown local exception";
-        }
-
-        return std::nullopt;
+        return std::move(response->turn);
     }
 
 } // namespace ai::openai::codex::detail
