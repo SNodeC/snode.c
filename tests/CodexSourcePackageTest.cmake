@@ -147,14 +147,14 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 2915 index records resolve to the retained files
+# additionally proves that all 3714 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 2916)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 3715)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 11)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 13)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
@@ -168,10 +168,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 6)
+if(NOT top_level_codex_tool_count EQUAL 7)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 6, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 7, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -216,8 +216,11 @@ set(
     "tools/codex/app-server-evidence/0.144.6/a1-1-implementation-plan.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-type-closure.json"
     "tools/codex/app-server-evidence/0.144.6/a1-1-operation-production-coverage.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-notification-production-coverage.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-1-closure-report.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
     "tools/codex/app_server_a1_1.py"
+    "tools/codex/app_server_a1_1_closure.py"
     "tools/codex/app_server_surface.py"
     "tools/codex/app_server_contracts.py"
     "tools/codex/app_server_fixtures.py"
@@ -230,8 +233,11 @@ set(
     "src/ai/openai/codex/detail/ClientOperationCodec.h"
     "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
     "src/ai/openai/codex/typed/Conversation.h"
+    "src/ai/openai/codex/typed/Events.h"
+    "tests/CodexBinaryPackageTest.cmake"
     "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
     "tests/component/codex/CodexA11AuditToolTest.py"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
@@ -241,8 +247,11 @@ set(
     "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp"
     "tests/component/codex/CodexConversationB4NestedCodecTest.cpp"
     "tests/component/codex/CodexA11OperationWireTest.cpp"
+    "tests/component/codex/CodexA11NotificationCodecTest.cpp"
+    "tests/component/codex/CodexA11NotificationBackendPreservationTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "docs/ai/openai/codex/a1-1-conversation-domain.md"
+    "docs/ai/openai/codex/a1-1-test-integrity.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
 )
 foreach(required_entry IN LISTS required_source_entries)
@@ -389,6 +398,36 @@ run_extracted_check(
     --check
 )
 run_extracted_check(
+    "A1.1 notification descriptor generation"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    notification-descriptors
+    --manifest
+    "${extracted_surface}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --output
+    "${extracted_root}/src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc"
+    --check
+)
+run_extracted_check(
+    "A1.1 notification production coverage"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_surface.py"
+    notification-production-coverage
+    --manifest
+    "${extracted_surface}"
+    --evidence-root
+    "${extracted_evidence_root}"
+    --fixture-index
+    "${extracted_fixture_root}/index.json"
+    --repo-root
+    "${extracted_root}"
+    --output
+    "${extracted_evidence_root}/a1-1-notification-production-coverage.json"
+    --check
+)
+run_extracted_check(
     "A1.1 shared conversation descriptor generation"
     "${CODEX_PYTHON_EXECUTABLE}"
     "${extracted_root}/tools/codex/app_server_surface.py"
@@ -469,6 +508,14 @@ run_extracted_check(
     "${extracted_fixture_root}"
     --evidence-root
     "${extracted_evidence_root}"
+)
+run_extracted_check(
+    "A1.1 final closure report"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_1_closure.py"
+    check
+    --repo-root
+    "${extracted_root}"
 )
 
 set(

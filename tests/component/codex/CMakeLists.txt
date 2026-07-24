@@ -160,6 +160,22 @@ set_tests_properties(
 )
 
 add_test(
+    NAME CodexA11ClosureEvidenceTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_1_closure.py
+        check
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+)
+set_tests_properties(
+    CodexA11ClosureEvidenceTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;closure;generated;documentation"
+        TIMEOUT 30
+)
+
+add_test(
     NAME CodexA11OperationProductionCoverageGuardTest
     COMMAND
         ${Python3_EXECUTABLE}

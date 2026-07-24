@@ -35,6 +35,7 @@ set(AI_OPENAI_CODEX_H
     detail/ConversationUnionCodecDescriptors.inc
     detail/ThreadItemCodecDescriptors.inc
     detail/ResponseItemCodecDescriptors.inc
+    detail/ServerNotificationCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h

@@ -76,6 +76,20 @@ python3 tools/codex/app_server_surface.py operation-production-coverage \
   --output "$EVIDENCE_ROOT/a1-1-operation-production-coverage.json" \
   --check
 
+python3 tools/codex/app_server_surface.py notification-descriptors \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --output src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc \
+  --check
+
+python3 tools/codex/app_server_surface.py notification-production-coverage \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --fixture-index "$FIXTURE_ROOT/index.json" \
+  --repo-root . \
+  --output "$EVIDENCE_ROOT/a1-1-notification-production-coverage.json" \
+  --check
+
 python3 tools/codex/app_server_surface.py conversation-descriptors \
   --manifest "$SURFACE" \
   --schema-root "$SCHEMA_ROOT" \
@@ -186,6 +200,8 @@ inputs:
 ```sh
 python3 tools/codex/app_server_a1_1.py generate
 python3 tools/codex/app_server_a1_1.py check
+python3 tools/codex/app_server_a1_1_closure.py generate
+python3 tools/codex/app_server_a1_1_closure.py check
 ```
 
 Commit 1 created
@@ -214,6 +230,17 @@ coverage regression fail with stable intrinsic diagnostic codes.
 duplicate, mismatched, unassigned, or cyclic evidence. Ordinary builds and CI
 use `check`; neither mode invokes Codex, accesses the network, or requires
 credentials.
+
+After B5, `app_server_a1_1_closure.py` projects the live canonical registry
+into `a1-1-closure-report.json`. Its exact identity-list ratchet requires all
+151 A1.1 rows to be stable, typed, implemented, mechanically Complete, and
+bound to a production target. It also checks the exact 167/8/164/48 global
+metrics, the cumulative B2/B3/B4/B5 identity sets, the eight residual Partial
+identities, operation/notification/item/union documentation lists, fixture
+and type-closure totals, Frontend Protocol v1 byte identity, and fingerprints
+of the frontend and two reference-application source boundaries. The report
+is closure evidence only; all production dispositions still come from
+`ProtocolSurfaceRegistry`.
 
 The implementation-plan denominator is exactly 151 registry identities:
 
@@ -363,7 +390,9 @@ Do not hand-edit these generated artifacts:
   Commit 1 freeze; never ordinary regeneration);
 - `app-server-evidence/0.144.6/a1-1-implementation-plan.json`;
 - `app-server-evidence/0.144.6/a1-1-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-1-closure-report.json`;
 - `app-server-evidence/0.144.6/a1-1-operation-production-coverage.json`;
+- `app-server-evidence/0.144.6/a1-1-notification-production-coverage.json`;
 - `app-server-fixtures/0.144.6/`;
 - `ClientOperationCodecDescriptors.inc`;
 - `ConversationUnionCodecDescriptors.inc`;

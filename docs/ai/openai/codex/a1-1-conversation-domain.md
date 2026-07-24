@@ -2,9 +2,10 @@
 
 ## Status and authority
 
-This document freezes the implementation plan for Phase A1.1. It is audit and
-planning evidence only. Commit 1 does not add broad A1.1 runtime coverage and
-does not promote any registry identity.
+This document records both the frozen Phase A1.1 implementation plan and the
+final closure of that plan. The immutable start-state sections remain Commit 1
+audit evidence; the final closure section is regenerated and checked against
+the live canonical registry after implementation batches B2-B5.
 
 The audited starting `origin/master` is
 `a226e3df5efd55b5dbef12cb1760674388909d7c`. This matches the expected prompt
@@ -546,6 +547,16 @@ conflicting-discriminator cases, 130 applicable malformed-known cases, and 55
 identity-specific future-open-enum occurrences. Every non-applicable case has
 an exact schema reason.
 
+At final closure the indexed corpus contains 3,714 records: 1,415 positive and
+2,299 negative. The independent surface-wide coverage report records 15,766
+rejected required-field removals, 15,701 rejected wrong-type mutations, 65
+explicitly unconstrained wrong-type exclusions, and 13,452 accepted
+optional-field omissions. The A1.1 operation production corpus contributes
+1,166 result records (403 positive and 763 negative), while the notification
+production corpus contributes 798 records (161 positive and 637 negative).
+These counts are projections of the one indexed fixture corpus, not duplicate
+fixture authorities.
+
 ## Dependency-closed implementation batches
 
 Commit 1 freezes four implementation batches for Commits 2 through 5:
@@ -582,7 +593,9 @@ Production method or discriminator dispatch begins with the exact canonical
 registry row. Client requests and server notifications use registry method
 targets. `ThreadItem` and `ResponseItem` use distinct target families.
 Nested-union codecs use private generated descriptors keyed by exact
-`ProtocolSurfaceKey`.
+`ProtocolSurfaceKey`. At final closure every one of the 151 exact rows has one
+implemented production target, and every generated descriptor is checked in
+both directions against that row.
 
 Public C++ types and semantic operation names remain handwritten. Generated
 descriptor data is private, deterministic, checked in, and never a production
@@ -710,14 +723,19 @@ Thus an item does not disappear merely because it is no longer
 
 Frontend Protocol v1, its schema, version and identity, command set, event
 set, and snapshot fields remain unchanged. `codex-backend-client` receives no
-functional change. `codex-backend` receives at most mechanical compile
-compatibility changes. Delete and shell operations are not exposed remotely
-and are exercised only with deterministic fake/socket transcripts in ordinary
-tests.
+functional change. `codex-backend` receives no production diff. The only
+production diff under `src/ai/openai/codex/frontend/` is the reviewed
+`BackendAdapter.cpp` mechanical construction/conversion update required by
+the completed `UserInput` and `SandboxPolicy` types; its command mapping and
+wire behavior are unchanged. Delete and shell operations are not exposed
+remotely and are exercised only with deterministic fake/socket transcripts in
+ordinary tests. Exact source-tree fingerprints guard all three application
+boundaries, in addition to the pre-existing byte-identity guard for Frontend
+Protocol v1 and its JSON schema.
 
-## Closure target
+## Final closure evidence
 
-At the end of implementation batch B5, the exact A1.1 ratchet must be:
+At the end of implementation batch B5, the exact A1.1 ratchet is:
 
 ```text
 A1.1 Complete:          151
@@ -725,9 +743,45 @@ A1.1 Partial:             0
 A1.1 NotImplemented:      0
 ```
 
-Commit 6 is verification, guard, documentation, installed-consumer, and
-package closure only. If it discovers a missing handler, public type, codec,
-or production target, that work belongs in the owning B2-B5 commit.
+The resulting global schema-status metrics are:
+
+| Schema status | Final count |
+|---|---:|
+| Complete | 167 |
+| Partial | 8 |
+| Not implemented | 164 |
+| Not applicable | 48 |
+
+The final generated report lists all 151 complete `ProtocolSurfaceKey`
+identities rather than accepting count equality. Its staged cumulative
+ratchets are B2 26, B3 76, B4 114, and B5 151, so a later batch cannot mask a
+regression in an earlier one. The exact eight residual Partial identities are
+also listed and remain outside A1.1.
+
+The 22 result roots remain implementation obligations, not registry
+identities. Their final split is seven Unit and fifteen Concrete, and all 22
+are bound to the exact request descriptor, complete result decoder, indexed
+fixture records, and raw-result retention path.
+
+The installed-consumer audit pins the exact 27 public Codex headers, exercises
+the completed typed and compatibility APIs, and retains the two-pointer
+`AppServerClient` and one-pointer `typed::Client` layouts. The source package
+retains all 3,715 fixture files, 13 evidence files, and seven offline tools.
+Three independently generated Codex component TGZ archives contain only the
+same public header inventory and the three SOVERSION-1 libraries; schemas,
+fixtures, evidence, generators, tests, documentation, private descriptors,
+and implementation sources are rejected from those binary packages.
+
+Unknown future methods, discriminators, and open-enum values remain
+`ForwardCompatibility`; malformed known payloads remain
+`MalformedKnownPayload` / `ProtocolWarning`. Both outcomes retain bounded raw
+input at the narrowest useful aggregate, and diagnostics contain the surface
+identity and field path without payload values.
+
+No A1.1 runtime implementation is deferred to Commit 6. Commit 6 contains
+verification, guard, documentation, installed-consumer, and package closure
+only. A missing handler, public type, codec, or production target would require
+amending its owning B2-B5 commit.
 
 A1.2-A1.4, A2, A3, Context UI, MQTT, REST, WebSocket, Qt, and other
 application integration are outside this milestone.

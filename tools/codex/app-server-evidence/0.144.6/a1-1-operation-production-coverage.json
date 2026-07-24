@@ -115,8 +115,8 @@
     },
     {
       "path": "tests/component/codex/CMakeLists.txt",
-      "bytes": 35589,
-      "sha256": "18961673a5047d1ebe3ac6dcc63266423374254dc9ac3c223bb3e6f54189bcec"
+      "bytes": 35990,
+      "sha256": "6f5a4fdff45cde4dc6bf7f940fb3da4904ce64964fcebbad1f357302843977e5"
     },
     {
       "path": "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",
@@ -145,8 +145,8 @@
     },
     {
       "path": "tests/installed/codex/CodexTypedConsumer.cpp",
-      "bytes": 4638,
-      "sha256": "6ceac04f8cf8580a14cb3866630fac283141621bac6a3b3a597e74d64f60f12a"
+      "bytes": 8292,
+      "sha256": "97f3eacdabde7db2ba035ba1ceed0cd649ac6413b6ca2bcd16d965313968d799"
     }
   ],
   "counts": {

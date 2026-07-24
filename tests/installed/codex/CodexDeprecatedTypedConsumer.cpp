@@ -42,5 +42,22 @@ int main() {
                              &constClient.events() == &constClient.typed().events() &&
                              &constClient.requests() == &constClient.typed().requests();
 
+    const typed::ThreadId threadId{"thread-compatibility"};
+    const typed::TurnId turnId{"turn-compatibility"};
+    const auto threadHandler = [](const typed::OperationResult<typed::Thread>&) {};
+    const auto pageHandler = [](const typed::OperationResult<typed::ThreadListResponse>&) {};
+    const auto turnHandler = [](const typed::OperationResult<typed::Turn>&) {};
+    const auto unitHandler = [](const typed::OperationResult<typed::Unit>&) {};
+    const auto rollbackHandler = [](const typed::OperationResult<typed::ThreadRollbackResponse>&) {};
+
+    (void) client.threads().start(typed::ThreadStartOptions{}, threadHandler);
+    (void) client.threads().resume(threadId, typed::ThreadResumeOptions{}, threadHandler);
+    (void) client.threads().list(typed::ThreadListOptions{}, pageHandler);
+    (void) client.threads().read(threadId, typed::ThreadReadOptions{}, threadHandler);
+    (void) client.turns().start(
+        threadId, {typed::TextInput{.text = "Compatibility input."}}, typed::TurnStartOptions{}, turnHandler);
+    (void) client.turns().interrupt(threadId, turnId, unitHandler);
+    (void) client.threads().rollback({.threadId = threadId, .numTurns = 1}, rollbackHandler);
+
     return sameObjects ? 0 : 1;
 }

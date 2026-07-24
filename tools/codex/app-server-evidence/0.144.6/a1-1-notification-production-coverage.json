@@ -57,8 +57,8 @@
     },
     {
       "path": "tests/component/codex/CMakeLists.txt",
-      "bytes": 35589,
-      "sha256": "18961673a5047d1ebe3ac6dcc63266423374254dc9ac3c223bb3e6f54189bcec"
+      "bytes": 35990,
+      "sha256": "6f5a4fdff45cde4dc6bf7f940fb3da4904ce64964fcebbad1f357302843977e5"
     }
   ],
   "counts": {
