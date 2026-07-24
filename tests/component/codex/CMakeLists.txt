@@ -582,6 +582,44 @@ set_tests_properties(
 )
 
 snodec_add_test(
+    CodexA12ConfigurationMutationCodecTest
+    CodexA12ConfigurationMutationCodecTest.cpp
+)
+target_link_libraries(
+    CodexA12ConfigurationMutationCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA12ConfigurationMutationCodecTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ConfigurationMutationCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;configuration;feature;codec;a1-2;b5"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA12ConfigurationMutationWireTest
+    CodexA12ConfigurationMutationWireTest.cpp
+)
+target_link_libraries(
+    CodexA12ConfigurationMutationWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(
+    CodexA12ConfigurationMutationWireTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ConfigurationMutationWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;configuration;feature;operation;wire;a1-2;b5"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
     CodexA12AuthRefreshWireTest
     CodexA12AuthRefreshWireTest.cpp
 )

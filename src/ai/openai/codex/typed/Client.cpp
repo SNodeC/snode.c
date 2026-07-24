@@ -334,6 +334,24 @@ namespace ai::openai::codex::typed {
         : protocol(&protocol) {
     }
 
+    Configuration::Submission Configuration::batchWrite(ConfigBatchWriteParams params, BatchWriteResultHandler handler) {
+        return submitTypedRequest<ConfigWriteResponse>(
+            protocol,
+            detail::ClientRequestTarget::ConfigBatchWrite,
+            params,
+            std::move(handler),
+            detail::encodeConfigBatchWriteParams);
+    }
+
+    Configuration::Submission Configuration::reloadMcpServers(Unit params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ConfigMcpServerReload,
+            params,
+            std::move(handler),
+            encodeUnitParams);
+    }
+
     Configuration::Submission Configuration::read(ConfigReadParams params, ReadResultHandler handler) {
         return submitTypedRequest<ConfigReadResponse>(
             protocol, detail::ClientRequestTarget::ConfigRead, params, std::move(handler), detail::encodeConfigReadParams);
@@ -342,6 +360,37 @@ namespace ai::openai::codex::typed {
     Configuration::Submission Configuration::readRequirements(Unit params, ReadRequirementsResultHandler handler) {
         return submitTypedRequest<ConfigRequirementsReadResponse>(
             protocol, detail::ClientRequestTarget::ConfigRequirementsRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Configuration::Submission Configuration::writeValue(ConfigValueWriteParams params, WriteValueResultHandler handler) {
+        return submitTypedRequest<ConfigWriteResponse>(
+            protocol,
+            detail::ClientRequestTarget::ConfigValueWrite,
+            params,
+            std::move(handler),
+            detail::encodeConfigValueWriteParams);
+    }
+
+    Configuration::Submission Configuration::setExperimentalFeatureEnablement(
+        ExperimentalFeatureEnablementSetParams params,
+        SetExperimentalFeatureEnablementResultHandler handler) {
+        return submitTypedRequest<ExperimentalFeatureEnablementSetResponse>(
+            protocol,
+            detail::ClientRequestTarget::ExperimentalFeatureEnablementSet,
+            params,
+            std::move(handler),
+            detail::encodeExperimentalFeatureEnablementSetParams);
+    }
+
+    Configuration::Submission Configuration::listExperimentalFeatures(
+        ExperimentalFeatureListParams params,
+        ListExperimentalFeaturesResultHandler handler) {
+        return submitTypedRequest<ExperimentalFeatureListResponse>(
+            protocol,
+            detail::ClientRequestTarget::ExperimentalFeatureList,
+            params,
+            std::move(handler),
+            detail::encodeExperimentalFeatureListParams);
     }
 
     Models::Models(AppServerClient::RawProtocol& protocol) noexcept

@@ -29,6 +29,9 @@ namespace ai::openai::codex::detail {
             "ConsumeAccountRateLimitResetCreditResponse",
             "ConfigReadResponse",
             "ConfigRequirementsReadResponse",
+            "ConfigWriteResponse",
+            "ExperimentalFeatureEnablementSetResponse",
+            "ExperimentalFeatureListResponse",
             "GetAccountRateLimitsResponse",
             "GetAccountResponse",
             "SendAddCreditsNudgeEmailResponse",
@@ -72,8 +75,13 @@ namespace ai::openai::codex::detail {
                    target == AccountSendAddCreditsNudgeEmail ||
                    target == AccountUsageRead ||
                    target == AccountWorkspaceMessagesRead ||
+                   target == ConfigBatchWrite ||
+                   target == ConfigMcpServerReload ||
                    target == ConfigRead ||
+                   target == ConfigValueWrite ||
                    target == ConfigRequirementsRead ||
+                   target == ExperimentalFeatureEnablementSet ||
+                   target == ExperimentalFeatureList ||
                    target == ModelList ||
                    target == ModelProviderCapabilitiesRead;
         }
@@ -195,6 +203,12 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeConfigReadResponse(raw, error), error);
                 case ConfigRequirementsReadResponse:
                     return decode(target, key, decodeConfigRequirementsReadResponse(raw, error), error);
+                case ConfigWriteResponse:
+                    return decode(target, key, decodeConfigWriteResponse(raw, error), error);
+                case ExperimentalFeatureEnablementSetResponse:
+                    return decode(target, key, decodeExperimentalFeatureEnablementSetResponse(raw, error), error);
+                case ExperimentalFeatureListResponse:
+                    return decode(target, key, decodeExperimentalFeatureListResponse(raw, error), error);
                 case GetAccountRateLimitsResponse:
                     return decode(target, key, decodeGetAccountRateLimitsResponse(raw, error), error);
                 case GetAccountResponse:

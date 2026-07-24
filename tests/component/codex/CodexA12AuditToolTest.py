@@ -549,7 +549,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             "StartStateDocumentMismatch",
         )
 
-    def test_live_plan_rows_are_the_exact_b4_progress_boundary(
+    def test_live_plan_rows_are_the_exact_final_b5_progress_boundary(
         self,
     ) -> None:
         identities = self.plan["identities"]
@@ -565,19 +565,47 @@ class CodexA12AuditToolTest(unittest.TestCase):
             expected_batch_keys()["B2"]
             | expected_batch_keys()["B3"]
             | expected_batch_keys()["B4"]
+            | expected_batch_keys()["B5"]
         )
-        self.assertEqual("B4", counts["current_progress_stage"])
+        self.assertEqual("B5", counts["current_progress_stage"])
         self.assertEqual(
-            {"Complete": 40, "NotImplemented": 5},
-            counts["current_a1_2_schema_status"],
+            {
+                "Complete": 45,
+                "Partial": 0,
+                "NotImplemented": 0,
+            },
+            {
+                status: counts["current_a1_2_schema_status"].get(
+                    status, 0
+                )
+                for status in (
+                    "Complete",
+                    "Partial",
+                    "NotImplemented",
+                )
+            },
         )
         self.assertEqual(
-            {"Implemented": 40, "NotImplemented": 5},
-            counts["current_a1_2_implementation_status"],
+            {"Implemented": 45, "NotImplemented": 0},
+            {
+                status: counts[
+                    "current_a1_2_implementation_status"
+                ].get(status, 0)
+                for status in ("Implemented", "NotImplemented")
+            },
         )
         self.assertEqual(
             {"NotImplemented": 43, "Partial": 2},
             counts["initial_a1_2_schema_status"],
+        )
+        self.assertEqual(
+            {
+                "Complete": 212,
+                "Partial": 6,
+                "NotImplemented": 121,
+                "NotApplicable": 48,
+            },
+            counts["derived_final_global_schema_status"],
         )
         self.assertEqual(
             complete_keys,
@@ -593,6 +621,14 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 key
                 for key, row in rows.items()
                 if row["current_schema_status"] == "Partial"
+            },
+        )
+        self.assertEqual(
+            set(),
+            {
+                key
+                for key, row in rows.items()
+                if row["current_schema_status"] == "NotImplemented"
             },
         )
         self.assertEqual(
@@ -1289,32 +1325,33 @@ class CodexA12AuditToolTest(unittest.TestCase):
             )
             row["current_schema_status"] = "Partial"
 
-        def coherent_live_progress_status_swap(
+        def coherent_live_progress_wrong_identity_boundary(
             plan: dict[str, object], _: dict[str, object]
         ) -> None:
             identities = plan["identities"]
             counts = plan["counts"]
             assert isinstance(identities, list)
             assert isinstance(counts, dict)
-            completed = next(
+            wrong_boundary_rows = [
                 row
                 for row in identities
                 if isinstance(row, dict)
                 and row.get("current_schema_status") == "Complete"
-            )
-            unimplemented = next(
-                row
-                for row in identities
-                if isinstance(row, dict)
-                and row.get("current_schema_status")
-                == "NotImplemented"
-            )
-            completed["current_schema_status"], unimplemented[
-                "current_schema_status"
-            ] = (
-                unimplemented["current_schema_status"],
-                completed["current_schema_status"],
-            )
+                and row.get("owning_implementation_batch") == "B2"
+            ][:5]
+            self.assertEqual(5, len(wrong_boundary_rows))
+            for row in wrong_boundary_rows:
+                row["current_schema_status"] = "NotImplemented"
+                row["current_implementation_status"] = "NotImplemented"
+            counts["current_progress_stage"] = "B4"
+            counts["current_a1_2_schema_status"] = {
+                "Complete": 40,
+                "NotImplemented": 5,
+            }
+            counts["current_a1_2_implementation_status"] = {
+                "Implemented": 40,
+                "NotImplemented": 5,
+            }
             counts["identity_live_progress_mapping_sha256"] = (
                 self.tool.sha256_json(
                     self.tool.identity_start_projection(identities)
@@ -1803,8 +1840,8 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 ),
             ),
             (
-                "coherent live progress status swap",
-                coherent_live_progress_status_swap,
+                "coherent wrong-identity B4 progress boundary",
+                coherent_live_progress_wrong_identity_boundary,
                 ("ProgressIdentityMismatch",),
             ),
             (

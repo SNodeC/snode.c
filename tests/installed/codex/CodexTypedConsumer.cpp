@@ -20,6 +20,7 @@
 #include <ai/openai/codex/typed/Turns.h>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -260,6 +261,85 @@ int main() {
                     }),
             .raw = {{"requirements", ai::openai::codex::Json::object()}},
         };
+    [[maybe_unused]] typed::MergeStrategy futureMergeStrategy{"futureMerge"};
+    [[maybe_unused]] typed::WriteStatus futureWriteStatus{"futureWrite"};
+    [[maybe_unused]] typed::ExperimentalFeatureStage futureFeatureStage{
+        "futureStage"};
+    typed::ConfigBatchWriteParams installedBatchWriteParams{
+        .edits =
+            {typed::ConfigEdit{
+                .keyPath = typed::ConfigKeyPath{"features.installed"},
+                .mergeStrategy = typed::MergeStrategy::upsert(),
+                .value = std::optional<ai::openai::codex::Json>{
+                    ai::openai::codex::Json{
+                        {"array",
+                         ai::openai::codex::Json::array(
+                             {true, nullptr, "exact"})},
+                        {"nested", {{"installed", true}}},
+                    }},
+            }},
+        .expectedVersion =
+            typed::OptionalNullable<std::string>::explicitNull(),
+        .filePath =
+            typed::OptionalNullable<typed::AbsolutePathBuf>::withValue(
+                typed::AbsolutePathBuf{"/synthetic/config.toml"}),
+        .reloadUserConfig = false,
+    };
+    typed::ConfigValueWriteParams installedValueWriteParams{
+        .expectedVersion =
+            typed::OptionalNullable<std::string>::withValue("installed-v1"),
+        .filePath =
+            typed::OptionalNullable<typed::AbsolutePathBuf>::explicitNull(),
+        .keyPath = typed::ConfigKeyPath{"features.installed.value"},
+        .mergeStrategy = typed::MergeStrategy::replace(),
+        .value = std::optional<ai::openai::codex::Json>{
+            ai::openai::codex::Json::array(
+                {1, nullptr, ai::openai::codex::Json{{"exact", true}}})},
+    };
+    [[maybe_unused]] typed::ConfigWriteResponse installedWriteResponse{
+        .filePath = typed::AbsolutePathBuf{"/synthetic/config.toml"},
+        .overriddenMetadata =
+            typed::OptionalNullable<typed::OverriddenMetadata>::explicitNull(),
+        .status = typed::WriteStatus::ok(),
+        .version = "installed-v2",
+        .raw = {{"filePath", "/synthetic/config.toml"},
+                {"overriddenMetadata", nullptr},
+                {"status", "ok"},
+                {"version", "installed-v2"}},
+    };
+    typed::ExperimentalFeatureEnablementSetParams
+        installedFeatureEnablementParams{
+            .enablement =
+                {{typed::ExperimentalFeatureId{"installed-feature"}, true}},
+        };
+    typed::ExperimentalFeatureListParams installedFeatureListParams{
+        .cursor = typed::OptionalNullable<std::string>::explicitNull(),
+        .limit = typed::OptionalNullable<std::uint32_t>::withValue(25),
+        .threadId = typed::OptionalNullable<typed::ThreadId>::withValue(
+            typed::ThreadId{"thread-installed"}),
+    };
+    [[maybe_unused]] typed::ExperimentalFeatureListResponse
+        installedFeatureListResponse{
+            .data =
+                {typed::ExperimentalFeature{
+                    .announcement =
+                        typed::OptionalNullable<std::string>::explicitNull(),
+                    .defaultEnabled = false,
+                    .description =
+                        typed::OptionalNullable<std::string>::withValue(
+                            "Installed feature"),
+                    .displayName =
+                        typed::OptionalNullable<std::string>::omitted(),
+                    .enabled = true,
+                    .name =
+                        typed::ExperimentalFeatureId{"installed-feature"},
+                    .stage = futureFeatureStage,
+                }},
+            .nextCursor =
+                typed::OptionalNullable<std::string>::explicitNull(),
+            .raw = {{"data", ai::openai::codex::Json::array()},
+                    {"nextCursor", nullptr}},
+        };
     typed::TurnStartParams installedStartParams;
     installedStartParams.threadId = installedThread.id;
     installedStartParams.clientUserMessageId = typed::ClientUserMessageId{"client-message"};
@@ -365,8 +445,34 @@ int main() {
             {},
             [](const typed::OperationResult<
                 typed::ConfigRequirementsReadResponse>&) {});
+    const auto configBatchWriteSubmission =
+        client.typed().configuration().batchWrite(
+            std::move(installedBatchWriteParams),
+            [](const typed::OperationResult<typed::ConfigWriteResponse>&) {});
+    const auto configReloadSubmission =
+        client.typed().configuration().reloadMcpServers(
+            {}, [](const typed::OperationResult<typed::Unit>&) {});
+    const auto configValueWriteSubmission =
+        client.typed().configuration().writeValue(
+            std::move(installedValueWriteParams),
+            [](const typed::OperationResult<typed::ConfigWriteResponse>&) {});
+    const auto featureEnablementSubmission =
+        client.typed().configuration().setExperimentalFeatureEnablement(
+            std::move(installedFeatureEnablementParams),
+            [](const typed::OperationResult<
+                typed::ExperimentalFeatureEnablementSetResponse>&) {});
+    const auto featureListSubmission =
+        client.typed().configuration().listExperimentalFeatures(
+            std::move(installedFeatureListParams),
+            [](const typed::OperationResult<
+                typed::ExperimentalFeatureListResponse>&) {});
     (void) configReadSubmission;
     (void) configRequirementsSubmission;
+    (void) configBatchWriteSubmission;
+    (void) configReloadSubmission;
+    (void) configValueWriteSubmission;
+    (void) featureEnablementSubmission;
+    (void) featureListSubmission;
 
     typed::ThreadStartParams launchParams;
     launchParams.cwd = typed::OptionalNullable<std::string>::withValue("/tmp");

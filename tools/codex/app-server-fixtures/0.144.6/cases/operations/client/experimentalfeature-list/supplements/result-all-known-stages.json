@@ -1,0 +1,50 @@
+{
+  "data": [
+    {
+      "announcement": "synthetic announcement beta",
+      "defaultEnabled": false,
+      "description": "synthetic description beta",
+      "displayName": "Synthetic beta",
+      "enabled": true,
+      "name": "synthetic-feature-0",
+      "stage": "beta"
+    },
+    {
+      "announcement": "synthetic announcement underDevelopment",
+      "defaultEnabled": false,
+      "description": "synthetic description underDevelopment",
+      "displayName": "Synthetic underDevelopment",
+      "enabled": false,
+      "name": "synthetic-feature-1",
+      "stage": "underDevelopment"
+    },
+    {
+      "announcement": "synthetic announcement stable",
+      "defaultEnabled": false,
+      "description": "synthetic description stable",
+      "displayName": "Synthetic stable",
+      "enabled": true,
+      "name": "synthetic-feature-2",
+      "stage": "stable"
+    },
+    {
+      "announcement": "synthetic announcement deprecated",
+      "defaultEnabled": false,
+      "description": "synthetic description deprecated",
+      "displayName": "Synthetic deprecated",
+      "enabled": false,
+      "name": "synthetic-feature-3",
+      "stage": "deprecated"
+    },
+    {
+      "announcement": "synthetic announcement removed",
+      "defaultEnabled": false,
+      "description": "synthetic description removed",
+      "displayName": "Synthetic removed",
+      "enabled": true,
+      "name": "synthetic-feature-4",
+      "stage": "removed"
+    }
+  ],
+  "nextCursor": null
+}

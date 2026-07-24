@@ -130,6 +130,39 @@ namespace ai::openai::codex::typed {
         auto operator<=>(const WindowsSandboxSetupMode&) const = default;
     };
 
+    struct MergeStrategy {
+        std::string value;
+
+        static MergeStrategy replace();
+        static MergeStrategy upsert();
+        [[nodiscard]] bool isKnown() const noexcept;
+
+        auto operator<=>(const MergeStrategy&) const = default;
+    };
+
+    struct WriteStatus {
+        std::string value;
+
+        static WriteStatus ok();
+        static WriteStatus okOverridden();
+        [[nodiscard]] bool isKnown() const noexcept;
+
+        auto operator<=>(const WriteStatus&) const = default;
+    };
+
+    struct ExperimentalFeatureStage {
+        std::string value;
+
+        static ExperimentalFeatureStage beta();
+        static ExperimentalFeatureStage underDevelopment();
+        static ExperimentalFeatureStage stable();
+        static ExperimentalFeatureStage deprecated();
+        static ExperimentalFeatureStage removed();
+        [[nodiscard]] bool isKnown() const noexcept;
+
+        auto operator<=>(const ExperimentalFeatureStage&) const = default;
+    };
+
     struct AnalyticsConfig {
         OptionalNullable<bool> enabled;
         // The pinned schema explicitly permits arbitrary additional analytics
@@ -296,6 +329,60 @@ namespace ai::openai::codex::typed {
         bool operator==(const ConfigLayerMetadata&) const = default;
     };
 
+    struct ConfigEdit {
+        ConfigKeyPath keyPath;
+        MergeStrategy mergeStrategy;
+        // The pinned schema deliberately accepts any JSON value, including
+        // null. A disengaged optional represents that required null value.
+        std::optional<Json> value;
+
+        bool operator==(const ConfigEdit&) const = default;
+    };
+
+    struct ConfigBatchWriteParams {
+        std::vector<ConfigEdit> edits;
+        OptionalNullable<std::string> expectedVersion;
+        OptionalNullable<AbsolutePathBuf> filePath;
+        std::optional<bool> reloadUserConfig;
+
+        bool operator==(const ConfigBatchWriteParams&) const = default;
+    };
+
+    struct ConfigValueWriteParams {
+        OptionalNullable<std::string> expectedVersion;
+        OptionalNullable<AbsolutePathBuf> filePath;
+        ConfigKeyPath keyPath;
+        MergeStrategy mergeStrategy;
+        // The pinned schema deliberately accepts any JSON value, including
+        // null. A disengaged optional represents that required null value.
+        std::optional<Json> value;
+
+        bool operator==(const ConfigValueWriteParams&) const = default;
+    };
+
+    struct OverriddenMetadata {
+        // This incoming property is required but schema-authorized arbitrary
+        // JSON. A disengaged optional represents an explicit JSON null.
+        std::optional<Json> effectiveValue;
+        std::string message;
+        ConfigLayerMetadata overridingLayer;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const OverriddenMetadata&) const = default;
+    };
+
+    struct ConfigWriteResponse {
+        AbsolutePathBuf filePath;
+        OptionalNullable<OverriddenMetadata> overriddenMetadata;
+        WriteStatus status;
+        std::string version;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const ConfigWriteResponse&) const = default;
+    };
+
     struct Config {
         OptionalNullable<AnalyticsConfig> analytics;
         OptionalNullable<AskForApproval> approvalPolicy;
@@ -400,6 +487,51 @@ namespace ai::openai::codex::typed {
         bool operator==(const ConfigRequirementsReadResponse&) const = default;
     };
 
+    struct ExperimentalFeatureEnablementSetParams {
+        std::map<ExperimentalFeatureId, bool> enablement;
+
+        bool operator==(const ExperimentalFeatureEnablementSetParams&) const = default;
+    };
+
+    struct ExperimentalFeatureEnablementSetResponse {
+        std::map<ExperimentalFeatureId, bool> enablement;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const ExperimentalFeatureEnablementSetResponse&) const = default;
+    };
+
+    struct ExperimentalFeatureListParams {
+        OptionalNullable<std::string> cursor;
+        OptionalNullable<std::uint32_t> limit;
+        OptionalNullable<ThreadId> threadId;
+
+        bool operator==(const ExperimentalFeatureListParams&) const = default;
+    };
+
+    struct ExperimentalFeature {
+        OptionalNullable<std::string> announcement;
+        bool defaultEnabled = false;
+        OptionalNullable<std::string> description;
+        OptionalNullable<std::string> displayName;
+        bool enabled = false;
+        ExperimentalFeatureId name;
+        ExperimentalFeatureStage stage;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const ExperimentalFeature&) const = default;
+    };
+
+    struct ExperimentalFeatureListResponse {
+        std::vector<ExperimentalFeature> data;
+        OptionalNullable<std::string> nextCursor;
+        Json raw = Json::object();
+        std::vector<DecodeDiagnostic> diagnostics;
+
+        bool operator==(const ExperimentalFeatureListResponse&) const = default;
+    };
+
     struct TextPosition {
         std::uint64_t column = 0;
         std::uint64_t line = 0;
@@ -433,11 +565,23 @@ namespace ai::openai::codex::typed {
     class Configuration {
     public:
         using Submission = AppServerClient::RawProtocol::Submission;
+        using BatchWriteResultHandler = std::function<void(const OperationResult<ConfigWriteResponse>&)>;
+        using UnitResultHandler = std::function<void(const OperationResult<Unit>&)>;
         using ReadResultHandler = std::function<void(const OperationResult<ConfigReadResponse>&)>;
         using ReadRequirementsResultHandler = std::function<void(const OperationResult<ConfigRequirementsReadResponse>&)>;
+        using WriteValueResultHandler = std::function<void(const OperationResult<ConfigWriteResponse>&)>;
+        using SetExperimentalFeatureEnablementResultHandler =
+            std::function<void(const OperationResult<ExperimentalFeatureEnablementSetResponse>&)>;
+        using ListExperimentalFeaturesResultHandler = std::function<void(const OperationResult<ExperimentalFeatureListResponse>&)>;
 
+        Submission batchWrite(ConfigBatchWriteParams params, BatchWriteResultHandler handler);
+        Submission reloadMcpServers(Unit params, UnitResultHandler handler);
         Submission read(ConfigReadParams params, ReadResultHandler handler);
         Submission readRequirements(Unit params, ReadRequirementsResultHandler handler);
+        Submission writeValue(ConfigValueWriteParams params, WriteValueResultHandler handler);
+        Submission setExperimentalFeatureEnablement(ExperimentalFeatureEnablementSetParams params,
+                                                    SetExperimentalFeatureEnablementResultHandler handler);
+        Submission listExperimentalFeatures(ExperimentalFeatureListParams params, ListExperimentalFeaturesResultHandler handler);
 
     private:
         friend class ::ai::openai::codex::AppServerClient;

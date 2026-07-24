@@ -1575,14 +1575,44 @@ RUNTIME_TARGETS = {
         "client_request",
         "ClientRequest",
         "method",
+        "config/batchWrite",
+    ): "ClientRequestTarget::ConfigBatchWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "config/mcpServer/reload",
+    ): "ClientRequestTarget::ConfigMcpServerReload",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
         "config/read",
     ): "ClientRequestTarget::ConfigRead",
     (
         "client_request",
         "ClientRequest",
         "method",
+        "config/value/write",
+    ): "ClientRequestTarget::ConfigValueWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
         "configRequirements/read",
     ): "ClientRequestTarget::ConfigRequirementsRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "experimentalFeature/enablement/set",
+    ): "ClientRequestTarget::ExperimentalFeatureEnablementSet",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "experimentalFeature/list",
+    ): "ClientRequestTarget::ExperimentalFeatureList",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -5404,8 +5434,13 @@ def registry_statuses(
                 identity[0] == "client_request"
                 and identity[3]
                 in {
+                    "config/batchWrite",
+                    "config/mcpServer/reload",
                     "config/read",
+                    "config/value/write",
                     "configRequirements/read",
+                    "experimentalFeature/enablement/set",
+                    "experimentalFeature/list",
                 }
             )
             or (
@@ -5414,10 +5449,11 @@ def registry_statuses(
             )
         )
     ):
-        # A1.2 B2/B3/B4 exact-key descriptors and independently validated
+        # A1.2 B2/B3/B4/B5 exact-key descriptors and independently validated
         # fixture projections bind both wire directions to the one canonical
         # registry target. B4's protocol-defined opaque positions are declared
-        # explicitly in the checked type closure.
+        # explicitly in the checked type closure; B5 retains arbitrary JSON
+        # only at its three schema-authorized value positions.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -5979,8 +6015,13 @@ def generate_client_operation_descriptor_data(
                     "account/workspaceMessages/read",
                     "model/list",
                     "modelProvider/capabilities/read",
+                    "config/batchWrite",
+                    "config/mcpServer/reload",
                     "config/read",
+                    "config/value/write",
                     "configRequirements/read",
+                    "experimentalFeature/enablement/set",
+                    "experimentalFeature/list",
                 }
             )
         )
@@ -5995,9 +6036,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 35
+        len(expected_keys) != 40
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 35
+        or len(set(targets.values())) != 40
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6006,7 +6047,7 @@ def generate_client_operation_descriptor_data(
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
             "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
-            "A1.2 B4 client requests must "
+            "A1.2 B4, and 5 A1.2 B5 client requests must "
             "each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -6029,10 +6070,11 @@ def generate_client_operation_descriptor_data(
         "thread/shellCommand",
         "turn/interrupt",
         "account/logout",
+        "config/mcpServer/reload",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 27
+        or len(expected_keys - unit_keys) != 31
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6040,8 +6082,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2+B3+B4 requests must remain exactly 8 Unit "
-            "and 27 Concrete requests"
+            "typed A1.1+A1.2 B2+B3+B4+B5 requests must remain exactly 9 Unit "
+            "and 31 Concrete requests"
         )
 
     result_decoders = {
@@ -6050,6 +6092,9 @@ def generate_client_operation_descriptor_data(
         "ConsumeAccountRateLimitResetCreditResponse",
         "ConfigReadResponse",
         "ConfigRequirementsReadResponse",
+        "ConfigWriteResponse",
+        "ExperimentalFeatureEnablementSetResponse",
+        "ExperimentalFeatureListResponse",
         "GetAccountRateLimitsResponse",
         "GetAccountResponse",
         "GetAccountTokenUsageResponse",

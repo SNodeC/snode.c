@@ -105,4 +105,52 @@ namespace ai::openai::codex::typed {
         return value == "elevated" || value == "unelevated";
     }
 
+    MergeStrategy MergeStrategy::replace() {
+        return {"replace"};
+    }
+
+    MergeStrategy MergeStrategy::upsert() {
+        return {"upsert"};
+    }
+
+    bool MergeStrategy::isKnown() const noexcept {
+        return value == "replace" || value == "upsert";
+    }
+
+    WriteStatus WriteStatus::ok() {
+        return {"ok"};
+    }
+
+    WriteStatus WriteStatus::okOverridden() {
+        return {"okOverridden"};
+    }
+
+    bool WriteStatus::isKnown() const noexcept {
+        return value == "ok" || value == "okOverridden";
+    }
+
+    ExperimentalFeatureStage ExperimentalFeatureStage::beta() {
+        return {"beta"};
+    }
+
+    ExperimentalFeatureStage ExperimentalFeatureStage::underDevelopment() {
+        return {"underDevelopment"};
+    }
+
+    ExperimentalFeatureStage ExperimentalFeatureStage::stable() {
+        return {"stable"};
+    }
+
+    ExperimentalFeatureStage ExperimentalFeatureStage::deprecated() {
+        return {"deprecated"};
+    }
+
+    ExperimentalFeatureStage ExperimentalFeatureStage::removed() {
+        return {"removed"};
+    }
+
+    bool ExperimentalFeatureStage::isKnown() const noexcept {
+        return value == "beta" || value == "underDevelopment" || value == "stable" || value == "deprecated" || value == "removed";
+    }
+
 } // namespace ai::openai::codex::typed

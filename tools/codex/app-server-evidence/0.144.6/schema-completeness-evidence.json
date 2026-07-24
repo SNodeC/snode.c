@@ -6,13 +6,13 @@
       "authoritative_root_association": 270,
       "fixture_current": 270,
       "independently_schema_validated": 270,
-      "nullable_semantics_exercised": 207,
+      "nullable_semantics_exercised": 212,
       "optional_omitted_exercised": 270,
       "optional_present_exercised": 270,
       "positive_fixture_coverage": 270,
-      "reachable_union_alternatives_exercised": 207,
+      "reachable_union_alternatives_exercised": 212,
       "required_fields_exercised": 270,
-      "schema_properties_exercised": 207
+      "schema_properties_exercised": 212
     },
     "identities_with_positive_fixtures": 270,
     "surface_identities": 387
@@ -504,9 +504,27 @@
     {
       "fixture_ids": [
         "operation:client_request:config/batchWrite:params",
-        "operation:client_request:config/batchWrite:result"
+        "operation:client_request:config/batchWrite:params:explicit-empty-edits",
+        "operation:client_request:config/batchWrite:params:nullable-null:expectedversion",
+        "operation:client_request:config/batchWrite:params:nullable-null:filepath",
+        "operation:client_request:config/batchWrite:params:opaque-json-all-kinds",
+        "operation:client_request:config/batchWrite:params:optional-omitted:expectedversion",
+        "operation:client_request:config/batchWrite:params:optional-omitted:filepath",
+        "operation:client_request:config/batchWrite:params:optional-omitted:reloaduserconfig",
+        "operation:client_request:config/batchWrite:params:required-nullable-null:edits-0-value",
+        "operation:client_request:config/batchWrite:result",
+        "operation:client_request:config/batchWrite:result:nullable-null:overriddenmetadata",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-array",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-boolean",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-integer",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-null",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-number",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-object",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-string",
+        "operation:client_request:config/batchWrite:result:optional-omitted:overriddenmetadata",
+        "operation:client_request:config/batchWrite:result:required-nullable-null:overriddenmetadata-effectivevalue"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 20,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -517,13 +535,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -542,13 +560,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -662,9 +680,31 @@
     {
       "fixture_ids": [
         "operation:client_request:config/value/write:params",
-        "operation:client_request:config/value/write:result"
+        "operation:client_request:config/value/write:params:nullable-null:expectedversion",
+        "operation:client_request:config/value/write:params:nullable-null:filepath",
+        "operation:client_request:config/value/write:params:opaque-json-array",
+        "operation:client_request:config/value/write:params:opaque-json-boolean",
+        "operation:client_request:config/value/write:params:opaque-json-integer",
+        "operation:client_request:config/value/write:params:opaque-json-null",
+        "operation:client_request:config/value/write:params:opaque-json-number",
+        "operation:client_request:config/value/write:params:opaque-json-object",
+        "operation:client_request:config/value/write:params:opaque-json-string",
+        "operation:client_request:config/value/write:params:optional-omitted:expectedversion",
+        "operation:client_request:config/value/write:params:optional-omitted:filepath",
+        "operation:client_request:config/value/write:params:required-nullable-null:value",
+        "operation:client_request:config/value/write:result",
+        "operation:client_request:config/value/write:result:nullable-null:overriddenmetadata",
+        "operation:client_request:config/value/write:result:opaque-effective-value-array",
+        "operation:client_request:config/value/write:result:opaque-effective-value-boolean",
+        "operation:client_request:config/value/write:result:opaque-effective-value-integer",
+        "operation:client_request:config/value/write:result:opaque-effective-value-null",
+        "operation:client_request:config/value/write:result:opaque-effective-value-number",
+        "operation:client_request:config/value/write:result:opaque-effective-value-object",
+        "operation:client_request:config/value/write:result:opaque-effective-value-string",
+        "operation:client_request:config/value/write:result:optional-omitted:overriddenmetadata",
+        "operation:client_request:config/value/write:result:required-nullable-null:overriddenmetadata-effectivevalue"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 24,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -675,13 +715,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -796,9 +836,11 @@
     {
       "fixture_ids": [
         "operation:client_request:experimentalFeature/enablement/set:params",
-        "operation:client_request:experimentalFeature/enablement/set:result"
+        "operation:client_request:experimentalFeature/enablement/set:params:explicit-empty-enablement",
+        "operation:client_request:experimentalFeature/enablement/set:result",
+        "operation:client_request:experimentalFeature/enablement/set:result:explicit-empty-enablement"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -809,21 +851,40 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:experimentalFeature/list:params",
-        "operation:client_request:experimentalFeature/list:result"
+        "operation:client_request:experimentalFeature/list:params:nullable-null:cursor",
+        "operation:client_request:experimentalFeature/list:params:nullable-null:limit",
+        "operation:client_request:experimentalFeature/list:params:nullable-null:threadid",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:cursor",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:limit",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:threadid",
+        "operation:client_request:experimentalFeature/list:params:uint32-maximum",
+        "operation:client_request:experimentalFeature/list:params:uint32-overflow",
+        "operation:client_request:experimentalFeature/list:params:uint32-zero",
+        "operation:client_request:experimentalFeature/list:result",
+        "operation:client_request:experimentalFeature/list:result:all-known-stages",
+        "operation:client_request:experimentalFeature/list:result:explicit-empty-data",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-announcement",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-description",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-displayname",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:nextcursor",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-announcement",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-description",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-displayname",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:nextcursor"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 21,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -834,13 +895,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {

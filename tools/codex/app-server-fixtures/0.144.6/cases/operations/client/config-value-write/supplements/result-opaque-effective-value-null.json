@@ -1,0 +1,15 @@
+{
+  "filePath": "/synthetic/config.toml",
+  "overriddenMetadata": {
+    "effectiveValue": null,
+    "message": "synthetic override message",
+    "overridingLayer": {
+      "name": {
+        "type": "sessionFlags"
+      },
+      "version": "synthetic-layer-version"
+    }
+  },
+  "status": "okOverridden",
+  "version": "synthetic-version"
+}

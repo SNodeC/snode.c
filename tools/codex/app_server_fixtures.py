@@ -685,6 +685,30 @@ A12_B4_FORCED_WORKSPACE_HELPER_FIXTURE_IDS = frozenset(
         "helper-union:ForcedChatgptWorkspaceIds:empty-array",
     }
 )
+
+# Phase A1.2 Commit B5 owns the stable configuration mutation and feature
+# management operations. These are client-request identities only; their five
+# successful-result roots are implementation obligations, not registry rows.
+A12_B5_CONFIGURATION_MUTATION_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "config/batchWrite",
+        "config/mcpServer/reload",
+        "config/value/write",
+        "experimentalFeature/enablement/set",
+        "experimentalFeature/list",
+    }
+)
+A12_B5_OPEN_STRING_ENUMS = {
+    "ExperimentalFeatureStage": (
+        "beta",
+        "underDevelopment",
+        "stable",
+        "deprecated",
+        "removed",
+    ),
+    "MergeStrategy": ("replace", "upsert"),
+    "WriteStatus": ("ok", "okOverridden"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1299,6 +1323,36 @@ def derive_a12_b4_configuration_read_keys(
     return operations, notifications, unions
 
 
+def derive_a12_b5_configuration_mutation_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[SurfaceKey, ...]:
+    operations = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.2"
+            and key.category == CLIENT_REQUEST
+            and key.name
+            in A12_B5_CONFIGURATION_MUTATION_CLIENT_REQUEST_METHODS
+        )
+    )
+    if (
+        len(operations) != 5
+        or {key.name for key in operations}
+        != A12_B5_CONFIGURATION_MUTATION_CLIENT_REQUEST_METHODS
+        or any(
+            key.domain != "ClientRequest"
+            or key.discriminator_field != "method"
+            for key in operations
+        )
+    ):
+        raise FixtureError(
+            "A1.2 B5 configuration-mutation assignment mismatch: "
+            f"operations={len(operations)}"
+        )
+    return operations
+
+
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """Replace generated account/auth values with low-risk reviewed samples.
 
@@ -1344,6 +1398,7 @@ def normalize_a12_b4_configuration_sample(value: Any) -> None:
         "cwd": "/synthetic/workspace",
         "dotCodexFolder": "/synthetic/project/.codex",
         "file": "/synthetic/config.toml",
+        "filePath": "/synthetic/config.toml",
         "path": "/synthetic/config.toml",
     }
 
@@ -1359,6 +1414,19 @@ def normalize_a12_b4_configuration_sample(value: Any) -> None:
                 visit(nested)
 
     visit(value)
+
+
+def require_reviewed_unit_result_schema(
+    *,
+    method: str,
+    actual: Mapping[str, Any],
+    expected: Mapping[str, Any],
+) -> None:
+    if dict(actual) != dict(expected):
+        raise FixtureError(
+            f"{method} Unit result no longer resolves to the reviewed "
+            "empty-object schema"
+        )
 
 
 def normalize_b5_notification_sample(
@@ -3672,6 +3740,11 @@ class CorpusBuilder:
         self.a12_b4_operation_root_coverage: dict[str, Any] = {}
         self.a12_b4_notification_root_coverage: dict[str, Any] = {}
         self.a12_b4_positive_coverage: dict[str, Any] = {}
+        self.a12_b5_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b5_negative_coverage: dict[str, Any] = {}
+        self.a12_b5_indexed_coverage: dict[str, Any] = {}
+        self.a12_b5_operation_root_coverage: dict[str, Any] = {}
+        self.a12_b5_positive_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -3847,12 +3920,16 @@ class CorpusBuilder:
             self.a12_b4_notification_keys,
             self.a12_b4_union_keys,
         ) = derive_a12_b4_configuration_read_keys(self.assignments)
+        self.a12_b5_operation_keys = (
+            derive_a12_b5_configuration_mutation_keys(self.assignments)
+        )
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
         self._build_a12_b2_operation_supplements()
         self._build_a12_b3_operation_supplements()
         self._build_a12_b4_operation_supplements()
+        self._build_a12_b5_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_a12_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
@@ -3862,6 +3939,7 @@ class CorpusBuilder:
         self._build_a12_b3_empty_array_fixtures()
         self._build_a12_b4_notification_fixtures()
         self._build_a12_b4_positive_supplements()
+        self._build_a12_b5_positive_supplements()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
@@ -3870,6 +3948,7 @@ class CorpusBuilder:
         self._build_a12_b2_open_enum_fixtures()
         self._build_a12_b3_open_enum_fixtures()
         self._build_a12_b4_open_enum_fixtures()
+        self._build_a12_b5_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -3955,6 +4034,9 @@ class CorpusBuilder:
             positive_records, positive_fixture_ids
         )
         self._apply_a12_b4_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a12_b5_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -4150,6 +4232,19 @@ class CorpusBuilder:
                 "positive_coverage": self.a12_b4_positive_coverage,
                 "negative_coverage": self.a12_b4_negative_coverage,
             },
+            "a1_2_configuration_mutation_features": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b5_operation_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b5_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b5_operation_root_coverage
+                ),
+                "positive_coverage": self.a12_b5_positive_coverage,
+                "negative_coverage": self.a12_b5_negative_coverage,
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -4266,6 +4361,14 @@ class CorpusBuilder:
                 if is_a12_b4
                 else {}
             )
+            is_a12_b5 = key in self.a12_b5_operation_keys
+            a12_b5_schema_facts = (
+                self.a12_b5_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a12_b5
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -4287,6 +4390,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a12_b4
+                else self.a12_b5_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a12_b5
                 else {}
             )
             coverage_records.append(
@@ -4357,6 +4464,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b5_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -4409,6 +4521,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b5_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -4453,6 +4570,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a12_b4_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a12_b5_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -4602,6 +4725,19 @@ class CorpusBuilder:
                 ),
                 "positive_coverage": self.a12_b4_positive_coverage,
                 "negative_coverage": self.a12_b4_negative_coverage,
+            },
+            "a1_2_configuration_mutation_features": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b5_operation_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b5_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b5_operation_root_coverage
+                ),
+                "positive_coverage": self.a12_b5_positive_coverage,
+                "negative_coverage": self.a12_b5_negative_coverage,
             },
             "fixtures": [
                 compact_generated_record(record)
@@ -5702,6 +5838,30 @@ class CorpusBuilder:
                 f"identities, got {len(self.a12_b4_indexed_coverage)}"
             )
 
+    def _apply_a12_b5_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self.a12_b5_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a12_b5_operation_keys,
+                batch="A1.2 B5",
+                known_enum_values=A12_B5_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a12_b5_indexed_coverage = dict(
+            sorted(self.a12_b5_indexed_coverage.items())
+        )
+        if len(self.a12_b5_indexed_coverage) != 5:
+            raise FixtureError(
+                "A1.2 B5 indexed coverage must contain exactly 5 "
+                f"identities, got {len(self.a12_b5_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -5712,7 +5872,10 @@ class CorpusBuilder:
             parameter_value = self.synthesizer.sample(parameter_target)
             if key in self.a12_b2_operation_keys:
                 normalize_a12_b2_sensitive_sample(parameter_value)
-            if key in self.a12_b4_operation_keys:
+            if (
+                key in self.a12_b4_operation_keys
+                or key in self.a12_b5_operation_keys
+            ):
                 normalize_a12_b4_configuration_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
@@ -5735,6 +5898,7 @@ class CorpusBuilder:
                     )
                     or key in self.a12_b3_operation_keys
                     or key in self.a12_b4_operation_keys
+                    or key in self.a12_b5_operation_keys
                     else ("Decode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -5758,7 +5922,10 @@ class CorpusBuilder:
             result_value = self.synthesizer.sample(result_target)
             if key in self.a12_b2_operation_keys:
                 normalize_a12_b2_sensitive_sample(result_value)
-            if key in self.a12_b4_operation_keys:
+            if (
+                key in self.a12_b4_operation_keys
+                or key in self.a12_b5_operation_keys
+            ):
                 normalize_a12_b4_configuration_sample(result_value)
             result_role = (
                 "client_request_result"
@@ -5781,6 +5948,7 @@ class CorpusBuilder:
                     )
                     or key in self.a12_b3_operation_keys
                     or key in self.a12_b4_operation_keys
+                    or key in self.a12_b5_operation_keys
                     else ("Encode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -5833,7 +6001,10 @@ class CorpusBuilder:
                 base_value = self.synthesizer.sample(target)
                 if key in self.a12_b2_operation_keys:
                     normalize_a12_b2_sensitive_sample(base_value)
-                if key in self.a12_b4_operation_keys:
+                if (
+                    key in self.a12_b4_operation_keys
+                    or key in self.a12_b5_operation_keys
+                ):
                     normalize_a12_b4_configuration_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
@@ -6395,6 +6566,144 @@ class CorpusBuilder:
                 record["instance_path"],
             ),
         )
+
+    def _build_a12_b5_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a12_b5_operation_keys, "A1.2 B5"
+        )
+        expected_opaque = {
+            (
+                "config/batchWrite",
+                "params",
+                "$/edits/0/value",
+                "#/definitions/ConfigEdit/properties/value",
+            ),
+            (
+                "config/batchWrite",
+                "result",
+                "$/overriddenMetadata/effectiveValue",
+                (
+                    "#/definitions/OverriddenMetadata/properties/"
+                    "effectiveValue"
+                ),
+            ),
+            (
+                "config/value/write",
+                "params",
+                "$/value",
+                "#/properties/value",
+            ),
+            (
+                "config/value/write",
+                "result",
+                "$/overriddenMetadata/effectiveValue",
+                (
+                    "#/definitions/OverriddenMetadata/properties/"
+                    "effectiveValue"
+                ),
+            ),
+        }
+        actual_opaque = {
+            (
+                record["operation"],
+                record["root"],
+                record["instance_path"],
+                record["schema_path"],
+            )
+            for record in opaque_exclusions
+        }
+        if actual_opaque != expected_opaque:
+            raise FixtureError(
+                "A1.2 B5 operation opaque-path accounting changed: "
+                f"{sorted(actual_opaque)}"
+            )
+
+        reload_key = next(
+            key
+            for key in self.a12_b5_operation_keys
+            if key.name == "config/mcpServer/reload"
+        )
+        reload_contract = self.contracts[reload_key]
+        reload_target = self.catalog.standalone(
+            str(reload_contract["result_schema_type_identity"])
+        )
+        expected_unit_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "McpServerRefreshResponse",
+            "type": "object",
+        }
+        require_reviewed_unit_result_schema(
+            method=reload_key.name,
+            actual=reload_target.schema,
+            expected=expected_unit_schema,
+        )
+        if (
+            reload_contract["parameter_type_identity"] != "Unit"
+            or reload_contract["result_type_identity"] != "Unit"
+            or reload_contract["result_contract_kind"] != "Unit"
+            or self.synthesizer.sample(reload_target) != {}
+        ):
+            raise FixtureError(
+                "A1.2 B5 config/mcpServer/reload Unit contract no longer "
+                "resolves to the reviewed empty-object result schema"
+            )
+
+        self.a12_b5_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a12_b5_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = sorted(
+            opaque_exclusions,
+            key=lambda record: (
+                record["operation"],
+                record["root"],
+                record["instance_path"],
+            ),
+        )
+        self.a12_b5_negative_coverage["unit_result_invariant"] = {
+            "method": reload_key.name,
+            "parameter_type_identity": "Unit",
+            "result_type_identity": "Unit",
+            "result_schema_type_identity": "McpServerRefreshResponse",
+            "result_contract_kind": "Unit",
+            "encoded_params_fixture_id": (
+                "operation:client_request:config/mcpServer/reload:params"
+            ),
+            "empty_result_fixture_id": (
+                "operation:client_request:config/mcpServer/reload:result"
+            ),
+            "reviewed_result_schema": expected_unit_schema,
+            "property_count": 0,
+            "future_property_addition_fails_generation": True,
+        }
+        feature_list_key = next(
+            key
+            for key in self.a12_b5_operation_keys
+            if key.name == "experimentalFeature/list"
+        )
+        boundary_ids = self._build_uint32_boundary_fixtures(
+            key=feature_list_key,
+            target=self.catalog.standalone(
+                "ExperimentalFeatureListParams"
+            ),
+            field="limit",
+            schema_path="#/properties/limit",
+            production_evidence=(
+                (
+                    "ExperimentalFeatureListParams::limit is "
+                    "OptionalNullable<std::uint32_t>"
+                ),
+                "the B5 typed encoder retains uint32 values exactly",
+                "the public model is bounded by numeric_limits<uint32_t>",
+            ),
+        )
+        self.a12_b5_negative_coverage["uint32_boundaries"] = {
+            "fixture_ids": boundary_ids,
+            "schema_valid_codec_valid": boundary_ids[:2],
+            "schema_valid_typed_unrepresentable": [boundary_ids[2]],
+            "schema_invalid": boundary_ids[3:],
+        }
 
     def _build_b4_helper_union_fixtures(self) -> None:
         coverage: dict[str, Any] = {}
@@ -7792,6 +8101,500 @@ class CorpusBuilder:
         warning_plan["explicit_positive_fixture_ids"] = sorted(
             uint_fixture_ids[1:]
         )
+
+    def _build_a12_b5_positive_supplements(self) -> None:
+        keys = {key.name: key for key in self.a12_b5_operation_keys}
+        batch_key = keys["config/batchWrite"]
+        value_key = keys["config/value/write"]
+        feature_set_key = keys["experimentalFeature/enablement/set"]
+        feature_list_key = keys["experimentalFeature/list"]
+        batch_target = self.catalog.standalone("ConfigBatchWriteParams")
+        value_target = self.catalog.standalone("ConfigValueWriteParams")
+        write_result_target = self.catalog.standalone(
+            "ConfigWriteResponse"
+        )
+        feature_set_params_target = self.catalog.standalone(
+            "ExperimentalFeatureEnablementSetParams"
+        )
+        feature_set_result_target = self.catalog.standalone(
+            "ExperimentalFeatureEnablementSetResponse"
+        )
+        feature_list_result_target = self.catalog.standalone(
+            "ExperimentalFeatureListResponse"
+        )
+
+        json_values: tuple[tuple[str, Any], ...] = (
+            ("null", None),
+            ("boolean", False),
+            ("integer", 0),
+            ("number", 0.5),
+            ("string", "synthetic-config-value"),
+            ("array", [1, "two", None]),
+            (
+                "object",
+                {
+                    "nested": [True, 2, "synthetic"],
+                    "nullable": None,
+                },
+            ),
+        )
+        batch_opaque_id = (
+            "operation:client_request:config/batchWrite:params:"
+            "opaque-json-all-kinds"
+        )
+        self.add_positive(
+            batch_opaque_id,
+            (
+                "cases/operations/client/config-batchwrite/supplements/"
+                "params-opaque-json-all-kinds.json"
+            ),
+            "operation_opaque_value",
+            batch_target,
+            {
+                "edits": [
+                    {
+                        "keyPath": f"synthetic.order.{index}",
+                        "mergeStrategy": (
+                            "replace" if index % 2 == 0 else "upsert"
+                        ),
+                        "value": copy.deepcopy(value),
+                    }
+                    for index, (_, value) in enumerate(json_values)
+                ],
+                "expectedVersion": "synthetic-version",
+                "filePath": "/synthetic/config.toml",
+                "reloadUserConfig": False,
+            },
+            batch_key,
+            directions_exercised=("Encode",),
+        )
+
+        value_opaque_ids: list[str] = []
+        result_opaque_ids: dict[str, list[str]] = {
+            "config/batchWrite": [],
+            "config/value/write": [],
+        }
+        for value_kind, opaque_value in json_values:
+            fixture_id = (
+                "operation:client_request:config/value/write:params:"
+                f"opaque-json-{value_kind}"
+            )
+            value_opaque_ids.append(fixture_id)
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/operations/client/config-value-write/"
+                    f"supplements/params-opaque-json-{value_kind}.json"
+                ),
+                "operation_opaque_value",
+                value_target,
+                {
+                    "expectedVersion": "synthetic-version",
+                    "filePath": "/synthetic/config.toml",
+                    "keyPath": "synthetic.config.key",
+                    "mergeStrategy": "replace",
+                    "value": copy.deepcopy(opaque_value),
+                },
+                value_key,
+                directions_exercised=("Encode",),
+            )
+
+            for method, key in (
+                ("config/batchWrite", batch_key),
+                ("config/value/write", value_key),
+            ):
+                result_id = (
+                    f"operation:client_request:{method}:result:"
+                    f"opaque-effective-value-{value_kind}"
+                )
+                result_opaque_ids[method].append(result_id)
+                self.add_positive(
+                    result_id,
+                    (
+                        f"cases/operations/client/{slug(method)}/"
+                        "supplements/result-opaque-effective-value-"
+                        f"{value_kind}.json"
+                    ),
+                    "operation_opaque_value",
+                    write_result_target,
+                    {
+                        "filePath": "/synthetic/config.toml",
+                        "overriddenMetadata": {
+                            "effectiveValue": copy.deepcopy(opaque_value),
+                            "message": "synthetic override message",
+                            "overridingLayer": {
+                                "name": {"type": "sessionFlags"},
+                                "version": "synthetic-layer-version",
+                            },
+                        },
+                        "status": "okOverridden",
+                        "version": "synthetic-version",
+                    },
+                    key,
+                    directions_exercised=("Decode",),
+                )
+
+        empty_batch_id = (
+            "operation:client_request:config/batchWrite:params:"
+            "explicit-empty-edits"
+        )
+        self.add_positive(
+            empty_batch_id,
+            (
+                "cases/operations/client/config-batchwrite/supplements/"
+                "params-explicit-empty-edits.json"
+            ),
+            "operation_explicit_empty_array",
+            batch_target,
+            {"edits": []},
+            batch_key,
+            directions_exercised=("Encode",),
+        )
+
+        empty_feature_set_params_id = (
+            "operation:client_request:"
+            "experimentalFeature/enablement/set:params:"
+            "explicit-empty-enablement"
+        )
+        self.add_positive(
+            empty_feature_set_params_id,
+            (
+                "cases/operations/client/"
+                "experimentalfeature-enablement-set/supplements/"
+                "params-explicit-empty-enablement.json"
+            ),
+            "operation_explicit_empty_map",
+            feature_set_params_target,
+            {"enablement": {}},
+            feature_set_key,
+            directions_exercised=("Encode",),
+        )
+
+        empty_feature_set_result_id = (
+            "operation:client_request:"
+            "experimentalFeature/enablement/set:result:"
+            "explicit-empty-enablement"
+        )
+        self.add_positive(
+            empty_feature_set_result_id,
+            (
+                "cases/operations/client/"
+                "experimentalfeature-enablement-set/supplements/"
+                "result-explicit-empty-enablement.json"
+            ),
+            "operation_explicit_empty_map",
+            feature_set_result_target,
+            {"enablement": {}},
+            feature_set_key,
+            directions_exercised=("Decode",),
+        )
+
+        empty_feature_list_id = (
+            "operation:client_request:experimentalFeature/list:result:"
+            "explicit-empty-data"
+        )
+        self.add_positive(
+            empty_feature_list_id,
+            (
+                "cases/operations/client/experimentalfeature-list/"
+                "supplements/result-explicit-empty-data.json"
+            ),
+            "operation_explicit_empty_array",
+            feature_list_result_target,
+            {"data": []},
+            feature_list_key,
+            directions_exercised=("Decode",),
+        )
+
+        all_stages_id = (
+            "operation:client_request:experimentalFeature/list:result:"
+            "all-known-stages"
+        )
+        self.add_positive(
+            all_stages_id,
+            (
+                "cases/operations/client/experimentalfeature-list/"
+                "supplements/result-all-known-stages.json"
+            ),
+            "operation_known_enum_values",
+            feature_list_result_target,
+            {
+                "data": [
+                    {
+                        "announcement": (
+                            f"synthetic announcement {stage}"
+                        ),
+                        "defaultEnabled": False,
+                        "description": f"synthetic description {stage}",
+                        "displayName": f"Synthetic {stage}",
+                        "enabled": index % 2 == 0,
+                        "name": f"synthetic-feature-{index}",
+                        "stage": stage,
+                    }
+                    for index, stage in enumerate(
+                        A12_B5_OPEN_STRING_ENUMS[
+                            "ExperimentalFeatureStage"
+                        ]
+                    )
+                ],
+                "nextCursor": None,
+            },
+            feature_list_key,
+            directions_exercised=("Decode",),
+        )
+
+        default_keyword_paths: list[str] = []
+
+        def collect_default_keywords(node: Any, path: str) -> None:
+            if isinstance(node, dict):
+                if "default" in node:
+                    default_keyword_paths.append(path)
+                for field, value in node.items():
+                    collect_default_keywords(
+                        value, pointer_child(path, field)
+                    )
+            elif isinstance(node, list):
+                for index, value in enumerate(node):
+                    collect_default_keywords(
+                        value, pointer_child(path, index)
+                    )
+
+        for key in self.a12_b5_operation_keys:
+            contract = self.contracts[key]
+            for type_identity in (
+                contract["parameter_type_identity"],
+                contract["result_schema_type_identity"],
+            ):
+                if type_identity == "Unit":
+                    continue
+                target = self.catalog.standalone(str(type_identity))
+                collect_default_keywords(
+                    target.schema,
+                    f"{type_identity}#",
+                )
+        if default_keyword_paths:
+            raise FixtureError(
+                "A1.2 B5 unexpectedly acquired JSON Schema default "
+                f"keywords: {sorted(default_keyword_paths)}"
+            )
+
+        arbitrary_path_evidence = [
+            {
+                "closure_schema_path": (
+                    "#/definitions/v2/ConfigEdit/properties/value"
+                ),
+                "fixture_schema_path": (
+                    "#/definitions/ConfigEdit/properties/value"
+                ),
+                "directions": ["Encode"],
+                "fixture_ids": [batch_opaque_id],
+                "json_value_kinds": [
+                    value_kind for value_kind, _ in json_values
+                ],
+                "sensitivity": (
+                    "PotentialCredentialBearingConfiguration"
+                ),
+                "reason": (
+                    "ConfigBatchWriteParams.ConfigEdit.value is declared "
+                    "as unconstrained JSON by the pinned schema"
+                ),
+            },
+            {
+                "closure_schema_path": (
+                    "#/definitions/v2/ConfigValueWriteParams/"
+                    "properties/value"
+                ),
+                "fixture_schema_path": "#/properties/value",
+                "directions": ["Encode"],
+                "fixture_ids": value_opaque_ids,
+                "json_value_kinds": [
+                    value_kind for value_kind, _ in json_values
+                ],
+                "sensitivity": (
+                    "PotentialCredentialBearingConfiguration"
+                ),
+                "reason": (
+                    "ConfigValueWriteParams.value is declared as "
+                    "unconstrained JSON by the pinned schema"
+                ),
+            },
+            {
+                "closure_schema_path": (
+                    "#/definitions/v2/OverriddenMetadata/properties/"
+                    "effectiveValue"
+                ),
+                "fixture_schema_path": (
+                    "#/definitions/OverriddenMetadata/properties/"
+                    "effectiveValue"
+                ),
+                "directions": ["Decode"],
+                "fixture_ids_by_operation": result_opaque_ids,
+                "json_value_kinds": [
+                    value_kind for value_kind, _ in json_values
+                ],
+                "sensitivity": (
+                    "PotentialCredentialBearingConfiguration"
+                ),
+                "reason": (
+                    "OverriddenMetadata.effectiveValue is declared as "
+                    "unconstrained JSON by the pinned schema"
+                ),
+            },
+        ]
+        empty_container_evidence = [
+            {
+                "fixture_id": empty_batch_id,
+                "surface_key": batch_key.to_json(),
+                "instance_path": "$/edits",
+                "schema_path": "#/properties/edits",
+                "direction": "Encode",
+                "value_state": "present_empty_array",
+            },
+            {
+                "fixture_id": empty_feature_set_params_id,
+                "surface_key": feature_set_key.to_json(),
+                "instance_path": "$/enablement",
+                "schema_path": "#/properties/enablement",
+                "direction": "Encode",
+                "value_state": "present_empty_map",
+            },
+            {
+                "fixture_id": empty_feature_set_result_id,
+                "surface_key": feature_set_key.to_json(),
+                "instance_path": "$/enablement",
+                "schema_path": "#/properties/enablement",
+                "direction": "Decode",
+                "value_state": "present_empty_map",
+            },
+            {
+                "fixture_id": empty_feature_list_id,
+                "surface_key": feature_list_key.to_json(),
+                "instance_path": "$/data",
+                "schema_path": "#/properties/data",
+                "direction": "Decode",
+                "value_state": "present_empty_array",
+            },
+        ]
+        described_defaults = [
+            {
+                "schema_path": schema_path,
+                "omitted_fixture_id": fixture_id,
+                "schema_default_keyword_present": False,
+                "client_default_invented": False,
+                "wire_semantics": semantics,
+            }
+            for schema_path, fixture_id, semantics in (
+                (
+                    (
+                        "#/definitions/v2/ConfigBatchWriteParams/"
+                        "properties/filePath"
+                    ),
+                    (
+                        "operation:client_request:config/batchWrite:params:"
+                        "optional-omitted:filepath"
+                    ),
+                    (
+                        "omission delegates selection of the user's "
+                        "config.toml to the server"
+                    ),
+                ),
+                (
+                    (
+                        "#/definitions/v2/ConfigValueWriteParams/"
+                        "properties/filePath"
+                    ),
+                    (
+                        "operation:client_request:config/value/write:params:"
+                        "optional-omitted:filepath"
+                    ),
+                    (
+                        "omission delegates selection of the user's "
+                        "config.toml to the server"
+                    ),
+                ),
+                (
+                    (
+                        "#/definitions/v2/ExperimentalFeatureListParams/"
+                        "properties/limit"
+                    ),
+                    (
+                        "operation:client_request:"
+                        "experimentalFeature/list:params:"
+                        "optional-omitted:limit"
+                    ),
+                    (
+                        "omission delegates page-size selection to the "
+                        "server"
+                    ),
+                ),
+            )
+        ]
+        self.a12_b5_positive_coverage = {
+            "authorized_opaque_json": {
+                "path_count": len(arbitrary_path_evidence),
+                "json_value_kinds": [
+                    value_kind for value_kind, _ in json_values
+                ],
+                "path_evidence": arbitrary_path_evidence,
+            },
+            "explicit_empty_containers": {
+                "counts": {
+                    "fixtures": len(empty_container_evidence),
+                    "schema_paths": len(empty_container_evidence),
+                },
+                "path_evidence": empty_container_evidence,
+            },
+            "ordered_config_edits": {
+                "fixture_id": batch_opaque_id,
+                "edit_count": len(json_values),
+                "order_preserved": True,
+            },
+            "all_known_feature_stages": {
+                "fixture_id": all_stages_id,
+                "known_values": list(
+                    A12_B5_OPEN_STRING_ENUMS[
+                        "ExperimentalFeatureStage"
+                    ]
+                ),
+            },
+            "default_semantics": {
+                "json_schema_default_keyword_count": 0,
+                "described_server_default_paths": described_defaults,
+            },
+        }
+
+        for method, explicit_ids in (
+            (
+                "config/batchWrite",
+                {
+                    batch_opaque_id,
+                    empty_batch_id,
+                    *result_opaque_ids["config/batchWrite"],
+                },
+            ),
+            (
+                "config/value/write",
+                {
+                    *value_opaque_ids,
+                    *result_opaque_ids["config/value/write"],
+                },
+            ),
+            (
+                "experimentalFeature/enablement/set",
+                {
+                    empty_feature_set_params_id,
+                    empty_feature_set_result_id,
+                },
+            ),
+            (
+                "experimentalFeature/list",
+                {empty_feature_list_id, all_stages_id},
+            ),
+        ):
+            plan = self.a12_b5_operation_root_coverage[
+                keys[method].compact()
+            ]
+            plan["explicit_positive_fixture_ids"] = sorted(explicit_ids)
 
     def _build_a12_b3_empty_array_fixtures(self) -> None:
         """Exercise every B3 array property that admits an explicit empty value."""
@@ -10548,6 +11351,17 @@ class CorpusBuilder:
             encode_only=set(),
             embedded_targets={},
             expected_known_values=17,
+        )
+
+    def _build_a12_b5_open_enum_fixtures(self) -> None:
+        self.a12_b5_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.2 B5",
+            expected_enums=A12_B5_OPEN_STRING_ENUMS,
+            encode_only={"MergeStrategy"},
+            embedded_targets={},
+            expected_known_values=9,
         )
 
 

@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 207 && schemaPartial == 6 && schemaNotImplemented == 126 && schemaNotApplicable == 48,
-                      "the B4 registry reaches the exact staged 207/6/126/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 212 && schemaPartial == 6 && schemaNotImplemented == 121 && schemaNotApplicable == 48,
+                      "the completed A1.2 registry reaches the exact 212/6/121/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -207,7 +207,7 @@ int main() {
 
     expectTargets<detail::ClientRequestTarget>(
         result,
-        std::array<std::string_view, 36>{"initialize",
+        std::array<std::string_view, 41>{"initialize",
                                          "account/login/cancel",
                                          "account/login/start",
                                          "account/logout",
@@ -217,8 +217,13 @@ int main() {
                                          "account/sendAddCreditsNudgeEmail",
                                          "account/usage/read",
                                          "account/workspaceMessages/read",
+                                         "config/batchWrite",
+                                         "config/mcpServer/reload",
                                          "config/read",
+                                         "config/value/write",
                                          "configRequirements/read",
+                                         "experimentalFeature/enablement/set",
+                                         "experimentalFeature/list",
                                          "model/list",
                                          "modelProvider/capabilities/read",
                                          "thread/start",
@@ -659,6 +664,109 @@ int main() {
             modelOperationCount == expectedModelOperations.size(),
         "the B3 model/provider operation descriptors form the exact two-row "
         "registry/target/contract/decoder bijection with two Concrete results");
+
+    struct ExpectedConfigurationMutationOperation {
+        std::string_view method;
+        std::string_view parameterType;
+        std::string_view resultType;
+        detail::ClientRequestTarget target;
+        detail::ResultContractKind resultKind;
+        detail::ClientOperationResultDecoder resultDecoder;
+    };
+    constexpr std::array<ExpectedConfigurationMutationOperation, 5>
+        expectedConfigurationMutationOperations{{
+            {"config/batchWrite",
+             "ConfigBatchWriteParams",
+             "ConfigWriteResponse",
+             detail::ClientRequestTarget::ConfigBatchWrite,
+             detail::ResultContractKind::Concrete,
+             detail::ClientOperationResultDecoder::ConfigWriteResponse},
+            {"config/mcpServer/reload",
+             "Unit",
+             "Unit",
+             detail::ClientRequestTarget::ConfigMcpServerReload,
+             detail::ResultContractKind::Unit,
+             detail::ClientOperationResultDecoder::Unit},
+            {"config/value/write",
+             "ConfigValueWriteParams",
+             "ConfigWriteResponse",
+             detail::ClientRequestTarget::ConfigValueWrite,
+             detail::ResultContractKind::Concrete,
+             detail::ClientOperationResultDecoder::ConfigWriteResponse},
+            {"experimentalFeature/enablement/set",
+             "ExperimentalFeatureEnablementSetParams",
+             "ExperimentalFeatureEnablementSetResponse",
+             detail::ClientRequestTarget::ExperimentalFeatureEnablementSet,
+             detail::ResultContractKind::Concrete,
+             detail::ClientOperationResultDecoder::
+                 ExperimentalFeatureEnablementSetResponse},
+            {"experimentalFeature/list",
+             "ExperimentalFeatureListParams",
+             "ExperimentalFeatureListResponse",
+             detail::ClientRequestTarget::ExperimentalFeatureList,
+             detail::ResultContractKind::Concrete,
+             detail::ClientOperationResultDecoder::
+                 ExperimentalFeatureListResponse},
+        }};
+    bool exactConfigurationMutationOperations = true;
+    std::size_t configurationMutationOperationCount = 0;
+    std::size_t configurationMutationUnitCount = 0;
+    std::size_t configurationMutationConcreteCount = 0;
+    for (const detail::ClientOperationCodecDescriptor& descriptor :
+         operationDescriptors) {
+        const auto expected = std::find_if(
+            expectedConfigurationMutationOperations.begin(),
+            expectedConfigurationMutationOperations.end(),
+            [&](const ExpectedConfigurationMutationOperation& candidate) {
+                return candidate.method == descriptor.key.name;
+            });
+        if (expected == expectedConfigurationMutationOperations.end()) {
+            continue;
+        }
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        const auto* registeredTarget =
+            std::get_if<detail::ClientRequestTarget>(&entry.runtimeTarget);
+        exactConfigurationMutationOperations =
+            exactConfigurationMutationOperations &&
+            descriptor.target == expected->target &&
+            descriptor.parameterTypeIdentity == expected->parameterType &&
+            descriptor.resultTypeIdentity == expected->resultType &&
+            descriptor.resultKind == expected->resultKind &&
+            descriptor.resultDecoder == expected->resultDecoder &&
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ClientRequest,
+                    "ClientRequest",
+                    "method",
+                    expected->method,
+                } &&
+            entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+            registeredTarget != nullptr &&
+            *registeredTarget == descriptor.target &&
+            entry.operationContract.parameterTypeIdentity ==
+                descriptor.parameterTypeIdentity &&
+            entry.operationContract.resultTypeIdentity ==
+                descriptor.resultTypeIdentity &&
+            entry.operationContract.resultKind == descriptor.resultKind;
+        ++configurationMutationOperationCount;
+        configurationMutationUnitCount +=
+            descriptor.resultKind == detail::ResultContractKind::Unit;
+        configurationMutationConcreteCount +=
+            descriptor.resultKind == detail::ResultContractKind::Concrete;
+    }
+    result.expectTrue(
+        exactConfigurationMutationOperations &&
+            configurationMutationOperationCount ==
+                expectedConfigurationMutationOperations.size() &&
+            configurationMutationUnitCount == 1 &&
+            configurationMutationConcreteCount == 4,
+        "the B5 configuration mutation/feature operation descriptors form "
+        "the exact five-row registry/target/contract/decoder bijection with "
+        "one Unit and four Concrete results");
 
     const auto validateWithOperationDescriptors =
         [&](std::span<const detail::ProtocolSurfaceEntry> entries,
@@ -2437,7 +2545,7 @@ int main() {
         });
 
     const detail::ProtocolSurfaceEntry* deferred =
-        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "config/batchWrite");
+        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "command/exec");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
                           deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
                           std::holds_alternative<std::monostate>(deferred->runtimeTarget),
@@ -2509,8 +2617,10 @@ int main() {
     nonUnit->operationContract.resultKind = detail::ResultContractKind::Unit;
     nonUnit->operationContract.resultTypeIdentity = "ThreadArchiveResponse";
     result.expectTrue(
-        hasExactCodes(detail::validateProtocolSurface(unitMismatch), {detail::ProtocolSurfaceErrorCode::UnitWithNonUnitResultType}),
-        "registry validation reports only UnitWithNonUnitResultType for an inconsistent explicit unit contract");
+        hasExactCodes(detail::validateProtocolSurface(unitMismatch),
+                      {detail::ProtocolSurfaceErrorCode::CodecDescriptorContractMismatch,
+                       detail::ProtocolSurfaceErrorCode::UnitWithNonUnitResultType}),
+        "an implemented Unit row with a non-Unit result identity reports the exact intrinsic and descriptor-contract codes");
 
     std::vector<detail::ProtocolSurfaceEntry> concreteWithoutType(registry.begin(), registry.end());
     const auto emptyConcrete = findEntry(concreteWithoutType, detail::SurfaceCategory::ClientRequest, "initialize");

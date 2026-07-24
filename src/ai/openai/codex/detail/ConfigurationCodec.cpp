@@ -291,6 +291,34 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
+        template <typename T>
+        bool validateOptionalNullable(const typed::OptionalNullable<T>& value,
+                                      std::string& error,
+                                      std::string_view context,
+                                      std::string_view path) {
+            if (!value.present && value.value.has_value()) {
+                return fail(error, context, path, "has an inconsistent omitted state");
+            }
+            return true;
+        }
+
+        template <typename T, typename Encode>
+        void encodeOptionalNullable(Json& object, std::string_view name, const typed::OptionalNullable<T>& value, Encode&& encode) {
+            if (!value.present) {
+                return;
+            }
+            object[std::string(name)] = value.value ? Json(encode(*value.value)) : Json(nullptr);
+        }
+
+        template <typename Key>
+        Json encodeBoolMap(const std::map<Key, bool>& value) {
+            Json result = Json::object();
+            for (const auto& [key, enabled] : value) {
+                result[key.value] = enabled;
+            }
+            return result;
+        }
+
         void appendAskForApprovalDiagnostics(std::vector<typed::DecodeDiagnostic>& diagnostics, const typed::AskForApproval& value) {
             std::visit(
                 [&](const auto& alternative) {
@@ -1400,6 +1428,121 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
+        bool decodeOverriddenMetadata(const Json& value, typed::OverriddenMetadata& result, std::string& error, std::string_view path) {
+            constexpr std::string_view Context = "OverriddenMetadata";
+            if (!requireObject(value, Context, error, path)) {
+                return false;
+            }
+            result = {};
+
+            const Json* effectiveValue = member(value, "effectiveValue");
+            if (effectiveValue == nullptr) {
+                return fail(error, Context, fieldPath(path, "effectiveValue"), "is required");
+            }
+            if (effectiveValue->is_null()) {
+                result.effectiveValue.reset();
+            } else {
+                result.effectiveValue = *effectiveValue;
+            }
+
+            if (!decodeRequired(
+                    value,
+                    "message",
+                    result.message,
+                    [&](const Json& nested, std::string& decoded, const std::string& nestedPath) {
+                        return decodeStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context,
+                    path) ||
+                !decodeRequired(
+                    value,
+                    "overridingLayer",
+                    result.overridingLayer,
+                    [&](const Json& nested, typed::ConfigLayerMetadata& decoded, const std::string& nestedPath) {
+                        if (!decodeConfigLayerMetadata(nested, decoded, error, nestedPath)) {
+                            return false;
+                        }
+                        appendDiagnostics(result.diagnostics, decoded.diagnostics);
+                        return true;
+                    },
+                    error,
+                    Context,
+                    path)) {
+                return false;
+            }
+            result.raw = value;
+            return true;
+        }
+
+        bool decodeExperimentalFeature(const Json& value, typed::ExperimentalFeature& result, std::string& error, std::string_view path) {
+            constexpr std::string_view Context = "ExperimentalFeature";
+            if (!requireObject(value, Context, error, path)) {
+                return false;
+            }
+            result = {};
+            const auto optionalString = [&](std::string_view name, typed::OptionalNullable<std::string>& output) {
+                return decodeOptionalNullable(
+                    value,
+                    name,
+                    output,
+                    [&](const Json& nested, std::string& decoded, const std::string& nestedPath) {
+                        return decodeStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context,
+                    path);
+            };
+
+            if (!optionalString("announcement", result.announcement) ||
+                !decodeRequired(
+                    value,
+                    "defaultEnabled",
+                    result.defaultEnabled,
+                    [&](const Json& nested, bool& decoded, const std::string& nestedPath) {
+                        return decodeBoolAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context,
+                    path) ||
+                !optionalString("description", result.description) || !optionalString("displayName", result.displayName) ||
+                !decodeRequired(
+                    value,
+                    "enabled",
+                    result.enabled,
+                    [&](const Json& nested, bool& decoded, const std::string& nestedPath) {
+                        return decodeBoolAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context,
+                    path) ||
+                !decodeRequired(
+                    value,
+                    "name",
+                    result.name,
+                    [&](const Json& nested, typed::ExperimentalFeatureId& decoded, const std::string& nestedPath) {
+                        return decodeStrongStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context,
+                    path) ||
+                !decodeRequired(
+                    value,
+                    "stage",
+                    result.stage,
+                    [&](const Json& nested, typed::ExperimentalFeatureStage& decoded, const std::string& nestedPath) {
+                        return decodeOpenEnumAt(
+                            nested, decoded, result.diagnostics, "ExperimentalFeatureStage", nestedPath, error, Context);
+                    },
+                    error,
+                    Context,
+                    path)) {
+                return false;
+            }
+            result.raw = value;
+            return true;
+        }
+
         bool decodeTextPosition(const Json& value, typed::TextPosition& result, std::string& error, std::string_view path) {
             constexpr std::string_view Context = "TextPosition";
             if (!requireObject(value, Context, error, path)) {
@@ -1482,10 +1625,44 @@ namespace ai::openai::codex::detail {
         }
     }
 
+    std::optional<Json> encodeConfigBatchWriteParams(const typed::ConfigBatchWriteParams& params, std::string& error) {
+        constexpr std::string_view Context = "ConfigBatchWriteParams";
+        try {
+            if (!validateOptionalNullable(params.expectedVersion, error, Context, "$.expectedVersion") ||
+                !validateOptionalNullable(params.filePath, error, Context, "$.filePath")) {
+                return std::nullopt;
+            }
+
+            Json edits = Json::array();
+            for (const typed::ConfigEdit& edit : params.edits) {
+                edits.push_back({
+                    {"keyPath", edit.keyPath.value},
+                    {"mergeStrategy", edit.mergeStrategy.value},
+                    {"value", edit.value ? *edit.value : Json(nullptr)},
+                });
+            }
+
+            Json result{{"edits", std::move(edits)}};
+            encodeOptionalNullable(result, "expectedVersion", params.expectedVersion, [](const std::string& value) {
+                return value;
+            });
+            encodeOptionalNullable(result, "filePath", params.filePath, [](const typed::AbsolutePathBuf& value) {
+                return value.value;
+            });
+            if (params.reloadUserConfig.has_value()) {
+                result["reloadUserConfig"] = *params.reloadUserConfig;
+            }
+            error.clear();
+            return std::optional<Json>{std::move(result)};
+        } catch (...) {
+            error = "ConfigBatchWriteParams field '$' could not be encoded";
+            return std::nullopt;
+        }
+    }
+
     std::optional<Json> encodeConfigReadParams(const typed::ConfigReadParams& params, std::string& error) {
         try {
-            if (!params.cwd.present && params.cwd.value.has_value()) {
-                error = "ConfigReadParams field '$.cwd' has an inconsistent omitted state";
+            if (!validateOptionalNullable(params.cwd, error, "ConfigReadParams", "$.cwd")) {
                 return std::nullopt;
             }
             Json result = Json::object();
@@ -1499,6 +1676,72 @@ namespace ai::openai::codex::detail {
             return std::optional<Json>{std::move(result)};
         } catch (...) {
             error = "ConfigReadParams could not be encoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<Json> encodeConfigValueWriteParams(const typed::ConfigValueWriteParams& params, std::string& error) {
+        constexpr std::string_view Context = "ConfigValueWriteParams";
+        try {
+            if (!validateOptionalNullable(params.expectedVersion, error, Context, "$.expectedVersion") ||
+                !validateOptionalNullable(params.filePath, error, Context, "$.filePath")) {
+                return std::nullopt;
+            }
+
+            Json result{
+                {"keyPath", params.keyPath.value},
+                {"mergeStrategy", params.mergeStrategy.value},
+                {"value", params.value ? *params.value : Json(nullptr)},
+            };
+            encodeOptionalNullable(result, "expectedVersion", params.expectedVersion, [](const std::string& value) {
+                return value;
+            });
+            encodeOptionalNullable(result, "filePath", params.filePath, [](const typed::AbsolutePathBuf& value) {
+                return value.value;
+            });
+            error.clear();
+            return std::optional<Json>{std::move(result)};
+        } catch (...) {
+            error = "ConfigValueWriteParams field '$' could not be encoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<Json> encodeExperimentalFeatureEnablementSetParams(const typed::ExperimentalFeatureEnablementSetParams& params,
+                                                                     std::string& error) {
+        try {
+            Json result{{"enablement", encodeBoolMap(params.enablement)}};
+            error.clear();
+            return std::optional<Json>{std::move(result)};
+        } catch (...) {
+            error = "ExperimentalFeatureEnablementSetParams field '$' could not be encoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<Json> encodeExperimentalFeatureListParams(const typed::ExperimentalFeatureListParams& params, std::string& error) {
+        constexpr std::string_view Context = "ExperimentalFeatureListParams";
+        try {
+            if (!validateOptionalNullable(params.cursor, error, Context, "$.cursor") ||
+                !validateOptionalNullable(params.limit, error, Context, "$.limit") ||
+                !validateOptionalNullable(params.threadId, error, Context, "$.threadId")) {
+                return std::nullopt;
+            }
+
+            Json result = Json::object();
+            encodeOptionalNullable(result, "cursor", params.cursor, [](const std::string& value) {
+                return value;
+            });
+            encodeOptionalNullable(result, "limit", params.limit, [](std::uint32_t value) {
+                return value;
+            });
+            encodeOptionalNullable(result, "threadId", params.threadId, [](const typed::ThreadId& value) {
+                return value.value;
+            });
+            error.clear();
+            return std::optional<Json>{std::move(result)};
+        } catch (...) {
+            error = "ExperimentalFeatureListParams field '$' could not be encoded";
             return std::nullopt;
         }
     }
@@ -1581,6 +1824,140 @@ namespace ai::openai::codex::detail {
             return std::optional<typed::ConfigRequirementsReadResponse>{std::move(result)};
         } catch (...) {
             error = "ConfigRequirementsReadResponse field '$' could not be decoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<typed::ConfigWriteResponse> decodeConfigWriteResponse(const Json& value, std::string& error) {
+        constexpr std::string_view Context = "ConfigWriteResponse";
+        try {
+            if (!requireObject(value, Context, error)) {
+                return std::nullopt;
+            }
+            typed::ConfigWriteResponse result;
+            if (!decodeRequired(
+                    value,
+                    "filePath",
+                    result.filePath,
+                    [&](const Json& nested, typed::AbsolutePathBuf& decoded, const std::string& nestedPath) {
+                        return decodeStrongStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context) ||
+                !decodeOptionalNullable(
+                    value,
+                    "overriddenMetadata",
+                    result.overriddenMetadata,
+                    [&](const Json& nested, typed::OverriddenMetadata& decoded, const std::string& nestedPath) {
+                        if (!decodeOverriddenMetadata(nested, decoded, error, nestedPath)) {
+                            return false;
+                        }
+                        appendDiagnostics(result.diagnostics, decoded.diagnostics);
+                        return true;
+                    },
+                    error,
+                    Context) ||
+                !decodeRequired(
+                    value,
+                    "status",
+                    result.status,
+                    [&](const Json& nested, typed::WriteStatus& decoded, const std::string& nestedPath) {
+                        return decodeOpenEnumAt(nested, decoded, result.diagnostics, "WriteStatus", nestedPath, error, Context);
+                    },
+                    error,
+                    Context) ||
+                !decodeRequired(
+                    value,
+                    "version",
+                    result.version,
+                    [&](const Json& nested, std::string& decoded, const std::string& nestedPath) {
+                        return decodeStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context)) {
+                return std::nullopt;
+            }
+            result.raw = value;
+            error.clear();
+            return std::optional<typed::ConfigWriteResponse>{std::move(result)};
+        } catch (...) {
+            error = "ConfigWriteResponse field '$' could not be decoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<typed::ExperimentalFeatureEnablementSetResponse> decodeExperimentalFeatureEnablementSetResponse(const Json& value,
+                                                                                                                  std::string& error) {
+        constexpr std::string_view Context = "ExperimentalFeatureEnablementSetResponse";
+        try {
+            if (!requireObject(value, Context, error)) {
+                return std::nullopt;
+            }
+            typed::ExperimentalFeatureEnablementSetResponse result;
+            if (!decodeRequired(
+                    value,
+                    "enablement",
+                    result.enablement,
+                    [&](const Json& nested, std::map<typed::ExperimentalFeatureId, bool>& decoded, const std::string& nestedPath) {
+                        return decodeBoolMapAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context)) {
+                return std::nullopt;
+            }
+            result.raw = value;
+            error.clear();
+            return std::optional<typed::ExperimentalFeatureEnablementSetResponse>{std::move(result)};
+        } catch (...) {
+            error = "ExperimentalFeatureEnablementSetResponse field '$' could not be decoded";
+            return std::nullopt;
+        }
+    }
+
+    std::optional<typed::ExperimentalFeatureListResponse> decodeExperimentalFeatureListResponse(const Json& value, std::string& error) {
+        constexpr std::string_view Context = "ExperimentalFeatureListResponse";
+        try {
+            if (!requireObject(value, Context, error)) {
+                return std::nullopt;
+            }
+            typed::ExperimentalFeatureListResponse result;
+            if (!decodeRequired(
+                    value,
+                    "data",
+                    result.data,
+                    [&](const Json& nested, std::vector<typed::ExperimentalFeature>& decoded, const std::string& nestedPath) {
+                        return decodeArrayAt(
+                            nested,
+                            decoded,
+                            [&](const Json& item, typed::ExperimentalFeature& feature, const std::string& itemPath) {
+                                if (!decodeExperimentalFeature(item, feature, error, itemPath)) {
+                                    return false;
+                                }
+                                appendDiagnostics(result.diagnostics, feature.diagnostics);
+                                return true;
+                            },
+                            error,
+                            Context,
+                            nestedPath);
+                    },
+                    error,
+                    Context) ||
+                !decodeOptionalNullable(
+                    value,
+                    "nextCursor",
+                    result.nextCursor,
+                    [&](const Json& nested, std::string& decoded, const std::string& nestedPath) {
+                        return decodeStringAt(nested, decoded, error, Context, nestedPath);
+                    },
+                    error,
+                    Context)) {
+                return std::nullopt;
+            }
+            result.raw = value;
+            error.clear();
+            return std::optional<typed::ExperimentalFeatureListResponse>{std::move(result)};
+        } catch (...) {
+            error = "ExperimentalFeatureListResponse field '$' could not be decoded";
             return std::nullopt;
         }
     }

@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 35:
+    if len(rows) != 40:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 35 rows"
+            "client-operation descriptor must contain exactly 40 rows"
         )
     method_rows = {
         match.group(1): line
@@ -418,24 +418,40 @@ def test_operation_descriptor_guards(
         "config/read",
         "configRequirements/read",
     }
+    a1_2_b5_methods = {
+        "config/batchWrite",
+        "config/mcpServer/reload",
+        "config/value/write",
+        "experimentalFeature/enablement/set",
+        "experimentalFeature/list",
+    }
     if (
-        len(method_rows) != 35
+        len(method_rows) != 40
         or len(a1_1_methods) != 22
         or set(method_rows)
         != a1_1_methods
         | a1_2_b2_methods
         | a1_2_b3_methods
         | a1_2_b4_methods
+        | a1_2_b5_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
         or (
             a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
         )
         & a1_2_b4_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+        )
+        & a1_2_b5_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
-            "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 slice projection"
+            "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 / five A1.2 B5 "
+            "slice projection"
         )
     targets = {
         match.group(1)
@@ -446,7 +462,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 35:
+    if len(targets) != 40:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -467,13 +483,13 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::Unit)" in line
             for line in rows
         )
-        != 8
+        != 9
         or sum(
             "ResultContractKind::Concrete, "
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 27
+        != 31
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -506,6 +522,16 @@ def test_operation_descriptor_guards(
             for method in a1_2_b4_methods
         )
         != 2
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_2_b5_methods
+        )
+        != 1
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_2_b5_methods
+        )
+        != 4
         or any(
             expected not in method_rows[method]
             for method, expected in {
@@ -539,6 +565,44 @@ def test_operation_descriptor_guards(
                     "ResultContractKind::Concrete, "
                     "ClientOperationResultDecoder::"
                     "ConfigRequirementsReadResponse"
+                ),
+                "config/batchWrite": (
+                    "ClientRequestTarget::ConfigBatchWrite, "
+                    '"ClientRequestTarget::ConfigBatchWrite", '
+                    '"ConfigBatchWriteParams", "ConfigWriteResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::ConfigWriteResponse"
+                ),
+                "config/mcpServer/reload": (
+                    "ClientRequestTarget::ConfigMcpServerReload, "
+                    '"ClientRequestTarget::ConfigMcpServerReload", '
+                    '"Unit", "Unit", ResultContractKind::Unit, '
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "config/value/write": (
+                    "ClientRequestTarget::ConfigValueWrite, "
+                    '"ClientRequestTarget::ConfigValueWrite", '
+                    '"ConfigValueWriteParams", "ConfigWriteResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::ConfigWriteResponse"
+                ),
+                "experimentalFeature/enablement/set": (
+                    "ClientRequestTarget::ExperimentalFeatureEnablementSet, "
+                    '"ClientRequestTarget::ExperimentalFeatureEnablementSet", '
+                    '"ExperimentalFeatureEnablementSetParams", '
+                    '"ExperimentalFeatureEnablementSetResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "ExperimentalFeatureEnablementSetResponse"
+                ),
+                "experimentalFeature/list": (
+                    "ClientRequestTarget::ExperimentalFeatureList, "
+                    '"ClientRequestTarget::ExperimentalFeatureList", '
+                    '"ExperimentalFeatureListParams", '
+                    '"ExperimentalFeatureListResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "ExperimentalFeatureListResponse"
                 ),
             }.items()
         )

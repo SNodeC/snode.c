@@ -1,0 +1,12 @@
+{
+  "filePath": "/synthetic/config.toml",
+  "overriddenMetadata": {
+    "effectiveValue": {},
+    "message": "synthetic-53bcfbc751",
+    "overridingLayer": {
+      "version": "synthetic-100d071607"
+    }
+  },
+  "status": "ok",
+  "version": "synthetic-3c1eb1bd3c"
+}
