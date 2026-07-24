@@ -71,11 +71,11 @@ namespace {
         const std::vector<backend::BackendEvent> translated = reducer.translate(notificationEvent<Notification>(raw));
         const auto* extension = translated.size() == 1 ? std::get_if<backend::CodexExtensionReceived>(&translated.front()) : nullptr;
 
-        const bool translatedExactly = extension && extension->method == method && extension->payload == raw && !extension->decodingError &&
-                                       extension->diagnostic && extension->diagnostic->kind == typed::DecodeIssueKind::UnknownEnumValue &&
-                                       extension->diagnostic->severity == typed::DecodeIssueSeverity::ForwardCompatibility &&
-                                       extension->diagnostic->surface == method &&
-                                       extension->diagnostic->fieldPath == "$.params.futureMode";
+        const bool translatedExactly =
+            extension && extension->method == method && extension->payload == raw.at("params") && !extension->decodingError &&
+            extension->diagnostic && extension->diagnostic->kind == typed::DecodeIssueKind::UnknownEnumValue &&
+            extension->diagnostic->severity == typed::DecodeIssueSeverity::ForwardCompatibility &&
+            extension->diagnostic->surface == method && extension->diagnostic->fieldPath == "$.params.futureMode";
         result.expectTrue(translatedExactly, method + " translates to one exact structured Codex extension without a legacy decode error");
 
         backend::Reduction reduction;
@@ -84,7 +84,7 @@ namespace {
         }
         const backend::ExtensionRecord* retained = state.recentExtensions.size() == 1 ? &state.recentExtensions.front() : nullptr;
         const bool retainedExactly = extension && reduction.changed && !reduction.flushImmediately && retained &&
-                                     retained->method == method && retained->payload == raw && !retained->decodingError &&
+                                     retained->method == method && retained->payload == raw.at("params") && !retained->decodingError &&
                                      !retained->originalMethodBytes && !retained->originalPayloadBytes &&
                                      !retained->originalDecodingErrorBytes && retained->diagnostic &&
                                      retained->diagnostic->kind == typed::DecodeIssueKind::UnknownEnumValue &&
@@ -168,14 +168,14 @@ namespace {
 
         result.expectTrue(state.recentExtensions.size() == 7 &&
                               state.recentExtensions.front().method == "thread/realtime/transcript/delta" &&
-                              state.recentExtensions.front().payload.at("params").at("sequence") == 93 &&
+                              state.recentExtensions.front().payload.at("sequence") == 93 &&
                               state.recentExtensions.back().method == "thread/realtime/transcript/delta" &&
-                              state.recentExtensions.back().payload.at("params").at("sequence") == 99,
+                              state.recentExtensions.back().payload.at("sequence") == 99,
                           "high-volume realtime audio and transcript notifications retain only the configured deterministic newest suffix");
 
         const std::string largeAudio(4096, 'a');
         const Json audioRaw = envelopeFor("thread/realtime/outputAudio/delta", 100, Json{{"audio", {{"data", largeAudio}}}});
-        const std::uint64_t audioBytes = static_cast<std::uint64_t>(audioRaw.dump().size());
+        const std::uint64_t audioBytes = static_cast<std::uint64_t>(audioRaw.at("params").dump().size());
         applyTranslated(reducer, state, notificationEvent<typed::ThreadRealtimeOutputAudioDeltaNotification>(audioRaw, false));
         const backend::ExtensionRecord& boundedAudio = state.recentExtensions.back();
         result.expectTrue(boundedAudio.method == "thread/realtime/outputAudio/delta" && boundedAudio.originalPayloadBytes == audioBytes &&
@@ -185,7 +185,7 @@ namespace {
 
         const std::string largeTranscript(4096, 't');
         const Json transcriptRaw = envelopeFor("thread/realtime/transcript/delta", 101, Json{{"delta", largeTranscript}});
-        const std::uint64_t transcriptBytes = static_cast<std::uint64_t>(transcriptRaw.dump().size());
+        const std::uint64_t transcriptBytes = static_cast<std::uint64_t>(transcriptRaw.at("params").dump().size());
         applyTranslated(reducer, state, notificationEvent<typed::ThreadRealtimeTranscriptDeltaNotification>(transcriptRaw, false));
         const backend::ExtensionRecord& boundedTranscript = state.recentExtensions.back();
         result.expectTrue(boundedTranscript.method == "thread/realtime/transcript/delta" &&
@@ -211,10 +211,10 @@ namespace {
             snapshot.recentExtensions.size() == 1 ? &snapshot.recentExtensions.front() : nullptr;
         const std::string encodedSafe = frontendSafe ? frontendSafe->payload.dump() : std::string{};
 
-        result.expectTrue(canonical && canonical->payload == raw && canonical->payload.dump().find(accessToken) != std::string::npos,
-                          "canonical bounded preservation retains the complete typed realtime envelope before frontend redaction");
+        result.expectTrue(canonical && canonical->payload == raw.at("params") && canonical->payload.dump().find(accessToken) != std::string::npos,
+                          "canonical bounded preservation retains the complete typed realtime params before frontend redaction");
         result.expectTrue(frontendSafe && frontendSafe->method == "thread/realtime/transcript/done" &&
-                              frontendSafe->sensitiveFieldsRedacted && frontendSafe->payload.at("params").at("safe") == "visible" &&
+                              frontendSafe->sensitiveFieldsRedacted && frontendSafe->payload.at("safe") == "visible" &&
                               encodedSafe.find(accessToken) == std::string::npos && encodedSafe.find(secretAnswer) == std::string::npos,
                           "new typed notifications reuse the unchanged frontend-safe recursive redaction boundary");
     }

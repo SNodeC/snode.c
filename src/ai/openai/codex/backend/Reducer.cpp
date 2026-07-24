@@ -50,7 +50,8 @@ namespace ai::openai::codex::backend {
             const ::ai::openai::codex::detail::ProtocolSurfaceEntry& registryEntry = ::ai::openai::codex::detail::entryFor(target);
             const std::optional<typed::DecodeDiagnostic> diagnostic =
                 value.diagnostics.empty() ? std::nullopt : std::optional<typed::DecodeDiagnostic>{value.diagnostics.front()};
-            return {detail::preserveUnmodeledTypedEvent({std::string(registryEntry.key.name), value.raw, std::nullopt, diagnostic})};
+            return {detail::preserveUnmodeledTypedEvent(
+                {std::string(registryEntry.key.name), value.raw.at("params"), std::nullopt, diagnostic})};
         }
 
         logger::BoundaryLogger lifecycleLog() {
@@ -330,10 +331,9 @@ namespace ai::openai::codex::backend {
                 std::uint64_t originalDiagnosticBytes = 0;
                 const auto account = [&originalDiagnosticBytes](std::size_t bytes) {
                     const std::uint64_t value = saturatingUint64(bytes);
-                    originalDiagnosticBytes =
-                        value > std::numeric_limits<std::uint64_t>::max() - originalDiagnosticBytes
-                        ? std::numeric_limits<std::uint64_t>::max()
-                        : originalDiagnosticBytes + value;
+                    originalDiagnosticBytes = value > std::numeric_limits<std::uint64_t>::max() - originalDiagnosticBytes
+                                                  ? std::numeric_limits<std::uint64_t>::max()
+                                                  : originalDiagnosticBytes + value;
                 };
                 account(extension.diagnostic->surface.size());
                 account(extension.diagnostic->fieldPath.size());
@@ -430,8 +430,7 @@ namespace ai::openai::codex::backend {
                     }
                     state.threadList.hasLoadedPage = true;
                     ++state.threadList.pagesLoaded;
-                    state.threadList.nextCursor =
-                        value.page.nextCursor.hasValue() ? value.page.nextCursor.value : std::nullopt;
+                    state.threadList.nextCursor = value.page.nextCursor.hasValue() ? value.page.nextCursor.value : std::nullopt;
                     state.threadList.backwardsCursor =
                         value.page.backwardsCursor.hasValue() ? value.page.backwardsCursor.value : std::nullopt;
                     state.threadList.complete = !value.page.nextCursor.hasValue();
@@ -496,17 +495,16 @@ namespace ai::openai::codex::backend {
                     }
                     retainExtension(state,
                                     {.method = "codex/item-without-id",
-                                     .payload =
-                                         std::visit(
-                                             [](const auto& item) {
-                                                 using Item = std::decay_t<decltype(item)>;
-                                                 if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
-                                                     return item.raw;
-                                                 } else {
-                                                     return item.metadata.raw;
-                                                 }
-                                             },
-                                             value.item),
+                                     .payload = std::visit(
+                                         [](const auto& item) {
+                                             using Item = std::decay_t<decltype(item)>;
+                                             if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
+                                                 return item.raw;
+                                             } else {
+                                                 return item.metadata.raw;
+                                             }
+                                         },
+                                         value.item),
                                      .decodingError = "typed item has no stable id",
                                      .originalMethodBytes = std::nullopt,
                                      .originalPayloadBytes = std::nullopt,
@@ -674,16 +672,14 @@ namespace ai::openai::codex::backend {
                 [](const typed::ItemStarted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{
-                            "item/started", value.raw, "item event omitted threadId or turnId", std::nullopt}};
+                        return {CodexExtensionReceived{"item/started", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Started, value.startedAtMs}};
                 },
                 [](const typed::ItemCompleted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{
-                            "item/completed", value.raw, "item event omitted threadId or turnId", std::nullopt}};
+                        return {CodexExtensionReceived{"item/completed", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Completed, value.completedAtMs}};
                 },
@@ -793,8 +789,7 @@ namespace ai::openai::codex::backend {
                     return {TurnErrorUpdated{value.threadId, value.turnId, value.error, value.willRetry}};
                 },
                 [](const typed::UnknownEvent& value) -> std::vector<BackendEvent> {
-                    return {detail::preserveUnmodeledTypedEvent(
-                        {value.method, value.params, value.decodingError, value.diagnostic})};
+                    return {detail::preserveUnmodeledTypedEvent({value.method, value.params, value.decodingError, value.diagnostic})};
                 }},
             event);
     }
