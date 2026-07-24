@@ -12784,7 +12784,7 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "f5a2ed91081fb3fd15b25561b5eecd919309a4fe980b3831c732571776572369"
+      "sha256": "76d4a099c6c9532b5be3dcaf6fe8841fe42430d1308fa24d92b13141a1e53ded"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_2.py",

@@ -1362,9 +1362,9 @@ def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """
 
     replacements = {
-        "accessToken": "test-access-token-" + "not-real",
+        "accessToken": "".join(("test-access-token-", "not-real")),
         "accountId": "test-account-id",
-        "apiKey": "test-api-key-" + "not-real",
+        "apiKey": "".join(("test-api-key-", "not-real")),
         "chatgptAccountId": "test-account-id",
         "deviceCode": "test-device-code-not-real",
         "idempotencyKey": "test-idempotency-key",

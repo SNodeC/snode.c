@@ -1,11 +1,11 @@
-# Codex A1.2 accounts, models, and configuration audit
+# Codex A1.2 accounts, models, and configuration closure
 
 ## Status and authority
 
-This document records the frozen Phase A1.2 start state, implementation
-batches, public API review, and boundary decisions for the stable Codex App
-Server 0.144.6 surface. It is review evidence, not a production registry or
-dispatch input.
+This document records the frozen Phase A1.2 start state, completed
+implementation batches, final type/path closure, public API review, and
+boundary decisions for the stable Codex App Server 0.144.6 surface. It is
+review evidence, not a production registry or dispatch input.
 
 The audited starting `origin/master` is
 `9f7b2955d017cab189fb7b7a80211d0c2788f819`. It is the merge of PR 220. The
@@ -95,7 +95,8 @@ At the audited base, `model/rerouted` and
 `account/chatgptAuthTokens/refresh` are Partial. The other 43 identities are
 NotImplemented. No newer-master exception was needed.
 
-Completing only A1.2 is expected to move the global metrics as follows:
+Completing only A1.2 moved the mechanically derived global metrics as
+follows:
 
 | Boundary | Complete | Partial | NotImplemented | NotApplicable |
 |---|---:|---:|---:|---:|
@@ -105,7 +106,7 @@ Completing only A1.2 is expected to move the global metrics as follows:
 | After B4 | 207 | 6 | 126 | 48 |
 | After B5 | 212 | 6 | 121 | 48 |
 
-The expected residual Partial identities after B5 are `initialize`,
+The exact residual Partial identities after B5 are `initialize`,
 `initialized`, `error`, `item/commandExecution/requestApproval`,
 `item/fileChange/requestApproval`, and `item/tool/requestUserInput`.
 
@@ -367,15 +368,81 @@ again when more than one identity independently reaches it. Every seed and
 expansion must pass the independent Draft-07 path before its identity can be
 Complete.
 
-## Closure target
+## Final closure
 
-At the end of B5, the exact A1.2 ratchet must be:
+The checked final report is
+`tools/codex/app-server-evidence/0.144.6/a1-2-closure-report.json`.
+`tools/codex/app_server_a1_2_closure.py check` reconstructs it from the
+canonical registry and checked offline evidence. The report is a ratchet and
+review artifact, not a runtime registry.
+
+At the end of B5, the exact A1.2 ratchet is:
 
 ```text
 A1.2 Complete:          45
 A1.2 Partial:            0
 A1.2 NotImplemented:     0
 ```
+
+The corresponding global result is 212 Complete, 6 Partial, 121
+NotImplemented, and 48 NotApplicable. The exact 18/7/1/19 taxonomy,
+26/11/8 classification split, 45-row production module assignment, 18 client
+result obligations, one server-response obligation, two Unit results, sixteen
+Concrete results, 104 reachable definitions, 302 schema paths, and 272 known
+property declarations are identity-list ratchets rather than count-only
+claims.
+
+The final offline fixture corpus contains 4,815 indexed records: 1,881
+positive and 2,934 negative. It rejects 19,229 required-property removals and
+19,051 wrong-type mutations, records the exact 178 schema-authorized
+unconstrained exclusions, and exercises 19,631 optional present/omission
+locations. Commit 5 generation and deterministic check took 32.198 and
+32.314 seconds locally. The final cold Codex-label and full-suite runs
+completed the registered exhaustive infrastructure test in 152.31 and
+149.87 seconds respectively, under its unchanged 300-second timeout. Peak
+memory was not recorded because GNU `time` is unavailable in the validation
+environment.
+
+## Validation
+
+The final GCC Debug tree was configured with tests and applications enabled
+and built to 100% with four-way parallelism. `ctest -N` registered exactly
+285 tests. The final Codex-label boundary passed all 115 selected tests in
+396.75 seconds, and the complete repository boundary passed all 285 tests in
+403.27 seconds. Both runs honestly skipped only the credential- and
+quota-gated `CodexTypedAppServerIntegrationTest`; the established
+non-credential raw handshake passed, including an explicit 0.19-second run.
+The explicit installed-consumer regex passed 1/1 in 27.52 seconds, and
+`codex-backend` plus `codex-backend-client` rebuilt successfully.
+
+The final package timings in the complete run were 131.51 seconds for the
+offline source-package audit, 11.33 seconds for the component binary-package
+audit, and 27.37 seconds for the staged installed consumer. One preceding
+Codex-label attempt let CPack's serial `preinstall` rebuild downstream
+targets after the final codec relink and reached the existing binary-package
+timeout. Completing the required full parallel build first restored the
+unchanged audit to 12.12 seconds in isolation and 12.31 seconds in the
+definitive Codex-label run; no timeout was increased and no package assertion
+was weakened.
+
+Clang 21.1.8 passed the focused 21-test A1.2 matrix. The tree uses one scoped
+`-Wno-error=nrvo` concession for a pre-existing unchanged frontend NRVO
+warning; all other configured warnings remain errors. The same 21 tests
+passed under ASan in 6.09 seconds, ASan plus leak detection in 6.14 seconds,
+and UBSan in 4.48 seconds. Leak detection required the unrestricted test
+environment because the development sandbox denies the ptrace operation
+used by LeakSanitizer; it reported no finding when run with that capability.
+
+After every build, package, documentation, and test output was present, the
+global synthetic-secret guard passed across the GCC, Clang, ASan, and UBSan
+trees: 41,626 encountered paths, 41,275 unique file scans, 21 exact source
+allow-list entries, and 42 verified package copies. Its planted negative
+self-test ran in the same invocation. The guard prints only paths and record
+identities on failure, never the matched value.
+
+Per-commit test changes, retained pre-existing contracts, and exact negative
+diagnostic codes are recorded in
+`docs/ai/openai/codex/a1-2-test-integrity.md`.
 
 Commit 6 is closure and verification only. Missing runtime types, handlers,
 codecs, descriptors, or facade operations must be repaired in their owning

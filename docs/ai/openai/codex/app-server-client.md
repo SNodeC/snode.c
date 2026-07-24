@@ -8,10 +8,13 @@ communicates over standard input and standard output.
 
 The client implements process and transport lifecycle, the Codex initialization
 handshake, a generic raw protocol engine, and typed facades over that engine.
-Callers can submit arbitrary raw App Server messages or use the typed thread,
-turn, event, item, approval, and user-input API after the client reaches
-`Ready`. See [Typed Codex App Server API](typed-api.md) for the typed boundary
-and forward-compatibility rules.
+Callers can submit arbitrary raw App Server messages or use the grouped
+accounts, models, configuration, thread, turn, event, approval, and user-input
+API after the client reaches `Ready`. See
+[Typed Codex App Server API](typed-api.md) for the public model and
+forward-compatibility rules, and the
+[A1.2 accounts, models, and configuration report](a1-2-accounts-models-configuration.md)
+for that slice's exact closure and compatibility evidence.
 
 ## Public interface
 
@@ -52,12 +55,49 @@ client.typed().threads();
 client.typed().turns();
 client.typed().events();
 client.typed().requests();
+client.typed().accounts();
+client.typed().models();
+client.typed().configuration();
 ```
 
-`typed::Client` delegates to the four facade objects attached to the same raw
+`typed::Client` delegates to all seven facade objects attached to the same raw
 protocol engine. The legacy direct `threads()`, `turns()`, `events()`, and
-`requests()` accessors remain deprecated source-compatible forwarders; no
-future domain facade is added directly to `AppServerClient`.
+`requests()` accessors remain deprecated source-compatible forwarders.
+Accounts, models, and configuration were introduced only in grouped form, so
+`AppServerClient` has no direct `accounts()`, `models()`, or
+`configuration()` accessor.
+
+The A1.2 local typed operations are:
+
+- accounts: `cancelLogin` (`account/login/cancel`), `startLogin`
+  (`account/login/start`), `logout` (`account/logout`),
+  `consumeRateLimitResetCredit` (`account/rateLimitResetCredit/consume`),
+  `readRateLimits` (`account/rateLimits/read`), `read` (`account/read`),
+  `sendAddCreditsNudgeEmail` (`account/sendAddCreditsNudgeEmail`),
+  `readUsage` (`account/usage/read`), and `readWorkspaceMessages`
+  (`account/workspaceMessages/read`);
+- models: `list` (`model/list`) and `readProviderCapabilities`
+  (`modelProvider/capabilities/read`); and
+- configuration: `batchWrite` (`config/batchWrite`), `reloadMcpServers`
+  (`config/mcpServer/reload`), `read` (`config/read`), `writeValue`
+  (`config/value/write`), `readRequirements` (`configRequirements/read`),
+  `setExperimentalFeatureEnablement`
+  (`experimentalFeature/enablement/set`), and `listExperimentalFeatures`
+  (`experimentalFeature/list`).
+
+These 18 operations are C++ APIs for direct local callers. They do not add
+backend commands, frontend commands or state, REST/WebSocket/MQTT endpoints,
+or any other remote exposure. The two `experimentalFeature/*` names above are
+stable management methods in the pinned schema; they do not pull
+experimental-only App Server operations into the typed surface.
+
+The authentication-refresh server request remains under
+`client.typed().requests()`. Its canonical request and response types preserve
+omitted, explicit-null, and value states for the previous account/workspace ID
+and plan type. The existing `AuthenticationRequest`,
+`AuthenticationResponse`, and `Requests::respond(...)` source form remains
+available, while `respondRefresh(...)` carries the schema-complete tri-state
+response.
 
 The default constructor runs:
 

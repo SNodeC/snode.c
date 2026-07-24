@@ -311,6 +311,8 @@ copy of the A1.1 generator:
 ```sh
 python3 tools/codex/app_server_a1_2.py generate
 python3 tools/codex/app_server_a1_2.py check
+python3 tools/codex/app_server_a1_2_closure.py generate
+python3 tools/codex/app_server_a1_2_closure.py check
 ```
 
 The checked start state, implementation plan, and full transitive type/path
@@ -318,7 +320,8 @@ closure are:
 
 - `app-server-evidence/0.144.6/a1-2-start-state.json`;
 - `app-server-evidence/0.144.6/a1-2-implementation-plan.json`; and
-- `app-server-evidence/0.144.6/a1-2-type-closure.json`.
+- `app-server-evidence/0.144.6/a1-2-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-2-closure-report.json`.
 
 The audit derives the exact 45-identity denominator, 18 successful client
 result obligations plus the auth-refresh response obligation, four dependency
@@ -327,6 +330,16 @@ the pinned offline inputs. It does not write the production registry or make
 runtime dispatch decisions. The reviewed counts, public API map, and boundary
 decisions are documented in
 `docs/ai/openai/codex/a1-2-accounts-models-configuration.md`.
+
+The thin final-closure entry point rebuilds the audit reports in memory and
+projects their exact 45 identities into one checked ratchet. It requires all
+45 rows to be stable, typed, implemented, mechanically Complete, and bound to
+the reviewed production target. It also locks the 18 client-result and one
+server-response obligations, 18/7/1/19 taxonomy, 26/11/8 classification,
+global 212/6/121/48 metrics, residual Partial list, closure dispositions,
+fixture/mutation totals, and frontend/application boundary fingerprints. The
+report remains evidence-side metadata; the production registry remains the
+only runtime authority.
 
 ## Re-running the pinned upstream generation
 
@@ -420,6 +433,9 @@ Do not hand-edit these generated artifacts:
 - `app-server-evidence/0.144.6/a1-1-closure-report.json`;
 - `app-server-evidence/0.144.6/a1-1-operation-production-coverage.json`;
 - `app-server-evidence/0.144.6/a1-1-notification-production-coverage.json`;
+- `app-server-evidence/0.144.6/a1-2-implementation-plan.json`;
+- `app-server-evidence/0.144.6/a1-2-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-2-closure-report.json`;
 - `app-server-fixtures/0.144.6/`;
 - `ClientOperationCodecDescriptors.inc`;
 - `ConversationUnionCodecDescriptors.inc`;

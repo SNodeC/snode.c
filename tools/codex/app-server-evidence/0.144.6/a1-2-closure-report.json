@@ -1,0 +1,3330 @@
+{
+  "authority": {
+    "production_authority": "ai::openai::codex::detail::ProtocolSurfaceRegistry",
+    "report_role": "non-authoritative deterministic review and closure evidence",
+    "response_root_rule": "18 client successful-result roots and one server-request response root are obligations, not registry identities"
+  },
+  "codex_version": "codex-cli 0.144.6",
+  "counts": {
+    "a1_2_schema_status": {
+      "Complete": 45,
+      "NotApplicable": 0,
+      "NotImplemented": 0,
+      "Partial": 0
+    },
+    "classifications": {
+      "RootOwnedNestedUnion": 11,
+      "SharedWithinSlice": 8,
+      "StablePublicRoot": 26
+    },
+    "fixture_corpus": {
+      "negative": 2934,
+      "positive": 1881,
+      "total": 4815
+    },
+    "fixture_coverage": {
+      "identities_with_positive_fixtures": 270,
+      "operation_role_actual": 194,
+      "operation_role_expected": 194,
+      "optional_omissions_accepted": 19631,
+      "optional_present_locations": 19631,
+      "positive_fixtures": 1881,
+      "required_field_removals_rejected": 19229,
+      "surface_identities": 387,
+      "wrong_type_mutations_rejected": 19051,
+      "wrong_type_unconstrained_exclusions": 178
+    },
+    "fixture_mutations": {
+      "alternative_branch_acceptances": 1,
+      "globally_optional_locations": 19631,
+      "optional_cross_fragment_exclusions": 0,
+      "optional_omissions_accepted": 19631,
+      "optional_present_locations": 19631,
+      "required_field_removals_rejected": 19229,
+      "required_locations": 19229,
+      "selected_branch_required_locations": 19229,
+      "wrong_type_mutations_rejected": 19051,
+      "wrong_type_unconstrained_exclusions": 178
+    },
+    "global_schema_status": {
+      "Complete": 212,
+      "NotApplicable": 48,
+      "NotImplemented": 121,
+      "Partial": 6
+    },
+    "modules": {
+      "AccountsModelsConfiguration": 45
+    },
+    "response_root_obligations_not_identities": {
+      "client_successful_results": 18,
+      "server_request_responses": 1,
+      "total": 19
+    },
+    "result_contract_kinds": {
+      "Concrete": 16,
+      "Unit": 2
+    },
+    "schema_completeness": {
+      "facts_true_by_field": {
+        "authoritative_root_association": 270,
+        "fixture_current": 270,
+        "independently_schema_validated": 270,
+        "nullable_semantics_exercised": 212,
+        "optional_omitted_exercised": 270,
+        "optional_present_exercised": 270,
+        "positive_fixture_coverage": 270,
+        "reachable_union_alternatives_exercised": 212,
+        "required_fields_exercised": 270,
+        "schema_properties_exercised": 212
+      },
+      "identities_with_positive_fixtures": 270,
+      "surface_identities": 387
+    },
+    "taxonomy": {
+      "client_request": 18,
+      "server_notification": 7,
+      "server_request": 1,
+      "tagged_union_discriminator": 19
+    },
+    "type_closure": {
+      "cross_slice_ownership": {
+        "A12ForwardShared": 1,
+        "A12Local": 97,
+        "PriorSliceReuse": 6
+      },
+      "definition_batches": {
+        "B2": 42,
+        "B3": 16,
+        "B4": 32,
+        "B5": 14
+      },
+      "definition_directions": {
+        "DecodeOnly": 87,
+        "EncodeOnly": 17
+      },
+      "definition_dispositions": {
+        "OpenStringEnum": 26,
+        "PublicHandwrittenType": 70,
+        "ReusedExistingType": 8
+      },
+      "definition_mapping_sha256": "7941a6b74955affd9f7cc9bd8284b6e699c1f491b0ef24f8e6e0f924e13e073e",
+      "definition_namespaces": {
+        "legacy": 3,
+        "v2": 101
+      },
+      "definition_shapes": {
+        "object": 67,
+        "open_string_enum": 29,
+        "scalar_alias": 2,
+        "tagged_or_untagged_union": 6
+      },
+      "property_declarations": 272,
+      "property_presence_models": {
+        "DefaultedValue": 11,
+        "OptionalNullable": 117,
+        "OptionalValue": 5,
+        "RequiredNullable": 5,
+        "RequiredValue": 134
+      },
+      "protocol_defined_opaque_json_paths": 7,
+      "reachable_named_definitions": 104,
+      "schema_path_directions": {
+        "DecodeOnly": 260,
+        "EncodeOnly": 42
+      },
+      "schema_path_disposition_kinds": {
+        "OpenStringEnum": 2,
+        "PrivateCodecHelper": 19,
+        "ProtocolDefinedOpaqueJson": 7,
+        "PublicHandwrittenType": 47,
+        "ReusedExistingType": 185,
+        "StrongIdentifier": 42
+      },
+      "schema_path_dispositions": 302,
+      "schema_path_mapping_sha256": "f389864967bbda8e88535ae555167b77831b84eb750f6d78acbcbc1274b216eb",
+      "schema_path_node_kinds": {
+        "array_element": 21,
+        "map_value": 9,
+        "property": 272
+      },
+      "seed_definitions": 40,
+      "seed_role_associations": {
+        "client_request_params": 12,
+        "client_request_result": 18,
+        "registered_tagged_union_family": 19,
+        "server_notification_params": 7,
+        "server_request_params": 1,
+        "server_request_response": 1
+      },
+      "semantic_map_key_types": {
+        "typed::ConfigKeyPath": 2,
+        "typed::ExperimentalFeatureId": 6,
+        "typed::PermissionProfileName": 2,
+        "typed::RateLimitId": 2
+      },
+      "sensitivity_classifications": {
+        "AccountUsageData": 41,
+        "AccountWorkspaceIdentity": 5,
+        "AuthenticationFlowData": 13,
+        "CredentialSecret": 3,
+        "EphemeralAuthenticationCode": 1,
+        "NonSensitiveProtocolData": 206,
+        "PersonallyIdentifyingAccountData": 7,
+        "PotentialCredentialBearingConfiguration": 19,
+        "WorkspaceContent": 7
+      }
+    }
+  },
+  "exact_complete_a1_2_identities": [
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/login/cancel"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountLoginCancel",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/login/start"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountLoginStart",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/logout"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountLogout",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/rateLimitResetCredit/consume"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountRateLimitResetCreditConsume",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/rateLimits/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountRateLimitsRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/sendAddCreditsNudgeEmail"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountSendAddCreditsNudgeEmail",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/usage/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountUsageRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "account/workspaceMessages/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::AccountWorkspaceMessagesRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B5",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/batchWrite"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ConfigBatchWrite",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B5",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/mcpServer/reload"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ConfigMcpServerReload",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ConfigRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B5",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "config/value/write"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ConfigValueWrite",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "configRequirements/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ConfigRequirementsRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B5",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "experimentalFeature/enablement/set"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ExperimentalFeatureEnablementSet",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B5",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "experimentalFeature/list"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ExperimentalFeatureList",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B3",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "model/list"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ModelList",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B3",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "modelProvider/capabilities/read"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::ModelProviderCapabilitiesRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/login/completed"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::AccountLoginCompleted",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/rateLimits/updated"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::AccountRateLimitsUpdated",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/updated"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::AccountUpdated",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "configWarning"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::ConfigWarning",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B3",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/rerouted"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::ModelRerouted",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B3",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/safetyBuffering/updated"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::ModelSafetyBufferingUpdated",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B3",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/verification"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::ModelVerification",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "account/chatgptAuthTokens/refresh"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerRequestTarget::ChatgptAuthTokensRefresh",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "amazonBedrock"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::AccountAmazonBedrock",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "apiKey"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::AccountApiKey",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "Account",
+        "name": "chatgpt"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::AccountChatgpt",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "enterpriseManaged"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceEnterpriseManaged",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "legacyManagedConfigTomlFromFile"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromFile",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "legacyManagedConfigTomlFromMdm"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceLegacyManagedConfigTomlFromMdm",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "mdm"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceMdm",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "project"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceProject",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "sessionFlags"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSessionFlags",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "system"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceSystem",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B4",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ConfigLayerSource",
+        "name": "user"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::ConfigLayerSourceUser",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "apiKey"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountParamsApiKey",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgpt"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgpt",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgptAuthTokens"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgptAuthTokens",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountParams",
+        "name": "chatgptDeviceCode"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountParamsChatgptDeviceCode",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "apiKey"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountResponseApiKey",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgpt"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgpt",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgptAuthTokens"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgptAuthTokens",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    },
+    {
+      "implementation_status": "Implemented",
+      "owning_implementation_batch": "B2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "LoginAccountResponse",
+        "name": "chatgptDeviceCode"
+      },
+      "runtime_disposition": "Typed",
+      "runtime_target": "AccountsModelsConfigurationUnionTarget::LoginAccountResponseChatgptDeviceCode",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      },
+      "schema_status": "Complete"
+    }
+  ],
+  "exact_residual_partial_identities": [
+    {
+      "category": "client_notification",
+      "discriminator_field": "method",
+      "domain": "ClientNotification",
+      "name": "initialized"
+    },
+    {
+      "category": "client_request",
+      "discriminator_field": "method",
+      "domain": "ClientRequest",
+      "name": "initialize"
+    },
+    {
+      "category": "server_notification",
+      "discriminator_field": "method",
+      "domain": "ServerNotification",
+      "name": "error"
+    },
+    {
+      "category": "server_request",
+      "discriminator_field": "method",
+      "domain": "ServerRequest",
+      "name": "item/commandExecution/requestApproval"
+    },
+    {
+      "category": "server_request",
+      "discriminator_field": "method",
+      "domain": "ServerRequest",
+      "name": "item/fileChange/requestApproval"
+    },
+    {
+      "category": "server_request",
+      "discriminator_field": "method",
+      "domain": "ServerRequest",
+      "name": "item/tool/requestUserInput"
+    }
+  ],
+  "format_version": 1,
+  "frontend_backend_application_nonchange": {
+    "frontend_protocol_v1": {
+      "docs/ai/openai/codex/frontend-protocol-v1.md": "5f53a6219f8dc45a09ec7ddca05f2f1f104ce0c7fee824de98492815fc502017",
+      "docs/ai/openai/codex/frontend-protocol-v1.schema.json": "a27721164607b79a8b268c3adb035211a6efa82cb4645632b9b9a59302734c04"
+    },
+    "source_trees": {
+      "src/ai/openai/codex/backend": {
+        "file_count": 14,
+        "sha256": "615169ee0121293f1a8d53d9bab8b83960d3060251ba38ff648bae9b31192228"
+      },
+      "src/ai/openai/codex/frontend": {
+        "file_count": 14,
+        "sha256": "2f87dfea3a01a2e74b8b9637b156f8535351c880b6c2d92d0723765e484583ff"
+      },
+      "src/apps/codex-backend": {
+        "file_count": 10,
+        "sha256": "2e3bebfbd4a3060eb7b39a6dfa2f5590175a4bc7874594f77de6f31a983737b9"
+      },
+      "src/apps/codex-backend-client": {
+        "file_count": 21,
+        "sha256": "c96bb51b727fd4f6a8a31034f906476e1e10aa1357ae889b9a664f11c09ea337"
+      }
+    }
+  },
+  "generated_notice": "Generated by tools/codex/app_server_a1_2_closure.py; do not edit.",
+  "notifications": [
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::AccountLoginCompletedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/login/completed"
+      },
+      "wire_method": "account/login/completed"
+    },
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::AccountRateLimitsUpdatedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/rateLimits/updated"
+      },
+      "wire_method": "account/rateLimits/updated"
+    },
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::AccountUpdatedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "account/updated"
+      },
+      "wire_method": "account/updated"
+    },
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::ConfigWarningNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "configWarning"
+      },
+      "wire_method": "configWarning"
+    },
+    {
+      "backend_core_handling": "retain exact existing model-rerouted reducer and bounded history semantics",
+      "payload_type": "typed::ModelReroutedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/rerouted"
+      },
+      "wire_method": "model/rerouted"
+    },
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::ModelSafetyBufferingUpdatedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/safetyBuffering/updated"
+      },
+      "wire_method": "model/safetyBuffering/updated"
+    },
+    {
+      "backend_core_handling": "typed event -> preserveUnmodeledTypedEvent -> CodexExtensionReceived(params only) -> bounded extension state",
+      "payload_type": "typed::ModelVerificationNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "model/verification"
+      },
+      "wire_method": "model/verification"
+    }
+  ],
+  "operations": [
+    {
+      "api_method": "typed::Accounts::cancelLogin",
+      "params_type": "CancelLoginAccountParams",
+      "public_result_type": "CancelLoginAccountResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "CancelLoginAccountResponse",
+      "unit_params_omitted": null,
+      "wire_method": "account/login/cancel"
+    },
+    {
+      "api_method": "typed::Accounts::startLogin",
+      "params_type": "LoginAccountParams",
+      "public_result_type": "LoginAccountResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "LoginAccountResponse",
+      "unit_params_omitted": null,
+      "wire_method": "account/login/start"
+    },
+    {
+      "api_method": "typed::Accounts::logout",
+      "params_type": "Unit",
+      "public_result_type": "Unit",
+      "read_only_integration_permitted": false,
+      "result_kind": "Unit",
+      "result_schema_type": "LogoutAccountResponse",
+      "unit_params_omitted": false,
+      "wire_method": "account/logout"
+    },
+    {
+      "api_method": "typed::Accounts::consumeRateLimitResetCredit",
+      "params_type": "ConsumeAccountRateLimitResetCreditParams",
+      "public_result_type": "ConsumeAccountRateLimitResetCreditResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "ConsumeAccountRateLimitResetCreditResponse",
+      "unit_params_omitted": null,
+      "wire_method": "account/rateLimitResetCredit/consume"
+    },
+    {
+      "api_method": "typed::Accounts::readRateLimits",
+      "params_type": "Unit",
+      "public_result_type": "GetAccountRateLimitsResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "GetAccountRateLimitsResponse",
+      "unit_params_omitted": false,
+      "wire_method": "account/rateLimits/read"
+    },
+    {
+      "api_method": "typed::Accounts::read",
+      "params_type": "GetAccountParams",
+      "public_result_type": "GetAccountResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "GetAccountResponse",
+      "unit_params_omitted": null,
+      "wire_method": "account/read"
+    },
+    {
+      "api_method": "typed::Accounts::sendAddCreditsNudgeEmail",
+      "params_type": "SendAddCreditsNudgeEmailParams",
+      "public_result_type": "SendAddCreditsNudgeEmailResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "SendAddCreditsNudgeEmailResponse",
+      "unit_params_omitted": null,
+      "wire_method": "account/sendAddCreditsNudgeEmail"
+    },
+    {
+      "api_method": "typed::Accounts::readUsage",
+      "params_type": "Unit",
+      "public_result_type": "GetAccountTokenUsageResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "GetAccountTokenUsageResponse",
+      "unit_params_omitted": false,
+      "wire_method": "account/usage/read"
+    },
+    {
+      "api_method": "typed::Accounts::readWorkspaceMessages",
+      "params_type": "Unit",
+      "public_result_type": "GetWorkspaceMessagesResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "GetWorkspaceMessagesResponse",
+      "unit_params_omitted": false,
+      "wire_method": "account/workspaceMessages/read"
+    },
+    {
+      "api_method": "typed::Configuration::batchWrite",
+      "params_type": "ConfigBatchWriteParams",
+      "public_result_type": "ConfigWriteResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "ConfigWriteResponse",
+      "unit_params_omitted": null,
+      "wire_method": "config/batchWrite"
+    },
+    {
+      "api_method": "typed::Configuration::reloadMcpServers",
+      "params_type": "Unit",
+      "public_result_type": "Unit",
+      "read_only_integration_permitted": false,
+      "result_kind": "Unit",
+      "result_schema_type": "McpServerRefreshResponse",
+      "unit_params_omitted": false,
+      "wire_method": "config/mcpServer/reload"
+    },
+    {
+      "api_method": "typed::Configuration::read",
+      "params_type": "ConfigReadParams",
+      "public_result_type": "ConfigReadResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "ConfigReadResponse",
+      "unit_params_omitted": null,
+      "wire_method": "config/read"
+    },
+    {
+      "api_method": "typed::Configuration::writeValue",
+      "params_type": "ConfigValueWriteParams",
+      "public_result_type": "ConfigWriteResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "ConfigWriteResponse",
+      "unit_params_omitted": null,
+      "wire_method": "config/value/write"
+    },
+    {
+      "api_method": "typed::Configuration::readRequirements",
+      "params_type": "Unit",
+      "public_result_type": "ConfigRequirementsReadResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "ConfigRequirementsReadResponse",
+      "unit_params_omitted": false,
+      "wire_method": "configRequirements/read"
+    },
+    {
+      "api_method": "typed::Configuration::setExperimentalFeatureEnablement",
+      "params_type": "ExperimentalFeatureEnablementSetParams",
+      "public_result_type": "ExperimentalFeatureEnablementSetResponse",
+      "read_only_integration_permitted": false,
+      "result_kind": "Concrete",
+      "result_schema_type": "ExperimentalFeatureEnablementSetResponse",
+      "unit_params_omitted": null,
+      "wire_method": "experimentalFeature/enablement/set"
+    },
+    {
+      "api_method": "typed::Configuration::listExperimentalFeatures",
+      "params_type": "ExperimentalFeatureListParams",
+      "public_result_type": "ExperimentalFeatureListResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "ExperimentalFeatureListResponse",
+      "unit_params_omitted": null,
+      "wire_method": "experimentalFeature/list"
+    },
+    {
+      "api_method": "typed::Models::list",
+      "params_type": "ModelListParams",
+      "public_result_type": "ModelListResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "ModelListResponse",
+      "unit_params_omitted": null,
+      "wire_method": "model/list"
+    },
+    {
+      "api_method": "typed::Models::readProviderCapabilities",
+      "params_type": "ModelProviderCapabilitiesReadParams",
+      "public_result_type": "ModelProviderCapabilitiesReadResponse",
+      "read_only_integration_permitted": true,
+      "result_kind": "Concrete",
+      "result_schema_type": "ModelProviderCapabilitiesReadResponse",
+      "unit_params_omitted": null,
+      "wire_method": "modelProvider/capabilities/read"
+    }
+  ],
+  "response_root_obligations": {
+    "client_successful_results": [
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "CancelLoginAccountResponse",
+        "wire_method": "account/login/cancel"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "LoginAccountResponse",
+        "wire_method": "account/login/start"
+      },
+      {
+        "result_kind": "Unit",
+        "result_schema_type": "LogoutAccountResponse",
+        "wire_method": "account/logout"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ConsumeAccountRateLimitResetCreditResponse",
+        "wire_method": "account/rateLimitResetCredit/consume"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "GetAccountRateLimitsResponse",
+        "wire_method": "account/rateLimits/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "GetAccountResponse",
+        "wire_method": "account/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "SendAddCreditsNudgeEmailResponse",
+        "wire_method": "account/sendAddCreditsNudgeEmail"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "GetAccountTokenUsageResponse",
+        "wire_method": "account/usage/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "GetWorkspaceMessagesResponse",
+        "wire_method": "account/workspaceMessages/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ConfigWriteResponse",
+        "wire_method": "config/batchWrite"
+      },
+      {
+        "result_kind": "Unit",
+        "result_schema_type": "McpServerRefreshResponse",
+        "wire_method": "config/mcpServer/reload"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ConfigReadResponse",
+        "wire_method": "config/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ConfigWriteResponse",
+        "wire_method": "config/value/write"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ConfigRequirementsReadResponse",
+        "wire_method": "configRequirements/read"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ExperimentalFeatureEnablementSetResponse",
+        "wire_method": "experimentalFeature/enablement/set"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ExperimentalFeatureListResponse",
+        "wire_method": "experimentalFeature/list"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ModelListResponse",
+        "wire_method": "model/list"
+      },
+      {
+        "result_kind": "Concrete",
+        "result_schema_type": "ModelProviderCapabilitiesReadResponse",
+        "wire_method": "modelProvider/capabilities/read"
+      }
+    ],
+    "server_request_responses": [
+      {
+        "response_type": "ChatgptAuthTokensRefreshResponse",
+        "wire_method": "account/chatgptAuthTokens/refresh"
+      }
+    ]
+  },
+  "sensitivity": {
+    "authorized_protocol_defined_opaque_json_paths": [
+      {
+        "reason": "the pinned schema explicitly permits arbitrary analytics keys and values with additionalProperties: true",
+        "schema_path": "#/definitions/v2/AnalyticsConfig/additionalProperties"
+      },
+      {
+        "reason": "the pinned schema explicitly permits unknown configuration keys with additionalProperties: true while known fields remain typed",
+        "schema_path": "#/definitions/v2/Config/additionalProperties"
+      },
+      {
+        "reason": "the pinned desktop configuration map explicitly permits arbitrary JSON values",
+        "schema_path": "#/definitions/v2/Config/properties/desktop/additionalProperties"
+      },
+      {
+        "reason": "ConfigBatchWriteParams.ConfigEdit.value is the protocol-defined arbitrary JSON write value",
+        "schema_path": "#/definitions/v2/ConfigEdit/properties/value"
+      },
+      {
+        "reason": "the pinned schema defines a complete layer config value as arbitrary JSON while layer metadata remains typed",
+        "schema_path": "#/definitions/v2/ConfigLayer/properties/config"
+      },
+      {
+        "reason": "config/value/write.value is the protocol-defined arbitrary JSON write value",
+        "schema_path": "#/definitions/v2/ConfigValueWriteParams/properties/value"
+      },
+      {
+        "reason": "the pinned schema defines effectiveValue without constraints",
+        "schema_path": "#/definitions/v2/OverriddenMetadata/properties/effectiveValue"
+      }
+    ],
+    "classifications": {
+      "AccountUsageData": 41,
+      "AccountWorkspaceIdentity": 5,
+      "AuthenticationFlowData": 13,
+      "CredentialSecret": 3,
+      "EphemeralAuthenticationCode": 1,
+      "NonSensitiveProtocolData": 206,
+      "PersonallyIdentifyingAccountData": 7,
+      "PotentialCredentialBearingConfiguration": 19,
+      "WorkspaceContent": 7
+    },
+    "policy": {
+      "backend_canonical_state_from_typing_permitted": false,
+      "configuration_opaque_values_are_potentially_credential_bearing": true,
+      "diagnostic_values_permitted": false,
+      "frontend_exposure_from_typing_permitted": false,
+      "generated_evidence_values_permitted": false
+    }
+  },
+  "server_request": {
+    "compatibility": "preserve AuthenticationRequest/AuthenticationResponse and Requests::respond compatibility with explicit tri-state canonical adapters",
+    "existing_compatibility_overload": "typed::Requests::respond(AuthenticationRequest, AuthenticationResponse)",
+    "occurrence_token_owner": "AppServerClient::RawProtocol pending server-request registry; typed::ServerRequestToken",
+    "params_type": "ChatgptAuthTokensRefreshParams",
+    "permitted_test_strategy": "offline fixture, fake transport, and local socket bytes; never real token refresh",
+    "protocol_surface_key": {
+      "category": "server_request",
+      "discriminator_field": "method",
+      "domain": "ServerRequest",
+      "name": "account/chatgptAuthTokens/refresh"
+    },
+    "response_type": "ChatgptAuthTokensRefreshResponse",
+    "sensitive_fields": [
+      "accessToken",
+      "chatgptAccountId",
+      "chatgptPlanType",
+      "previousAccountId"
+    ]
+  },
+  "sources": {
+    "fixture_coverage": {
+      "path": "tools/codex/app-server-evidence/0.144.6/fixture-coverage.json",
+      "sha256": "958fd18a918c75a37cdf215ea25addfbd83ab7c225e8e93b1b217c9a5b770e07"
+    },
+    "fixture_index": {
+      "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
+      "sha256": "2900b6691f8133af9730ad0e207511f5b986861c24506896f17b49a5dc793f7c"
+    },
+    "generator": {
+      "path": "tools/codex/app_server_a1_2_closure.py",
+      "sha256": "354ad78630df928e2184360322e28f547510493e2ef1fd2377a2b316c05146b5"
+    },
+    "implementation_plan": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-2-implementation-plan.json",
+      "sha256": "ff5ab66b79cd53c614a93a8d5cd1a065c54b8a251c706adeb805c900f43f44c4"
+    },
+    "registry": {
+      "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc",
+      "sha256": "b845d442def7ba672122fa9c4f0ab28703d244d92be2c41706aa614b80d01948"
+    },
+    "schema_completeness": {
+      "path": "tools/codex/app-server-evidence/0.144.6/schema-completeness-evidence.json",
+      "sha256": "c60fd80b369a78224f101d291f56ba26c33c3a574caf9c181fc4c27b9434b21b"
+    },
+    "type_closure": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-2-type-closure.json",
+      "sha256": "2b8bc5de1c56b1ce7b809939a744ec1027a78574adfc9e5e8c1e966a385047cb"
+    }
+  },
+  "staged_exact_complete_ratchets": [
+    {
+      "batch": "B2",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/cancel"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/logout"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimitResetCredit/consume"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimits/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/sendAddCreditsNudgeEmail"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/usage/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/workspaceMessages/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/login/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/rateLimits/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/updated"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "account/chatgptAuthTokens/refresh"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "amazonBedrock"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptDeviceCode"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptDeviceCode"
+        }
+      ],
+      "complete_cumulative_identity_count": 24,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/cancel"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/logout"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimitResetCredit/consume"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimits/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/sendAddCreditsNudgeEmail"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/usage/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/workspaceMessages/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/login/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/rateLimits/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/updated"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "account/chatgptAuthTokens/refresh"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "amazonBedrock"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptDeviceCode"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptDeviceCode"
+        }
+      ],
+      "complete_owned_identity_count": 24,
+      "derived_global_schema_status": {
+        "Complete": 191,
+        "NotApplicable": 48,
+        "NotImplemented": 141,
+        "Partial": 7
+      }
+    },
+    {
+      "batch": "B3",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/cancel"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/logout"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimitResetCredit/consume"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimits/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/sendAddCreditsNudgeEmail"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/usage/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/workspaceMessages/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "model/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "modelProvider/capabilities/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/login/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/rateLimits/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/rerouted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/safetyBuffering/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/verification"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "account/chatgptAuthTokens/refresh"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "amazonBedrock"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptDeviceCode"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptDeviceCode"
+        }
+      ],
+      "complete_cumulative_identity_count": 29,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "model/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "modelProvider/capabilities/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/rerouted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/safetyBuffering/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/verification"
+        }
+      ],
+      "complete_owned_identity_count": 5,
+      "derived_global_schema_status": {
+        "Complete": 196,
+        "NotApplicable": 48,
+        "NotImplemented": 137,
+        "Partial": 6
+      }
+    },
+    {
+      "batch": "B4",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/cancel"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/logout"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimitResetCredit/consume"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimits/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/sendAddCreditsNudgeEmail"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/usage/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/workspaceMessages/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "configRequirements/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "model/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "modelProvider/capabilities/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/login/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/rateLimits/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "configWarning"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/rerouted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/safetyBuffering/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/verification"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "account/chatgptAuthTokens/refresh"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "amazonBedrock"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "enterpriseManaged"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromFile"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromMdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "mdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "project"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "sessionFlags"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "system"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "user"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptDeviceCode"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptDeviceCode"
+        }
+      ],
+      "complete_cumulative_identity_count": 40,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "configRequirements/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "configWarning"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "enterpriseManaged"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromFile"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromMdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "mdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "project"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "sessionFlags"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "system"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "user"
+        }
+      ],
+      "complete_owned_identity_count": 11,
+      "derived_global_schema_status": {
+        "Complete": 207,
+        "NotApplicable": 48,
+        "NotImplemented": 126,
+        "Partial": 6
+      }
+    },
+    {
+      "batch": "B5",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/cancel"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/login/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/logout"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimitResetCredit/consume"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/rateLimits/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/sendAddCreditsNudgeEmail"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/usage/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "account/workspaceMessages/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/batchWrite"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/mcpServer/reload"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/value/write"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "configRequirements/read"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "experimentalFeature/enablement/set"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "experimentalFeature/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "model/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "modelProvider/capabilities/read"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/login/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/rateLimits/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "account/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "configWarning"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/rerouted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/safetyBuffering/updated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "model/verification"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "account/chatgptAuthTokens/refresh"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "amazonBedrock"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "Account",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "enterpriseManaged"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromFile"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "legacyManagedConfigTomlFromMdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "mdm"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "project"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "sessionFlags"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "system"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ConfigLayerSource",
+          "name": "user"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountParams",
+          "name": "chatgptDeviceCode"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "apiKey"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgpt"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptAuthTokens"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "LoginAccountResponse",
+          "name": "chatgptDeviceCode"
+        }
+      ],
+      "complete_cumulative_identity_count": 45,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/batchWrite"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/mcpServer/reload"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "config/value/write"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "experimentalFeature/enablement/set"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "experimentalFeature/list"
+        }
+      ],
+      "complete_owned_identity_count": 5,
+      "derived_global_schema_status": {
+        "Complete": 212,
+        "NotApplicable": 48,
+        "NotImplemented": 121,
+        "Partial": 6
+      }
+    }
+  ],
+  "tagged_union_alternatives": [
+    {
+      "alternative": "amazonBedrock",
+      "canonical_public_alternative": "typed::AmazonBedrockAccount",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownAccount",
+      "union": "Account",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "apiKey",
+      "canonical_public_alternative": "typed::ApiKeyAccount",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownAccount",
+      "union": "Account",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "chatgpt",
+      "canonical_public_alternative": "typed::ChatgptAccount",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownAccount",
+      "union": "Account",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "enterpriseManaged",
+      "canonical_public_alternative": "typed::EnterpriseManagedConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "legacyManagedConfigTomlFromFile",
+      "canonical_public_alternative": "typed::LegacyManagedConfigTomlFromFileConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "legacyManagedConfigTomlFromMdm",
+      "canonical_public_alternative": "typed::LegacyManagedConfigTomlFromMdmConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "mdm",
+      "canonical_public_alternative": "typed::MdmConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "project",
+      "canonical_public_alternative": "typed::ProjectConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "sessionFlags",
+      "canonical_public_alternative": "typed::SessionFlagsConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "system",
+      "canonical_public_alternative": "typed::SystemConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "user",
+      "canonical_public_alternative": "typed::UserConfigLayerSource",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownConfigLayerSource",
+      "union": "ConfigLayerSource",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "apiKey",
+      "canonical_public_alternative": "typed::ApiKeyLoginAccountParams",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountParams",
+      "union": "LoginAccountParams",
+      "unknown_alternative_direction": "outgoing-explicit-and-rejected-before-enqueue"
+    },
+    {
+      "alternative": "chatgpt",
+      "canonical_public_alternative": "typed::ChatgptLoginAccountParams",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountParams",
+      "union": "LoginAccountParams",
+      "unknown_alternative_direction": "outgoing-explicit-and-rejected-before-enqueue"
+    },
+    {
+      "alternative": "chatgptAuthTokens",
+      "canonical_public_alternative": "typed::ChatgptAuthTokensLoginAccountParams",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountParams",
+      "union": "LoginAccountParams",
+      "unknown_alternative_direction": "outgoing-explicit-and-rejected-before-enqueue"
+    },
+    {
+      "alternative": "chatgptDeviceCode",
+      "canonical_public_alternative": "typed::ChatgptDeviceCodeLoginAccountParams",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountParams",
+      "union": "LoginAccountParams",
+      "unknown_alternative_direction": "outgoing-explicit-and-rejected-before-enqueue"
+    },
+    {
+      "alternative": "apiKey",
+      "canonical_public_alternative": "typed::ApiKeyLoginAccountResponse",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountResponse",
+      "union": "LoginAccountResponse",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "chatgpt",
+      "canonical_public_alternative": "typed::ChatgptLoginAccountResponse",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountResponse",
+      "union": "LoginAccountResponse",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "chatgptAuthTokens",
+      "canonical_public_alternative": "typed::ChatgptAuthTokensLoginAccountResponse",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountResponse",
+      "union": "LoginAccountResponse",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    },
+    {
+      "alternative": "chatgptDeviceCode",
+      "canonical_public_alternative": "typed::ChatgptDeviceCodeLoginAccountResponse",
+      "discriminator_field": "type",
+      "future_unknown_alternative": "typed::UnknownLoginAccountResponse",
+      "union": "LoginAccountResponse",
+      "unknown_alternative_direction": "incoming-with-raw-json-retention"
+    }
+  ],
+  "tagged_union_family_counts": {
+    "Account": 3,
+    "ConfigLayerSource": 8,
+    "LoginAccountParams": 4,
+    "LoginAccountResponse": 4
+  }
+}

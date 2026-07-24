@@ -39,3 +39,42 @@ snodec_add_policy_test(
     CiWorkflowPathsPolicyTest ci/CiWorkflowPathsPolicyTest.cpp
     "ci;codex;phase-a0;phase-a1-0"
 )
+snodec_add_policy_test(
+    CodexA12PublicHeaderPolicyTest
+    codex/CodexA12PublicHeaderPolicyTest.cpp
+    "codex;phase-a1-2;public-api;headers"
+)
+
+find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
+
+add_test(
+    NAME CodexSyntheticSecretLeakGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/security/CodexSyntheticSecretLeakGuardTest.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --build-root
+        ${CMAKE_BINARY_DIR}
+)
+set(
+    CODEX_SYNTHETIC_SECRET_LEAK_GUARD_DEPENDENCIES
+    StagedInstalledConsumerTest
+    CodexSourcePackageTest
+    CodexBinaryPackageTest
+    CodexAppServerGeneratedArtifactsGuardTest
+    CodexA12DocumentationConsistencyTest
+    CodexA12ClosureEvidenceTest
+    CodexAppServerFixtureInfrastructureTest
+    CodexA12PublicHeaderPolicyTest
+)
+set_tests_properties(
+    CodexSyntheticSecretLeakGuardTest
+    PROPERTIES
+        LABELS "policy;security;codex;phase-a1-2;generated;package"
+        ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1"
+        DEPENDS
+            "${CODEX_SYNTHETIC_SECRET_LEAK_GUARD_DEPENDENCIES}"
+        RUN_SERIAL TRUE
+        TIMEOUT 120
+)
