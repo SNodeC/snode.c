@@ -92,6 +92,8 @@ int main() {
     std::size_t schemaNotApplicable = 0;
     std::size_t codexErrorInfoA1_0 = 0;
     std::size_t stableUnreachableInventory = 0;
+    std::size_t a11ModeledNotifications = 0;
+    std::size_t a11PreservedNotifications = 0;
     std::array<std::size_t, 7> categories{};
     std::array<std::size_t, 6> slices{};
     for (const detail::ProtocolSurfaceEntry& entry : registry) {
@@ -153,6 +155,21 @@ int main() {
         codexErrorInfoA1_0 += entry.key.domain == "CodexErrorInfo" && entry.a1Slice == detail::A1Slice::A1_0;
         stableUnreachableInventory += entry.stability == detail::Stability::Stable && entry.typedModule == "StableUnreachableInventory" &&
                                       entry.a1Slice == detail::A1Slice::InventoryOnly;
+        if (entry.key.category == detail::SurfaceCategory::ServerNotification &&
+            entry.a1Slice == detail::A1Slice::A1_1) {
+            a11ModeledNotifications +=
+                entry.frontendProtocol ==
+                    detail::FrontendExposure::ExistingEventSubset &&
+                entry.frontendSecurity ==
+                    detail::FrontendSecurityDecision::
+                        ExistingEventSubsetContract;
+            a11PreservedNotifications +=
+                entry.frontendProtocol ==
+                    detail::FrontendExposure::GenericExtension &&
+                entry.frontendSecurity ==
+                    detail::FrontendSecurityDecision::
+                        ExistingRedactedExtensionContract;
+        }
     }
     result.expectTrue(stable == 351 && experimentalOnly == 36, "registry keeps stable and experimental-only membership distinct");
     result.expectTrue(categories[static_cast<std::size_t>(detail::SurfaceCategory::ClientNotification)] == 1 &&
@@ -167,12 +184,16 @@ int main() {
                           responseItemsNotExposed == 16,
                       "frontend event dispositions distinguish normalized subsets, raw extensions, metadata-only unknown items, and "
                       "undispatched response items");
+    result.expectTrue(
+        a11ModeledNotifications == 12 && a11PreservedNotifications == 25,
+        "the exact 12 existing A1.1 notification semantics stay normalized "
+        "while the 25 new methods use the bounded generic-extension contract");
     result.expectTrue(stableClientAssociations == 87 && stableServerAssociations == 10,
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 130 && schemaPartial == 20 && schemaNotImplemented == 189 && schemaNotApplicable == 48,
-                      "the staged B4 registry advances exactly 38 operation-batch identities without promoting notifications");
+    result.expectTrue(schemaComplete == 167 && schemaPartial == 8 && schemaNotImplemented == 164 && schemaNotApplicable == 48,
+                      "the A1.1 registry reaches the exact final 167/8/164/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -215,7 +236,7 @@ int main() {
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 14>{"error",
+        std::array<std::string_view, 39>{"error",
                                          "thread/started",
                                          "thread/status/changed",
                                          "turn/started",
@@ -223,13 +244,38 @@ int main() {
                                          "item/started",
                                          "item/completed",
                                          "item/agentMessage/delta",
+                                         "item/commandExecution/terminalInteraction",
                                          "item/reasoning/textDelta",
+                                         "item/reasoning/summaryPartAdded",
                                          "item/reasoning/summaryTextDelta",
                                          "item/commandExecution/outputDelta",
+                                         "item/fileChange/outputDelta",
                                          "item/fileChange/patchUpdated",
+                                         "item/mcpToolCall/progress",
+                                         "item/plan/delta",
+                                         "thread/archived",
+                                         "thread/closed",
+                                         "thread/compacted",
+                                         "thread/deleted",
+                                         "thread/goal/cleared",
+                                         "thread/goal/updated",
+                                         "thread/name/updated",
+                                         "thread/realtime/closed",
+                                         "thread/realtime/error",
+                                         "thread/realtime/itemAdded",
+                                         "thread/realtime/outputAudio/delta",
+                                         "thread/realtime/sdp",
+                                         "thread/realtime/started",
+                                         "thread/realtime/transcript/delta",
+                                         "thread/realtime/transcript/done",
+                                         "thread/settings/updated",
                                          "thread/tokenUsage/updated",
+                                         "thread/unarchived",
+                                         "turn/diff/updated",
+                                         "turn/moderationMetadata",
+                                         "turn/plan/updated",
                                          "model/rerouted"},
-        "every existing typed notification dispatch target resolves to its exact registered wire method");
+        "all 39 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
         std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
@@ -652,6 +698,308 @@ int main() {
             }),
         "removing an operation row while retaining its generated target and "
         "descriptor fails with exactly two diagnostics");
+
+    const std::span<const detail::ServerNotificationCodecDescriptor>
+        notificationDescriptors =
+            detail::serverNotificationCodecDescriptors();
+    std::size_t a11NotificationDescriptors = 0;
+    bool exactNotificationDescriptors = notificationDescriptors.size() == 39;
+    bool exactResidualNotificationDescriptors = true;
+    for (const detail::ServerNotificationCodecDescriptor& descriptor :
+         notificationDescriptors) {
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        exactNotificationDescriptors =
+            exactNotificationDescriptors &&
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ServerNotification,
+                    "ServerNotification",
+                    "method",
+                    entry.key.name,
+                } &&
+            descriptor.key == entry.key &&
+            !descriptor.payloadTypeIdentity.empty() &&
+            descriptor.a11ConversationDomain ==
+                (entry.a1Slice == detail::A1Slice::A1_1);
+        a11NotificationDescriptors += descriptor.a11ConversationDomain;
+        if (!descriptor.a11ConversationDomain) {
+            exactResidualNotificationDescriptors =
+                exactResidualNotificationDescriptors &&
+                (descriptor.key.name == "error" ||
+                 descriptor.key.name == "model/rerouted");
+        }
+    }
+    result.expectTrue(
+        exactNotificationDescriptors && a11NotificationDescriptors == 37 &&
+            exactResidualNotificationDescriptors,
+        "generated notification descriptors form an exact 39-row "
+        "registry/payload bijection with 37 A1.1 and two residual rows");
+
+    const auto validateWithNotificationDescriptors =
+        [&](std::span<const detail::ProtocolSurfaceEntry> entries,
+            std::span<const detail::ServerNotificationCodecDescriptor>
+                descriptors) {
+            return detail::validateProtocolSurface(
+                entries,
+                detail::codexErrorInfoCodecDescriptors(),
+                detail::conversationUnionCodecDescriptors(),
+                detail::threadItemCodecDescriptors(),
+                detail::responseItemCodecDescriptors(),
+                detail::clientOperationCodecDescriptors(),
+                descriptors);
+        };
+
+    const auto firstCompleteNotification = std::find_if(
+        notificationDescriptors.begin(),
+        notificationDescriptors.end(),
+        [](const detail::ServerNotificationCodecDescriptor& descriptor) {
+            return descriptor.a11ConversationDomain;
+        });
+    result.expectTrue(
+        firstCompleteNotification != notificationDescriptors.end(),
+        "the descriptor mutation guards select a complete A1.1 notification");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        duplicateNotificationDescriptor(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    duplicateNotificationDescriptor.push_back(*firstCompleteNotification);
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, duplicateNotificationDescriptor),
+            {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+        "a duplicate notification descriptor emits exactly "
+        "DuplicateCodecDescriptor");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        missingNotificationDescriptor(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    missingNotificationDescriptor.erase(std::find_if(
+        missingNotificationDescriptor.begin(),
+        missingNotificationDescriptor.end(),
+        [&](const auto& descriptor) {
+            return descriptor.key == firstCompleteNotification->key;
+        }));
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, missingNotificationDescriptor),
+            {detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a typed complete notification row without its descriptor emits the "
+        "exact missing-descriptor multiset");
+
+    const auto expectWrongNotificationDescriptorKey =
+        [&](auto mutateKey, const char* description) {
+            std::vector<detail::ServerNotificationCodecDescriptor>
+                descriptors(
+                    notificationDescriptors.begin(),
+                    notificationDescriptors.end());
+            const auto selected = std::find_if(
+                descriptors.begin(), descriptors.end(), [&](const auto& row) {
+                    return row.key == firstCompleteNotification->key;
+                });
+            mutateKey(selected->key);
+            result.expectTrue(
+                hasExactCodes(
+                    validateWithNotificationDescriptors(
+                        registry, descriptors),
+                    {detail::ProtocolSurfaceErrorCode::
+                         CodecDescriptorCanonicalKeyMismatch,
+                     detail::ProtocolSurfaceErrorCode::
+                         CodecDescriptorWithoutRegistryRow,
+                     detail::ProtocolSurfaceErrorCode::
+                         RegistryRowWithoutCodecDescriptor,
+                     detail::ProtocolSurfaceErrorCode::
+                         CompleteWithoutCodecDescriptor}),
+                description);
+        };
+    expectWrongNotificationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.category = detail::SurfaceCategory::ServerRequest;
+        },
+        "a notification descriptor with the wrong category emits only the "
+        "exact canonical-key diagnostic multiset");
+    expectWrongNotificationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.domain = "WrongServerNotification";
+        },
+        "a notification descriptor with the wrong domain emits only the "
+        "exact canonical-key diagnostic multiset");
+    expectWrongNotificationDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.field = "wrongMethod";
+        },
+        "a notification descriptor with the wrong field emits only the "
+        "exact canonical-key diagnostic multiset");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        wrongNotificationTarget(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    const auto wrongTargetDescriptor = std::find_if(
+        wrongNotificationTarget.begin(),
+        wrongNotificationTarget.end(),
+        [&](const auto& descriptor) {
+            return descriptor.key == firstCompleteNotification->key;
+        });
+    wrongTargetDescriptor->target = detail::ServerNotificationTarget::Count;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, wrongNotificationTarget),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a descriptor target mismatch emits the exact bidirectional target "
+        "diagnostic multiset");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        wrongNotificationPayload(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    std::find_if(
+        wrongNotificationPayload.begin(),
+        wrongNotificationPayload.end(),
+        [&](const auto& descriptor) {
+            return descriptor.key == firstCompleteNotification->key;
+        })->payloadTypeIdentity = "typed::WrongNotification";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, wrongNotificationPayload),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorContractMismatch}),
+        "a notification descriptor payload mismatch emits exactly "
+        "CodecDescriptorContractMismatch");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        falseNotificationSlice(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    std::find_if(
+        falseNotificationSlice.begin(),
+        falseNotificationSlice.end(),
+        [&](const auto& descriptor) {
+            return descriptor.key == firstCompleteNotification->key;
+        })->a11ConversationDomain = false;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, falseNotificationSlice),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorContractMismatch}),
+        "a false notification slice flag emits exactly "
+        "CodecDescriptorContractMismatch");
+
+    std::vector<detail::ProtocolSurfaceEntry> missingNotificationTarget(
+        registry.begin(), registry.end());
+    findExactEntry(
+        missingNotificationTarget,
+        firstCompleteNotification->key)
+        ->runtimeTarget = std::monostate{};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                missingNotificationTarget, notificationDescriptors),
+            {detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+             detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a complete notification row without its runtime target emits the "
+        "exact five-code bidirectional multiset");
+
+    const auto secondCompleteNotification = std::find_if(
+        std::next(firstCompleteNotification),
+        notificationDescriptors.end(),
+        [](const detail::ServerNotificationCodecDescriptor& descriptor) {
+            return descriptor.a11ConversationDomain;
+        });
+    std::vector<detail::ProtocolSurfaceEntry> duplicateNotificationTarget(
+        registry.begin(), registry.end());
+    findExactEntry(
+        duplicateNotificationTarget,
+        firstCompleteNotification->key)
+        ->runtimeTarget = secondCompleteNotification->target;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                duplicateNotificationTarget, notificationDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 DuplicateRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RuntimeTargetCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "duplicating one notification runtime target emits the exact "
+        "six-code bijection failure multiset");
+
+    std::vector<detail::ProtocolSurfaceEntry> demotedNotificationRow(
+        registry.begin(), registry.end());
+    const auto demotedNotification = findExactEntry(
+        demotedNotificationRow, firstCompleteNotification->key);
+    demotedNotification->runtimeDisposition =
+        detail::RuntimeDisposition::RawPreserved;
+    demotedNotification->typedImplementation =
+        detail::TypedImplementationStatus::NotImplemented;
+    demotedNotification->typedSchemaStatus =
+        detail::TypedSchemaStatus::NotImplemented;
+    demotedNotification->schemaCompleteness = {};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                demotedNotificationRow, notificationDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 RuntimeTargetWithoutTypedImplementation,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutTypedRegistryRow}),
+        "retaining a notification target/descriptor while demoting its row "
+        "emits exactly the two bidirectional diagnostics");
+
+    std::vector<detail::ProtocolSurfaceEntry> falseNotificationCompleteness(
+        registry.begin(), registry.end());
+    findExactEntry(
+        falseNotificationCompleteness,
+        firstCompleteNotification->key)
+        ->schemaCompleteness.noKnownSchemaFieldsDropped = false;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                falseNotificationCompleteness, notificationDescriptors),
+            {detail::ProtocolSurfaceErrorCode::KnownSchemaFieldDropped}),
+        "false notification completeness emits exactly "
+        "KnownSchemaFieldDropped");
+
+    std::vector<detail::ProtocolSurfaceEntry> removedNotificationRow(
+        registry.begin(), registry.end());
+    removedNotificationRow.erase(findExactEntry(
+        removedNotificationRow, firstCompleteNotification->key));
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                removedNotificationRow, notificationDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutRegistryRow}),
+        "removing a notification row while retaining its target/descriptor "
+        "emits exactly the two bidirectional diagnostics");
 
     const std::span<const detail::ConversationUnionCodecDescriptor> conversationDescriptors = detail::conversationUnionCodecDescriptors();
     constexpr std::array<detail::ProtocolSurfaceKey, 58> expectedConversationTargets{{

@@ -340,18 +340,56 @@ namespace {
     }
 
     void testAuxiliaryEvents(tests::support::TestResult& testResult) {
-        const Json changes = Json::array({Json{{"path", "/tmp/a"}, {"kind", "future"}}});
+        const Json changes =
+            Json::array({Json{{"diff", "*** Add File: /tmp/a"}, {"kind", Json{{"type", "add"}}}, {"path", "/tmp/a"}}});
         const Notification fileNotification =
             makeNotification("item/fileChange/patchUpdated",
                              Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"itemId", "file-event"}, {"changes", changes}});
         const Event fileEvent = decodeEvent(fileNotification);
         const FileChangeUpdated* file = as<FileChangeUpdated>(fileEvent);
+        const auto* typedFile = file && file->canonical ? &*file->canonical : nullptr;
         testResult.expectTrue(file && file->changes == changes && file->itemId.value == "file-event" && file->raw == fileNotification.raw,
-                              "file-change patch update preserves typed IDs, opaque changes, and raw event");
+                              "file-change patch update preserves the established raw changes view, typed IDs, and raw event");
+        testResult.expectTrue(typedFile && typedFile->changes.size() == 1 &&
+                                  typedFile->changes.front().diff == "*** Add File: /tmp/a" &&
+                                  typedFile->changes.front().path == "/tmp/a" &&
+                                  std::holds_alternative<typed::AddPatchChangeKind>(typedFile->changes.front().kind) &&
+                                  typedFile->raw == fileNotification.raw,
+                              "file-change patch update adds the complete typed change without weakening its compatibility view");
+
+        const Json legacyPartialChanges = Json::array({Json{{"path", "/tmp/a"}, {"kind", "future"}}});
+        const Notification malformedFileNotification =
+            makeNotification("item/fileChange/patchUpdated",
+                             Json{{"threadId", "thread-event"},
+                                  {"turnId", "turn-event"},
+                                  {"itemId", "file-event"},
+                                  {"changes", legacyPartialChanges}});
+        const Event malformedFileEvent = decodeEvent(malformedFileNotification);
+        const UnknownEvent* malformedFile = as<UnknownEvent>(malformedFileEvent);
+        testResult.expectTrue(
+            malformedFile && malformedFile->params == malformedFileNotification.params &&
+                malformedFile->raw == malformedFileNotification.raw && malformedFile->decodingError &&
+                malformedFile->diagnostic &&
+                malformedFile->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                malformedFile->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning &&
+                malformedFile->diagnostic->surface == "item/fileChange/patchUpdated" &&
+                malformedFile->diagnostic->fieldPath == "$.params",
+            "the former partial file-change shape is retained but now classified by exact malformed-known diagnostics");
 
         const Json usage = {
-            {"last", Json{{"inputTokens", 1}}},
-            {"total", Json{{"inputTokens", 2}}},
+            {"last",
+             Json{{"cachedInputTokens", 0},
+                  {"inputTokens", 1},
+                  {"outputTokens", 2},
+                  {"reasoningOutputTokens", 3},
+                  {"totalTokens", 6}}},
+            {"modelContextWindow", 128000},
+            {"total",
+             Json{{"cachedInputTokens", 4},
+                  {"inputTokens", 5},
+                  {"outputTokens", 6},
+                  {"reasoningOutputTokens", 7},
+                  {"totalTokens", 22}}},
             {"futureUsage", true},
         };
         const Notification usageNotification = makeNotification(
@@ -360,6 +398,41 @@ namespace {
         const TokenUsageUpdated* tokenUsage = as<TokenUsageUpdated>(usageEvent);
         testResult.expectTrue(tokenUsage && tokenUsage->usage == usage && tokenUsage->raw == usageNotification.raw,
                               "token-usage update preserves the complete current/future usage object and raw event");
+        const auto* typedUsage = tokenUsage && tokenUsage->canonical ? &*tokenUsage->canonical : nullptr;
+        testResult.expectTrue(
+            typedUsage && typedUsage->tokenUsage.last.cachedInputTokens == 0 &&
+                typedUsage->tokenUsage.last.inputTokens == 1 && typedUsage->tokenUsage.last.outputTokens == 2 &&
+                typedUsage->tokenUsage.last.reasoningOutputTokens == 3 &&
+                typedUsage->tokenUsage.last.totalTokens == 6 &&
+                typedUsage->tokenUsage.modelContextWindow.hasValue() &&
+                *typedUsage->tokenUsage.modelContextWindow == 128000 &&
+                typedUsage->tokenUsage.total.cachedInputTokens == 4 &&
+                typedUsage->tokenUsage.total.inputTokens == 5 &&
+                typedUsage->tokenUsage.total.outputTokens == 6 &&
+                typedUsage->tokenUsage.total.reasoningOutputTokens == 7 &&
+                typedUsage->tokenUsage.total.totalTokens == 22 && typedUsage->tokenUsage.raw == usage &&
+                typedUsage->raw == usageNotification.raw,
+            "token-usage update exposes every schema field through the canonical typed payload");
+
+        const Json legacyPartialUsage = {
+            {"last", Json{{"inputTokens", 1}}},
+            {"total", Json{{"inputTokens", 2}}},
+            {"futureUsage", true},
+        };
+        const Notification malformedUsageNotification = makeNotification(
+            "thread/tokenUsage/updated",
+            Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"tokenUsage", legacyPartialUsage}});
+        const Event malformedUsageEvent = decodeEvent(malformedUsageNotification);
+        const UnknownEvent* malformedUsage = as<UnknownEvent>(malformedUsageEvent);
+        testResult.expectTrue(
+            malformedUsage && malformedUsage->params == malformedUsageNotification.params &&
+                malformedUsage->raw == malformedUsageNotification.raw && malformedUsage->decodingError &&
+                malformedUsage->diagnostic &&
+                malformedUsage->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                malformedUsage->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning &&
+                malformedUsage->diagnostic->surface == "thread/tokenUsage/updated" &&
+                malformedUsage->diagnostic->fieldPath == "$.params",
+            "the former partial token-usage shape is retained but now classified by exact malformed-known diagnostics");
 
         const Notification rerouteNotification = makeNotification("model/rerouted",
                                                                   Json{{"threadId", "thread-event"},

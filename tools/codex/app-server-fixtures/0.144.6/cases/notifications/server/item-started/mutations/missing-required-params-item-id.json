@@ -1,0 +1,27 @@
+{
+  "method": "item/started",
+  "params": {
+    "item": {
+      "clientId": "synthetic-89fdcae681",
+      "content": [
+        {
+          "text": "synthetic-796383c7b4",
+          "text_elements": [
+            {
+              "byteRange": {
+                "end": 0,
+                "start": 0
+              },
+              "placeholder": "synthetic-3cb304aacb"
+            }
+          ],
+          "type": "text"
+        }
+      ],
+      "type": "userMessage"
+    },
+    "startedAtMs": 0,
+    "threadId": "synthetic-78a0d3ecbf",
+    "turnId": "synthetic-f11278837b"
+  }
+}

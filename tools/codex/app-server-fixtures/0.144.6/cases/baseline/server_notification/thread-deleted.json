@@ -1,0 +1,6 @@
+{
+  "method": "thread/deleted",
+  "params": {
+    "threadId": "synthetic-a67ff3a79d"
+  }
+}

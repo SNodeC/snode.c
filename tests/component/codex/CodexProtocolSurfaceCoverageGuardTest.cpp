@@ -51,7 +51,10 @@ namespace {
         B2IdentityNotComplete,
         B4IdentityMissing,
         B4IdentityWrongAssignment,
-        B4IdentityNotComplete
+        B4IdentityNotComplete,
+        B5IdentityMissing,
+        B5IdentityWrongAssignment,
+        B5IdentityNotComplete
     };
 
     struct TypedCoverageRatchetDiagnostic {
@@ -264,6 +267,46 @@ namespace {
                 }
             }
         }
+        const auto checkB5 =
+            [&](const detail::ServerNotificationCodecDescriptor& descriptor) {
+                if (!descriptor.a11ConversationDomain) {
+                    return;
+                }
+                const auto iterator = std::find_if(
+                    registry.begin(), registry.end(),
+                    [&](const detail::ProtocolSurfaceEntry& entry) {
+                        return entry.key == descriptor.key;
+                    });
+                if (iterator == registry.end()) {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::B5IdentityMissing,
+                         "locked A1.1 B5 server-notification identity is absent"});
+                    return;
+                }
+                if (
+                    iterator->a1Slice != detail::A1Slice::A1_1 ||
+                    iterator->typedModule != "ThreadsTurnsSessions") {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::
+                             B5IdentityWrongAssignment,
+                         "locked A1.1 B5 server-notification identity is no "
+                         "longer assigned to A1.1/ThreadsTurnsSessions"});
+                }
+                if (
+                    iterator->typedSchemaStatus !=
+                        detail::TypedSchemaStatus::Complete ||
+                    detail::derivedTypedSchemaStatus(*iterator) !=
+                        detail::TypedSchemaStatus::Complete) {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::B5IdentityNotComplete,
+                         "locked A1.1 B5 server-notification identity is not "
+                         "mechanically schema-complete"});
+                }
+            };
+        for (const auto& descriptor :
+             detail::serverNotificationCodecDescriptors()) {
+            checkB5(descriptor);
+        }
         return errors;
     }
 
@@ -344,15 +387,15 @@ int main() {
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}),
-                      "the staged B4 registry retains every locked A1.0, B2, and exact operation-batch identity");
+                      "the staged B5 registry retains every locked A1.0 and exact A1.1 batch identity");
     result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
                                                           tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
-                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 74,
-                      "B3 and B4 add exactly 74 new typed identities while completing inherited partial rows");
-    result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{114, 12, 25, 0},
-                      "the staged A1.1 slice is exactly Complete 114, Partial 12, NotImplemented 25, NotApplicable 0");
-    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{130, 20, 189, 48},
-                      "the staged global registry is exactly Complete 130, Partial 20, NotImplemented 189, NotApplicable 48");
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 99,
+                      "B3 through B5 add exactly 99 new typed identities while completing inherited partial rows");
+    result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{151, 0, 0, 0},
+                      "the final A1.1 slice is exactly Complete 151, Partial 0, NotImplemented 0, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{167, 8, 164, 48},
+                      "the staged global registry is exactly Complete 167, Partial 8, NotImplemented 164, NotApplicable 48");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry =
@@ -523,6 +566,41 @@ int main() {
         findEntry(b4Removal, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive"));
     result.expectTrue(hasExactRatchetCodes(b4Removal, {TypedCoverageRatchetErrorCode::B4IdentityMissing}),
                       "B4 ratchet rejects removal of an exact operation identity");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5AssignmentDrift = baseline;
+    const auto reassignedB5 =
+        findEntry(b5AssignmentDrift, detail::SurfaceCategory::ServerNotification,
+                  "ServerNotification", "method", "thread/archived");
+    reassignedB5->typedModule = "Common";
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5AssignmentDrift,
+            {TypedCoverageRatchetErrorCode::B5IdentityWrongAssignment}),
+        "B5 ratchet rejects an exact notification identity reassigned outside "
+        "ThreadsTurnsSessions");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5CompletenessDemotion = baseline;
+    const auto incompleteB5 =
+        findEntry(b5CompletenessDemotion,
+                  detail::SurfaceCategory::ServerNotification,
+                  "ServerNotification", "method", "thread/archived");
+    incompleteB5->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5CompletenessDemotion,
+            {TypedCoverageRatchetErrorCode::B5IdentityNotComplete}),
+        "B5 ratchet rejects a complete notification identity demoted to "
+        "Partial");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5Removal = baseline;
+    b5Removal.erase(findEntry(b5Removal,
+                              detail::SurfaceCategory::ServerNotification,
+                              "ServerNotification", "method",
+                              "thread/archived"));
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5Removal, {TypedCoverageRatchetErrorCode::B5IdentityMissing}),
+        "B5 ratchet rejects removal of an exact notification identity");
 
     std::vector<detail::ProtocolSurfaceEntry> sameCountReplacement = baseline;
     const std::size_t originalTypedCount = typedIdentityCount(sameCountReplacement);

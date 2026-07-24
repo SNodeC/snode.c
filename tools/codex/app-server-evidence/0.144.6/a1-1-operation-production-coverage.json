@@ -5,8 +5,8 @@
   "authority_note": "This is checked production-coverage evidence consumed by the registered C++ operation-result and B4 conversation-union corpus tests plus the registry generator; it is not a runtime disposition or dispatch registry.",
   "fixture_index": {
     "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
-    "bytes": 7230120,
-    "sha256": "100a09cf909c79064808d4522cdd35a688c189fb79fc45eada85926fc5813a41"
+    "bytes": 8556655,
+    "sha256": "022eb437aa39dceb21912947ba8bcdc1b10ff4b6c5076ba5b1713abfd762ac33"
   },
   "registered_tests": [
     {
@@ -25,8 +25,8 @@
   "source_records": [
     {
       "path": "tools/codex/app_server_surface.py",
-      "bytes": 282531,
-      "sha256": "f23bf9c70c08b7c1bf2a66915a0d285cb7f5bf489597a9c9837de69d6088c79d"
+      "bytes": 323551,
+      "sha256": "628254afe57d142e8c0862d0607180a169dadb93844a1ccabc35e61921408b23"
     },
     {
       "path": "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc",
@@ -50,8 +50,8 @@
     },
     {
       "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp",
-      "bytes": 61231,
-      "sha256": "594e5741742745a2afb59de631dc296295aecee696eda0efa172d59eef9cee50"
+      "bytes": 66410,
+      "sha256": "99e7f73db9798125ef0b178a0472ee43aa188a6055c95d7cfb2efaca2ee656d9"
     },
     {
       "path": "src/ai/openai/codex/detail/ConversationCodec.cpp",
@@ -115,8 +115,8 @@
     },
     {
       "path": "tests/component/codex/CMakeLists.txt",
-      "bytes": 33314,
-      "sha256": "b981e8a1295ebe833b58388a1d530b7a6d63e07dccf23f00f9419cfad12060e2"
+      "bytes": 35589,
+      "sha256": "18961673a5047d1ebe3ac6dcc63266423374254dc9ac3c223bb3e6f54189bcec"
     },
     {
       "path": "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",

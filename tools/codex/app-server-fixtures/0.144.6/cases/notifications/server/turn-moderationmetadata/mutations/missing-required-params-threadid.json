@@ -1,0 +1,7 @@
+{
+  "method": "turn/moderationMetadata",
+  "params": {
+    "metadata": {},
+    "turnId": "synthetic-c426ea7e20"
+  }
+}

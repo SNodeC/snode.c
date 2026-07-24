@@ -1,0 +1,6 @@
+{
+  "method": "thread/compacted",
+  "params": {
+    "threadId": "synthetic-967ed54853"
+  }
+}

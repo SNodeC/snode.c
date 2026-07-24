@@ -1,0 +1,18 @@
+{
+  "method": "thread/tokenUsage/updated",
+  "params": {
+    "threadId": "synthetic-2e8bdbfaf8",
+    "tokenUsage": {
+      "last": {
+        "cachedInputTokens": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "reasoningOutputTokens": 0,
+        "totalTokens": 0
+      },
+      "modelContextWindow": 0,
+      "total": null
+    },
+    "turnId": "synthetic-f837166179"
+  }
+}

@@ -520,6 +520,111 @@ def test_operation_descriptor_guards(
         )
 
 
+def test_notification_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_server_notification_descriptor_data(
+        manifest, evidence
+    )
+    if generated != tool.generate_server_notification_descriptor_data(
+        manifest, evidence
+    ):
+        raise AssertionError(
+            "server-notification descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private server-notification descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith("CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(")
+    ]
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (ServerNotificationTarget::[A-Za-z0-9_]+), ", line
+            )
+        )
+    }
+    if len(rows) != 39 or len(targets) != 39:
+        raise AssertionError(
+            "server-notification descriptors are not an exact 39-row target bijection"
+        )
+    if (
+        sum(line.endswith(", true)") for line in rows) != 37
+        or sum(line.endswith(", false)") for line in rows) != 2
+        or not any('"error"' in line and line.endswith(", false)") for line in rows)
+        or not any(
+            '"model/rerouted"' in line and line.endswith(", false)")
+            for line in rows
+        )
+    ):
+        raise AssertionError(
+            "server-notification descriptors lost the exact 37 A1.1 / two residual split"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "thread/archived",
+        )
+    )
+    assignment["slice"] = "A1.2"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move one notification descriptor out of the exact A1.1 slice",
+    )
+
+    original_codecs = dict(tool.SERVER_NOTIFICATION_CODECS)
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.SERVER_NOTIFICATION_CODECS[keys[1]] = (first[0], second[1])
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_server_notification_descriptor_data(
+                manifest, evidence
+            ),
+            "ServerNotificationDescriptorAssignmentMismatch",
+            "duplicate one server-notification descriptor target",
+        )
+    finally:
+        tool.SERVER_NOTIFICATION_CODECS.clear()
+        tool.SERVER_NOTIFICATION_CODECS.update(original_codecs)
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-notification-descriptors-"
+    ) as raw:
+        stale = Path(raw) / "ServerNotificationCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_server_notification_descriptors(
+                stale, generated, True
+            ),
+            "StaleGeneratedServerNotificationDescriptors",
+            "change the checked-in server-notification descriptor artifact",
+        )
+
+
 def test_conversation_descriptor_guards(
     tool: ModuleType,
     manifest: dict[str, object],
@@ -1050,6 +1155,14 @@ def test_generated_artifacts(
         evidence,
         registry_path.with_name(
             "ClientOperationCodecDescriptors.inc"
+        ),
+    )
+    test_notification_descriptor_guards(
+        tool,
+        manifest,
+        evidence,
+        registry_path.with_name(
+            "ServerNotificationCodecDescriptors.inc"
         ),
     )
     test_conversation_descriptor_guards(

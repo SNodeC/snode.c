@@ -102,11 +102,36 @@ namespace ai::openai::codex::detail {
         ItemStarted,
         ItemCompleted,
         AgentMessageDelta,
+        TerminalInteraction,
         ReasoningTextDelta,
+        ReasoningSummaryPartAdded,
         ReasoningSummaryTextDelta,
         CommandExecutionOutputDelta,
+        FileChangeOutputDelta,
         FileChangePatchUpdated,
+        McpToolCallProgress,
+        PlanDelta,
+        ThreadArchived,
+        ThreadClosed,
+        ContextCompacted,
+        ThreadDeleted,
+        ThreadGoalCleared,
+        ThreadGoalUpdated,
+        ThreadNameUpdated,
+        ThreadRealtimeClosed,
+        ThreadRealtimeError,
+        ThreadRealtimeItemAdded,
+        ThreadRealtimeOutputAudioDelta,
+        ThreadRealtimeSdp,
+        ThreadRealtimeStarted,
+        ThreadRealtimeTranscriptDelta,
+        ThreadRealtimeTranscriptDone,
+        ThreadSettingsUpdated,
         ThreadTokenUsageUpdated,
+        ThreadUnarchived,
+        TurnDiffUpdated,
+        TurnModerationMetadata,
+        TurnPlanUpdated,
         ModelRerouted,
         Count
     };
@@ -315,6 +340,13 @@ namespace ai::openai::codex::detail {
         ClientOperationResultDecoder resultDecoder = ClientOperationResultDecoder::Count;
     };
 
+    struct ServerNotificationCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ServerNotificationTarget target = ServerNotificationTarget::Count;
+        std::string_view payloadTypeIdentity;
+        bool a11ConversationDomain = false;
+    };
+
     struct ThreadItemCodecDescriptor {
         ProtocolSurfaceKey key;
         ItemDiscriminatorTarget target = ItemDiscriminatorTarget::Count;
@@ -464,6 +496,7 @@ namespace ai::openai::codex::detail {
 
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
     std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept;
+    std::span<const ServerNotificationCodecDescriptor> serverNotificationCodecDescriptors() noexcept;
     std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept;
     std::span<const ResponseItemCodecDescriptor> responseItemCodecDescriptors() noexcept;
 
@@ -488,6 +521,13 @@ namespace ai::openai::codex::detail {
                                                       std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
                                                       std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
                                                       std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                                      std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                                      std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
+                                                      std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
+                                                      std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors);
 
 } // namespace ai::openai::codex::detail
 

@@ -9,6 +9,7 @@
 
 #include "ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h"
 #include "ai/openai/codex/detail/ConversationCodec.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
@@ -40,6 +41,16 @@ namespace ai::openai::codex::backend {
                 }
             }
             return static_cast<std::uint64_t>(value);
+        }
+
+        using ServerNotificationTarget = ::ai::openai::codex::detail::ServerNotificationTarget;
+
+        template <typename Notification>
+        std::vector<BackendEvent> preserveTypedNotification(const Notification& value, ServerNotificationTarget target) {
+            const ::ai::openai::codex::detail::ProtocolSurfaceEntry& registryEntry = ::ai::openai::codex::detail::entryFor(target);
+            const std::optional<typed::DecodeDiagnostic> diagnostic =
+                value.diagnostics.empty() ? std::nullopt : std::optional<typed::DecodeDiagnostic>{value.diagnostics.front()};
+            return {detail::preserveUnmodeledTypedEvent({std::string(registryEntry.key.name), value.raw, std::nullopt, diagnostic})};
         }
 
         logger::BoundaryLogger lifecycleLog() {
@@ -699,6 +710,81 @@ namespace ai::openai::codex::backend {
                 },
                 [](const typed::TokenUsageUpdated& value) -> std::vector<BackendEvent> {
                     return {TokenUsageUpdated{value.threadId, value.turnId, value.usage}};
+                },
+                [](const typed::TerminalInteractionNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TerminalInteraction);
+                },
+                [](const typed::FileChangeOutputDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::FileChangeOutputDelta);
+                },
+                [](const typed::McpToolCallProgressNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::McpToolCallProgress);
+                },
+                [](const typed::PlanDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::PlanDelta);
+                },
+                [](const typed::ReasoningSummaryPartAddedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ReasoningSummaryPartAdded);
+                },
+                [](const typed::ThreadArchivedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadArchived);
+                },
+                [](const typed::ThreadClosedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadClosed);
+                },
+                [](const typed::ContextCompactedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ContextCompacted);
+                },
+                [](const typed::ThreadDeletedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadDeleted);
+                },
+                [](const typed::ThreadGoalClearedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadGoalCleared);
+                },
+                [](const typed::ThreadGoalUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadGoalUpdated);
+                },
+                [](const typed::ThreadNameUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadNameUpdated);
+                },
+                [](const typed::ThreadRealtimeClosedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeClosed);
+                },
+                [](const typed::ThreadRealtimeErrorNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeError);
+                },
+                [](const typed::ThreadRealtimeItemAddedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeItemAdded);
+                },
+                [](const typed::ThreadRealtimeOutputAudioDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeOutputAudioDelta);
+                },
+                [](const typed::ThreadRealtimeSdpNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeSdp);
+                },
+                [](const typed::ThreadRealtimeStartedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeStarted);
+                },
+                [](const typed::ThreadRealtimeTranscriptDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeTranscriptDelta);
+                },
+                [](const typed::ThreadRealtimeTranscriptDoneNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeTranscriptDone);
+                },
+                [](const typed::ThreadSettingsUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadSettingsUpdated);
+                },
+                [](const typed::ThreadUnarchivedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadUnarchived);
+                },
+                [](const typed::TurnDiffUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnDiffUpdated);
+                },
+                [](const typed::TurnModerationMetadataNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnModerationMetadata);
+                },
+                [](const typed::TurnPlanUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnPlanUpdated);
                 },
                 [](const typed::ModelRerouted& value) -> std::vector<BackendEvent> {
                     return {ModelRerouted{value.threadId, value.turnId, value.from, value.to, value.reason}};

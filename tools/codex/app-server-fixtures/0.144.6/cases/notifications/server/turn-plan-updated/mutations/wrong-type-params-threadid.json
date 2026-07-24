@@ -1,0 +1,14 @@
+{
+  "method": "turn/plan/updated",
+  "params": {
+    "explanation": "synthetic-a90399b1f8",
+    "plan": [
+      {
+        "status": "pending",
+        "step": "synthetic-0ccb256ba3"
+      }
+    ],
+    "threadId": null,
+    "turnId": "synthetic-3609ec3a7e"
+  }
+}

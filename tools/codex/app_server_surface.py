@@ -384,6 +384,9 @@ DEFAULT_A1_FIXTURE_INDEX = (
 OPERATION_PRODUCTION_COVERAGE_FILENAME = (
     "a1-1-operation-production-coverage.json"
 )
+NOTIFICATION_PRODUCTION_COVERAGE_FILENAME = (
+    "a1-1-notification-production-coverage.json"
+)
 OPERATION_PRODUCTION_COVERAGE_SOURCES = (
     "tools/codex/app_server_surface.py",
     "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc",
@@ -410,6 +413,17 @@ OPERATION_PRODUCTION_COVERAGE_SOURCES = (
     "tests/component/codex/CodexTypedThreadCodecTest.cpp",
     "tests/component/codex/CodexA11OperationWireTest.cpp",
     "tests/installed/codex/CodexTypedConsumer.cpp",
+)
+NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
+    "tools/codex/app_server_surface.py",
+    "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc",
+    "src/ai/openai/codex/detail/EventDecoder.cpp",
+    "src/ai/openai/codex/detail/EventDecoder.h",
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp",
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.h",
+    "src/ai/openai/codex/typed/Events.h",
+    "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+    "tests/component/codex/CMakeLists.txt",
 )
 
 
@@ -1188,8 +1202,20 @@ RUNTIME_TARGETS = {
         "server_notification",
         "ServerNotification",
         "method",
+        "item/commandExecution/terminalInteraction",
+    ): "ServerNotificationTarget::TerminalInteraction",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "item/reasoning/textDelta",
     ): "ServerNotificationTarget::ReasoningTextDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/reasoning/summaryPartAdded",
+    ): "ServerNotificationTarget::ReasoningSummaryPartAdded",
     (
         "server_notification",
         "ServerNotification",
@@ -1206,14 +1232,152 @@ RUNTIME_TARGETS = {
         "server_notification",
         "ServerNotification",
         "method",
+        "item/fileChange/outputDelta",
+    ): "ServerNotificationTarget::FileChangeOutputDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "item/fileChange/patchUpdated",
     ): "ServerNotificationTarget::FileChangePatchUpdated",
     (
         "server_notification",
         "ServerNotification",
         "method",
+        "item/mcpToolCall/progress",
+    ): "ServerNotificationTarget::McpToolCallProgress",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/plan/delta",
+    ): "ServerNotificationTarget::PlanDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/archived",
+    ): "ServerNotificationTarget::ThreadArchived",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/closed",
+    ): "ServerNotificationTarget::ThreadClosed",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/compacted",
+    ): "ServerNotificationTarget::ContextCompacted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/deleted",
+    ): "ServerNotificationTarget::ThreadDeleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/goal/cleared",
+    ): "ServerNotificationTarget::ThreadGoalCleared",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/goal/updated",
+    ): "ServerNotificationTarget::ThreadGoalUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/name/updated",
+    ): "ServerNotificationTarget::ThreadNameUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/closed",
+    ): "ServerNotificationTarget::ThreadRealtimeClosed",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/error",
+    ): "ServerNotificationTarget::ThreadRealtimeError",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/itemAdded",
+    ): "ServerNotificationTarget::ThreadRealtimeItemAdded",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/outputAudio/delta",
+    ): "ServerNotificationTarget::ThreadRealtimeOutputAudioDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/sdp",
+    ): "ServerNotificationTarget::ThreadRealtimeSdp",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/started",
+    ): "ServerNotificationTarget::ThreadRealtimeStarted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/transcript/delta",
+    ): "ServerNotificationTarget::ThreadRealtimeTranscriptDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/transcript/done",
+    ): "ServerNotificationTarget::ThreadRealtimeTranscriptDone",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/settings/updated",
+    ): "ServerNotificationTarget::ThreadSettingsUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "thread/tokenUsage/updated",
     ): "ServerNotificationTarget::ThreadTokenUsageUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/unarchived",
+    ): "ServerNotificationTarget::ThreadUnarchived",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/diff/updated",
+    ): "ServerNotificationTarget::TurnDiffUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/moderationMetadata",
+    ): "ServerNotificationTarget::TurnModerationMetadata",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/plan/updated",
+    ): "ServerNotificationTarget::TurnPlanUpdated",
     (
         "server_notification",
         "ServerNotification",
@@ -1484,6 +1648,100 @@ RUNTIME_TARGETS.update(
         for key, descriptor in CONVERSATION_UNION_CODECS.items()
     }
 )
+
+SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
+    "error": "typed::TurnErrorEvent",
+    "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
+    "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
+    "item/commandExecution/terminalInteraction": "typed::TerminalInteractionNotification",
+    "item/completed": "typed::ItemCompletedNotification",
+    "item/fileChange/outputDelta": "typed::FileChangeOutputDeltaNotification",
+    "item/fileChange/patchUpdated": "typed::FileChangePatchUpdatedNotification",
+    "item/mcpToolCall/progress": "typed::McpToolCallProgressNotification",
+    "item/plan/delta": "typed::PlanDeltaNotification",
+    "item/reasoning/summaryPartAdded": "typed::ReasoningSummaryPartAddedNotification",
+    "item/reasoning/summaryTextDelta": "typed::ReasoningSummaryTextDeltaNotification",
+    "item/reasoning/textDelta": "typed::ReasoningTextDeltaNotification",
+    "item/started": "typed::ItemStartedNotification",
+    "model/rerouted": "typed::ModelRerouted",
+    "thread/archived": "typed::ThreadArchivedNotification",
+    "thread/closed": "typed::ThreadClosedNotification",
+    "thread/compacted": "typed::ContextCompactedNotification",
+    "thread/deleted": "typed::ThreadDeletedNotification",
+    "thread/goal/cleared": "typed::ThreadGoalClearedNotification",
+    "thread/goal/updated": "typed::ThreadGoalUpdatedNotification",
+    "thread/name/updated": "typed::ThreadNameUpdatedNotification",
+    "thread/realtime/closed": "typed::ThreadRealtimeClosedNotification",
+    "thread/realtime/error": "typed::ThreadRealtimeErrorNotification",
+    "thread/realtime/itemAdded": "typed::ThreadRealtimeItemAddedNotification",
+    "thread/realtime/outputAudio/delta": "typed::ThreadRealtimeOutputAudioDeltaNotification",
+    "thread/realtime/sdp": "typed::ThreadRealtimeSdpNotification",
+    "thread/realtime/started": "typed::ThreadRealtimeStartedNotification",
+    "thread/realtime/transcript/delta": "typed::ThreadRealtimeTranscriptDeltaNotification",
+    "thread/realtime/transcript/done": "typed::ThreadRealtimeTranscriptDoneNotification",
+    "thread/settings/updated": "typed::ThreadSettingsUpdatedNotification",
+    "thread/started": "typed::ThreadStartedNotification",
+    "thread/status/changed": "typed::ThreadStatusChangedNotification",
+    "thread/tokenUsage/updated": "typed::ThreadTokenUsageUpdatedNotification",
+    "thread/unarchived": "typed::ThreadUnarchivedNotification",
+    "turn/completed": "typed::TurnCompletedNotification",
+    "turn/diff/updated": "typed::TurnDiffUpdatedNotification",
+    "turn/moderationMetadata": "typed::TurnModerationMetadataNotification",
+    "turn/plan/updated": "typed::TurnPlanUpdatedNotification",
+    "turn/started": "typed::TurnStartedNotification",
+}
+SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD = {
+    method: payload_type.removeprefix("typed::")
+    for method, payload_type in SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD.items()
+}
+SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD.update(
+    {
+        "item/agentMessage/delta": "AgentMessageDelta",
+        "item/commandExecution/outputDelta": "CommandOutputDelta",
+        "item/completed": "ItemCompleted",
+        "item/fileChange/patchUpdated": "FileChangeUpdated",
+        "item/reasoning/summaryTextDelta": "ReasoningDelta",
+        "item/reasoning/textDelta": "ReasoningDelta",
+        "item/started": "ItemStarted",
+        "thread/started": "ThreadStarted",
+        "thread/status/changed": "ThreadStatusChanged",
+        "thread/tokenUsage/updated": "TokenUsageUpdated",
+        "turn/completed": "TurnCompleted|TurnFailed",
+        "turn/started": "TurnStarted",
+    }
+)
+EXISTING_MODELED_SERVER_NOTIFICATION_METHODS = frozenset(
+    {
+        "error",
+        "item/agentMessage/delta",
+        "item/commandExecution/outputDelta",
+        "item/completed",
+        "item/fileChange/patchUpdated",
+        "item/reasoning/summaryTextDelta",
+        "item/reasoning/textDelta",
+        "item/started",
+        "model/rerouted",
+        "thread/started",
+        "thread/status/changed",
+        "thread/tokenUsage/updated",
+        "turn/completed",
+        "turn/started",
+    }
+)
+
+SERVER_NOTIFICATION_CODECS = {
+    key: (target, SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD[key[3]])
+    for key, target in RUNTIME_TARGETS.items()
+    if key[0] == "server_notification"
+}
+if (
+    len(SERVER_NOTIFICATION_CODECS) != 39
+    or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
+    != {key[3] for key in SERVER_NOTIFICATION_CODECS}
+):
+    raise AssertionError(
+        "server-notification payload mapping must cover every production target exactly"
+    )
 
 EXISTING_FRONTEND_OPERATION_DETAILS = {
     (
@@ -2982,16 +3240,22 @@ def load_a1_registry_evidence(
     root: Path = DEFAULT_A1_EVIDENCE_ROOT,
     *,
     require_operation_production_coverage: bool = True,
+    require_notification_production_coverage: bool = True,
 ) -> dict[str, Any]:
     filenames = {
         "operation_contracts": "operation-contracts.json",
         "assignments": "module-slice-assignment.json",
         "reachability": "nested-reachability.json",
         "fixture_coverage": "fixture-coverage.json",
+        "type_closure": "a1-1-type-closure.json",
     }
     if require_operation_production_coverage:
         filenames["operation_production_coverage"] = (
             OPERATION_PRODUCTION_COVERAGE_FILENAME
+        )
+    if require_notification_production_coverage:
+        filenames["notification_production_coverage"] = (
+            NOTIFICATION_PRODUCTION_COVERAGE_FILENAME
         )
     result: dict[str, Any] = {}
     for key, filename in filenames.items():
@@ -4358,7 +4622,10 @@ def registry_statuses(
     contract: dict[str, Any] | None,
     assignment: dict[str, Any],
     fixtures: Sequence[dict[str, Any]],
-    production_coverage: dict[str, Any] | None = None,
+    operation_production_coverage: dict[str, Any] | None = None,
+    notification_production_coverage: (
+        dict[tuple[str, str, str, str], dict[str, Any]] | None
+    ) = None,
 ) -> tuple[str, ...]:
     identity = (
         entry["category"],
@@ -4439,7 +4706,7 @@ def registry_statuses(
             "FrontendSecurityDecision::ExistingGenericContractDedicatedUnresolved"
         )
     elif category == "server_notification":
-        if target is not None:
+        if entry["name"] in EXISTING_MODELED_SERVER_NOTIFICATION_METHODS:
             frontend_exposure = "FrontendExposure::ExistingEventSubset"
             frontend_security = (
                 "FrontendSecurityDecision::ExistingEventSubsetContract"
@@ -4539,8 +4806,8 @@ def registry_statuses(
     if (
         identity[0] == "client_request"
         and assignment.get("slice") == "A1.1"
-        and production_coverage is not None
-        and identity in production_coverage.get("operations", {})
+        and operation_production_coverage is not None
+        and identity in operation_production_coverage.get("operations", {})
     ):
         # The checked operation table is consumed by the registered C++ corpus
         # test and is reproducibly bound to the exact fixture index, production
@@ -4555,13 +4822,27 @@ def registry_statuses(
     if (
         identity in B4_CONVERSATION_UNION_CODECS
         and target is not None
-        and production_coverage is not None
+        and operation_production_coverage is not None
         and identity
-        in production_coverage.get("b4_conversation_unions", {})
+        in operation_production_coverage.get("b4_conversation_unions", {})
     ):
         # Operation-owned B4 unions advance only through the checked exact
         # fixture table consumed by the registered production C++ corpus.
         # Descriptor presence by itself is deliberately insufficient.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity[0] == "server_notification"
+        and assignment.get("slice") == "A1.1"
+        and target is not None
+        and notification_production_coverage is not None
+        and identity in notification_production_coverage
+    ):
+        # Notification identities advance only through the checked exact
+        # fixture/type/production association consumed by the registered
+        # C++ corpus. Descriptor presence alone is deliberately insufficient.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -4631,6 +4912,13 @@ def generate_registry_data(
         manifest,
         evidence,
     )
+    notification_production_coverage = (
+        validate_notification_production_coverage(
+            evidence.get("notification_production_coverage"),
+            manifest,
+            evidence,
+        )
+    )
 
     lines = [
         "// Generated by tools/codex/app_server_surface.py registry.",
@@ -4650,6 +4938,7 @@ def generate_registry_data(
             assignments[key],
             fixtures.get(key, ()),
             operation_production_coverage,
+            notification_production_coverage,
         )
         arguments = (
             category,
@@ -4973,6 +5262,88 @@ def generate_client_operation_descriptor_data(
         )
         lines.append(
             "CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR("
+            + ", ".join(arguments)
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def generate_server_notification_descriptor_data(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private decode metadata for typed server notifications."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    expected_keys = {
+        key
+        for key, target in RUNTIME_TARGETS.items()
+        if key[0] == "server_notification"
+        and target.startswith("ServerNotificationTarget::")
+    }
+    descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
+    if (
+        len(expected_keys) != 39
+        or descriptor_keys != expected_keys
+        or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
+        != 39
+    ):
+        raise SurfaceError(
+            "ServerNotificationDescriptorAssignmentMismatch: "
+            "every one of the 39 typed server-notification targets must own "
+            "one exact generated descriptor"
+        )
+
+    a11_keys = {
+        key
+        for key in descriptor_keys
+        if assignments[key].get("slice") == "A1.1"
+    }
+    residual_keys = descriptor_keys - a11_keys
+    if (
+        len(a11_keys) != 37
+        or {key[3] for key in residual_keys} != {"error", "model/rerouted"}
+    ):
+        raise SurfaceError(
+            "ServerNotificationDescriptorSliceMismatch: "
+            "descriptors must distinguish the exact 37 A1.1 rows from "
+            "residual partial error and model/rerouted rows"
+        )
+
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py notification-descriptors; do not edit.",
+        "// Exact method keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Payload identity and A1.1 membership are private decode metadata, not dispatch authority.",
+    ]
+    for key in sorted(descriptor_keys):
+        entry = manifest_entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category") != "server_notification"
+            or entry.get("domain") != "ServerNotification"
+            or entry.get("discriminator_field") != "method"
+        ):
+            raise SurfaceError(
+                "ServerNotificationDescriptorAssignmentMismatch: "
+                f"missing stable server-notification manifest entry for {key}"
+            )
+        target, payload_type = SERVER_NOTIFICATION_CODECS[key]
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            target,
+            cpp_string(payload_type),
+            "true" if key in a11_keys else "false",
+        )
+        lines.append(
+            "CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR("
             + ", ".join(arguments)
             + ")"
         )
@@ -5912,6 +6283,590 @@ def generate_operation_production_coverage(
         ),
         "operation_aggregate_value_records": aggregate_value_records,
     }
+
+
+def generate_notification_production_coverage(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any],
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[str, Any]:
+    """Generate checked A1.1 notification decode/no-drop coverage evidence."""
+
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "server_notification"
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StablePublicRoot"
+        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("stability") == "stable"
+    }
+    if len(expected_keys) != 37 or not expected_keys <= set(
+        SERVER_NOTIFICATION_CODECS
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageAssignmentMismatch: "
+            "expected the exact 37 stable A1.1 server notifications"
+        )
+
+    section = fixture_index.get("a1_1_notifications")
+    if not isinstance(section, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "fixture index lacks a1_1_notifications"
+        )
+    indexed_keys = {
+        surface_key(key)
+        for key in section.get("assignment_derived_keys", [])
+        if isinstance(key, dict)
+    }
+    if indexed_keys != expected_keys:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "assignment-derived fixture keys do not equal the exact A1.1 set"
+        )
+    indexed_schema_coverage = section.get("indexed_schema_coverage")
+    root_fixture_plan = section.get("root_fixture_plan")
+    negative_coverage = section.get("negative_coverage")
+    if (
+        not isinstance(indexed_schema_coverage, dict)
+        or set(indexed_schema_coverage) != {":".join(key) for key in expected_keys}
+        or not isinstance(root_fixture_plan, dict)
+        or set(root_fixture_plan) != {":".join(key) for key in expected_keys}
+        or not isinstance(negative_coverage, dict)
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "indexed schema coverage or root fixture plan is incomplete"
+        )
+
+    fixture_records = fixture_index.get("fixtures")
+    if not isinstance(fixture_records, list):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "fixture records are absent"
+        )
+    fixtures_by_id: dict[str, dict[str, Any]] = {}
+    for fixture in fixture_records:
+        if not isinstance(fixture, dict) or not isinstance(
+            fixture.get("id"), str
+        ):
+            continue
+        fixture_id = fixture["id"]
+        if fixture_id in fixtures_by_id:
+            raise SurfaceError(
+                "NotificationProductionCoverageDuplicateRecord: "
+                f"duplicate fixture id {fixture_id}"
+            )
+        fixtures_by_id[fixture_id] = fixture
+
+    type_closure = evidence.get("type_closure")
+    if not isinstance(type_closure, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageTypeClosureMismatch: "
+            "A1.1 type closure is absent"
+        )
+
+    def normalize_schema_path(path: str) -> str:
+        return path.replace("#/definitions/v2/", "#/definitions/")
+
+    closure_paths: dict[str, dict[str, Any]] = {}
+    for mapping in type_closure.get("schema_paths", []):
+        if not isinstance(mapping, dict) or not isinstance(
+            mapping.get("schema_path"), str
+        ):
+            continue
+        path = normalize_schema_path(mapping["schema_path"])
+        if path in closure_paths and closure_paths[path] != mapping:
+            raise SurfaceError(
+                "NotificationProductionCoverageTypeClosureMismatch: "
+                f"conflicting C++ mapping for {path}"
+            )
+        closure_paths[path] = mapping
+    opaque_paths = {
+        normalize_schema_path(record["schema_path"]): record
+        for record in type_closure.get("protocol_defined_opaque_json", [])
+        if isinstance(record, dict)
+        and isinstance(record.get("schema_path"), str)
+    }
+    expected_notification_opaque_paths = {
+        "#/definitions/ThreadRealtimeItemAddedNotification/properties/item",
+        "#/definitions/TurnModerationMetadataNotification/properties/metadata",
+    }
+    if not expected_notification_opaque_paths <= set(opaque_paths):
+        raise SurfaceError(
+            "NotificationProductionCoverageTypeClosureMismatch: "
+            "the two protocol-defined notification opaque paths are absent"
+        )
+
+    role_fields = {
+        "base": "base_fixture_id",
+        "optional_omitted": "optional_omitted_fixture_ids",
+        "nullable_null": "nullable_null_fixture_ids",
+        "required_nullable_null": "required_nullable_null_fixture_ids",
+        "missing_required": "missing_required_fixture_ids",
+        "wrong_type": "wrong_type_fixture_ids",
+    }
+    expected_role_counts = {
+        "base": 37,
+        "missing_required": 279,
+        "nullable_null": 57,
+        "optional_omitted": 65,
+        "required_nullable_null": 2,
+        "wrong_type": 358,
+    }
+    role_counts = {role: 0 for role in sorted(role_fields)}
+    records: list[dict[str, Any]] = []
+    notifications: list[dict[str, Any]] = []
+    seen_record_ids: set[str] = set()
+
+    def is_recoverable_nested_malformed(
+        key: tuple[str, str, str, str], fixture_id: str
+    ) -> bool:
+        """Return whether a known outer aggregate preserves a nested warning."""
+
+        marker = (
+            ":missing-required:"
+            if ":missing-required:" in fixture_id
+            else ":wrong-type:"
+        )
+        mutation_path = fixture_id.partition(marker)[2]
+        method = key[3]
+        if method in {"item/started", "item/completed"}:
+            return mutation_path.startswith("params-item-")
+        if method == "thread/started":
+            return mutation_path.startswith(
+                "params-thread-turns-0-items-0-"
+            ) or mutation_path.startswith(
+                "params-thread-turns-0-error-codexerrorinfo"
+            )
+        if method in {"turn/started", "turn/completed"}:
+            return mutation_path.startswith(
+                "params-turn-items-0-"
+            ) or mutation_path.startswith(
+                "params-turn-error-codexerrorinfo"
+            )
+        return False
+
+    for key in sorted(expected_keys):
+        compact_key = ":".join(key)
+        coverage = indexed_schema_coverage[compact_key]
+        plan = root_fixture_plan[compact_key]
+        if (
+            not isinstance(coverage, dict)
+            or coverage.get("directions_exercised") != ["Decode"]
+            or coverage.get("schema_direction_coverage") is not True
+            or not isinstance(plan, dict)
+        ):
+            raise SurfaceError(
+                "NotificationProductionCoverageDirectionMismatch: "
+                f"{compact_key} lacks exact Decode direction evidence"
+            )
+        schema_facts = coverage.get("schema_fixture_facts")
+        expected_facts = {
+            "nullable_semantics_exercised",
+            "optional_omitted_exercised",
+            "optional_present_exercised",
+            "reachable_union_alternatives_exercised",
+            "schema_properties_exercised",
+        }
+        if (
+            not isinstance(schema_facts, dict)
+            or set(schema_facts) != expected_facts
+            or not all(schema_facts.values())
+        ):
+            raise SurfaceError(
+                "NotificationProductionCoverageFixtureIndexMismatch: "
+                f"{compact_key} lacks complete supported schema facts"
+            )
+
+        property_mappings: list[dict[str, Any]] = []
+        declared_opaque: list[dict[str, Any]] = []
+        for original_path in coverage.get("property_schema_paths", []):
+            if not isinstance(original_path, str):
+                raise SurfaceError(
+                    "NotificationProductionCoverageTypeClosureMismatch: "
+                    f"{compact_key} has a non-string schema path"
+                )
+            if original_path.startswith("#/oneOf/") and original_path.endswith(
+                ("/properties/method", "/properties/params")
+            ):
+                continue
+            path = normalize_schema_path(original_path)
+            mapping = closure_paths.get(path)
+            opaque = opaque_paths.get(path)
+            if mapping is None and opaque is None:
+                raise SurfaceError(
+                    "NotificationProductionCoverageKnownFieldDropped: "
+                    f"{compact_key} has no public/private mapping for {path}"
+                )
+            if mapping is not None:
+                property_mappings.append(
+                    {
+                        "schema_path": path,
+                        "cpp_mapping": mapping["cpp_mapping"],
+                        "presence_model": mapping.get("presence_model"),
+                        "directionality": mapping.get("directionality"),
+                    }
+                )
+            else:
+                declared_opaque.append(
+                    {
+                        "schema_path": path,
+                        "reason": opaque["reason"],
+                    }
+                )
+
+        notification_fixture_ids: dict[str, list[str]] = {}
+        for role, field in role_fields.items():
+            raw_ids = plan.get(field)
+            ids = [raw_ids] if role == "base" else raw_ids
+            if not isinstance(ids, list) or not all(
+                isinstance(fixture_id, str) for fixture_id in ids
+            ):
+                raise SurfaceError(
+                    "NotificationProductionCoverageFixtureIndexMismatch: "
+                    f"{compact_key} has invalid {field}"
+                )
+            notification_fixture_ids[role] = list(ids)
+            role_counts[role] += len(ids)
+            for fixture_id in ids:
+                if fixture_id in seen_record_ids:
+                    raise SurfaceError(
+                        "NotificationProductionCoverageDuplicateRecord: "
+                        f"duplicate selected fixture {fixture_id}"
+                    )
+                fixture = fixtures_by_id.get(fixture_id)
+                if fixture is None:
+                    raise SurfaceError(
+                        "NotificationProductionCoverageMissingRecord: "
+                        f"missing indexed fixture {fixture_id}"
+                    )
+                seen_record_ids.add(fixture_id)
+                envelope_rejected = fixture_id.endswith(
+                    (":missing-required:method", ":wrong-type:method")
+                )
+                if role in {
+                    "base",
+                    "optional_omitted",
+                    "nullable_null",
+                    "required_nullable_null",
+                }:
+                    expected_codes = ["Decoded"]
+                elif envelope_rejected:
+                    expected_codes = ["ProtocolEnvelopeRejected"]
+                elif is_recoverable_nested_malformed(key, fixture_id):
+                    expected_codes = [
+                        "Decoded",
+                        "MalformedKnownPayload",
+                        "ProtocolWarning",
+                    ]
+                else:
+                    expected_codes = [
+                        "MalformedKnownPayload",
+                        "ProtocolWarning",
+                    ]
+                records.append(
+                    {
+                        "id": fixture_id,
+                        "surface_key": _canonical_surface_key_object(key),
+                        "runtime_target": SERVER_NOTIFICATION_CODECS[key][0],
+                        "role": role,
+                        "file": fixture["file"],
+                        "file_sha256": fixture["file_sha256"],
+                        "expected_intrinsic_codes": expected_codes,
+                    }
+                )
+
+        notifications.append(
+            {
+                "surface_key": _canonical_surface_key_object(key),
+                "runtime_target": SERVER_NOTIFICATION_CODECS[key][0],
+                "payload_type_identity": SERVER_NOTIFICATION_CODECS[key][1],
+                "event_alternative": SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD[
+                    key[3]
+                ],
+                "a1_1_conversation_domain": True,
+                "directions_exercised": ["Decode"],
+                "base_fixture_id": plan["base_fixture_id"],
+                "fixture_ids_by_role": notification_fixture_ids,
+                "represented_property_mappings": sorted(
+                    property_mappings, key=lambda record: record["schema_path"]
+                ),
+                "protocol_defined_opaque_json": sorted(
+                    declared_opaque, key=lambda record: record["schema_path"]
+                ),
+                "required_reachable_fixture_ids": coverage.get(
+                    "required_reachable_fixture_ids", []
+                ),
+                "schema_fixture_facts": schema_facts,
+                "runtime_decoder_matches_registry": True,
+                "no_known_schema_fields_dropped": True,
+            }
+        )
+
+    if role_counts != expected_role_counts or len(records) != 798:
+        raise SurfaceError(
+            "NotificationProductionCoverageRoleMismatch: "
+            f"expected exact roles {expected_role_counts}, got {role_counts}"
+        )
+
+    enum_owner_methods = {
+        "ModeKind": "thread/settings/updated",
+        "RealtimeConversationVersion": "thread/realtime/started",
+        "TurnPlanStepStatus": "turn/plan/updated",
+    }
+    enum_records: list[dict[str, Any]] = []
+    open_enums = negative_coverage.get("open_string_enums")
+    if not isinstance(open_enums, dict) or set(open_enums) != set(
+        enum_owner_methods
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageOpenEnumMismatch: "
+            "expected exact ModeKind/RealtimeConversationVersion/TurnPlanStepStatus coverage"
+        )
+    for family, owner_method in sorted(enum_owner_methods.items()):
+        enum = open_enums[family]
+        owner_key = next(
+            key for key in expected_keys if key[3] == owner_method
+        )
+        ids_and_codes = [
+            *[
+                (fixture_id, ["Decoded"])
+                for fixture_id in enum["known_value_fixture_ids"]
+            ],
+            (
+                enum["future_value_fixture_id"],
+                ["Decoded", "UnknownEnumValue", "ForwardCompatibility"],
+            ),
+            (
+                enum["empty_value_fixture_id"],
+                ["Decoded", "UnknownEnumValue", "ForwardCompatibility"],
+            ),
+        ]
+        for fixture_id, expected_codes in ids_and_codes:
+            fixture = fixtures_by_id.get(fixture_id)
+            if fixture is None:
+                raise SurfaceError(
+                    "NotificationProductionCoverageMissingRecord: "
+                    f"missing open-enum fixture {fixture_id}"
+                )
+            enum_records.append(
+                {
+                    "id": fixture_id,
+                    "family": family,
+                    "owner_surface_key": _canonical_surface_key_object(
+                        owner_key
+                    ),
+                    "runtime_target": SERVER_NOTIFICATION_CODECS[owner_key][
+                        0
+                    ],
+                    "file": fixture["file"],
+                    "file_sha256": fixture["file_sha256"],
+                    "expected_intrinsic_codes": expected_codes,
+                }
+            )
+    if len(enum_records) != 13:
+        raise SurfaceError(
+            "NotificationProductionCoverageOpenEnumMismatch: "
+            "expected exactly 7 known and 6 future/empty enum records"
+        )
+
+    source_records: list[dict[str, Any]] = []
+    for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES:
+        path = repo_root / relative
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            raise SurfaceError(
+                "NotificationProductionCoverageSourceMissing: "
+                f"unable to read {relative}: {error}"
+            ) from error
+        source_records.append(
+            {
+                "path": relative,
+                "bytes": len(data),
+                "sha256": sha256_bytes(data),
+            }
+        )
+    try:
+        index_data = fixture_index_path.read_bytes()
+    except OSError as error:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            f"unable to read {fixture_index_path}: {error}"
+        ) from error
+    if load_json(fixture_index_path) != fixture_index:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "in-memory fixture index differs from the pinned index path"
+        )
+
+    opaque_records = [
+        record
+        for record in negative_coverage.get("payload_mutations", {}).get(
+            "opaque_exclusions", []
+        )
+        if isinstance(record, dict)
+    ]
+    if {
+        normalize_schema_path(record["schema_path"])
+        for record in opaque_records
+    } != expected_notification_opaque_paths:
+        raise SurfaceError(
+            "NotificationProductionCoverageOpaqueMismatch: "
+            "expected the exact two protocol-defined opaque paths"
+        )
+
+    return {
+        "format_version": 1,
+        "codex_version": CODEX_VERSION,
+        "generated_notice": (
+            "Generated by tools/codex/app_server_surface.py "
+            "notification-production-coverage; do not edit."
+        ),
+        "authority_note": (
+            "This checked fixture/type/production association is consumed by "
+            "the notification corpus test and canonical registry generator; "
+            "it is not a second runtime disposition or dispatch registry."
+        ),
+        "fixture_index": {
+            "path": fixture_index_path.relative_to(repo_root).as_posix(),
+            "bytes": len(index_data),
+            "sha256": sha256_bytes(index_data),
+        },
+        "registered_tests": [
+            {
+                "ctest_name": "CodexA11NotificationCodecTest",
+                "source": "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+            }
+        ],
+        "source_records": source_records,
+        "counts": {
+            "a1_1_server_notifications": 37,
+            "descriptor_rows": 39,
+            "residual_partial_descriptor_rows": 2,
+            "fixture_records": 798,
+            "positive_records": 161,
+            "negative_records": 637,
+            "roles": expected_role_counts,
+            "open_enum_records": 13,
+            "open_enum_known_records": 7,
+            "open_enum_unknown_records": 6,
+            "protocol_defined_opaque_paths": 2,
+        },
+        "notifications": notifications,
+        "records": sorted(records, key=lambda record: record["id"]),
+        "open_enum_records": sorted(
+            enum_records, key=lambda record: record["id"]
+        ),
+        "protocol_defined_opaque_json": sorted(
+            opaque_records, key=lambda record: record["schema_path"]
+        ),
+    }
+
+
+def validate_notification_production_coverage(
+    document: dict[str, Any],
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any] | None = None,
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    if not isinstance(document, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageMissing: evidence is not an object"
+        )
+    fixture_index = (
+        fixture_index
+        if fixture_index is not None
+        else load_json(fixture_index_path)
+    )
+    expected = generate_notification_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        repo_root,
+        fixture_index_path,
+    )
+    records = document.get("records")
+    if not isinstance(records, list):
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingRecord: records are absent"
+        )
+    ids = [
+        record.get("id") for record in records if isinstance(record, dict)
+    ]
+    if len(ids) != len(set(ids)):
+        raise SurfaceError(
+            "NotificationProductionCoverageDuplicateRecord: duplicate record id"
+        )
+    expected_records = {record["id"]: record for record in expected["records"]}
+    actual_records = {
+        record["id"]: record
+        for record in records
+        if isinstance(record, dict) and isinstance(record.get("id"), str)
+    }
+    missing = sorted(set(expected_records) - set(actual_records))
+    if missing:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingRecord: "
+            f"missing {missing[0]}"
+        )
+    stale = sorted(set(actual_records) - set(expected_records))
+    if stale:
+        raise SurfaceError(
+            "NotificationProductionCoverageStaleRecord: "
+            f"unexpected {stale[0]}"
+        )
+    for fixture_id, expected_record in expected_records.items():
+        actual = actual_records[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "NotificationProductionCoverageTargetMismatch: "
+                f"{fixture_id} has the wrong target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "NotificationProductionCoverageOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+
+    notifications = document.get("notifications")
+    if not isinstance(notifications, list) or len(notifications) != 37:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingNotification: "
+            "expected exactly 37 notification rows"
+        )
+    result: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    for notification in notifications:
+        key = surface_key(notification["surface_key"])
+        if key in result:
+            raise SurfaceError(
+                "NotificationProductionCoverageDuplicateNotification: "
+                f"duplicate {key}"
+            )
+        result[key] = notification
+    if set(result) != {
+        surface_key(record["surface_key"])
+        for record in expected["notifications"]
+    }:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingNotification: "
+            "notification identity set differs from generated evidence"
+        )
+    if document != expected:
+        raise SurfaceError(
+            "StaleNotificationProductionCoverage: checked evidence differs "
+            "from the indexed corpus, type closure, and hashed production/test sources"
+        )
+    return result
 
 
 def validate_operation_production_coverage(
@@ -7043,6 +7998,15 @@ def command_operation_descriptors(arguments: argparse.Namespace) -> None:
     )
 
 
+def command_notification_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_server_notification_descriptor_data(manifest, evidence)
+    write_or_check_server_notification_descriptors(
+        arguments.output, generated, arguments.check
+    )
+
+
 def command_operation_production_coverage(
     arguments: argparse.Namespace,
 ) -> None:
@@ -7050,6 +8014,7 @@ def command_operation_production_coverage(
     evidence = load_a1_registry_evidence(
         arguments.evidence_root,
         require_operation_production_coverage=False,
+        require_notification_production_coverage=False,
     )
     fixture_index = load_json(arguments.fixture_index)
     generated = generate_operation_production_coverage(
@@ -7062,6 +8027,37 @@ def command_operation_production_coverage(
     if arguments.check:
         committed = load_json(arguments.output)
         validate_operation_production_coverage(
+            committed,
+            manifest,
+            evidence,
+            fixture_index,
+            arguments.repo_root,
+            arguments.fixture_index,
+        )
+    else:
+        write_json(arguments.output, generated)
+
+
+def command_notification_production_coverage(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(
+        arguments.evidence_root,
+        require_operation_production_coverage=False,
+        require_notification_production_coverage=False,
+    )
+    fixture_index = load_json(arguments.fixture_index)
+    generated = generate_notification_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        arguments.repo_root,
+        arguments.fixture_index,
+    )
+    if arguments.check:
+        committed = load_json(arguments.output)
+        validate_notification_production_coverage(
             committed,
             manifest,
             evidence,
@@ -7087,6 +8083,27 @@ def write_or_check_client_operation_descriptors(
         if generated != committed:
             raise SurfaceError(
                 "StaleGeneratedClientOperationDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
+def write_or_check_server_notification_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedServerNotificationDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedServerNotificationDescriptors: "
                 f"generated descriptor data differs from {output}"
             )
     else:
@@ -7266,6 +8283,20 @@ def parser() -> argparse.ArgumentParser:
         function=command_operation_descriptors
     )
 
+    notification_descriptors = subparsers.add_parser(
+        "notification-descriptors",
+        help="generate private exact typed server-notification codec descriptors",
+    )
+    notification_descriptors.add_argument("--manifest", type=Path, required=True)
+    notification_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    notification_descriptors.add_argument("--output", type=Path, required=True)
+    notification_descriptors.add_argument("--check", action="store_true")
+    notification_descriptors.set_defaults(
+        function=command_notification_descriptors
+    )
+
     operation_coverage = subparsers.add_parser(
         "operation-production-coverage",
         help=(
@@ -7287,6 +8318,29 @@ def parser() -> argparse.ArgumentParser:
     operation_coverage.add_argument("--check", action="store_true")
     operation_coverage.set_defaults(
         function=command_operation_production_coverage
+    )
+
+    notification_coverage = subparsers.add_parser(
+        "notification-production-coverage",
+        help=(
+            "generate the checked A1.1 server-notification fixture, type, "
+            "and production-decoder coverage table"
+        ),
+    )
+    notification_coverage.add_argument("--manifest", type=Path, required=True)
+    notification_coverage.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    notification_coverage.add_argument(
+        "--fixture-index", type=Path, default=DEFAULT_A1_FIXTURE_INDEX
+    )
+    notification_coverage.add_argument(
+        "--repo-root", type=Path, default=DEFAULT_REPO_ROOT
+    )
+    notification_coverage.add_argument("--output", type=Path, required=True)
+    notification_coverage.add_argument("--check", action="store_true")
+    notification_coverage.set_defaults(
+        function=command_notification_production_coverage
     )
 
     item_descriptors = subparsers.add_parser(

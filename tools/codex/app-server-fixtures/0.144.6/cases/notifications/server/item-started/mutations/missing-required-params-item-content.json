@@ -1,0 +1,13 @@
+{
+  "method": "item/started",
+  "params": {
+    "item": {
+      "clientId": "synthetic-89fdcae681",
+      "id": "synthetic-1c287e4e0c",
+      "type": "userMessage"
+    },
+    "startedAtMs": 0,
+    "threadId": "synthetic-78a0d3ecbf",
+    "turnId": "synthetic-f11278837b"
+  }
+}

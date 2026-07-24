@@ -1,0 +1,7 @@
+{
+  "method": "thread/compacted",
+  "params": {
+    "threadId": null,
+    "turnId": "synthetic-ab07639b7f"
+  }
+}

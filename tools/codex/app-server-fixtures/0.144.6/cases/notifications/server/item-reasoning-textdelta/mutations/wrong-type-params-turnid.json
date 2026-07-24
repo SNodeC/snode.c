@@ -1,0 +1,10 @@
+{
+  "method": "item/reasoning/textDelta",
+  "params": {
+    "contentIndex": 0,
+    "delta": "synthetic-665fd8cb14",
+    "itemId": "synthetic-c9163a6f2a",
+    "threadId": "synthetic-f73184206d",
+    "turnId": null
+  }
+}

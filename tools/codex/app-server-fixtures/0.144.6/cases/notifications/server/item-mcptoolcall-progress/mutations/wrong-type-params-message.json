@@ -1,0 +1,9 @@
+{
+  "method": "item/mcpToolCall/progress",
+  "params": {
+    "itemId": "synthetic-4ad5e75a30",
+    "message": null,
+    "threadId": "synthetic-b4b50ed8e3",
+    "turnId": "synthetic-aba550ba42"
+  }
+}

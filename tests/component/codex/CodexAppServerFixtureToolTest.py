@@ -1510,6 +1510,263 @@ class AppServerFixtureToolTest(unittest.TestCase):
             ["type_mismatch"],
         )
 
+    def test_b5_notification_fixture_plan_is_exact_and_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+        b5 = index["a1_1_notifications"]
+        assignment_keys = b5["assignment_derived_keys"]
+        self.assertEqual(len(assignment_keys), 37)
+        self.assertEqual(
+            {record["name"] for record in assignment_keys},
+            set(tool.B5_SERVER_NOTIFICATION_METHODS),
+        )
+        self.assertTrue(
+            all(
+                record == {
+                    "category": tool.SERVER_NOTIFICATION,
+                    "domain": "ServerNotification",
+                    "discriminator_field": "method",
+                    "name": record["name"],
+                }
+                for record in assignment_keys
+            )
+        )
+
+        root_plan = b5["root_fixture_plan"]
+        indexed = b5["indexed_schema_coverage"]
+        self.assertEqual(len(root_plan), 37)
+        self.assertEqual(len(indexed), 37)
+        self.assertEqual(
+            sum(record["base_fixture_reused"] for record in root_plan.values()),
+            12,
+        )
+        self.assertEqual(
+            sum(
+                not record["base_fixture_reused"]
+                for record in root_plan.values()
+            ),
+            25,
+        )
+        self.assertTrue(
+            all(
+                record["schema_direction_coverage"]
+                and record["directions_exercised"] == ["Decode"]
+                and all(record["schema_fixture_facts"].values())
+                for record in indexed.values()
+            )
+        )
+        self.assertTrue(
+            all(
+                set(record["required_reachable_fixture_ids"])
+                <= set(records_by_id)
+                for record in indexed.values()
+            )
+        )
+
+        mutation = b5["negative_coverage"]["payload_mutations"]
+        self.assertEqual(
+            mutation["counts"],
+            {
+                "base_generated": 25,
+                "missing_required": 279,
+                "nullable_null": 57,
+                "optional_omitted": 65,
+                "required_nullable_null": 2,
+                "wrong_type": 358,
+                "wrong_type_opaque_exclusions": 2,
+            },
+        )
+        self.assertEqual(
+            {
+                (
+                    record["notification"],
+                    record["instance_path"],
+                    record["schema_path"],
+                )
+                for record in mutation["opaque_exclusions"]
+            },
+            {
+                (
+                    "thread/realtime/itemAdded",
+                    "$/params/item",
+                    (
+                        "#/definitions/"
+                        "ThreadRealtimeItemAddedNotification/properties/item"
+                    ),
+                ),
+                (
+                    "turn/moderationMetadata",
+                    "$/params/metadata",
+                    (
+                        "#/definitions/"
+                        "TurnModerationMetadataNotification/"
+                        "properties/metadata"
+                    ),
+                ),
+            },
+        )
+
+        existing_bases = {
+            tool.SurfaceKey(category, domain, field, name).compact()
+            for category, domain, field, name
+            in tool.EXISTING_TYPED_FIXTURE_IDENTITIES
+            if category == tool.SERVER_NOTIFICATION
+            and name in tool.B5_SERVER_NOTIFICATION_METHODS
+        }
+        self.assertEqual(len(existing_bases), 12)
+        for compact_key, plan in root_plan.items():
+            with self.subTest(notification=compact_key):
+                base = records_by_id[plan["base_fixture_id"]]
+                expected_existing = compact_key in existing_bases
+                self.assertEqual(
+                    base["role"],
+                    (
+                        "existing_typed_identity"
+                        if expected_existing
+                        else "server_notification_identity"
+                    ),
+                )
+                self.assertEqual(
+                    plan["base_fixture_reused"], expected_existing
+                )
+                self.assertEqual(
+                    plan["future_method_fixture_id"],
+                    "method:server_notification:future-unknown",
+                )
+                self.assertEqual(
+                    plan["conflicting_discriminator_fixture_ids"], []
+                )
+                self.assertTrue(
+                    plan["conflicting_discriminator_exclusion"]
+                )
+                for fixture_id in (
+                    plan["optional_omitted_fixture_ids"]
+                    + plan["nullable_null_fixture_ids"]
+                    + plan["required_nullable_null_fixture_ids"]
+                ):
+                    record = records_by_id[fixture_id]
+                    self.assertNotIn("expected_valid", record)
+                    self.assertEqual(
+                        record["schema_fixture_coverage"][
+                            "directions_exercised"
+                        ],
+                        ["Decode"],
+                    )
+                for fixture_id in (
+                    plan["missing_required_fixture_ids"]
+                    + plan["wrong_type_fixture_ids"]
+                ):
+                    record = records_by_id[fixture_id]
+                    self.assertFalse(record["expected_valid"])
+                    self.assertEqual(
+                        record["expected_diagnostic_codes"],
+                        sorted(
+                            set(record["expected_diagnostic_codes"])
+                        ),
+                    )
+                    self.assertTrue(record["expected_diagnostic_codes"])
+
+        settings_key = (
+            "server_notification:ServerNotification:"
+            "method:thread/settings/updated"
+        )
+        settings_positive_records = [
+            record
+            for record in index["fixtures"]
+            if record.get("expected_valid", True)
+            and record.get("protocol_surface_key", {}).get("name")
+            == "thread/settings/updated"
+        ]
+        self.assertTrue(settings_positive_records)
+        for record in settings_positive_records:
+            with self.subTest(reasoning_effort_fixture=record["id"]):
+                payload = json.loads(
+                    (
+                        configured.fixture_root / record["file"]
+                    ).read_text(encoding="utf-8")
+                )
+                thread_settings = payload["params"]["threadSettings"]
+                effort = thread_settings.get("effort")
+                if effort is not None:
+                    self.assertEqual(
+                        effort,
+                        tool.B5_REASONING_EFFORT_FIXTURE_VALUE,
+                    )
+                collaboration_mode = thread_settings.get(
+                    "collaborationMode"
+                )
+                if isinstance(collaboration_mode, dict):
+                    collaboration_settings = collaboration_mode.get(
+                        "settings"
+                    )
+                    if isinstance(collaboration_settings, dict):
+                        reasoning_effort = collaboration_settings.get(
+                            "reasoning_effort"
+                        )
+                        if reasoning_effort is not None:
+                            self.assertEqual(
+                                reasoning_effort,
+                                tool.B5_REASONING_EFFORT_FIXTURE_VALUE,
+                            )
+        self.assertEqual(
+            root_plan[settings_key]["base_fixture_id"],
+            (
+                "baseline:server_notification:ServerNotification:"
+                "method:thread/settings/updated"
+            ),
+        )
+
+        enum_coverage = b5["negative_coverage"]["open_string_enums"]
+        self.assertEqual(set(enum_coverage), set(tool.B5_OPEN_STRING_ENUMS))
+        self.assertEqual(
+            sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            ),
+            7,
+        )
+        for domain, record in enum_coverage.items():
+            with self.subTest(open_enum=domain):
+                self.assertEqual(
+                    record["directions_exercised"], ["Decode"]
+                )
+                for fixture_id in record["known_value_fixture_ids"]:
+                    self.assertEqual(
+                        records_by_id[fixture_id][
+                            "schema_fixture_coverage"
+                        ]["directions_exercised"],
+                        ["Decode"],
+                    )
+                for fixture_id in (
+                    record["future_value_fixture_id"],
+                    record["empty_value_fixture_id"],
+                ):
+                    self.assertEqual(
+                        records_by_id[fixture_id][
+                            "expected_diagnostic_codes"
+                        ],
+                        ["enum_mismatch"],
+                    )
+
+    def test_fixture_generator_has_no_production_decoder_inputs(self) -> None:
+        source = (
+            REPOSITORY_ROOT / "tools/codex/app_server_fixtures.py"
+        ).read_text(encoding="utf-8")
+        for prohibited in (
+            "ProtocolSurfaceRegistryData.inc",
+            "EventDecoder.cpp",
+            "typed/Events.h",
+            "BackendCore.cpp",
+        ):
+            self.assertNotIn(prohibited, source)
+
     def test_committed_corpus_is_deterministic_current_and_valid(self) -> None:
         configured = arguments()
         first, first_index = tool.generated_outputs(configured)
@@ -1522,9 +1779,9 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 2915,
-                "positive": 1259,
-                "negative": 1656,
+                "total": 3714,
+                "positive": 1415,
+                "negative": 2299,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
@@ -1538,7 +1795,11 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "malformed_known_wrong_outer_shape": 3,
                     "malformed_known_wrong_type": 304,
                     "nested_union_failure": 4,
-                    "open_enum_known_value": 86,
+                    "notification_missing_required": 279,
+                    "notification_nullable_null": 59,
+                    "notification_optional_omitted": 65,
+                    "notification_wrong_type": 358,
+                    "open_enum_known_value": 93,
                     "operation_helper_union_branch": 10,
                     "operation_missing_required": 299,
                     "operation_nullable_null": 250,
@@ -1548,6 +1809,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "operation_optional_omitted": 276,
                     "operation_pinned_format_unrepresentable": 1,
                     "operation_wrong_type": 621,
+                    "server_notification_identity": 25,
                     "server_request_params": 10,
                     "server_request_response": 10,
                     "union_branch": 108,
@@ -1555,7 +1817,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "union_nullable_null": 126,
                     "union_optional_omitted": 136,
                     "unknown_discriminator": 23,
-                    "unknown_enum_value": 79,
+                    "unknown_enum_value": 85,
                     "unknown_method": 4,
                 },
             },
@@ -1563,15 +1825,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 13359,
-                "required_locations": 13359,
-                "required_field_removals_rejected": 13359,
-                "wrong_type_mutations_rejected": 13298,
-                "wrong_type_unconstrained_exclusions": 61,
+                "selected_branch_required_locations": 15766,
+                "required_locations": 15766,
+                "required_field_removals_rejected": 15766,
+                "wrong_type_mutations_rejected": 15701,
+                "wrong_type_unconstrained_exclusions": 65,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 12058,
-                "globally_optional_locations": 12058,
-                "optional_omissions_accepted": 12058,
+                "optional_present_locations": 13452,
+                "globally_optional_locations": 13452,
+                "optional_omissions_accepted": 13452,
                 "optional_cross_fragment_exclusions": 0,
             },
         )
@@ -1617,21 +1879,21 @@ class AppServerFixtureToolTest(unittest.TestCase):
         completeness = json.loads(first[completeness_path].decode("utf-8"))
         self.assertEqual(completeness["counts"]["surface_identities"], 387)
         self.assertEqual(
-            completeness["counts"]["identities_with_positive_fixtures"], 220
+            completeness["counts"]["identities_with_positive_fixtures"], 245
         )
         self.assertEqual(
             completeness["counts"]["facts_true_by_field"],
             {
-                "authoritative_root_association": 220,
-                "fixture_current": 220,
-                "independently_schema_validated": 220,
-                "nullable_semantics_exercised": 130,
-                "optional_omitted_exercised": 220,
-                "optional_present_exercised": 220,
-                "positive_fixture_coverage": 220,
-                "reachable_union_alternatives_exercised": 130,
-                "required_fields_exercised": 220,
-                "schema_properties_exercised": 130,
+                "authoritative_root_association": 245,
+                "fixture_current": 245,
+                "independently_schema_validated": 245,
+                "nullable_semantics_exercised": 167,
+                "optional_omitted_exercised": 245,
+                "optional_present_exercised": 245,
+                "positive_fixture_coverage": 245,
+                "reachable_union_alternatives_exercised": 167,
+                "required_fields_exercised": 245,
+                "schema_properties_exercised": 167,
             },
         )
         self.assertEqual(len(completeness["records"]), 387)
@@ -1653,7 +1915,10 @@ class AppServerFixtureToolTest(unittest.TestCase):
             for mutation in record["validation"]["wrong_types"]
             if mutation["exclusion"] is not None
         ]
-        self.assertEqual(len(exclusions), 61)
+        # The two new B5 protocol-opaque base paths are retained in the
+        # detailed index. Supplemental notification records use the compact
+        # mutation-evidence form and remain covered by the global count of 65.
+        self.assertEqual(len(exclusions), 63)
         self.assertTrue(
             all(
                 mutation == {

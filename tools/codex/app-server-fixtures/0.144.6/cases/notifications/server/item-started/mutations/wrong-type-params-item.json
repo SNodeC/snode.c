@@ -1,0 +1,9 @@
+{
+  "method": "item/started",
+  "params": {
+    "item": null,
+    "startedAtMs": 0,
+    "threadId": "synthetic-78a0d3ecbf",
+    "turnId": "synthetic-f11278837b"
+  }
+}

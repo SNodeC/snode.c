@@ -35,8 +35,8 @@ rows. `ThreadItem` contributes 18 item discriminators and `ResponseItem` 16.
 | Stable upstream inventory registration | 351/351 | 100.0% | All stable manifest entries present in the production registry. |
 | Experimental-inclusive upstream inventory registration | 387/387 | 100.0% | Stable plus experimental-only manifest entries present in the production registry. |
 | Typed wire request/result coverage | 23/87 | 26.4% | Stable client requests; includes typed initialization lifecycle support. |
-| Typed notification/server-request coverage | 18/78 | 23.1% | Stable server notifications and server-initiated requests. |
-| Typed item/delta coverage | 38/46 | 82.6% | Stable item discriminators plus delta/progress notification methods. |
+| Typed notification/server-request coverage | 43/78 | 55.1% | Stable server notifications and server-initiated requests. |
+| Typed item/delta coverage | 43/46 | 93.5% | Stable item discriminators plus delta/progress notification methods. |
 | BackendCore command coverage | 6/86 | 7.0% | Stable application client requests; initialize is internal lifecycle and excluded. |
 | Canonical-state/reducer coverage | 32/198 | 16.2% | Stable registry entries whose canonical-state status is applicable. |
 | Frontend Protocol existing-subset exposure coverage | 10/96 | 10.4% | Stable operations with an existing reviewed normalized v1 subset; not full upstream-method exposure. |

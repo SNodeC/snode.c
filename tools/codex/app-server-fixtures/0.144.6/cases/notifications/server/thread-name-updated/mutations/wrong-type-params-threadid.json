@@ -1,0 +1,7 @@
+{
+  "method": "thread/name/updated",
+  "params": {
+    "threadId": null,
+    "threadName": "synthetic-298b0b9ed0"
+  }
+}

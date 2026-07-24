@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/closed",
+  "params": {
+    "reason": "synthetic-465dc364e9",
+    "threadId": null
+  }
+}

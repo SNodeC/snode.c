@@ -139,6 +139,8 @@ add_test(
         ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/fixture-coverage.json
         --production-coverage
         ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json
+        --notification-production-coverage
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json
         --fixture-index
         ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
         --draft07-validator
@@ -179,6 +181,31 @@ set_tests_properties(
     CodexA11OperationProductionCoverageGuardTest
     PROPERTIES
         LABELS "component;ai;openai;codex;phase-a1-1;operation;codec;corpus;generated"
+        TIMEOUT 30
+)
+
+add_test(
+    NAME CodexA11NotificationProductionCoverageGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CODEX_PHASE_A0_SURFACE_TOOL}
+        notification-production-coverage
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --evidence-root
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}
+        --fixture-index
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json
+        --check
+)
+set_tests_properties(
+    CodexA11NotificationProductionCoverageGuardTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;notification;codec;corpus;generated"
         TIMEOUT 30
 )
 
@@ -409,6 +436,31 @@ set_tests_properties(
         TIMEOUT 30
 )
 
+snodec_add_test(
+    CodexA11NotificationCodecTest
+    CodexA11NotificationCodecTest.cpp
+)
+target_link_libraries(
+    CodexA11NotificationCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA11NotificationCodecTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexA11NotificationCodecTest
+    PRIVATE
+        CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+        CODEX_A1_NOTIFICATION_PRODUCTION_COVERAGE="${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json"
+)
+set_tests_properties(
+    CodexA11NotificationCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;notification;codec;corpus;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
 foreach(
     typed_test IN
     ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
@@ -486,6 +538,25 @@ set_tests_properties(
     CodexThreadItemBackendParityTest
     PROPERTIES LABELS "component;ai;openai;codex;typed;backend;reducer;parity"
                SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA11NotificationBackendPreservationTest
+    CodexA11NotificationBackendPreservationTest.cpp
+)
+target_link_libraries(
+    CodexA11NotificationBackendPreservationTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA11NotificationBackendPreservationTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA11NotificationBackendPreservationTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;backend;reducer;preservation;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
 )
 
 snodec_add_test(CodexFrontendProtocolV1Test CodexFrontendProtocolV1Test.cpp)

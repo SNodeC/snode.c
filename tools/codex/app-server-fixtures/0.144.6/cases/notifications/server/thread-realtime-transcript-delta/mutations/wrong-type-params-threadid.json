@@ -1,0 +1,8 @@
+{
+  "method": "thread/realtime/transcript/delta",
+  "params": {
+    "delta": "synthetic-a1a7c208cb",
+    "role": "synthetic-8b651f3d73",
+    "threadId": null
+  }
+}

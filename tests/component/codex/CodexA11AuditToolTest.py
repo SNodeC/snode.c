@@ -63,6 +63,8 @@ class CodexA11AuditToolTest(unittest.TestCase):
             schema_completeness=OPTIONS.schema_completeness,
             fixture_coverage=OPTIONS.fixture_coverage,
             production_coverage=OPTIONS.production_coverage,
+            notification_production_coverage=
+                OPTIONS.notification_production_coverage,
             fixture_index=OPTIONS.fixture_index,
             draft07_validator=OPTIONS.draft07_validator,
             start_state=OPTIONS.start_state,
@@ -965,6 +967,9 @@ def parse_options() -> argparse.Namespace:
     parser.add_argument("--schema-completeness", required=True, type=Path)
     parser.add_argument("--fixture-coverage", required=True, type=Path)
     parser.add_argument("--production-coverage", required=True, type=Path)
+    parser.add_argument(
+        "--notification-production-coverage", required=True, type=Path
+    )
     parser.add_argument("--fixture-index", required=True, type=Path)
     parser.add_argument("--draft07-validator", required=True, type=Path)
     parser.add_argument("--start-state", required=True, type=Path)

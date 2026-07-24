@@ -1,0 +1,17 @@
+{
+  "method": "item/fileChange/patchUpdated",
+  "params": {
+    "changes": [
+      {
+        "diff": "synthetic-fa70917427",
+        "kind": {
+          "type": "add"
+        },
+        "path": null
+      }
+    ],
+    "itemId": "synthetic-e3d290dba6",
+    "threadId": "synthetic-8d98720269",
+    "turnId": "synthetic-269290b75b"
+  }
+}

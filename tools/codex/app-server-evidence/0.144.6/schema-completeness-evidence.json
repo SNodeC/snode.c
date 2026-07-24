@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 220,
-      "fixture_current": 220,
-      "independently_schema_validated": 220,
-      "nullable_semantics_exercised": 130,
-      "optional_omitted_exercised": 220,
-      "optional_present_exercised": 220,
-      "positive_fixture_coverage": 220,
-      "reachable_union_alternatives_exercised": 130,
-      "required_fields_exercised": 220,
-      "schema_properties_exercised": 130
+      "authoritative_root_association": 245,
+      "fixture_current": 245,
+      "independently_schema_validated": 245,
+      "nullable_semantics_exercised": 167,
+      "optional_omitted_exercised": 245,
+      "optional_present_exercised": 245,
+      "positive_fixture_coverage": 245,
+      "reachable_union_alternatives_exercised": 167,
+      "required_fields_exercised": 245,
+      "schema_properties_exercised": 167
     },
-    "identities_with_positive_fixtures": 220,
+    "identities_with_positive_fixtures": 245,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -4946,13 +4946,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5014,18 +5014,20 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/commandExecution/terminalInteraction"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5033,23 +5035,28 @@
         "name": "item/commandExecution/terminalInteraction"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:item/completed"
+        "baseline:server_notification:ServerNotification:method:item/completed",
+        "baseline:server_notification:ServerNotification:method:item/completed:nullable-null:params-item-clientid",
+        "baseline:server_notification:ServerNotification:method:item/completed:nullable-null:params-item-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:item/completed:optional-omitted:params-item-clientid",
+        "baseline:server_notification:ServerNotification:method:item/completed:optional-omitted:params-item-content-0-text_elements",
+        "baseline:server_notification:ServerNotification:method:item/completed:optional-omitted:params-item-content-0-text_elements-0-placeholder"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5060,18 +5067,20 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/fileChange/outputDelta"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5079,16 +5088,16 @@
         "name": "item/fileChange/outputDelta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5106,18 +5115,20 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/mcpToolCall/progress"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5125,21 +5136,23 @@
         "name": "item/mcpToolCall/progress"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/plan/delta"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5147,21 +5160,23 @@
         "name": "item/plan/delta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/reasoning/summaryPartAdded"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5169,16 +5184,16 @@
         "name": "item/reasoning/summaryPartAdded"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5196,13 +5211,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5220,20 +5235,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:item/started"
+        "baseline:server_notification:ServerNotification:method:item/started",
+        "baseline:server_notification:ServerNotification:method:item/started:nullable-null:params-item-clientid",
+        "baseline:server_notification:ServerNotification:method:item/started:nullable-null:params-item-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:item/started:optional-omitted:params-item-clientid",
+        "baseline:server_notification:ServerNotification:method:item/started:optional-omitted:params-item-content-0-text_elements",
+        "baseline:server_notification:ServerNotification:method:item/started:optional-omitted:params-item-content-0-text_elements-0-placeholder"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5244,13 +5264,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5476,8 +5496,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/archived"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5485,21 +5507,23 @@
         "name": "thread/archived"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/closed"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5507,21 +5531,23 @@
         "name": "thread/closed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/compacted"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5529,21 +5555,23 @@
         "name": "thread/compacted"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/deleted"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5551,21 +5579,23 @@
         "name": "thread/deleted"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/goal/cleared"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5573,21 +5603,27 @@
         "name": "thread/goal/cleared"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/goal/updated",
+        "baseline:server_notification:ServerNotification:method:thread/goal/updated:nullable-null:params-goal-tokenbudget",
+        "baseline:server_notification:ServerNotification:method:thread/goal/updated:nullable-null:params-turnid",
+        "baseline:server_notification:ServerNotification:method:thread/goal/updated:optional-omitted:params-goal-tokenbudget",
+        "baseline:server_notification:ServerNotification:method:thread/goal/updated:optional-omitted:params-turnid"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5595,21 +5631,25 @@
         "name": "thread/goal/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/name/updated",
+        "baseline:server_notification:ServerNotification:method:thread/name/updated:nullable-null:params-threadname",
+        "baseline:server_notification:ServerNotification:method:thread/name/updated:optional-omitted:params-threadname"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5617,21 +5657,25 @@
         "name": "thread/name/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/closed",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/closed:nullable-null:params-reason",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/closed:optional-omitted:params-reason"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5639,21 +5683,23 @@
         "name": "thread/realtime/closed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/error"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5661,21 +5707,24 @@
         "name": "thread/realtime/error"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/itemAdded",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/itemAdded:required-nullable-null:params-item"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5683,21 +5732,27 @@
         "name": "thread/realtime/itemAdded"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/outputAudio/delta",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/outputAudio/delta:nullable-null:params-audio-itemid",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/outputAudio/delta:nullable-null:params-audio-samplesperchannel",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/outputAudio/delta:optional-omitted:params-audio-itemid",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/outputAudio/delta:optional-omitted:params-audio-samplesperchannel"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5705,21 +5760,23 @@
         "name": "thread/realtime/outputAudio/delta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/sdp"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5727,21 +5784,25 @@
         "name": "thread/realtime/sdp"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/started",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/started:nullable-null:params-realtimesessionid",
+        "baseline:server_notification:ServerNotification:method:thread/realtime/started:optional-omitted:params-realtimesessionid"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5749,21 +5810,23 @@
         "name": "thread/realtime/started"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/transcript/delta"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5771,21 +5834,23 @@
         "name": "thread/realtime/transcript/delta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/realtime/transcript/done"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5793,21 +5858,39 @@
         "name": "thread/realtime/transcript/done"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-activepermissionprofile",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-activepermissionprofile-extends",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-collaborationmode-settings-developer_instructions",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-collaborationmode-settings-reasoning_effort",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-effort",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-personality",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-servicetier",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:nullable-null:params-threadsettings-summary",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-activepermissionprofile",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-activepermissionprofile-extends",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-collaborationmode-settings-developer_instructions",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-collaborationmode-settings-reasoning_effort",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-effort",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-personality",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-servicetier",
+        "baseline:server_notification:ServerNotification:method:thread/settings/updated:optional-omitted:params-threadsettings-summary"
+      ],
+      "positive_fixture_count": 17,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5815,23 +5898,65 @@
         "name": "thread/settings/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:thread/started"
+        "baseline:server_notification:ServerNotification:method:thread/started",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-agentnickname",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-agentrole",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-forkedfromid",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-gitinfo",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-gitinfo-branch",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-gitinfo-originurl",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-gitinfo-sha",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-name",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-parentthreadid",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-path",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-recencyat",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-threadsource",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-completedat",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-durationms",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-error",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:thread/started:nullable-null:params-thread-turns-0-startedat",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-agentnickname",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-agentrole",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-forkedfromid",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-gitinfo",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-gitinfo-branch",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-gitinfo-originurl",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-gitinfo-sha",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-name",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-parentthreadid",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-path",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-recencyat",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-threadsource",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-completedat",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-durationms",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-error",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-items-0-content-0-text_elements",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-itemsview",
+        "baseline:server_notification:ServerNotification:method:thread/started:optional-omitted:params-thread-turns-0-startedat"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 43,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5842,13 +5967,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5866,20 +5991,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:thread/tokenUsage/updated"
+        "baseline:server_notification:ServerNotification:method:thread/tokenUsage/updated",
+        "baseline:server_notification:ServerNotification:method:thread/tokenUsage/updated:nullable-null:params-tokenusage-modelcontextwindow",
+        "baseline:server_notification:ServerNotification:method:thread/tokenUsage/updated:optional-omitted:params-tokenusage-modelcontextwindow"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5890,18 +6017,20 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:thread/unarchived"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5909,23 +6038,41 @@
         "name": "thread/unarchived"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:turn/completed"
+        "baseline:server_notification:ServerNotification:method:turn/completed",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-completedat",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-durationms",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-error",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:turn/completed:nullable-null:params-turn-startedat",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-completedat",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-durationms",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-error",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-items-0-content-0-text_elements",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-itemsview",
+        "baseline:server_notification:ServerNotification:method:turn/completed:optional-omitted:params-turn-startedat"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 19,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5936,18 +6083,20 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:turn/diff/updated"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5955,21 +6104,24 @@
         "name": "turn/diff/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:turn/moderationMetadata",
+        "baseline:server_notification:ServerNotification:method:turn/moderationMetadata:required-nullable-null:params-metadata"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5977,21 +6129,25 @@
         "name": "turn/moderationMetadata"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:turn/plan/updated",
+        "baseline:server_notification:ServerNotification:method:turn/plan/updated:nullable-null:params-explanation",
+        "baseline:server_notification:ServerNotification:method:turn/plan/updated:optional-omitted:params-explanation"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5999,23 +6155,41 @@
         "name": "turn/plan/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
-        "baseline:server_notification:ServerNotification:method:turn/started"
+        "baseline:server_notification:ServerNotification:method:turn/started",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-completedat",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-durationms",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-error",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:turn/started:nullable-null:params-turn-startedat",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-completedat",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-durationms",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-error",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-error-additionaldetails",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-error-codexerrorinfo",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-items-0-clientid",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-items-0-content-0-text_elements",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-items-0-content-0-text_elements-0-placeholder",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-itemsview",
+        "baseline:server_notification:ServerNotification:method:turn/started:optional-omitted:params-turn-startedat"
       ],
-      "positive_fixture_count": 1,
+      "positive_fixture_count": 19,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -6026,13 +6200,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {

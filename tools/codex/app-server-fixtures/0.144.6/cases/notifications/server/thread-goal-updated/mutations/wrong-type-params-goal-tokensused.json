@@ -1,0 +1,17 @@
+{
+  "method": "thread/goal/updated",
+  "params": {
+    "goal": {
+      "createdAt": 0,
+      "objective": "synthetic-f6211b9cb1",
+      "status": "active",
+      "threadId": "synthetic-5ffdd90d61",
+      "timeUsedSeconds": 0,
+      "tokenBudget": 0,
+      "tokensUsed": null,
+      "updatedAt": 0
+    },
+    "threadId": "synthetic-0d411f9685",
+    "turnId": "synthetic-400fb3d4e3"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "method": "item/fileChange/outputDelta",
+  "params": {
+    "delta": "synthetic-c9c22c60cf",
+    "itemId": "synthetic-61d1c6eca1",
+    "threadId": "synthetic-5e505da4a9",
+    "turnId": "synthetic-95859cc851"
+  }
+}

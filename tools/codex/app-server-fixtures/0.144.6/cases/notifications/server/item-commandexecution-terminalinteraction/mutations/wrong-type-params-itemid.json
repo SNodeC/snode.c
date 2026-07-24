@@ -1,0 +1,10 @@
+{
+  "method": "item/commandExecution/terminalInteraction",
+  "params": {
+    "itemId": null,
+    "processId": "synthetic-6408351a93",
+    "stdin": "synthetic-0d54b727e8",
+    "threadId": "synthetic-fd69e744c5",
+    "turnId": "synthetic-183b32fe5f"
+  }
+}

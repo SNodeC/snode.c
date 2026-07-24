@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/error",
+  "params": {
+    "message": null,
+    "threadId": "synthetic-0a46bbdade"
+  }
+}

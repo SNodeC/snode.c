@@ -1,0 +1,4 @@
+{
+  "method": "thread/realtime/transcript/delta",
+  "params": null
+}

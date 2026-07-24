@@ -3209,6 +3209,10 @@ def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
     completeness_document = load_json(arguments.schema_completeness)
     fixture_document = load_json(arguments.fixture_coverage)
     production_coverage_document = load_json(arguments.production_coverage)
+    notification_production_coverage_document = load_json(
+        arguments.notification_production_coverage
+    )
+    type_closure_document = load_json(arguments.closure_output)
     validate_input_versions(
         (
             manifest,
@@ -3218,6 +3222,8 @@ def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
             completeness_document,
             fixture_document,
             production_coverage_document,
+            notification_production_coverage_document,
+            type_closure_document,
         )
     )
 
@@ -3260,6 +3266,9 @@ def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
         "reachability": reachability_document,
         "fixture_coverage": fixture_document,
         "operation_production_coverage": production_coverage_document,
+        "notification_production_coverage":
+            notification_production_coverage_document,
+        "type_closure": type_closure_document,
     }
     expected_registry_data = surface.generate_registry_data(manifest, registry_evidence)
     if arguments.registry.read_text(encoding="utf-8") != expected_registry_data:
@@ -6185,6 +6194,11 @@ def parser() -> argparse.ArgumentParser:
         default=evidence_root / "a1-1-operation-production-coverage.json",
     )
     result.add_argument(
+        "--notification-production-coverage",
+        type=Path,
+        default=evidence_root / "a1-1-notification-production-coverage.json",
+    )
+    result.add_argument(
         "--fixture-index",
         type=Path,
         default=repo_root / "tools/codex/app-server-fixtures/0.144.6/index.json",
@@ -6234,6 +6248,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "schema_completeness",
         "fixture_coverage",
         "production_coverage",
+        "notification_production_coverage",
         "fixture_index",
         "draft07_validator",
         "start_state",

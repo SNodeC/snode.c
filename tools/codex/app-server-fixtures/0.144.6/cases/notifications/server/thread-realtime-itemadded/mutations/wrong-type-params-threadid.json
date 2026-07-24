@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/itemAdded",
+  "params": {
+    "item": {},
+    "threadId": null
+  }
+}

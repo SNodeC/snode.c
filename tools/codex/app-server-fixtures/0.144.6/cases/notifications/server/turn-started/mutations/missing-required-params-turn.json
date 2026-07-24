@@ -1,0 +1,6 @@
+{
+  "method": "turn/started",
+  "params": {
+    "threadId": "synthetic-4ed7ac17f8"
+  }
+}

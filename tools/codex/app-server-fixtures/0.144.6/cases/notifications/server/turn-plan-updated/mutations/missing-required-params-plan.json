@@ -1,0 +1,8 @@
+{
+  "method": "turn/plan/updated",
+  "params": {
+    "explanation": "synthetic-a90399b1f8",
+    "threadId": "synthetic-d334341cc4",
+    "turnId": "synthetic-3609ec3a7e"
+  }
+}

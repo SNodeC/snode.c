@@ -1,0 +1,4 @@
+{
+  "method": "thread/status/changed",
+  "params": null
+}
