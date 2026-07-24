@@ -66,5 +66,17 @@ add_test(
 )
 set_tests_properties(
     CodexSourcePackageTest
-    PROPERTIES LABELS "package;source-package;codex;phase-a1-0" TIMEOUT 180
+    PROPERTIES LABELS "package;source-package;codex;phase-a1-0" TIMEOUT 360
+)
+
+add_test(
+    NAME CodexBinaryPackageTest
+    COMMAND
+        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexBinaryPackageTest.cmake
+)
+set_tests_properties(
+    CodexBinaryPackageTest
+    PROPERTIES LABELS "package;binary-package;codex;phase-a1-1" TIMEOUT 120
 )

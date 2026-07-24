@@ -1,0 +1,6 @@
+{
+  "method": "thread/realtime/outputAudio/delta",
+  "params": {
+    "threadId": "synthetic-c93a19d731"
+  }
+}

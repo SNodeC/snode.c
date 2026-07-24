@@ -8,6 +8,8 @@
 #include "ai/openai/codex/backend/Reducer.h"
 
 #include "ai/openai/codex/backend/detail/PreserveUnmodeledTypedEvent.h"
+#include "ai/openai/codex/detail/ConversationCodec.h"
+#include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
@@ -39,6 +41,17 @@ namespace ai::openai::codex::backend {
                 }
             }
             return static_cast<std::uint64_t>(value);
+        }
+
+        using ServerNotificationTarget = ::ai::openai::codex::detail::ServerNotificationTarget;
+
+        template <typename Notification>
+        std::vector<BackendEvent> preserveTypedNotification(const Notification& value, ServerNotificationTarget target) {
+            const ::ai::openai::codex::detail::ProtocolSurfaceEntry& registryEntry = ::ai::openai::codex::detail::entryFor(target);
+            const std::optional<typed::DecodeDiagnostic> diagnostic =
+                value.diagnostics.empty() ? std::nullopt : std::optional<typed::DecodeDiagnostic>{value.diagnostics.front()};
+            return {detail::preserveUnmodeledTypedEvent(
+                {std::string(registryEntry.key.name), value.raw.at("params"), std::nullopt, diagnostic})};
         }
 
         logger::BoundaryLogger lifecycleLog() {
@@ -119,6 +132,33 @@ namespace ai::openai::codex::backend {
             target += value;
         }
 
+        std::optional<std::vector<typed::FileUpdateChange>> decodeFileUpdateChanges(const Json& changes) {
+            if (!changes.is_array()) {
+                return std::nullopt;
+            }
+
+            std::vector<typed::FileUpdateChange> decoded;
+            decoded.reserve(changes.size());
+            for (const Json& change : changes) {
+                if (!change.is_object()) {
+                    return std::nullopt;
+                }
+                const auto diff = change.find("diff");
+                const auto kind = change.find("kind");
+                const auto path = change.find("path");
+                if (diff == change.end() || !diff->is_string() || kind == change.end() || path == change.end() || !path->is_string()) {
+                    return std::nullopt;
+                }
+                ai::openai::codex::detail::ConversationDecodeResult<typed::PatchChangeKind> decodedKind =
+                    ai::openai::codex::detail::decodePatchChangeKind(*kind);
+                if (!decodedKind.value) {
+                    return std::nullopt;
+                }
+                decoded.push_back({diff->get<std::string>(), std::move(*decodedKind.value), path->get<std::string>()});
+            }
+            return decoded;
+        }
+
         void initializeVisibleContent(ItemState& state, bool authoritative, std::size_t limit) {
             std::visit(Overloaded{[&state, authoritative, limit](const typed::AgentMessageItem& item) {
                                       if ((!item.text.empty() && authoritative) || state.agentText.empty()) {
@@ -126,30 +166,31 @@ namespace ai::openai::codex::backend {
                                       }
                                   },
                                   [&state, authoritative, limit](const typed::ReasoningItem& item) {
-                                      const bool hasContent =
-                                          std::any_of(item.content.begin(), item.content.end(), [](const std::string& value) {
-                                              return !value.empty();
-                                          });
+                                      const std::vector<std::string>& content = item.contentOrDefault();
+                                      const bool hasContent = std::any_of(content.begin(), content.end(), [](const std::string& value) {
+                                          return !value.empty();
+                                      });
                                       if ((authoritative && hasContent) || state.reasoningText.empty()) {
                                           state.reasoningText.clear();
-                                          for (const std::string& content : item.content) {
-                                              appendBounded(state.reasoningText, content, limit, state.droppedContentBytes);
+                                          for (const std::string& value : content) {
+                                              appendBounded(state.reasoningText, value, limit, state.droppedContentBytes);
                                           }
                                       }
-                                      const bool hasSummary =
-                                          std::any_of(item.summary.begin(), item.summary.end(), [](const std::string& value) {
-                                              return !value.empty();
-                                          });
+                                      const std::vector<std::string>& summary = item.summaryOrDefault();
+                                      const bool hasSummary = std::any_of(summary.begin(), summary.end(), [](const std::string& value) {
+                                          return !value.empty();
+                                      });
                                       if ((authoritative && hasSummary) || state.reasoningSummary.empty()) {
                                           state.reasoningSummary.clear();
-                                          for (const std::string& summary : item.summary) {
-                                              appendBounded(state.reasoningSummary, summary, limit, state.droppedContentBytes);
+                                          for (const std::string& value : summary) {
+                                              appendBounded(state.reasoningSummary, value, limit, state.droppedContentBytes);
                                           }
                                       }
                                   },
                                   [&state, authoritative, limit](const typed::CommandExecutionItem& item) {
-                                      if (item.output && ((!item.output->empty() && authoritative) || state.commandOutput.empty())) {
-                                          assignBounded(state.commandOutput, *item.output, limit, state.droppedContentBytes);
+                                      if (item.aggregatedOutput &&
+                                          ((!item.aggregatedOutput->empty() && authoritative) || state.commandOutput.empty())) {
+                                          assignBounded(state.commandOutput, *item.aggregatedOutput, limit, state.droppedContentBytes);
                                       }
                                   },
                                   [](const auto&) {
@@ -233,8 +274,8 @@ namespace ai::openai::codex::backend {
                 iterator->second.turn = value;
                 iterator->second.active = !isTerminal(value.status);
                 iterator->second.terminal = isTerminal(value.status);
-                if (value.error) {
-                    iterator->second.failure = value.error;
+                if (value.error.hasValue()) {
+                    iterator->second.failure = value.error->raw;
                 }
             }
 
@@ -290,10 +331,9 @@ namespace ai::openai::codex::backend {
                 std::uint64_t originalDiagnosticBytes = 0;
                 const auto account = [&originalDiagnosticBytes](std::size_t bytes) {
                     const std::uint64_t value = saturatingUint64(bytes);
-                    originalDiagnosticBytes =
-                        value > std::numeric_limits<std::uint64_t>::max() - originalDiagnosticBytes
-                        ? std::numeric_limits<std::uint64_t>::max()
-                        : originalDiagnosticBytes + value;
+                    originalDiagnosticBytes = value > std::numeric_limits<std::uint64_t>::max() - originalDiagnosticBytes
+                                                  ? std::numeric_limits<std::uint64_t>::max()
+                                                  : originalDiagnosticBytes + value;
                 };
                 account(extension.diagnostic->surface.size());
                 account(extension.diagnostic->fieldPath.size());
@@ -390,14 +430,19 @@ namespace ai::openai::codex::backend {
                     }
                     state.threadList.hasLoadedPage = true;
                     ++state.threadList.pagesLoaded;
-                    state.threadList.nextCursor = value.page.nextCursor;
-                    state.threadList.backwardsCursor = value.page.backwardsCursor;
-                    state.threadList.complete = !value.page.nextCursor.has_value();
+                    state.threadList.nextCursor = value.page.nextCursor.hasValue() ? value.page.nextCursor.value : std::nullopt;
+                    state.threadList.backwardsCursor =
+                        value.page.backwardsCursor.hasValue() ? value.page.backwardsCursor.value : std::nullopt;
+                    state.threadList.complete = !value.page.nextCursor.hasValue();
                     return Reduction{true, false};
                 },
                 [&state](const ThreadStatusUpdated& value) {
                     ThreadState& thread = ensureThread(state, value.threadId);
                     thread.thread.status = value.status;
+                    if (thread.thread.raw.is_object() && thread.thread.raw.size() == 1 &&
+                        thread.thread.raw.value("backendPlaceholder", false)) {
+                        thread.thread.raw["backendPlaceholderStatusKnown"] = true;
+                    }
                     return Reduction{true, false};
                 },
                 [this, &state](const TurnUpserted& value) {
@@ -450,17 +495,16 @@ namespace ai::openai::codex::backend {
                     }
                     retainExtension(state,
                                     {.method = "codex/item-without-id",
-                                     .payload =
-                                         std::visit(
-                                             [](const auto& item) {
-                                                 using Item = std::decay_t<decltype(item)>;
-                                                 if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
-                                                     return item.raw;
-                                                 } else {
-                                                     return item.metadata.raw;
-                                                 }
-                                             },
-                                             value.item),
+                                     .payload = std::visit(
+                                         [](const auto& item) {
+                                             using Item = std::decay_t<decltype(item)>;
+                                             if constexpr (std::is_same_v<Item, typed::UnknownItem>) {
+                                                 return item.raw;
+                                             } else {
+                                                 return item.metadata.raw;
+                                             }
+                                         },
+                                         value.item),
                                      .decodingError = "typed item has no stable id",
                                      .originalMethodBytes = std::nullopt,
                                      .originalPayloadBytes = std::nullopt,
@@ -525,7 +569,10 @@ namespace ai::openai::codex::backend {
                     }
                     if (item) {
                         if (auto* fileChange = std::get_if<typed::FileChangeItem>(&item->item)) {
-                            fileChange->changes = value.changes;
+                            fileChange->metadata.raw["changes"] = value.changes;
+                            if (std::optional<std::vector<typed::FileUpdateChange>> changes = decodeFileUpdateChanges(value.changes)) {
+                                fileChange->changes = std::move(*changes);
+                            }
                         }
                         item->extensions["fileChanges"] = value.changes;
                     }
@@ -625,16 +672,14 @@ namespace ai::openai::codex::backend {
                 [](const typed::ItemStarted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{
-                            "item/started", value.raw, "item event omitted threadId or turnId", std::nullopt}};
+                        return {CodexExtensionReceived{"item/started", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Started, value.startedAtMs}};
                 },
                 [](const typed::ItemCompleted& value) -> std::vector<BackendEvent> {
                     const auto location = itemLocation(value.item);
                     if (!location) {
-                        return {CodexExtensionReceived{
-                            "item/completed", value.raw, "item event omitted threadId or turnId", std::nullopt}};
+                        return {CodexExtensionReceived{"item/completed", value.raw, "item event omitted threadId or turnId", std::nullopt}};
                     }
                     return {ItemUpserted{location->first, location->second, value.item, ItemLifecycle::Completed, value.completedAtMs}};
                 },
@@ -662,6 +707,81 @@ namespace ai::openai::codex::backend {
                 [](const typed::TokenUsageUpdated& value) -> std::vector<BackendEvent> {
                     return {TokenUsageUpdated{value.threadId, value.turnId, value.usage}};
                 },
+                [](const typed::TerminalInteractionNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TerminalInteraction);
+                },
+                [](const typed::FileChangeOutputDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::FileChangeOutputDelta);
+                },
+                [](const typed::McpToolCallProgressNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::McpToolCallProgress);
+                },
+                [](const typed::PlanDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::PlanDelta);
+                },
+                [](const typed::ReasoningSummaryPartAddedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ReasoningSummaryPartAdded);
+                },
+                [](const typed::ThreadArchivedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadArchived);
+                },
+                [](const typed::ThreadClosedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadClosed);
+                },
+                [](const typed::ContextCompactedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ContextCompacted);
+                },
+                [](const typed::ThreadDeletedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadDeleted);
+                },
+                [](const typed::ThreadGoalClearedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadGoalCleared);
+                },
+                [](const typed::ThreadGoalUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadGoalUpdated);
+                },
+                [](const typed::ThreadNameUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadNameUpdated);
+                },
+                [](const typed::ThreadRealtimeClosedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeClosed);
+                },
+                [](const typed::ThreadRealtimeErrorNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeError);
+                },
+                [](const typed::ThreadRealtimeItemAddedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeItemAdded);
+                },
+                [](const typed::ThreadRealtimeOutputAudioDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeOutputAudioDelta);
+                },
+                [](const typed::ThreadRealtimeSdpNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeSdp);
+                },
+                [](const typed::ThreadRealtimeStartedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeStarted);
+                },
+                [](const typed::ThreadRealtimeTranscriptDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeTranscriptDelta);
+                },
+                [](const typed::ThreadRealtimeTranscriptDoneNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadRealtimeTranscriptDone);
+                },
+                [](const typed::ThreadSettingsUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadSettingsUpdated);
+                },
+                [](const typed::ThreadUnarchivedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ThreadUnarchived);
+                },
+                [](const typed::TurnDiffUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnDiffUpdated);
+                },
+                [](const typed::TurnModerationMetadataNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnModerationMetadata);
+                },
+                [](const typed::TurnPlanUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::TurnPlanUpdated);
+                },
                 [](const typed::ModelRerouted& value) -> std::vector<BackendEvent> {
                     return {ModelRerouted{value.threadId, value.turnId, value.from, value.to, value.reason}};
                 },
@@ -669,8 +789,7 @@ namespace ai::openai::codex::backend {
                     return {TurnErrorUpdated{value.threadId, value.turnId, value.error, value.willRetry}};
                 },
                 [](const typed::UnknownEvent& value) -> std::vector<BackendEvent> {
-                    return {detail::preserveUnmodeledTypedEvent(
-                        {value.method, value.params, value.decodingError, value.diagnostic})};
+                    return {detail::preserveUnmodeledTypedEvent({value.method, value.params, value.decodingError, value.diagnostic})};
                 }},
             event);
     }

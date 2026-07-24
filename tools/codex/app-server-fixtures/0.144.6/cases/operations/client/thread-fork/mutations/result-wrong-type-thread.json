@@ -1,0 +1,16 @@
+{
+  "approvalPolicy": "untrusted",
+  "approvalsReviewer": "user",
+  "cwd": "synthetic-75177d933c",
+  "instructionSources": [
+    "synthetic-f2afe5ff17"
+  ],
+  "model": "synthetic-7ec171ea8d",
+  "modelProvider": "synthetic-fac534a664",
+  "reasoningEffort": "synthetic-b43c9594ba",
+  "sandbox": {
+    "type": "dangerFullAccess"
+  },
+  "serviceTier": "synthetic-df688533b9",
+  "thread": null
+}

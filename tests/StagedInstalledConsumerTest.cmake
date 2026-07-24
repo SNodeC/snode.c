@@ -19,6 +19,13 @@ foreach(
           core/DescriptorEventPublisher.h
           core/TimerEventPublisher.h
           ai/openai/codex/detail/CodexErrorInfoCodec.h
+          ai/openai/codex/detail/ClientOperationCodec.h
+          ai/openai/codex/detail/ConversationCodec.h
+          ai/openai/codex/detail/ClientOperationCodecDescriptors.inc
+          ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc
+          ai/openai/codex/detail/ThreadItemCodecDescriptors.inc
+          ai/openai/codex/detail/ResponseItemCodecDescriptors.inc
+          ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc
           ai/openai/codex/detail/DecodeDiagnostic.h
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
@@ -38,6 +45,66 @@ foreach(
         message(FATAL_ERROR "private header installed: ${private_header}")
     endif()
 endforeach()
+
+set(
+    expected_codex_public_headers
+    "AppServerClient.h"
+    "Protocol.h"
+    "backend/BackendCommand.h"
+    "backend/BackendCore.h"
+    "backend/BackendEvent.h"
+    "backend/BackendState.h"
+    "backend/FrontendSession.h"
+    "backend/Reducer.h"
+    "backend/Snapshot.h"
+    "frontend/BackendAdapter.h"
+    "frontend/Codec.h"
+    "frontend/EventCoalescer.h"
+    "frontend/EventJournal.h"
+    "frontend/Messages.h"
+    "frontend/Protocol.h"
+    "frontend/UpdateBatch.h"
+    "stdio/Client.h"
+    "typed/Client.h"
+    "typed/CodexErrorInfo.h"
+    "typed/Conversation.h"
+    "typed/Events.h"
+    "typed/Items.h"
+    "typed/Results.h"
+    "typed/ServerRequests.h"
+    "typed/Threads.h"
+    "typed/Turns.h"
+    "typed/Types.h"
+)
+list(SORT expected_codex_public_headers)
+file(
+    GLOB_RECURSE installed_codex_public_headers
+    LIST_DIRECTORIES FALSE
+    RELATIVE "${prefix}/include/snode.c/ai/openai/codex"
+    "${prefix}/include/snode.c/ai/openai/codex/*.h"
+)
+list(SORT installed_codex_public_headers)
+if(NOT "${installed_codex_public_headers}" STREQUAL
+   "${expected_codex_public_headers}")
+    message(
+        FATAL_ERROR
+            "installed Codex public-header inventory changed\nexpected: ${expected_codex_public_headers}\nobserved: ${installed_codex_public_headers}"
+    )
+endif()
+
+foreach(
+    codex_library IN
+    ITEMS snodec-ai-openai-codex snodec-ai-openai-codex-backend
+          snodec-ai-openai-codex-frontend
+)
+    if(NOT EXISTS "${prefix}/lib/lib${codex_library}.so.1")
+        message(
+            FATAL_ERROR
+                "Codex A1 rebuild boundary must retain SOVERSION 1: missing lib${codex_library}.so.1"
+        )
+    endif()
+endforeach()
+
 file(
     GLOB_RECURSE installed_entries
     LIST_DIRECTORIES TRUE
@@ -53,22 +120,45 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_entry MATCHES "/app-server-evidence/"
        OR installed_entry MATCHES "/app-server-fixtures/"
        OR installed_entry MATCHES "/app-server-protocol-source/"
+       OR installed_name STREQUAL "app_server_a1_1.py"
+       OR installed_name STREQUAL "app_server_a1_1_closure.py"
        OR installed_name STREQUAL "app_server_surface.py"
        OR installed_name STREQUAL "app_server_contracts.py"
        OR installed_name STREQUAL "app_server_fixtures.py"
        OR installed_name STREQUAL "draft07.py"
+       OR installed_name STREQUAL "CodexA11AuditToolTest.py"
        OR installed_name STREQUAL "PROVENANCE.json"
        OR installed_name STREQUAL "LICENSE.openai-codex"
        OR installed_name STREQUAL "NOTICE.openai-codex"
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.cpp"
        OR installed_name STREQUAL "ProtocolSurfaceRegistry.h"
        OR installed_name STREQUAL "ProtocolSurfaceRegistryData.inc"
+       OR installed_name STREQUAL "ConversationCodec.cpp"
+       OR installed_name STREQUAL "ConversationCodec.h"
+       OR installed_name STREQUAL "ClientOperationCodec.cpp"
+       OR installed_name STREQUAL "ClientOperationCodec.h"
+       OR installed_name STREQUAL "ClientOperationCodecDescriptors.inc"
+       OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
+       OR installed_name STREQUAL "ThreadItemCodecDescriptors.inc"
+       OR installed_name STREQUAL "ResponseItemCodecDescriptors.inc"
+       OR installed_name STREQUAL "ServerNotificationCodecDescriptors.inc"
        OR installed_name STREQUAL "operation-contracts.json"
        OR installed_name STREQUAL "module-slice-assignment.json"
        OR installed_name STREQUAL "nested-reachability.json"
        OR installed_name STREQUAL "schema-completeness-evidence.json"
        OR installed_name STREQUAL "fixture-coverage.json"
        OR installed_name STREQUAL "schema-keywords.json"
+       OR installed_name STREQUAL "a1-1-start-state.json"
+       OR installed_name STREQUAL "a1-1-implementation-plan.json"
+       OR installed_name STREQUAL "a1-1-type-closure.json"
+       OR installed_name STREQUAL "a1-1-operation-production-coverage.json"
+       OR installed_name STREQUAL "a1-1-notification-production-coverage.json"
+       OR installed_name STREQUAL "a1-1-closure-report.json"
+       OR installed_name STREQUAL "CodexA11OperationResultCorpusTest.cpp"
+       OR installed_name STREQUAL "CodexA11OperationAggregateValueCorpusTest.cpp"
+       OR installed_name STREQUAL "CodexConversationB4NestedCodecTest.cpp"
+       OR installed_name STREQUAL "CodexA11OperationWireTest.cpp"
+       OR installed_name STREQUAL "a1-1-conversation-domain.md"
        OR installed_name STREQUAL "typescript-audit.json"
        OR installed_name MATCHES "^Protocol.*(Data|Evidence|Descriptors)\\.inc$"
        OR (installed_entry MATCHES "/ai/openai/codex/"

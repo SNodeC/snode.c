@@ -1,0 +1,8 @@
+{
+  "method": "item/commandExecution/outputDelta",
+  "params": {
+    "delta": "synthetic-88326965cb",
+    "threadId": "synthetic-58226a9348",
+    "turnId": "synthetic-d16af895fc"
+  }
+}

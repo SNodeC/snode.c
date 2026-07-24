@@ -1,0 +1,21 @@
+{
+  "action": {
+    "command": [
+      "synthetic-46feda36c2"
+    ],
+    "env": {
+      "syntheticKey": "synthetic-c533d91afb"
+    },
+    "timeout_ms": 0,
+    "type": "exec",
+    "user": false,
+    "working_directory": "synthetic-eda135865e"
+  },
+  "call_id": "synthetic-75240c89cc",
+  "id": "synthetic-2924991235",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "status": "completed",
+  "type": "local_shell_call"
+}

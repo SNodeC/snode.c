@@ -1,0 +1,16 @@
+{
+  "arguments": {},
+  "contentItems": [
+    {
+      "imageUrl": "synthetic-c79de0294c",
+      "type": "inputImage"
+    }
+  ],
+  "durationMs": 0,
+  "id": "synthetic-78c81808b3",
+  "namespace": "synthetic-ccc2ed7075",
+  "status": "inProgress",
+  "success": false,
+  "tool": "synthetic-48d957aada",
+  "type": "dynamicToolCall"
+}

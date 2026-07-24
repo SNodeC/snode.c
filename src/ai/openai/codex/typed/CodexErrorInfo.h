@@ -18,14 +18,6 @@
 
 namespace ai::openai::codex::typed {
 
-    template <typename T>
-    struct OptionalNullable {
-        bool present = false;
-        std::optional<T> value;
-
-        auto operator<=>(const OptionalNullable&) const = default;
-    };
-
     struct NonSteerableTurnKind {
         std::string value;
 

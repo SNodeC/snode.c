@@ -1,0 +1,7 @@
+{
+  "method": "thread/status/changed",
+  "params": {
+    "status": {},
+    "threadId": "synthetic-2ed945f39f"
+  }
+}

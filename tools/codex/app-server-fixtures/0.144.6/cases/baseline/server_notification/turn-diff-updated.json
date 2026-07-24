@@ -1,0 +1,8 @@
+{
+  "method": "turn/diff/updated",
+  "params": {
+    "diff": "synthetic-e90a8d0c9b",
+    "threadId": "synthetic-e8f7008436",
+    "turnId": "synthetic-4ae0e6fb70"
+  }
+}

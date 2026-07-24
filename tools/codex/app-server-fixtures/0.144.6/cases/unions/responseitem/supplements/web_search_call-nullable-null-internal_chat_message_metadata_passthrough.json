@@ -1,0 +1,13 @@
+{
+  "action": {
+    "queries": [
+      "synthetic-e504058a2d"
+    ],
+    "query": "synthetic-5de29d88cc",
+    "type": "search"
+  },
+  "id": "synthetic-c6ef1be187",
+  "internal_chat_message_metadata_passthrough": null,
+  "status": "synthetic-bc83f8d034",
+  "type": "web_search_call"
+}

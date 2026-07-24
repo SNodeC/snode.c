@@ -326,19 +326,33 @@ namespace ai::openai::codex::frontend {
                 []<typename Input>(const Input& value) -> typed::TurnInput {
                     using T = std::remove_cvref_t<Input>;
                     if constexpr (std::is_same_v<T, TextInput>) {
-                        return typed::TextInput{value.text};
+                        typed::TextInput result;
+                        result.text = value.text;
+                        return result;
                     } else if constexpr (std::is_same_v<T, ImageUrlInput>) {
-                        return typed::ImageUrlInput{
-                            value.url,
-                            value.detail.has_value() ? std::optional<typed::ImageDetail>{typed::ImageDetail{*value.detail}} : std::nullopt};
+                        typed::ImageUrlInput result;
+                        result.url = value.url;
+                        if (value.detail.has_value()) {
+                            result.detail = typed::ImageDetail{*value.detail};
+                        }
+                        return result;
                     } else if constexpr (std::is_same_v<T, LocalImageInput>) {
-                        return typed::LocalImageInput{
-                            value.path,
-                            value.detail.has_value() ? std::optional<typed::ImageDetail>{typed::ImageDetail{*value.detail}} : std::nullopt};
+                        typed::LocalImageInput result;
+                        result.path = value.path;
+                        if (value.detail.has_value()) {
+                            result.detail = typed::ImageDetail{*value.detail};
+                        }
+                        return result;
                     } else if constexpr (std::is_same_v<T, SkillInput>) {
-                        return typed::SkillInput{value.name, value.path};
+                        typed::SkillInput result;
+                        result.name = value.name;
+                        result.path = value.path;
+                        return result;
                     } else {
-                        return typed::MentionInput{value.name, value.path};
+                        typed::MentionInput result;
+                        result.name = value.name;
+                        result.path = value.path;
+                        return result;
                     }
                 },
                 input);
@@ -363,7 +377,14 @@ namespace ai::openai::codex::frontend {
                 return result;
             }
             typed::WorkspaceWriteSandboxPolicy result;
-            result.writableRoots = policy.writableRoots;
+            if (!policy.writableRoots.empty()) {
+                std::vector<typed::AbsolutePathBuf> roots;
+                roots.reserve(policy.writableRoots.size());
+                for (const std::string& root : policy.writableRoots) {
+                    roots.emplace_back(root);
+                }
+                result.writableRoots = std::move(roots);
+            }
             if (policy.networkAccess.has_value()) {
                 result.networkAccess = std::get<bool>(*policy.networkAccess);
             }

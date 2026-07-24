@@ -1,0 +1,20 @@
+{
+  "content": [
+    {
+      "text": "synthetic-794fb79386",
+      "type": "text"
+    }
+  ],
+  "encrypted_content": "synthetic-86d478b5b3",
+  "id": "synthetic-0d086f508b",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "summary": [
+    {
+      "text": "synthetic-bbf28b131b",
+      "type": "summary_text"
+    }
+  ],
+  "type": "reasoning"
+}

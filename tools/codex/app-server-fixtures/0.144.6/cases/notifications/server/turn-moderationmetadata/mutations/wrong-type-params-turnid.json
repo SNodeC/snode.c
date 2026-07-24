@@ -1,0 +1,8 @@
+{
+  "method": "turn/moderationMetadata",
+  "params": {
+    "metadata": {},
+    "threadId": "synthetic-579a76c895",
+    "turnId": null
+  }
+}

@@ -121,10 +121,12 @@ namespace ai::openai::codex::detail {
             }
 
             error.message = message->get<std::string>();
+            error.data.reset();
             const auto data = responseError.find("data");
             if (data != responseError.end()) {
                 error.data = *data;
             }
+            error.raw = responseError;
 
             return true;
         }

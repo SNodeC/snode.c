@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/transcript/done",
+  "params": {
+    "role": "synthetic-3c6d22cee8",
+    "threadId": "synthetic-cfa83fbb82"
+  }
+}

@@ -374,6 +374,57 @@ DEFAULT_PINNED_PROTOCOL_SOURCE_ROOT = (
     / "app-server-protocol-source"
     / "0.144.6"
 )
+DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_A1_FIXTURE_INDEX = (
+    Path(__file__).resolve().parent
+    / "app-server-fixtures"
+    / "0.144.6"
+    / "index.json"
+)
+OPERATION_PRODUCTION_COVERAGE_FILENAME = (
+    "a1-1-operation-production-coverage.json"
+)
+NOTIFICATION_PRODUCTION_COVERAGE_FILENAME = (
+    "a1-1-notification-production-coverage.json"
+)
+OPERATION_PRODUCTION_COVERAGE_SOURCES = (
+    "tools/codex/app_server_surface.py",
+    "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc",
+    "src/ai/openai/codex/detail/ClientOperationCodec.cpp",
+    "src/ai/openai/codex/detail/ClientOperationCodec.h",
+    "src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc",
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp",
+    "src/ai/openai/codex/detail/ConversationCodec.cpp",
+    "src/ai/openai/codex/detail/ItemDecoder.cpp",
+    "src/ai/openai/codex/detail/ThreadCodec.cpp",
+    "src/ai/openai/codex/detail/ThreadCodec.h",
+    "src/ai/openai/codex/detail/TurnCodec.cpp",
+    "src/ai/openai/codex/detail/TurnCodec.h",
+    "src/ai/openai/codex/typed/Client.cpp",
+    "src/ai/openai/codex/typed/Conversation.h",
+    "src/ai/openai/codex/typed/Items.h",
+    "src/ai/openai/codex/typed/Threads.h",
+    "src/ai/openai/codex/typed/Turns.h",
+    "src/ai/openai/codex/typed/Types.h",
+    "tests/component/codex/CMakeLists.txt",
+    "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",
+    "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp",
+    "tests/component/codex/CodexConversationB4NestedCodecTest.cpp",
+    "tests/component/codex/CodexTypedThreadCodecTest.cpp",
+    "tests/component/codex/CodexA11OperationWireTest.cpp",
+    "tests/installed/codex/CodexTypedConsumer.cpp",
+)
+NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
+    "tools/codex/app_server_surface.py",
+    "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc",
+    "src/ai/openai/codex/detail/EventDecoder.cpp",
+    "src/ai/openai/codex/detail/EventDecoder.h",
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.cpp",
+    "src/ai/openai/codex/detail/ProtocolSurfaceRegistry.h",
+    "src/ai/openai/codex/typed/Events.h",
+    "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+    "tests/component/codex/CMakeLists.txt",
+)
 
 
 _VENDORED_RUST_ASSOCIATIONS: tuple[dict[str, Any], dict[str, Any]] | None = None
@@ -450,14 +501,684 @@ def schema_result_contract_kind(document: dict[str, Any]) -> str:
     ):
         return "Unit"
     return "Concrete"
+
+
+CONVERSATION_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        "AgentMessageInputContent",
+        "type",
+        "encrypted_content",
+    ): (
+        "ConversationUnionTarget::AgentMessageInputContentEncryptedContent",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AgentMessageInputContent",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::AgentMessageInputContentInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "granular",
+    ): (
+        "ConversationUnionTarget::AskForApprovalGranular",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "never",
+    ): (
+        "ConversationUnionTarget::AskForApprovalNever",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "on-request",
+    ): (
+        "ConversationUnionTarget::AskForApprovalOnRequest",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "AskForApproval",
+        "$variant",
+        "untrusted",
+    ): (
+        "ConversationUnionTarget::AskForApprovalUntrusted",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "listFiles",
+    ): (
+        "ConversationUnionTarget::CommandActionListFiles",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "input_image",
+    ): (
+        "ConversationUnionTarget::ContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::ContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ContentItem",
+        "type",
+        "output_text",
+    ): (
+        "ConversationUnionTarget::ContentItemOutputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "read",
+    ): (
+        "ConversationUnionTarget::CommandActionRead",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::CommandActionSearch",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "CommandAction",
+        "type",
+        "unknown",
+    ): (
+        "ConversationUnionTarget::CommandActionUnknown",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "DynamicToolCallOutputContentItem",
+        "type",
+        "inputImage",
+    ): (
+        "ConversationUnionTarget::DynamicToolCallOutputContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "encrypted_content",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemEncryptedContent",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "input_image",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "FunctionCallOutputContentItem",
+        "type",
+        "input_text",
+    ): (
+        "ConversationUnionTarget::FunctionCallOutputContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "LocalShellAction",
+        "type",
+        "exec",
+    ): (
+        "ConversationUnionTarget::LocalShellActionExec",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "DynamicToolCallOutputContentItem",
+        "type",
+        "inputText",
+    ): (
+        "ConversationUnionTarget::DynamicToolCallOutputContentItemInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "add",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindAdd",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemContent",
+        "type",
+        "reasoning_text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemContentReasoningText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemContent",
+        "type",
+        "text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemContentText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ReasoningItemReasoningSummary",
+        "type",
+        "summary_text",
+    ): (
+        "ConversationUnionTarget::ReasoningItemReasoningSummarySummaryText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "find_in_page",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionFindInPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "open_page",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionOpenPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "other",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionOther",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ResponsesApiWebSearchAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::ResponsesApiWebSearchActionSearch",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "delete",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindDelete",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "PatchChangeKind",
+        "type",
+        "update",
+    ): (
+        "ConversationUnionTarget::PatchChangeKindUpdate",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "dangerFullAccess",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyDangerFullAccess",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "externalSandbox",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyExternalSandbox",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "readOnly",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyReadOnly",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SandboxPolicy",
+        "type",
+        "workspaceWrite",
+    ): (
+        "ConversationUnionTarget::SandboxPolicyWorkspaceWrite",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "image",
+    ): (
+        "ConversationUnionTarget::UserInputImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "localImage",
+    ): (
+        "ConversationUnionTarget::UserInputLocalImage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "mention",
+    ): (
+        "ConversationUnionTarget::UserInputMention",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "skill",
+    ): (
+        "ConversationUnionTarget::UserInputSkill",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "UserInput",
+        "type",
+        "text",
+    ): (
+        "ConversationUnionTarget::UserInputText",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::Bidirectional",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "findInPage",
+    ): (
+        "ConversationUnionTarget::WebSearchActionFindInPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "openPage",
+    ): (
+        "ConversationUnionTarget::WebSearchActionOpenPage",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "other",
+    ): (
+        "ConversationUnionTarget::WebSearchActionOther",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "WebSearchAction",
+        "type",
+        "search",
+    ): (
+        "ConversationUnionTarget::WebSearchActionSearch",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+}
+
+# Commit B4 adds the three operation-aggregate union families.  They reuse the
+# same exact-key descriptor mechanism as B2/B3, but remain decode-only because
+# the pinned operation closure reaches them only through successful results.
+B4_CONVERSATION_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "appServer",
+    ): (
+        "ConversationUnionTarget::SessionSourceAppServer",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "cli",
+    ): (
+        "ConversationUnionTarget::SessionSourceCli",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "custom",
+    ): (
+        "ConversationUnionTarget::SessionSourceCustom",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "exec",
+    ): (
+        "ConversationUnionTarget::SessionSourceExec",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "subAgent",
+    ): (
+        "ConversationUnionTarget::SessionSourceSubAgent",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "unknown",
+    ): (
+        "ConversationUnionTarget::SessionSourceUnknown",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SessionSource",
+        "$variant",
+        "vscode",
+    ): (
+        "ConversationUnionTarget::SessionSourceVscode",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SubAgentSource",
+        "$variant",
+        "compact",
+    ): (
+        "ConversationUnionTarget::SubAgentSourceCompact",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SubAgentSource",
+        "$variant",
+        "memory_consolidation",
+    ): (
+        "ConversationUnionTarget::SubAgentSourceMemoryConsolidation",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SubAgentSource",
+        "$variant",
+        "other",
+    ): (
+        "ConversationUnionTarget::SubAgentSourceOther",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SubAgentSource",
+        "$variant",
+        "review",
+    ): (
+        "ConversationUnionTarget::SubAgentSourceReview",
+        "ConversationUnionCodecShape::ScalarString",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "SubAgentSource",
+        "$variant",
+        "thread_spawn",
+    ): (
+        "ConversationUnionTarget::SubAgentSourceThreadSpawn",
+        "ConversationUnionCodecShape::ExternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ThreadStatus",
+        "type",
+        "active",
+    ): (
+        "ConversationUnionTarget::ThreadStatusActive",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ThreadStatus",
+        "type",
+        "idle",
+    ): (
+        "ConversationUnionTarget::ThreadStatusIdle",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ThreadStatus",
+        "type",
+        "notLoaded",
+    ): (
+        "ConversationUnionTarget::ThreadStatusNotLoaded",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+    (
+        "tagged_union_discriminator",
+        "ThreadStatus",
+        "type",
+        "systemError",
+    ): (
+        "ConversationUnionTarget::ThreadStatusSystemError",
+        "ConversationUnionCodecShape::InternallyTaggedObject",
+        "ConversationUnionCodecDirection::DecodeOnly",
+    ),
+}
+if set(CONVERSATION_UNION_CODECS) & set(B4_CONVERSATION_UNION_CODECS):
+    raise AssertionError("B4 conversation-union descriptor keys overlap B2/B3")
+CONVERSATION_UNION_CODECS.update(B4_CONVERSATION_UNION_CODECS)
+
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
+    ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/compact/start",
+    ): "ClientRequestTarget::ThreadCompactStart",
+    ("client_request", "ClientRequest", "method", "thread/delete"): "ClientRequestTarget::ThreadDelete",
+    ("client_request", "ClientRequest", "method", "thread/fork"): "ClientRequestTarget::ThreadFork",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/goal/clear",
+    ): "ClientRequestTarget::ThreadGoalClear",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/goal/get",
+    ): "ClientRequestTarget::ThreadGoalGet",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/goal/set",
+    ): "ClientRequestTarget::ThreadGoalSet",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/inject_items",
+    ): "ClientRequestTarget::ThreadInjectItems",
     ("client_request", "ClientRequest", "method", "thread/start"): "ClientRequestTarget::ThreadStart",
     ("client_request", "ClientRequest", "method", "thread/resume"): "ClientRequestTarget::ThreadResume",
     ("client_request", "ClientRequest", "method", "thread/list"): "ClientRequestTarget::ThreadList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/loaded/list",
+    ): "ClientRequestTarget::ThreadLoadedList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/metadata/update",
+    ): "ClientRequestTarget::ThreadMetadataUpdate",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/name/set",
+    ): "ClientRequestTarget::ThreadSetName",
     ("client_request", "ClientRequest", "method", "thread/read"): "ClientRequestTarget::ThreadRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/rollback",
+    ): "ClientRequestTarget::ThreadRollback",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/shellCommand",
+    ): "ClientRequestTarget::ThreadShellCommand",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/unarchive",
+    ): "ClientRequestTarget::ThreadUnarchive",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/unsubscribe",
+    ): "ClientRequestTarget::ThreadUnsubscribe",
     ("client_request", "ClientRequest", "method", "turn/start"): "ClientRequestTarget::TurnStart",
     ("client_request", "ClientRequest", "method", "turn/interrupt"): "ClientRequestTarget::TurnInterrupt",
+    ("client_request", "ClientRequest", "method", "turn/steer"): "ClientRequestTarget::TurnSteer",
     ("client_notification", "ClientNotification", "method", "initialized"): "ClientNotificationTarget::Initialized",
     ("server_notification", "ServerNotification", "method", "error"): "ServerNotificationTarget::Error",
     ("server_notification", "ServerNotification", "method", "thread/started"): "ServerNotificationTarget::ThreadStarted",
@@ -481,8 +1202,20 @@ RUNTIME_TARGETS = {
         "server_notification",
         "ServerNotification",
         "method",
+        "item/commandExecution/terminalInteraction",
+    ): "ServerNotificationTarget::TerminalInteraction",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "item/reasoning/textDelta",
     ): "ServerNotificationTarget::ReasoningTextDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/reasoning/summaryPartAdded",
+    ): "ServerNotificationTarget::ReasoningSummaryPartAdded",
     (
         "server_notification",
         "ServerNotification",
@@ -499,14 +1232,152 @@ RUNTIME_TARGETS = {
         "server_notification",
         "ServerNotification",
         "method",
+        "item/fileChange/outputDelta",
+    ): "ServerNotificationTarget::FileChangeOutputDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "item/fileChange/patchUpdated",
     ): "ServerNotificationTarget::FileChangePatchUpdated",
     (
         "server_notification",
         "ServerNotification",
         "method",
+        "item/mcpToolCall/progress",
+    ): "ServerNotificationTarget::McpToolCallProgress",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/plan/delta",
+    ): "ServerNotificationTarget::PlanDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/archived",
+    ): "ServerNotificationTarget::ThreadArchived",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/closed",
+    ): "ServerNotificationTarget::ThreadClosed",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/compacted",
+    ): "ServerNotificationTarget::ContextCompacted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/deleted",
+    ): "ServerNotificationTarget::ThreadDeleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/goal/cleared",
+    ): "ServerNotificationTarget::ThreadGoalCleared",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/goal/updated",
+    ): "ServerNotificationTarget::ThreadGoalUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/name/updated",
+    ): "ServerNotificationTarget::ThreadNameUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/closed",
+    ): "ServerNotificationTarget::ThreadRealtimeClosed",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/error",
+    ): "ServerNotificationTarget::ThreadRealtimeError",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/itemAdded",
+    ): "ServerNotificationTarget::ThreadRealtimeItemAdded",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/outputAudio/delta",
+    ): "ServerNotificationTarget::ThreadRealtimeOutputAudioDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/sdp",
+    ): "ServerNotificationTarget::ThreadRealtimeSdp",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/started",
+    ): "ServerNotificationTarget::ThreadRealtimeStarted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/transcript/delta",
+    ): "ServerNotificationTarget::ThreadRealtimeTranscriptDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/realtime/transcript/done",
+    ): "ServerNotificationTarget::ThreadRealtimeTranscriptDone",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/settings/updated",
+    ): "ServerNotificationTarget::ThreadSettingsUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
         "thread/tokenUsage/updated",
     ): "ServerNotificationTarget::ThreadTokenUsageUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "thread/unarchived",
+    ): "ServerNotificationTarget::ThreadUnarchived",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/diff/updated",
+    ): "ServerNotificationTarget::TurnDiffUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/moderationMetadata",
+    ): "ServerNotificationTarget::TurnModerationMetadata",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "turn/plan/updated",
+    ): "ServerNotificationTarget::TurnPlanUpdated",
     (
         "server_notification",
         "ServerNotification",
@@ -538,23 +1409,139 @@ RUNTIME_TARGETS = {
         "account/chatgptAuthTokens/refresh",
     ): "ServerRequestTarget::ChatgptAuthTokensRefresh",
     ("item_discriminator", "ThreadItem", "type", "agentMessage"): "ItemDiscriminatorTarget::AgentMessage",
-    ("item_discriminator", "ThreadItem", "type", "userMessage"): "ItemDiscriminatorTarget::UserMessage",
-    ("item_discriminator", "ThreadItem", "type", "reasoning"): "ItemDiscriminatorTarget::Reasoning",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "collabAgentToolCall",
+    ): "ItemDiscriminatorTarget::CollabAgentToolCall",
     (
         "item_discriminator",
         "ThreadItem",
         "type",
         "commandExecution",
     ): "ItemDiscriminatorTarget::CommandExecution",
-    ("item_discriminator", "ThreadItem", "type", "fileChange"): "ItemDiscriminatorTarget::FileChange",
-    ("item_discriminator", "ThreadItem", "type", "mcpToolCall"): "ItemDiscriminatorTarget::McpToolCall",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "contextCompaction",
+    ): "ItemDiscriminatorTarget::ContextCompaction",
     (
         "item_discriminator",
         "ThreadItem",
         "type",
         "dynamicToolCall",
     ): "ItemDiscriminatorTarget::DynamicToolCall",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "enteredReviewMode",
+    ): "ItemDiscriminatorTarget::EnteredReviewMode",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "exitedReviewMode",
+    ): "ItemDiscriminatorTarget::ExitedReviewMode",
+    ("item_discriminator", "ThreadItem", "type", "fileChange"): "ItemDiscriminatorTarget::FileChange",
+    ("item_discriminator", "ThreadItem", "type", "hookPrompt"): "ItemDiscriminatorTarget::HookPrompt",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "imageGeneration",
+    ): "ItemDiscriminatorTarget::ImageGeneration",
+    ("item_discriminator", "ThreadItem", "type", "imageView"): "ItemDiscriminatorTarget::ImageView",
+    ("item_discriminator", "ThreadItem", "type", "mcpToolCall"): "ItemDiscriminatorTarget::McpToolCall",
+    ("item_discriminator", "ThreadItem", "type", "plan"): "ItemDiscriminatorTarget::Plan",
+    ("item_discriminator", "ThreadItem", "type", "reasoning"): "ItemDiscriminatorTarget::Reasoning",
+    ("item_discriminator", "ThreadItem", "type", "sleep"): "ItemDiscriminatorTarget::Sleep",
+    (
+        "item_discriminator",
+        "ThreadItem",
+        "type",
+        "subAgentActivity",
+    ): "ItemDiscriminatorTarget::SubAgentActivity",
+    ("item_discriminator", "ThreadItem", "type", "userMessage"): "ItemDiscriminatorTarget::UserMessage",
     ("item_discriminator", "ThreadItem", "type", "webSearch"): "ItemDiscriminatorTarget::WebSearch",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "agent_message",
+    ): "ResponseItemTarget::AgentMessage",
+    ("item_discriminator", "ResponseItem", "type", "compaction"): "ResponseItemTarget::Compaction",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "compaction_trigger",
+    ): "ResponseItemTarget::CompactionTrigger",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "context_compaction",
+    ): "ResponseItemTarget::ContextCompaction",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "custom_tool_call",
+    ): "ResponseItemTarget::CustomToolCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "custom_tool_call_output",
+    ): "ResponseItemTarget::CustomToolCallOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "function_call",
+    ): "ResponseItemTarget::FunctionCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "function_call_output",
+    ): "ResponseItemTarget::FunctionCallOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "image_generation_call",
+    ): "ResponseItemTarget::ImageGenerationCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "local_shell_call",
+    ): "ResponseItemTarget::LocalShellCall",
+    ("item_discriminator", "ResponseItem", "type", "message"): "ResponseItemTarget::Message",
+    ("item_discriminator", "ResponseItem", "type", "other"): "ResponseItemTarget::Other",
+    ("item_discriminator", "ResponseItem", "type", "reasoning"): "ResponseItemTarget::Reasoning",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "tool_search_call",
+    ): "ResponseItemTarget::ToolSearchCall",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "tool_search_output",
+    ): "ResponseItemTarget::ToolSearchOutput",
+    (
+        "item_discriminator",
+        "ResponseItem",
+        "type",
+        "web_search_call",
+    ): "ResponseItemTarget::WebSearchCall",
     (
         "tagged_union_discriminator",
         "CodexErrorInfo",
@@ -652,6 +1639,110 @@ RUNTIME_TARGETS = {
         "usageLimitExceeded",
     ): "CodexErrorInfoTarget::UsageLimitExceeded",
 }
+
+if set(RUNTIME_TARGETS) & set(CONVERSATION_UNION_CODECS):
+    raise AssertionError("conversation-union runtime targets duplicate an existing mapping")
+RUNTIME_TARGETS.update(
+    {
+        key: descriptor[0]
+        for key, descriptor in CONVERSATION_UNION_CODECS.items()
+    }
+)
+
+SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
+    "error": "typed::TurnErrorEvent",
+    "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
+    "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
+    "item/commandExecution/terminalInteraction": "typed::TerminalInteractionNotification",
+    "item/completed": "typed::ItemCompletedNotification",
+    "item/fileChange/outputDelta": "typed::FileChangeOutputDeltaNotification",
+    "item/fileChange/patchUpdated": "typed::FileChangePatchUpdatedNotification",
+    "item/mcpToolCall/progress": "typed::McpToolCallProgressNotification",
+    "item/plan/delta": "typed::PlanDeltaNotification",
+    "item/reasoning/summaryPartAdded": "typed::ReasoningSummaryPartAddedNotification",
+    "item/reasoning/summaryTextDelta": "typed::ReasoningSummaryTextDeltaNotification",
+    "item/reasoning/textDelta": "typed::ReasoningTextDeltaNotification",
+    "item/started": "typed::ItemStartedNotification",
+    "model/rerouted": "typed::ModelRerouted",
+    "thread/archived": "typed::ThreadArchivedNotification",
+    "thread/closed": "typed::ThreadClosedNotification",
+    "thread/compacted": "typed::ContextCompactedNotification",
+    "thread/deleted": "typed::ThreadDeletedNotification",
+    "thread/goal/cleared": "typed::ThreadGoalClearedNotification",
+    "thread/goal/updated": "typed::ThreadGoalUpdatedNotification",
+    "thread/name/updated": "typed::ThreadNameUpdatedNotification",
+    "thread/realtime/closed": "typed::ThreadRealtimeClosedNotification",
+    "thread/realtime/error": "typed::ThreadRealtimeErrorNotification",
+    "thread/realtime/itemAdded": "typed::ThreadRealtimeItemAddedNotification",
+    "thread/realtime/outputAudio/delta": "typed::ThreadRealtimeOutputAudioDeltaNotification",
+    "thread/realtime/sdp": "typed::ThreadRealtimeSdpNotification",
+    "thread/realtime/started": "typed::ThreadRealtimeStartedNotification",
+    "thread/realtime/transcript/delta": "typed::ThreadRealtimeTranscriptDeltaNotification",
+    "thread/realtime/transcript/done": "typed::ThreadRealtimeTranscriptDoneNotification",
+    "thread/settings/updated": "typed::ThreadSettingsUpdatedNotification",
+    "thread/started": "typed::ThreadStartedNotification",
+    "thread/status/changed": "typed::ThreadStatusChangedNotification",
+    "thread/tokenUsage/updated": "typed::ThreadTokenUsageUpdatedNotification",
+    "thread/unarchived": "typed::ThreadUnarchivedNotification",
+    "turn/completed": "typed::TurnCompletedNotification",
+    "turn/diff/updated": "typed::TurnDiffUpdatedNotification",
+    "turn/moderationMetadata": "typed::TurnModerationMetadataNotification",
+    "turn/plan/updated": "typed::TurnPlanUpdatedNotification",
+    "turn/started": "typed::TurnStartedNotification",
+}
+SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD = {
+    method: payload_type.removeprefix("typed::")
+    for method, payload_type in SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD.items()
+}
+SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD.update(
+    {
+        "item/agentMessage/delta": "AgentMessageDelta",
+        "item/commandExecution/outputDelta": "CommandOutputDelta",
+        "item/completed": "ItemCompleted",
+        "item/fileChange/patchUpdated": "FileChangeUpdated",
+        "item/reasoning/summaryTextDelta": "ReasoningDelta",
+        "item/reasoning/textDelta": "ReasoningDelta",
+        "item/started": "ItemStarted",
+        "thread/started": "ThreadStarted",
+        "thread/status/changed": "ThreadStatusChanged",
+        "thread/tokenUsage/updated": "TokenUsageUpdated",
+        "turn/completed": "TurnCompleted|TurnFailed",
+        "turn/started": "TurnStarted",
+    }
+)
+EXISTING_MODELED_SERVER_NOTIFICATION_METHODS = frozenset(
+    {
+        "error",
+        "item/agentMessage/delta",
+        "item/commandExecution/outputDelta",
+        "item/completed",
+        "item/fileChange/patchUpdated",
+        "item/reasoning/summaryTextDelta",
+        "item/reasoning/textDelta",
+        "item/started",
+        "model/rerouted",
+        "thread/started",
+        "thread/status/changed",
+        "thread/tokenUsage/updated",
+        "turn/completed",
+        "turn/started",
+    }
+)
+
+SERVER_NOTIFICATION_CODECS = {
+    key: (target, SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD[key[3]])
+    for key, target in RUNTIME_TARGETS.items()
+    if key[0] == "server_notification"
+}
+if (
+    len(SERVER_NOTIFICATION_CODECS) != 39
+    or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
+    != {key[3] for key in SERVER_NOTIFICATION_CODECS}
+):
+    raise AssertionError(
+        "server-notification payload mapping must cover every production target exactly"
+    )
+
 EXISTING_FRONTEND_OPERATION_DETAILS = {
     (
         "client_request",
@@ -2145,13 +3236,27 @@ def reject_local_dispositions(record: Any, description: str) -> None:
     walk(record, "$")
 
 
-def load_a1_registry_evidence(root: Path = DEFAULT_A1_EVIDENCE_ROOT) -> dict[str, Any]:
+def load_a1_registry_evidence(
+    root: Path = DEFAULT_A1_EVIDENCE_ROOT,
+    *,
+    require_operation_production_coverage: bool = True,
+    require_notification_production_coverage: bool = True,
+) -> dict[str, Any]:
     filenames = {
         "operation_contracts": "operation-contracts.json",
         "assignments": "module-slice-assignment.json",
         "reachability": "nested-reachability.json",
         "fixture_coverage": "fixture-coverage.json",
+        "type_closure": "a1-1-type-closure.json",
     }
+    if require_operation_production_coverage:
+        filenames["operation_production_coverage"] = (
+            OPERATION_PRODUCTION_COVERAGE_FILENAME
+        )
+    if require_notification_production_coverage:
+        filenames["notification_production_coverage"] = (
+            NOTIFICATION_PRODUCTION_COVERAGE_FILENAME
+        )
     result: dict[str, Any] = {}
     for key, filename in filenames.items():
         path = root / filename
@@ -3517,6 +4622,10 @@ def registry_statuses(
     contract: dict[str, Any] | None,
     assignment: dict[str, Any],
     fixtures: Sequence[dict[str, Any]],
+    operation_production_coverage: dict[str, Any] | None = None,
+    notification_production_coverage: (
+        dict[tuple[str, str, str, str], dict[str, Any]] | None
+    ) = None,
 ) -> tuple[str, ...]:
     identity = (
         entry["category"],
@@ -3597,7 +4706,7 @@ def registry_statuses(
             "FrontendSecurityDecision::ExistingGenericContractDedicatedUnresolved"
         )
     elif category == "server_notification":
-        if target is not None:
+        if entry["name"] in EXISTING_MODELED_SERVER_NOTIFICATION_METHODS:
             frontend_exposure = "FrontendExposure::ExistingEventSubset"
             frontend_security = (
                 "FrontendSecurityDecision::ExistingEventSubsetContract"
@@ -3608,7 +4717,7 @@ def registry_statuses(
                 "FrontendSecurityDecision::ExistingRedactedExtensionContract"
             )
     elif category == "item_discriminator":
-        if target is not None:
+        if entry["domain"] == "ThreadItem" and backend_implemented:
             frontend_exposure = "FrontendExposure::ExistingEventSubset"
             frontend_security = (
                 "FrontendSecurityDecision::ExistingEventSubsetContract"
@@ -3682,6 +4791,76 @@ def registry_statuses(
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity in CONVERSATION_UNION_CODECS
+        and identity not in B4_CONVERSATION_UNION_CODECS
+        and target is not None
+    ):
+        # The dependency-closed B2+B3 descriptor set is generated from the
+        # same mapping that supplies the canonical registry targets. B4 is
+        # excluded here and requires checked production-corpus evidence below.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity[0] == "client_request"
+        and assignment.get("slice") == "A1.1"
+        and operation_production_coverage is not None
+        and identity in operation_production_coverage.get("operations", {})
+    ):
+        # The checked operation table is consumed by the registered C++ corpus
+        # test and is reproducibly bound to the exact fixture index, production
+        # decoders, generated descriptors, grouped facade, and wire test.
+        # Validation rejects stale hashes, missing/duplicate rows, wrong
+        # targets, and false success/malformed-known outcome promotion before
+        # these local completeness facts may advance.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity in B4_CONVERSATION_UNION_CODECS
+        and target is not None
+        and operation_production_coverage is not None
+        and identity
+        in operation_production_coverage.get("b4_conversation_unions", {})
+    ):
+        # Operation-owned B4 unions advance only through the checked exact
+        # fixture table consumed by the registered production C++ corpus.
+        # Descriptor presence by itself is deliberately insufficient.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity[0] == "server_notification"
+        and assignment.get("slice") == "A1.1"
+        and target is not None
+        and notification_production_coverage is not None
+        and identity in notification_production_coverage
+    ):
+        # Notification identities advance only through the checked exact
+        # fixture/type/production association consumed by the registered
+        # C++ corpus. Descriptor presence alone is deliberately insufficient.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
+        identity[0] == "item_discriminator"
+        and identity[1] in {"ThreadItem", "ResponseItem"}
+        and target is not None
+    ):
+        # Commit 3's two generated item target families are exact-keyed
+        # production descriptors. The schema-derived item corpus exercises
+        # every known branch, represented property, presence state, open
+        # value, and the seven protocol-defined opaque paths through the
+        # production decoders.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
     schema_status = derived_schema_status(
         typed_status.removeprefix("TypedImplementationStatus::"),
         slice_name,
@@ -3728,6 +4907,18 @@ def generate_registry_data(
         )
     assignments = assignment_by_key(manifest, evidence["assignments"])
     fixtures = fixture_evidence_by_key(evidence["fixture_coverage"])
+    operation_production_coverage = validate_operation_production_coverage(
+        evidence.get("operation_production_coverage"),
+        manifest,
+        evidence,
+    )
+    notification_production_coverage = (
+        validate_notification_production_coverage(
+            evidence.get("notification_production_coverage"),
+            manifest,
+            evidence,
+        )
+    )
 
     lines = [
         "// Generated by tools/codex/app_server_surface.py registry.",
@@ -3746,6 +4937,8 @@ def generate_registry_data(
             contracts.get(key),
             assignments[key],
             fixtures.get(key, ()),
+            operation_production_coverage,
+            notification_production_coverage,
         )
         arguments = (
             category,
@@ -3759,6 +4952,2282 @@ def generate_registry_data(
             *statuses,
         )
         lines.append("CODEX_PROTOCOL_SURFACE_ENTRY(" + ", ".join(arguments) + ")")
+    return "\n".join(lines) + "\n"
+
+
+def _conversation_union_schema_branch(
+    entry: dict[str, Any], schema_root: Path
+) -> dict[str, Any]:
+    sources = entry.get("sources")
+    if not isinstance(sources, list):
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} has no schema sources"
+        )
+    source = next(
+        (
+            candidate
+            for candidate in sources
+            if isinstance(candidate, dict)
+            and candidate.get("file") == "codex_app_server_protocol.schemas.json"
+            and isinstance(candidate.get("pointer"), str)
+            and candidate["pointer"].startswith("/definitions/v2/")
+        ),
+        None,
+    )
+    if source is None:
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} has no stable v2 aggregate source"
+        )
+    path = schema_root / "stable" / source["file"]
+    document = load_json(path)
+    branch = json_pointer(document, source["pointer"], str(path))
+    if not isinstance(branch, dict):
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{surface_key(entry)} does not resolve to an object-valued schema branch"
+        )
+    return branch
+
+
+def _validate_conversation_union_descriptor_shape(
+    entry: dict[str, Any], branch: dict[str, Any], shape: str
+) -> None:
+    key = surface_key(entry)
+    field = entry["discriminator_field"]
+    name = entry["name"]
+    if shape == "ConversationUnionCodecShape::ScalarString":
+        valid = (
+            field == "$variant"
+            and branch.get("type") == "string"
+            and isinstance(branch.get("enum"), list)
+            and name in branch["enum"]
+        )
+    elif shape == "ConversationUnionCodecShape::ExternallyTaggedObject":
+        properties = branch.get("properties")
+        valid = (
+            field == "$variant"
+            and branch.get("type") == "object"
+            and isinstance(properties, dict)
+            and set(properties) == {name}
+            and branch.get("required") == [name]
+        )
+    elif shape == "ConversationUnionCodecShape::InternallyTaggedObject":
+        properties = branch.get("properties")
+        discriminator = (
+            properties.get(field) if isinstance(properties, dict) else None
+        )
+        valid = (
+            field == "type"
+            and branch.get("type") == "object"
+            and isinstance(discriminator, dict)
+            and discriminator.get("enum") == [name]
+            and field in branch.get("required", [])
+        )
+    else:
+        valid = False
+    if not valid:
+        raise SurfaceError(
+            "ConversationUnionDescriptorSchemaMismatch: "
+            f"{key} does not match reviewed codec shape {shape}"
+        )
+
+
+def generate_conversation_union_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate private codec metadata from one reviewed exact-key mapping."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if assignment.get("slice") == "A1.1"
+        and (
+            (
+                assignment.get("classification") == "SharedCommon"
+                and assignment.get("module") == "Common"
+            )
+            or (
+                assignment.get("classification") == "RootOwnedNestedUnion"
+                and assignment.get("module") == "ThreadsTurnsSessions"
+            )
+            or (
+                key[0] == "tagged_union_discriminator"
+                and key[1] in {"SessionSource", "SubAgentSource", "ThreadStatus"}
+                and assignment.get("classification")
+                in {"SharedWithinSlice", "StablePublicRoot"}
+                and assignment.get("module") == "ThreadsTurnsSessions"
+            )
+        )
+        and assignment.get("stability") == "stable"
+    }
+    descriptor_keys = set(CONVERSATION_UNION_CODECS)
+    if expected_keys != descriptor_keys or len(descriptor_keys) != 58:
+        raise SurfaceError(
+            "ConversationUnionDescriptorAssignmentMismatch: "
+            "reviewed descriptor keys must equal the exact 26 stable B2 "
+            "SharedCommon/Common, 16 B3 RootOwnedNestedUnion assignments, "
+            "and 16 dependency-closed B4 operation union assignments"
+        )
+
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    targets = [metadata[0] for metadata in CONVERSATION_UNION_CODECS.values()]
+    if len(set(targets)) != 58:
+        raise SurfaceError(
+            "DuplicateConversationUnionDescriptorTarget: "
+            "each exact key must own one unique runtime target"
+        )
+    if (
+        sum(
+            metadata[2] == "ConversationUnionCodecDirection::Bidirectional"
+            for metadata in CONVERSATION_UNION_CODECS.values()
+        )
+        != 13
+        or sum(
+            metadata[2] == "ConversationUnionCodecDirection::DecodeOnly"
+            for metadata in CONVERSATION_UNION_CODECS.values()
+        )
+        != 45
+    ):
+        raise SurfaceError(
+            "ConversationUnionDescriptorDirectionMismatch: "
+            "reviewed B2+B3+B4 direction split must remain "
+            "13 bidirectional/45 decode-only"
+        )
+
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py conversation-descriptors; do not edit.",
+        "// Exact keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Shape and direction are private codec metadata, not production dispositions.",
+    ]
+    for key in sorted(descriptor_keys):
+        entry = manifest_entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category") != "tagged_union_discriminator"
+        ):
+            raise SurfaceError(
+                "ConversationUnionDescriptorAssignmentMismatch: "
+                f"missing stable tagged-union manifest entry for {key}"
+            )
+        target, shape, direction = CONVERSATION_UNION_CODECS[key]
+        branch = _conversation_union_schema_branch(entry, schema_root)
+        _validate_conversation_union_descriptor_shape(entry, branch, shape)
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            target,
+            shape,
+            direction,
+        )
+        lines.append(
+            "CODEX_CONVERSATION_UNION_CODEC_DESCRIPTOR("
+            + ", ".join(arguments)
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def generate_client_operation_descriptor_data(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private method/contract metadata for the A1.1 requests."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    contracts = operation_contract_by_key(
+        manifest, evidence["operation_contracts"]
+    )
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "client_request"
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StablePublicRoot"
+        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("stability") == "stable"
+    }
+    targets = {
+        key: target
+        for key, target in RUNTIME_TARGETS.items()
+        if key in expected_keys
+    }
+    if (
+        len(expected_keys) != 22
+        or set(targets) != expected_keys
+        or len(set(targets.values())) != 22
+        or any(
+            not target.startswith("ClientRequestTarget::")
+            for target in targets.values()
+        )
+    ):
+        raise SurfaceError(
+            "ClientOperationDescriptorAssignmentMismatch: "
+            "the exact 22 stable A1.1 client requests must each own one "
+            "unique ClientRequestTarget"
+        )
+    if set(contracts) & expected_keys != expected_keys:
+        raise SurfaceError(
+            "ClientOperationDescriptorContractMismatch: "
+            "an A1.1 request lacks its authoritative operation contract"
+        )
+
+    unit_keys = {
+        key
+        for key in expected_keys
+        if contracts[key]["result_contract_kind"] == "Unit"
+    }
+    expected_unit_methods = {
+        "thread/archive",
+        "thread/compact/start",
+        "thread/delete",
+        "thread/inject_items",
+        "thread/name/set",
+        "thread/shellCommand",
+        "turn/interrupt",
+    }
+    if (
+        {key[3] for key in unit_keys} != expected_unit_methods
+        or len(expected_keys - unit_keys) != 15
+        or any(
+            contracts[key]["result_contract_kind"] != "Concrete"
+            for key in expected_keys - unit_keys
+        )
+    ):
+        raise SurfaceError(
+            "ClientOperationDescriptorResultKindMismatch: "
+            "A1.1 must remain exactly 7 Unit and 15 Concrete requests"
+        )
+
+    result_decoders = {
+        "Unit",
+        "ThreadForkResponse",
+        "ThreadGoalClearResponse",
+        "ThreadGoalGetResponse",
+        "ThreadGoalSetResponse",
+        "ThreadListResponse",
+        "ThreadLoadedListResponse",
+        "ThreadMetadataUpdateResponse",
+        "ThreadReadResponse",
+        "ThreadResumeResponse",
+        "ThreadRollbackResponse",
+        "ThreadStartResponse",
+        "ThreadUnarchiveResponse",
+        "ThreadUnsubscribeResponse",
+        "TurnStartResponse",
+        "TurnSteerResponse",
+    }
+    result_type_identities = {
+        str(contracts[key]["result_type_identity"]) for key in expected_keys
+    }
+    if result_type_identities != result_decoders:
+        raise SurfaceError(
+            "ClientOperationDescriptorDecoderMismatch: "
+            "the exact authoritative result identities must each have one "
+            "reviewed production result decoder binding"
+        )
+
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py operation-descriptors; do not edit.",
+        "// Exact method keys and contracts remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Descriptor rows are private codec metadata, not a second disposition registry.",
+    ]
+    for key in sorted(expected_keys):
+        contract = contracts[key]
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            targets[key],
+            cpp_string(targets[key]),
+            cpp_string(str(contract["parameter_type_identity"])),
+            cpp_string(str(contract["result_type_identity"])),
+            CPP_RESULT_CONTRACT_KINDS[
+                str(contract["result_contract_kind"])
+            ],
+            "ClientOperationResultDecoder::"
+            + str(contract["result_type_identity"]),
+        )
+        lines.append(
+            "CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR("
+            + ", ".join(arguments)
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def generate_server_notification_descriptor_data(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private decode metadata for typed server notifications."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    expected_keys = {
+        key
+        for key, target in RUNTIME_TARGETS.items()
+        if key[0] == "server_notification"
+        and target.startswith("ServerNotificationTarget::")
+    }
+    descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
+    if (
+        len(expected_keys) != 39
+        or descriptor_keys != expected_keys
+        or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
+        != 39
+    ):
+        raise SurfaceError(
+            "ServerNotificationDescriptorAssignmentMismatch: "
+            "every one of the 39 typed server-notification targets must own "
+            "one exact generated descriptor"
+        )
+
+    a11_keys = {
+        key
+        for key in descriptor_keys
+        if assignments[key].get("slice") == "A1.1"
+    }
+    residual_keys = descriptor_keys - a11_keys
+    if (
+        len(a11_keys) != 37
+        or {key[3] for key in residual_keys} != {"error", "model/rerouted"}
+    ):
+        raise SurfaceError(
+            "ServerNotificationDescriptorSliceMismatch: "
+            "descriptors must distinguish the exact 37 A1.1 rows from "
+            "residual partial error and model/rerouted rows"
+        )
+
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py notification-descriptors; do not edit.",
+        "// Exact method keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Payload identity and A1.1 membership are private decode metadata, not dispatch authority.",
+    ]
+    for key in sorted(descriptor_keys):
+        entry = manifest_entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category") != "server_notification"
+            or entry.get("domain") != "ServerNotification"
+            or entry.get("discriminator_field") != "method"
+        ):
+            raise SurfaceError(
+                "ServerNotificationDescriptorAssignmentMismatch: "
+                f"missing stable server-notification manifest entry for {key}"
+            )
+        target, payload_type = SERVER_NOTIFICATION_CODECS[key]
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            target,
+            cpp_string(payload_type),
+            "true" if key in a11_keys else "false",
+        )
+        lines.append(
+            "CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR("
+            + ", ".join(arguments)
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _operation_production_specs(
+    manifest: dict[str, Any], evidence: dict[str, Any]
+) -> dict[tuple[str, str, str, str], dict[str, str]]:
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    contracts = operation_contract_by_key(
+        manifest, evidence["operation_contracts"]
+    )
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "client_request"
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StablePublicRoot"
+        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("stability") == "stable"
+    }
+    if len(expected_keys) != 22:
+        raise SurfaceError(
+            "OperationProductionCoverageAssignmentMismatch: "
+            "expected exactly 22 stable A1.1 client requests"
+        )
+    result: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for key in sorted(expected_keys):
+        target = RUNTIME_TARGETS.get(key)
+        contract = contracts.get(key)
+        if (
+            not isinstance(target, str)
+            or not target.startswith("ClientRequestTarget::")
+            or contract is None
+        ):
+            raise SurfaceError(
+                "OperationProductionCoverageTargetMismatch: "
+                f"missing exact production target/contract for {key}"
+            )
+        result[key] = {
+            "runtime_target": target,
+            "parameter_type_identity": str(
+                contract["parameter_type_identity"]
+            ),
+            "result_type_identity": str(contract["result_type_identity"]),
+            "result_contract_kind": str(
+                contract["result_contract_kind"]
+            ),
+        }
+    kinds = [spec["result_contract_kind"] for spec in result.values()]
+    if kinds.count("Unit") != 7 or kinds.count("Concrete") != 15:
+        raise SurfaceError(
+            "OperationProductionCoverageResultKindMismatch: "
+            "expected exactly seven Unit and fifteen Concrete results"
+        )
+    return result
+
+
+def _b4_conversation_production_specs(
+    manifest: dict[str, Any], evidence: dict[str, Any]
+) -> dict[tuple[str, str, str, str], dict[str, str]]:
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key in B4_CONVERSATION_UNION_CODECS
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification")
+        in {"RootOwnedNestedUnion", "SharedWithinSlice"}
+        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("stability") == "stable"
+    }
+    if expected_keys != set(B4_CONVERSATION_UNION_CODECS) or len(expected_keys) != 16:
+        raise SurfaceError(
+            "ConversationProductionCoverageAssignmentMismatch: "
+            "expected exactly the 16 dependency-closed B4 conversation-union identities"
+        )
+    result: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for key in sorted(expected_keys):
+        target, shape, direction = B4_CONVERSATION_UNION_CODECS[key]
+        if (
+            RUNTIME_TARGETS.get(key) != target
+            or not target.startswith("ConversationUnionTarget::")
+            or direction != "ConversationUnionCodecDirection::DecodeOnly"
+        ):
+            raise SurfaceError(
+                "ConversationProductionCoverageTargetMismatch: "
+                f"missing exact decode-only production target for {key}"
+            )
+        result[key] = {
+            "runtime_target": target,
+            "codec_shape": shape.removeprefix("ConversationUnionCodecShape::"),
+            "codec_direction": direction.removeprefix(
+                "ConversationUnionCodecDirection::"
+            ),
+        }
+    return result
+
+
+def generate_operation_production_coverage(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any],
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[str, Any]:
+    """Generate the one checked operation-result corpus/production table."""
+
+    specs = _operation_production_specs(manifest, evidence)
+    conversation_specs = _b4_conversation_production_specs(manifest, evidence)
+    allowed_roles = {
+        "client_request_result": ("Decoded",),
+        "operation_optional_omitted": ("Decoded",),
+        "operation_nullable_null": ("Decoded",),
+        "operation_missing_required": ("MalformedKnownPayload",),
+        "operation_wrong_type": ("MalformedKnownPayload",),
+    }
+    indexed_records = fixture_index.get("fixtures")
+    if not isinstance(indexed_records, list):
+        raise SurfaceError(
+            "OperationProductionCoverageFixtureIndexMismatch: "
+            "fixture index lacks its records array"
+        )
+
+    records: list[dict[str, Any]] = []
+    role_counts: dict[str, int] = {role: 0 for role in sorted(allowed_roles)}
+    per_key: dict[
+        tuple[str, str, str, str], list[dict[str, Any]]
+    ] = {key: [] for key in specs}
+    seen_ids: set[str] = set()
+    for fixture in indexed_records:
+        if not isinstance(fixture, dict):
+            continue
+        key_object = fixture.get("protocol_surface_key")
+        if (
+            fixture.get("a1_slice") != "A1.1"
+            or not isinstance(key_object, dict)
+            or key_object.get("category") != "client_request"
+            or ":result" not in str(fixture.get("id", ""))
+        ):
+            continue
+        key = surface_key(key_object)
+        if key not in specs:
+            raise SurfaceError(
+                "OperationProductionCoverageFixtureIndexMismatch: "
+                f"result fixture is outside the exact operation set: {key}"
+            )
+        role = fixture.get("role")
+        if role not in allowed_roles:
+            raise SurfaceError(
+                "OperationProductionCoverageRoleMismatch: "
+                f"unsupported result fixture role {role!r}"
+            )
+        fixture_id = fixture.get("id")
+        file = fixture.get("file")
+        file_sha256 = fixture.get("file_sha256")
+        if (
+            not isinstance(fixture_id, str)
+            or not isinstance(file, str)
+            or not isinstance(file_sha256, str)
+            or not file_sha256
+        ):
+            raise SurfaceError(
+                "OperationProductionCoverageFixtureIndexMismatch: "
+                "result fixture lacks a stable id/path/hash"
+            )
+        if fixture_id in seen_ids:
+            raise SurfaceError(
+                "OperationProductionCoverageDuplicateRecord: "
+                f"duplicate fixture id {fixture_id}"
+            )
+        seen_ids.add(fixture_id)
+        record = {
+            "id": fixture_id,
+            "surface_key": _canonical_surface_key_object(key),
+            "runtime_target": specs[key]["runtime_target"],
+            "result_type_identity": specs[key][
+                "result_type_identity"
+            ],
+            "result_contract_kind": specs[key][
+                "result_contract_kind"
+            ],
+            "role": role,
+            "file": file,
+            "file_sha256": file_sha256,
+            "expected_intrinsic_codes": list(allowed_roles[role]),
+        }
+        records.append(record)
+        per_key[key].append(record)
+        role_counts[role] += 1
+
+    expected_role_counts = {
+        "client_request_result": 22,
+        "operation_missing_required": 261,
+        "operation_nullable_null": 180,
+        "operation_optional_omitted": 201,
+        "operation_wrong_type": 502,
+    }
+    if role_counts != expected_role_counts or len(records) != 1166:
+        raise SurfaceError(
+            "OperationProductionCoverageRoleMismatch: "
+            f"expected exact result roles {expected_role_counts}, got {role_counts}"
+        )
+
+    operations: list[dict[str, Any]] = []
+    for key in sorted(specs):
+        operation_records = sorted(per_key[key], key=lambda record: record["id"])
+        base = [
+            record
+            for record in operation_records
+            if record["role"] == "client_request_result"
+        ]
+        if len(base) != 1:
+            raise SurfaceError(
+                "OperationProductionCoverageMissingRecord: "
+                f"{key} lacks exactly one base result fixture"
+            )
+        counts = {
+            role: sum(record["role"] == role for record in operation_records)
+            for role in sorted(allowed_roles)
+        }
+        operations.append(
+            {
+                "surface_key": _canonical_surface_key_object(key),
+                **specs[key],
+                "role_counts": counts,
+                "fixture_ids": [
+                    record["id"] for record in operation_records
+                ],
+            }
+        )
+
+    conversation_role_codes = {
+        "union_branch": ("Decoded",),
+        "union_optional_omitted": ("Decoded",),
+        "union_nullable_null": ("Decoded",),
+        "malformed_known_missing_required": ("MalformedKnownPayload",),
+        "malformed_known_missing_discriminator": (
+            "MalformedKnownPayload",
+        ),
+        "malformed_known_wrong_type": ("MalformedKnownPayload",),
+        "malformed_known_wrong_discriminator_type": (
+            "MalformedKnownPayload",
+        ),
+        "nested_union_failure": ("MalformedKnownPayload",),
+        "unknown_discriminator": ("Decoded", "UnknownDiscriminator"),
+    }
+    conversation_records: list[dict[str, Any]] = []
+    conversation_per_key: dict[
+        tuple[str, str, str, str], list[dict[str, Any]]
+    ] = {key: [] for key in conversation_specs}
+    conversation_role_counts = {
+        role: 0 for role in sorted(conversation_role_codes)
+    }
+
+    def b4_expected_field_path(
+        fixture: dict[str, Any],
+        key: tuple[str, str, str, str],
+    ) -> str | None:
+        role = fixture.get("role")
+        if role in {
+            "union_branch",
+            "union_optional_omitted",
+            "union_nullable_null",
+        }:
+            return None
+        domain = key[1]
+        name = key[3]
+        fixture_id = str(fixture.get("id", ""))
+        if role == "malformed_known_missing_discriminator":
+            return "$.type" if domain == "ThreadStatus" else "$"
+        if role == "malformed_known_wrong_discriminator_type":
+            return "$.type" if domain == "ThreadStatus" else f"$.{name}"
+        if domain == "ThreadStatus":
+            return (
+                "$.activeFlags[0]"
+                if fixture_id.endswith("activeflags-0")
+                else "$.activeFlags"
+            )
+        if domain == "SessionSource" and name == "subAgent":
+            if fixture_id.endswith("thread_spawn-depth"):
+                return "$.subAgent.thread_spawn.depth"
+            return "$.subAgent"
+        if domain == "SubAgentSource" and name == "thread_spawn":
+            if fixture_id.endswith("-depth"):
+                return "$.thread_spawn.depth"
+            if fixture_id.endswith("-parent_thread_id"):
+                return "$.thread_spawn.parent_thread_id"
+            if fixture_id.endswith("-agent_path"):
+                return "$.thread_spawn.agent_path"
+            if fixture_id.endswith("-agent_nickname"):
+                return "$.thread_spawn.agent_nickname"
+            if fixture_id.endswith("-agent_role"):
+                return "$.thread_spawn.agent_role"
+        raise SurfaceError(
+            "ConversationProductionCoverageFieldPathMismatch: "
+            f"cannot derive the exact diagnostic path for {fixture_id}"
+        )
+
+    for fixture in indexed_records:
+        if not isinstance(fixture, dict):
+            continue
+        key_object = fixture.get("protocol_surface_key")
+        if not isinstance(key_object, dict):
+            continue
+        key = surface_key(key_object)
+        if key not in conversation_specs:
+            continue
+        role = fixture.get("role")
+        if role not in conversation_role_codes:
+            raise SurfaceError(
+                "ConversationProductionCoverageRoleMismatch: "
+                f"unsupported B4 union fixture role {role!r}"
+            )
+        fixture_id = fixture.get("id")
+        file = fixture.get("file")
+        file_sha256 = fixture.get("file_sha256")
+        if (
+            not isinstance(fixture_id, str)
+            or not isinstance(file, str)
+            or not isinstance(file_sha256, str)
+            or not file_sha256
+        ):
+            raise SurfaceError(
+                "ConversationProductionCoverageFixtureIndexMismatch: "
+                "B4 union fixture lacks a stable id/path/hash"
+            )
+        record = {
+            "id": fixture_id,
+            "surface_key": _canonical_surface_key_object(key),
+            "domain": key[1],
+            "runtime_target": conversation_specs[key]["runtime_target"],
+            "role": role,
+            "file": file,
+            "file_sha256": file_sha256,
+            "expected_intrinsic_codes": list(
+                conversation_role_codes[role]
+            ),
+            "expected_diagnostic_surface": (
+                "SubAgentSource"
+                if key[1] == "SessionSource"
+                and key[3] == "subAgent"
+                and role
+                in {
+                    "nested_union_failure",
+                    "unknown_discriminator",
+                    "malformed_known_wrong_discriminator_type",
+                }
+                else key[1]
+            ),
+            "expected_field_path": b4_expected_field_path(fixture, key),
+        }
+        conversation_records.append(record)
+        conversation_per_key[key].append(record)
+        conversation_role_counts[role] += 1
+
+    unkeyed_union_specs = {
+        "union:SessionSource:conflicting-discriminators": (
+            "SessionSource",
+            ("MalformedKnownPayload",),
+            "$",
+        ),
+        "union:SessionSource:future-object-unknown": (
+            "SessionSource",
+            ("Decoded", "UnknownDiscriminator"),
+            "$",
+        ),
+        "union:SessionSource:future-unknown": (
+            "SessionSource",
+            ("Decoded", "UnknownDiscriminator"),
+            "$",
+        ),
+        "union:SessionSource:wrong-outer-shape": (
+            "SessionSource",
+            ("MalformedKnownPayload",),
+            "$",
+        ),
+        "union:SubAgentSource:conflicting-discriminators": (
+            "SubAgentSource",
+            ("MalformedKnownPayload",),
+            "$",
+        ),
+        "union:SubAgentSource:future-object-unknown": (
+            "SubAgentSource",
+            ("Decoded", "UnknownDiscriminator"),
+            "$",
+        ),
+        "union:SubAgentSource:future-unknown": (
+            "SubAgentSource",
+            ("Decoded", "UnknownDiscriminator"),
+            "$",
+        ),
+        "union:SubAgentSource:wrong-outer-shape": (
+            "SubAgentSource",
+            ("MalformedKnownPayload",),
+            "$",
+        ),
+        "union:ThreadStatus:future-unknown": (
+            "ThreadStatus",
+            ("Decoded", "UnknownDiscriminator"),
+            "$.type",
+        ),
+        "union:ThreadStatus:wrong-outer-shape": (
+            "ThreadStatus",
+            ("MalformedKnownPayload",),
+            "$",
+        ),
+    }
+    unkeyed_union_records = {
+        fixture.get("id"): fixture
+        for fixture in indexed_records
+        if isinstance(fixture, dict)
+        and fixture.get("id") in unkeyed_union_specs
+    }
+    if set(unkeyed_union_records) != set(unkeyed_union_specs):
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingRecord: "
+            "the ten unkeyed B4 future/conflict/outer-shape fixtures must be indexed"
+        )
+    for fixture_id in sorted(unkeyed_union_specs):
+        fixture = unkeyed_union_records[fixture_id]
+        domain, codes, field_path = unkeyed_union_specs[fixture_id]
+        conversation_records.append(
+            {
+                "id": fixture_id,
+                "surface_key": None,
+                "domain": domain,
+                "runtime_target": None,
+                "role": fixture["role"],
+                "file": fixture["file"],
+                "file_sha256": fixture["file_sha256"],
+                "expected_intrinsic_codes": list(codes),
+                "expected_diagnostic_surface": domain,
+                "expected_field_path": field_path,
+            }
+        )
+        conversation_role_counts.setdefault(fixture["role"], 0)
+        conversation_role_counts[fixture["role"]] += 1
+
+    expected_conversation_role_counts = {
+        "malformed_known_conflicting_discriminators": 2,
+        "malformed_known_missing_discriminator": 8,
+        "malformed_known_missing_required": 3,
+        "malformed_known_wrong_discriminator_type": 8,
+        "malformed_known_wrong_outer_shape": 3,
+        "malformed_known_wrong_type": 7,
+        "nested_union_failure": 1,
+        "union_branch": 16,
+        "union_nullable_null": 3,
+        "union_optional_omitted": 3,
+        "unknown_discriminator": 6,
+    }
+    if (
+        conversation_role_counts != expected_conversation_role_counts
+        or len(conversation_records) != 60
+    ):
+        raise SurfaceError(
+            "ConversationProductionCoverageRoleMismatch: "
+            "expected the exact 60-record B4 union corpus "
+            f"{expected_conversation_role_counts}, got {conversation_role_counts}"
+        )
+
+    conversation_unions: list[dict[str, Any]] = []
+    for key in sorted(conversation_specs):
+        union_records = sorted(
+            conversation_per_key[key], key=lambda record: record["id"]
+        )
+        base = [
+            record
+            for record in union_records
+            if record["role"] == "union_branch"
+        ]
+        if len(base) != 1:
+            raise SurfaceError(
+                "ConversationProductionCoverageMissingRecord: "
+                f"{key} lacks exactly one base branch fixture"
+            )
+        conversation_unions.append(
+            {
+                "surface_key": _canonical_surface_key_object(key),
+                **conversation_specs[key],
+                "role_counts": {
+                    role: sum(
+                        record["role"] == role
+                        for record in union_records
+                    )
+                    for role in sorted(conversation_role_codes)
+                },
+                "fixture_ids": [
+                    record["id"] for record in union_records
+                ],
+                "base_fixture_id": base[0]["id"],
+            }
+        )
+
+    active_key = (
+        "tagged_union_discriminator",
+        "ThreadStatus",
+        "type",
+        "active",
+    )
+    open_enum_role_codes = {
+        "open_enum_known_value": ("Decoded",),
+        "unknown_enum_value": ("Decoded", "UnknownEnumValue"),
+    }
+    open_enum_records: list[dict[str, Any]] = []
+    open_enum_role_counts = {
+        role: 0 for role in sorted(open_enum_role_codes)
+    }
+    for fixture in indexed_records:
+        if (
+            not isinstance(fixture, dict)
+            or not str(fixture.get("id", "")).startswith(
+                "enum:ThreadActiveFlag:"
+            )
+        ):
+            continue
+        role = fixture.get("role")
+        if role not in open_enum_role_codes:
+            raise SurfaceError(
+                "ConversationProductionCoverageRoleMismatch: "
+                f"unsupported ThreadActiveFlag fixture role {role!r}"
+            )
+        fixture_path = fixture_index_path.parent / str(fixture["file"])
+        try:
+            fixture_value = load_json(fixture_path)
+        except OSError as error:
+            raise SurfaceError(
+                "ConversationProductionCoverageFixtureIndexMismatch: "
+                f"unable to read {fixture_path}: {error}"
+            ) from error
+        if not isinstance(fixture_value, str):
+            raise SurfaceError(
+                "ConversationProductionCoverageFixtureIndexMismatch: "
+                f"{fixture['id']} must contain one open string-enum value"
+            )
+        open_enum_records.append(
+            {
+                "id": fixture["id"],
+                "owner_surface_key": _canonical_surface_key_object(
+                    active_key
+                ),
+                "runtime_target": conversation_specs[active_key][
+                    "runtime_target"
+                ],
+                "role": role,
+                "value": fixture_value,
+                "file": fixture["file"],
+                "file_sha256": fixture["file_sha256"],
+                "expected_intrinsic_codes": list(
+                    open_enum_role_codes[role]
+                ),
+                "expected_field_path": (
+                    None
+                    if role == "open_enum_known_value"
+                    else "$.activeFlags[0]"
+                ),
+            }
+        )
+        open_enum_role_counts[role] += 1
+    expected_open_enum_role_counts = {
+        "open_enum_known_value": 2,
+        "unknown_enum_value": 2,
+    }
+    if (
+        open_enum_role_counts != expected_open_enum_role_counts
+        or len(open_enum_records) != 4
+    ):
+        raise SurfaceError(
+            "ConversationProductionCoverageRoleMismatch: "
+            "expected the exact four-record ThreadActiveFlag corpus "
+            f"{expected_open_enum_role_counts}, got {open_enum_role_counts}"
+        )
+
+    helper_specs = {
+        "ReasoningSummary": (
+            (
+                "client_request",
+                "ClientRequest",
+                "method",
+                "turn/start",
+            ),
+            "Encode",
+            ("Encoded",),
+        ),
+        "ThreadListCwdFilter": (
+            (
+                "client_request",
+                "ClientRequest",
+                "method",
+                "thread/list",
+            ),
+            "Encode",
+            ("Encoded",),
+        ),
+        "TurnItemsView": (
+            (
+                "client_request",
+                "ClientRequest",
+                "method",
+                "turn/start",
+            ),
+            "Decode",
+            ("Decoded",),
+        ),
+    }
+    helper_records: list[dict[str, Any]] = []
+    helper_counts = {domain: 0 for domain in sorted(helper_specs)}
+    for fixture in indexed_records:
+        if not isinstance(fixture, dict):
+            continue
+        fixture_id = str(fixture.get("id", ""))
+        if not fixture_id.startswith("helper-union:"):
+            continue
+        role = fixture.get("role")
+        if role not in {
+            "operation_helper_union_branch",
+            "unknown_enum_value",
+            "operation_wrong_type",
+        }:
+            raise SurfaceError(
+                "OperationProductionCoverageHelperMismatch: "
+                f"unsupported helper fixture role {role!r}"
+            )
+        parts = fixture_id.split(":")
+        if len(parts) != 3 or parts[0] != "helper-union":
+            raise SurfaceError(
+                "OperationProductionCoverageHelperMismatch: "
+                f"malformed helper fixture id {fixture_id}"
+            )
+        domain = parts[1]
+        if domain not in helper_specs:
+            raise SurfaceError(
+                "OperationProductionCoverageHelperMismatch: "
+                f"unreviewed operation helper family {domain}"
+            )
+        if (
+            domain == "ThreadListCwdFilter"
+            and role == "operation_wrong_type"
+        ):
+            # This independent schema-negative record proves numeric array
+            # elements are rejected. The public C++ value variant cannot
+            # represent it, which the aggregate corpus checks at compile time.
+            continue
+        owner_key, direction, known_codes = helper_specs[domain]
+        codes = (
+            known_codes
+            if role == "operation_helper_union_branch"
+            else (
+                (known_codes[0], "UnknownEnumValue")
+                if direction == "Decode"
+                else known_codes
+            )
+        )
+        helper_records.append(
+            {
+                "id": fixture_id,
+                "domain": domain,
+                "branch": parts[2],
+                "owner_surface_key": _canonical_surface_key_object(
+                    owner_key
+                ),
+                "runtime_target": specs[owner_key]["runtime_target"],
+                "direction": direction,
+                "role": role,
+                "file": fixture["file"],
+                "file_sha256": fixture["file_sha256"],
+                "expected_intrinsic_codes": list(codes),
+                "expected_field_path": (
+                    None
+                    if role == "operation_helper_union_branch"
+                    or direction == "Encode"
+                    else (
+                        "$.summary"
+                        if domain == "ReasoningSummary"
+                        else "$.itemsView"
+                    )
+                ),
+            }
+        )
+        helper_counts[domain] += 1
+    expected_helper_counts = {
+        "ReasoningSummary": 6,
+        "ThreadListCwdFilter": 3,
+        "TurnItemsView": 5,
+    }
+    if helper_counts != expected_helper_counts or len(helper_records) != 14:
+        raise SurfaceError(
+            "OperationProductionCoverageHelperMismatch: "
+            f"expected exact helper corpus {expected_helper_counts}, got {helper_counts}"
+        )
+
+    open_value_specs = {
+        "ApprovalsReviewer": (
+            ("client_request", "ClientRequest", "method", "thread/start"),
+            "Both",
+            "$.approvalsReviewer",
+        ),
+        "Personality": (
+            ("client_request", "ClientRequest", "method", "thread/start"),
+            "Encode",
+            "$.personality",
+        ),
+        "SandboxMode": (
+            ("client_request", "ClientRequest", "method", "thread/start"),
+            "Encode",
+            "$.sandbox",
+        ),
+        "SortDirection": (
+            ("client_request", "ClientRequest", "method", "thread/list"),
+            "Encode",
+            "$.sortDirection",
+        ),
+        "ThreadGoalStatus": (
+            ("client_request", "ClientRequest", "method", "thread/goal/set"),
+            "Both",
+            "$.status",
+        ),
+        "ThreadSortKey": (
+            ("client_request", "ClientRequest", "method", "thread/list"),
+            "Encode",
+            "$.sortKey",
+        ),
+        "ThreadSourceKind": (
+            ("client_request", "ClientRequest", "method", "thread/list"),
+            "Encode",
+            "$.sourceKinds[0]",
+        ),
+        "ThreadStartSource": (
+            ("client_request", "ClientRequest", "method", "thread/start"),
+            "Encode",
+            "$.sessionStartSource",
+        ),
+        "ThreadUnsubscribeStatus": (
+            (
+                "client_request",
+                "ClientRequest",
+                "method",
+                "thread/unsubscribe",
+            ),
+            "Decode",
+            "$.status",
+        ),
+        "TurnStatus": (
+            ("client_request", "ClientRequest", "method", "turn/start"),
+            "Decode",
+            "$.status",
+        ),
+    }
+    open_value_records: list[dict[str, Any]] = []
+    open_value_counts = {domain: 0 for domain in sorted(open_value_specs)}
+    for fixture in indexed_records:
+        if not isinstance(fixture, dict):
+            continue
+        fixture_id = str(fixture.get("id", ""))
+        if not fixture_id.startswith("enum:"):
+            continue
+        parts = fixture_id.split(":")
+        if len(parts) != 3 or parts[1] not in open_value_specs:
+            continue
+        domain = parts[1]
+        role = fixture.get("role")
+        if role not in {"open_enum_known_value", "unknown_enum_value"}:
+            raise SurfaceError(
+                "OperationProductionCoverageAggregateValueMismatch: "
+                f"unsupported {domain} fixture role {role!r}"
+            )
+        owner_key, direction, field_path = open_value_specs[domain]
+        open_value_records.append(
+            {
+                "id": fixture_id,
+                "domain": domain,
+                "branch": parts[2],
+                "owner_surface_key": _canonical_surface_key_object(
+                    owner_key
+                ),
+                "runtime_target": specs[owner_key]["runtime_target"],
+                "direction": direction,
+                "role": role,
+                "file": fixture["file"],
+                "file_sha256": fixture["file_sha256"],
+                "expected_intrinsic_codes": [
+                    *(
+                        ["Encoded", "Decoded"]
+                        if direction == "Both"
+                        else [
+                            "Encoded"
+                            if direction == "Encode"
+                            else "Decoded"
+                        ]
+                    ),
+                    *(
+                        ["UnknownEnumValue"]
+                        if role == "unknown_enum_value"
+                        and direction in {"Decode", "Both"}
+                        else []
+                    ),
+                ],
+                "expected_field_path": (
+                    field_path
+                    if role == "unknown_enum_value"
+                    and direction in {"Decode", "Both"}
+                    else None
+                ),
+            }
+        )
+        open_value_counts[domain] += 1
+    expected_open_value_counts = {
+        "ApprovalsReviewer": 5,
+        "Personality": 5,
+        "SandboxMode": 5,
+        "SortDirection": 4,
+        "ThreadGoalStatus": 8,
+        "ThreadSortKey": 5,
+        "ThreadSourceKind": 12,
+        "ThreadStartSource": 4,
+        "ThreadUnsubscribeStatus": 5,
+        "TurnStatus": 6,
+    }
+    if (
+        open_value_counts != expected_open_value_counts
+        or len(open_value_records) != 59
+    ):
+        raise SurfaceError(
+            "OperationProductionCoverageAggregateValueMismatch: "
+            "expected the exact 59-record non-ThreadActiveFlag operation open-value corpus "
+            f"{expected_open_value_counts}, got {open_value_counts}"
+        )
+    aggregate_value_records = sorted(
+        [*helper_records, *open_value_records],
+        key=lambda record: record["id"],
+    )
+    if len(aggregate_value_records) != 73 or len(
+        {record["id"] for record in aggregate_value_records}
+    ) != 73:
+        raise SurfaceError(
+            "OperationProductionCoverageAggregateValueMismatch: "
+            "expected exactly 73 unique aggregate/value fixture records"
+        )
+
+    source_records: list[dict[str, Any]] = []
+    for relative in OPERATION_PRODUCTION_COVERAGE_SOURCES:
+        path = repo_root / relative
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            raise SurfaceError(
+                "OperationProductionCoverageSourceMissing: "
+                f"unable to read {relative}: {error}"
+            ) from error
+        source_records.append(
+            {
+                "path": relative,
+                "bytes": len(data),
+                "sha256": sha256_bytes(data),
+            }
+        )
+    try:
+        index_data = fixture_index_path.read_bytes()
+    except OSError as error:
+        raise SurfaceError(
+            "OperationProductionCoverageFixtureIndexMismatch: "
+            f"unable to read {fixture_index_path}: {error}"
+        ) from error
+    if load_json(fixture_index_path) != fixture_index:
+        raise SurfaceError(
+            "OperationProductionCoverageFixtureIndexMismatch: "
+            "in-memory fixture index differs from the pinned index path"
+        )
+
+    return {
+        "format_version": 1,
+        "codex_version": CODEX_VERSION,
+        "generated_notice": (
+            "Generated by tools/codex/app_server_surface.py "
+            "operation-production-coverage; do not edit."
+        ),
+        "authority_note": (
+            "This is checked production-coverage evidence consumed by the "
+            "registered C++ operation-result and B4 conversation-union corpus "
+            "tests plus the registry generator; it is not a runtime "
+            "disposition or dispatch registry."
+        ),
+        "fixture_index": {
+            "path": fixture_index_path.relative_to(repo_root).as_posix(),
+            "bytes": len(index_data),
+            "sha256": sha256_bytes(index_data),
+        },
+        "registered_tests": [
+            {
+                "ctest_name": "CodexA11OperationResultCorpusTest",
+                "source": "tests/component/codex/CodexA11OperationResultCorpusTest.cpp",
+            },
+            {
+                "ctest_name": "CodexA11OperationAggregateValueCorpusTest",
+                "source": "tests/component/codex/CodexA11OperationAggregateValueCorpusTest.cpp",
+            },
+            {
+                "ctest_name": "CodexConversationB4NestedCodecTest",
+                "source": "tests/component/codex/CodexConversationB4NestedCodecTest.cpp",
+            },
+        ],
+        "source_records": source_records,
+        "counts": {
+            "operations": 22,
+            "unit_result_roots": 7,
+            "concrete_result_roots": 15,
+            "positive_result_records": 403,
+            "negative_result_records": 763,
+            "records": 1166,
+            "roles": expected_role_counts,
+            "b4_conversation_union_identities": 16,
+            "b4_conversation_union_records": 60,
+            "b4_thread_active_flag_records": 4,
+            "b4_conversation_roles": expected_conversation_role_counts,
+            "b4_thread_active_flag_roles": expected_open_enum_role_counts,
+            "operation_aggregate_value_records": 73,
+            "operation_helper_families": expected_helper_counts,
+            "operation_open_value_families": expected_open_value_counts,
+        },
+        "encoded_protocol_opaque_paths": [
+            "#/definitions/v2/ThreadForkParams/properties/config/additionalProperties",
+            "#/definitions/v2/ThreadInjectItemsParams/properties/items/items",
+            "#/definitions/v2/ThreadResumeParams/properties/config/additionalProperties",
+            "#/definitions/v2/ThreadStartParams/properties/config/additionalProperties",
+            "#/definitions/v2/TurnStartParams/properties/outputSchema",
+        ],
+        "operations": operations,
+        "records": sorted(records, key=lambda record: record["id"]),
+        "b4_conversation_unions": conversation_unions,
+        "b4_conversation_records": sorted(
+            conversation_records, key=lambda record: record["id"]
+        ),
+        "b4_thread_active_flag_records": sorted(
+            open_enum_records, key=lambda record: record["id"]
+        ),
+        "operation_aggregate_value_records": aggregate_value_records,
+    }
+
+
+def generate_notification_production_coverage(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any],
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[str, Any]:
+    """Generate checked A1.1 notification decode/no-drop coverage evidence."""
+
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "server_notification"
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StablePublicRoot"
+        and assignment.get("module") == "ThreadsTurnsSessions"
+        and assignment.get("stability") == "stable"
+    }
+    if len(expected_keys) != 37 or not expected_keys <= set(
+        SERVER_NOTIFICATION_CODECS
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageAssignmentMismatch: "
+            "expected the exact 37 stable A1.1 server notifications"
+        )
+
+    section = fixture_index.get("a1_1_notifications")
+    if not isinstance(section, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "fixture index lacks a1_1_notifications"
+        )
+    indexed_keys = {
+        surface_key(key)
+        for key in section.get("assignment_derived_keys", [])
+        if isinstance(key, dict)
+    }
+    if indexed_keys != expected_keys:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "assignment-derived fixture keys do not equal the exact A1.1 set"
+        )
+    indexed_schema_coverage = section.get("indexed_schema_coverage")
+    root_fixture_plan = section.get("root_fixture_plan")
+    negative_coverage = section.get("negative_coverage")
+    if (
+        not isinstance(indexed_schema_coverage, dict)
+        or set(indexed_schema_coverage) != {":".join(key) for key in expected_keys}
+        or not isinstance(root_fixture_plan, dict)
+        or set(root_fixture_plan) != {":".join(key) for key in expected_keys}
+        or not isinstance(negative_coverage, dict)
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "indexed schema coverage or root fixture plan is incomplete"
+        )
+
+    fixture_records = fixture_index.get("fixtures")
+    if not isinstance(fixture_records, list):
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "fixture records are absent"
+        )
+    fixtures_by_id: dict[str, dict[str, Any]] = {}
+    for fixture in fixture_records:
+        if not isinstance(fixture, dict) or not isinstance(
+            fixture.get("id"), str
+        ):
+            continue
+        fixture_id = fixture["id"]
+        if fixture_id in fixtures_by_id:
+            raise SurfaceError(
+                "NotificationProductionCoverageDuplicateRecord: "
+                f"duplicate fixture id {fixture_id}"
+            )
+        fixtures_by_id[fixture_id] = fixture
+
+    type_closure = evidence.get("type_closure")
+    if not isinstance(type_closure, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageTypeClosureMismatch: "
+            "A1.1 type closure is absent"
+        )
+
+    def normalize_schema_path(path: str) -> str:
+        return path.replace("#/definitions/v2/", "#/definitions/")
+
+    closure_paths: dict[str, dict[str, Any]] = {}
+    for mapping in type_closure.get("schema_paths", []):
+        if not isinstance(mapping, dict) or not isinstance(
+            mapping.get("schema_path"), str
+        ):
+            continue
+        path = normalize_schema_path(mapping["schema_path"])
+        if path in closure_paths and closure_paths[path] != mapping:
+            raise SurfaceError(
+                "NotificationProductionCoverageTypeClosureMismatch: "
+                f"conflicting C++ mapping for {path}"
+            )
+        closure_paths[path] = mapping
+    opaque_paths = {
+        normalize_schema_path(record["schema_path"]): record
+        for record in type_closure.get("protocol_defined_opaque_json", [])
+        if isinstance(record, dict)
+        and isinstance(record.get("schema_path"), str)
+    }
+    expected_notification_opaque_paths = {
+        "#/definitions/ThreadRealtimeItemAddedNotification/properties/item",
+        "#/definitions/TurnModerationMetadataNotification/properties/metadata",
+    }
+    if not expected_notification_opaque_paths <= set(opaque_paths):
+        raise SurfaceError(
+            "NotificationProductionCoverageTypeClosureMismatch: "
+            "the two protocol-defined notification opaque paths are absent"
+        )
+
+    role_fields = {
+        "base": "base_fixture_id",
+        "optional_omitted": "optional_omitted_fixture_ids",
+        "nullable_null": "nullable_null_fixture_ids",
+        "required_nullable_null": "required_nullable_null_fixture_ids",
+        "missing_required": "missing_required_fixture_ids",
+        "wrong_type": "wrong_type_fixture_ids",
+    }
+    expected_role_counts = {
+        "base": 37,
+        "missing_required": 279,
+        "nullable_null": 57,
+        "optional_omitted": 65,
+        "required_nullable_null": 2,
+        "wrong_type": 358,
+    }
+    role_counts = {role: 0 for role in sorted(role_fields)}
+    records: list[dict[str, Any]] = []
+    notifications: list[dict[str, Any]] = []
+    seen_record_ids: set[str] = set()
+
+    def is_recoverable_nested_malformed(
+        key: tuple[str, str, str, str], fixture_id: str
+    ) -> bool:
+        """Return whether a known outer aggregate preserves a nested warning."""
+
+        marker = (
+            ":missing-required:"
+            if ":missing-required:" in fixture_id
+            else ":wrong-type:"
+        )
+        mutation_path = fixture_id.partition(marker)[2]
+        method = key[3]
+        if method in {"item/started", "item/completed"}:
+            return mutation_path.startswith("params-item-")
+        if method == "thread/started":
+            return mutation_path.startswith(
+                "params-thread-turns-0-items-0-"
+            ) or mutation_path.startswith(
+                "params-thread-turns-0-error-codexerrorinfo"
+            )
+        if method in {"turn/started", "turn/completed"}:
+            return mutation_path.startswith(
+                "params-turn-items-0-"
+            ) or mutation_path.startswith(
+                "params-turn-error-codexerrorinfo"
+            )
+        return False
+
+    for key in sorted(expected_keys):
+        compact_key = ":".join(key)
+        coverage = indexed_schema_coverage[compact_key]
+        plan = root_fixture_plan[compact_key]
+        if (
+            not isinstance(coverage, dict)
+            or coverage.get("directions_exercised") != ["Decode"]
+            or coverage.get("schema_direction_coverage") is not True
+            or not isinstance(plan, dict)
+        ):
+            raise SurfaceError(
+                "NotificationProductionCoverageDirectionMismatch: "
+                f"{compact_key} lacks exact Decode direction evidence"
+            )
+        schema_facts = coverage.get("schema_fixture_facts")
+        expected_facts = {
+            "nullable_semantics_exercised",
+            "optional_omitted_exercised",
+            "optional_present_exercised",
+            "reachable_union_alternatives_exercised",
+            "schema_properties_exercised",
+        }
+        if (
+            not isinstance(schema_facts, dict)
+            or set(schema_facts) != expected_facts
+            or not all(schema_facts.values())
+        ):
+            raise SurfaceError(
+                "NotificationProductionCoverageFixtureIndexMismatch: "
+                f"{compact_key} lacks complete supported schema facts"
+            )
+
+        property_mappings: list[dict[str, Any]] = []
+        declared_opaque: list[dict[str, Any]] = []
+        for original_path in coverage.get("property_schema_paths", []):
+            if not isinstance(original_path, str):
+                raise SurfaceError(
+                    "NotificationProductionCoverageTypeClosureMismatch: "
+                    f"{compact_key} has a non-string schema path"
+                )
+            if original_path.startswith("#/oneOf/") and original_path.endswith(
+                ("/properties/method", "/properties/params")
+            ):
+                continue
+            path = normalize_schema_path(original_path)
+            mapping = closure_paths.get(path)
+            opaque = opaque_paths.get(path)
+            if mapping is None and opaque is None:
+                raise SurfaceError(
+                    "NotificationProductionCoverageKnownFieldDropped: "
+                    f"{compact_key} has no public/private mapping for {path}"
+                )
+            if mapping is not None:
+                property_mappings.append(
+                    {
+                        "schema_path": path,
+                        "cpp_mapping": mapping["cpp_mapping"],
+                        "presence_model": mapping.get("presence_model"),
+                        "directionality": mapping.get("directionality"),
+                    }
+                )
+            else:
+                declared_opaque.append(
+                    {
+                        "schema_path": path,
+                        "reason": opaque["reason"],
+                    }
+                )
+
+        notification_fixture_ids: dict[str, list[str]] = {}
+        for role, field in role_fields.items():
+            raw_ids = plan.get(field)
+            ids = [raw_ids] if role == "base" else raw_ids
+            if not isinstance(ids, list) or not all(
+                isinstance(fixture_id, str) for fixture_id in ids
+            ):
+                raise SurfaceError(
+                    "NotificationProductionCoverageFixtureIndexMismatch: "
+                    f"{compact_key} has invalid {field}"
+                )
+            notification_fixture_ids[role] = list(ids)
+            role_counts[role] += len(ids)
+            for fixture_id in ids:
+                if fixture_id in seen_record_ids:
+                    raise SurfaceError(
+                        "NotificationProductionCoverageDuplicateRecord: "
+                        f"duplicate selected fixture {fixture_id}"
+                    )
+                fixture = fixtures_by_id.get(fixture_id)
+                if fixture is None:
+                    raise SurfaceError(
+                        "NotificationProductionCoverageMissingRecord: "
+                        f"missing indexed fixture {fixture_id}"
+                    )
+                seen_record_ids.add(fixture_id)
+                envelope_rejected = fixture_id.endswith(
+                    (":missing-required:method", ":wrong-type:method")
+                )
+                if role in {
+                    "base",
+                    "optional_omitted",
+                    "nullable_null",
+                    "required_nullable_null",
+                }:
+                    expected_codes = ["Decoded"]
+                elif envelope_rejected:
+                    expected_codes = ["ProtocolEnvelopeRejected"]
+                elif is_recoverable_nested_malformed(key, fixture_id):
+                    expected_codes = [
+                        "Decoded",
+                        "MalformedKnownPayload",
+                        "ProtocolWarning",
+                    ]
+                else:
+                    expected_codes = [
+                        "MalformedKnownPayload",
+                        "ProtocolWarning",
+                    ]
+                records.append(
+                    {
+                        "id": fixture_id,
+                        "surface_key": _canonical_surface_key_object(key),
+                        "runtime_target": SERVER_NOTIFICATION_CODECS[key][0],
+                        "role": role,
+                        "file": fixture["file"],
+                        "file_sha256": fixture["file_sha256"],
+                        "expected_intrinsic_codes": expected_codes,
+                    }
+                )
+
+        notifications.append(
+            {
+                "surface_key": _canonical_surface_key_object(key),
+                "runtime_target": SERVER_NOTIFICATION_CODECS[key][0],
+                "payload_type_identity": SERVER_NOTIFICATION_CODECS[key][1],
+                "event_alternative": SERVER_NOTIFICATION_EVENT_ALTERNATIVES_BY_METHOD[
+                    key[3]
+                ],
+                "a1_1_conversation_domain": True,
+                "directions_exercised": ["Decode"],
+                "base_fixture_id": plan["base_fixture_id"],
+                "fixture_ids_by_role": notification_fixture_ids,
+                "represented_property_mappings": sorted(
+                    property_mappings, key=lambda record: record["schema_path"]
+                ),
+                "protocol_defined_opaque_json": sorted(
+                    declared_opaque, key=lambda record: record["schema_path"]
+                ),
+                "required_reachable_fixture_ids": coverage.get(
+                    "required_reachable_fixture_ids", []
+                ),
+                "schema_fixture_facts": schema_facts,
+                "runtime_decoder_matches_registry": True,
+                "no_known_schema_fields_dropped": True,
+            }
+        )
+
+    if role_counts != expected_role_counts or len(records) != 798:
+        raise SurfaceError(
+            "NotificationProductionCoverageRoleMismatch: "
+            f"expected exact roles {expected_role_counts}, got {role_counts}"
+        )
+
+    enum_owner_methods = {
+        "ModeKind": "thread/settings/updated",
+        "RealtimeConversationVersion": "thread/realtime/started",
+        "TurnPlanStepStatus": "turn/plan/updated",
+    }
+    enum_records: list[dict[str, Any]] = []
+    open_enums = negative_coverage.get("open_string_enums")
+    if not isinstance(open_enums, dict) or set(open_enums) != set(
+        enum_owner_methods
+    ):
+        raise SurfaceError(
+            "NotificationProductionCoverageOpenEnumMismatch: "
+            "expected exact ModeKind/RealtimeConversationVersion/TurnPlanStepStatus coverage"
+        )
+    for family, owner_method in sorted(enum_owner_methods.items()):
+        enum = open_enums[family]
+        owner_key = next(
+            key for key in expected_keys if key[3] == owner_method
+        )
+        ids_and_codes = [
+            *[
+                (fixture_id, ["Decoded"])
+                for fixture_id in enum["known_value_fixture_ids"]
+            ],
+            (
+                enum["future_value_fixture_id"],
+                ["Decoded", "UnknownEnumValue", "ForwardCompatibility"],
+            ),
+            (
+                enum["empty_value_fixture_id"],
+                ["Decoded", "UnknownEnumValue", "ForwardCompatibility"],
+            ),
+        ]
+        for fixture_id, expected_codes in ids_and_codes:
+            fixture = fixtures_by_id.get(fixture_id)
+            if fixture is None:
+                raise SurfaceError(
+                    "NotificationProductionCoverageMissingRecord: "
+                    f"missing open-enum fixture {fixture_id}"
+                )
+            enum_records.append(
+                {
+                    "id": fixture_id,
+                    "family": family,
+                    "owner_surface_key": _canonical_surface_key_object(
+                        owner_key
+                    ),
+                    "runtime_target": SERVER_NOTIFICATION_CODECS[owner_key][
+                        0
+                    ],
+                    "file": fixture["file"],
+                    "file_sha256": fixture["file_sha256"],
+                    "expected_intrinsic_codes": expected_codes,
+                }
+            )
+    if len(enum_records) != 13:
+        raise SurfaceError(
+            "NotificationProductionCoverageOpenEnumMismatch: "
+            "expected exactly 7 known and 6 future/empty enum records"
+        )
+
+    source_records: list[dict[str, Any]] = []
+    for relative in NOTIFICATION_PRODUCTION_COVERAGE_SOURCES:
+        path = repo_root / relative
+        try:
+            data = path.read_bytes()
+        except OSError as error:
+            raise SurfaceError(
+                "NotificationProductionCoverageSourceMissing: "
+                f"unable to read {relative}: {error}"
+            ) from error
+        source_records.append(
+            {
+                "path": relative,
+                "bytes": len(data),
+                "sha256": sha256_bytes(data),
+            }
+        )
+    try:
+        index_data = fixture_index_path.read_bytes()
+    except OSError as error:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            f"unable to read {fixture_index_path}: {error}"
+        ) from error
+    if load_json(fixture_index_path) != fixture_index:
+        raise SurfaceError(
+            "NotificationProductionCoverageFixtureIndexMismatch: "
+            "in-memory fixture index differs from the pinned index path"
+        )
+
+    opaque_records = [
+        record
+        for record in negative_coverage.get("payload_mutations", {}).get(
+            "opaque_exclusions", []
+        )
+        if isinstance(record, dict)
+    ]
+    if {
+        normalize_schema_path(record["schema_path"])
+        for record in opaque_records
+    } != expected_notification_opaque_paths:
+        raise SurfaceError(
+            "NotificationProductionCoverageOpaqueMismatch: "
+            "expected the exact two protocol-defined opaque paths"
+        )
+
+    return {
+        "format_version": 1,
+        "codex_version": CODEX_VERSION,
+        "generated_notice": (
+            "Generated by tools/codex/app_server_surface.py "
+            "notification-production-coverage; do not edit."
+        ),
+        "authority_note": (
+            "This checked fixture/type/production association is consumed by "
+            "the notification corpus test and canonical registry generator; "
+            "it is not a second runtime disposition or dispatch registry."
+        ),
+        "fixture_index": {
+            "path": fixture_index_path.relative_to(repo_root).as_posix(),
+            "bytes": len(index_data),
+            "sha256": sha256_bytes(index_data),
+        },
+        "registered_tests": [
+            {
+                "ctest_name": "CodexA11NotificationCodecTest",
+                "source": "tests/component/codex/CodexA11NotificationCodecTest.cpp",
+            }
+        ],
+        "source_records": source_records,
+        "counts": {
+            "a1_1_server_notifications": 37,
+            "descriptor_rows": 39,
+            "residual_partial_descriptor_rows": 2,
+            "fixture_records": 798,
+            "positive_records": 161,
+            "negative_records": 637,
+            "roles": expected_role_counts,
+            "open_enum_records": 13,
+            "open_enum_known_records": 7,
+            "open_enum_unknown_records": 6,
+            "protocol_defined_opaque_paths": 2,
+        },
+        "notifications": notifications,
+        "records": sorted(records, key=lambda record: record["id"]),
+        "open_enum_records": sorted(
+            enum_records, key=lambda record: record["id"]
+        ),
+        "protocol_defined_opaque_json": sorted(
+            opaque_records, key=lambda record: record["schema_path"]
+        ),
+    }
+
+
+def validate_notification_production_coverage(
+    document: dict[str, Any],
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any] | None = None,
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    if not isinstance(document, dict):
+        raise SurfaceError(
+            "NotificationProductionCoverageMissing: evidence is not an object"
+        )
+    fixture_index = (
+        fixture_index
+        if fixture_index is not None
+        else load_json(fixture_index_path)
+    )
+    expected = generate_notification_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        repo_root,
+        fixture_index_path,
+    )
+    records = document.get("records")
+    if not isinstance(records, list):
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingRecord: records are absent"
+        )
+    ids = [
+        record.get("id") for record in records if isinstance(record, dict)
+    ]
+    if len(ids) != len(set(ids)):
+        raise SurfaceError(
+            "NotificationProductionCoverageDuplicateRecord: duplicate record id"
+        )
+    expected_records = {record["id"]: record for record in expected["records"]}
+    actual_records = {
+        record["id"]: record
+        for record in records
+        if isinstance(record, dict) and isinstance(record.get("id"), str)
+    }
+    missing = sorted(set(expected_records) - set(actual_records))
+    if missing:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingRecord: "
+            f"missing {missing[0]}"
+        )
+    stale = sorted(set(actual_records) - set(expected_records))
+    if stale:
+        raise SurfaceError(
+            "NotificationProductionCoverageStaleRecord: "
+            f"unexpected {stale[0]}"
+        )
+    for fixture_id, expected_record in expected_records.items():
+        actual = actual_records[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "NotificationProductionCoverageTargetMismatch: "
+                f"{fixture_id} has the wrong target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "NotificationProductionCoverageOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+
+    notifications = document.get("notifications")
+    if not isinstance(notifications, list) or len(notifications) != 37:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingNotification: "
+            "expected exactly 37 notification rows"
+        )
+    result: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    for notification in notifications:
+        key = surface_key(notification["surface_key"])
+        if key in result:
+            raise SurfaceError(
+                "NotificationProductionCoverageDuplicateNotification: "
+                f"duplicate {key}"
+            )
+        result[key] = notification
+    if set(result) != {
+        surface_key(record["surface_key"])
+        for record in expected["notifications"]
+    }:
+        raise SurfaceError(
+            "NotificationProductionCoverageMissingNotification: "
+            "notification identity set differs from generated evidence"
+        )
+    if document != expected:
+        raise SurfaceError(
+            "StaleNotificationProductionCoverage: checked evidence differs "
+            "from the indexed corpus, type closure, and hashed production/test sources"
+        )
+    return result
+
+
+def validate_operation_production_coverage(
+    document: dict[str, Any],
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+    fixture_index: dict[str, Any] | None = None,
+    repo_root: Path = DEFAULT_REPO_ROOT,
+    fixture_index_path: Path = DEFAULT_A1_FIXTURE_INDEX,
+) -> dict[tuple[str, str, str, str], dict[str, Any]]:
+    if not isinstance(document, dict):
+        raise SurfaceError(
+            "OperationProductionCoverageMissing: evidence is not an object"
+        )
+    fixture_index = (
+        fixture_index
+        if fixture_index is not None
+        else load_json(fixture_index_path)
+    )
+    expected = generate_operation_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        repo_root,
+        fixture_index_path,
+    )
+    records = document.get("records")
+    if not isinstance(records, list):
+        raise SurfaceError(
+            "OperationProductionCoverageMissingRecord: records are absent"
+        )
+    ids = [record.get("id") for record in records if isinstance(record, dict)]
+    if len(ids) != len(set(ids)):
+        raise SurfaceError(
+            "OperationProductionCoverageDuplicateRecord: duplicate record id"
+        )
+    expected_by_id = {
+        record["id"]: record for record in expected["records"]
+    }
+    actual_by_id = {
+        record["id"]: record
+        for record in records
+        if isinstance(record, dict) and isinstance(record.get("id"), str)
+    }
+    missing = sorted(set(expected_by_id) - set(actual_by_id))
+    if missing:
+        raise SurfaceError(
+            "OperationProductionCoverageMissingRecord: "
+            f"missing {missing[0]}"
+        )
+    stale = sorted(set(actual_by_id) - set(expected_by_id))
+    if stale:
+        raise SurfaceError(
+            "OperationProductionCoverageStaleRecord: "
+            f"unexpected {stale[0]}"
+        )
+    for fixture_id, expected_record in expected_by_id.items():
+        actual = actual_by_id[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "OperationProductionCoverageTargetMismatch: "
+                f"{fixture_id} has the wrong production target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "OperationProductionCoverageOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+    operations = document.get("operations")
+    if not isinstance(operations, list) or len(operations) != 22:
+        raise SurfaceError(
+            "OperationProductionCoverageMissingOperation: "
+            "expected exactly 22 operation rows"
+        )
+    operation_result: dict[
+        tuple[str, str, str, str], dict[str, Any]
+    ] = {}
+    for operation in operations:
+        key = surface_key(operation["surface_key"])
+        if key in operation_result:
+            raise SurfaceError(
+                "OperationProductionCoverageDuplicateOperation: "
+                f"duplicate {key}"
+            )
+        operation_result[key] = operation
+
+    expected_conversation_records = {
+        record["id"]: record
+        for record in expected["b4_conversation_records"]
+    }
+    conversation_records = document.get("b4_conversation_records")
+    if not isinstance(conversation_records, list):
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingRecord: "
+            "B4 conversation records are absent"
+        )
+    conversation_ids = [
+        record.get("id")
+        for record in conversation_records
+        if isinstance(record, dict)
+    ]
+    if len(conversation_ids) != len(set(conversation_ids)):
+        raise SurfaceError(
+            "ConversationProductionCoverageDuplicateRecord: "
+            "duplicate B4 conversation record id"
+        )
+    actual_conversation_records = {
+        record["id"]: record
+        for record in conversation_records
+        if isinstance(record, dict)
+        and isinstance(record.get("id"), str)
+    }
+    missing_conversation = sorted(
+        set(expected_conversation_records)
+        - set(actual_conversation_records)
+    )
+    if missing_conversation:
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingRecord: "
+            f"missing {missing_conversation[0]}"
+        )
+    stale_conversation = sorted(
+        set(actual_conversation_records)
+        - set(expected_conversation_records)
+    )
+    if stale_conversation:
+        raise SurfaceError(
+            "ConversationProductionCoverageStaleRecord: "
+            f"unexpected {stale_conversation[0]}"
+        )
+    for fixture_id, expected_record in expected_conversation_records.items():
+        actual = actual_conversation_records[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "ConversationProductionCoverageTargetMismatch: "
+                f"{fixture_id} has the wrong production target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "ConversationProductionCoverageOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+
+    expected_open_records = {
+        record["id"]: record
+        for record in expected["b4_thread_active_flag_records"]
+    }
+    open_records = document.get("b4_thread_active_flag_records")
+    if not isinstance(open_records, list):
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingRecord: "
+            "ThreadActiveFlag records are absent"
+        )
+    open_ids = [
+        record.get("id")
+        for record in open_records
+        if isinstance(record, dict)
+    ]
+    if len(open_ids) != len(set(open_ids)):
+        raise SurfaceError(
+            "ConversationProductionCoverageDuplicateRecord: "
+            "duplicate ThreadActiveFlag record id"
+        )
+    actual_open_records = {
+        record["id"]: record
+        for record in open_records
+        if isinstance(record, dict)
+        and isinstance(record.get("id"), str)
+    }
+    missing_open = sorted(set(expected_open_records) - set(actual_open_records))
+    if missing_open:
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingRecord: "
+            f"missing {missing_open[0]}"
+        )
+    stale_open = sorted(set(actual_open_records) - set(expected_open_records))
+    if stale_open:
+        raise SurfaceError(
+            "ConversationProductionCoverageStaleRecord: "
+            f"unexpected {stale_open[0]}"
+        )
+    for fixture_id, expected_record in expected_open_records.items():
+        actual = actual_open_records[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "ConversationProductionCoverageTargetMismatch: "
+                f"{fixture_id} has the wrong production target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "ConversationProductionCoverageOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+
+    conversation_unions = document.get("b4_conversation_unions")
+    if (
+        not isinstance(conversation_unions, list)
+        or len(conversation_unions) != 16
+    ):
+        raise SurfaceError(
+            "ConversationProductionCoverageMissingUnion: "
+            "expected exactly 16 B4 conversation-union rows"
+        )
+    conversation_result: dict[
+        tuple[str, str, str, str], dict[str, Any]
+    ] = {}
+    for union in conversation_unions:
+        key = surface_key(union["surface_key"])
+        if key in conversation_result:
+            raise SurfaceError(
+                "ConversationProductionCoverageDuplicateUnion: "
+                f"duplicate {key}"
+            )
+        conversation_result[key] = union
+
+    expected_aggregate_value_records = {
+        record["id"]: record
+        for record in expected["operation_aggregate_value_records"]
+    }
+    aggregate_value_records = document.get(
+        "operation_aggregate_value_records"
+    )
+    if not isinstance(aggregate_value_records, list):
+        raise SurfaceError(
+            "OperationProductionCoverageMissingAggregateValue: "
+            "operation aggregate/value records are absent"
+        )
+    aggregate_value_ids = [
+        record.get("id")
+        for record in aggregate_value_records
+        if isinstance(record, dict)
+    ]
+    if len(aggregate_value_ids) != len(set(aggregate_value_ids)):
+        raise SurfaceError(
+            "OperationProductionCoverageDuplicateAggregateValue: "
+            "duplicate operation aggregate/value record id"
+        )
+    actual_aggregate_value_records = {
+        record["id"]: record
+        for record in aggregate_value_records
+        if isinstance(record, dict)
+        and isinstance(record.get("id"), str)
+    }
+    missing_aggregate_values = sorted(
+        set(expected_aggregate_value_records)
+        - set(actual_aggregate_value_records)
+    )
+    if missing_aggregate_values:
+        raise SurfaceError(
+            "OperationProductionCoverageMissingAggregateValue: "
+            f"missing {missing_aggregate_values[0]}"
+        )
+    stale_aggregate_values = sorted(
+        set(actual_aggregate_value_records)
+        - set(expected_aggregate_value_records)
+    )
+    if stale_aggregate_values:
+        raise SurfaceError(
+            "OperationProductionCoverageStaleAggregateValue: "
+            f"unexpected {stale_aggregate_values[0]}"
+        )
+    for fixture_id, expected_record in expected_aggregate_value_records.items():
+        actual = actual_aggregate_value_records[fixture_id]
+        if actual.get("runtime_target") != expected_record["runtime_target"]:
+            raise SurfaceError(
+                "OperationProductionCoverageAggregateValueTargetMismatch: "
+                f"{fixture_id} has the wrong production target"
+            )
+        if actual.get("expected_intrinsic_codes") != expected_record[
+            "expected_intrinsic_codes"
+        ]:
+            raise SurfaceError(
+                "OperationProductionCoverageAggregateValueOutcomeMismatch: "
+                f"{fixture_id} falsely claims a production outcome"
+            )
+
+    if document != expected:
+        raise SurfaceError(
+            "StaleOperationProductionCoverage: checked evidence differs "
+            "from the indexed corpus and hashed production/test sources"
+        )
+    return {
+        "operations": operation_result,
+        "b4_conversation_unions": conversation_result,
+    }
+
+
+def generate_item_codec_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    domain: str,
+    target_prefix: str,
+    macro: str,
+    expected_count: int,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate one direction-specific item target family from exact registry keys."""
+
+    evidence = evidence if evidence is not None else load_a1_registry_evidence()
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if key[0] == "item_discriminator"
+        and key[1] == domain
+        and assignment.get("slice") == "A1.1"
+        and assignment.get("classification") == "StableItemRoot"
+        and assignment.get("stability") == "stable"
+    }
+    targets = {
+        key: target
+        for key, target in RUNTIME_TARGETS.items()
+        if key[0] == "item_discriminator" and key[1] == domain
+    }
+    if (
+        set(targets) != expected_keys
+        or len(targets) != expected_count
+        or any(not target.startswith(target_prefix + "::") for target in targets.values())
+        or len(set(targets.values())) != expected_count
+    ):
+        raise SurfaceError(
+            "ItemCodecDescriptorAssignmentMismatch: "
+            f"{domain} must map exactly {expected_count} stable A1.1 item identities "
+            f"to unique {target_prefix} targets"
+        )
+
+    manifest_entries = {
+        surface_key(entry): entry for entry in manifest.get("entries", [])
+    }
+    lines = [
+        "// Generated by tools/codex/app_server_surface.py item-descriptors; do not edit.",
+        "// Exact keys remain subordinate to ProtocolSurfaceRegistryData.inc.",
+        "// Item shape and direction are private codec metadata, not production dispositions.",
+    ]
+    for key in sorted(expected_keys):
+        entry = manifest_entries.get(key)
+        if entry is None or entry.get("stability") != "stable":
+            raise SurfaceError(
+                "ItemCodecDescriptorAssignmentMismatch: "
+                f"missing stable manifest row for {key}"
+            )
+        branch = _conversation_union_schema_branch(entry, schema_root)
+        _validate_conversation_union_descriptor_shape(
+            entry, branch, "ConversationUnionCodecShape::InternallyTaggedObject"
+        )
+        arguments = (
+            CPP_CATEGORIES[key[0]],
+            cpp_string(key[1]),
+            cpp_string(key[2]),
+            cpp_string(key[3]),
+            targets[key],
+            "ConversationUnionCodecShape::InternallyTaggedObject",
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        lines.append(f"{macro}(" + ", ".join(arguments) + ")")
     return "\n".join(lines) + "\n"
 
 
@@ -4509,6 +7978,214 @@ def command_registry(arguments: argparse.Namespace) -> None:
         arguments.output.write_text(generated, encoding="utf-8")
 
 
+def command_conversation_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_conversation_union_descriptor_data(
+        manifest, arguments.schema_root, evidence
+    )
+    write_or_check_conversation_union_descriptors(
+        arguments.output, generated, arguments.check
+    )
+
+
+def command_operation_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_client_operation_descriptor_data(manifest, evidence)
+    write_or_check_client_operation_descriptors(
+        arguments.output, generated, arguments.check
+    )
+
+
+def command_notification_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = generate_server_notification_descriptor_data(manifest, evidence)
+    write_or_check_server_notification_descriptors(
+        arguments.output, generated, arguments.check
+    )
+
+
+def command_operation_production_coverage(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(
+        arguments.evidence_root,
+        require_operation_production_coverage=False,
+        require_notification_production_coverage=False,
+    )
+    fixture_index = load_json(arguments.fixture_index)
+    generated = generate_operation_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        arguments.repo_root,
+        arguments.fixture_index,
+    )
+    if arguments.check:
+        committed = load_json(arguments.output)
+        validate_operation_production_coverage(
+            committed,
+            manifest,
+            evidence,
+            fixture_index,
+            arguments.repo_root,
+            arguments.fixture_index,
+        )
+    else:
+        write_json(arguments.output, generated)
+
+
+def command_notification_production_coverage(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(
+        arguments.evidence_root,
+        require_operation_production_coverage=False,
+        require_notification_production_coverage=False,
+    )
+    fixture_index = load_json(arguments.fixture_index)
+    generated = generate_notification_production_coverage(
+        manifest,
+        evidence,
+        fixture_index,
+        arguments.repo_root,
+        arguments.fixture_index,
+    )
+    if arguments.check:
+        committed = load_json(arguments.output)
+        validate_notification_production_coverage(
+            committed,
+            manifest,
+            evidence,
+            fixture_index,
+            arguments.repo_root,
+            arguments.fixture_index,
+        )
+    else:
+        write_json(arguments.output, generated)
+
+
+def write_or_check_client_operation_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedClientOperationDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedClientOperationDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
+def write_or_check_server_notification_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedServerNotificationDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedServerNotificationDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
+def write_or_check_conversation_union_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedConversationUnionDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedConversationUnionDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
+def command_item_descriptors(arguments: argparse.Namespace) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    outputs = (
+        (
+            arguments.thread_output,
+            generate_item_codec_descriptor_data(
+                manifest,
+                arguments.schema_root,
+                "ThreadItem",
+                "ItemDiscriminatorTarget",
+                "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+                18,
+                evidence,
+            ),
+        ),
+        (
+            arguments.response_output,
+            generate_item_codec_descriptor_data(
+                manifest,
+                arguments.schema_root,
+                "ResponseItem",
+                "ResponseItemTarget",
+                "CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR",
+                16,
+                evidence,
+            ),
+        ),
+    )
+    for output, generated in outputs:
+        write_or_check_item_codec_descriptors(output, generated, arguments.check)
+
+
+def write_or_check_item_codec_descriptors(
+    output: Path, generated: str, check: bool
+) -> None:
+    if check:
+        try:
+            committed = output.read_text(encoding="utf-8")
+        except OSError as error:
+            raise SurfaceError(
+                "StaleGeneratedItemCodecDescriptors: "
+                f"unable to read {output}: {error}"
+            ) from error
+        if generated != committed:
+            raise SurfaceError(
+                "StaleGeneratedItemCodecDescriptors: "
+                f"generated descriptor data differs from {output}"
+            )
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(generated, encoding="utf-8")
+
+
 def command_docs(arguments: argparse.Namespace) -> None:
     manifest = load_json(arguments.manifest)
     provenance = load_json(arguments.provenance)
@@ -4572,6 +8249,113 @@ def parser() -> argparse.ArgumentParser:
     registry.add_argument("--output", type=Path, required=True)
     registry.add_argument("--check", action="store_true")
     registry.set_defaults(function=command_registry)
+
+    conversation_descriptors = subparsers.add_parser(
+        "conversation-descriptors",
+        help="generate private A1.1 shared conversation-union codec descriptors",
+    )
+    conversation_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    conversation_descriptors.add_argument(
+        "--schema-root", type=Path, required=True
+    )
+    conversation_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    conversation_descriptors.add_argument("--output", type=Path, required=True)
+    conversation_descriptors.add_argument("--check", action="store_true")
+    conversation_descriptors.set_defaults(
+        function=command_conversation_descriptors
+    )
+
+    operation_descriptors = subparsers.add_parser(
+        "operation-descriptors",
+        help="generate private exact A1.1 client operation codec descriptors",
+    )
+    operation_descriptors.add_argument("--manifest", type=Path, required=True)
+    operation_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    operation_descriptors.add_argument("--output", type=Path, required=True)
+    operation_descriptors.add_argument("--check", action="store_true")
+    operation_descriptors.set_defaults(
+        function=command_operation_descriptors
+    )
+
+    notification_descriptors = subparsers.add_parser(
+        "notification-descriptors",
+        help="generate private exact typed server-notification codec descriptors",
+    )
+    notification_descriptors.add_argument("--manifest", type=Path, required=True)
+    notification_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    notification_descriptors.add_argument("--output", type=Path, required=True)
+    notification_descriptors.add_argument("--check", action="store_true")
+    notification_descriptors.set_defaults(
+        function=command_notification_descriptors
+    )
+
+    operation_coverage = subparsers.add_parser(
+        "operation-production-coverage",
+        help=(
+            "generate the checked A1.1 operation result corpus and "
+            "production-decoder coverage table"
+        ),
+    )
+    operation_coverage.add_argument("--manifest", type=Path, required=True)
+    operation_coverage.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    operation_coverage.add_argument(
+        "--fixture-index", type=Path, default=DEFAULT_A1_FIXTURE_INDEX
+    )
+    operation_coverage.add_argument(
+        "--repo-root", type=Path, default=DEFAULT_REPO_ROOT
+    )
+    operation_coverage.add_argument("--output", type=Path, required=True)
+    operation_coverage.add_argument("--check", action="store_true")
+    operation_coverage.set_defaults(
+        function=command_operation_production_coverage
+    )
+
+    notification_coverage = subparsers.add_parser(
+        "notification-production-coverage",
+        help=(
+            "generate the checked A1.1 server-notification fixture, type, "
+            "and production-decoder coverage table"
+        ),
+    )
+    notification_coverage.add_argument("--manifest", type=Path, required=True)
+    notification_coverage.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    notification_coverage.add_argument(
+        "--fixture-index", type=Path, default=DEFAULT_A1_FIXTURE_INDEX
+    )
+    notification_coverage.add_argument(
+        "--repo-root", type=Path, default=DEFAULT_REPO_ROOT
+    )
+    notification_coverage.add_argument("--output", type=Path, required=True)
+    notification_coverage.add_argument("--check", action="store_true")
+    notification_coverage.set_defaults(
+        function=command_notification_production_coverage
+    )
+
+    item_descriptors = subparsers.add_parser(
+        "item-descriptors",
+        help="generate private A1.1 ThreadItem and ResponseItem codec descriptors",
+    )
+    item_descriptors.add_argument("--manifest", type=Path, required=True)
+    item_descriptors.add_argument("--schema-root", type=Path, required=True)
+    item_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    item_descriptors.add_argument("--thread-output", type=Path, required=True)
+    item_descriptors.add_argument("--response-output", type=Path, required=True)
+    item_descriptors.add_argument("--check", action="store_true")
+    item_descriptors.set_defaults(function=command_item_descriptors)
 
     docs = subparsers.add_parser(
         "docs", help="generate coverage and owner security worksheet documents"

@@ -1,0 +1,13 @@
+{
+  "changes": [
+    {
+      "kind": {
+        "type": "add"
+      },
+      "path": "synthetic-e36b72c84d"
+    }
+  ],
+  "id": "synthetic-c7ef218134",
+  "status": "inProgress",
+  "type": "fileChange"
+}

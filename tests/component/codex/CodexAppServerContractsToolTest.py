@@ -400,6 +400,48 @@ def mutation_checks(
             "change the schema-authoritative client parameter identity",
         )
 
+        unit_mutation_schema = temporary / "unit-schema"
+        shutil.copytree(schema_root, unit_mutation_schema)
+        thread_archive_response_relative = (
+            Path("stable") / "v2" / "ThreadArchiveResponse.json"
+        )
+        thread_archive_response = (
+            unit_mutation_schema / thread_archive_response_relative
+        )
+        mutated_response = load_json(thread_archive_response)
+        if not isinstance(mutated_response, dict):
+            raise AssertionError("thread/archive Unit result schema is not an object")
+        mutated_response["properties"] = {"archived": {"type": "boolean"}}
+        write_json(thread_archive_response, mutated_response)
+        if (
+            tool.result_contract_kind(
+                unit_mutation_schema,
+                thread_archive_response_relative.as_posix(),
+            )
+            != "Concrete"
+        ):
+            raise AssertionError(
+                "a Unit result schema with a property did not become Concrete"
+            )
+        mutated_unit_methods = [
+            method
+            for method in tool.EXPECTED_UNIT_RESULT_METHODS
+            if method != "thread/archive"
+        ]
+        expected_unit_ratchet = (
+            "schema-derived Unit result identity set changed: "
+            f"expected {list(tool.EXPECTED_UNIT_RESULT_METHODS)}, "
+            f"got {mutated_unit_methods}"
+        )
+        expect_contract_error(
+            tool,
+            lambda: tool.build_contracts(
+                source_root, unit_mutation_schema, manifest_path
+            ),
+            expected_unit_ratchet,
+            "add a property to the thread/archive Unit result schema",
+        )
+
         copied_schema = temporary / "schema"
         shutil.copytree(schema_root, copied_schema)
         response = (

@@ -1,0 +1,19 @@
+{
+  "aggregatedOutput": "synthetic-6941f09d3a",
+  "command": "synthetic-043011e4b3",
+  "commandActions": [
+    {
+      "command": "synthetic-e58584e8c3",
+      "name": "synthetic-ec19991981",
+      "path": "synthetic-75177d933c"
+    }
+  ],
+  "cwd": "synthetic-f2afe5ff17",
+  "durationMs": 0,
+  "exitCode": 0,
+  "id": "synthetic-fb378c6b27",
+  "processId": "synthetic-83c40af612",
+  "source": "agent",
+  "status": "inProgress",
+  "type": "commandExecution"
+}

@@ -1,0 +1,11 @@
+{
+  "clientUserMessageId": "synthetic-e93fab63d2",
+  "expectedTurnId": "synthetic-3f6f42ff96",
+  "input": [
+    {
+      "text": "synthetic-796383c7b4",
+      "type": "text"
+    }
+  ],
+  "threadId": "synthetic-bd0d0f38fe"
+}

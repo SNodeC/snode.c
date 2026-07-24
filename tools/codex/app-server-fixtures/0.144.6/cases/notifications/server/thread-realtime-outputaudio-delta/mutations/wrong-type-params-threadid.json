@@ -1,0 +1,13 @@
+{
+  "method": "thread/realtime/outputAudio/delta",
+  "params": {
+    "audio": {
+      "data": "synthetic-2aa5c2112b",
+      "itemId": "synthetic-82fcc2ea21",
+      "numChannels": 0,
+      "sampleRate": 0,
+      "samplesPerChannel": 0
+    },
+    "threadId": null
+  }
+}

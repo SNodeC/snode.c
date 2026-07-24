@@ -75,10 +75,32 @@ namespace ai::openai::codex::backend {
                     return "command_execution";
                 } else if constexpr (std::is_same_v<Value, typed::FileChangeItem>) {
                     return "file_change";
+                } else if constexpr (std::is_same_v<Value, typed::DynamicToolCallThreadItem>) {
+                    return "tool_call";
                 } else if constexpr (std::is_same_v<Value, typed::ToolCallItem>) {
                     return "tool_call";
                 } else if constexpr (std::is_same_v<Value, typed::WebSearchItem>) {
                     return "web_search";
+                } else if constexpr (std::is_same_v<Value, typed::CollabAgentToolCallThreadItem>) {
+                    return "collabAgentToolCall";
+                } else if constexpr (std::is_same_v<Value, typed::ContextCompactionThreadItem>) {
+                    return "contextCompaction";
+                } else if constexpr (std::is_same_v<Value, typed::EnteredReviewModeThreadItem>) {
+                    return "enteredReviewMode";
+                } else if constexpr (std::is_same_v<Value, typed::ExitedReviewModeThreadItem>) {
+                    return "exitedReviewMode";
+                } else if constexpr (std::is_same_v<Value, typed::HookPromptThreadItem>) {
+                    return "hookPrompt";
+                } else if constexpr (std::is_same_v<Value, typed::ImageGenerationThreadItem>) {
+                    return "imageGeneration";
+                } else if constexpr (std::is_same_v<Value, typed::ImageViewThreadItem>) {
+                    return "imageView";
+                } else if constexpr (std::is_same_v<Value, typed::PlanThreadItem>) {
+                    return "plan";
+                } else if constexpr (std::is_same_v<Value, typed::SleepThreadItem>) {
+                    return "sleep";
+                } else if constexpr (std::is_same_v<Value, typed::SubAgentActivityThreadItem>) {
+                    return "subAgentActivity";
                 } else {
                     return value.type && !value.type->empty() ? *value.type : "unknown";
                 }

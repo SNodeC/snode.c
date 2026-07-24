@@ -1,0 +1,15 @@
+{
+  "content": [
+    {
+      "text": "synthetic-d0e990fbe3",
+      "type": "input_text"
+    }
+  ],
+  "id": "synthetic-7c1fc134e8",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "phase": false,
+  "role": "synthetic-9aa0202348",
+  "type": "message"
+}

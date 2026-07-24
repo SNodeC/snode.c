@@ -1,0 +1,9 @@
+{
+  "method": "item/reasoning/summaryTextDelta",
+  "params": {
+    "delta": "synthetic-8b3c4b0616",
+    "itemId": "synthetic-97138c88f3",
+    "summaryIndex": 0,
+    "turnId": "synthetic-b5da58df0b"
+  }
+}

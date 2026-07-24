@@ -1,0 +1,11 @@
+{
+  "subAgent": {
+    "thread_spawn": {
+      "agent_nickname": "synthetic-256f1f3091",
+      "agent_path": "synthetic-1ac8956cae",
+      "agent_role": "synthetic-c40f56687a",
+      "depth": null,
+      "parent_thread_id": "synthetic-51ed82670e"
+    }
+  }
+}

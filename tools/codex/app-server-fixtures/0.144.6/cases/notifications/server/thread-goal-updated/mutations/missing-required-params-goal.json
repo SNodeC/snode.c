@@ -1,0 +1,7 @@
+{
+  "method": "thread/goal/updated",
+  "params": {
+    "threadId": "synthetic-0d411f9685",
+    "turnId": "synthetic-400fb3d4e3"
+  }
+}

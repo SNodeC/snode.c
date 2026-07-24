@@ -52,6 +52,24 @@ def expect_surface_error(
     raise AssertionError(f"negative guard mutation did not fail: {description}")
 
 
+def expect_surface_error_code(
+    tool: ModuleType,
+    action: Callable[[], object],
+    expected_code: str,
+    description: str,
+) -> None:
+    try:
+        action()
+    except tool.SurfaceError as error:
+        actual_code = str(error).split(":", 1)[0]
+        if actual_code != expected_code:
+            raise AssertionError(
+                f"{description} emitted {actual_code}, expected {expected_code}"
+            ) from error
+        return
+    raise AssertionError(f"negative guard mutation did not fail: {description}")
+
+
 def independent_tree_records(root: Path) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     for path in sorted(candidate for candidate in root.rglob("*") if candidate.is_file()):
@@ -336,8 +354,579 @@ def test_extraction(
         )
 
 
+def test_operation_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_client_operation_descriptor_data(
+        manifest, evidence
+    )
+    if generated != tool.generate_client_operation_descriptor_data(
+        manifest, evidence
+    ):
+        raise AssertionError(
+            "client-operation descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private client-operation descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
+    ]
+    if len(rows) != 22:
+        raise AssertionError(
+            "client-operation descriptor must contain exactly 22 rows"
+        )
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (ClientRequestTarget::[A-Za-z0-9_]+), ", line
+            )
+        )
+    }
+    if len(targets) != 22:
+        raise AssertionError(
+            "client-operation descriptor targets are not an exact bijection"
+        )
+    if any(
+        re.search(
+            r", (ClientRequestTarget::[A-Za-z0-9_]+), \"\1\", ",
+            line,
+        )
+        is None
+        for line in rows
+    ):
+        raise AssertionError(
+            "client-operation descriptor target identities are not exact"
+        )
+    if (
+        sum(
+            "ResultContractKind::Unit, "
+            "ClientOperationResultDecoder::Unit)" in line
+            for line in rows
+        )
+        != 7
+        or sum(
+            "ResultContractKind::Concrete, "
+            "ClientOperationResultDecoder::" in line
+            for line in rows
+        )
+        != 15
+    ):
+        raise AssertionError(
+            "client-operation descriptor result-kind split changed"
+        )
+    for line in rows:
+        binding = re.search(
+            r', "[^"]+", "([^"]+)", ResultContractKind::[A-Za-z]+, '
+            r"ClientOperationResultDecoder::([A-Za-z0-9_]+)\)$",
+            line,
+        )
+        if binding is None or binding.group(1) != binding.group(2):
+            raise AssertionError(
+                "client-operation descriptor result type/decoder binding changed"
+            )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "thread/archive",
+        )
+    )
+    assignment["classification"] = "SharedWithinSlice"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ClientOperationDescriptorAssignmentMismatch",
+        "remove one exact B4 client-request assignment",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "thread/archive",
+        )
+    )
+    contract["result_contract_kind"] = "Concrete"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change one reviewed Unit result contract",
+    )
+
+    original_targets = dict(tool.RUNTIME_TARGETS)
+    try:
+        archive = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "thread/archive",
+        )
+        compact = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "thread/compact/start",
+        )
+        tool.RUNTIME_TARGETS[compact] = tool.RUNTIME_TARGETS[archive]
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_client_operation_descriptor_data(
+                manifest, evidence
+            ),
+            "ClientOperationDescriptorAssignmentMismatch",
+            "duplicate one client-operation runtime target",
+        )
+    finally:
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-operation-descriptors-"
+    ) as raw:
+        stale = Path(raw) / "ClientOperationCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_client_operation_descriptors(
+                stale, generated, True
+            ),
+            "StaleGeneratedClientOperationDescriptors",
+            "change the checked-in operation descriptor artifact",
+        )
+
+
+def test_notification_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_server_notification_descriptor_data(
+        manifest, evidence
+    )
+    if generated != tool.generate_server_notification_descriptor_data(
+        manifest, evidence
+    ):
+        raise AssertionError(
+            "server-notification descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private server-notification descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith("CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(")
+    ]
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (ServerNotificationTarget::[A-Za-z0-9_]+), ", line
+            )
+        )
+    }
+    if len(rows) != 39 or len(targets) != 39:
+        raise AssertionError(
+            "server-notification descriptors are not an exact 39-row target bijection"
+        )
+    if (
+        sum(line.endswith(", true)") for line in rows) != 37
+        or sum(line.endswith(", false)") for line in rows) != 2
+        or not any('"error"' in line and line.endswith(", false)") for line in rows)
+        or not any(
+            '"model/rerouted"' in line and line.endswith(", false)")
+            for line in rows
+        )
+    ):
+        raise AssertionError(
+            "server-notification descriptors lost the exact 37 A1.1 / two residual split"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "thread/archived",
+        )
+    )
+    assignment["slice"] = "A1.2"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move one notification descriptor out of the exact A1.1 slice",
+    )
+
+    original_codecs = dict(tool.SERVER_NOTIFICATION_CODECS)
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.SERVER_NOTIFICATION_CODECS[keys[1]] = (first[0], second[1])
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_server_notification_descriptor_data(
+                manifest, evidence
+            ),
+            "ServerNotificationDescriptorAssignmentMismatch",
+            "duplicate one server-notification descriptor target",
+        )
+    finally:
+        tool.SERVER_NOTIFICATION_CODECS.clear()
+        tool.SERVER_NOTIFICATION_CODECS.update(original_codecs)
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-notification-descriptors-"
+    ) as raw:
+        stale = Path(raw) / "ServerNotificationCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_server_notification_descriptors(
+                stale, generated, True
+            ),
+            "StaleGeneratedServerNotificationDescriptors",
+            "change the checked-in server-notification descriptor artifact",
+        )
+
+
+def test_conversation_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_conversation_union_descriptor_data(
+        manifest, schema_root, evidence
+    )
+    if generated != tool.generate_conversation_union_descriptor_data(
+        manifest, schema_root, evidence
+    ):
+        raise AssertionError("conversation-union descriptor generation is not deterministic")
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private conversation-union descriptor data is stale"
+        )
+    if (
+        len(tool.CONVERSATION_UNION_CODECS) != 58
+        or len(
+            {
+                metadata[0]
+                for metadata in tool.CONVERSATION_UNION_CODECS.values()
+            }
+        )
+        != 58
+    ):
+        raise AssertionError(
+            "conversation-union descriptor map is not an exact 58-key/58-target bijection"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row) in tool.CONVERSATION_UNION_CODECS
+    )
+    assignment["classification"] = "SharedWithinSlice"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_conversation_union_descriptor_data(
+            manifest, schema_root, wrong_assignment
+        ),
+        "ConversationUnionDescriptorAssignmentMismatch",
+        "remove one descriptor identity from the exact SharedCommon assignment set",
+    )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-conversation-descriptors-"
+    ) as raw:
+        temporary = Path(raw)
+        copied_schema_root = temporary / "schema"
+        stable = copied_schema_root / "stable"
+        stable.mkdir(parents=True)
+        aggregate_name = "codex_app_server_protocol.schemas.json"
+        aggregate = load_json(schema_root / "stable" / aggregate_name)
+        aggregate["definitions"]["v2"]["AskForApproval"]["oneOf"][1][
+            "type"
+        ] = "array"
+        write_json(stable / aggregate_name, aggregate)
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, copied_schema_root, evidence
+            ),
+            "ConversationUnionDescriptorSchemaMismatch",
+            "change a reviewed descriptor branch shape",
+        )
+
+        stale = temporary / "ConversationUnionCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_conversation_union_descriptors(
+                stale, generated, True
+            ),
+            "StaleGeneratedConversationUnionDescriptors",
+            "change the checked-in generated descriptor artifact",
+        )
+
+    original_codecs = dict(tool.CONVERSATION_UNION_CODECS)
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.CONVERSATION_UNION_CODECS[keys[1]] = (
+            first[0],
+            second[1],
+            second[2],
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, schema_root, evidence
+            ),
+            "DuplicateConversationUnionDescriptorTarget",
+            "duplicate one private descriptor runtime target",
+        )
+        tool.CONVERSATION_UNION_CODECS[keys[1]] = second
+        bidirectional_key = next(
+            key
+            for key, metadata in original_codecs.items()
+            if metadata[2]
+            == "ConversationUnionCodecDirection::Bidirectional"
+        )
+        bidirectional = original_codecs[bidirectional_key]
+        tool.CONVERSATION_UNION_CODECS[bidirectional_key] = (
+            bidirectional[0],
+            bidirectional[1],
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_conversation_union_descriptor_data(
+                manifest, schema_root, evidence
+            ),
+            "ConversationUnionDescriptorDirectionMismatch",
+            "change the reviewed codec-direction split",
+        )
+    finally:
+        tool.CONVERSATION_UNION_CODECS.clear()
+        tool.CONVERSATION_UNION_CODECS.update(original_codecs)
+
+
+def test_item_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_root: Path,
+) -> None:
+    families = (
+        (
+            "ThreadItem",
+            "ItemDiscriminatorTarget",
+            "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+            18,
+            descriptor_root / "ThreadItemCodecDescriptors.inc",
+        ),
+        (
+            "ResponseItem",
+            "ResponseItemTarget",
+            "CODEX_RESPONSE_ITEM_CODEC_DESCRIPTOR",
+            16,
+            descriptor_root / "ResponseItemCodecDescriptors.inc",
+        ),
+    )
+    generated_by_domain: dict[str, str] = {}
+    for domain, target_prefix, macro, count, path in families:
+        generated = tool.generate_item_codec_descriptor_data(
+            manifest,
+            schema_root,
+            domain,
+            target_prefix,
+            macro,
+            count,
+            evidence,
+        )
+        generated_by_domain[domain] = generated
+        if generated != tool.generate_item_codec_descriptor_data(
+            manifest,
+            schema_root,
+            domain,
+            target_prefix,
+            macro,
+            count,
+            evidence,
+        ):
+            raise AssertionError(
+                f"{domain} descriptor generation is not deterministic"
+            )
+        if generated != path.read_text(encoding="utf-8"):
+            raise AssertionError(
+                f"private {domain} descriptor data is stale"
+            )
+        descriptor_lines = [
+            line
+            for line in generated.splitlines()
+            if line.startswith(macro + "(")
+        ]
+        if len(descriptor_lines) != count:
+            raise AssertionError(
+                f"{domain} descriptor artifact does not contain exactly "
+                f"{count} generated rows"
+            )
+        targets = {
+            match.group(1)
+            for line in descriptor_lines
+            if (
+                match := re.search(
+                    rf", ({re.escape(target_prefix)}::[A-Za-z0-9_]+), "
+                    r"ConversationUnionCodecShape::",
+                    line,
+                )
+            )
+        }
+        if len(targets) != count:
+            raise AssertionError(
+                f"{domain} descriptor targets are not an exact bijection"
+            )
+
+        wrong_assignment = copy.deepcopy(evidence)
+        assignment = next(
+            row
+            for row in wrong_assignment["assignments"]["assignments"]
+            if tool.surface_key(row)[0:2]
+            == ("item_discriminator", domain)
+        )
+        assignment["classification"] = "SharedWithinSlice"
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_item_codec_descriptor_data(
+                manifest,
+                schema_root,
+                domain,
+                target_prefix,
+                macro,
+                count,
+                wrong_assignment,
+            ),
+            "ItemCodecDescriptorAssignmentMismatch",
+            f"remove one exact {domain} assignment",
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-item-descriptors-"
+    ) as raw:
+        temporary = Path(raw)
+        copied_schema_root = temporary / "schema"
+        stable = copied_schema_root / "stable"
+        stable.mkdir(parents=True)
+        aggregate_name = "codex_app_server_protocol.schemas.json"
+        source_aggregate = load_json(
+            schema_root / "stable" / aggregate_name
+        )
+        for domain, target_prefix, macro, count, _ in families:
+            aggregate = copy.deepcopy(source_aggregate)
+            aggregate["definitions"]["v2"][domain]["oneOf"][0][
+                "type"
+            ] = "array"
+            write_json(stable / aggregate_name, aggregate)
+            expect_surface_error_code(
+                tool,
+                lambda: tool.generate_item_codec_descriptor_data(
+                    manifest,
+                    copied_schema_root,
+                    domain,
+                    target_prefix,
+                    macro,
+                    count,
+                    evidence,
+                ),
+                "ConversationUnionDescriptorSchemaMismatch",
+                f"change one reviewed {domain} descriptor branch shape",
+            )
+
+        for domain, _, _, _, _ in families:
+            generated = generated_by_domain[domain]
+            stale = temporary / f"{domain}CodecDescriptors.inc"
+            stale.write_text(generated + " ", encoding="utf-8")
+            expect_surface_error_code(
+                tool,
+                lambda: tool.write_or_check_item_codec_descriptors(
+                    stale, generated, True
+                ),
+                "StaleGeneratedItemCodecDescriptors",
+                f"change the checked-in {domain} descriptor artifact",
+            )
+
+    original_targets = dict(tool.RUNTIME_TARGETS)
+    try:
+        thread_keys = sorted(
+            key
+            for key in tool.RUNTIME_TARGETS
+            if key[0:2] == ("item_discriminator", "ThreadItem")
+        )
+        tool.RUNTIME_TARGETS[thread_keys[1]] = tool.RUNTIME_TARGETS[
+            thread_keys[0]
+        ]
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_item_codec_descriptor_data(
+                manifest,
+                schema_root,
+                "ThreadItem",
+                "ItemDiscriminatorTarget",
+                "CODEX_THREAD_ITEM_CODEC_DESCRIPTOR",
+                18,
+                evidence,
+            ),
+            "ItemCodecDescriptorAssignmentMismatch",
+            "duplicate one private ThreadItem descriptor target",
+        )
+    finally:
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
+
+
 def test_generated_artifacts(
     tool: ModuleType,
+    schema_root: Path,
     manifest_path: Path,
     provenance_path: Path,
     registry_path: Path,
@@ -346,13 +935,256 @@ def test_generated_artifacts(
 ) -> None:
     manifest = load_json(manifest_path)
     provenance = load_json(provenance_path)
+    evidence = tool.load_a1_registry_evidence()
+    production_coverage = evidence["operation_production_coverage"]
+    fixture_index = load_json(
+        tool.DEFAULT_A1_FIXTURE_INDEX
+    )
+    generated_production_coverage = (
+        tool.generate_operation_production_coverage(
+            manifest,
+            {
+                key: value
+                for key, value in evidence.items()
+                if key != "operation_production_coverage"
+            },
+            fixture_index,
+        )
+    )
+    if generated_production_coverage != production_coverage:
+        raise AssertionError(
+            "checked operation production-coverage table is stale"
+        )
+    tool.validate_operation_production_coverage(
+        production_coverage, manifest, evidence, fixture_index
+    )
+
+    missing_record = copy.deepcopy(production_coverage)
+    missing_record["records"].pop()
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            missing_record, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageMissingRecord",
+        "remove one production-dispatched corpus record",
+    )
+
+    duplicate_record = copy.deepcopy(production_coverage)
+    duplicate_record["records"].append(
+        copy.deepcopy(duplicate_record["records"][0])
+    )
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            duplicate_record, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageDuplicateRecord",
+        "duplicate one production-dispatched corpus record",
+    )
+
+    wrong_target = copy.deepcopy(production_coverage)
+    wrong_target["records"][0]["runtime_target"] = (
+        "ClientRequestTarget::Count"
+    )
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            wrong_target, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageTargetMismatch",
+        "retarget one result fixture away from its canonical row",
+    )
+
+    false_promotion = copy.deepcopy(production_coverage)
+    negative = next(
+        record
+        for record in false_promotion["records"]
+        if record["role"] in {
+            "operation_missing_required",
+            "operation_wrong_type",
+        }
+    )
+    negative["expected_intrinsic_codes"] = ["Decoded"]
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            false_promotion, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageOutcomeMismatch",
+        "falsely promote a malformed-known result mutation",
+    )
+
+    missing_b4_union = copy.deepcopy(production_coverage)
+    missing_b4_union["b4_conversation_records"].pop()
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            missing_b4_union, manifest, evidence, fixture_index
+        ),
+        "ConversationProductionCoverageMissingRecord",
+        "remove one production-dispatched B4 union corpus record",
+    )
+
+    duplicate_b4_union = copy.deepcopy(production_coverage)
+    duplicate_b4_union["b4_conversation_records"].append(
+        copy.deepcopy(duplicate_b4_union["b4_conversation_records"][0])
+    )
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            duplicate_b4_union, manifest, evidence, fixture_index
+        ),
+        "ConversationProductionCoverageDuplicateRecord",
+        "duplicate one production-dispatched B4 union corpus record",
+    )
+
+    wrong_b4_target = copy.deepcopy(production_coverage)
+    wrong_b4_target["b4_conversation_records"][0]["runtime_target"] = (
+        "ConversationUnionTarget::Count"
+    )
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            wrong_b4_target, manifest, evidence, fixture_index
+        ),
+        "ConversationProductionCoverageTargetMismatch",
+        "retarget one B4 union fixture away from its canonical row",
+    )
+
+    false_b4_promotion = copy.deepcopy(production_coverage)
+    malformed_b4 = next(
+        record
+        for record in false_b4_promotion["b4_conversation_records"]
+        if record["role"].startswith("malformed_known_")
+    )
+    malformed_b4["expected_intrinsic_codes"] = ["Decoded"]
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            false_b4_promotion, manifest, evidence, fixture_index
+        ),
+        "ConversationProductionCoverageOutcomeMismatch",
+        "falsely promote a malformed-known B4 union mutation",
+    )
+
+    false_open_enum_outcome = copy.deepcopy(production_coverage)
+    future_flag = next(
+        record
+        for record in false_open_enum_outcome[
+            "b4_thread_active_flag_records"
+        ]
+        if record["role"] == "unknown_enum_value"
+    )
+    future_flag["expected_intrinsic_codes"] = ["Decoded"]
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            false_open_enum_outcome, manifest, evidence, fixture_index
+        ),
+        "ConversationProductionCoverageOutcomeMismatch",
+        "erase the exact UnknownEnumValue outcome from a future active flag",
+    )
+
+    missing_aggregate_value = copy.deepcopy(production_coverage)
+    missing_aggregate_value["operation_aggregate_value_records"].pop()
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            missing_aggregate_value, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageMissingAggregateValue",
+        "remove one production aggregate/value record",
+    )
+
+    duplicate_aggregate_value = copy.deepcopy(production_coverage)
+    duplicate_aggregate_value["operation_aggregate_value_records"].append(
+        copy.deepcopy(
+            duplicate_aggregate_value["operation_aggregate_value_records"][0]
+        )
+    )
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            duplicate_aggregate_value, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageDuplicateAggregateValue",
+        "duplicate one production aggregate/value record",
+    )
+
+    wrong_aggregate_target = copy.deepcopy(production_coverage)
+    wrong_aggregate_target["operation_aggregate_value_records"][0][
+        "runtime_target"
+    ] = "ClientRequestTarget::Count"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            wrong_aggregate_target, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageAggregateValueTargetMismatch",
+        "retarget one aggregate/value fixture away from its owner operation",
+    )
+
+    false_aggregate_outcome = copy.deepcopy(production_coverage)
+    false_aggregate_outcome["operation_aggregate_value_records"][0][
+        "expected_intrinsic_codes"
+    ] = ["FabricatedDiagnostic"]
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            false_aggregate_outcome, manifest, evidence, fixture_index
+        ),
+        "OperationProductionCoverageAggregateValueOutcomeMismatch",
+        "fabricate an aggregate/value production outcome",
+    )
+
+    stale_source = copy.deepcopy(production_coverage)
+    stale_source["source_records"][0]["sha256"] = "0" * 64
+    expect_surface_error_code(
+        tool,
+        lambda: tool.validate_operation_production_coverage(
+            stale_source, manifest, evidence, fixture_index
+        ),
+        "StaleOperationProductionCoverage",
+        "retain stale production source/test hashes",
+    )
+
+    test_operation_descriptor_guards(
+        tool,
+        manifest,
+        evidence,
+        registry_path.with_name(
+            "ClientOperationCodecDescriptors.inc"
+        ),
+    )
+    test_notification_descriptor_guards(
+        tool,
+        manifest,
+        evidence,
+        registry_path.with_name(
+            "ServerNotificationCodecDescriptors.inc"
+        ),
+    )
+    test_conversation_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.with_name("ConversationUnionCodecDescriptors.inc"),
+    )
+    test_item_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.parent,
+    )
     generated_registry = tool.generate_registry_data(manifest)
     if generated_registry != registry_path.read_text(encoding="utf-8"):
         raise AssertionError(
             "canonical production registry data is stale against local status mappings"
         )
     registry_entries = tool.parse_registry_data(registry_path)
-    evidence = tool.load_a1_registry_evidence()
     test_operation_association_guards(tool, manifest, evidence, registry_entries)
     test_assignment_reachability_guards(tool, manifest, evidence)
     test_evidence_authority_boundaries(tool, manifest, evidence)
@@ -1715,6 +2547,7 @@ def main() -> int:
     elif arguments.mode == "artifacts":
         test_generated_artifacts(
             tool,
+            arguments.schema_root,
             arguments.manifest,
             arguments.provenance,
             arguments.registry,

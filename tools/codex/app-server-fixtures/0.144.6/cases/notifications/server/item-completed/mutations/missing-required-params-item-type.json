@@ -1,0 +1,27 @@
+{
+  "method": "item/completed",
+  "params": {
+    "completedAtMs": 0,
+    "item": {
+      "clientId": "synthetic-89fdcae681",
+      "content": [
+        {
+          "text": "synthetic-796383c7b4",
+          "text_elements": [
+            {
+              "byteRange": {
+                "end": 0,
+                "start": 0
+              },
+              "placeholder": "synthetic-3cb304aacb"
+            }
+          ],
+          "type": "text"
+        }
+      ],
+      "id": "synthetic-1c287e4e0c"
+    },
+    "threadId": "synthetic-2885940ced",
+    "turnId": "synthetic-d3ac1b2800"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "method": "item/plan/delta",
+  "params": {
+    "delta": "synthetic-32d3a958a9",
+    "threadId": "synthetic-58e9424745",
+    "turnId": "synthetic-4f45482f06"
+  }
+}

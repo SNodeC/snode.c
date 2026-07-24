@@ -1,0 +1,16 @@
+{
+  "approvalPolicy": "untrusted",
+  "baseInstructions": "synthetic-7f79c0118e",
+  "config": {},
+  "cwd": "synthetic-5d9a348799",
+  "developerInstructions": "synthetic-d0ce5f0564",
+  "ephemeral": false,
+  "model": "synthetic-7ec171ea8d",
+  "modelProvider": "synthetic-fac534a664",
+  "personality": "none",
+  "sandbox": "read-only",
+  "serviceName": "synthetic-2c513307b8",
+  "serviceTier": "synthetic-df688533b9",
+  "sessionStartSource": "startup",
+  "threadSource": "synthetic-2db5dd3788"
+}

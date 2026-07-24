@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "component/codex/CodexA11B2TypedSurfaceBaseline.h"
 #include "component/codex/CodexErrorInfoTypedSurfaceBaseline.h"
 #include "component/codex/CodexTypedSurfaceBaseline.h"
 #include "support/TestResult.h"
@@ -42,7 +43,19 @@ namespace {
         bool deprecated;
     };
 
-    enum class TypedCoverageRatchetErrorCode { BaselineIdentityMissing, BaselineIdentityNotStable, BaselineIdentityNotImplemented };
+    enum class TypedCoverageRatchetErrorCode {
+        BaselineIdentityMissing,
+        BaselineIdentityNotStable,
+        BaselineIdentityNotImplemented,
+        B2IdentityWrongAssignment,
+        B2IdentityNotComplete,
+        B4IdentityMissing,
+        B4IdentityWrongAssignment,
+        B4IdentityNotComplete,
+        B5IdentityMissing,
+        B5IdentityWrongAssignment,
+        B5IdentityNotComplete
+    };
 
     struct TypedCoverageRatchetDiagnostic {
         TypedCoverageRatchetErrorCode code;
@@ -156,14 +169,14 @@ namespace {
 
     std::vector<TypedCoverageRatchetDiagnostic> typedCoverageRatchetErrors(std::span<const detail::ProtocolSurfaceEntry> registry) {
         std::vector<TypedCoverageRatchetDiagnostic> errors;
-        const auto validateIdentity = [&](const tests::component::codex::TypedSurfaceIdentity& baselineIdentity) {
+        const auto findIdentity = [&](const tests::component::codex::TypedSurfaceIdentity& baselineIdentity) {
             const auto iterator = std::find_if(registry.begin(), registry.end(), [&](const detail::ProtocolSurfaceEntry& entry) {
                 return entry.key.category == baselineIdentity.category && entry.key.domain == baselineIdentity.domain &&
                        entry.key.field == baselineIdentity.field && entry.key.name == baselineIdentity.name;
             });
             if (iterator == registry.end()) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityMissing, "locked stable typed identity is absent"});
-                return;
+                return registry.end();
             }
             if (iterator->stability != detail::Stability::Stable) {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotStable, "locked typed identity is no longer stable"});
@@ -173,13 +186,126 @@ namespace {
                 errors.push_back({TypedCoverageRatchetErrorCode::BaselineIdentityNotImplemented,
                                   "locked stable typed identity is no longer implemented"});
             }
+            return iterator;
         };
         for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity : tests::component::codex::TypedSurfaceBaseline) {
-            validateIdentity(baselineIdentity);
+            (void) findIdentity(baselineIdentity);
         }
         for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity :
              tests::component::codex::CodexErrorInfoTypedSurfaceBaseline) {
-            validateIdentity(baselineIdentity);
+            (void) findIdentity(baselineIdentity);
+        }
+        for (const tests::component::codex::TypedSurfaceIdentity& baselineIdentity :
+             tests::component::codex::CodexA11B2TypedSurfaceBaseline) {
+            const auto iterator = findIdentity(baselineIdentity);
+            if (iterator == registry.end()) {
+                continue;
+            }
+            if (iterator->a1Slice != detail::A1Slice::A1_1 || iterator->typedModule != "Common") {
+                errors.push_back({TypedCoverageRatchetErrorCode::B2IdentityWrongAssignment,
+                                  "locked A1.1 B2 identity is no longer assigned to A1.1/Common"});
+            }
+            if (iterator->typedSchemaStatus != detail::TypedSchemaStatus::Complete ||
+                detail::derivedTypedSchemaStatus(*iterator) != detail::TypedSchemaStatus::Complete) {
+                errors.push_back(
+                    {TypedCoverageRatchetErrorCode::B2IdentityNotComplete, "locked A1.1 B2 identity is not mechanically schema-complete"});
+            }
+        }
+        const auto checkB4 = [&](const detail::ProtocolSurfaceEntry& entry) {
+            if (entry.a1Slice != detail::A1Slice::A1_1 ||
+                entry.typedModule != "ThreadsTurnsSessions") {
+                errors.push_back(
+                    {TypedCoverageRatchetErrorCode::
+                         B4IdentityWrongAssignment,
+                     "locked A1.1 B4 identity is no longer assigned to "
+                     "A1.1/ThreadsTurnsSessions"});
+            }
+            if (
+                entry.typedSchemaStatus !=
+                    detail::TypedSchemaStatus::Complete ||
+                detail::derivedTypedSchemaStatus(entry) !=
+                    detail::TypedSchemaStatus::Complete) {
+                errors.push_back(
+                    {TypedCoverageRatchetErrorCode::
+                         B4IdentityNotComplete,
+                     "locked A1.1 B4 identity is not mechanically "
+                     "schema-complete"});
+            }
+        };
+        for (const auto& descriptor :
+             detail::clientOperationCodecDescriptors()) {
+            const auto iterator = std::find_if(
+                registry.begin(), registry.end(),
+                [&](const detail::ProtocolSurfaceEntry& entry) {
+                    return entry.key == descriptor.key;
+                });
+            if (iterator != registry.end()) {
+                checkB4(*iterator);
+            } else {
+                errors.push_back(
+                    {TypedCoverageRatchetErrorCode::B4IdentityMissing,
+                     "locked A1.1 B4 operation identity is absent"});
+            }
+        }
+        for (const auto& descriptor :
+             detail::conversationUnionCodecDescriptors()) {
+            if (
+                descriptor.key.domain == "SessionSource" ||
+                descriptor.key.domain == "SubAgentSource" ||
+                descriptor.key.domain == "ThreadStatus") {
+                const auto iterator = std::find_if(
+                    registry.begin(), registry.end(),
+                    [&](const detail::ProtocolSurfaceEntry& entry) {
+                        return entry.key == descriptor.key;
+                    });
+                if (iterator != registry.end()) {
+                    checkB4(*iterator);
+                } else {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::B4IdentityMissing,
+                         "locked A1.1 B4 nested-union identity is absent"});
+                }
+            }
+        }
+        const auto checkB5 =
+            [&](const detail::ServerNotificationCodecDescriptor& descriptor) {
+                if (!descriptor.a11ConversationDomain) {
+                    return;
+                }
+                const auto iterator = std::find_if(
+                    registry.begin(), registry.end(),
+                    [&](const detail::ProtocolSurfaceEntry& entry) {
+                        return entry.key == descriptor.key;
+                    });
+                if (iterator == registry.end()) {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::B5IdentityMissing,
+                         "locked A1.1 B5 server-notification identity is absent"});
+                    return;
+                }
+                if (
+                    iterator->a1Slice != detail::A1Slice::A1_1 ||
+                    iterator->typedModule != "ThreadsTurnsSessions") {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::
+                             B5IdentityWrongAssignment,
+                         "locked A1.1 B5 server-notification identity is no "
+                         "longer assigned to A1.1/ThreadsTurnsSessions"});
+                }
+                if (
+                    iterator->typedSchemaStatus !=
+                        detail::TypedSchemaStatus::Complete ||
+                    detail::derivedTypedSchemaStatus(*iterator) !=
+                        detail::TypedSchemaStatus::Complete) {
+                    errors.push_back(
+                        {TypedCoverageRatchetErrorCode::B5IdentityNotComplete,
+                         "locked A1.1 B5 server-notification identity is not "
+                         "mechanically schema-complete"});
+                }
+            };
+        for (const auto& descriptor :
+             detail::serverNotificationCodecDescriptors()) {
+            checkB5(descriptor);
         }
         return errors;
     }
@@ -208,6 +334,39 @@ namespace {
         }));
     }
 
+    struct SchemaStatusCounts {
+        std::size_t complete = 0;
+        std::size_t partial = 0;
+        std::size_t notImplemented = 0;
+        std::size_t notApplicable = 0;
+
+        bool operator==(const SchemaStatusCounts&) const = default;
+    };
+
+    SchemaStatusCounts schemaStatusCounts(std::span<const detail::ProtocolSurfaceEntry> entries, bool a11Only = false) {
+        SchemaStatusCounts counts;
+        for (const detail::ProtocolSurfaceEntry& entry : entries) {
+            if (a11Only && entry.a1Slice != detail::A1Slice::A1_1) {
+                continue;
+            }
+            switch (entry.typedSchemaStatus) {
+                case detail::TypedSchemaStatus::Complete:
+                    ++counts.complete;
+                    break;
+                case detail::TypedSchemaStatus::Partial:
+                    ++counts.partial;
+                    break;
+                case detail::TypedSchemaStatus::NotImplemented:
+                    ++counts.notImplemented;
+                    break;
+                case detail::TypedSchemaStatus::NotApplicable:
+                    ++counts.notApplicable;
+                    break;
+            }
+        }
+        return counts;
+    }
+
     Json loadManifest() {
         std::ifstream input(CODEX_PHASE_A0_SURFACE_MANIFEST);
         if (!input) {
@@ -227,20 +386,30 @@ int main() {
 
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
-    result.expectTrue(hasExactRatchetCodes(baseline, {}) &&
-                          typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
-                                                              tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size(),
-                      "the exact A1.0 ratchet contains the original 34 identities plus all 16 CodexErrorInfo alternatives");
+    result.expectTrue(hasExactRatchetCodes(baseline, {}),
+                      "the staged B5 registry retains every locked A1.0 and exact A1.1 batch identity");
+    result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
+                                                          tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 99,
+                      "B3 through B5 add exactly 99 new typed identities while completing inherited partial rows");
+    result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{151, 0, 0, 0},
+                      "the final A1.1 slice is exactly Complete 151, Partial 0, NotImplemented 0, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{167, 8, 164, 48},
+                      "the staged global registry is exactly Complete 167, Partial 8, NotImplemented 164, NotApplicable 48");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
-    const auto missingEntry = findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
+    const auto missingEntry =
+        findEntry(missing, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
     missing.erase(missingEntry);
     result.expectTrue(hasExactCoverageCodes(missing, manifest, {ErrorCode::MissingRegistryEntry}),
                       "coverage guard reports only MissingRegistryEntry for removal of one untyped stable schema-derived row");
 
     std::vector<detail::ProtocolSurfaceEntry> duplicate = baseline;
-    duplicate.push_back(duplicate.front());
-    duplicate.back() = baseline.back();
+    duplicate.push_back(
+        *findEntry(duplicate, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel"));
+    std::sort(duplicate.begin(), duplicate.end(), [](const auto& left, const auto& right) {
+        return left.key < right.key;
+    });
     result.expectTrue(hasExactCoverageCodes(duplicate, manifest, {ErrorCode::DuplicateRegistryEntry}),
                       "coverage guard reports only DuplicateRegistryEntry for one duplicated untyped row");
 
@@ -324,6 +493,9 @@ int main() {
     staleEntry.frontendProtocol = detail::FrontendExposure::NotApplicable;
     staleEntry.frontendSecurity = detail::FrontendSecurityDecision::NotApplicable;
     staleEntry.runtimeTarget = std::monostate{};
+    staleEntry.operationContract = {};
+    staleEntry.typedSchemaStatus = detail::TypedSchemaStatus::NotImplemented;
+    staleEntry.schemaCompleteness = {};
     stale.push_back(staleEntry);
     result.expectTrue(hasExactCoverageCodes(stale, manifest, {ErrorCode::StaleRegistryEntry}),
                       "coverage guard reports only StaleRegistryEntry for an upstream-absent row");
@@ -360,6 +532,75 @@ int main() {
     demotedBaseline->typedImplementation = detail::TypedImplementationStatus::NotImplemented;
     result.expectTrue(hasExactRatchetCodes(ratchetDemotion, {TypedCoverageRatchetErrorCode::BaselineIdentityNotImplemented}),
                       "typed-coverage ratchet reports only BaselineIdentityNotImplemented after identity demotion");
+
+    std::vector<detail::ProtocolSurfaceEntry> b2AssignmentDrift = baseline;
+    const auto reassignedB2 =
+        findEntry(b2AssignmentDrift, detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "granular");
+    reassignedB2->typedModule = "ThreadsTurnsSessions";
+    result.expectTrue(hasExactRatchetCodes(b2AssignmentDrift, {TypedCoverageRatchetErrorCode::B2IdentityWrongAssignment}),
+                      "B2 ratchet rejects an exact identity reassigned outside the A1.1 Common module");
+
+    std::vector<detail::ProtocolSurfaceEntry> b2CompletenessDemotion = baseline;
+    const auto incompleteB2 =
+        findEntry(b2CompletenessDemotion, detail::SurfaceCategory::TaggedUnionDiscriminator, "AskForApproval", "$variant", "granular");
+    incompleteB2->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
+    result.expectTrue(hasExactRatchetCodes(b2CompletenessDemotion, {TypedCoverageRatchetErrorCode::B2IdentityNotComplete}),
+                      "B2 ratchet rejects a complete identity demoted to Partial");
+
+    std::vector<detail::ProtocolSurfaceEntry> b4AssignmentDrift = baseline;
+    const auto reassignedB4 =
+        findEntry(b4AssignmentDrift, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
+    reassignedB4->typedModule = "Common";
+    result.expectTrue(hasExactRatchetCodes(b4AssignmentDrift, {TypedCoverageRatchetErrorCode::B4IdentityWrongAssignment}),
+                      "B4 ratchet rejects an exact operation identity reassigned outside ThreadsTurnsSessions");
+
+    std::vector<detail::ProtocolSurfaceEntry> b4CompletenessDemotion = baseline;
+    const auto incompleteB4 =
+        findEntry(b4CompletenessDemotion, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive");
+    incompleteB4->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
+    result.expectTrue(hasExactRatchetCodes(b4CompletenessDemotion, {TypedCoverageRatchetErrorCode::B4IdentityNotComplete}),
+                      "B4 ratchet rejects a complete operation identity demoted to Partial");
+
+    std::vector<detail::ProtocolSurfaceEntry> b4Removal = baseline;
+    b4Removal.erase(
+        findEntry(b4Removal, detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "thread/archive"));
+    result.expectTrue(hasExactRatchetCodes(b4Removal, {TypedCoverageRatchetErrorCode::B4IdentityMissing}),
+                      "B4 ratchet rejects removal of an exact operation identity");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5AssignmentDrift = baseline;
+    const auto reassignedB5 =
+        findEntry(b5AssignmentDrift, detail::SurfaceCategory::ServerNotification,
+                  "ServerNotification", "method", "thread/archived");
+    reassignedB5->typedModule = "Common";
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5AssignmentDrift,
+            {TypedCoverageRatchetErrorCode::B5IdentityWrongAssignment}),
+        "B5 ratchet rejects an exact notification identity reassigned outside "
+        "ThreadsTurnsSessions");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5CompletenessDemotion = baseline;
+    const auto incompleteB5 =
+        findEntry(b5CompletenessDemotion,
+                  detail::SurfaceCategory::ServerNotification,
+                  "ServerNotification", "method", "thread/archived");
+    incompleteB5->typedSchemaStatus = detail::TypedSchemaStatus::Partial;
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5CompletenessDemotion,
+            {TypedCoverageRatchetErrorCode::B5IdentityNotComplete}),
+        "B5 ratchet rejects a complete notification identity demoted to "
+        "Partial");
+
+    std::vector<detail::ProtocolSurfaceEntry> b5Removal = baseline;
+    b5Removal.erase(findEntry(b5Removal,
+                              detail::SurfaceCategory::ServerNotification,
+                              "ServerNotification", "method",
+                              "thread/archived"));
+    result.expectTrue(
+        hasExactRatchetCodes(
+            b5Removal, {TypedCoverageRatchetErrorCode::B5IdentityMissing}),
+        "B5 ratchet rejects removal of an exact notification identity");
 
     std::vector<detail::ProtocolSurfaceEntry> sameCountReplacement = baseline;
     const std::size_t originalTypedCount = typedIdentityCount(sameCountReplacement);

@@ -1,0 +1,6 @@
+{
+  "method": "thread/started",
+  "params": {
+    "thread": null
+  }
+}

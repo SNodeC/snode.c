@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/started",
+  "params": {
+    "realtimeSessionId": "synthetic-f88de4e1ba",
+    "version": "v1"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "method": "thread/settings/updated",
+  "params": {
+    "threadId": "synthetic-d6f96dc54c",
+    "threadSettings": {
+      "activePermissionProfile": {
+        "extends": "synthetic-bb6de1fb4b",
+        "id": "synthetic-82aa5ff78d"
+      },
+      "approvalPolicy": "untrusted",
+      "approvalsReviewer": "user",
+      "cwd": "synthetic-75177d933c",
+      "effort": "medium",
+      "model": "synthetic-833e5ec5d7",
+      "modelProvider": "synthetic-a335e04fa4",
+      "personality": "none",
+      "sandboxPolicy": {
+        "type": "dangerFullAccess"
+      },
+      "serviceTier": "synthetic-318e2963e2",
+      "summary": "auto"
+    }
+  }
+}

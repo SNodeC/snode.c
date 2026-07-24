@@ -10,11 +10,13 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/ClientOperationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
+#include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Events.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
@@ -105,9 +107,15 @@ namespace ai::openai::codex::typed {
             return std::string(detail::entryFor(target).key.name);
         }
 
-        template <typename T, typename Handler, typename Decoder>
-        AppServerClient::RawProtocol::ResponseHandler adaptResponse(Handler handler, Decoder decoder) {
-            return [handler = std::move(handler), decoder = std::move(decoder)](const Response& response) {
+        template <typename T, typename Handler>
+        AppServerClient::RawProtocol::ResponseHandler
+        adaptResponse(Handler handler,
+                      detail::ClientRequestTarget target,
+                      std::optional<ThreadId> contextualThreadId) {
+            return [handler = std::move(handler),
+                    target,
+                    contextualThreadId = std::move(contextualThreadId)](
+                       const Response& response) {
                 OperationResult<T> result;
                 result.requestId = response.id;
                 result.raw = response.result;
@@ -128,7 +136,11 @@ namespace ai::openai::codex::typed {
                     case Response::Kind::Result: {
                         std::string decodingError;
                         try {
-                            result.value = decoder(response.result, decodingError);
+                            result.value = detail::decodeClientOperationResultAs<T>(
+                                target,
+                                response.result,
+                                contextualThreadId,
+                                decodingError);
                         } catch (const std::exception& exception) {
                             decodingError = std::string("typed App Server result decoder threw: ") + exception.what();
                         } catch (...) {
@@ -151,10 +163,283 @@ namespace ai::openai::codex::typed {
                 handler(result);
             };
         }
+
+        template <typename T, typename Params, typename Handler, typename Encoder>
+        AppServerClient::RawProtocol::Submission submitTypedRequest(AppServerClient::RawProtocol* protocol,
+                                                                   detail::ClientRequestTarget target,
+                                                                   const Params& params,
+                                                                   Handler handler,
+                                                                   Encoder encoder,
+                                                                   std::optional<ThreadId> contextualThreadId = std::nullopt) {
+            const std::string method = registeredMethod(target);
+            if (!handler) {
+                return submissionFailure("typed " + method + " requires a result handler");
+            }
+
+            std::string encodingError;
+            std::optional<Json> encodedParams = encoder(params, encodingError);
+            if (!encodedParams) {
+                return submissionFailure(encodingError.empty() ? "typed " + method + " parameters could not be encoded"
+                                                               : std::move(encodingError));
+            }
+
+            return protocol->request(
+                method,
+                std::move(*encodedParams),
+                adaptResponse<T>(
+                    std::move(handler), target, std::move(contextualThreadId)));
+        }
+
+        template <typename To, typename From, typename Mapper>
+        OperationResult<To> mapOperationResult(const OperationResult<From>& source, Mapper mapper) {
+            OperationResult<To> result;
+            switch (source.kind) {
+                case OperationResult<From>::Kind::Success:
+                    result.kind = OperationResult<To>::Kind::Success;
+                    if (source.value) {
+                        result.value = mapper(*source.value);
+                    }
+                    break;
+                case OperationResult<From>::Kind::RemoteError:
+                    result.kind = OperationResult<To>::Kind::RemoteError;
+                    break;
+                case OperationResult<From>::Kind::Cancelled:
+                    result.kind = OperationResult<To>::Kind::Cancelled;
+                    break;
+                case OperationResult<From>::Kind::LocalError:
+                    result.kind = OperationResult<To>::Kind::LocalError;
+                    break;
+            }
+            result.remoteError = source.remoteError;
+            result.localError = source.localError;
+            result.requestId = source.requestId;
+            result.raw = source.raw;
+            result.codexErrorInfo = source.codexErrorInfo;
+            result.codexErrorDiagnostic = source.codexErrorDiagnostic;
+            return result;
+        }
     } // namespace
 
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept
         : protocol(&protocol) {
+    }
+
+    ThreadStartParams toThreadStartParams(ThreadStartOptions options) {
+        ThreadStartParams params;
+        params.cwd = std::move(options.cwd);
+        params.model = std::move(options.model);
+        params.modelProvider = std::move(options.modelProvider);
+        if (options.approvalPolicy) {
+            params.approvalPolicy = AskForApproval{std::move(*options.approvalPolicy)};
+        }
+        params.sandbox = std::move(options.sandboxMode);
+        params.ephemeral = std::move(options.ephemeral);
+        return params;
+    }
+
+    ThreadResumeParams toThreadResumeParams(ThreadId threadId, ThreadResumeOptions options) {
+        ThreadResumeParams params;
+        params.threadId = std::move(threadId);
+        params.cwd = std::move(options.cwd);
+        params.model = std::move(options.model);
+        params.modelProvider = std::move(options.modelProvider);
+        if (options.approvalPolicy) {
+            params.approvalPolicy = AskForApproval{std::move(*options.approvalPolicy)};
+        }
+        params.sandbox = std::move(options.sandboxMode);
+        return params;
+    }
+
+    ThreadListParams toThreadListParams(ThreadListOptions options) {
+        ThreadListParams params;
+        params.cursor = std::move(options.cursor);
+        params.limit = std::move(options.limit);
+        params.archived = std::move(options.archived);
+        params.searchTerm = std::move(options.searchTerm);
+        return params;
+    }
+
+    ThreadReadParams toThreadReadParams(ThreadId threadId, ThreadReadOptions options) {
+        return {std::move(threadId), options.includeTurns};
+    }
+
+    Threads::Submission Threads::archive(ThreadArchiveParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadArchive,
+            params,
+            std::move(handler),
+            detail::encodeThreadArchiveParams);
+    }
+
+    Threads::Submission Threads::startCompaction(ThreadCompactStartParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadCompactStart,
+            params,
+            std::move(handler),
+            detail::encodeThreadCompactStartParams);
+    }
+
+    Threads::Submission Threads::remove(ThreadDeleteParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadDelete,
+            params,
+            std::move(handler),
+            detail::encodeThreadDeleteParams);
+    }
+
+    Threads::Submission Threads::fork(ThreadForkParams params, ThreadForkResultHandler handler) {
+        return submitTypedRequest<ThreadForkResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadFork,
+            params,
+            std::move(handler),
+            detail::encodeThreadForkParams);
+    }
+
+    Threads::Submission Threads::clearGoal(ThreadGoalClearParams params, ThreadGoalClearResultHandler handler) {
+        return submitTypedRequest<ThreadGoalClearResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadGoalClear,
+            params,
+            std::move(handler),
+            detail::encodeThreadGoalClearParams);
+    }
+
+    Threads::Submission Threads::getGoal(ThreadGoalGetParams params, ThreadGoalGetResultHandler handler) {
+        return submitTypedRequest<ThreadGoalGetResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadGoalGet,
+            params,
+            std::move(handler),
+            detail::encodeThreadGoalGetParams);
+    }
+
+    Threads::Submission Threads::setGoal(ThreadGoalSetParams params, ThreadGoalSetResultHandler handler) {
+        return submitTypedRequest<ThreadGoalSetResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadGoalSet,
+            params,
+            std::move(handler),
+            detail::encodeThreadGoalSetParams);
+    }
+
+    Threads::Submission Threads::injectItems(ThreadInjectItemsParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadInjectItems,
+            params,
+            std::move(handler),
+            detail::encodeThreadInjectItemsParams);
+    }
+
+    Threads::Submission Threads::submitList(ThreadListParams params, ThreadListResultHandler handler) {
+        return submitTypedRequest<ThreadListResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadList,
+            params,
+            std::move(handler),
+            [](const ThreadListParams& value, std::string& error) {
+                return detail::encodeThreadListParams(value, error);
+            });
+    }
+
+    Threads::Submission Threads::listLoaded(ThreadLoadedListParams params, ThreadLoadedListResultHandler handler) {
+        return submitTypedRequest<ThreadLoadedListResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadLoadedList,
+            params,
+            std::move(handler),
+            detail::encodeThreadLoadedListParams);
+    }
+
+    Threads::Submission Threads::updateMetadata(ThreadMetadataUpdateParams params, ThreadMetadataUpdateResultHandler handler) {
+        return submitTypedRequest<ThreadMetadataUpdateResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadMetadataUpdate,
+            params,
+            std::move(handler),
+            detail::encodeThreadMetadataUpdateParams);
+    }
+
+    Threads::Submission Threads::setName(ThreadSetNameParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadSetName,
+            params,
+            std::move(handler),
+            detail::encodeThreadSetNameParams);
+    }
+
+    Threads::Submission Threads::submitRead(ThreadReadParams params, ThreadReadResultHandler handler) {
+        return submitTypedRequest<ThreadReadResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadRead,
+            params,
+            std::move(handler),
+            [](const ThreadReadParams& value, std::string& error) {
+                return detail::encodeThreadReadParams(value, error);
+            });
+    }
+
+    Threads::Submission Threads::resume(ThreadResumeParams params, ThreadResumeResultHandler handler) {
+        return submitTypedRequest<ThreadResumeResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadResume,
+            params,
+            std::move(handler),
+            [](const ThreadResumeParams& value, std::string& error) {
+                return detail::encodeThreadResumeParams(value, error);
+            });
+    }
+
+    Threads::Submission Threads::rollback(ThreadRollbackParams params, ThreadRollbackResultHandler handler) {
+        return submitTypedRequest<ThreadRollbackResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadRollback,
+            params,
+            std::move(handler),
+            detail::encodeThreadRollbackParams);
+    }
+
+    Threads::Submission Threads::shellCommand(ThreadShellCommandParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::ThreadShellCommand,
+            params,
+            std::move(handler),
+            detail::encodeThreadShellCommandParams);
+    }
+
+    Threads::Submission Threads::submitStart(ThreadStartParams params, ThreadStartResultHandler handler) {
+        return submitTypedRequest<ThreadStartResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadStart,
+            params,
+            std::move(handler),
+            [](const ThreadStartParams& value, std::string& error) {
+                return detail::encodeThreadStartParams(value, error);
+            });
+    }
+
+    Threads::Submission Threads::unarchive(ThreadUnarchiveParams params, ThreadUnarchiveResultHandler handler) {
+        return submitTypedRequest<ThreadUnarchiveResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadUnarchive,
+            params,
+            std::move(handler),
+            detail::encodeThreadUnarchiveParams);
+    }
+
+    Threads::Submission Threads::unsubscribe(ThreadUnsubscribeParams params, ThreadUnsubscribeResultHandler handler) {
+        return submitTypedRequest<ThreadUnsubscribeResponse>(
+            protocol,
+            detail::ClientRequestTarget::ThreadUnsubscribe,
+            params,
+            std::move(handler),
+            detail::encodeThreadUnsubscribeParams);
     }
 
     Threads::Submission Threads::start(ThreadStartOptions options, ThreadResultHandler handler) {
@@ -162,18 +447,12 @@ namespace ai::openai::codex::typed {
             return submissionFailure("typed thread/start requires a result handler");
         }
 
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeThreadStartParams(options, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed thread/start parameters could not be encoded"
-                                                           : std::move(encodingError));
-        }
-
-        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadStart),
-                                 std::move(*params),
-                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                                     return detail::decodeThreadOperationResult(value, error);
-                                 }));
+        return submitStart(toThreadStartParams(std::move(options)),
+                           [handler = std::move(handler)](const OperationResult<ThreadStartResponse>& result) {
+            handler(mapOperationResult<Thread>(result, [](const ThreadStartResponse& response) {
+                return response.thread;
+            }));
+        });
     }
 
     Threads::Submission Threads::resume(ThreadId threadId, ThreadResumeOptions options, ThreadResultHandler handler) {
@@ -181,64 +460,95 @@ namespace ai::openai::codex::typed {
             return submissionFailure("typed thread/resume requires a result handler");
         }
 
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeThreadResumeParams(threadId, options, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed thread/resume parameters could not be encoded"
-                                                           : std::move(encodingError));
-        }
-
-        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadResume),
-                                 std::move(*params),
-                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                                     return detail::decodeThreadOperationResult(value, error);
-                                 }));
+        return resume(toThreadResumeParams(std::move(threadId), std::move(options)),
+                      [handler = std::move(handler)](const OperationResult<ThreadResumeResponse>& result) {
+            handler(mapOperationResult<Thread>(result, [](const ThreadResumeResponse& response) {
+                return response.thread;
+            }));
+        });
     }
 
     Threads::Submission Threads::list(ThreadListOptions options, ThreadListResultHandler handler) {
-        if (!handler) {
-            return submissionFailure("typed thread/list requires a result handler");
-        }
-
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeThreadListParams(options, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed thread/list parameters could not be encoded"
-                                                           : std::move(encodingError));
-        }
-
-        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadList),
-                                 std::move(*params),
-                                 adaptResponse<ThreadPage>(std::move(handler), [](const Json& value, std::string& error) {
-                                     return detail::decodeThreadListResult(value, error);
-                                 }));
+        return submitList(toThreadListParams(std::move(options)), std::move(handler));
     }
 
     Threads::Submission Threads::read(ThreadId threadId, ThreadResultHandler handler) {
-        return read(std::move(threadId), {}, std::move(handler));
+        if (!handler) {
+            return submissionFailure("typed thread/read requires a result handler");
+        }
+        return submitRead(toThreadReadParams(std::move(threadId)),
+                          [handler = std::move(handler)](const OperationResult<ThreadReadResponse>& result) {
+            handler(mapOperationResult<Thread>(result, [](const ThreadReadResponse& response) {
+                return response.thread;
+            }));
+        });
     }
 
     Threads::Submission Threads::read(ThreadId threadId, ThreadReadOptions options, ThreadResultHandler handler) {
         if (!handler) {
             return submissionFailure("typed thread/read requires a result handler");
         }
-
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeThreadReadParams(threadId, options, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed thread/read parameters could not be encoded"
-                                                           : std::move(encodingError));
-        }
-
-        return protocol->request(registeredMethod(detail::ClientRequestTarget::ThreadRead),
-                                 std::move(*params),
-                                 adaptResponse<Thread>(std::move(handler), [](const Json& value, std::string& error) {
-                                     return detail::decodeThreadReadResult(value, error);
-                                 }));
+        return submitRead(toThreadReadParams(std::move(threadId), std::move(options)),
+                          [handler = std::move(handler)](const OperationResult<ThreadReadResponse>& result) {
+            handler(mapOperationResult<Thread>(result, [](const ThreadReadResponse& response) {
+                return response.thread;
+            }));
+        });
     }
 
     Turns::Turns(AppServerClient::RawProtocol& protocol) noexcept
         : protocol(&protocol) {
+    }
+
+    TurnStartParams toTurnStartParams(ThreadId threadId, std::vector<TurnInput> input, TurnStartOptions options) {
+        TurnStartParams params;
+        params.threadId = std::move(threadId);
+        params.input = std::move(input);
+        params.cwd = std::move(options.cwd);
+        params.model = std::move(options.model);
+        params.effort = std::move(options.reasoningEffort);
+        if (options.approvalPolicy) {
+            params.approvalPolicy = AskForApproval{std::move(*options.approvalPolicy)};
+        }
+        params.sandboxPolicy = std::move(options.sandboxPolicy);
+        return params;
+    }
+
+    TurnInterruptParams toTurnInterruptParams(ThreadId threadId, TurnId turnId) {
+        return {std::move(threadId), std::move(turnId)};
+    }
+
+    Turns::Submission Turns::interrupt(TurnInterruptParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol,
+            detail::ClientRequestTarget::TurnInterrupt,
+            params,
+            std::move(handler),
+            [](const TurnInterruptParams& value, std::string& error) {
+                return detail::encodeTurnInterruptParams(value, error);
+            });
+    }
+
+    Turns::Submission Turns::start(TurnStartParams params, TurnStartResultHandler handler) {
+        const ThreadId threadId = params.threadId;
+        return submitTypedRequest<TurnStartResponse>(
+            protocol,
+            detail::ClientRequestTarget::TurnStart,
+            params,
+            std::move(handler),
+            [](const TurnStartParams& value, std::string& error) {
+                return detail::encodeTurnStartParams(value, error);
+            },
+            threadId);
+    }
+
+    Turns::Submission Turns::steer(TurnSteerParams params, TurnSteerResultHandler handler) {
+        return submitTypedRequest<TurnSteerResponse>(
+            protocol,
+            detail::ClientRequestTarget::TurnSteer,
+            params,
+            std::move(handler),
+            detail::encodeTurnSteerParams);
     }
 
     Turns::Submission Turns::start(ThreadId threadId, std::vector<TurnInput> input, TurnStartOptions options, TurnResultHandler handler) {
@@ -246,37 +556,16 @@ namespace ai::openai::codex::typed {
             return submissionFailure("typed turn/start requires a result handler");
         }
 
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeTurnStartParams(threadId, input, options, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed turn/start input could not be encoded" : std::move(encodingError));
-        }
-
-        return protocol->request(
-            registeredMethod(detail::ClientRequestTarget::TurnStart),
-            std::move(*params),
-            adaptResponse<Turn>(std::move(handler), [threadId = std::move(threadId)](const Json& value, std::string& error) {
-                return detail::decodeTurnStartResult(value, threadId, error);
+        return start(toTurnStartParams(std::move(threadId), std::move(input), std::move(options)),
+                     [handler = std::move(handler)](const OperationResult<TurnStartResponse>& result) {
+            handler(mapOperationResult<Turn>(result, [](const TurnStartResponse& response) {
+                return response.turn;
             }));
+        });
     }
 
     Turns::Submission Turns::interrupt(ThreadId threadId, TurnId turnId, InterruptResultHandler handler) {
-        if (!handler) {
-            return submissionFailure("typed turn/interrupt requires a result handler");
-        }
-
-        std::string encodingError;
-        std::optional<Json> params = detail::encodeTurnInterruptParams(threadId, turnId, encodingError);
-        if (!params) {
-            return submissionFailure(encodingError.empty() ? "typed turn/interrupt parameters could not be encoded"
-                                                           : std::move(encodingError));
-        }
-
-        return protocol->request(registeredMethod(detail::ClientRequestTarget::TurnInterrupt),
-                                 std::move(*params),
-                                 adaptResponse<TurnInterruptResult>(std::move(handler), [](const Json& value, std::string& error) {
-                                     return detail::decodeTurnInterruptResult(value, error);
-                                 }));
+        return interrupt(toTurnInterruptParams(std::move(threadId), std::move(turnId)), std::move(handler));
     }
 
     Events::Events(AppServerClient::RawProtocol& protocol) noexcept

@@ -1,0 +1,16 @@
+{
+  "content": [
+    {
+      "detail": "auto",
+      "image_url": "synthetic-f07911d633",
+      "type": "input_image"
+    }
+  ],
+  "id": "synthetic-7c1fc134e8",
+  "internal_chat_message_metadata_passthrough": {
+    "turn_id": "synthetic-888f0d9802"
+  },
+  "phase": "commentary",
+  "role": "synthetic-9aa0202348",
+  "type": "message"
+}

@@ -62,6 +62,49 @@ python3 tools/codex/app_server_surface.py registry \
   --output "$REGISTRY" \
   --check
 
+python3 tools/codex/app_server_surface.py operation-descriptors \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --output src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc \
+  --check
+
+python3 tools/codex/app_server_surface.py operation-production-coverage \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --fixture-index "$FIXTURE_ROOT/index.json" \
+  --repo-root . \
+  --output "$EVIDENCE_ROOT/a1-1-operation-production-coverage.json" \
+  --check
+
+python3 tools/codex/app_server_surface.py notification-descriptors \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --output src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc \
+  --check
+
+python3 tools/codex/app_server_surface.py notification-production-coverage \
+  --manifest "$SURFACE" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --fixture-index "$FIXTURE_ROOT/index.json" \
+  --repo-root . \
+  --output "$EVIDENCE_ROOT/a1-1-notification-production-coverage.json" \
+  --check
+
+python3 tools/codex/app_server_surface.py conversation-descriptors \
+  --manifest "$SURFACE" \
+  --schema-root "$SCHEMA_ROOT" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --output src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc \
+  --check
+
+python3 tools/codex/app_server_surface.py item-descriptors \
+  --manifest "$SURFACE" \
+  --schema-root "$SCHEMA_ROOT" \
+  --evidence-root "$EVIDENCE_ROOT" \
+  --thread-output src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc \
+  --response-output src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc \
+  --check
+
 python3 tools/codex/app_server_surface.py docs \
   --manifest "$SURFACE" \
   --registry "$REGISTRY" \
@@ -145,6 +188,118 @@ The scanner anchors complete tree and path-set hashes, exact client-method
 literals, parameter/response type co-references, broader association-like
 names, and conditional/mapped constructs. Its only co-reference findings in
 this pin are flat generated export indexes.
+
+## A1.1 conversation-domain audit
+
+The A1.1 audit derives its implementation plan and complete transitive
+schema-definition closure from the pinned A1.0 assignment, reachability,
+operation-contract, completeness, fixture, schema, and canonical-registry
+inputs. Run it from the repository root using only the checked-in offline
+inputs:
+
+```sh
+python3 tools/codex/app_server_a1_1.py generate
+python3 tools/codex/app_server_a1_1.py check
+python3 tools/codex/app_server_a1_1_closure.py generate
+python3 tools/codex/app_server_a1_1_closure.py check
+```
+
+Commit 1 created
+`app-server-evidence/0.144.6/a1-1-start-state.json` once with
+`freeze-start-state --base-sha a226e3df5efd55b5dbef12cb1760674388909d7c`.
+That mode accepts only the reviewed base SHA and refuses to overwrite an
+existing snapshot unless `--force-start-state` is supplied. The force option
+is reserved for the reviewed initial freeze or correction of that same
+commit; it is not an ordinary regeneration command.
+
+The start-state is immutable review evidence for the exact 26 Partial / 125
+NotImplemented A1.1 split and the starting global metrics. Ordinary
+`generate` and `check` read both that baseline and the live registry,
+schema-completeness evidence, and fixture coverage. They keep the audit's
+starting fields anchored to the baseline while permitting implementation and
+completeness to advance monotonically. Static identity drift, status or layer
+demotion, invalid runtime promotion, loss of completeness facts, and fixture
+coverage regression fail with stable intrinsic diagnostic codes.
+
+`generate` intentionally refreshes:
+
+- `app-server-evidence/0.144.6/a1-1-implementation-plan.json`; and
+- `app-server-evidence/0.144.6/a1-1-type-closure.json`.
+
+`check` regenerates the same documents in memory and rejects missing, stale,
+duplicate, mismatched, unassigned, or cyclic evidence. Ordinary builds and CI
+use `check`; neither mode invokes Codex, accesses the network, or requires
+credentials.
+
+After B5, `app_server_a1_1_closure.py` projects the live canonical registry
+into `a1-1-closure-report.json`. Its exact identity-list ratchet requires all
+151 A1.1 rows to be stable, typed, implemented, mechanically Complete, and
+bound to a production target. It also checks the exact 167/8/164/48 global
+metrics, the cumulative B2/B3/B4/B5 identity sets, the eight residual Partial
+identities, operation/notification/item/union documentation lists, fixture
+and type-closure totals, Frontend Protocol v1 byte identity, and fingerprints
+of the frontend and two reference-application source boundaries. The report
+is closure evidence only; all production dispositions still come from
+`ProtocolSurfaceRegistry`.
+
+The implementation-plan denominator is exactly 151 registry identities:
+
+| A1.1 registry category | Count |
+|---|---:|
+| Client-request methods | 22 |
+| Server-notification methods | 37 |
+| `ThreadItem` discriminators | 18 |
+| `ResponseItem` discriminators | 16 |
+| Nested tagged-union discriminators | 58 |
+| **Total** | **151** |
+
+Each client request also has one paired successful-result schema, producing
+22 result implementation obligations. These result roots are not registry
+identities and are never added to the 151 denominator.
+
+The 100 unique schema roots reach exactly 164 named definitions: 19 registered
+item or nested-union definitions and 145 ordinary definitions. Every reachable
+definition and nested schema position has one reviewed disposition:
+`PublicHandwrittenType`, `PrivateCodecHelper`, `OpenStringEnum`,
+`StrongIdentifier`, `ProtocolDefinedOpaqueJson`, or `ReusedExistingType`.
+Known objects cannot be treated wholesale as JSON merely for convenience.
+
+The named-definition dispositions are 127 handwritten public types, 26 open
+string enums, ten reused types, and one strong identifier. Their derived
+directions are 29 encode-only, 121 decode-only, and 14 bidirectional. The 698
+schema-path mappings are 107 encode-only, 554 decode-only, and 37
+bidirectional; they include 156 exact strong-ID positions and the complete
+4/413/5/15/218 defaulted/required-value/required-nullable/optional-value/
+optional-nullable presence matrix. Cross-slice ownership is 122 A1.1-local definitions, 39
+A1.1-owned definitions reused by later slices, and the exact three prior-slice
+reuses `CodexErrorInfo`, `NonSteerableTurnKind`, and `TurnError`.
+
+The dependency-closed implementation partition is:
+
+| Batch | Registry identities | Result obligations | Closure definitions |
+|---|---:|---:|---:|
+| B2: shared union and value foundations | 26 | 0 | 12 |
+| B3: item models | 50 | 0 | 32 |
+| B4: thread and turn operations | 38 | 22 | 72 |
+| B5: notifications and preservation | 37 | 0 | 48 |
+| **Total** | **151** | **22** | **164** |
+
+The operation-contract regression test independently copies the current
+`thread/archive` Unit successful-response schema, adds a property, proves its
+schema-derived contract becomes `Concrete`, and requires the reviewed
+`EXPECTED_UNIT_RESULT_METHODS` ratchet to fail with its exact changed-identity
+diagnostic. The guard deliberately does not impose the false inverse that a
+Concrete result must have direct properties.
+
+The checked `a1-1-operation-production-coverage.json` table binds the exact 22
+operation descriptors to 1,166 indexed successful-result records (403
+accepted and 763 malformed-known), 73 aggregate/value records, 60 B4 nested
+union records, and four `ThreadActiveFlag` records. The result and
+aggregate/value corpora traverse the same structured production result
+dispatcher used by `typed::Threads` and `typed::Turns`; that dispatcher selects
+its result codec from the generated private descriptor binding. The table
+also hashes every production/test source it claims to cover. It is reproducible
+review evidence, not a second runtime disposition or dispatch registry.
 
 ## Re-running the pinned upstream generation
 
@@ -231,7 +386,18 @@ Do not hand-edit these generated artifacts:
 - `app-server-evidence/0.144.6/schema-completeness-evidence.json`;
 - `app-server-evidence/0.144.6/fixture-coverage.json`;
 - `app-server-evidence/0.144.6/schema-keywords.json`;
+- `app-server-evidence/0.144.6/a1-1-start-state.json` (one-time immutable
+  Commit 1 freeze; never ordinary regeneration);
+- `app-server-evidence/0.144.6/a1-1-implementation-plan.json`;
+- `app-server-evidence/0.144.6/a1-1-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-1-closure-report.json`;
+- `app-server-evidence/0.144.6/a1-1-operation-production-coverage.json`;
+- `app-server-evidence/0.144.6/a1-1-notification-production-coverage.json`;
 - `app-server-fixtures/0.144.6/`;
+- `ClientOperationCodecDescriptors.inc`;
+- `ConversationUnionCodecDescriptors.inc`;
+- `ThreadItemCodecDescriptors.inc`;
+- `ResponseItemCodecDescriptors.inc`;
 - `ProtocolSurfaceRegistryData.inc`;
 - `docs/ai/openai/codex/app-server-api-coverage.md`; or
 - `docs/ai/openai/codex/app-server-security-decisions.md`.

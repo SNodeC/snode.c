@@ -109,6 +109,122 @@ set_tests_properties(
         TIMEOUT 30
 )
 
+set(CODEX_PHASE_A1_1_EVIDENCE_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+add_test(
+    NAME CodexA11AuditToolTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA11AuditToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_1.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --registry
+        ${CODEX_PHASE_A0_REGISTRY}
+        --schema-root
+        ${CODEX_PHASE_A0_SCHEMA_ROOT}
+        --assignments
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/module-slice-assignment.json
+        --reachability
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/nested-reachability.json
+        --contracts
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/operation-contracts.json
+        --schema-completeness
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/schema-completeness-evidence.json
+        --fixture-coverage
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/fixture-coverage.json
+        --production-coverage
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json
+        --notification-production-coverage
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json
+        --fixture-index
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
+        --draft07-validator
+        ${PROJECT_SOURCE_DIR}/tools/codex/draft07.py
+        --start-state
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-start-state.json
+        --plan-output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-implementation-plan.json
+        --closure-output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-type-closure.json
+)
+set_tests_properties(
+    CodexA11AuditToolTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;schema;audit;generated"
+        TIMEOUT 60
+)
+
+add_test(
+    NAME CodexA11ClosureEvidenceTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_1_closure.py
+        check
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+)
+set_tests_properties(
+    CodexA11ClosureEvidenceTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;closure;generated;documentation"
+        TIMEOUT 30
+)
+
+add_test(
+    NAME CodexA11OperationProductionCoverageGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CODEX_PHASE_A0_SURFACE_TOOL}
+        operation-production-coverage
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --evidence-root
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}
+        --fixture-index
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json
+        --check
+)
+set_tests_properties(
+    CodexA11OperationProductionCoverageGuardTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;operation;codec;corpus;generated"
+        TIMEOUT 30
+)
+
+add_test(
+    NAME CodexA11NotificationProductionCoverageGuardTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CODEX_PHASE_A0_SURFACE_TOOL}
+        notification-production-coverage
+        --manifest
+        ${CODEX_PHASE_A0_SURFACE_MANIFEST}
+        --evidence-root
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}
+        --fixture-index
+        ${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6/index.json
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --output
+        ${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json
+        --check
+)
+set_tests_properties(
+    CodexA11NotificationProductionCoverageGuardTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;phase-a1-1;notification;codec;corpus;generated"
+        TIMEOUT 30
+)
+
 add_test(
     NAME CodexDraft07ValidatorTest
     COMMAND
@@ -131,7 +247,7 @@ set_tests_properties(
     CodexAppServerFixtureInfrastructureTest
     PROPERTIES LABELS
                "component;ai;openai;codex;phase-a1-0;schema;fixtures"
-               TIMEOUT 60
+               TIMEOUT 300
 )
 
 add_test(
@@ -265,11 +381,109 @@ set_tests_properties(
                SKIP_RETURN_CODE 77 TIMEOUT 30
 )
 
+snodec_add_test(CodexA11OperationWireTest CodexA11OperationWireTest.cpp)
+target_link_libraries(
+    CodexA11OperationWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA11OperationWireTest PRIVATE cxx_std_20)
+target_compile_definitions(
+    CodexA11OperationWireTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+target_compile_options(
+    CodexA11OperationWireTest PRIVATE -Wno-deprecated-declarations
+)
+set_tests_properties(
+    CodexA11OperationWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;operation;wire;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexA11OperationResultCorpusTest
+    CodexA11OperationResultCorpusTest.cpp
+)
+target_link_libraries(
+    CodexA11OperationResultCorpusTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA11OperationResultCorpusTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexA11OperationResultCorpusTest
+    PRIVATE
+        CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+        CODEX_A1_OPERATION_PRODUCTION_COVERAGE="${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json"
+)
+set_tests_properties(
+    CodexA11OperationResultCorpusTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;operation;codec;corpus;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexA11OperationAggregateValueCorpusTest
+    CodexA11OperationAggregateValueCorpusTest.cpp
+)
+target_link_libraries(
+    CodexA11OperationAggregateValueCorpusTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA11OperationAggregateValueCorpusTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexA11OperationAggregateValueCorpusTest
+    PRIVATE
+        CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+        CODEX_A1_OPERATION_PRODUCTION_COVERAGE="${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json"
+)
+set_tests_properties(
+    CodexA11OperationAggregateValueCorpusTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;operation;aggregate;value;corpus;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexA11NotificationCodecTest
+    CodexA11NotificationCodecTest.cpp
+)
+target_link_libraries(
+    CodexA11NotificationCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(
+    CodexA11NotificationCodecTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexA11NotificationCodecTest
+    PRIVATE
+        CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+        CODEX_A1_NOTIFICATION_PRODUCTION_COVERAGE="${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-notification-production-coverage.json"
+)
+set_tests_properties(
+    CodexA11NotificationCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;notification;codec;corpus;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
 foreach(
     typed_test IN
     ITEMS CodexTypedThreadCodecTest CodexTypedTurnCodecTest
           CodexTypedItemDecoderTest CodexTypedEventDecoderTest
           CodexTypedServerRequestDecoderTest CodexErrorInfoCodecTest
+          CodexConversationCodecTest CodexConversationB3NestedCodecTest
+          CodexConversationB4NestedCodecTest CodexA11ItemCodecTest
 )
     snodec_add_test(${typed_test} ${typed_test}.cpp)
     target_link_libraries(
@@ -286,6 +500,28 @@ target_compile_definitions(
     CodexErrorInfoCodecTest
     PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
 )
+target_compile_definitions(
+    CodexConversationCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+target_compile_definitions(
+    CodexConversationB3NestedCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+target_compile_definitions(
+    CodexConversationB4NestedCodecTest
+    PRIVATE
+        CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+        CODEX_A1_OPERATION_PRODUCTION_COVERAGE="${CODEX_PHASE_A1_1_EVIDENCE_ROOT}/a1-1-operation-production-coverage.json"
+)
+set_tests_properties(
+    CodexConversationB4NestedCodecTest
+    PROPERTIES TIMEOUT 30
+)
+target_compile_definitions(
+    CodexA11ItemCodecTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
 
 snodec_add_test(CodexBackendReducerTest CodexBackendReducerTest.cpp)
 target_link_libraries(
@@ -297,6 +533,46 @@ set_tests_properties(
     CodexBackendReducerTest
     PROPERTIES LABELS "component;ai;openai;codex;backend;reducer"
                SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexThreadItemBackendParityTest
+    CodexThreadItemBackendParityTest.cpp
+)
+target_link_libraries(
+    CodexThreadItemBackendParityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexThreadItemBackendParityTest PRIVATE cxx_std_20
+)
+target_compile_definitions(
+    CodexThreadItemBackendParityTest
+    PRIVATE CODEX_A1_FIXTURE_ROOT="${PROJECT_SOURCE_DIR}/tools/codex/app-server-fixtures/0.144.6"
+)
+set_tests_properties(
+    CodexThreadItemBackendParityTest
+    PROPERTIES LABELS "component;ai;openai;codex;typed;backend;reducer;parity"
+               SKIP_RETURN_CODE 77 TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA11NotificationBackendPreservationTest
+    CodexA11NotificationBackendPreservationTest.cpp
+)
+target_link_libraries(
+    CodexA11NotificationBackendPreservationTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA11NotificationBackendPreservationTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA11NotificationBackendPreservationTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;backend;reducer;preservation;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
 )
 
 snodec_add_test(CodexFrontendProtocolV1Test CodexFrontendProtocolV1Test.cpp)

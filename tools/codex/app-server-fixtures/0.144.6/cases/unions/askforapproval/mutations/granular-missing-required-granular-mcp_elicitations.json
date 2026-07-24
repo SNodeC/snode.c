@@ -1,0 +1,8 @@
+{
+  "granular": {
+    "request_permissions": false,
+    "rules": false,
+    "sandbox_approval": false,
+    "skill_approval": false
+  }
+}

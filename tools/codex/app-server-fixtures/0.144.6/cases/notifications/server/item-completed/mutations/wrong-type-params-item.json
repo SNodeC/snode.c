@@ -1,0 +1,9 @@
+{
+  "method": "item/completed",
+  "params": {
+    "completedAtMs": 0,
+    "item": null,
+    "threadId": "synthetic-2885940ced",
+    "turnId": "synthetic-d3ac1b2800"
+  }
+}

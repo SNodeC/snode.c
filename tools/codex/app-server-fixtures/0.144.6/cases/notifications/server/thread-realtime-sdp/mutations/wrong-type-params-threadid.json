@@ -1,0 +1,7 @@
+{
+  "method": "thread/realtime/sdp",
+  "params": {
+    "sdp": "synthetic-dabb17bb17",
+    "threadId": null
+  }
+}

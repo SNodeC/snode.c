@@ -52,8 +52,19 @@ namespace {
         typed::UserMessageItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         item.metadata.raw = std::move(raw);
-        item.clientId = std::move(clientId);
-        item.content = std::move(content);
+        if (!item.metadata.raw.contains("content")) {
+            item.metadata.raw["content"] = content;
+        }
+        if (clientId) {
+            item.clientId = typed::ClientUserMessageId{std::move(*clientId)};
+        }
+        for (Json& entry : content) {
+            std::optional<std::string> type;
+            if (const auto discriminator = entry.find("type"); discriminator != entry.end() && discriminator->is_string()) {
+                type = discriminator->get<std::string>();
+            }
+            item.content.emplace_back(typed::UnknownUserInput{std::move(type), std::move(entry), std::nullopt});
+        }
         return item;
     }
 
@@ -65,10 +76,10 @@ namespace {
         typed::ReasoningItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         if (!text.empty()) {
-            item.content.push_back(std::move(text));
+            item.content = std::vector<std::string>{std::move(text)};
         }
         if (!summary.empty()) {
-            item.summary.push_back(std::move(summary));
+            item.summary = std::vector<std::string>{std::move(summary)};
         }
         return item;
     }
@@ -80,9 +91,9 @@ namespace {
         typed::CommandExecutionItem item;
         item.metadata = metadata(threadId, turnId, itemId);
         item.command = "printf test";
-        item.cwd = "/tmp/project";
-        item.status = "inProgress";
-        item.output = std::move(output);
+        item.cwd = typed::LegacyAppPathString{"/tmp/project"};
+        item.status = typed::CommandExecutionStatus::inProgress();
+        item.aggregatedOutput = std::move(output);
         return item;
     }
 
@@ -104,11 +115,11 @@ namespace {
         typed::Thread result;
         result.id = typed::ThreadId{threadId};
         result.title = "Thread " + threadId;
-        result.cwd = "/tmp/project";
+        result.cwd = typed::AbsolutePathBuf{"/tmp/project"};
         result.model = typed::ModelId{"gpt-5"};
         result.modelProvider = "openai";
         result.preview = "preview " + threadId;
-        result.status = typed::ThreadStatus{"idle", Json{{"type", "idle"}}};
+        result.status = typed::IdleThreadStatus{Json{{"type", "idle"}}, {}};
         result.createdAt = 1;
         result.updatedAt = 2;
         result.turns = std::move(turns);
@@ -183,8 +194,8 @@ namespace {
 
         typed::ThreadPage firstPage;
         firstPage.data = {thread("thread-list-b"), thread("thread-list-a")};
-        firstPage.nextCursor = "cursor-2";
-        firstPage.backwardsCursor = "cursor-before";
+        firstPage.nextCursor = std::string{"cursor-2"};
+        firstPage.backwardsCursor = std::string{"cursor-before"};
         reducer.apply(state, backend::ThreadListUpdated{firstPage, std::nullopt, true});
         result.expectTrue(state.threadList.hasLoadedPage && !state.threadList.complete && state.threadList.pagesLoaded == 1 &&
                               state.threadList.nextCursor == "cursor-2" && state.threads.size() == 3,
@@ -192,7 +203,7 @@ namespace {
 
         typed::ThreadPage secondPage;
         secondPage.data = {thread("thread-list-c"), thread("thread-list-b")};
-        secondPage.backwardsCursor = "cursor-1";
+        secondPage.backwardsCursor = std::string{"cursor-1"};
         reducer.apply(state, backend::ThreadListUpdated{secondPage, std::string("cursor-2"), false});
         result.expectTrue(state.threadList.complete && state.threadList.pagesLoaded == 2 && !state.threadList.nextCursor &&
                               state.threads.size() == 4,
@@ -219,6 +230,57 @@ namespace {
                               snapshot.threads.front().turns.size() == 2 && snapshot.threads.front().turns[0].id == "turn-z" &&
                               snapshot.threads.front().turns[1].id == "turn-a",
                           "snapshot preserves first-seen thread, turn, and item ordering instead of map key ordering");
+    }
+
+    void testStatusOnlyPlaceholderParity(tests::support::TestResult& result) {
+        backend::BackendState state;
+        backend::Reducer reducer;
+
+        const Json statusEnvelope = {
+            {"method", "thread/status/changed"},
+            {"params", {{"threadId", "thread-status-only"}, {"status", {{"type", "active"}, {"activeFlags", Json::array()}}}}},
+        };
+        const typed::ThreadStatus activeStatus =
+            typed::ActiveThreadStatus{{}, statusEnvelope.at("params").at("status"), {}};
+        const std::vector<backend::BackendEvent> statusEvents =
+            reducer.translate(typed::Event{typed::ThreadStatusChanged{
+                typed::ThreadId{"thread-status-only"}, activeStatus, statusEnvelope}});
+        const auto* statusUpdated =
+            statusEvents.size() == 1 ? std::get_if<backend::ThreadStatusUpdated>(&statusEvents.front()) : nullptr;
+        result.expectTrue(statusUpdated && statusUpdated->threadId.value == "thread-status-only" &&
+                              typed::threadStatusDiscriminator(statusUpdated->status) == "active",
+                          "thread/status/changed retains its existing modeled status-update translation");
+        if (statusUpdated) {
+            reducer.apply(state, *statusUpdated);
+        }
+        const backend::Snapshot statusOnlySnapshot = backend::makeSnapshot(state);
+        result.expectTrue(statusOnlySnapshot.threads.size() == 1 &&
+                              statusOnlySnapshot.threads.front().id == "thread-status-only" &&
+                              statusOnlySnapshot.threads.front().status == "active" &&
+                              !statusOnlySnapshot.threads.front().cwd &&
+                              !statusOnlySnapshot.threads.front().modelProvider &&
+                              !statusOnlySnapshot.threads.front().preview &&
+                              !statusOnlySnapshot.threads.front().createdAt &&
+                              !statusOnlySnapshot.threads.front().updatedAt,
+                          "a status-only placeholder exposes the modeled status without leaking defaults for unknown thread fields");
+
+        typed::Thread collision = thread("thread-marker-collision");
+        collision.raw["backendPlaceholder"] = true;
+        reducer.apply(state, backend::ThreadUpserted{collision, backend::EntityLoad::Summary});
+        const backend::Snapshot collisionSnapshot = backend::makeSnapshot(state);
+        const auto collisionThread =
+            std::find_if(collisionSnapshot.threads.begin(),
+                         collisionSnapshot.threads.end(),
+                         [](const backend::ThreadSnapshot& candidate) {
+                             return candidate.id == "thread-marker-collision";
+                         });
+        result.expectTrue(collisionThread != collisionSnapshot.threads.end() &&
+                              collisionThread->cwd == "/tmp/project" &&
+                              collisionThread->modelProvider == "openai" &&
+                              collisionThread->preview == "preview thread-marker-collision" &&
+                              collisionThread->status == "idle" && collisionThread->createdAt == 1 &&
+                              collisionThread->updatedAt == 2,
+                          "an unknown wire field named backendPlaceholder cannot collide with the exact internal sentinel");
     }
 
     void testItemsAndHighVolumeDeltas(tests::support::TestResult& result) {
@@ -359,7 +421,7 @@ namespace {
 
         typed::FileChangeItem file;
         file.metadata = metadata("thread-terminal", "turn-failed", "file-item");
-        file.status = "inProgress";
+        file.status = typed::PatchApplyStatus::inProgress();
         reducer.apply(state,
                       backend::ItemUpserted{typed::ThreadId{"thread-terminal"},
                                             typed::TurnId{"turn-failed"},
@@ -398,9 +460,10 @@ namespace {
 
         const backend::ItemState* startedState = findItem(state, "thread-user", "turn-user", "user-item");
         const auto* canonicalStarted = startedState ? std::get_if<typed::UserMessageItem>(&startedState->item) : nullptr;
-        result.expectTrue(canonicalStarted && canonicalStarted->content == startedContent && !canonicalStarted->clientId &&
-                              canonicalStarted->metadata.raw == startedRaw && startedState->lifecycle == backend::ItemLifecycle::Started &&
-                              startedState->startedAtMs == 101 && !startedState->completedAtMs && state.recentExtensions.empty(),
+        result.expectTrue(canonicalStarted && canonicalStarted->metadata.raw.at("content") == startedContent &&
+                              !canonicalStarted->clientId && canonicalStarted->metadata.raw == startedRaw &&
+                              startedState->lifecycle == backend::ItemLifecycle::Started && startedState->startedAtMs == 101 &&
+                              !startedState->completedAtMs && state.recentExtensions.empty(),
                           "userMessage start retains complete content, nullable client ID, raw item, timestamp, and no extension fallback");
 
         const Json completedContent = Json::array({Json{{"type", "text"}, {"text", "Answer just with OK!"}},
@@ -428,9 +491,10 @@ namespace {
         const auto* canonicalCompleted = completedState ? std::get_if<typed::UserMessageItem>(&completedState->item) : nullptr;
         result.expectTrue(
             userTurn && userTurn->items.size() == 1 && userTurn->itemOrder.size() == 1 &&
-                userTurn->itemOrder.front().value == "user-item" && canonicalCompleted && canonicalCompleted->content == completedContent &&
-                canonicalCompleted->metadata.raw == completedRaw && completedState->lifecycle == backend::ItemLifecycle::Completed &&
-                completedState->startedAtMs == 101 && completedState->completedAtMs == 202 && state.recentExtensions.empty(),
+                userTurn->itemOrder.front().value == "user-item" && canonicalCompleted &&
+                canonicalCompleted->metadata.raw.at("content") == completedContent && canonicalCompleted->metadata.raw == completedRaw &&
+                completedState->lifecycle == backend::ItemLifecycle::Completed && completedState->startedAtMs == 101 &&
+                completedState->completedAtMs == 202 && state.recentExtensions.empty(),
             "userMessage completion updates the same canonical item and retains both lifecycle timestamps without extensions");
 
         const backend::Snapshot itemSnapshot = backend::makeSnapshot(state);
@@ -508,15 +572,16 @@ namespace {
         }
         const backend::ItemState* canonicalLarge = findItem(largeState, "thread-large", "turn-large", "item-large");
         const auto* canonicalLargeUser = canonicalLarge ? std::get_if<typed::UserMessageItem>(&canonicalLarge->item) : nullptr;
-        result.expectTrue(
-            largeContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && retainedContent.is_array() &&
-                largeData.at("contentTruncated").get<bool>() && retainedPrefixUnchanged &&
-                largeData.at("originalContentItems") == largeContent.size() && largeData.at("retainedContentItems") == retainedItems &&
-                largeData.at("originalContentBytes") == largeContent.dump().size() &&
-                largeData.at("retainedContentBytes") == retainedContent.dump().size() &&
-                largeData.dump().size() <= backend::MaxSerializedUserMessageDataBytes && canonicalLargeUser &&
-                canonicalLargeUser->content == largeContent && !largeSnapshot.contentTruncated && largeSnapshot.droppedContentBytes == 0,
-            "large userMessage snapshots retain an unchanged ordered prefix of complete opaque entries within 64 KiB");
+        result.expectTrue(largeContent.dump().size() > backend::MaxSerializedUserMessageDataBytes && retainedContent.is_array() &&
+                              largeData.at("contentTruncated").get<bool>() && retainedPrefixUnchanged &&
+                              largeData.at("originalContentItems") == largeContent.size() &&
+                              largeData.at("retainedContentItems") == retainedItems &&
+                              largeData.at("originalContentBytes") == largeContent.dump().size() &&
+                              largeData.at("retainedContentBytes") == retainedContent.dump().size() &&
+                              largeData.dump().size() <= backend::MaxSerializedUserMessageDataBytes && canonicalLargeUser &&
+                              canonicalLargeUser->metadata.raw.at("content") == largeContent && !largeSnapshot.contentTruncated &&
+                              largeSnapshot.droppedContentBytes == 0,
+                          "large userMessage snapshots retain an unchanged ordered prefix of complete opaque entries within 64 KiB");
 
         backend::BackendState oversizedFirstState;
         const Json oversizedFirstContent = Json::array({Json{{"type", "futureHuge"}, {"payload", std::string(70U * 1024U, 'z')}}});
@@ -951,6 +1016,7 @@ int main() {
 
     testInitialStateAndLifecycle(result);
     testThreadAndTurnHydration(result);
+    testStatusOnlyPlaceholderParity(result);
     testItemsAndHighVolumeDeltas(result);
     testCompletionFailureAndAuxiliaryUpdates(result);
     testUserMessageLifecycle(result);

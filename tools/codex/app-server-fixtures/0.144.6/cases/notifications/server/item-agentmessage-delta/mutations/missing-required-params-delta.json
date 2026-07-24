@@ -1,0 +1,8 @@
+{
+  "method": "item/agentMessage/delta",
+  "params": {
+    "itemId": "synthetic-b838e2de0b",
+    "threadId": "synthetic-98039b5dcb",
+    "turnId": "synthetic-81d9b2a806"
+  }
+}

@@ -15,6 +15,8 @@
 #include <variant>
 
 namespace {
+    namespace typed = ai::openai::codex::typed;
+
     using ai::openai::codex::Json;
     using ai::openai::codex::Notification;
     using ai::openai::codex::detail::decodeEvent;
@@ -24,10 +26,12 @@ namespace {
     using ai::openai::codex::typed::FileChangeUpdated;
     using ai::openai::codex::typed::ItemCompleted;
     using ai::openai::codex::typed::ItemStarted;
+    using ai::openai::codex::typed::LocalImageUserInput;
     using ai::openai::codex::typed::ModelRerouted;
     using ai::openai::codex::typed::ReasoningDelta;
     using ai::openai::codex::typed::ThreadStarted;
     using ai::openai::codex::typed::ThreadStatusChanged;
+    using ai::openai::codex::typed::TextUserInput;
     using ai::openai::codex::typed::TokenUsageUpdated;
     using ai::openai::codex::typed::TurnCompleted;
     using ai::openai::codex::typed::TurnErrorEvent;
@@ -35,6 +39,7 @@ namespace {
     using ai::openai::codex::typed::TurnStarted;
     using ai::openai::codex::typed::UnknownEvent;
     using ai::openai::codex::typed::UnknownItem;
+    using ai::openai::codex::typed::UnknownUserInput;
     using ai::openai::codex::typed::UserMessageItem;
 
     Notification makeNotification(std::string method, Json params, Json envelopeExtension = Json::object()) {
@@ -109,8 +114,10 @@ namespace {
         const Event startedEvent = decodeEvent(startedNotification);
         const ThreadStarted* started = as<ThreadStarted>(startedEvent);
 
-        testResult.expectTrue(started && started->thread.id.value == "thread-event" && started->thread.cwd == "/tmp/project" &&
-                                  started->thread.status && started->thread.status->value == "idle",
+        testResult.expectTrue(started && started->thread.id.value == "thread-event" &&
+                                  started->thread.cwd.value == "/tmp/project" &&
+                                  std::holds_alternative<typed::IdleThreadStatus>(started->thread.status) &&
+                                  typed::threadStatusDiscriminator(started->thread.status) == "idle",
                               "thread/started decodes the current schema Thread payload");
         testResult.expectTrue(started && started->thread.raw == thread && started->raw == startedNotification.raw,
                               "thread/started preserves exact nested thread raw and complete notification envelope");
@@ -120,8 +127,14 @@ namespace {
             makeNotification("thread/status/changed", Json{{"threadId", "thread-event"}, {"status", status}});
         const Event statusEvent = decodeEvent(statusNotification);
         const ThreadStatusChanged* changed = as<ThreadStatusChanged>(statusEvent);
-        testResult.expectTrue(changed && changed->threadId.value == "thread-event" && changed->status.value == "active" &&
-                                  changed->status.raw == status && changed->raw == statusNotification.raw,
+        const typed::ActiveThreadStatus* active =
+            changed ? std::get_if<typed::ActiveThreadStatus>(&changed->status) : nullptr;
+        testResult.expectTrue(changed && changed->threadId.value == "thread-event" && active &&
+                                  active->activeFlags.size() == 1 &&
+                                  active->activeFlags.front() == typed::ThreadActiveFlag::waitingOnApproval() &&
+                                  typed::threadStatusDiscriminator(changed->status) == "active" &&
+                                  typed::threadStatusRaw(changed->status) == status &&
+                                  changed->raw == statusNotification.raw,
                               "thread/status/changed decodes IDs, extensible status, status raw, and event raw");
     }
 
@@ -222,13 +235,29 @@ namespace {
         const Event startedEvent = decodeEvent(startedNotification);
         const ItemStarted* started = as<ItemStarted>(startedEvent);
         const UserMessageItem* startedUser = started ? std::get_if<UserMessageItem>(&started->item) : nullptr;
+        const TextUserInput* startedText =
+            startedUser && startedUser->content.size() == 2 ? std::get_if<TextUserInput>(&startedUser->content[0]) : nullptr;
+        const UnknownUserInput* startedFuture =
+            startedUser && startedUser->content.size() == 2 ? std::get_if<UnknownUserInput>(&startedUser->content[1]) : nullptr;
         testResult.expectTrue(started && started->startedAtMs == 1784637396096 && started->raw == startedNotification.raw,
                               "userMessage item/started preserves its lifecycle timestamp and complete event raw");
         testResult.expectTrue(startedUser && startedUser->metadata.id.value == "user-message-shared" && startedUser->metadata.threadId &&
                                   startedUser->metadata.threadId->value == "thread-user-message" && startedUser->metadata.turnId &&
-                                  startedUser->metadata.turnId->value == "turn-user-message" && !startedUser->clientId &&
-                                  startedUser->content == startedItem["content"] && startedUser->metadata.raw == startedItem,
-                              "userMessage item/started preserves ID, location, nullable clientId, opaque content, and item raw");
+                                  startedUser->metadata.turnId->value == "turn-user-message" && startedUser->clientId.isNull() &&
+                                  startedText && startedText->text == "Answer just with OK!" &&
+                                  startedText->raw == startedItem["content"][0] && startedFuture &&
+                                  startedFuture->type == "futureInput" && startedFuture->raw == startedItem["content"][1] &&
+                                  startedFuture->diagnostic &&
+                                  startedFuture->diagnostic->kind ==
+                                      ai::openai::codex::typed::DecodeIssueKind::UnknownDiscriminator &&
+                                  startedFuture->diagnostic->severity ==
+                                      ai::openai::codex::typed::DecodeIssueSeverity::ForwardCompatibility &&
+                                  startedFuture->diagnostic->surface == "UserInput" &&
+                                  startedFuture->diagnostic->fieldPath == "$.type" &&
+                                  startedUser->diagnostics.size() == 1 &&
+                                  startedUser->diagnostics.front().fieldPath == "$.content[1].type" &&
+                                  startedUser->metadata.raw == startedItem,
+                              "userMessage item/started preserves location, tri-state clientId, typed/unknown content, and item raw");
 
         Json completedItem = userMessageItem("user-message-shared", "client-user-message");
         completedItem["content"].push_back(Json{{"type", "localImage"}, {"path", "/tmp/input.png"}, {"detail", "original"}, {"future", 9}});
@@ -240,14 +269,32 @@ namespace {
         const Event completedEvent = decodeEvent(completedNotification);
         const ItemCompleted* completed = as<ItemCompleted>(completedEvent);
         const UserMessageItem* completedUser = completed ? std::get_if<UserMessageItem>(&completed->item) : nullptr;
+        const TextUserInput* completedText =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<TextUserInput>(&completedUser->content[0]) : nullptr;
+        const UnknownUserInput* completedFuture =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<UnknownUserInput>(&completedUser->content[1]) : nullptr;
+        const LocalImageUserInput* completedImage =
+            completedUser && completedUser->content.size() == 3 ? std::get_if<LocalImageUserInput>(&completedUser->content[2]) : nullptr;
         testResult.expectTrue(completed && completed->completedAtMs == 1784637396123 && completed->raw == completedNotification.raw,
                               "userMessage item/completed preserves its lifecycle timestamp and complete event raw");
         testResult.expectTrue(completedUser && completedUser->metadata.id.value == "user-message-shared" &&
                                   completedUser->metadata.threadId && completedUser->metadata.threadId->value == "thread-user-message" &&
                                   completedUser->metadata.turnId && completedUser->metadata.turnId->value == "turn-user-message" &&
-                                  completedUser->clientId == "client-user-message" && completedUser->content == completedItem["content"] &&
-                                  completedUser->metadata.raw == completedItem,
-                              "userMessage completion keeps the same canonical identity and preserves all content entries exactly");
+                                  completedUser->clientId.hasValue() &&
+                                  completedUser->clientId->value == "client-user-message" &&
+                                  completedText && completedText->raw == completedItem["content"][0] && completedFuture &&
+                                  completedFuture->raw == completedItem["content"][1] && completedImage &&
+                                  completedImage->path == "/tmp/input.png" && completedImage->detail.hasValue() &&
+                                  completedImage->detail->value == "original" &&
+                                  completedFuture->diagnostic &&
+                                  completedFuture->diagnostic->kind ==
+                                      ai::openai::codex::typed::DecodeIssueKind::UnknownDiscriminator &&
+                                  completedFuture->diagnostic->severity ==
+                                      ai::openai::codex::typed::DecodeIssueSeverity::ForwardCompatibility &&
+                                  completedUser->diagnostics.size() == 1 &&
+                                  completedUser->diagnostics.front().fieldPath == "$.content[1].type" &&
+                                  completedImage->raw == completedItem["content"][2] && completedUser->metadata.raw == completedItem,
+                              "userMessage completion keeps its identity and every typed/unknown content entry in order");
     }
 
     void testDeltaEvents(tests::support::TestResult& testResult) {
@@ -293,18 +340,56 @@ namespace {
     }
 
     void testAuxiliaryEvents(tests::support::TestResult& testResult) {
-        const Json changes = Json::array({Json{{"path", "/tmp/a"}, {"kind", "future"}}});
+        const Json changes =
+            Json::array({Json{{"diff", "*** Add File: /tmp/a"}, {"kind", Json{{"type", "add"}}}, {"path", "/tmp/a"}}});
         const Notification fileNotification =
             makeNotification("item/fileChange/patchUpdated",
                              Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"itemId", "file-event"}, {"changes", changes}});
         const Event fileEvent = decodeEvent(fileNotification);
         const FileChangeUpdated* file = as<FileChangeUpdated>(fileEvent);
+        const auto* typedFile = file && file->canonical ? &*file->canonical : nullptr;
         testResult.expectTrue(file && file->changes == changes && file->itemId.value == "file-event" && file->raw == fileNotification.raw,
-                              "file-change patch update preserves typed IDs, opaque changes, and raw event");
+                              "file-change patch update preserves the established raw changes view, typed IDs, and raw event");
+        testResult.expectTrue(typedFile && typedFile->changes.size() == 1 &&
+                                  typedFile->changes.front().diff == "*** Add File: /tmp/a" &&
+                                  typedFile->changes.front().path == "/tmp/a" &&
+                                  std::holds_alternative<typed::AddPatchChangeKind>(typedFile->changes.front().kind) &&
+                                  typedFile->raw == fileNotification.raw,
+                              "file-change patch update adds the complete typed change without weakening its compatibility view");
+
+        const Json legacyPartialChanges = Json::array({Json{{"path", "/tmp/a"}, {"kind", "future"}}});
+        const Notification malformedFileNotification =
+            makeNotification("item/fileChange/patchUpdated",
+                             Json{{"threadId", "thread-event"},
+                                  {"turnId", "turn-event"},
+                                  {"itemId", "file-event"},
+                                  {"changes", legacyPartialChanges}});
+        const Event malformedFileEvent = decodeEvent(malformedFileNotification);
+        const UnknownEvent* malformedFile = as<UnknownEvent>(malformedFileEvent);
+        testResult.expectTrue(
+            malformedFile && malformedFile->params == malformedFileNotification.params &&
+                malformedFile->raw == malformedFileNotification.raw && malformedFile->decodingError &&
+                malformedFile->diagnostic &&
+                malformedFile->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                malformedFile->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning &&
+                malformedFile->diagnostic->surface == "item/fileChange/patchUpdated" &&
+                malformedFile->diagnostic->fieldPath == "$.params",
+            "the former partial file-change shape is retained but now classified by exact malformed-known diagnostics");
 
         const Json usage = {
-            {"last", Json{{"inputTokens", 1}}},
-            {"total", Json{{"inputTokens", 2}}},
+            {"last",
+             Json{{"cachedInputTokens", 0},
+                  {"inputTokens", 1},
+                  {"outputTokens", 2},
+                  {"reasoningOutputTokens", 3},
+                  {"totalTokens", 6}}},
+            {"modelContextWindow", 128000},
+            {"total",
+             Json{{"cachedInputTokens", 4},
+                  {"inputTokens", 5},
+                  {"outputTokens", 6},
+                  {"reasoningOutputTokens", 7},
+                  {"totalTokens", 22}}},
             {"futureUsage", true},
         };
         const Notification usageNotification = makeNotification(
@@ -313,6 +398,41 @@ namespace {
         const TokenUsageUpdated* tokenUsage = as<TokenUsageUpdated>(usageEvent);
         testResult.expectTrue(tokenUsage && tokenUsage->usage == usage && tokenUsage->raw == usageNotification.raw,
                               "token-usage update preserves the complete current/future usage object and raw event");
+        const auto* typedUsage = tokenUsage && tokenUsage->canonical ? &*tokenUsage->canonical : nullptr;
+        testResult.expectTrue(
+            typedUsage && typedUsage->tokenUsage.last.cachedInputTokens == 0 &&
+                typedUsage->tokenUsage.last.inputTokens == 1 && typedUsage->tokenUsage.last.outputTokens == 2 &&
+                typedUsage->tokenUsage.last.reasoningOutputTokens == 3 &&
+                typedUsage->tokenUsage.last.totalTokens == 6 &&
+                typedUsage->tokenUsage.modelContextWindow.hasValue() &&
+                *typedUsage->tokenUsage.modelContextWindow == 128000 &&
+                typedUsage->tokenUsage.total.cachedInputTokens == 4 &&
+                typedUsage->tokenUsage.total.inputTokens == 5 &&
+                typedUsage->tokenUsage.total.outputTokens == 6 &&
+                typedUsage->tokenUsage.total.reasoningOutputTokens == 7 &&
+                typedUsage->tokenUsage.total.totalTokens == 22 && typedUsage->tokenUsage.raw == usage &&
+                typedUsage->raw == usageNotification.raw,
+            "token-usage update exposes every schema field through the canonical typed payload");
+
+        const Json legacyPartialUsage = {
+            {"last", Json{{"inputTokens", 1}}},
+            {"total", Json{{"inputTokens", 2}}},
+            {"futureUsage", true},
+        };
+        const Notification malformedUsageNotification = makeNotification(
+            "thread/tokenUsage/updated",
+            Json{{"threadId", "thread-event"}, {"turnId", "turn-event"}, {"tokenUsage", legacyPartialUsage}});
+        const Event malformedUsageEvent = decodeEvent(malformedUsageNotification);
+        const UnknownEvent* malformedUsage = as<UnknownEvent>(malformedUsageEvent);
+        testResult.expectTrue(
+            malformedUsage && malformedUsage->params == malformedUsageNotification.params &&
+                malformedUsage->raw == malformedUsageNotification.raw && malformedUsage->decodingError &&
+                malformedUsage->diagnostic &&
+                malformedUsage->diagnostic->kind == typed::DecodeIssueKind::MalformedKnownPayload &&
+                malformedUsage->diagnostic->severity == typed::DecodeIssueSeverity::ProtocolWarning &&
+                malformedUsage->diagnostic->surface == "thread/tokenUsage/updated" &&
+                malformedUsage->diagnostic->fieldPath == "$.params",
+            "the former partial token-usage shape is retained but now classified by exact malformed-known diagnostics");
 
         const Notification rerouteNotification = makeNotification("model/rerouted",
                                                                   Json{{"threadId", "thread-event"},
