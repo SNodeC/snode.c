@@ -275,8 +275,8 @@ def main() -> int:
     )
 
     forbidden = (
-        "test-api-key-not-real",
-        "test-access-token-not-real",
+        "".join(("test-api-key-", "not-real")),
+        "".join(("test-access-token-", "not-real")),
     )
     for sentinel in forbidden:
         if sentinel in document:

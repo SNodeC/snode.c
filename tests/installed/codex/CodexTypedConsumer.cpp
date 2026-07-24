@@ -7,14 +7,17 @@
 
 #include <ai/openai/codex/AppServerClient.h>
 #include <ai/openai/codex/stdio/Client.h>
+#include <ai/openai/codex/typed/Accounts.h>
 #include <ai/openai/codex/typed/Client.h>
 #include <ai/openai/codex/typed/Conversation.h>
 #include <ai/openai/codex/typed/Events.h>
 #include <ai/openai/codex/typed/Items.h>
 #include <ai/openai/codex/typed/Results.h>
+#include <ai/openai/codex/typed/ServerRequests.h>
 #include <ai/openai/codex/typed/Threads.h>
 #include <ai/openai/codex/typed/Turns.h>
 #include <iostream>
+#include <map>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -32,12 +35,17 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 37);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 40);
+    static_assert(std::variant_size_v<typed::Account> == 4);
+    static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
+    static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
     static_assert(std::is_same_v<typed::TurnInterruptResult, typed::Unit>);
+    static_assert(std::is_same_v<typed::ChatgptAuthTokensRefreshRequest, typed::AuthenticationRequest>);
     static_assert(!std::is_same_v<typed::SessionId, typed::ThreadId>);
+    static_assert(!std::is_same_v<typed::AccountId, std::string>);
     static_assert(!std::is_same_v<typed::ClientUserMessageId, std::string>);
     static_assert(sizeof(ai::openai::codex::AppServerClient) == 2 * sizeof(void*));
     static_assert(sizeof(typed::Client) == sizeof(void*));
@@ -110,6 +118,48 @@ int main() {
         .raw = {{"method", "thread/future"}},
         .diagnostic = diagnostic,
     };
+    [[maybe_unused]] typed::LoginAccountParams apiKeyLogin =
+        typed::ApiKeyLoginAccountParams{.apiKey = "installed-test-api-key"};
+    [[maybe_unused]] typed::LoginAccountParams futureLoginParams =
+        typed::UnknownLoginAccountParams{.type = "futureLogin"};
+    [[maybe_unused]] typed::LoginAccountResponse futureLoginResponse =
+        typed::UnknownLoginAccountResponse{
+            .type = "futureLogin",
+            .raw = {{"type", "futureLogin"}},
+            .diagnostic = diagnostic,
+        };
+    [[maybe_unused]] typed::Account futureAccount = typed::UnknownAccount{
+        .type = "futureAccount",
+        .raw = {{"type", "futureAccount"}},
+        .diagnostic = diagnostic,
+    };
+    [[maybe_unused]] typed::GetAccountResponse installedAccountRead{
+        .account = typed::OptionalNullable<typed::Account>::withValue(futureAccount),
+        .requiresOpenaiAuth = true,
+        .raw = {{"account", {{"type", "futureAccount"}}}, {"requiresOpenaiAuth", true}},
+    };
+    [[maybe_unused]] typed::GetAccountRateLimitsResponse installedRateLimits{
+        .rateLimitResetCredits = typed::OptionalNullable<typed::RateLimitResetCreditsSummary>::omitted(),
+        .rateLimits = {},
+        .rateLimitsByLimitId =
+            typed::OptionalNullable<std::map<typed::RateLimitId, typed::RateLimitSnapshot>>::explicitNull(),
+        .raw = {{"rateLimitsByLimitId", nullptr}},
+    };
+    [[maybe_unused]] typed::ChatgptAuthTokensRefreshParams installedRefreshParams{
+        .previousAccountId = typed::OptionalNullable<typed::AccountId>::explicitNull(),
+        .reason = typed::ChatgptAuthTokensRefreshReason::unauthorized(),
+        .raw = {{"previousAccountId", nullptr}, {"reason", "unauthorized"}},
+    };
+    [[maybe_unused]] typed::ChatgptAuthTokensRefreshResponse installedRefreshResponse{
+        .accessToken = "installed-test-access-token",
+        .chatgptAccountId = typed::AccountId{"installed-account"},
+        .chatgptPlanType = typed::OptionalNullable<typed::PlanType>::withValue(typed::PlanType::plus()),
+    };
+    [[maybe_unused]] typed::AuthenticationResponse legacyRefreshResponse{
+        .accessToken = "installed-legacy-access-token",
+        .chatgptAccountId = "installed-account",
+        .chatgptPlanType = std::nullopt,
+    };
     typed::TurnStartParams installedStartParams;
     installedStartParams.threadId = installedThread.id;
     installedStartParams.clientUserMessageId = typed::ClientUserMessageId{"client-message"};
@@ -128,6 +178,28 @@ int main() {
     client.typed().requests().setOnRequest([&client](const typed::TypedServerRequest& request) {
         if (const auto* approval = std::get_if<typed::CommandApprovalRequest>(&request)) {
             (void) client.typed().requests().respond(*approval, typed::ApprovalDecision::decline());
+        } else if (const auto* authentication =
+                       std::get_if<typed::AuthenticationRequest>(&request)) {
+            if (authentication->canonicalParams.previousAccountId.isOmitted()) {
+                // Preserve the pre-A1 source form: braced AuthenticationResponse
+                // must select the legacy respond overload unambiguously.
+                (void) client.typed().requests().respond(
+                    *authentication,
+                    {"installed-legacy-access-token",
+                     "installed-account",
+                     std::nullopt});
+            } else {
+                (void) client.typed().requests().respondRefresh(
+                    *authentication,
+                    typed::ChatgptAuthTokensRefreshResponse{
+                        .accessToken = "installed-test-access-token",
+                        .chatgptAccountId =
+                            typed::AccountId{"installed-account"},
+                        .chatgptPlanType =
+                            typed::OptionalNullable<typed::PlanType>::
+                                withValue(typed::PlanType::plus()),
+                    });
+            }
         }
     });
 
@@ -143,6 +215,39 @@ int main() {
     (void) archiveSubmission;
     (void) goalSubmission;
     (void) steerSubmission;
+
+    const auto cancelLoginSubmission = client.typed().accounts().cancelLogin(
+        {.loginId = typed::LoginId{"installed-login"}},
+        [](const typed::OperationResult<typed::CancelLoginAccountResponse>&) {});
+    const auto startLoginSubmission = client.typed().accounts().startLogin(
+        typed::ApiKeyLoginAccountParams{.apiKey = "installed-test-api-key"},
+        [](const typed::OperationResult<typed::LoginAccountResponse>&) {});
+    const auto logoutSubmission =
+        client.typed().accounts().logout({}, [](const typed::OperationResult<typed::Unit>&) {});
+    const auto consumeCreditSubmission = client.typed().accounts().consumeRateLimitResetCredit(
+        {.creditId = typed::OptionalNullable<typed::RateLimitResetCreditId>::explicitNull(),
+         .idempotencyKey = typed::IdempotencyKey{"installed-idempotency"}},
+        [](const typed::OperationResult<typed::ConsumeAccountRateLimitResetCreditResponse>&) {});
+    const auto readRateLimitsSubmission = client.typed().accounts().readRateLimits(
+        {}, [](const typed::OperationResult<typed::GetAccountRateLimitsResponse>&) {});
+    const auto readAccountSubmission = client.typed().accounts().read(
+        {.refreshToken = true}, [](const typed::OperationResult<typed::GetAccountResponse>&) {});
+    const auto nudgeSubmission = client.typed().accounts().sendAddCreditsNudgeEmail(
+        {.creditType = typed::AddCreditsNudgeCreditType::credits()},
+        [](const typed::OperationResult<typed::SendAddCreditsNudgeEmailResponse>&) {});
+    const auto readUsageSubmission = client.typed().accounts().readUsage(
+        {}, [](const typed::OperationResult<typed::GetAccountTokenUsageResponse>&) {});
+    const auto readMessagesSubmission = client.typed().accounts().readWorkspaceMessages(
+        {}, [](const typed::OperationResult<typed::GetWorkspaceMessagesResponse>&) {});
+    (void) cancelLoginSubmission;
+    (void) startLoginSubmission;
+    (void) logoutSubmission;
+    (void) consumeCreditSubmission;
+    (void) readRateLimitsSubmission;
+    (void) readAccountSubmission;
+    (void) nudgeSubmission;
+    (void) readUsageSubmission;
+    (void) readMessagesSubmission;
 
     typed::ThreadStartParams launchParams;
     launchParams.cwd = typed::OptionalNullable<std::string>::withValue("/tmp");

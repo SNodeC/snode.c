@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
+#include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 
@@ -21,6 +22,14 @@ namespace ai::openai::codex::detail {
     namespace {
         constexpr std::array<std::string_view, static_cast<std::size_t>(ClientOperationResultDecoder::Count)> ResultDecoderIdentities{{
             "Unit",
+            "CancelLoginAccountResponse",
+            "LoginAccountResponse",
+            "ConsumeAccountRateLimitResetCreditResponse",
+            "GetAccountRateLimitsResponse",
+            "GetAccountResponse",
+            "SendAddCreditsNudgeEmailResponse",
+            "GetAccountTokenUsageResponse",
+            "GetWorkspaceMessagesResponse",
             "ThreadForkResponse",
             "ThreadGoalClearResponse",
             "ThreadGoalGetResponse",
@@ -48,13 +57,36 @@ namespace ai::openai::codex::detail {
             return {std::nullopt, {code, target, surfaceKey, "$", std::move(message)}};
         }
 
+        bool isAccountTarget(ClientRequestTarget target) noexcept {
+            using enum ClientRequestTarget;
+            return target == AccountLoginCancel || target == AccountLoginStart || target == AccountLogout ||
+                   target == AccountRateLimitResetCreditConsume || target == AccountRateLimitsRead || target == AccountRead ||
+                   target == AccountSendAddCreditsNudgeEmail || target == AccountUsageRead ||
+                   target == AccountWorkspaceMessagesRead;
+        }
+
+        std::string decoderFieldPath(ClientRequestTarget target, const std::string& error) {
+            if (!isAccountTarget(target)) {
+                return "$";
+            }
+            const std::size_t begin = error.find("'$");
+            if (begin == std::string::npos) {
+                return "$";
+            }
+            const std::size_t end = error.find('\'', begin + 1);
+            return end == std::string::npos ? "$" : error.substr(begin + 1, end - begin - 1);
+        }
+
         template <typename Result>
         ClientOperationDecodeResult
         decode(ClientRequestTarget target, ProtocolSurfaceKey surfaceKey, std::optional<Result> value, const std::string& decoderError) {
             if (!value) {
                 std::string message =
                     decoderError.empty() ? "known successful result does not match its pinned App Server schema" : decoderError;
-                return failure(target, ClientOperationDecodeCode::MalformedKnownPayload, surfaceKey, std::move(message));
+                ClientOperationDecodeResult result =
+                    failure(target, ClientOperationDecodeCode::MalformedKnownPayload, surfaceKey, std::move(message));
+                result.diagnostic.fieldPath = decoderFieldPath(target, decoderError);
+                return result;
             }
             return {ClientOperationDecodedValue{std::in_place_type<Result>, std::move(*value)},
                     {ClientOperationDecodeCode::Decoded, target, surfaceKey, "$", "decoded"}};
@@ -136,6 +168,22 @@ namespace ai::openai::codex::detail {
             switch (descriptor->resultDecoder) {
                 case Unit:
                     return decode(target, key, decodeUnitResult(raw, error), error);
+                case CancelLoginAccountResponse:
+                    return decode(target, key, decodeCancelLoginAccountResponse(raw, error), error);
+                case LoginAccountResponse:
+                    return decode(target, key, decodeLoginAccountResponse(raw, error), error);
+                case ConsumeAccountRateLimitResetCreditResponse:
+                    return decode(target, key, decodeConsumeAccountRateLimitResetCreditResponse(raw, error), error);
+                case GetAccountRateLimitsResponse:
+                    return decode(target, key, decodeGetAccountRateLimitsResponse(raw, error), error);
+                case GetAccountResponse:
+                    return decode(target, key, decodeGetAccountResponse(raw, error), error);
+                case SendAddCreditsNudgeEmailResponse:
+                    return decode(target, key, decodeSendAddCreditsNudgeEmailResponse(raw, error), error);
+                case GetAccountTokenUsageResponse:
+                    return decode(target, key, decodeGetAccountTokenUsageResponse(raw, error), error);
+                case GetWorkspaceMessagesResponse:
+                    return decode(target, key, decodeGetWorkspaceMessagesResponse(raw, error), error);
                 case ThreadForkResponse:
                     return decode(target, key, decodeThreadForkResponse(raw, error), error);
                 case ThreadGoalClearResponse:

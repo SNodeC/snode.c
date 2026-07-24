@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 167 && schemaPartial == 8 && schemaNotImplemented == 164 && schemaNotApplicable == 48,
-                      "the A1.1 registry reaches the exact final 167/8/164/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 191 && schemaPartial == 7 && schemaNotImplemented == 141 && schemaNotApplicable == 48,
+                      "the B2 registry reaches the exact staged 191/7/141/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -207,7 +207,16 @@ int main() {
 
     expectTargets<detail::ClientRequestTarget>(
         result,
-        std::array<std::string_view, 23>{"initialize",
+        std::array<std::string_view, 32>{"initialize",
+                                         "account/login/cancel",
+                                         "account/login/start",
+                                         "account/logout",
+                                         "account/rateLimitResetCredit/consume",
+                                         "account/rateLimits/read",
+                                         "account/read",
+                                         "account/sendAddCreditsNudgeEmail",
+                                         "account/usage/read",
+                                         "account/workspaceMessages/read",
                                          "thread/start",
                                          "thread/resume",
                                          "thread/list",
@@ -236,7 +245,10 @@ int main() {
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 39>{"error",
+        std::array<std::string_view, 42>{"error",
+                                         "account/login/completed",
+                                         "account/rateLimits/updated",
+                                         "account/updated",
                                          "thread/started",
                                          "thread/status/changed",
                                          "turn/started",
@@ -275,7 +287,7 @@ int main() {
                                          "turn/moderationMetadata",
                                          "turn/plan/updated",
                                          "model/rerouted"},
-        "all 39 typed notification dispatch targets resolve to their exact registered wire methods");
+        "all 42 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
         std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
@@ -424,14 +436,20 @@ int main() {
         "turn/start",
         "turn/steer",
     }};
+    std::vector<const detail::ClientOperationCodecDescriptor*> a11OperationDescriptors;
+    for (const detail::ClientOperationCodecDescriptor& descriptor : operationDescriptors) {
+        if (detail::entryFor(descriptor.target).a1Slice == detail::A1Slice::A1_1) {
+            a11OperationDescriptors.push_back(&descriptor);
+        }
+    }
     bool exactOperationDescriptors =
-        operationDescriptors.size() == expectedOperationMethods.size();
+        a11OperationDescriptors.size() == expectedOperationMethods.size();
     std::size_t operationUnitCount = 0;
     std::size_t operationConcreteCount = 0;
     for (std::size_t index = 0;
-         exactOperationDescriptors && index < operationDescriptors.size();
+         exactOperationDescriptors && index < a11OperationDescriptors.size();
          ++index) {
-        const auto& descriptor = operationDescriptors[index];
+        const auto& descriptor = *a11OperationDescriptors[index];
         const auto& entry = detail::entryFor(descriptor.target);
         exactOperationDescriptors =
             descriptor.key ==
@@ -458,8 +476,117 @@ int main() {
     result.expectTrue(
         exactOperationDescriptors && operationUnitCount == 7 &&
             operationConcreteCount == 15,
-        "the generated client-operation descriptor is an exact 22-row "
+        "the generated A1.1 client-operation descriptor subset remains an exact 22-row "
         "method/target/contract bijection with 7 Unit and 15 Concrete results");
+
+    struct ExpectedAccountOperation {
+        std::string_view method;
+        std::string_view parameterType;
+        std::string_view resultType;
+        detail::ResultContractKind resultKind;
+        detail::ClientOperationResultDecoder resultDecoder;
+    };
+    constexpr std::array<ExpectedAccountOperation, 9> expectedAccountOperations{{
+        {"account/login/cancel",
+         "CancelLoginAccountParams",
+         "CancelLoginAccountResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::CancelLoginAccountResponse},
+        {"account/login/start",
+         "LoginAccountParams",
+         "LoginAccountResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::LoginAccountResponse},
+        {"account/logout",
+         "Unit",
+         "Unit",
+         detail::ResultContractKind::Unit,
+         detail::ClientOperationResultDecoder::Unit},
+        {"account/rateLimitResetCredit/consume",
+         "ConsumeAccountRateLimitResetCreditParams",
+         "ConsumeAccountRateLimitResetCreditResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::
+             ConsumeAccountRateLimitResetCreditResponse},
+        {"account/rateLimits/read",
+         "Unit",
+         "GetAccountRateLimitsResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::GetAccountRateLimitsResponse},
+        {"account/read",
+         "GetAccountParams",
+         "GetAccountResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::GetAccountResponse},
+        {"account/sendAddCreditsNudgeEmail",
+         "SendAddCreditsNudgeEmailParams",
+         "SendAddCreditsNudgeEmailResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::
+             SendAddCreditsNudgeEmailResponse},
+        {"account/usage/read",
+         "Unit",
+         "GetAccountTokenUsageResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::GetAccountTokenUsageResponse},
+        {"account/workspaceMessages/read",
+         "Unit",
+         "GetWorkspaceMessagesResponse",
+         detail::ResultContractKind::Concrete,
+         detail::ClientOperationResultDecoder::GetWorkspaceMessagesResponse},
+    }};
+    bool exactAccountOperations = operationDescriptors.size() >= expectedAccountOperations.size();
+    std::size_t accountOperationCount = 0;
+    std::size_t accountUnitCount = 0;
+    std::size_t accountConcreteCount = 0;
+    for (const detail::ClientOperationCodecDescriptor& descriptor :
+         operationDescriptors) {
+        if (!descriptor.key.name.starts_with("account/")) {
+            continue;
+        }
+        const auto expected = std::find_if(
+            expectedAccountOperations.begin(),
+            expectedAccountOperations.end(),
+            [&](const ExpectedAccountOperation& candidate) {
+                return candidate.method == descriptor.key.name;
+            });
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        exactAccountOperations =
+            exactAccountOperations &&
+            expected != expectedAccountOperations.end() &&
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ClientRequest,
+                    "ClientRequest",
+                    "method",
+                    descriptor.key.name,
+                } &&
+            descriptor.parameterTypeIdentity == expected->parameterType &&
+            descriptor.resultTypeIdentity == expected->resultType &&
+            descriptor.resultKind == expected->resultKind &&
+            descriptor.resultDecoder == expected->resultDecoder &&
+            entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+            entry.operationContract.parameterTypeIdentity ==
+                descriptor.parameterTypeIdentity &&
+            entry.operationContract.resultTypeIdentity ==
+                descriptor.resultTypeIdentity &&
+            entry.operationContract.resultKind == descriptor.resultKind;
+        ++accountOperationCount;
+        accountUnitCount +=
+            descriptor.resultKind == detail::ResultContractKind::Unit;
+        accountConcreteCount +=
+            descriptor.resultKind == detail::ResultContractKind::Concrete;
+    }
+    result.expectTrue(
+        exactAccountOperations &&
+            accountOperationCount == expectedAccountOperations.size() &&
+            accountUnitCount == 1 && accountConcreteCount == 8,
+        "the B2 account operation descriptors form the exact nine-row "
+        "registry/contract/decoder bijection with one Unit and eight Concrete results");
 
     const auto validateWithOperationDescriptors =
         [&](std::span<const detail::ProtocolSurfaceEntry> entries,
@@ -590,7 +717,13 @@ int main() {
     std::vector<detail::ClientOperationCodecDescriptor>
         wrongOperationContract(
             operationDescriptors.begin(), operationDescriptors.end());
-    wrongOperationContract.front().resultKind =
+    const auto unitOperationDescriptor = std::find_if(
+        wrongOperationContract.begin(),
+        wrongOperationContract.end(),
+        [](const detail::ClientOperationCodecDescriptor& descriptor) {
+            return descriptor.resultKind == detail::ResultContractKind::Unit;
+        });
+    unitOperationDescriptor->resultKind =
         detail::ResultContractKind::Concrete;
     result.expectTrue(
         hasExactCodes(
@@ -703,7 +836,8 @@ int main() {
         notificationDescriptors =
             detail::serverNotificationCodecDescriptors();
     std::size_t a11NotificationDescriptors = 0;
-    bool exactNotificationDescriptors = notificationDescriptors.size() == 39;
+    std::size_t residualPartialNotificationDescriptors = 0;
+    bool exactNotificationDescriptors = true;
     bool exactResidualNotificationDescriptors = true;
     for (const detail::ServerNotificationCodecDescriptor& descriptor :
          notificationDescriptors) {
@@ -723,7 +857,9 @@ int main() {
             descriptor.a11ConversationDomain ==
                 (entry.a1Slice == detail::A1Slice::A1_1);
         a11NotificationDescriptors += descriptor.a11ConversationDomain;
-        if (!descriptor.a11ConversationDomain) {
+        if (!descriptor.a11ConversationDomain &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Partial) {
+            ++residualPartialNotificationDescriptors;
             exactResidualNotificationDescriptors =
                 exactResidualNotificationDescriptors &&
                 (descriptor.key.name == "error" ||
@@ -732,9 +868,56 @@ int main() {
     }
     result.expectTrue(
         exactNotificationDescriptors && a11NotificationDescriptors == 37 &&
+            residualPartialNotificationDescriptors == 2 &&
             exactResidualNotificationDescriptors,
-        "generated notification descriptors form an exact 39-row "
-        "registry/payload bijection with 37 A1.1 and two residual rows");
+        "generated notification descriptors preserve the exact 37-row A1.1 "
+        "registry/payload bijection and two residual partial rows independent of later slices");
+
+    constexpr std::array<std::pair<std::string_view, std::string_view>, 3>
+        expectedAccountNotifications{{
+            {"account/login/completed",
+             "typed::AccountLoginCompletedNotification"},
+            {"account/rateLimits/updated",
+             "typed::AccountRateLimitsUpdatedNotification"},
+            {"account/updated", "typed::AccountUpdatedNotification"},
+        }};
+    bool exactAccountNotifications = true;
+    std::size_t accountNotificationCount = 0;
+    for (const detail::ServerNotificationCodecDescriptor& descriptor :
+         notificationDescriptors) {
+        if (!descriptor.key.name.starts_with("account/")) {
+            continue;
+        }
+        const auto expected = std::find_if(
+            expectedAccountNotifications.begin(),
+            expectedAccountNotifications.end(),
+            [&](const auto& candidate) {
+                return candidate.first == descriptor.key.name;
+            });
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        exactAccountNotifications =
+            exactAccountNotifications &&
+            expected != expectedAccountNotifications.end() &&
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ServerNotification,
+                    "ServerNotification",
+                    "method",
+                    descriptor.key.name,
+                } &&
+            descriptor.payloadTypeIdentity == expected->second &&
+            !descriptor.a11ConversationDomain && entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete;
+        ++accountNotificationCount;
+    }
+    result.expectTrue(
+        exactAccountNotifications &&
+            accountNotificationCount == expectedAccountNotifications.size(),
+        "the B2 account notification descriptors form the exact three-row "
+        "registry/payload bijection without changing A1.1 membership");
 
     const auto validateWithNotificationDescriptors =
         [&](std::span<const detail::ProtocolSurfaceEntry> entries,
@@ -1000,6 +1183,575 @@ int main() {
                  CodecDescriptorWithoutRegistryRow}),
         "removing a notification row while retaining its target/descriptor "
         "emits exactly the two bidirectional diagnostics");
+
+    const std::span<
+        const detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        accountUnionDescriptors =
+            detail::accountsModelsConfigurationUnionCodecDescriptors();
+    constexpr std::array<detail::ProtocolSurfaceKey, 11>
+        expectedAccountUnionKeys{{
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "Account",
+             "type",
+             "amazonBedrock"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "Account",
+             "type",
+             "apiKey"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "Account",
+             "type",
+             "chatgpt"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountParams",
+             "type",
+             "apiKey"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountParams",
+             "type",
+             "chatgpt"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountParams",
+             "type",
+             "chatgptAuthTokens"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountParams",
+             "type",
+             "chatgptDeviceCode"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountResponse",
+             "type",
+             "apiKey"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountResponse",
+             "type",
+             "chatgpt"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountResponse",
+             "type",
+             "chatgptAuthTokens"},
+            {detail::SurfaceCategory::TaggedUnionDiscriminator,
+             "LoginAccountResponse",
+             "type",
+             "chatgptDeviceCode"},
+        }};
+    bool exactAccountUnionDescriptors =
+        accountUnionDescriptors.size() == expectedAccountUnionKeys.size() &&
+        accountUnionDescriptors.size() ==
+            static_cast<std::size_t>(
+                detail::AccountsModelsConfigurationUnionTarget::Count);
+    for (std::size_t index = 0;
+         exactAccountUnionDescriptors &&
+         index < accountUnionDescriptors.size();
+         ++index) {
+        const auto target =
+            static_cast<detail::AccountsModelsConfigurationUnionTarget>(
+                index);
+        const detail::AccountsModelsConfigurationUnionCodecDescriptor&
+            descriptor = accountUnionDescriptors[index];
+        const detail::ProtocolSurfaceEntry& entry = detail::entryFor(target);
+        const detail::ConversationUnionCodecDirection expectedDirection =
+            index < 3 || index >= 7
+                ? detail::ConversationUnionCodecDirection::DecodeOnly
+                : detail::ConversationUnionCodecDirection::EncodeOnly;
+        exactAccountUnionDescriptors =
+            descriptor.target == target &&
+            descriptor.key == expectedAccountUnionKeys[index] &&
+            descriptor.shape ==
+                detail::ConversationUnionCodecShape::InternallyTaggedObject &&
+            descriptor.direction == expectedDirection &&
+            entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete;
+    }
+    result.expectTrue(
+        exactAccountUnionDescriptors,
+        "the generated B2 account/login union family is an exact 11-target "
+        "key/shape/direction/registry bijection");
+
+    const std::span<const detail::ServerRequestCodecDescriptor>
+        serverRequestDescriptors = detail::serverRequestCodecDescriptors();
+    const bool exactAuthRefreshDescriptor =
+        serverRequestDescriptors.size() == 1 &&
+        serverRequestDescriptors.front().key ==
+            detail::ProtocolSurfaceKey{
+                detail::SurfaceCategory::ServerRequest,
+                "ServerRequest",
+                "method",
+                "account/chatgptAuthTokens/refresh",
+            } &&
+        serverRequestDescriptors.front().target ==
+            detail::ServerRequestTarget::ChatgptAuthTokensRefresh &&
+        serverRequestDescriptors.front().parameterTypeIdentity ==
+            "ChatgptAuthTokensRefreshParams" &&
+        serverRequestDescriptors.front().resultTypeIdentity ==
+            "ChatgptAuthTokensRefreshResponse" &&
+        serverRequestDescriptors.front().resultKind ==
+            detail::ResultContractKind::Concrete &&
+        detail::entryFor(serverRequestDescriptors.front().target).key ==
+            serverRequestDescriptors.front().key &&
+        detail::entryFor(serverRequestDescriptors.front().target)
+                .typedSchemaStatus ==
+            detail::TypedSchemaStatus::Complete &&
+        detail::entryFor(serverRequestDescriptors.front().target).a1Slice ==
+            detail::A1Slice::A1_2 &&
+        detail::entryFor(serverRequestDescriptors.front().target)
+                .typedModule == "AccountsModelsConfiguration";
+    result.expectTrue(
+        exactAuthRefreshDescriptor,
+        "the generated B2 auth-refresh server-request descriptor is the exact "
+        "canonical request/response contract without creating a second request registry");
+
+    const auto validateWithB2Descriptors =
+        [&](std::span<const detail::ProtocolSurfaceEntry> entries,
+            std::span<
+                const detail::AccountsModelsConfigurationUnionCodecDescriptor>
+                unionDescriptors,
+            std::span<const detail::ServerRequestCodecDescriptor>
+                requestDescriptors) {
+            return detail::validateProtocolSurface(
+                entries,
+                detail::codexErrorInfoCodecDescriptors(),
+                detail::conversationUnionCodecDescriptors(),
+                unionDescriptors,
+                detail::threadItemCodecDescriptors(),
+                detail::responseItemCodecDescriptors(),
+                detail::clientOperationCodecDescriptors(),
+                detail::serverNotificationCodecDescriptors(),
+                requestDescriptors);
+        };
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        duplicateAccountUnionDescriptor(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    duplicateAccountUnionDescriptor.push_back(
+        accountUnionDescriptors.front());
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                duplicateAccountUnionDescriptor,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+        "a duplicate B2 account-union descriptor emits exactly "
+        "DuplicateCodecDescriptor");
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        missingAccountUnionDescriptor(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    missingAccountUnionDescriptor.erase(
+        missingAccountUnionDescriptor.begin());
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                missingAccountUnionDescriptor,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a complete B2 account-union row without its descriptor emits the "
+        "exact two missing-descriptor codes");
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        staleAccountUnionDescriptor(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    staleAccountUnionDescriptor.front().key.name = "futureAccountKind";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                staleAccountUnionDescriptor,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutRegistryRow,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a stale B2 account-union descriptor emits only the exact "
+        "canonical-key and missing-row codes");
+
+    const auto expectWrongAccountUnionDescriptorKey =
+        [&](auto mutateKey,
+            std::initializer_list<detail::ProtocolSurfaceErrorCode>
+                expectedCodes,
+            const char* description) {
+            std::vector<
+                detail::AccountsModelsConfigurationUnionCodecDescriptor>
+                descriptors(
+                    accountUnionDescriptors.begin(),
+                    accountUnionDescriptors.end());
+            mutateKey(descriptors.front().key);
+            result.expectTrue(
+                hasExactCodes(
+                    validateWithB2Descriptors(
+                        registry, descriptors, serverRequestDescriptors),
+                    expectedCodes),
+                description);
+        };
+    const std::initializer_list<detail::ProtocolSurfaceErrorCode>
+        wrongAccountUnionKeyCodes{
+            detail::ProtocolSurfaceErrorCode::
+                CodecDescriptorCanonicalKeyMismatch,
+            detail::ProtocolSurfaceErrorCode::
+                CodecDescriptorWithoutRegistryRow,
+            detail::ProtocolSurfaceErrorCode::
+                RegistryRowWithoutCodecDescriptor,
+            detail::ProtocolSurfaceErrorCode::
+                CompleteWithoutCodecDescriptor,
+        };
+    expectWrongAccountUnionDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.category = detail::SurfaceCategory::ItemDiscriminator;
+        },
+        wrongAccountUnionKeyCodes,
+        "a B2 account-union descriptor with the wrong category emits the "
+        "exact canonical-key multiset");
+    expectWrongAccountUnionDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.domain = "WrongAccount";
+        },
+        wrongAccountUnionKeyCodes,
+        "a B2 account-union descriptor with the wrong domain emits the exact "
+        "canonical-key multiset");
+    expectWrongAccountUnionDescriptorKey(
+        [](detail::ProtocolSurfaceKey& key) {
+            key.field = "wrongDiscriminator";
+        },
+        {detail::ProtocolSurfaceErrorCode::
+             CodecDescriptorCanonicalKeyMismatch,
+         detail::ProtocolSurfaceErrorCode::
+             CodecDescriptorWithoutRegistryRow,
+         detail::ProtocolSurfaceErrorCode::
+             RegistryRowWithoutCodecDescriptor,
+         detail::ProtocolSurfaceErrorCode::
+             CompleteWithoutCodecDescriptor,
+         detail::ProtocolSurfaceErrorCode::InvalidCodecDescriptorShape},
+        "a B2 account-union descriptor with the wrong discriminator field "
+        "emits the exact canonical-key and shape multiset");
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        swappedAccountUnionTargets(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    std::swap(
+        swappedAccountUnionTargets[0].target,
+        swappedAccountUnionTargets[1].target);
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                swappedAccountUnionTargets,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "swapping two B2 account-union targets emits the exact eight-code "
+        "descriptor/registry mismatch multiset");
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        wrongAccountUnionShape(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    wrongAccountUnionShape.front().shape =
+        detail::ConversationUnionCodecShape::ScalarString;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry, wrongAccountUnionShape, serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 InvalidCodecDescriptorShape}),
+        "a B2 account-union descriptor with the wrong shape emits exactly "
+        "InvalidCodecDescriptorShape");
+
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        wrongAccountUnionDirection(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    wrongAccountUnionDirection.front().direction =
+        detail::ConversationUnionCodecDirection::EncodeOnly;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                wrongAccountUnionDirection,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 InvalidCodecDescriptorDirection}),
+        "a B2 account-union descriptor with the wrong direction emits "
+        "exactly InvalidCodecDescriptorDirection");
+
+    std::vector<detail::ProtocolSurfaceEntry> targetlessAccountUnion(
+        registry.begin(), registry.end());
+    findExactEntry(
+        targetlessAccountUnion, accountUnionDescriptors.front().key)
+        ->runtimeTarget = std::monostate{};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                targetlessAccountUnion,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+             detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a complete B2 account-union row without its runtime target emits "
+        "the exact five-code bidirectional multiset");
+
+    std::vector<detail::ProtocolSurfaceEntry> demotedAccountUnion(
+        registry.begin(), registry.end());
+    const auto demotedAccountUnionRow = findExactEntry(
+        demotedAccountUnion, accountUnionDescriptors.front().key);
+    demotedAccountUnionRow->runtimeDisposition =
+        detail::RuntimeDisposition::Deferred;
+    demotedAccountUnionRow->typedImplementation =
+        detail::TypedImplementationStatus::NotImplemented;
+    demotedAccountUnionRow->typedSchemaStatus =
+        detail::TypedSchemaStatus::NotImplemented;
+    demotedAccountUnionRow->schemaCompleteness = {};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                demotedAccountUnion,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 RuntimeTargetWithoutTypedImplementation,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutTypedRegistryRow}),
+        "retaining a B2 account-union target and descriptor while demoting "
+        "its row emits exactly two codes");
+
+    std::vector<detail::ProtocolSurfaceEntry> coherentlyDriftedAccountUnion(
+        registry.begin(), registry.end());
+    std::vector<detail::AccountsModelsConfigurationUnionCodecDescriptor>
+        coherentlyDriftedAccountUnionDescriptors(
+            accountUnionDescriptors.begin(), accountUnionDescriptors.end());
+    const auto coherentlyDriftedAccountUnionRow = findExactEntry(
+        coherentlyDriftedAccountUnion,
+        accountUnionDescriptors.front().key);
+    coherentlyDriftedAccountUnionRow->key.domain = "DriftedAccount";
+    coherentlyDriftedAccountUnionDescriptors.front().key.domain =
+        "DriftedAccount";
+    std::sort(
+        coherentlyDriftedAccountUnion.begin(),
+        coherentlyDriftedAccountUnion.end(),
+        [](const auto& left, const auto& right) {
+            return left.key < right.key;
+        });
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                coherentlyDriftedAccountUnion,
+                coherentlyDriftedAccountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RuntimeTargetCanonicalKeyMismatch}),
+        "coherently drifting a B2 account-union row and descriptor cannot "
+        "evade the exact canonical-key guard");
+
+    std::vector<detail::ProtocolSurfaceEntry> falseAccountUnionCompleteness(
+        registry.begin(), registry.end());
+    findExactEntry(
+        falseAccountUnionCompleteness, accountUnionDescriptors.front().key)
+        ->schemaCompleteness.noKnownSchemaFieldsDropped = false;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                falseAccountUnionCompleteness,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::KnownSchemaFieldDropped}),
+        "false B2 account-union completeness emits exactly "
+        "KnownSchemaFieldDropped");
+
+    std::vector<detail::ProtocolSurfaceEntry> removedAccountUnion(
+        registry.begin(), registry.end());
+    removedAccountUnion.erase(findExactEntry(
+        removedAccountUnion, accountUnionDescriptors.front().key));
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                removedAccountUnion,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutRegistryRow}),
+        "removing a B2 account-union row while retaining its target and "
+        "descriptor emits exactly two codes");
+
+    std::vector<detail::ServerRequestCodecDescriptor>
+        duplicateServerRequestDescriptor(
+            serverRequestDescriptors.begin(), serverRequestDescriptors.end());
+    duplicateServerRequestDescriptor.push_back(
+        serverRequestDescriptors.front());
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                accountUnionDescriptors,
+                duplicateServerRequestDescriptor),
+            {detail::ProtocolSurfaceErrorCode::DuplicateCodecDescriptor}),
+        "a duplicate auth-refresh descriptor emits exactly "
+        "DuplicateCodecDescriptor");
+
+    std::vector<detail::ServerRequestCodecDescriptor>
+        missingServerRequestDescriptor;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                accountUnionDescriptors,
+                missingServerRequestDescriptor),
+            {detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a complete auth-refresh row without its descriptor emits the exact "
+        "two missing-descriptor codes");
+
+    std::vector<detail::ServerRequestCodecDescriptor>
+        staleServerRequestDescriptor(
+            serverRequestDescriptors.begin(), serverRequestDescriptors.end());
+    staleServerRequestDescriptor.front().key.name =
+        "account/chatgptAuthTokens/stale";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                accountUnionDescriptors,
+                staleServerRequestDescriptor),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorCanonicalKeyMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutRegistryRow,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a stale auth-refresh descriptor emits the exact canonical-key "
+        "and missing-row multiset");
+
+    std::vector<detail::ServerRequestCodecDescriptor>
+        wrongServerRequestContract(
+            serverRequestDescriptors.begin(), serverRequestDescriptors.end());
+    wrongServerRequestContract.front().resultTypeIdentity =
+        "WrongAuthRefreshResponse";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                registry,
+                accountUnionDescriptors,
+                wrongServerRequestContract),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorContractMismatch}),
+        "an auth-refresh descriptor with the wrong response contract emits "
+        "exactly CodecDescriptorContractMismatch");
+
+    std::vector<detail::ProtocolSurfaceEntry> targetlessServerRequest(
+        registry.begin(), registry.end());
+    findExactEntry(
+        targetlessServerRequest, serverRequestDescriptors.front().key)
+        ->runtimeTarget = std::monostate{};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                targetlessServerRequest,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::TypedWithoutRuntimeTarget,
+             detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorTargetMismatch,
+             detail::ProtocolSurfaceErrorCode::
+                 RegistryRowWithoutCodecDescriptor,
+             detail::ProtocolSurfaceErrorCode::
+                 CompleteWithoutCodecDescriptor}),
+        "a complete auth-refresh row without its target emits the exact "
+        "five-code bidirectional multiset");
+
+    std::vector<detail::ProtocolSurfaceEntry> demotedServerRequest(
+        registry.begin(), registry.end());
+    const auto demotedServerRequestRow = findExactEntry(
+        demotedServerRequest, serverRequestDescriptors.front().key);
+    demotedServerRequestRow->runtimeDisposition =
+        detail::RuntimeDisposition::Deferred;
+    demotedServerRequestRow->typedImplementation =
+        detail::TypedImplementationStatus::NotImplemented;
+    demotedServerRequestRow->typedSchemaStatus =
+        detail::TypedSchemaStatus::NotImplemented;
+    demotedServerRequestRow->schemaCompleteness = {};
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                demotedServerRequest,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 RuntimeTargetWithoutTypedImplementation,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutTypedRegistryRow}),
+        "retaining the auth-refresh target and descriptor while demoting "
+        "its row emits exactly two codes");
+
+    std::vector<detail::ProtocolSurfaceEntry>
+        falseServerRequestCompleteness(registry.begin(), registry.end());
+    findExactEntry(
+        falseServerRequestCompleteness,
+        serverRequestDescriptors.front().key)
+        ->schemaCompleteness.directionAssertionsExercised = false;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                falseServerRequestCompleteness,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::DirectionAssertionMissing}),
+        "false auth-refresh completeness emits exactly "
+        "DirectionAssertionMissing");
+
+    std::vector<detail::ProtocolSurfaceEntry> removedServerRequest(
+        registry.begin(), registry.end());
+    removedServerRequest.erase(findExactEntry(
+        removedServerRequest, serverRequestDescriptors.front().key));
+    result.expectTrue(
+        hasExactCodes(
+            validateWithB2Descriptors(
+                removedServerRequest,
+                accountUnionDescriptors,
+                serverRequestDescriptors),
+            {detail::ProtocolSurfaceErrorCode::
+                 MissingRuntimeTargetRegistration,
+             detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorWithoutRegistryRow}),
+        "removing the auth-refresh row while retaining its target and "
+        "descriptor emits exactly two codes");
 
     const std::span<const detail::ConversationUnionCodecDescriptor> conversationDescriptors = detail::conversationUnionCodecDescriptors();
     constexpr std::array<detail::ProtocolSurfaceKey, 58> expectedConversationTargets{{
@@ -1502,7 +2254,7 @@ int main() {
         });
 
     const detail::ProtocolSurfaceEntry* deferred =
-        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "account/login/cancel");
+        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "model/list");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
                           deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
                           std::holds_alternative<std::monostate>(deferred->runtimeTarget),
@@ -1569,7 +2321,8 @@ int main() {
                       "registry validation reports only ConflictingAssociationEvidence for a client contract attributed to schema pairing");
 
     std::vector<detail::ProtocolSurfaceEntry> unitMismatch(registry.begin(), registry.end());
-    const auto nonUnit = findEntry(unitMismatch, detail::SurfaceCategory::ClientRequest, "account/logout");
+    const auto nonUnit =
+        findEntry(unitMismatch, detail::SurfaceCategory::ClientRequest, "config/mcpServer/reload");
     nonUnit->operationContract.resultKind = detail::ResultContractKind::Unit;
     nonUnit->operationContract.resultTypeIdentity = "ThreadArchiveResponse";
     result.expectTrue(

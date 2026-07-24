@@ -622,16 +622,19 @@ int main() {
     }
 
     const auto descriptors = detail::serverNotificationCodecDescriptors();
-    result.expectTrue(descriptors.size() == 39, "the production descriptor set contains exactly 39 typed server notifications");
     const std::size_t a11Descriptors =
         static_cast<std::size_t>(std::count_if(descriptors.begin(), descriptors.end(), [](const auto& descriptor) {
             return descriptor.a11ConversationDomain;
         }));
     result.expectTrue(a11Descriptors == 37, "exactly 37 descriptor rows belong to the A1.1 conversation-domain slice");
-    result.expectTrue(std::count_if(descriptors.begin(), descriptors.end(), [](const auto& descriptor) {
-                          return !descriptor.a11ConversationDomain;
-                      }) == 2,
-                      "error and model/rerouted remain the exact two residual partial descriptor rows");
+    const std::size_t residualPartialDescriptors =
+        static_cast<std::size_t>(std::count_if(descriptors.begin(), descriptors.end(), [](const auto& descriptor) {
+            const auto& row = detail::entryFor(descriptor.target);
+            return !descriptor.a11ConversationDomain && row.typedSchemaStatus == detail::TypedSchemaStatus::Partial &&
+                   (descriptor.key.name == "error" || descriptor.key.name == "model/rerouted");
+        }));
+    result.expectTrue(residualPartialDescriptors == 2,
+                      "error and model/rerouted remain the exact two residual partial descriptor rows independent of later slices");
 
     std::map<std::string, std::size_t> roles;
     std::set<detail::ServerNotificationTarget> baseTargets;

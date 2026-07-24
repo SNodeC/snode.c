@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 245,
-      "fixture_current": 245,
-      "independently_schema_validated": 245,
-      "nullable_semantics_exercised": 167,
-      "optional_omitted_exercised": 245,
-      "optional_present_exercised": 245,
-      "positive_fixture_coverage": 245,
-      "reachable_union_alternatives_exercised": 167,
-      "required_fields_exercised": 245,
-      "schema_properties_exercised": 167
+      "authoritative_root_association": 259,
+      "fixture_current": 259,
+      "independently_schema_validated": 259,
+      "nullable_semantics_exercised": 191,
+      "optional_omitted_exercised": 259,
+      "optional_present_exercised": 259,
+      "positive_fixture_coverage": 259,
+      "reachable_union_alternatives_exercised": 191,
+      "required_fields_exercised": 259,
+      "schema_properties_exercised": 191
     },
-    "identities_with_positive_fixtures": 245,
+    "identities_with_positive_fixtures": 259,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -60,13 +60,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -85,13 +85,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -110,21 +110,23 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/rateLimitResetCredit/consume:params",
+        "operation:client_request:account/rateLimitResetCredit/consume:params:nullable-null:creditid",
+        "operation:client_request:account/rateLimitResetCredit/consume:params:optional-omitted:creditid",
         "operation:client_request:account/rateLimitResetCredit/consume:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -135,21 +137,85 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/rateLimits/read:params",
-        "operation:client_request:account/rateLimits/read:result"
+        "operation:client_request:account/rateLimits/read:result",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-description",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-expiresat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-title",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-limitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-limitname",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-plantype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-limitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-limitname",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-plantype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-description",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-expiresat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-title",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-limitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-limitname",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-plantype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-limitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-limitname",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-plantype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary-windowdurationmins"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 66,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -160,21 +226,24 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/read:params",
-        "operation:client_request:account/read:result"
+        "operation:client_request:account/read:params:optional-omitted:refreshtoken",
+        "operation:client_request:account/read:result",
+        "operation:client_request:account/read:result:nullable-null:account",
+        "operation:client_request:account/read:result:optional-omitted:account"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -185,13 +254,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -210,21 +279,33 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/usage/read:params",
-        "operation:client_request:account/usage/read:result"
+        "operation:client_request:account/usage/read:result",
+        "operation:client_request:account/usage/read:result:nullable-null:dailyusagebuckets",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-currentstreakdays",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-lifetimetokens",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-longestrunningturnsec",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-longeststreakdays",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-peakdailytokens",
+        "operation:client_request:account/usage/read:result:optional-omitted:dailyusagebuckets",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-currentstreakdays",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-lifetimetokens",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-longestrunningturnsec",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-longeststreakdays",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-peakdailytokens"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 14,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -235,21 +316,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/workspaceMessages/read:params",
-        "operation:client_request:account/workspaceMessages/read:result"
+        "operation:client_request:account/workspaceMessages/read:result",
+        "operation:client_request:account/workspaceMessages/read:result:nullable-null:messages-0-archivedat",
+        "operation:client_request:account/workspaceMessages/read:result:nullable-null:messages-0-createdat",
+        "operation:client_request:account/workspaceMessages/read:result:optional-omitted:messages-0-archivedat",
+        "operation:client_request:account/workspaceMessages/read:result:optional-omitted:messages-0-createdat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -260,13 +345,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -4578,8 +4663,14 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/login/completed",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:nullable-null:params-error",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:nullable-null:params-loginid",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:optional-omitted:params-error",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:optional-omitted:params-loginid"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4587,21 +4678,49 @@
         "name": "account/login/completed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-credits",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-credits-balance",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-individuallimit",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-limitid",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-limitname",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-plantype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-ratelimitreachedtype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-credits",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-credits-balance",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-individuallimit",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-limitid",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-limitname",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-plantype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-ratelimitreachedtype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary-windowdurationmins"
+      ],
+      "positive_fixture_count": 27,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4609,21 +4728,27 @@
         "name": "account/rateLimits/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/updated",
+        "baseline:server_notification:ServerNotification:method:account/updated:nullable-null:params-authmode",
+        "baseline:server_notification:ServerNotification:method:account/updated:nullable-null:params-plantype",
+        "baseline:server_notification:ServerNotification:method:account/updated:optional-omitted:params-authmode",
+        "baseline:server_notification:ServerNotification:method:account/updated:optional-omitted:params-plantype"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4631,16 +4756,16 @@
         "name": "account/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6279,9 +6404,13 @@
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:account/chatgptAuthTokens/refresh",
         "operation:server_request:account/chatgptAuthTokens/refresh:params",
-        "operation:server_request:account/chatgptAuthTokens/refresh:result"
+        "operation:server_request:account/chatgptAuthTokens/refresh:params:nullable-null:previousaccountid",
+        "operation:server_request:account/chatgptAuthTokens/refresh:params:optional-omitted:previousaccountid",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result:nullable-null:chatgptplantype",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result:optional-omitted:chatgptplantype"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6292,13 +6421,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6552,8 +6681,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:amazonBedrock",
+        "union:Account:amazonBedrock:optional-omitted:credentialsource"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6561,21 +6693,23 @@
         "name": "amazonBedrock"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6583,21 +6717,24 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:chatgpt",
+        "union:Account:chatgpt:required-nullable-null:email"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6605,16 +6742,16 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -8345,8 +8482,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8354,21 +8493,27 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgpt",
+        "union:LoginAccountParams:chatgpt:nullable-null:appbrand",
+        "union:LoginAccountParams:chatgpt:optional-omitted:appbrand",
+        "union:LoginAccountParams:chatgpt:optional-omitted:codexstreamlinedlogin",
+        "union:LoginAccountParams:chatgpt:optional-omitted:usehostedloginsuccesspage"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8376,21 +8521,25 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgptAuthTokens",
+        "union:LoginAccountParams:chatgptAuthTokens:nullable-null:chatgptplantype",
+        "union:LoginAccountParams:chatgptAuthTokens:optional-omitted:chatgptplantype"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8398,21 +8547,23 @@
         "name": "chatgptAuthTokens"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgptDeviceCode"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8420,21 +8571,23 @@
         "name": "chatgptDeviceCode"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8442,21 +8595,23 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgpt"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8464,21 +8619,23 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgptAuthTokens"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8486,21 +8643,23 @@
         "name": "chatgptAuthTokens"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgptDeviceCode"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8508,16 +8667,16 @@
         "name": "chatgptDeviceCode"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

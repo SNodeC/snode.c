@@ -147,10 +147,10 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 3714 index records resolve to the retained files
+# additionally proves that all 4169 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 3715)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 4170)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
@@ -232,6 +232,9 @@ set(
     "tools/codex/app_server_contracts.py"
     "tools/codex/app_server_fixtures.py"
     "tools/codex/draft07.py"
+    "src/ai/openai/codex/detail/AccountCodec.cpp"
+    "src/ai/openai/codex/detail/AccountCodec.h"
+    "src/ai/openai/codex/detail/AccountsModelsConfigurationUnionCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ConversationCodec.cpp"
     "src/ai/openai/codex/detail/ConversationCodec.h"
     "src/ai/openai/codex/detail/ConversationUnionCodecDescriptors.inc"
@@ -240,8 +243,11 @@ set(
     "src/ai/openai/codex/detail/ClientOperationCodec.h"
     "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
+    "src/ai/openai/codex/detail/ServerRequestCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc"
+    "src/ai/openai/codex/typed/Accounts.cpp"
+    "src/ai/openai/codex/typed/Accounts.h"
     "src/ai/openai/codex/typed/Conversation.h"
     "src/ai/openai/codex/typed/Events.h"
     "tests/CodexBinaryPackageTest.cmake"
@@ -259,7 +265,14 @@ set(
     "tests/component/codex/CodexA11OperationWireTest.cpp"
     "tests/component/codex/CodexA11NotificationCodecTest.cpp"
     "tests/component/codex/CodexA11NotificationBackendPreservationTest.cpp"
+    "tests/component/codex/CodexA12AccountCodecTest.cpp"
+    "tests/component/codex/CodexA12AccountWireTest.cpp"
+    "tests/component/codex/CodexA12AccountBackendPreservationTest.cpp"
+    "tests/component/codex/CodexA12AuthRefreshWireTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
+    "tests/component/codex/CodexTypedClientFacadeTest.cpp"
+    "tests/component/codex/CodexTypedFacadeUsageGuardTest.py"
+    "tests/installed/codex/CodexTypedConsumer.cpp"
     "docs/ai/openai/codex/a1-1-conversation-domain.md"
     "docs/ai/openai/codex/a1-1-test-integrity.md"
     "docs/ai/openai/codex/a1-2-accounts-models-configuration.md"

@@ -66,6 +66,7 @@ set(
     "frontend/Protocol.h"
     "frontend/UpdateBatch.h"
     "stdio/Client.h"
+    "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
     "typed/Conversation.h"
@@ -200,5 +201,5 @@ endif()
 
 message(
     STATUS
-        "Codex binary packages: archives=3, public_headers=27, soversion_libraries=3"
+        "Codex binary packages: archives=3, public_headers=28, soversion_libraries=3"
 )

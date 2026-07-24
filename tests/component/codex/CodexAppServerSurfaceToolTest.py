@@ -378,9 +378,47 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 22:
+    if len(rows) != 31:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 22 rows"
+            "client-operation descriptor must contain exactly 31 rows"
+        )
+    method_rows = {
+        match.group(1): line
+        for line in rows
+        if (
+            match := re.search(
+                r'^CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR\('
+                r'[^,]+, "[^"]+", "[^"]+", "([^"]+)", ',
+                line,
+            )
+        )
+    }
+    a1_1_methods = {
+        key[3]
+        for assignment in evidence["assignments"]["assignments"]
+        if (key := tool.surface_key(assignment))[0] == "client_request"
+        and assignment.get("slice") == "A1.1"
+    }
+    a1_2_b2_methods = {
+        "account/login/cancel",
+        "account/login/start",
+        "account/logout",
+        "account/rateLimitResetCredit/consume",
+        "account/rateLimits/read",
+        "account/read",
+        "account/sendAddCreditsNudgeEmail",
+        "account/usage/read",
+        "account/workspaceMessages/read",
+    }
+    if (
+        len(method_rows) != 31
+        or len(a1_1_methods) != 22
+        or set(method_rows) != a1_1_methods | a1_2_b2_methods
+        or a1_1_methods & a1_2_b2_methods
+    ):
+        raise AssertionError(
+            "client-operation descriptors lost the exact 22 A1.1 / "
+            "nine A1.2 B2 slice projection"
         )
     targets = {
         match.group(1)
@@ -391,7 +429,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 22:
+    if len(targets) != 31:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -412,16 +450,39 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::Unit)" in line
             for line in rows
         )
-        != 7
+        != 8
         or sum(
             "ResultContractKind::Concrete, "
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 15
+        != 23
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
+        )
+    if (
+        sum("ResultContractKind::Unit" in method_rows[method] for method in a1_1_methods)
+        != 7
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_1_methods
+        )
+        != 15
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_2_b2_methods
+        )
+        != 1
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_2_b2_methods
+        )
+        != 8
+    ):
+        raise AssertionError(
+            "client-operation descriptors lost the exact per-slice "
+            "Unit/Concrete result-kind split"
         )
     for line in rows:
         binding = re.search(
@@ -553,21 +614,59 @@ def test_notification_descriptor_guards(
             )
         )
     }
-    if len(rows) != 39 or len(targets) != 39:
+    method_rows = {
+        match.group(1): line
+        for line in rows
+        if (
+            match := re.search(
+                r'^CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR\('
+                r'[^,]+, "[^"]+", "[^"]+", "([^"]+)", ',
+                line,
+            )
+        )
+    }
+    a1_1_methods = {
+        key[3]
+        for assignment in evidence["assignments"]["assignments"]
+        if (key := tool.surface_key(assignment))[0]
+        == "server_notification"
+        and assignment.get("slice") == "A1.1"
+    }
+    a1_2_b2_methods = {
+        "account/login/completed",
+        "account/rateLimits/updated",
+        "account/updated",
+    }
+    residual_methods = {"error", "model/rerouted"}
+    if (
+        len(rows) != 42
+        or len(targets) != 42
+        or len(method_rows) != 42
+        or len(a1_1_methods) != 37
+        or set(method_rows)
+        != a1_1_methods | a1_2_b2_methods | residual_methods
+        or (a1_1_methods | a1_2_b2_methods) & residual_methods
+        or a1_1_methods & a1_2_b2_methods
+    ):
         raise AssertionError(
-            "server-notification descriptors are not an exact 39-row target bijection"
+            "server-notification descriptors are not an exact 42-row "
+            "target bijection with the reviewed slice projection"
         )
     if (
         sum(line.endswith(", true)") for line in rows) != 37
-        or sum(line.endswith(", false)") for line in rows) != 2
-        or not any('"error"' in line and line.endswith(", false)") for line in rows)
-        or not any(
-            '"model/rerouted"' in line and line.endswith(", false)")
-            for line in rows
+        or sum(line.endswith(", false)") for line in rows) != 5
+        or any(
+            not method_rows[method].endswith(", true)")
+            for method in a1_1_methods
+        )
+        or any(
+            not method_rows[method].endswith(", false)")
+            for method in a1_2_b2_methods | residual_methods
         )
     ):
         raise AssertionError(
-            "server-notification descriptors lost the exact 37 A1.1 / two residual split"
+            "server-notification descriptors lost the exact 37 A1.1 / "
+            "three A1.2 B2 / two residual split"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -748,6 +847,308 @@ def test_conversation_descriptor_guards(
     finally:
         tool.CONVERSATION_UNION_CODECS.clear()
         tool.CONVERSATION_UNION_CODECS.update(original_codecs)
+
+
+def test_accounts_models_configuration_union_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = (
+        tool.generate_accounts_models_configuration_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    )
+    if generated != (
+        tool.generate_accounts_models_configuration_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    ):
+        raise AssertionError(
+            "account/login union descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private account/login union descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith(
+            "CODEX_ACCOUNTS_MODELS_CONFIGURATION_UNION_CODEC_DESCRIPTOR("
+        )
+    ]
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (AccountsModelsConfigurationUnionTarget::"
+                r"[A-Za-z0-9_]+), ",
+                line,
+            )
+        )
+    }
+    if (
+        len(rows) != 11
+        or len(targets) != 11
+        or sum(
+            "ConversationUnionCodecDirection::EncodeOnly)" in line
+            for line in rows
+        )
+        != 4
+        or sum(
+            "ConversationUnionCodecDirection::DecodeOnly)" in line
+            for line in rows
+        )
+        != 7
+        or any(
+            "ConversationUnionCodecShape::InternallyTaggedObject" not in line
+            for line in rows
+        )
+    ):
+        raise AssertionError(
+            "account/login union descriptors lost the exact "
+            "11-row, 4 encode-only / 7 decode-only contract"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "tagged_union_discriminator",
+            "Account",
+            "type",
+            "amazonBedrock",
+        )
+    )
+    assignment["module"] = "Models"
+    expect_surface_error_code(
+        tool,
+        lambda: (
+            tool.generate_accounts_models_configuration_union_descriptor_data(
+                manifest, schema_root, wrong_assignment
+            )
+        ),
+        "AccountsModelsConfigurationUnionDescriptorAssignmentMismatch",
+        "move one account union alternative out of its reviewed module",
+    )
+
+    original_codecs = dict(
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS
+    )
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[keys[1]] = (
+            first[0],
+            second[1],
+            second[2],
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_accounts_models_configuration_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            "DuplicateAccountsModelsConfigurationUnionDescriptorTarget",
+            "duplicate one account/login union descriptor target",
+        )
+
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[keys[1]] = second
+        direction_key = next(
+            key
+            for key, metadata in original_codecs.items()
+            if metadata[2]
+            == "ConversationUnionCodecDirection::EncodeOnly"
+        )
+        direction_metadata = original_codecs[direction_key]
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[
+            direction_key
+        ] = (
+            direction_metadata[0],
+            direction_metadata[1],
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_accounts_models_configuration_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            "AccountsModelsConfigurationUnionDescriptorDirectionMismatch",
+            "change one reviewed account/login codec direction",
+        )
+
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[
+            direction_key
+        ] = direction_metadata
+        wrong_key = (
+            keys[1][0],
+            "WrongAccountDomain",
+            keys[1][2],
+            keys[1][3],
+        )
+        del tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[keys[1]]
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS[wrong_key] = second
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_accounts_models_configuration_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            "AccountsModelsConfigurationUnionDescriptorAssignmentMismatch",
+            "coherently drift one account/login descriptor key",
+        )
+    finally:
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.clear()
+        tool.ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.update(
+            original_codecs
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-account-union-descriptors-"
+    ) as raw:
+        stale = (
+            Path(raw)
+            / "AccountsModelsConfigurationUnionCodecDescriptors.inc"
+        )
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_generated_descriptors(
+                stale,
+                generated,
+                True,
+                "AccountsModelsConfigurationUnion",
+            ),
+            "StaleGeneratedAccountsModelsConfigurationUnionDescriptors",
+            "change the checked-in account/login union descriptor artifact",
+        )
+
+
+def test_server_request_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = tool.generate_server_request_descriptor_data(
+        manifest, evidence
+    )
+    if generated != tool.generate_server_request_descriptor_data(
+        manifest, evidence
+    ):
+        raise AssertionError(
+            "server-request descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private server-request descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith("CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR(")
+    ]
+    if (
+        len(rows) != 1
+        or '"account/chatgptAuthTokens/refresh"' not in rows[0]
+        or "ServerRequestTarget::ChatgptAuthTokensRefresh" not in rows[0]
+        or '"ChatgptAuthTokensRefreshParams"' not in rows[0]
+        or '"ChatgptAuthTokensRefreshResponse"' not in rows[0]
+        or not rows[0].endswith("ResultContractKind::Concrete)")
+    ):
+        raise AssertionError(
+            "server-request descriptor lost the exact auth-refresh contract"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_request",
+            "ServerRequest",
+            "method",
+            "account/chatgptAuthTokens/refresh",
+        )
+    )
+    assignment["slice"] = "A1.3"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_request_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerRequestDescriptorAssignmentMismatch",
+        "move auth refresh out of the reviewed A1.2 slice",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "server_request",
+            "ServerRequest",
+            "method",
+            "account/chatgptAuthTokens/refresh",
+        )
+    )
+    contract["result_type_identity"] = "WrongResponse"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_request_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change the authoritative auth-refresh response contract",
+    )
+
+    auth_key = (
+        "server_request",
+        "ServerRequest",
+        "method",
+        "account/chatgptAuthTokens/refresh",
+    )
+    original_targets = dict(tool.RUNTIME_TARGETS)
+    try:
+        tool.RUNTIME_TARGETS[auth_key] = "ServerRequestTarget::Count"
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_server_request_descriptor_data(
+                manifest, evidence
+            ),
+            "ServerRequestDescriptorContractMismatch",
+            "retarget the auth-refresh descriptor away from its registry target",
+        )
+    finally:
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-server-request-descriptors-"
+    ) as raw:
+        stale = Path(raw) / "ServerRequestCodecDescriptors.inc"
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_generated_descriptors(
+                stale, generated, True, "ServerRequest"
+            ),
+            "StaleGeneratedServerRequestDescriptors",
+            "change the checked-in server-request descriptor artifact",
+        )
 
 
 def test_item_descriptor_guards(
@@ -1171,6 +1572,21 @@ def test_generated_artifacts(
         schema_root,
         evidence,
         registry_path.with_name("ConversationUnionCodecDescriptors.inc"),
+    )
+    test_accounts_models_configuration_union_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.with_name(
+            "AccountsModelsConfigurationUnionCodecDescriptors.inc"
+        ),
+    )
+    test_server_request_descriptor_guards(
+        tool,
+        manifest,
+        evidence,
+        registry_path.with_name("ServerRequestCodecDescriptors.inc"),
     )
     test_item_descriptor_guards(
         tool,

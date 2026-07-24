@@ -22,6 +22,7 @@ namespace ai::openai::codex::detail {
 }
 
 namespace ai::openai::codex::typed {
+    class Accounts;
     class Client;
     class Events;
     class Requests;

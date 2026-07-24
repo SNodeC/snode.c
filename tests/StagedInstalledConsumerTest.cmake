@@ -65,6 +65,7 @@ set(
     "frontend/Protocol.h"
     "frontend/UpdateBatch.h"
     "stdio/Client.h"
+    "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
     "typed/Conversation.h"

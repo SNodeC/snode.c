@@ -9,6 +9,7 @@ pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 
 set(AI_OPENAI_CODEX_CPP
     AppServerClient.cpp
+    detail/AccountCodec.cpp
     detail/CodexErrorInfoCodec.cpp
     detail/ClientOperationCodec.cpp
     detail/ConversationCodec.cpp
@@ -22,6 +23,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/TurnCodec.cpp
     stdio/Client.cpp
     stdio/StdioTransport.cpp
+    typed/Accounts.cpp
     typed/Client.cpp
     typed/Types.cpp
 )
@@ -29,6 +31,8 @@ set(AI_OPENAI_CODEX_CPP
 set(AI_OPENAI_CODEX_H
     AppServerClient.h
     Protocol.h
+    detail/AccountCodec.h
+    detail/AccountsModelsConfigurationUnionCodecDescriptors.inc
     detail/CodexErrorInfoCodec.h
     detail/ClientOperationCodec.h
     detail/ConversationCodec.h
@@ -36,6 +40,7 @@ set(AI_OPENAI_CODEX_H
     detail/ThreadItemCodecDescriptors.inc
     detail/ResponseItemCodecDescriptors.inc
     detail/ServerNotificationCodecDescriptors.inc
+    detail/ServerRequestCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h
@@ -48,6 +53,7 @@ set(AI_OPENAI_CODEX_H
     detail/TurnCodec.h
     stdio/Client.h
     stdio/StdioTransport.h
+    typed/Accounts.h
     typed/Client.h
     typed/CodexErrorInfo.h
     typed/Conversation.h
@@ -94,7 +100,8 @@ install(
 )
 
 install(
-    FILES typed/Client.h
+    FILES typed/Accounts.h
+          typed/Client.h
           typed/CodexErrorInfo.h
           typed/Conversation.h
           typed/Events.h

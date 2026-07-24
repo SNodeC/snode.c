@@ -101,7 +101,7 @@ namespace ai::openai::codex::detail {
         constexpr ClientOperationCodecDescriptor ClientOperationDescriptors[] = {
 #include "ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
         };
-        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 22);
+        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 31);
 
 #undef CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR
 
@@ -116,6 +116,15 @@ namespace ai::openai::codex::detail {
 
 #undef CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR
 
+#define CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR(category, domain, field, name, target, parameterType, resultType, resultKind)                \
+    {{category, domain, field, name}, target, parameterType, resultType, resultKind},
+
+        constexpr ServerRequestCodecDescriptor ServerRequestDescriptors[] = {
+#include "ai/openai/codex/detail/ServerRequestCodecDescriptors.inc"
+        };
+
+#undef CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR
+
 #define CODEX_CONVERSATION_UNION_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                                 \
     {{category, domain, field, name}, target, shape, direction},
 
@@ -126,6 +135,17 @@ namespace ai::openai::codex::detail {
                       static_cast<std::size_t>(ConversationUnionTarget::Count));
 
 #undef CODEX_CONVERSATION_UNION_CODEC_DESCRIPTOR
+
+#define CODEX_ACCOUNTS_MODELS_CONFIGURATION_UNION_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                \
+    {{category, domain, field, name}, target, shape, direction},
+
+        constexpr AccountsModelsConfigurationUnionCodecDescriptor AccountsModelsConfigurationUnionDescriptors[] = {
+#include "ai/openai/codex/detail/AccountsModelsConfigurationUnionCodecDescriptors.inc"
+        };
+        static_assert(sizeof(AccountsModelsConfigurationUnionDescriptors) / sizeof(*AccountsModelsConfigurationUnionDescriptors) ==
+                      static_cast<std::size_t>(AccountsModelsConfigurationUnionTarget::Count));
+
+#undef CODEX_ACCOUNTS_MODELS_CONFIGURATION_UNION_CODEC_DESCRIPTOR
 
 #define CODEX_THREAD_ITEM_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                                       \
     {{category, domain, field, name}, target, shape, direction},
@@ -214,6 +234,8 @@ namespace ai::openai::codex::detail {
                     } else if constexpr (std::is_same_v<Target, CodexErrorInfoTarget>) {
                         return SurfaceCategory::TaggedUnionDiscriminator;
                     } else if constexpr (std::is_same_v<Target, ConversationUnionTarget>) {
+                        return SurfaceCategory::TaggedUnionDiscriminator;
+                    } else if constexpr (std::is_same_v<Target, AccountsModelsConfigurationUnionTarget>) {
                         return SurfaceCategory::TaggedUnionDiscriminator;
                     } else {
                         static_assert(std::is_same_v<Target, void>, "new runtime target type needs an explicit surface category");
@@ -324,10 +346,12 @@ namespace ai::openai::codex::detail {
         derivedTypedSchemaStatus(const ProtocolSurfaceEntry& entry,
                                  std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
                                  std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                 std::span<const AccountsModelsConfigurationUnionCodecDescriptor> accountsModelsConfigurationUnionDescriptors,
                                  std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
                                  std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
                                  std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
-                                 std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors) noexcept {
+                                 std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors,
+                                 std::span<const ServerRequestCodecDescriptor> serverRequestDescriptors) noexcept {
             if (entry.a1Slice == A1Slice::InventoryOnly || entry.typedImplementation == TypedImplementationStatus::NotApplicable) {
                 return TypedSchemaStatus::NotApplicable;
             }
@@ -338,6 +362,9 @@ namespace ai::openai::codex::detail {
                 canonicalDescriptorForTarget<CodexErrorInfoTarget>(entry, codexErrorInfoCodecDescriptors());
             const ConversationUnionCodecDescriptor* canonicalConversationUnion =
                 canonicalDescriptorForTarget<ConversationUnionTarget>(entry, conversationUnionCodecDescriptors());
+            const AccountsModelsConfigurationUnionCodecDescriptor* canonicalAccountsModelsConfigurationUnion =
+                canonicalDescriptorForTarget<AccountsModelsConfigurationUnionTarget>(entry,
+                                                                                     accountsModelsConfigurationUnionCodecDescriptors());
             const ThreadItemCodecDescriptor* canonicalThreadItem =
                 canonicalDescriptorForTarget<ItemDiscriminatorTarget>(entry, threadItemCodecDescriptors());
             const ResponseItemCodecDescriptor* canonicalResponseItem =
@@ -346,6 +373,8 @@ namespace ai::openai::codex::detail {
                 canonicalDescriptorForTarget<ClientRequestTarget>(entry, clientOperationCodecDescriptors());
             const ServerNotificationCodecDescriptor* canonicalServerNotification =
                 canonicalDescriptorForTarget<ServerNotificationTarget>(entry, serverNotificationCodecDescriptors());
+            const ServerRequestCodecDescriptor* canonicalServerRequest =
+                canonicalDescriptorForTarget<ServerRequestTarget>(entry, serverRequestCodecDescriptors());
             const bool codexErrorInfoDecoderMatches =
                 !std::holds_alternative<CodexErrorInfoTarget>(entry.runtimeTarget) ||
                 (canonicalCodexErrorInfo != nullptr && canonicalCodexErrorInfo->key == entry.key &&
@@ -354,6 +383,11 @@ namespace ai::openai::codex::detail {
                 !std::holds_alternative<ConversationUnionTarget>(entry.runtimeTarget) ||
                 (canonicalConversationUnion != nullptr && canonicalConversationUnion->key == entry.key &&
                  matchingCodecDescriptor<ConversationUnionTarget>(entry, conversationUnionDescriptors) != nullptr);
+            const bool accountsModelsConfigurationUnionDecoderMatches =
+                !std::holds_alternative<AccountsModelsConfigurationUnionTarget>(entry.runtimeTarget) ||
+                (canonicalAccountsModelsConfigurationUnion != nullptr && canonicalAccountsModelsConfigurationUnion->key == entry.key &&
+                 matchingCodecDescriptor<AccountsModelsConfigurationUnionTarget>(entry, accountsModelsConfigurationUnionDescriptors) !=
+                     nullptr);
             const bool threadItemDecoderMatches =
                 !std::holds_alternative<ItemDiscriminatorTarget>(entry.runtimeTarget) ||
                 (canonicalThreadItem != nullptr && canonicalThreadItem->key == entry.key &&
@@ -370,8 +404,14 @@ namespace ai::openai::codex::detail {
                 !std::holds_alternative<ServerNotificationTarget>(entry.runtimeTarget) ||
                 (canonicalServerNotification != nullptr && canonicalServerNotification->key == entry.key &&
                  matchingCodecDescriptor<ServerNotificationTarget>(entry, serverNotificationDescriptors) != nullptr);
-            const bool decoderMatches = codexErrorInfoDecoderMatches && conversationUnionDecoderMatches && threadItemDecoderMatches &&
-                                        responseItemDecoderMatches && clientOperationDecoderMatches && serverNotificationDecoderMatches;
+            const bool serverRequestDecoderMatches =
+                !std::holds_alternative<ServerRequestTarget>(entry.runtimeTarget) ||
+                (canonicalServerRequest != nullptr && canonicalServerRequest->key == entry.key &&
+                 matchingCodecDescriptor<ServerRequestTarget>(entry, serverRequestDescriptors) != nullptr);
+            const bool decoderMatches = codexErrorInfoDecoderMatches && conversationUnionDecoderMatches &&
+                                        accountsModelsConfigurationUnionDecoderMatches && threadItemDecoderMatches &&
+                                        responseItemDecoderMatches && clientOperationDecoderMatches && serverNotificationDecoderMatches &&
+                                        serverRequestDecoderMatches;
             return completeSchemaEvidence(entry.schemaCompleteness) && decoderMatches ? TypedSchemaStatus::Complete
                                                                                       : TypedSchemaStatus::Partial;
         }
@@ -521,6 +561,35 @@ namespace ai::openai::codex::detail {
             }
         }
 
+        void validateServerRequestDescriptorContracts(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const ServerRequestCodecDescriptor> descriptors,
+                                                      ProtocolSurfaceValidation& result) {
+            for (const ServerRequestCodecDescriptor& descriptor : descriptors) {
+                const auto row = std::find_if(entries.begin(), entries.end(), [&](const ProtocolSurfaceEntry& candidate) {
+                    return candidate.key == descriptor.key;
+                });
+                if (row == entries.end()) {
+                    continue;
+                }
+                const auto canonical = std::find_if(serverRequestCodecDescriptors().begin(),
+                                                    serverRequestCodecDescriptors().end(),
+                                                    [&](const ServerRequestCodecDescriptor& candidate) {
+                                                        return candidate.target == descriptor.target;
+                                                    });
+                if (descriptor.parameterTypeIdentity != row->operationContract.parameterTypeIdentity ||
+                    descriptor.resultTypeIdentity != row->operationContract.resultTypeIdentity ||
+                    descriptor.resultKind != row->operationContract.resultKind ||
+                    (canonical != serverRequestCodecDescriptors().end() &&
+                     (canonical->key != descriptor.key || canonical->parameterTypeIdentity != descriptor.parameterTypeIdentity ||
+                      canonical->resultTypeIdentity != descriptor.resultTypeIdentity || canonical->resultKind != descriptor.resultKind))) {
+                    result.errors.push_back(
+                        {ProtocolSurfaceErrorCode::CodecDescriptorContractMismatch,
+                         keyName(row->key) +
+                             " production server-request descriptor conflicts with its authoritative request/response contract"});
+                }
+            }
+        }
+
         template <typename Descriptor>
         void validateTaggedUnionDescriptorMetadata(std::span<const Descriptor> descriptors,
                                                    std::span<const Descriptor> expectedDescriptors,
@@ -598,8 +667,16 @@ namespace ai::openai::codex::detail {
         return findTarget(target);
     }
 
+    const ProtocolSurfaceEntry& entryFor(AccountsModelsConfigurationUnionTarget target) {
+        return findTarget(target);
+    }
+
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept {
         return ConversationUnionDescriptors;
+    }
+
+    std::span<const AccountsModelsConfigurationUnionCodecDescriptor> accountsModelsConfigurationUnionCodecDescriptors() noexcept {
+        return AccountsModelsConfigurationUnionDescriptors;
     }
 
     std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept {
@@ -608,6 +685,10 @@ namespace ai::openai::codex::detail {
 
     std::span<const ServerNotificationCodecDescriptor> serverNotificationCodecDescriptors() noexcept {
         return ServerNotificationDescriptors;
+    }
+
+    std::span<const ServerRequestCodecDescriptor> serverRequestCodecDescriptors() noexcept {
+        return ServerRequestDescriptors;
     }
 
     std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept {
@@ -622,20 +703,24 @@ namespace ai::openai::codex::detail {
         return derivedTypedSchemaStatus(entry,
                                         codexErrorInfoCodecDescriptors(),
                                         conversationUnionCodecDescriptors(),
+                                        accountsModelsConfigurationUnionCodecDescriptors(),
                                         threadItemCodecDescriptors(),
                                         responseItemCodecDescriptors(),
                                         clientOperationCodecDescriptors(),
-                                        serverNotificationCodecDescriptors());
+                                        serverNotificationCodecDescriptors(),
+                                        serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries) {
         return validateProtocolSurface(entries,
                                        codexErrorInfoCodecDescriptors(),
                                        conversationUnionCodecDescriptors(),
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemCodecDescriptors(),
                                        responseItemCodecDescriptors(),
                                        clientOperationCodecDescriptors(),
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
@@ -643,10 +728,12 @@ namespace ai::openai::codex::detail {
         return validateProtocolSurface(entries,
                                        codexErrorInfoDescriptors,
                                        conversationUnionCodecDescriptors(),
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemCodecDescriptors(),
                                        responseItemCodecDescriptors(),
                                        clientOperationCodecDescriptors(),
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
@@ -654,10 +741,12 @@ namespace ai::openai::codex::detail {
         return validateProtocolSurface(entries,
                                        codexErrorInfoCodecDescriptors(),
                                        conversationUnionDescriptors,
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemCodecDescriptors(),
                                        responseItemCodecDescriptors(),
                                        clientOperationCodecDescriptors(),
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
@@ -666,10 +755,12 @@ namespace ai::openai::codex::detail {
         return validateProtocolSurface(entries,
                                        codexErrorInfoDescriptors,
                                        conversationUnionDescriptors,
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemCodecDescriptors(),
                                        responseItemCodecDescriptors(),
                                        clientOperationCodecDescriptors(),
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
@@ -680,10 +771,12 @@ namespace ai::openai::codex::detail {
         return validateProtocolSurface(entries,
                                        codexErrorInfoDescriptors,
                                        conversationUnionDescriptors,
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemDescriptors,
                                        responseItemDescriptors,
                                        clientOperationCodecDescriptors(),
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
@@ -695,21 +788,43 @@ namespace ai::openai::codex::detail {
         return validateProtocolSurface(entries,
                                        codexErrorInfoDescriptors,
                                        conversationUnionDescriptors,
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
                                        threadItemDescriptors,
                                        responseItemDescriptors,
                                        clientOperationDescriptors,
-                                       serverNotificationCodecDescriptors());
+                                       serverNotificationCodecDescriptors(),
+                                       serverRequestCodecDescriptors());
+    }
+
+    ProtocolSurfaceValidation validateProtocolSurface(std::span<const ProtocolSurfaceEntry> entries,
+                                                      std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+                                                      std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+                                                      std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+                                                      std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
+                                                      std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
+                                                      std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors) {
+        return validateProtocolSurface(entries,
+                                       codexErrorInfoDescriptors,
+                                       conversationUnionDescriptors,
+                                       accountsModelsConfigurationUnionCodecDescriptors(),
+                                       threadItemDescriptors,
+                                       responseItemDescriptors,
+                                       clientOperationDescriptors,
+                                       serverNotificationDescriptors,
+                                       serverRequestCodecDescriptors());
     }
 
     ProtocolSurfaceValidation validateProtocolSurface(
         std::span<const ProtocolSurfaceEntry> entries,
         std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
         std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+        std::span<const AccountsModelsConfigurationUnionCodecDescriptor> accountsModelsConfigurationUnionDescriptors,
         std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
         std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
         std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
-        std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors) {
-        static_assert(std::variant_size_v<RuntimeTarget> == 9, "new runtime target type needs an explicit validateTargets invocation");
+        std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors,
+        std::span<const ServerRequestCodecDescriptor> serverRequestDescriptors) {
+        static_assert(std::variant_size_v<RuntimeTarget> == 10, "new runtime target type needs an explicit validateTargets invocation");
 
         ProtocolSurfaceValidation result;
 
@@ -810,10 +925,12 @@ namespace ai::openai::codex::detail {
                 entry,
                 codexErrorInfoDescriptors,
                 conversationUnionDescriptors,
+                accountsModelsConfigurationUnionDescriptors,
                 threadItemDescriptors,
                 responseItemDescriptors,
                 clientOperationDescriptors,
-                serverNotificationDescriptors);
+                serverNotificationDescriptors,
+                serverRequestDescriptors);
             if (entry.typedSchemaStatus == TypedSchemaStatus::Complete && derivedStatus != TypedSchemaStatus::Complete &&
                 entry.typedImplementation == TypedImplementationStatus::Implemented && entry.a1Slice != A1Slice::InventoryOnly) {
                 const SchemaCompletenessEvidence& evidence = entry.schemaCompleteness;
@@ -986,12 +1103,27 @@ namespace ai::openai::codex::detail {
         validateCodecDescriptors<ServerNotificationTarget>(
             entries, serverNotificationDescriptors, serverNotificationCodecDescriptors(), "server notification", result);
         validateServerNotificationDescriptorContracts(entries, serverNotificationDescriptors, result);
+        validateCodecDescriptors<ServerRequestTarget>(
+            entries, serverRequestDescriptors, serverRequestCodecDescriptors(), "server request", result);
+        validateServerRequestDescriptorContracts(entries, serverRequestDescriptors, result);
 
         if (!conversationUnionDescriptors.empty() || containsRuntimeTarget<ConversationUnionTarget>(entries)) {
             validateTargets(entries, ConversationUnionTarget::Count, "conversation union discriminator", result);
             validateTaggedUnionDescriptorMetadata(conversationUnionDescriptors, conversationUnionCodecDescriptors(), result);
             validateCodecDescriptors<ConversationUnionTarget>(
                 entries, conversationUnionDescriptors, conversationUnionCodecDescriptors(), "conversation union", result);
+        }
+        if (!accountsModelsConfigurationUnionDescriptors.empty() ||
+            containsRuntimeTarget<AccountsModelsConfigurationUnionTarget>(entries)) {
+            validateTargets(
+                entries, AccountsModelsConfigurationUnionTarget::Count, "accounts/models/configuration union discriminator", result);
+            validateTaggedUnionDescriptorMetadata(
+                accountsModelsConfigurationUnionDescriptors, accountsModelsConfigurationUnionCodecDescriptors(), result);
+            validateCodecDescriptors<AccountsModelsConfigurationUnionTarget>(entries,
+                                                                             accountsModelsConfigurationUnionDescriptors,
+                                                                             accountsModelsConfigurationUnionCodecDescriptors(),
+                                                                             "accounts/models/configuration union",
+                                                                             result);
         }
         if (!threadItemDescriptors.empty() || containsRuntimeTarget<ItemDiscriminatorTarget>(entries)) {
             validateTaggedUnionDescriptorMetadata(threadItemDescriptors, threadItemCodecDescriptors(), result);

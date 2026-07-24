@@ -66,6 +66,15 @@ namespace ai::openai::codex::detail {
 
     enum class ClientRequestTarget {
         Initialize,
+        AccountLoginCancel,
+        AccountLoginStart,
+        AccountLogout,
+        AccountRateLimitResetCreditConsume,
+        AccountRateLimitsRead,
+        AccountRead,
+        AccountSendAddCreditsNudgeEmail,
+        AccountUsageRead,
+        AccountWorkspaceMessagesRead,
         ThreadStart,
         ThreadResume,
         ThreadList,
@@ -95,6 +104,9 @@ namespace ai::openai::codex::detail {
 
     enum class ServerNotificationTarget {
         Error,
+        AccountLoginCompleted,
+        AccountRateLimitsUpdated,
+        AccountUpdated,
         ThreadStarted,
         ThreadStatusChanged,
         TurnStarted,
@@ -274,12 +286,35 @@ namespace ai::openai::codex::detail {
         Count
     };
 
+    enum class AccountsModelsConfigurationUnionTarget {
+        AccountAmazonBedrock,
+        AccountApiKey,
+        AccountChatgpt,
+        LoginAccountParamsApiKey,
+        LoginAccountParamsChatgpt,
+        LoginAccountParamsChatgptAuthTokens,
+        LoginAccountParamsChatgptDeviceCode,
+        LoginAccountResponseApiKey,
+        LoginAccountResponseChatgpt,
+        LoginAccountResponseChatgptAuthTokens,
+        LoginAccountResponseChatgptDeviceCode,
+        Count
+    };
+
     enum class ConversationUnionCodecShape { ScalarString, ExternallyTaggedObject, InternallyTaggedObject, Count };
 
-    enum class ConversationUnionCodecDirection { DecodeOnly, Bidirectional, Count };
+    enum class ConversationUnionCodecDirection { DecodeOnly, EncodeOnly, Bidirectional, Count };
 
     enum class ClientOperationResultDecoder {
         Unit,
+        CancelLoginAccountResponse,
+        LoginAccountResponse,
+        ConsumeAccountRateLimitResetCreditResponse,
+        GetAccountRateLimitsResponse,
+        GetAccountResponse,
+        SendAddCreditsNudgeEmailResponse,
+        GetAccountTokenUsageResponse,
+        GetWorkspaceMessagesResponse,
         ThreadForkResponse,
         ThreadGoalClearResponse,
         ThreadGoalGetResponse,
@@ -306,7 +341,8 @@ namespace ai::openai::codex::detail {
                                        ItemDiscriminatorTarget,
                                        ResponseItemTarget,
                                        CodexErrorInfoTarget,
-                                       ConversationUnionTarget>;
+                                       ConversationUnionTarget,
+                                       AccountsModelsConfigurationUnionTarget>;
 
     struct ProtocolSurfaceKey {
         SurfaceCategory category = SurfaceCategory::TaggedUnionDiscriminator;
@@ -330,6 +366,13 @@ namespace ai::openai::codex::detail {
         ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
     };
 
+    struct AccountsModelsConfigurationUnionCodecDescriptor {
+        ProtocolSurfaceKey key;
+        AccountsModelsConfigurationUnionTarget target = AccountsModelsConfigurationUnionTarget::Count;
+        ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
+        ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
+    };
+
     struct ClientOperationCodecDescriptor {
         ProtocolSurfaceKey key;
         ClientRequestTarget target = ClientRequestTarget::Count;
@@ -345,6 +388,14 @@ namespace ai::openai::codex::detail {
         ServerNotificationTarget target = ServerNotificationTarget::Count;
         std::string_view payloadTypeIdentity;
         bool a11ConversationDomain = false;
+    };
+
+    struct ServerRequestCodecDescriptor {
+        ProtocolSurfaceKey key;
+        ServerRequestTarget target = ServerRequestTarget::Count;
+        std::string_view parameterTypeIdentity;
+        std::string_view resultTypeIdentity;
+        ResultContractKind resultKind = ResultContractKind::NotApplicable;
     };
 
     struct ThreadItemCodecDescriptor {
@@ -493,10 +544,14 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(ResponseItemTarget target);
     const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target);
     const ProtocolSurfaceEntry& entryFor(ConversationUnionTarget target);
+    const ProtocolSurfaceEntry& entryFor(AccountsModelsConfigurationUnionTarget target);
 
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
+    std::span<const AccountsModelsConfigurationUnionCodecDescriptor>
+    accountsModelsConfigurationUnionCodecDescriptors() noexcept;
     std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept;
     std::span<const ServerNotificationCodecDescriptor> serverNotificationCodecDescriptors() noexcept;
+    std::span<const ServerRequestCodecDescriptor> serverRequestCodecDescriptors() noexcept;
     std::span<const ThreadItemCodecDescriptor> threadItemCodecDescriptors() noexcept;
     std::span<const ResponseItemCodecDescriptor> responseItemCodecDescriptors() noexcept;
 
@@ -528,6 +583,16 @@ namespace ai::openai::codex::detail {
                                                       std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
                                                       std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
                                                       std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors);
+    ProtocolSurfaceValidation validateProtocolSurface(
+        std::span<const ProtocolSurfaceEntry> entries,
+        std::span<const CodexErrorInfoCodecDescriptor> codexErrorInfoDescriptors,
+        std::span<const ConversationUnionCodecDescriptor> conversationUnionDescriptors,
+        std::span<const AccountsModelsConfigurationUnionCodecDescriptor> accountsModelsConfigurationUnionDescriptors,
+        std::span<const ThreadItemCodecDescriptor> threadItemDescriptors,
+        std::span<const ResponseItemCodecDescriptor> responseItemDescriptors,
+        std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
+        std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors,
+        std::span<const ServerRequestCodecDescriptor> serverRequestDescriptors);
 
 } // namespace ai::openai::codex::detail
 

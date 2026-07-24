@@ -10,6 +10,7 @@
 
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
@@ -36,6 +37,14 @@ namespace ai::openai::codex::detail {
     [[nodiscard]] std::string_view clientOperationTargetIdentity(ClientRequestTarget target) noexcept;
 
     using ClientOperationDecodedValue = std::variant<typed::Unit,
+                                                     typed::CancelLoginAccountResponse,
+                                                     typed::LoginAccountResponse,
+                                                     typed::ConsumeAccountRateLimitResetCreditResponse,
+                                                     typed::GetAccountRateLimitsResponse,
+                                                     typed::GetAccountResponse,
+                                                     typed::SendAddCreditsNudgeEmailResponse,
+                                                     typed::GetAccountTokenUsageResponse,
+                                                     typed::GetWorkspaceMessagesResponse,
                                                      typed::ThreadForkResponse,
                                                      typed::ThreadGoalClearResponse,
                                                      typed::ThreadGoalGetResponse,
@@ -83,13 +92,13 @@ namespace ai::openai::codex::detail {
             error = decoded.diagnostic.message;
             return std::nullopt;
         }
-        const Result* value = std::get_if<Result>(&*decoded.value);
+        Result* value = std::get_if<Result>(&*decoded.value);
         if (value == nullptr) {
             error = "typed App Server result target has an incompatible C++ result type";
             return std::nullopt;
         }
         error.clear();
-        return *value;
+        return std::move(*value);
     }
 
 } // namespace ai::openai::codex::detail

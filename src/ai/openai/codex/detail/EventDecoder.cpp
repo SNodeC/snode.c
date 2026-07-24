@@ -8,6 +8,7 @@
 #include "ai/openai/codex/detail/EventDecoder.h"
 
 #include "ai/openai/codex/Protocol.h"
+#include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
@@ -540,7 +541,24 @@ namespace ai::openai::codex::detail {
             if (error.empty()) {
                 error = "notification payload could not be decoded";
             }
-            return unknownEvent(notification, notification.method + ": " + std::move(error));
+            const bool accountNotification = notification.method == "account/login/completed" ||
+                                             notification.method == "account/rateLimits/updated" ||
+                                             notification.method == "account/updated";
+            std::string fieldPath = "$.params";
+            if (accountNotification) {
+                const std::size_t begin = error.find("'$");
+                if (begin != std::string::npos) {
+                    const std::size_t end = error.find('\'', begin + 1);
+                    if (end != std::string::npos) {
+                        fieldPath = error.substr(begin + 1, end - begin - 1);
+                    }
+                }
+            }
+            typed::Event event = unknownEvent(notification, notification.method + ": " + std::move(error));
+            if (auto* unknown = std::get_if<typed::UnknownEvent>(&event); unknown != nullptr && unknown->diagnostic) {
+                unknown->diagnostic->fieldPath = std::move(fieldPath);
+            }
+            return event;
         }
 
         typed::Event decodeThreadStarted(const Notification& notification) {
@@ -1235,6 +1253,24 @@ namespace ai::openai::codex::detail {
                                                      notification.raw}};
         }
 
+        typed::Event decodeAccountLoginCompleted(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeAccountLoginCompletedNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
+        }
+
+        typed::Event decodeAccountRateLimitsUpdated(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeAccountRateLimitsUpdatedNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
+        }
+
+        typed::Event decodeAccountUpdated(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeAccountUpdatedNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
+        }
+
         typed::Event decodeTurnError(const Notification& notification) {
             std::string decodingError;
             std::string threadId;
@@ -1291,6 +1327,12 @@ namespace ai::openai::codex::detail {
             switch (*target) {
                 case ServerNotificationTarget::Error:
                     return decodeTurnError(notification);
+                case ServerNotificationTarget::AccountLoginCompleted:
+                    return decodeAccountLoginCompleted(notification);
+                case ServerNotificationTarget::AccountRateLimitsUpdated:
+                    return decodeAccountRateLimitsUpdated(notification);
+                case ServerNotificationTarget::AccountUpdated:
+                    return decodeAccountUpdated(notification);
                 case ServerNotificationTarget::ThreadStarted:
                     return decodeThreadStarted(notification);
                 case ServerNotificationTarget::ThreadStatusChanged:

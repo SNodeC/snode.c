@@ -520,6 +520,104 @@ B5_OPEN_STRING_ENUMS = {
     "TurnPlanStepStatus": ("pending", "inProgress", "completed"),
 }
 B5_REASONING_EFFORT_FIXTURE_VALUE = "medium"
+
+# Phase A1.2 Commit B2 owns the complete stable account/authentication batch.
+# Assignment evidence remains the source of the exact keys; these reviewed
+# sets and directions are independent bidirectional ratchets for fixture
+# synthesis only.
+A12_B2_ACCOUNT_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "account/login/cancel",
+        "account/login/start",
+        "account/logout",
+        "account/rateLimitResetCredit/consume",
+        "account/rateLimits/read",
+        "account/read",
+        "account/sendAddCreditsNudgeEmail",
+        "account/usage/read",
+        "account/workspaceMessages/read",
+    }
+)
+A12_B2_ACCOUNT_NOTIFICATION_METHODS = frozenset(
+    {
+        "account/login/completed",
+        "account/rateLimits/updated",
+        "account/updated",
+    }
+)
+A12_B2_AUTH_REFRESH_METHOD = "account/chatgptAuthTokens/refresh"
+A12_B2_ACCOUNT_UNION_IDENTITIES = {
+    "Account": ("amazonBedrock", "apiKey", "chatgpt"),
+    "LoginAccountParams": (
+        "apiKey",
+        "chatgpt",
+        "chatgptAuthTokens",
+        "chatgptDeviceCode",
+    ),
+    "LoginAccountResponse": (
+        "apiKey",
+        "chatgpt",
+        "chatgptAuthTokens",
+        "chatgptDeviceCode",
+    ),
+}
+A12_B2_ACCOUNT_UNION_DIRECTIONS = {
+    "Account": ("Decode",),
+    "LoginAccountParams": ("Encode",),
+    "LoginAccountResponse": ("Decode",),
+}
+A12_B2_OPEN_STRING_ENUMS = {
+    "AddCreditsNudgeCreditType": ("credits", "usage_limit"),
+    "AddCreditsNudgeEmailStatus": ("sent", "cooldown_active"),
+    "AmazonBedrockCredentialSource": ("codexManaged", "awsManaged"),
+    "AuthMode": (
+        "apikey",
+        "chatgpt",
+        "chatgptAuthTokens",
+        "headers",
+        "agentIdentity",
+        "personalAccessToken",
+        "bedrockApiKey",
+    ),
+    "CancelLoginAccountStatus": ("canceled", "notFound"),
+    "ChatgptAuthTokensRefreshReason": ("unauthorized",),
+    "ConsumeAccountRateLimitResetCreditOutcome": (
+        "reset",
+        "nothingToReset",
+        "noCredit",
+        "alreadyRedeemed",
+    ),
+    "LoginAppBrand": ("codex", "chatgpt"),
+    "PlanType": (
+        "free",
+        "go",
+        "plus",
+        "pro",
+        "prolite",
+        "team",
+        "self_serve_business_usage_based",
+        "business",
+        "enterprise_cbp_usage_based",
+        "enterprise",
+        "edu",
+        "unknown",
+    ),
+    "RateLimitReachedType": (
+        "rate_limit_reached",
+        "workspace_owner_credits_depleted",
+        "workspace_member_credits_depleted",
+        "workspace_owner_usage_limit_reached",
+        "workspace_member_usage_limit_reached",
+    ),
+    "RateLimitResetCreditStatus": (
+        "available",
+        "redeeming",
+        "redeemed",
+        "unknown",
+    ),
+    "RateLimitResetType": ("codexRateLimits", "unknown"),
+    "WorkspaceMessageType": ("headline", "announcement", "unknown"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -958,6 +1056,113 @@ def derive_b5_notification_keys(
     return keys
 
 
+def derive_a12_b2_account_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[
+    tuple[SurfaceKey, ...],
+    tuple[SurfaceKey, ...],
+    tuple[SurfaceKey, ...],
+]:
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.2"
+            and (
+                key.name in A12_B2_ACCOUNT_CLIENT_REQUEST_METHODS
+                or key.name in A12_B2_ACCOUNT_NOTIFICATION_METHODS
+                or key.name == A12_B2_AUTH_REFRESH_METHOD
+                or key.name
+                in A12_B2_ACCOUNT_UNION_IDENTITIES.get(key.domain, ())
+            )
+        )
+    )
+    operations = tuple(
+        key
+        for key in batch
+        if key.category in {CLIENT_REQUEST, SERVER_REQUEST}
+    )
+    notifications = tuple(
+        key for key in batch if key.category == SERVER_NOTIFICATION
+    )
+    unions = tuple(
+        key
+        for key in batch
+        if key.category == TAGGED_UNION_DISCRIMINATOR
+    )
+    expected_union_identities = {
+        (domain, name)
+        for domain, names in A12_B2_ACCOUNT_UNION_IDENTITIES.items()
+        for name in names
+    }
+    if (
+        len(batch) != 24
+        or len(operations) != 10
+        or len(notifications) != 3
+        or len(unions) != 11
+        or {
+            key.name
+            for key in operations
+            if key.category == CLIENT_REQUEST
+        }
+        != A12_B2_ACCOUNT_CLIENT_REQUEST_METHODS
+        or {
+            key.name
+            for key in operations
+            if key.category == SERVER_REQUEST
+        }
+        != {A12_B2_AUTH_REFRESH_METHOD}
+        or {key.name for key in notifications}
+        != A12_B2_ACCOUNT_NOTIFICATION_METHODS
+        or {(key.domain, key.name) for key in unions}
+        != expected_union_identities
+    ):
+        raise FixtureError(
+            "A1.2 B2 account/authentication assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"notifications={len(notifications)} unions={len(unions)}"
+        )
+    return operations, notifications, unions
+
+
+def normalize_a12_b2_sensitive_sample(value: Any) -> None:
+    """Replace generated account/auth values with low-risk reviewed samples.
+
+    The two global leak-guard sentinels are assembled so the generator source
+    is not itself an allow-listed secret-bearing fixture input. Only the exact
+    generated fixture files contain the complete sentinel strings.
+    """
+
+    replacements = {
+        "accessToken": "test-access-token-" + "not-real",
+        "accountId": "test-account-id",
+        "apiKey": "test-api-key-" + "not-real",
+        "chatgptAccountId": "test-account-id",
+        "deviceCode": "test-device-code-not-real",
+        "idempotencyKey": "test-idempotency-key",
+        "loginId": "test-login-id",
+        "previousAccountId": "test-account-id",
+        "rateLimitId": "test-rate-limit-id",
+        "resetCreditId": "test-rate-limit-reset-credit-id",
+        "userCode": "test-device-user-code",
+        "verificationUrl": "https://example.invalid/device",
+        "workspaceId": "test-workspace-id",
+    }
+
+    def visit(node: Any) -> None:
+        if isinstance(node, dict):
+            for field, nested in node.items():
+                if field in replacements and isinstance(nested, str):
+                    node[field] = replacements[field]
+                else:
+                    visit(nested)
+        elif isinstance(node, list):
+            for nested in node:
+                visit(nested)
+
+    visit(value)
+
+
 def normalize_b5_notification_sample(
     key: SurfaceKey, value: Any
 ) -> None:
@@ -1125,6 +1330,29 @@ class SchemaCatalog:
             sha256_file(path),
         )
         return target, index, branch
+
+    def embedded_definition_target(
+        self, type_identity: str, definition_name: str
+    ) -> SchemaTarget:
+        root = self.standalone(type_identity)
+        definitions = root.document.get("definitions", {})
+        schema = (
+            definitions.get(definition_name)
+            if isinstance(definitions, dict)
+            else None
+        )
+        if not isinstance(schema, dict):
+            raise FixtureError(
+                f"{type_identity} lacks embedded definition "
+                f"{definition_name}"
+            )
+        return SchemaTarget(
+            root.document,
+            schema,
+            f"#/definitions/{pointer_token(definition_name)}",
+            root.relative_file,
+            root.file_sha256,
+        )
 
     def union_target(self, domain: str) -> SchemaTarget:
         path = self.stable_root / "codex_app_server_protocol.v2.schemas.json"
@@ -3224,6 +3452,13 @@ class CorpusBuilder:
         self.b5_negative_coverage: dict[str, Any] = {}
         self.b5_indexed_coverage: dict[str, Any] = {}
         self.b5_notification_root_coverage: dict[str, Any] = {}
+        self.a12_b2_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b2_notification_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b2_union_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b2_negative_coverage: dict[str, Any] = {}
+        self.a12_b2_indexed_coverage: dict[str, Any] = {}
+        self.a12_b2_operation_root_coverage: dict[str, Any] = {}
+        self.a12_b2_notification_root_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -3385,17 +3620,25 @@ class CorpusBuilder:
         self.b5_notification_keys = derive_b5_notification_keys(
             self.assignments
         )
+        (
+            self.a12_b2_operation_keys,
+            self.a12_b2_notification_keys,
+            self.a12_b2_union_keys,
+        ) = derive_a12_b2_account_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
+        self._build_a12_b2_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
         self._build_b5_notification_fixtures()
+        self._build_a12_b2_notification_fixtures()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
         self._build_b4_open_enum_fixtures()
         self._build_b5_open_enum_fixtures()
+        self._build_a12_b2_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -3461,10 +3704,20 @@ class CorpusBuilder:
             directions_by_domain=B4_OPERATION_UNION_DIRECTIONS,
             batch="B4",
         )
-        self._apply_b4_operation_indexed_completeness(
-            positive_records, positive_fixture_ids
+        self.b4_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records, positive_fixture_ids
+            )
         )
-        self._apply_b5_notification_indexed_completeness(
+        self.b4_indexed_coverage = dict(
+            sorted(self.b4_indexed_coverage.items())
+        )
+        self.b5_indexed_coverage = (
+            self._apply_b5_notification_indexed_completeness(
+            positive_records, positive_fixture_ids
+            )
+        )
+        self._apply_a12_b2_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -3593,6 +3846,28 @@ class CorpusBuilder:
                 "root_fixture_plan": self.b5_notification_root_coverage,
                 "negative_coverage": self.b5_negative_coverage,
             },
+            "a1_2_accounts_authentication": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b2_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a12_b2_notification_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json() for key in self.a12_b2_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b2_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b2_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a12_b2_notification_root_coverage
+                ),
+                "negative_coverage": self.a12_b2_negative_coverage,
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -3674,6 +3949,18 @@ class CorpusBuilder:
                 if is_b5_notification
                 else {}
             )
+            is_a12_b2 = key in {
+                *self.a12_b2_operation_keys,
+                *self.a12_b2_notification_keys,
+                *self.a12_b2_union_keys,
+            }
+            a12_b2_schema_facts = (
+                self.a12_b2_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a12_b2
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -3683,6 +3970,10 @@ class CorpusBuilder:
                 if is_b4_operation
                 else self.b5_indexed_coverage.get(key.compact(), {})
                 if is_b5_notification
+                else self.a12_b2_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a12_b2
                 else {}
             )
             coverage_records.append(
@@ -3738,6 +4029,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b2_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -3775,6 +4071,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b2_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -3801,6 +4102,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 b5_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a12_b2_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -3883,6 +4190,28 @@ class CorpusBuilder:
                 "indexed_schema_coverage": self.b5_indexed_coverage,
                 "root_fixture_plan": self.b5_notification_root_coverage,
                 "negative_coverage": self.b5_negative_coverage,
+            },
+            "a1_2_accounts_authentication": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b2_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a12_b2_notification_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json() for key in self.a12_b2_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b2_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b2_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a12_b2_notification_root_coverage
+                ),
+                "negative_coverage": self.a12_b2_negative_coverage,
             },
             "fixtures": [
                 compact_generated_record(record)
@@ -4012,6 +4341,7 @@ class CorpusBuilder:
                 for candidate in selected_keys
                 if candidate.domain == key.domain
             }
+            optional_nullable = expected_nullable & expected_optional
             facts = {
                 "schema_properties_exercised": (
                     expected_properties <= present
@@ -4025,7 +4355,7 @@ class CorpusBuilder:
                 "nullable_semantics_exercised": (
                     expected_nullable <= nullable_value
                     and expected_nullable <= nullable_null
-                    and expected_nullable <= optional_omitted
+                    and optional_nullable <= optional_omitted
                 ),
                 "reachable_union_alternatives_exercised": (
                     family_base_ids <= positive_fixture_ids
@@ -4066,6 +4396,11 @@ class CorpusBuilder:
             self.b4_indexed_coverage.update(indexed_coverage)
             self.b4_indexed_coverage = dict(
                 sorted(self.b4_indexed_coverage.items())
+            )
+        elif batch == "A1.2 B2":
+            self.a12_b2_indexed_coverage.update(indexed_coverage)
+            self.a12_b2_indexed_coverage = dict(
+                sorted(self.a12_b2_indexed_coverage.items())
             )
         else:
             raise FixtureError(f"unsupported indexed union batch {batch}")
@@ -4263,7 +4598,18 @@ class CorpusBuilder:
         self,
         positive_records: Sequence[MutableMapping[str, Any]],
         positive_fixture_ids: set[str],
-    ) -> None:
+        *,
+        operation_keys: Sequence[SurfaceKey] | None = None,
+        batch: str = "A1.1 B4",
+        known_enum_values: Mapping[str, Sequence[str]] | None = None,
+        include_a11_operation_helpers: bool = True,
+    ) -> dict[str, Any]:
+        operation_keys = (
+            self.b4_operation_keys
+            if operation_keys is None
+            else tuple(operation_keys)
+        )
+        operation_key_set = set(operation_keys)
         records_by_key: dict[
             SurfaceKey, list[MutableMapping[str, Any]]
         ] = {}
@@ -4292,33 +4638,46 @@ class CorpusBuilder:
                 if not isinstance(root_key_record, dict):
                     continue
                 root_key = SurfaceKey.from_contract(root_key_record)
-                if root_key in self.b4_operation_keys:
+                if root_key in operation_key_set:
                     reachability_by_root.setdefault(root_key, set()).add(
                         nested_id
                     )
 
-        item_fixture_ids = {
-            f"union:ThreadItem:{name}"
-            for name in B3_ITEM_FAMILY_IDENTITIES["ThreadItem"]
-        }
-        helper_fixture_ids = {
-            domain: {
-                f"helper-union:{domain}:{name}"
-                for name in names
+        item_fixture_ids = (
+            {
+                f"union:ThreadItem:{name}"
+                for name in B3_ITEM_FAMILY_IDENTITIES["ThreadItem"]
             }
-            for domain, (names, _) in B4_HELPER_STRING_UNIONS.items()
-        }
-        helper_fixture_ids["ThreadListCwdFilter"] = {
-            "helper-union:ThreadListCwdFilter:scalar",
-            "helper-union:ThreadListCwdFilter:array",
-            "helper-union:ThreadListCwdFilter:empty-array",
-        }
+            if include_a11_operation_helpers
+            else set()
+        )
+        helper_fixture_ids = (
+            {
+                domain: {
+                    f"helper-union:{domain}:{name}"
+                    for name in names
+                }
+                for domain, (names, _) in B4_HELPER_STRING_UNIONS.items()
+            }
+            if include_a11_operation_helpers
+            else {}
+        )
+        if include_a11_operation_helpers:
+            helper_fixture_ids["ThreadListCwdFilter"] = {
+                "helper-union:ThreadListCwdFilter:scalar",
+                "helper-union:ThreadListCwdFilter:array",
+                "helper-union:ThreadListCwdFilter:empty-array",
+            }
         known_enum_fixture_ids = {
             domain: {
                 f"enum:{domain}:{name}"
                 for name in names
             }
-            for domain, names in B4_OPEN_STRING_ENUMS.items()
+            for domain, names in (
+                B4_OPEN_STRING_ENUMS
+                if known_enum_values is None
+                else known_enum_values
+            ).items()
         }
         reference_names = frozenset(
             {
@@ -4329,7 +4688,7 @@ class CorpusBuilder:
         )
 
         indexed: dict[str, Any] = {}
-        for key in self.b4_operation_keys:
+        for key in operation_keys:
             records = [
                 record
                 for record in records_by_key.get(key, [])
@@ -4363,7 +4722,7 @@ class CorpusBuilder:
                 ]
                 if len(base_records) != 1:
                     raise FixtureError(
-                        "B4 operation lacks exactly one indexed base root: "
+                        f"{batch} operation lacks exactly one indexed base root: "
                         f"{key.compact()}:{root_name}"
                     )
                 root_records = [
@@ -4427,7 +4786,14 @@ class CorpusBuilder:
                     ]
                 }
                 expected_direction = (
-                    "Encode" if root_name == "params" else "Decode"
+                    "Encode"
+                    if key.category == CLIENT_REQUEST
+                    and root_name == "params"
+                    else "Decode"
+                    if key.category == CLIENT_REQUEST
+                    else "Decode"
+                    if root_name == "params"
+                    else "Encode"
                 )
 
                 base_value = json.loads(
@@ -4479,7 +4845,7 @@ class CorpusBuilder:
                 }
                 if not all(facts.values()):
                     raise FixtureError(
-                        "B4 operation indexed root coverage is incomplete: "
+                        f"{batch} operation indexed root coverage is incomplete: "
                         f"{key.compact()}:{root_name}: facts={facts}"
                     )
                 root_evidence[root_name] = {
@@ -4502,7 +4868,7 @@ class CorpusBuilder:
             )
             if not external_complete:
                 raise FixtureError(
-                    "B4 operation reachable union/helper fixture coverage "
+                    f"{batch} operation reachable union/helper fixture coverage "
                     f"is incomplete for {key.compact()}: missing="
                     f"{sorted(required_external_fixture_ids - positive_fixture_ids)}"
                 )
@@ -4547,20 +4913,27 @@ class CorpusBuilder:
                 "schema_direction_coverage": True,
             }
 
-        if len(indexed) != 22:
+        if len(indexed) != len(operation_keys):
             raise FixtureError(
-                "B4 operation indexed coverage must contain exactly 22 roots"
+                f"{batch} operation indexed coverage must contain exactly "
+                f"{len(operation_keys)} roots"
             )
-        self.b4_indexed_coverage.update(indexed)
-        self.b4_indexed_coverage = dict(
-            sorted(self.b4_indexed_coverage.items())
-        )
+        return dict(sorted(indexed.items()))
 
     def _apply_b5_notification_indexed_completeness(
         self,
         positive_records: Sequence[MutableMapping[str, Any]],
         positive_fixture_ids: set[str],
-    ) -> None:
+        *,
+        notification_keys: Sequence[SurfaceKey] | None = None,
+        batch: str = "A1.1 B5",
+    ) -> dict[str, Any]:
+        notification_keys = (
+            self.b5_notification_keys
+            if notification_keys is None
+            else tuple(notification_keys)
+        )
+        notification_key_set = set(notification_keys)
         records_by_key: dict[
             SurfaceKey, list[MutableMapping[str, Any]]
         ] = {}
@@ -4589,7 +4962,7 @@ class CorpusBuilder:
                 if not isinstance(root_key_record, dict):
                     continue
                 root_key = SurfaceKey.from_contract(root_key_record)
-                if root_key in self.b5_notification_keys:
+                if root_key in notification_key_set:
                     reachability_by_root.setdefault(root_key, set()).add(
                         nested_id
                     )
@@ -4626,6 +4999,7 @@ class CorpusBuilder:
             **B3_OPEN_STRING_ENUMS,
             **B4_OPEN_STRING_ENUMS,
             **B5_OPEN_STRING_ENUMS,
+            **A12_B2_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -4635,7 +5009,7 @@ class CorpusBuilder:
         }
 
         indexed: dict[str, Any] = {}
-        for key in self.b5_notification_keys:
+        for key in notification_keys:
             records = [
                 record
                 for record in records_by_key.get(key, [])
@@ -4647,7 +5021,7 @@ class CorpusBuilder:
             ]
             if len(base_records) != 1:
                 raise FixtureError(
-                    "B5 notification lacks exactly one indexed base root: "
+                    f"{batch} notification lacks exactly one indexed base root: "
                     f"{key.compact()}"
                 )
             base = base_records[0]
@@ -4708,7 +5082,7 @@ class CorpusBuilder:
             parameter_type = manifest_entry.get("params", {}).get("type")
             if not isinstance(parameter_type, str):
                 raise FixtureError(
-                    "B5 notification lacks an authoritative params type: "
+                    f"{batch} notification lacks an authoritative params type: "
                     f"{key.compact()}"
                 )
             definition = locate_definition_for_type(
@@ -4716,7 +5090,7 @@ class CorpusBuilder:
             )
             if definition is None:
                 raise FixtureError(
-                    "B5 notification unexpectedly has a Unit params type: "
+                    f"{batch} notification unexpectedly has a Unit params type: "
                     f"{key.compact()}"
                 )
             reachable_definitions = transitive_definitions(
@@ -4746,7 +5120,7 @@ class CorpusBuilder:
             )
             if missing_external:
                 raise FixtureError(
-                    "B5 notification reachable union/helper fixture "
+                    f"{batch} notification reachable union/helper fixture "
                     f"coverage is incomplete for {key.compact()}: "
                     f"missing={sorted(missing_external)}"
                 )
@@ -4772,7 +5146,7 @@ class CorpusBuilder:
             direction_assertion_exercised = "Decode" in directions
             if not all(facts.values()) or not direction_assertion_exercised:
                 raise FixtureError(
-                    "B5 notification indexed root coverage is incomplete: "
+                    f"{batch} notification indexed root coverage is incomplete: "
                     f"{key.compact()}: facts={facts} "
                     f"direction={direction_assertion_exercised}"
                 )
@@ -4796,12 +5170,51 @@ class CorpusBuilder:
                 "schema_direction_coverage": True,
             }
 
-        if len(indexed) != 37:
+        if len(indexed) != len(notification_keys):
             raise FixtureError(
-                "B5 notification indexed coverage must contain exactly 37 "
-                "roots"
+                f"{batch} notification indexed coverage must contain exactly "
+                f"{len(notification_keys)} roots"
             )
-        self.b5_indexed_coverage = dict(sorted(indexed.items()))
+        return dict(sorted(indexed.items()))
+
+    def _apply_a12_b2_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self._apply_b2_indexed_completeness(
+            positive_records,
+            positive_fixture_ids,
+            keys=self.a12_b2_union_keys,
+            directions_by_domain=A12_B2_ACCOUNT_UNION_DIRECTIONS,
+            batch="A1.2 B2",
+        )
+        self.a12_b2_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a12_b2_operation_keys,
+                batch="A1.2 B2",
+                known_enum_values=A12_B2_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a12_b2_indexed_coverage.update(
+            self._apply_b5_notification_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                notification_keys=self.a12_b2_notification_keys,
+                batch="A1.2 B2",
+            )
+        )
+        self.a12_b2_indexed_coverage = dict(
+            sorted(self.a12_b2_indexed_coverage.items())
+        )
+        if len(self.a12_b2_indexed_coverage) != 24:
+            raise FixtureError(
+                "A1.2 B2 indexed coverage must contain exactly 24 "
+                f"identities, got {len(self.a12_b2_indexed_coverage)}"
+            )
 
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
@@ -4811,6 +5224,8 @@ class CorpusBuilder:
                 str(contract["parameter_type_identity"])
             )
             parameter_value = self.synthesizer.sample(parameter_target)
+            if key in self.a12_b2_operation_keys:
+                normalize_a12_b2_sensitive_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
                 if key.category == CLIENT_REQUEST
@@ -4826,6 +5241,15 @@ class CorpusBuilder:
                 directions_exercised=(
                     ("Encode",)
                     if key in self.b4_operation_keys
+                    or (
+                        key in self.a12_b2_operation_keys
+                        and key.category == CLIENT_REQUEST
+                    )
+                    else ("Decode",)
+                    if (
+                        key in self.a12_b2_operation_keys
+                        and key.category == SERVER_REQUEST
+                    )
                     else ()
                 ),
             )
@@ -4842,6 +5266,8 @@ class CorpusBuilder:
                 str(result_schema_type)
             )
             result_value = self.synthesizer.sample(result_target)
+            if key in self.a12_b2_operation_keys:
+                normalize_a12_b2_sensitive_sample(result_value)
             result_role = (
                 "client_request_result"
                 if key.category == CLIENT_REQUEST
@@ -4857,15 +5283,31 @@ class CorpusBuilder:
                 directions_exercised=(
                     ("Decode",)
                     if key in self.b4_operation_keys
+                    or (
+                        key in self.a12_b2_operation_keys
+                        and key.category == CLIENT_REQUEST
+                    )
+                    else ("Encode",)
+                    if (
+                        key in self.a12_b2_operation_keys
+                        and key.category == SERVER_REQUEST
+                    )
                     else ()
                 ),
             )
 
-    def _build_b4_operation_supplements(self) -> None:
+    def _build_operation_supplements(
+        self,
+        operation_keys: Sequence[SurfaceKey],
+        batch: str,
+    ) -> tuple[dict[str, Any], list[dict[str, str]]]:
         coverage: dict[str, Any] = {}
         opaque_exclusions: list[dict[str, str]] = []
 
-        for key in self.b4_operation_keys:
+        for key in operation_keys:
+            family = (
+                "client" if key.category == CLIENT_REQUEST else "server"
+            )
             contract = self.contracts[key]
             roots = (
                 (
@@ -4890,7 +5332,13 @@ class CorpusBuilder:
             )
             root_records: dict[str, Any] = {}
             for root_name, target, direction in roots:
+                if key.category == SERVER_REQUEST:
+                    direction = (
+                        "Decode" if root_name == "params" else "Encode"
+                    )
                 base_value = self.synthesizer.sample(target)
+                if key in self.a12_b2_operation_keys:
+                    normalize_a12_b2_sensitive_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
                     self.catalog, target, base_value
@@ -4918,7 +5366,7 @@ class CorpusBuilder:
                         or not isinstance(field, str)
                     ):
                         raise FixtureError(
-                            "B4 optional operation field is not an object "
+                            f"{batch} optional operation field is not an object "
                             f"property: {key.compact()}:{root_name}:"
                             f"{json_path(location.instance_path)}"
                         )
@@ -4930,7 +5378,7 @@ class CorpusBuilder:
                     self.add_positive(
                         omitted_id,
                         (
-                            "cases/operations/client/"
+                            f"cases/operations/{family}/"
                             f"{slug(key.name)}/supplements/{root_name}-"
                             f"optional-omitted-{path_name}.json"
                         ),
@@ -4954,7 +5402,7 @@ class CorpusBuilder:
                         is None
                     ):
                         raise FixtureError(
-                            "B4 operation base fixture selected null instead "
+                            f"{batch} operation base fixture selected null instead "
                             "of the required nullable-value case: "
                             f"{key.compact()}:{root_name}:"
                             f"{json_path(location.instance_path)}"
@@ -4971,7 +5419,7 @@ class CorpusBuilder:
                     self.add_positive(
                         null_id,
                         (
-                            "cases/operations/client/"
+                            f"cases/operations/{family}/"
                             f"{slug(key.name)}/supplements/{root_name}-"
                             f"nullable-null-{path_name}.json"
                         ),
@@ -4994,7 +5442,7 @@ class CorpusBuilder:
                         or not isinstance(field, str)
                     ):
                         raise FixtureError(
-                            "B4 required operation field is not an object "
+                            f"{batch} required operation field is not an object "
                             f"property: {key.compact()}:{root_name}:"
                             f"{json_path(location.instance_path)}"
                         )
@@ -5005,7 +5453,7 @@ class CorpusBuilder:
                     codes = sorted({item.code for item in diagnostics})
                     if not codes:
                         raise FixtureError(
-                            "B4 required operation removal was accepted: "
+                            f"{batch} required operation removal was accepted: "
                             f"{key.compact()}:{root_name}:"
                             f"{json_path(location.instance_path)}"
                         )
@@ -5016,7 +5464,7 @@ class CorpusBuilder:
                     self.add_negative(
                         missing_id,
                         (
-                            "cases/operations/client/"
+                            f"cases/operations/{family}/"
                             f"{slug(key.name)}/mutations/{root_name}-"
                             f"missing-required-{path_name}.json"
                         ),
@@ -5040,7 +5488,7 @@ class CorpusBuilder:
                         is None
                     ):
                         raise FixtureError(
-                            "B4 required nullable operation field selected "
+                            f"{batch} required nullable operation field selected "
                             "null in its value fixture: "
                             f"{key.compact()}:{root_name}:"
                             f"{json_path(location.instance_path)}"
@@ -5057,7 +5505,7 @@ class CorpusBuilder:
                     self.add_positive(
                         null_id,
                         (
-                            "cases/operations/client/"
+                            f"cases/operations/{family}/"
                             f"{slug(key.name)}/supplements/{root_name}-"
                             f"required-nullable-null-{path_name}.json"
                         ),
@@ -5133,7 +5581,7 @@ class CorpusBuilder:
                     self.add_negative(
                         wrong_id,
                         (
-                            "cases/operations/client/"
+                            f"cases/operations/{family}/"
                             f"{slug(key.name)}/mutations/{root_name}-"
                             f"wrong-type-{path_name}.json"
                         ),
@@ -5172,6 +5620,13 @@ class CorpusBuilder:
             coverage[key.compact()] = {
                 "roots": root_records,
             }
+
+        return coverage, opaque_exclusions
+
+    def _build_b4_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.b4_operation_keys, "A1.1 B4"
+        )
 
         for method in (
             "thread/fork",
@@ -5332,6 +5787,23 @@ class CorpusBuilder:
                 "B4 operation opaque-path accounting must remain exactly "
                 "three config map values, injected items, and outputSchema"
             )
+
+    def _build_a12_b2_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a12_b2_operation_keys, "A1.2 B2"
+        )
+        if opaque_exclusions:
+            raise FixtureError(
+                "A1.2 B2 account/authentication operations unexpectedly "
+                "contain an unconstrained schema value: "
+                f"{opaque_exclusions}"
+            )
+        self.a12_b2_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a12_b2_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = []
 
     def _build_b4_helper_union_fixtures(self) -> None:
         coverage: dict[str, Any] = {}
@@ -5505,17 +5977,28 @@ class CorpusBuilder:
                 ),
             )
 
-    def _build_b5_notification_fixtures(self) -> None:
+    def _build_notification_fixtures(
+        self,
+        notification_keys: Sequence[SurfaceKey],
+        *,
+        batch: str,
+        expected_existing: int,
+        expected_generated: int,
+        expected_counts: Mapping[str, int] | None,
+        expected_opaque_paths: set[tuple[str, str, str]],
+        normalizer: Any = None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         existing_keys = {
             SurfaceKey(category, domain, field, name)
             for category, domain, field, name
             in EXISTING_TYPED_FIXTURE_IDENTITIES
             if category == SERVER_NOTIFICATION
         }
-        existing_b5 = existing_keys & set(self.b5_notification_keys)
-        if len(existing_b5) != 12:
+        existing_batch = existing_keys & set(notification_keys)
+        if len(existing_batch) != expected_existing:
             raise FixtureError(
-                "B5 must reuse exactly 12 existing notification fixtures"
+                f"{batch} must reuse exactly {expected_existing} existing "
+                "notification fixtures"
             )
 
         generated_bases = 0
@@ -5531,7 +6014,7 @@ class CorpusBuilder:
             "wrong_type_opaque_exclusions": 0,
         }
 
-        for key in self.b5_notification_keys:
+        for key in notification_keys:
             target, index, branch = self.catalog.method_target(
                 key.category, key.name
             )
@@ -5539,12 +6022,13 @@ class CorpusBuilder:
             base_value = self.synthesizer.sample(
                 target, branch, branch_path
             )
-            normalize_b5_notification_sample(key, base_value)
+            if normalizer is not None:
+                normalizer(key, base_value)
             base_id = f"baseline:{key.compact()}"
             base_file = (
                 f"cases/baseline/{key.category}/{slug(key.name)}.json"
             )
-            if key not in existing_b5:
+            if key not in existing_batch:
                 self.add_positive(
                     base_id,
                     base_file,
@@ -5582,7 +6066,7 @@ class CorpusBuilder:
                 )
                 if not isinstance(parent, dict) or not isinstance(field, str):
                     raise FixtureError(
-                        "B5 optional notification field is not an object "
+                        f"{batch} optional notification field is not an object "
                         f"property: {key.compact()}:"
                         f"{json_path(location.instance_path)}"
                     )
@@ -5615,7 +6099,7 @@ class CorpusBuilder:
                     is None
                 ):
                     raise FixtureError(
-                        "B5 notification base fixture selected null instead "
+                        f"{batch} notification base fixture selected null instead "
                         "of the required nullable-value case: "
                         f"{key.compact()}:"
                         f"{json_path(location.instance_path)}"
@@ -5651,7 +6135,7 @@ class CorpusBuilder:
                 )
                 if not isinstance(parent, dict) or not isinstance(field, str):
                     raise FixtureError(
-                        "B5 required notification field is not an object "
+                        f"{batch} required notification field is not an object "
                         f"property: {key.compact()}:"
                         f"{json_path(location.instance_path)}"
                     )
@@ -5662,7 +6146,7 @@ class CorpusBuilder:
                 codes = sorted({item.code for item in diagnostics})
                 if not codes:
                     raise FixtureError(
-                        "B5 required notification removal was accepted: "
+                        f"{batch} required notification removal was accepted: "
                         f"{key.compact()}:"
                         f"{json_path(location.instance_path)}"
                     )
@@ -5693,7 +6177,7 @@ class CorpusBuilder:
                     is None
                 ):
                     raise FixtureError(
-                        "B5 required nullable notification field selected "
+                        f"{batch} required nullable notification field selected "
                         "null in its value fixture: "
                         f"{key.compact()}:"
                         f"{json_path(location.instance_path)}"
@@ -5803,7 +6287,7 @@ class CorpusBuilder:
 
             coverage[key.compact()] = {
                 "base_fixture_id": base_id,
-                "base_fixture_reused": key in existing_b5,
+                "base_fixture_reused": key in existing_batch,
                 "optional_omitted_fixture_ids": sorted(optional_ids),
                 "nullable_null_fixture_ids": sorted(nullable_null_ids),
                 "required_nullable_null_fixture_ids": sorted(
@@ -5824,42 +6308,16 @@ class CorpusBuilder:
                 ),
             }
 
-        if generated_bases != 25:
+        if generated_bases != expected_generated:
             raise FixtureError(
-                "B5 must generate exactly 25 new notification base fixtures"
+                f"{batch} must generate exactly {expected_generated} new "
+                "notification base fixtures"
             )
-        expected_counts = {
-            "base_generated": 25,
-            "missing_required": 279,
-            "nullable_null": 57,
-            "optional_omitted": 65,
-            "required_nullable_null": 2,
-            "wrong_type": 358,
-            "wrong_type_opaque_exclusions": 2,
-        }
-        if counts != expected_counts:
+        if expected_counts is not None and counts != dict(expected_counts):
             raise FixtureError(
-                "B5 notification fixture/mutation accounting changed: "
+                f"{batch} notification fixture/mutation accounting changed: "
                 f"{dict(sorted(counts.items()))}"
             )
-        expected_opaque_paths = {
-            (
-                "thread/realtime/itemAdded",
-                "$/params/item",
-                (
-                    "#/definitions/ThreadRealtimeItemAddedNotification/"
-                    "properties/item"
-                ),
-            ),
-            (
-                "turn/moderationMetadata",
-                "$/params/metadata",
-                (
-                    "#/definitions/TurnModerationMetadataNotification/"
-                    "properties/metadata"
-                ),
-            ),
-        }
         actual_opaque_paths = {
             (
                 record["notification"],
@@ -5870,13 +6328,10 @@ class CorpusBuilder:
         }
         if actual_opaque_paths != expected_opaque_paths:
             raise FixtureError(
-                "B5 protocol-defined opaque notification paths changed: "
+                f"{batch} protocol-defined opaque notification paths changed: "
                 f"{sorted(actual_opaque_paths)}"
             )
-        self.b5_notification_root_coverage = dict(
-            sorted(coverage.items())
-        )
-        self.b5_negative_coverage["payload_mutations"] = {
+        negative_coverage = {
             "counts": dict(sorted(counts.items())),
             "opaque_exclusions": sorted(
                 opaque_exclusions,
@@ -5886,6 +6341,75 @@ class CorpusBuilder:
                 ),
             ),
         }
+        return dict(sorted(coverage.items())), negative_coverage
+
+    def _build_b5_notification_fixtures(self) -> None:
+        (
+            self.b5_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.b5_notification_keys,
+            batch="A1.1 B5",
+            expected_existing=12,
+            expected_generated=25,
+            expected_counts={
+                "base_generated": 25,
+                "missing_required": 279,
+                "nullable_null": 57,
+                "optional_omitted": 65,
+                "required_nullable_null": 2,
+                "wrong_type": 358,
+                "wrong_type_opaque_exclusions": 2,
+            },
+            expected_opaque_paths={
+                (
+                    "thread/realtime/itemAdded",
+                    "$/params/item",
+                    (
+                        "#/definitions/ThreadRealtimeItemAddedNotification/"
+                        "properties/item"
+                    ),
+                ),
+                (
+                    "turn/moderationMetadata",
+                    "$/params/metadata",
+                    (
+                        "#/definitions/TurnModerationMetadataNotification/"
+                        "properties/metadata"
+                    ),
+                ),
+            },
+            normalizer=normalize_b5_notification_sample,
+        )
+        self.b5_negative_coverage["payload_mutations"] = payload_mutations
+
+    def _build_a12_b2_notification_fixtures(self) -> None:
+        def normalize(_key: SurfaceKey, value: Any) -> None:
+            normalize_a12_b2_sensitive_sample(value)
+
+        (
+            self.a12_b2_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.a12_b2_notification_keys,
+            batch="A1.2 B2",
+            expected_existing=0,
+            expected_generated=3,
+            expected_counts={
+                "base_generated": 3,
+                "missing_required": 16,
+                "nullable_null": 17,
+                "optional_omitted": 17,
+                "required_nullable_null": 0,
+                "wrong_type": 33,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            expected_opaque_paths=set(),
+            normalizer=normalize,
+        )
+        self.a12_b2_negative_coverage[
+            "notification_payload_mutations"
+        ] = payload_mutations
 
     def _build_union_fixtures(self) -> None:
         codex_error_target = self.catalog.union_target("CodexErrorInfo")
@@ -5900,6 +6424,9 @@ class CorpusBuilder:
         b4_domains = tuple(
             sorted({key.domain for key in self.b4_operation_union_keys})
         )
+        a12_b2_domains = tuple(
+            sorted({key.domain for key in self.a12_b2_union_keys})
+        )
         for domain in (
             "CodexErrorInfo",
             *b2_domains,
@@ -5913,6 +6440,13 @@ class CorpusBuilder:
                 for candidate in b4_domains
                 if candidate not in b2_domains
                 and candidate not in b3_domains
+            ),
+            *(
+                candidate
+                for candidate in a12_b2_domains
+                if candidate not in b2_domains
+                and candidate not in b3_domains
+                and candidate not in b4_domains
             ),
         ):
             target = self.catalog.union_target(domain)
@@ -5939,6 +6473,15 @@ class CorpusBuilder:
                     (
                         key
                         for key in self.b4_operation_union_keys
+                        if key.domain == domain
+                    ),
+                    key=lambda key: key.name,
+                )
+            elif domain in a12_b2_domains:
+                identities = sorted(
+                    (
+                        key
+                        for key in self.a12_b2_union_keys
                         if key.domain == domain
                     ),
                     key=lambda key: key.name,
@@ -5983,6 +6526,8 @@ class CorpusBuilder:
                     forced_scalar,
                     forced_property,
                 )
+                if key in self.a12_b2_union_keys:
+                    normalize_a12_b2_sensitive_sample(value)
                 known_union_values[(domain, key.name)] = (
                     target,
                     copy.deepcopy(value),
@@ -6004,6 +6549,8 @@ class CorpusBuilder:
                         if domain in B2_SHARED_COMMON_DIRECTIONS
                         else ("Decode",)
                         if domain in b3_domains or domain in b4_domains
+                        else A12_B2_ACCOUNT_UNION_DIRECTIONS[domain]
+                        if domain in a12_b2_domains
                         else ()
                     ),
                 )
@@ -6018,6 +6565,12 @@ class CorpusBuilder:
         )
         self._build_b4_conversation_negative_supplements(
             known_union_values
+        )
+        self._build_b2_union_supplements(
+            known_union_values,
+            keys=self.a12_b2_union_keys,
+            directions_by_domain=A12_B2_ACCOUNT_UNION_DIRECTIONS,
+            batch="A1.2 B2",
         )
 
         target = codex_error_target
@@ -6351,6 +6904,7 @@ class CorpusBuilder:
                 )
             }
             missing_fixture_ids: list[str] = []
+            required_nullable_fixture_ids: list[str] = []
             wrong_type_fixture_ids: list[str] = []
             missing_discriminator_fixture_ids: list[str] = []
             wrong_discriminator_fixture_ids: list[str] = []
@@ -6443,6 +6997,45 @@ class CorpusBuilder:
                     "missing_required",
                 )
                 missing_fixture_ids.append(missing_id)
+                if validator.validate_subschema(
+                    None, location.schema, location.schema_path
+                ):
+                    continue
+                if (
+                    get_instance_path(base_value, location.instance_path)
+                    is None
+                ):
+                    raise FixtureError(
+                        f"{batch} base fixture must exercise a non-null "
+                        "required nullable value: "
+                        f"{key.compact()}:"
+                        f"{json_path(location.instance_path)}"
+                    )
+                nullable_paths.append(location.schema_path)
+                null_value = copy.deepcopy(base_value)
+                parent, field = get_parent_path(
+                    null_value, location.instance_path
+                )
+                parent[field] = None
+                null_id = (
+                    f"union:{key.domain}:{key.name}:"
+                    f"required-nullable-null:{path_slug}"
+                )
+                self.add_positive(
+                    null_id,
+                    (
+                        f"cases/unions/{slug(key.domain)}/supplements/"
+                        f"{slug(key.name)}-required-nullable-null-"
+                        f"{path_slug}.json"
+                    ),
+                    "union_nullable_null",
+                    target,
+                    null_value,
+                    key,
+                    intended,
+                    directions_exercised=directions,
+                )
+                required_nullable_fixture_ids.append(null_id)
 
             for location in (
                 wrong_type_locations[path]
@@ -6497,6 +7090,15 @@ class CorpusBuilder:
                 ),
                 "nullable_null_fixture_ids": sorted(
                     nullable_null_fixture_ids
+                ),
+                **(
+                    {
+                        "required_nullable_null_fixture_ids": sorted(
+                            required_nullable_fixture_ids
+                        )
+                    }
+                    if batch == "A1.2 B2"
+                    else {}
                 ),
                 "nullable_schema_paths": sorted(nullable_paths),
                 "missing_required_fixture_ids": sorted(
@@ -6595,6 +7197,10 @@ class CorpusBuilder:
             self.b2_negative_coverage = coverage
         elif batch == "B4":
             self.b4_negative_coverage["operation_unions"] = coverage
+        elif batch == "A1.2 B2":
+            self.a12_b2_negative_coverage["account_login_unions"] = (
+                coverage
+            )
         else:
             raise FixtureError(f"unsupported generic union batch {batch}")
 
@@ -7667,11 +8273,23 @@ class CorpusBuilder:
             resolved, _ = self.catalog.resolve(
                 target, target.schema, target.schema_path
             )
-            actual_values = (
-                tuple(resolved.get("enum", ()))
-                if isinstance(resolved, dict)
-                else ()
-            )
+            actual_values: tuple[str, ...] = ()
+            if isinstance(resolved, dict):
+                if isinstance(resolved.get("enum"), list):
+                    actual_values = tuple(resolved["enum"])
+                elif isinstance(resolved.get("oneOf"), list):
+                    branches = resolved["oneOf"]
+                    if all(
+                        isinstance(branch, dict)
+                        and branch.get("type") == "string"
+                        and isinstance(branch.get("enum"), list)
+                        and len(branch["enum"]) == 1
+                        and isinstance(branch["enum"][0], str)
+                        for branch in branches
+                    ):
+                        actual_values = tuple(
+                            branch["enum"][0] for branch in branches
+                        )
             if actual_values != expected_values:
                 raise FixtureError(
                     f"B2 open-enum pin mismatch for {domain}: "
@@ -7955,6 +8573,113 @@ class CorpusBuilder:
         self.b5_negative_coverage["open_string_enums"] = dict(
             sorted(enum_coverage.items())
         )
+
+    def _build_a12_b2_open_enum_fixtures(self) -> None:
+        enum_coverage: dict[str, Any] = {}
+        encode_only = {
+            "AddCreditsNudgeCreditType",
+            "LoginAppBrand",
+        }
+        for domain, expected_values in sorted(
+            A12_B2_OPEN_STRING_ENUMS.items()
+        ):
+            target = (
+                self.catalog.embedded_definition_target(
+                    "ChatgptAuthTokensRefreshParams", domain
+                )
+                if domain == "ChatgptAuthTokensRefreshReason"
+                else self.catalog.union_target(domain)
+            )
+            resolved, _ = self.catalog.resolve(
+                target, target.schema, target.schema_path
+            )
+            actual_values: tuple[str, ...] = ()
+            if isinstance(resolved, dict):
+                if isinstance(resolved.get("enum"), list):
+                    actual_values = tuple(resolved["enum"])
+                elif isinstance(resolved.get("oneOf"), list):
+                    branches = resolved["oneOf"]
+                    if all(
+                        isinstance(branch, dict)
+                        and branch.get("type") == "string"
+                        and isinstance(branch.get("enum"), list)
+                        and len(branch["enum"]) == 1
+                        and isinstance(branch["enum"][0], str)
+                        for branch in branches
+                    ):
+                        actual_values = tuple(
+                            branch["enum"][0] for branch in branches
+                        )
+            if actual_values != expected_values:
+                raise FixtureError(
+                    "A1.2 B2 open-enum pin mismatch for "
+                    f"{domain}: {actual_values!r}"
+                )
+            diagnostic_code = (
+                "one_of_zero"
+                if isinstance(resolved, dict)
+                and isinstance(resolved.get("oneOf"), list)
+                else "enum_mismatch"
+            )
+            directions = (
+                ("Encode",) if domain in encode_only else ("Decode",)
+            )
+            known_ids: list[str] = []
+            for value in expected_values:
+                fixture_id = f"enum:{domain}:{value}"
+                self.add_positive(
+                    fixture_id,
+                    f"cases/enums/{slug(domain)}/{slug(value)}.json",
+                    "open_enum_known_value",
+                    target,
+                    value,
+                    None,
+                    directions_exercised=directions,
+                )
+                known_ids.append(fixture_id)
+            future_id = f"enum:{domain}:future-unknown"
+            self.add_negative(
+                future_id,
+                f"cases/enums/{slug(domain)}/future-unknown.json",
+                "unknown_enum_value",
+                target,
+                f"future{domain}",
+                [diagnostic_code],
+                negative_case="future_open_enum_value",
+            )
+            empty_id = f"enum:{domain}:empty-unknown"
+            self.add_negative(
+                empty_id,
+                f"cases/enums/{slug(domain)}/empty-unknown.json",
+                "unknown_enum_value",
+                target,
+                "",
+                [diagnostic_code],
+                negative_case="empty_open_enum_value",
+            )
+            enum_coverage[domain] = {
+                "known_value_fixture_ids": known_ids,
+                "future_value_fixture_id": future_id,
+                "empty_value_fixture_id": empty_id,
+                "directions_exercised": list(directions),
+                "future_value_schema_diagnostic_codes": [
+                    diagnostic_code
+                ],
+            }
+        if (
+            len(enum_coverage) != 13
+            or sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            )
+            != 48
+        ):
+            raise FixtureError(
+                "A1.2 B2 open-enum fixture accounting changed"
+            )
+        self.a12_b2_negative_coverage[
+            "open_string_enums"
+        ] = dict(sorted(enum_coverage.items()))
 
 
 def generated_outputs(

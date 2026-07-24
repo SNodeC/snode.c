@@ -549,6 +549,74 @@ class CodexA12AuditToolTest(unittest.TestCase):
             "StartStateDocumentMismatch",
         )
 
+    def test_live_plan_rows_are_the_exact_b2_progress_boundary(
+        self,
+    ) -> None:
+        identities = self.plan["identities"]
+        counts = self.plan["counts"]
+        assert isinstance(identities, list)
+        assert isinstance(counts, dict)
+        rows = {
+            surface_key(row): row
+            for row in identities
+            if isinstance(row, dict)
+        }
+        b2_keys = expected_batch_keys()["B2"]
+        residual_partial = {
+            (
+                "server_notification",
+                "ServerNotification",
+                "method",
+                "model/rerouted",
+            )
+        }
+        self.assertEqual("B2", counts["current_progress_stage"])
+        self.assertEqual(
+            {"Complete": 24, "NotImplemented": 20, "Partial": 1},
+            counts["current_a1_2_schema_status"],
+        )
+        self.assertEqual(
+            {"Implemented": 25, "NotImplemented": 20},
+            counts["current_a1_2_implementation_status"],
+        )
+        self.assertEqual(
+            {"NotImplemented": 43, "Partial": 2},
+            counts["initial_a1_2_schema_status"],
+        )
+        self.assertEqual(
+            b2_keys,
+            {
+                key
+                for key, row in rows.items()
+                if row["current_schema_status"] == "Complete"
+            },
+        )
+        self.assertEqual(
+            residual_partial,
+            {
+                key
+                for key, row in rows.items()
+                if row["current_schema_status"] == "Partial"
+            },
+        )
+        self.assertEqual(
+            b2_keys | residual_partial,
+            {
+                key
+                for key, row in rows.items()
+                if row["current_implementation_status"]
+                == "Implemented"
+            },
+        )
+        self.assertTrue(
+            all(
+                rows[key]["current_runtime_target"]
+                not in (None, "", "std::monostate{}")
+                and rows[key]["current_fixture_ids"]
+                for key in b2_keys
+            )
+        )
+
     def test_exact_taxonomy_assignments_batches_and_contracts(self) -> None:
         identities = self.plan["identities"]
         assert isinstance(identities, list)
@@ -1203,7 +1271,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 )
             )
 
-        def wrong_start_status(
+        def wrong_live_progress_status(
             plan: dict[str, object], _: dict[str, object]
         ) -> None:
             identities = plan["identities"]
@@ -1216,7 +1284,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             )
             row["current_schema_status"] = "NotImplemented"
 
-        def coherent_start_status_swap(
+        def coherent_live_progress_status_swap(
             plan: dict[str, object], _: dict[str, object]
         ) -> None:
             identities = plan["identities"]
@@ -1242,7 +1310,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 unimplemented["current_schema_status"],
                 partial["current_schema_status"],
             )
-            counts["identity_start_mapping_sha256"] = (
+            counts["identity_live_progress_mapping_sha256"] = (
                 self.tool.sha256_json(
                     self.tool.identity_start_projection(identities)
                 )
@@ -1721,17 +1789,18 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 ("PlanAssignmentMappingMismatch",),
             ),
             (
-                "initial status split",
-                wrong_start_status,
+                "live progress status split",
+                wrong_live_progress_status,
                 (
-                    "PlanStartStateMappingMismatch",
-                    "StartStateMismatch",
+                    "PlanProgressMappingMismatch",
+                    "ProgressStageMismatch",
+                    "ProgressStageMismatch",
                 ),
             ),
             (
-                "coherent start-status swap",
-                coherent_start_status_swap,
-                ("PlanStartStateMappingMismatch",),
+                "coherent live progress status swap",
+                coherent_live_progress_status_swap,
+                ("ProgressIdentityMismatch",),
             ),
             (
                 "unstable identity",
@@ -1911,7 +1980,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
                     "MissingIdentity",
                     "PlanAssignmentMappingMismatch",
                     "PlanContractMappingMismatch",
-                    "PlanStartStateMappingMismatch",
+                    "PlanProgressMappingMismatch",
                 ),
             ),
             (
@@ -1928,10 +1997,10 @@ class CodexA12AuditToolTest(unittest.TestCase):
                     "MissingIdentity",
                     "PlanAssignmentMappingMismatch",
                     "PlanContractMappingMismatch",
-                    "PlanStartStateMappingMismatch",
+                    "PlanProgressMappingMismatch",
+                    "ProgressStageMismatch",
+                    "ProgressStageMismatch",
                     "ResultKindMismatch",
-                    "StartStateMismatch",
-                    "StartStateMismatch",
                     "TaxonomyMismatch",
                 ),
             ),

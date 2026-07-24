@@ -331,6 +331,7 @@ set_tests_properties(
     CodexAppServerFixtureInfrastructureTest
     PROPERTIES LABELS
                "component;ai;openai;codex;phase-a1-0;schema;fixtures"
+               ENVIRONMENT "PYTHONHASHSEED=1"
                TIMEOUT 300
 )
 
@@ -484,6 +485,51 @@ set_tests_properties(
         LABELS "component;ai;openai;codex;typed;operation;wire;a1-1"
         SKIP_RETURN_CODE 77
         TIMEOUT 30
+)
+
+snodec_add_test(CodexA12AccountCodecTest CodexA12AccountCodecTest.cpp)
+target_link_libraries(
+    CodexA12AccountCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA12AccountCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA12AccountCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;account;codec;a1-2;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(CodexA12AccountWireTest CodexA12AccountWireTest.cpp)
+target_link_libraries(
+    CodexA12AccountWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA12AccountWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA12AccountWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;account;operation;wire;a1-2;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA12AuthRefreshWireTest
+    CodexA12AuthRefreshWireTest.cpp
+)
+target_link_libraries(
+    CodexA12AuthRefreshWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA12AuthRefreshWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA12AuthRefreshWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;account;server-request;wire;a1-2;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
 )
 
 snodec_add_test(
@@ -655,6 +701,25 @@ set_tests_properties(
     CodexA11NotificationBackendPreservationTest
     PROPERTIES
         LABELS "component;ai;openai;codex;typed;backend;reducer;preservation;a1-1"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA12AccountBackendPreservationTest
+    CodexA12AccountBackendPreservationTest.cpp
+)
+target_link_libraries(
+    CodexA12AccountBackendPreservationTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-frontend snodec::core
+)
+target_compile_features(
+    CodexA12AccountBackendPreservationTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12AccountBackendPreservationTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;account;backend;reducer;preservation;a1-2;b2"
         SKIP_RETURN_CODE 77
         TIMEOUT 10
 )

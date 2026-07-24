@@ -9,6 +9,7 @@
 #define AI_OPENAI_CODEX_TYPED_EVENTS_H
 
 #include "ai/openai/codex/AppServerClient.h"
+#include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/CodexErrorInfo.h"
 #include "ai/openai/codex/typed/Threads.h"
 
@@ -449,7 +450,10 @@ namespace ai::openai::codex::typed {
         std::vector<DecodeDiagnostic> diagnostics;
     };
 
-    using CanonicalServerNotification = std::variant<AgentMessageDeltaNotification,
+    using CanonicalServerNotification = std::variant<AccountLoginCompletedNotification,
+                                                     AccountRateLimitsUpdatedNotification,
+                                                     AccountUpdatedNotification,
+                                                     AgentMessageDeltaNotification,
                                                      CommandExecutionOutputDeltaNotification,
                                                      TerminalInteractionNotification,
                                                      ItemCompletedNotification,
@@ -645,6 +649,9 @@ namespace ai::openai::codex::typed {
                                TurnDiffUpdatedNotification,
                                TurnModerationMetadataNotification,
                                TurnPlanUpdatedNotification,
+                               AccountLoginCompletedNotification,
+                               AccountRateLimitsUpdatedNotification,
+                               AccountUpdatedNotification,
                                ModelRerouted,
                                TurnErrorEvent,
                                UnknownEvent>;

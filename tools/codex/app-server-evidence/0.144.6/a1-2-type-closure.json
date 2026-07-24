@@ -19987,11 +19987,11 @@
     },
     "fixture_generator": {
       "path": "tools/codex/app_server_fixtures.py",
-      "sha256": "0dbeb63cb7b333087fdb2c78ab71470f4e4791ef6aa4e8751c3b5c0362dc9d96"
+      "sha256": "ab835afdcf57a27d9a6e4fae95d413537cd1942fca0ac394764fbc8b718aab22"
     },
     "generator": {
       "path": "tools/codex/app_server_a1_2.py",
-      "sha256": "e3a622a139394484410022476b8804427408348c7ff1121ce2c2032bb6b374f2"
+      "sha256": "195fb966fdf4a03b8d99c747edae4df47ea608850f499f60fe13c6ebc7ef1980"
     },
     "manifest": {
       "path": "tools/codex/app-server-surface/0.144.6.json",
