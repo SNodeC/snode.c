@@ -147,10 +147,10 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 4169 index records resolve to the retained files
+# additionally proves that all 4320 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 4170)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 4321)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
@@ -241,6 +241,8 @@ set(
     "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ClientOperationCodec.cpp"
     "src/ai/openai/codex/detail/ClientOperationCodec.h"
+    "src/ai/openai/codex/detail/ModelCodec.cpp"
+    "src/ai/openai/codex/detail/ModelCodec.h"
     "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ServerRequestCodecDescriptors.inc"
@@ -250,6 +252,8 @@ set(
     "src/ai/openai/codex/typed/Accounts.h"
     "src/ai/openai/codex/typed/Conversation.h"
     "src/ai/openai/codex/typed/Events.h"
+    "src/ai/openai/codex/typed/Models.cpp"
+    "src/ai/openai/codex/typed/Models.h"
     "tests/CodexBinaryPackageTest.cmake"
     "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
     "tests/component/codex/CodexA11ArtifactByteIdentityTest.py"
@@ -269,6 +273,9 @@ set(
     "tests/component/codex/CodexA12AccountWireTest.cpp"
     "tests/component/codex/CodexA12AccountBackendPreservationTest.cpp"
     "tests/component/codex/CodexA12AuthRefreshWireTest.cpp"
+    "tests/component/codex/CodexA12ModelCodecTest.cpp"
+    "tests/component/codex/CodexA12ModelWireTest.cpp"
+    "tests/component/codex/CodexA12ModelBackendCompatibilityTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "tests/component/codex/CodexTypedClientFacadeTest.cpp"
     "tests/component/codex/CodexTypedFacadeUsageGuardTest.py"

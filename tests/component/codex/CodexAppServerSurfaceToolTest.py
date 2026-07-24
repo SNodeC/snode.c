@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 31:
+    if len(rows) != 33:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 31 rows"
+            "client-operation descriptor must contain exactly 33 rows"
         )
     method_rows = {
         match.group(1): line
@@ -410,15 +410,21 @@ def test_operation_descriptor_guards(
         "account/usage/read",
         "account/workspaceMessages/read",
     }
+    a1_2_b3_methods = {
+        "model/list",
+        "modelProvider/capabilities/read",
+    }
     if (
-        len(method_rows) != 31
+        len(method_rows) != 33
         or len(a1_1_methods) != 22
-        or set(method_rows) != a1_1_methods | a1_2_b2_methods
+        or set(method_rows)
+        != a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
         or a1_1_methods & a1_2_b2_methods
+        or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
-            "nine A1.2 B2 slice projection"
+            "nine A1.2 B2 / two A1.2 B3 slice projection"
         )
     targets = {
         match.group(1)
@@ -429,7 +435,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 31:
+    if len(targets) != 33:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -456,7 +462,7 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 23
+        != 25
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -479,6 +485,32 @@ def test_operation_descriptor_guards(
             for method in a1_2_b2_methods
         )
         != 8
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_2_b3_methods
+        )
+        != 2
+        or any(
+            expected not in method_rows[method]
+            for method, expected in {
+                "model/list": (
+                    "ClientRequestTarget::ModelList, "
+                    '"ClientRequestTarget::ModelList", '
+                    '"ModelListParams", "ModelListResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::ModelListResponse"
+                ),
+                "modelProvider/capabilities/read": (
+                    "ClientRequestTarget::ModelProviderCapabilitiesRead, "
+                    '"ClientRequestTarget::ModelProviderCapabilitiesRead", '
+                    '"ModelProviderCapabilitiesReadParams", '
+                    '"ModelProviderCapabilitiesReadResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "ModelProviderCapabilitiesReadResponse"
+                ),
+            }.items()
+        )
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact per-slice "
@@ -637,36 +669,69 @@ def test_notification_descriptor_guards(
         "account/rateLimits/updated",
         "account/updated",
     }
-    residual_methods = {"error", "model/rerouted"}
+    a1_2_b3_methods = {
+        "model/rerouted",
+        "model/safetyBuffering/updated",
+        "model/verification",
+    }
+    residual_methods = {"error"}
     if (
-        len(rows) != 42
-        or len(targets) != 42
-        or len(method_rows) != 42
+        len(rows) != 44
+        or len(targets) != 44
+        or len(method_rows) != 44
         or len(a1_1_methods) != 37
         or set(method_rows)
-        != a1_1_methods | a1_2_b2_methods | residual_methods
-        or (a1_1_methods | a1_2_b2_methods) & residual_methods
+        != (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | residual_methods
+        )
+        or (
+            a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
+        )
+        & residual_methods
         or a1_1_methods & a1_2_b2_methods
+        or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
     ):
         raise AssertionError(
-            "server-notification descriptors are not an exact 42-row "
+            "server-notification descriptors are not an exact 44-row "
             "target bijection with the reviewed slice projection"
         )
     if (
         sum(line.endswith(", true)") for line in rows) != 37
-        or sum(line.endswith(", false)") for line in rows) != 5
+        or sum(line.endswith(", false)") for line in rows) != 7
         or any(
             not method_rows[method].endswith(", true)")
             for method in a1_1_methods
         )
         or any(
             not method_rows[method].endswith(", false)")
-            for method in a1_2_b2_methods | residual_methods
+            for method in (
+                a1_2_b2_methods | a1_2_b3_methods | residual_methods
+            )
+        )
+        or any(
+            expected not in method_rows[method]
+            for method, expected in {
+                "model/rerouted": (
+                    "ServerNotificationTarget::ModelRerouted, "
+                    '"typed::ModelRerouted", false)'
+                ),
+                "model/safetyBuffering/updated": (
+                    "ServerNotificationTarget::ModelSafetyBufferingUpdated, "
+                    '"typed::ModelSafetyBufferingUpdatedNotification", false)'
+                ),
+                "model/verification": (
+                    "ServerNotificationTarget::ModelVerification, "
+                    '"typed::ModelVerificationNotification", false)'
+                ),
+            }.items()
         )
     ):
         raise AssertionError(
             "server-notification descriptors lost the exact 37 A1.1 / "
-            "three A1.2 B2 / two residual split"
+            "three A1.2 B2 / three A1.2 B3 / one residual split"
         )
 
     wrong_assignment = copy.deepcopy(evidence)

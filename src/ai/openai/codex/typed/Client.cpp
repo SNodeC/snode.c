@@ -13,6 +13,7 @@
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
+#include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
@@ -20,6 +21,7 @@
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Events.h"
+#include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 #include "ai/openai/codex/typed/Threads.h"
@@ -44,11 +46,13 @@ namespace ai::openai::codex::typed {
     class Client::Impl {
     public:
         Impl(std::unique_ptr<Accounts> accounts,
+             std::unique_ptr<Models> models,
              std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
              std::unique_ptr<Requests> requests)
             : accounts(std::move(accounts))
+            , models(std::move(models))
             , threads(std::move(threads))
             , turns(std::move(turns))
             , events(std::move(events))
@@ -56,6 +60,7 @@ namespace ai::openai::codex::typed {
         }
 
         std::unique_ptr<Accounts> accounts;
+        std::unique_ptr<Models> models;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
         std::unique_ptr<Events> events;
@@ -63,11 +68,13 @@ namespace ai::openai::codex::typed {
     };
 
     Client::Client(std::unique_ptr<Accounts> accounts,
+                   std::unique_ptr<Models> models,
                    std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
-        : impl(std::make_unique<Impl>(std::move(accounts), std::move(threads), std::move(turns), std::move(events), std::move(requests))) {
+        : impl(std::make_unique<Impl>(
+              std::move(accounts), std::move(models), std::move(threads), std::move(turns), std::move(events), std::move(requests))) {
     }
 
     Client::~Client() = default;
@@ -78,6 +85,14 @@ namespace ai::openai::codex::typed {
 
     const Accounts& Client::accounts() const noexcept {
         return *impl->accounts;
+    }
+
+    Models& Client::models() noexcept {
+        return *impl->models;
+    }
+
+    const Models& Client::models() const noexcept {
+        return *impl->models;
     }
 
     Threads& Client::threads() noexcept {
@@ -294,6 +309,24 @@ namespace ai::openai::codex::typed {
     Accounts::Submission Accounts::readWorkspaceMessages(Unit params, ReadWorkspaceMessagesResultHandler handler) {
         return submitTypedRequest<GetWorkspaceMessagesResponse>(
             protocol, detail::ClientRequestTarget::AccountWorkspaceMessagesRead, params, std::move(handler), encodeUnitParams);
+    }
+
+    Models::Models(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Models::Submission Models::list(ModelListParams params, ListResultHandler handler) {
+        return submitTypedRequest<ModelListResponse>(
+            protocol, detail::ClientRequestTarget::ModelList, params, std::move(handler), detail::encodeModelListParams);
+    }
+
+    Models::Submission Models::readProviderCapabilities(ModelProviderCapabilitiesReadParams params,
+                                                        ReadProviderCapabilitiesResultHandler handler) {
+        return submitTypedRequest<ModelProviderCapabilitiesReadResponse>(protocol,
+                                                                         detail::ClientRequestTarget::ModelProviderCapabilitiesRead,
+                                                                         params,
+                                                                         std::move(handler),
+                                                                         detail::encodeModelProviderCapabilitiesReadParams);
     }
 
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept

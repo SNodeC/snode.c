@@ -12,6 +12,7 @@
 #include <ai/openai/codex/typed/Conversation.h>
 #include <ai/openai/codex/typed/Events.h>
 #include <ai/openai/codex/typed/Items.h>
+#include <ai/openai/codex/typed/Models.h>
 #include <ai/openai/codex/typed/Results.h>
 #include <ai/openai/codex/typed/ServerRequests.h>
 #include <ai/openai/codex/typed/Threads.h>
@@ -35,7 +36,7 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 40);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 43);
     static_assert(std::variant_size_v<typed::Account> == 4);
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
@@ -47,6 +48,7 @@ int main() {
     static_assert(!std::is_same_v<typed::SessionId, typed::ThreadId>);
     static_assert(!std::is_same_v<typed::AccountId, std::string>);
     static_assert(!std::is_same_v<typed::ClientUserMessageId, std::string>);
+    static_assert(!std::is_same_v<typed::ModelServiceTierId, std::string>);
     static_assert(sizeof(ai::openai::codex::AppServerClient) == 2 * sizeof(void*));
     static_assert(sizeof(typed::Client) == sizeof(void*));
 
@@ -160,6 +162,54 @@ int main() {
         .chatgptAccountId = "installed-account",
         .chatgptPlanType = std::nullopt,
     };
+    [[maybe_unused]] typed::ModelListParams installedModelListParams{
+        .cursor = typed::OptionalNullable<std::string>::explicitNull(),
+        .includeHidden = typed::OptionalNullable<bool>::withValue(false),
+        .limit = typed::OptionalNullable<std::uint32_t>::withValue(25),
+    };
+    [[maybe_unused]] typed::InputModality futureInputModality{"future-modality"};
+    [[maybe_unused]] typed::ModelRerouteReason futureRerouteReason{"future-reroute"};
+    [[maybe_unused]] typed::ModelVerification futureVerification{"future-verification"};
+    [[maybe_unused]] typed::Model installedModel{
+        .additionalSpeedTiers = {typed::ModelServiceTierId{"fast"}},
+        .availabilityNux = typed::OptionalNullable<typed::ModelAvailabilityNux>::withValue(
+            typed::ModelAvailabilityNux{.message = "Available"}),
+        .defaultReasoningEffort = typed::ReasoningEffort{"medium"},
+        .defaultServiceTier =
+            typed::OptionalNullable<typed::ModelServiceTierId>::withValue(typed::ModelServiceTierId{"standard"}),
+        .description = "Installed model",
+        .displayName = "Installed Model",
+        .hidden = false,
+        .id = typed::ModelId{"installed-model-id"},
+        .inputModalities = {typed::InputModality::text(), futureInputModality},
+        .isDefault = true,
+        .model = typed::ModelId{"installed-model-wire"},
+        .serviceTiers =
+            {typed::ModelServiceTier{
+                .description = "Standard service",
+                .id = typed::ModelServiceTierId{"standard"},
+                .name = "Standard",
+            }},
+        .supportedReasoningEfforts =
+            {typed::ReasoningEffortOption{
+                .description = "Balanced",
+                .reasoningEffort = typed::ReasoningEffort{"medium"},
+            }},
+        .supportsPersonality = true,
+        .upgrade = typed::OptionalNullable<std::string>::explicitNull(),
+        .upgradeInfo = typed::OptionalNullable<typed::ModelUpgradeInfo>::omitted(),
+    };
+    [[maybe_unused]] typed::ModelListResponse installedModelListResponse{
+        .data = {installedModel},
+        .nextCursor = typed::OptionalNullable<std::string>::explicitNull(),
+        .raw = {{"data", ai::openai::codex::Json::array()}, {"nextCursor", nullptr}},
+    };
+    [[maybe_unused]] typed::ModelProviderCapabilitiesReadResponse installedProviderCapabilities{
+        .imageGeneration = true,
+        .namespaceTools = false,
+        .webSearch = true,
+        .raw = {{"imageGeneration", true}, {"namespaceTools", false}, {"webSearch", true}},
+    };
     typed::TurnStartParams installedStartParams;
     installedStartParams.threadId = installedThread.id;
     installedStartParams.clientUserMessageId = typed::ClientUserMessageId{"client-message"};
@@ -248,6 +298,14 @@ int main() {
     (void) nudgeSubmission;
     (void) readUsageSubmission;
     (void) readMessagesSubmission;
+
+    const auto modelListSubmission = client.typed().models().list(
+        std::move(installedModelListParams),
+        [](const typed::OperationResult<typed::ModelListResponse>&) {});
+    const auto providerCapabilitiesSubmission = client.typed().models().readProviderCapabilities(
+        {}, [](const typed::OperationResult<typed::ModelProviderCapabilitiesReadResponse>&) {});
+    (void) modelListSubmission;
+    (void) providerCapabilitiesSubmission;
 
     typed::ThreadStartParams launchParams;
     launchParams.cwd = typed::OptionalNullable<std::string>::withValue("/tmp");

@@ -1479,6 +1479,18 @@ RUNTIME_TARGETS = {
         "method",
         "account/workspaceMessages/read",
     ): "ClientRequestTarget::AccountWorkspaceMessagesRead",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "model/list",
+    ): "ClientRequestTarget::ModelList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "modelProvider/capabilities/read",
+    ): "ClientRequestTarget::ModelProviderCapabilitiesRead",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1785,6 +1797,18 @@ RUNTIME_TARGETS = {
         "model/rerouted",
     ): "ServerNotificationTarget::ModelRerouted",
     (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "model/safetyBuffering/updated",
+    ): "ServerNotificationTarget::ModelSafetyBufferingUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "model/verification",
+    ): "ServerNotificationTarget::ModelVerification",
+    (
         "server_request",
         "ServerRequest",
         "method",
@@ -2082,6 +2106,8 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "item/reasoning/textDelta": "typed::ReasoningTextDeltaNotification",
     "item/started": "typed::ItemStartedNotification",
     "model/rerouted": "typed::ModelRerouted",
+    "model/safetyBuffering/updated": "typed::ModelSafetyBufferingUpdatedNotification",
+    "model/verification": "typed::ModelVerificationNotification",
     "thread/archived": "typed::ThreadArchivedNotification",
     "thread/closed": "typed::ThreadClosedNotification",
     "thread/compacted": "typed::ContextCompactedNotification",
@@ -2153,7 +2179,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 42
+    len(SERVER_NOTIFICATION_CODECS) != 44
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5258,12 +5284,29 @@ def registry_statuses(
                 "method",
                 "account/chatgptAuthTokens/refresh",
             )
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "model/list",
+                    "modelProvider/capabilities/read",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3]
+                in {
+                    "model/rerouted",
+                    "model/safetyBuffering/updated",
+                    "model/verification",
+                }
+            )
         )
     ):
-        # A1.2 B2 exact-key descriptors and the independently validated
-        # account/auth fixture projection bind both wire directions to the
-        # one canonical registry target. The schema closure records no
-        # protocol-defined opaque JSON path in this batch.
+        # A1.2 B2/B3 exact-key descriptors and the independently validated
+        # account/auth and model/provider fixture projections bind both wire
+        # directions to the one canonical registry target. The schema closure
+        # records no protocol-defined opaque JSON path in these batches.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -5818,6 +5861,8 @@ def generate_client_operation_descriptor_data(
                     "account/sendAddCreditsNudgeEmail",
                     "account/usage/read",
                     "account/workspaceMessages/read",
+                    "model/list",
+                    "modelProvider/capabilities/read",
                 }
             )
         )
@@ -5832,9 +5877,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 31
+        len(expected_keys) != 33
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 31
+        or len(set(targets.values())) != 33
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -5842,7 +5887,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
-            "the exact 22 stable A1.1 and 9 A1.2 B2 client requests must "
+            "the exact 22 stable A1.1, 9 A1.2 B2, and 2 A1.2 B3 client "
+            "requests must "
             "each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -5868,7 +5914,7 @@ def generate_client_operation_descriptor_data(
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 23
+        or len(expected_keys - unit_keys) != 25
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -5876,8 +5922,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2 requests must remain exactly 8 Unit and "
-            "23 Concrete requests"
+            "typed A1.1+A1.2 B2+B3 requests must remain exactly 8 Unit and "
+            "25 Concrete requests"
         )
 
     result_decoders = {
@@ -5889,6 +5935,8 @@ def generate_client_operation_descriptor_data(
         "GetAccountTokenUsageResponse",
         "GetWorkspaceMessagesResponse",
         "LoginAccountResponse",
+        "ModelListResponse",
+        "ModelProviderCapabilitiesReadResponse",
         "SendAddCreditsNudgeEmailResponse",
         "ThreadForkResponse",
         "ThreadGoalClearResponse",
@@ -5965,14 +6013,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 42
+        len(expected_keys) != 44
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 42
+        != 44
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 42 typed server-notification targets must own "
+            "every one of the 44 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -5994,15 +6042,28 @@ def generate_server_notification_descriptor_data(
         }
     }
     residual_keys -= a12_b2_keys
+    a12_b3_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.2"
+        and key[3]
+        in {
+            "model/rerouted",
+            "model/safetyBuffering/updated",
+            "model/verification",
+        }
+    }
+    residual_keys -= a12_b3_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
-        or {key[3] for key in residual_keys} != {"error", "model/rerouted"}
+        or len(a12_b3_keys) != 3
+        or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
             "descriptors must distinguish the exact 37 A1.1 and 3 A1.2 "
-            "B2 rows from residual partial error/model-rerouted rows"
+            "B2 and 3 A1.2 B3 rows from the residual partial error row"
         )
 
     lines = [

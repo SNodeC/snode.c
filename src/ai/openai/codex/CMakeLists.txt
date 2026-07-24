@@ -15,6 +15,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/ConversationCodec.cpp
     detail/EventDecoder.cpp
     detail/ItemDecoder.cpp
+    detail/ModelCodec.cpp
     detail/ProtocolCodec.cpp
     detail/ProtocolSurfaceRegistry.cpp
     detail/ServerRequestDecoder.cpp
@@ -25,6 +26,7 @@ set(AI_OPENAI_CODEX_CPP
     stdio/StdioTransport.cpp
     typed/Accounts.cpp
     typed/Client.cpp
+    typed/Models.cpp
     typed/Types.cpp
 )
 
@@ -44,6 +46,7 @@ set(AI_OPENAI_CODEX_H
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h
+    detail/ModelCodec.h
     detail/ProtocolCodec.h
     detail/ProtocolSurfaceRegistry.h
     detail/ProtocolSurfaceRegistryData.inc
@@ -59,6 +62,7 @@ set(AI_OPENAI_CODEX_H
     typed/Conversation.h
     typed/Events.h
     typed/Items.h
+    typed/Models.h
     typed/Results.h
     typed/ServerRequests.h
     typed/Threads.h
@@ -106,6 +110,7 @@ install(
           typed/Conversation.h
           typed/Events.h
           typed/Items.h
+          typed/Models.h
           typed/Results.h
           typed/ServerRequests.h
           typed/Threads.h

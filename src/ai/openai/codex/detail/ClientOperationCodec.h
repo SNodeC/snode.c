@@ -11,6 +11,7 @@
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
@@ -45,6 +46,8 @@ namespace ai::openai::codex::detail {
                                                      typed::SendAddCreditsNudgeEmailResponse,
                                                      typed::GetAccountTokenUsageResponse,
                                                      typed::GetWorkspaceMessagesResponse,
+                                                     typed::ModelListResponse,
+                                                     typed::ModelProviderCapabilitiesReadResponse,
                                                      typed::ThreadForkResponse,
                                                      typed::ThreadGoalClearResponse,
                                                      typed::ThreadGoalGetResponse,

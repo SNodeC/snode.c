@@ -515,6 +515,34 @@ set_tests_properties(
         TIMEOUT 20
 )
 
+snodec_add_test(CodexA12ModelCodecTest CodexA12ModelCodecTest.cpp)
+target_link_libraries(
+    CodexA12ModelCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA12ModelCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA12ModelCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;model;codec;a1-2;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(CodexA12ModelWireTest CodexA12ModelWireTest.cpp)
+target_link_libraries(
+    CodexA12ModelWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA12ModelWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA12ModelWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;model;operation;wire;a1-2;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
 snodec_add_test(
     CodexA12AuthRefreshWireTest
     CodexA12AuthRefreshWireTest.cpp
@@ -722,6 +750,25 @@ set_tests_properties(
         LABELS "component;ai;openai;codex;typed;account;backend;reducer;preservation;a1-2;b2"
         SKIP_RETURN_CODE 77
         TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA12ModelBackendCompatibilityTest
+    CodexA12ModelBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA12ModelBackendCompatibilityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-frontend snodec::core
+)
+target_compile_features(
+    CodexA12ModelBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA12ModelBackendCompatibilityTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;model;backend;reducer;compatibility;preservation;a1-2;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 15
 )
 
 snodec_add_test(CodexFrontendProtocolV1Test CodexFrontendProtocolV1Test.cpp)

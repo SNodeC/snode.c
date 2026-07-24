@@ -618,6 +618,28 @@ A12_B2_OPEN_STRING_ENUMS = {
     "RateLimitResetType": ("codexRateLimits", "unknown"),
     "WorkspaceMessageType": ("headline", "announcement", "unknown"),
 }
+
+# Phase A1.2 Commit B3 owns the complete stable model/provider batch. The
+# generated assignment remains authoritative; these exact reviewed sets are
+# independent fixture-routing and taxonomy ratchets.
+A12_B3_MODEL_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "model/list",
+        "modelProvider/capabilities/read",
+    }
+)
+A12_B3_MODEL_NOTIFICATION_METHODS = frozenset(
+    {
+        "model/rerouted",
+        "model/safetyBuffering/updated",
+        "model/verification",
+    }
+)
+A12_B3_OPEN_STRING_ENUMS = {
+    "InputModality": ("text", "image"),
+    "ModelRerouteReason": ("highRiskCyberActivity",),
+    "ModelVerification": ("trustedAccessForCyber",),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1123,6 +1145,49 @@ def derive_a12_b2_account_keys(
             f"notifications={len(notifications)} unions={len(unions)}"
         )
     return operations, notifications, unions
+
+
+def derive_a12_b3_model_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[tuple[SurfaceKey, ...], tuple[SurfaceKey, ...]]:
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.2"
+            and (
+                key.name in A12_B3_MODEL_CLIENT_REQUEST_METHODS
+                or key.name in A12_B3_MODEL_NOTIFICATION_METHODS
+            )
+        )
+    )
+    operations = tuple(
+        key for key in batch if key.category == CLIENT_REQUEST
+    )
+    notifications = tuple(
+        key for key in batch if key.category == SERVER_NOTIFICATION
+    )
+    if (
+        len(batch) != 5
+        or len(operations) != 2
+        or len(notifications) != 3
+        or {key.name for key in operations}
+        != A12_B3_MODEL_CLIENT_REQUEST_METHODS
+        or {key.name for key in notifications}
+        != A12_B3_MODEL_NOTIFICATION_METHODS
+        or any(
+            key.domain
+            not in {"ClientRequest", "ServerNotification"}
+            or key.discriminator_field != "method"
+            for key in batch
+        )
+    ):
+        raise FixtureError(
+            "A1.2 B3 model/provider assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"notifications={len(notifications)}"
+        )
+    return operations, notifications
 
 
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
@@ -3459,6 +3524,13 @@ class CorpusBuilder:
         self.a12_b2_indexed_coverage: dict[str, Any] = {}
         self.a12_b2_operation_root_coverage: dict[str, Any] = {}
         self.a12_b2_notification_root_coverage: dict[str, Any] = {}
+        self.a12_b3_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b3_notification_keys: tuple[SurfaceKey, ...] = ()
+        self.a12_b3_negative_coverage: dict[str, Any] = {}
+        self.a12_b3_indexed_coverage: dict[str, Any] = {}
+        self.a12_b3_operation_root_coverage: dict[str, Any] = {}
+        self.a12_b3_notification_root_coverage: dict[str, Any] = {}
+        self.a12_b3_empty_array_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -3625,20 +3697,28 @@ class CorpusBuilder:
             self.a12_b2_notification_keys,
             self.a12_b2_union_keys,
         ) = derive_a12_b2_account_keys(self.assignments)
+        (
+            self.a12_b3_operation_keys,
+            self.a12_b3_notification_keys,
+        ) = derive_a12_b3_model_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
         self._build_a12_b2_operation_supplements()
+        self._build_a12_b3_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
         self._build_b5_notification_fixtures()
         self._build_a12_b2_notification_fixtures()
+        self._build_a12_b3_notification_fixtures()
+        self._build_a12_b3_empty_array_fixtures()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
         self._build_b4_open_enum_fixtures()
         self._build_b5_open_enum_fixtures()
         self._build_a12_b2_open_enum_fixtures()
+        self._build_a12_b3_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -3718,6 +3798,9 @@ class CorpusBuilder:
             )
         )
         self._apply_a12_b2_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a12_b3_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -3868,6 +3951,28 @@ class CorpusBuilder:
                 ),
                 "negative_coverage": self.a12_b2_negative_coverage,
             },
+            "a1_2_models_providers": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b3_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a12_b3_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b3_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b3_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a12_b3_notification_root_coverage
+                ),
+                "explicit_present_empty_arrays": (
+                    self.a12_b3_empty_array_coverage
+                ),
+                "negative_coverage": self.a12_b3_negative_coverage,
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -3961,6 +4066,17 @@ class CorpusBuilder:
                 if is_a12_b2
                 else {}
             )
+            is_a12_b3 = key in {
+                *self.a12_b3_operation_keys,
+                *self.a12_b3_notification_keys,
+            }
+            a12_b3_schema_facts = (
+                self.a12_b3_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a12_b3
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -3974,6 +4090,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a12_b2
+                else self.a12_b3_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a12_b3
                 else {}
             )
             coverage_records.append(
@@ -4034,6 +4154,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b3_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -4076,6 +4201,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a12_b3_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -4108,6 +4238,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a12_b2_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a12_b3_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -4212,6 +4348,28 @@ class CorpusBuilder:
                     self.a12_b2_notification_root_coverage
                 ),
                 "negative_coverage": self.a12_b2_negative_coverage,
+            },
+            "a1_2_models_providers": {
+                "assignment_derived_operation_keys": [
+                    key.to_json() for key in self.a12_b3_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a12_b3_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a12_b3_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a12_b3_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a12_b3_notification_root_coverage
+                ),
+                "explicit_present_empty_arrays": (
+                    self.a12_b3_empty_array_coverage
+                ),
+                "negative_coverage": self.a12_b3_negative_coverage,
             },
             "fixtures": [
                 compact_generated_record(record)
@@ -5000,6 +5158,7 @@ class CorpusBuilder:
             **B4_OPEN_STRING_ENUMS,
             **B5_OPEN_STRING_ENUMS,
             **A12_B2_OPEN_STRING_ENUMS,
+            **A12_B3_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -5216,6 +5375,38 @@ class CorpusBuilder:
                 f"identities, got {len(self.a12_b2_indexed_coverage)}"
             )
 
+    def _apply_a12_b3_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self.a12_b3_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a12_b3_operation_keys,
+                batch="A1.2 B3",
+                known_enum_values=A12_B3_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a12_b3_indexed_coverage.update(
+            self._apply_b5_notification_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                notification_keys=self.a12_b3_notification_keys,
+                batch="A1.2 B3",
+            )
+        )
+        self.a12_b3_indexed_coverage = dict(
+            sorted(self.a12_b3_indexed_coverage.items())
+        )
+        if len(self.a12_b3_indexed_coverage) != 5:
+            raise FixtureError(
+                "A1.2 B3 indexed coverage must contain exactly 5 "
+                f"identities, got {len(self.a12_b3_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -5245,6 +5436,7 @@ class CorpusBuilder:
                         key in self.a12_b2_operation_keys
                         and key.category == CLIENT_REQUEST
                     )
+                    or key in self.a12_b3_operation_keys
                     else ("Decode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -5287,6 +5479,7 @@ class CorpusBuilder:
                         key in self.a12_b2_operation_keys
                         and key.category == CLIENT_REQUEST
                     )
+                    or key in self.a12_b3_operation_keys
                     else ("Encode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -5623,6 +5816,92 @@ class CorpusBuilder:
 
         return coverage, opaque_exclusions
 
+    def _build_uint32_boundary_fixtures(
+        self,
+        *,
+        key: SurfaceKey,
+        target: SchemaTarget,
+        field: str,
+        schema_path: str,
+        production_evidence: Sequence[str],
+    ) -> list[str]:
+        base = self.synthesizer.sample(target)
+        validator = self.catalog.target_validator(target)
+        fixture_ids: list[str] = []
+        for case, value, schema_valid, codec_valid in (
+            ("zero", 0, True, True),
+            ("maximum", 4_294_967_295, True, True),
+            # JSON Schema Draft-07 treats ``format`` as an annotation. The
+            # pinned format:uint32 still binds the handwritten typed codec.
+            ("overflow", 4_294_967_296, True, False),
+            ("negative", -1, False, False),
+            ("fractional", 0.5, False, False),
+        ):
+            sample = copy.deepcopy(base)
+            sample[field] = value
+            fixture_id = (
+                f"operation:{key.category}:{key.name}:params:uint32-{case}"
+            )
+            relative = (
+                f"cases/operations/client/{slug(key.name)}/"
+                f"{'supplements' if schema_valid else 'mutations'}/"
+                f"params-uint32-{case}.json"
+            )
+            fixture_ids.append(fixture_id)
+            if schema_valid:
+                self.add_positive(
+                    fixture_id,
+                    relative,
+                    (
+                        "operation_numeric_boundary"
+                        if codec_valid
+                        else "operation_pinned_format_unrepresentable"
+                    ),
+                    target,
+                    sample,
+                    key,
+                    directions_exercised=(
+                        ("Encode",) if codec_valid else ()
+                    ),
+                )
+                if not codec_valid:
+                    self.records[-1]["typed_state_boundary"] = {
+                        "representable": False,
+                        "production_diagnostic_expected": False,
+                        "schema_path": schema_path,
+                        "format": "uint32",
+                        "maximum_representable": 4_294_967_295,
+                        "production_evidence": list(production_evidence),
+                        "reason": (
+                            "Draft-07 format is annotative; the pinned "
+                            "format:uint32 value is outside the public typed "
+                            "state and therefore cannot produce a runtime "
+                            "codec diagnostic"
+                        ),
+                    }
+                continue
+
+            diagnostics = validator.validate_subschema(
+                sample, target.schema, target.schema_path
+            )
+            codes = sorted({item.code for item in diagnostics})
+            if not codes:
+                raise FixtureError(
+                    f"{key.name} uint32 boundary mutation was accepted: "
+                    f"{case}"
+                )
+            self.add_negative(
+                fixture_id,
+                relative,
+                "operation_numeric_boundary_invalid",
+                target,
+                sample,
+                codes,
+                key,
+                f"uint32_{case}",
+            )
+        return fixture_ids
+
     def _build_b4_operation_supplements(self) -> None:
         coverage, opaque_exclusions = self._build_operation_supplements(
             self.b4_operation_keys, "A1.1 B4"
@@ -5692,86 +5971,17 @@ class CorpusBuilder:
             if key.name == "thread/rollback"
         )
         rollback_target = self.catalog.standalone("ThreadRollbackParams")
-        rollback_base = self.synthesizer.sample(rollback_target)
-        rollback_validator = self.catalog.target_validator(rollback_target)
-        for case, value, schema_valid, codec_valid in (
-            ("zero", 0, True, True),
-            ("maximum", 4_294_967_295, True, True),
-            # JSON Schema Draft-07 treats ``format`` as an annotation.  The
-            # pinned format:uint32 still binds the handwritten typed codec,
-            # so overflow is an intentionally schema-valid semantic-negative.
-            ("overflow", 4_294_967_296, True, False),
-            ("negative", -1, False, False),
-            ("fractional", 0.5, False, False),
-        ):
-            sample = copy.deepcopy(rollback_base)
-            sample["numTurns"] = value
-            fixture_id = (
-                "operation:client_request:thread/rollback:params:"
-                f"uint32-{case}"
-            )
-            relative = (
-                "cases/operations/client/thread-rollback/"
-                f"{'supplements' if schema_valid else 'mutations'}/"
-                f"params-uint32-{case}.json"
-            )
-            if schema_valid:
-                self.add_positive(
-                    fixture_id,
-                    relative,
-                    (
-                        "operation_numeric_boundary"
-                        if codec_valid
-                        else "operation_pinned_format_unrepresentable"
-                    ),
-                    rollback_target,
-                    sample,
-                    rollback_key,
-                    directions_exercised=(
-                        ("Encode",) if codec_valid else ()
-                    ),
-                )
-                if not codec_valid:
-                    self.records[-1]["typed_state_boundary"] = {
-                        "representable": False,
-                        "production_diagnostic_expected": False,
-                        "schema_path": "#/properties/numTurns",
-                        "format": "uint32",
-                        "maximum_representable": 4_294_967_295,
-                        "production_evidence": [
-                            "ThreadRollbackParams::numTurns is std::uint32_t",
-                            "CodexA11OperationWireTest encodes uint32 maximum exactly",
-                            "compile-time numeric_limits<uint32_t> ratchet",
-                        ],
-                        "reason": (
-                            "Draft-07 format is annotative; the pinned "
-                            "format:uint32 value is outside the public typed "
-                            "state and therefore cannot produce a runtime "
-                            "codec diagnostic"
-                        ),
-                    }
-            else:
-                diagnostics = rollback_validator.validate_subschema(
-                    sample,
-                    rollback_target.schema,
-                    rollback_target.schema_path,
-                )
-                codes = sorted({item.code for item in diagnostics})
-                if not codes:
-                    raise FixtureError(
-                        "ThreadRollbackParams uint32 boundary mutation was "
-                        f"accepted: {case}"
-                    )
-                self.add_negative(
-                    fixture_id,
-                    relative,
-                    "operation_numeric_boundary_invalid",
-                    rollback_target,
-                    sample,
-                    codes,
-                    rollback_key,
-                    f"uint32_{case}",
-                )
+        self._build_uint32_boundary_fixtures(
+            key=rollback_key,
+            target=rollback_target,
+            field="numTurns",
+            schema_path="#/properties/numTurns",
+            production_evidence=(
+                "ThreadRollbackParams::numTurns is std::uint32_t",
+                "CodexA11OperationWireTest encodes uint32 maximum exactly",
+                "compile-time numeric_limits<uint32_t> ratchet",
+            ),
+        )
 
         self.b4_operation_root_coverage = dict(sorted(coverage.items()))
         self.b4_negative_coverage["operation_opaque_exclusions"] = sorted(
@@ -5804,6 +6014,44 @@ class CorpusBuilder:
         self.a12_b2_negative_coverage[
             "operation_opaque_exclusions"
         ] = []
+
+    def _build_a12_b3_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a12_b3_operation_keys, "A1.2 B3"
+        )
+        if opaque_exclusions:
+            raise FixtureError(
+                "A1.2 B3 model/provider operations unexpectedly contain "
+                f"an unconstrained schema value: {opaque_exclusions}"
+            )
+        self.a12_b3_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a12_b3_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = []
+        model_list_key = next(
+            key
+            for key in self.a12_b3_operation_keys
+            if key.name == "model/list"
+        )
+        boundary_ids = self._build_uint32_boundary_fixtures(
+            key=model_list_key,
+            target=self.catalog.standalone("ModelListParams"),
+            field="limit",
+            schema_path="#/properties/limit",
+            production_evidence=(
+                "ModelListParams::limit is OptionalNullable<std::uint32_t>",
+                "CodexA12ModelWireTest encodes uint32 maximum exactly",
+                "compile-time numeric_limits<uint32_t> ratchet",
+            ),
+        )
+        self.a12_b3_negative_coverage["uint32_boundaries"] = {
+            "fixture_ids": boundary_ids,
+            "schema_valid_codec_valid": boundary_ids[:2],
+            "schema_valid_typed_unrepresentable": [boundary_ids[2]],
+            "schema_invalid": boundary_ids[3:],
+        }
 
     def _build_b4_helper_union_fixtures(self) -> None:
         coverage: dict[str, Any] = {}
@@ -5973,6 +6221,7 @@ class CorpusBuilder:
                 directions_exercised=(
                     ("Decode",)
                     if key in self.b5_notification_keys
+                    or key in self.a12_b3_notification_keys
                     else ()
                 ),
             )
@@ -6410,6 +6659,395 @@ class CorpusBuilder:
         self.a12_b2_negative_coverage[
             "notification_payload_mutations"
         ] = payload_mutations
+
+    def _build_a12_b3_notification_fixtures(self) -> None:
+        (
+            self.a12_b3_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.a12_b3_notification_keys,
+            batch="A1.2 B3",
+            expected_existing=1,
+            expected_generated=2,
+            expected_counts={
+                "base_generated": 2,
+                "missing_required": 20,
+                "nullable_null": 1,
+                "optional_omitted": 1,
+                "required_nullable_null": 0,
+                "wrong_type": 24,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            expected_opaque_paths=set(),
+        )
+        self.a12_b3_negative_coverage[
+            "notification_payload_mutations"
+        ] = payload_mutations
+
+    def _build_a12_b3_empty_array_fixtures(self) -> None:
+        """Exercise every B3 array property that admits an explicit empty value."""
+
+        def permitted_paths(
+            target: SchemaTarget,
+            value: Any,
+        ) -> dict[tuple[str | int, ...], str]:
+            validator = self.catalog.target_validator(target)
+            result: dict[tuple[str | int, ...], str] = {}
+            for location in (
+                *collect_required_locations(self.catalog, target, value),
+                *collect_optional_present_locations(
+                    self.catalog, target, value
+                ),
+            ):
+                current = get_instance_path(value, location.instance_path)
+                if not isinstance(current, list):
+                    continue
+                if validator.validate_subschema(
+                    [], location.schema, location.schema_path
+                ):
+                    continue
+                result[location.instance_path] = location.schema_path
+            return result
+
+        discovered: set[tuple[str, str, str, str]] = set()
+        operation_samples: dict[
+            tuple[SurfaceKey, str], tuple[SchemaTarget, Any]
+        ] = {}
+        for key in self.a12_b3_operation_keys:
+            contract = self.contracts[key]
+            for root_name, type_identity in (
+                ("params", contract["parameter_type_identity"]),
+                (
+                    "result",
+                    contract.get(
+                        "result_schema_type_identity",
+                        contract["result_type_identity"],
+                    ),
+                ),
+            ):
+                target = self.catalog.standalone(str(type_identity))
+                value = self.synthesizer.sample(target)
+                operation_samples[(key, root_name)] = (target, value)
+                discovered.update(
+                    (
+                        key.compact(),
+                        root_name,
+                        json_path(instance_path),
+                        schema_path,
+                    )
+                    for instance_path, schema_path in permitted_paths(
+                        target, value
+                    ).items()
+                )
+
+        notification_samples: dict[
+            SurfaceKey, tuple[SchemaTarget, int, Any]
+        ] = {}
+        for key in self.a12_b3_notification_keys:
+            target, index, branch = self.catalog.method_target(
+                key.category, key.name
+            )
+            branch_path = pointer_child(
+                pointer_child(target.schema_path, "oneOf"), index
+            )
+            value = self.synthesizer.sample(target, branch, branch_path)
+            notification_samples[key] = (target, index, value)
+            discovered.update(
+                (
+                    key.compact(),
+                    "params",
+                    json_path(instance_path),
+                    schema_path,
+                )
+                for instance_path, schema_path in permitted_paths(
+                    target, value
+                ).items()
+            )
+
+        expected = {
+            (
+                "client_request:ClientRequest:method:model/list",
+                "result",
+                "$/data",
+                "#/properties/data",
+            ),
+            (
+                "client_request:ClientRequest:method:model/list",
+                "result",
+                "$/data/0/additionalSpeedTiers",
+                "#/definitions/Model/properties/additionalSpeedTiers",
+            ),
+            (
+                "client_request:ClientRequest:method:model/list",
+                "result",
+                "$/data/0/inputModalities",
+                "#/definitions/Model/properties/inputModalities",
+            ),
+            (
+                "client_request:ClientRequest:method:model/list",
+                "result",
+                "$/data/0/serviceTiers",
+                "#/definitions/Model/properties/serviceTiers",
+            ),
+            (
+                "client_request:ClientRequest:method:model/list",
+                "result",
+                "$/data/0/supportedReasoningEfforts",
+                "#/definitions/Model/properties/supportedReasoningEfforts",
+            ),
+            (
+                (
+                    "server_notification:ServerNotification:method:"
+                    "model/safetyBuffering/updated"
+                ),
+                "params",
+                "$/params/reasons",
+                (
+                    "#/definitions/ModelSafetyBufferingUpdatedNotification/"
+                    "properties/reasons"
+                ),
+            ),
+            (
+                (
+                    "server_notification:ServerNotification:method:"
+                    "model/safetyBuffering/updated"
+                ),
+                "params",
+                "$/params/useCases",
+                (
+                    "#/definitions/ModelSafetyBufferingUpdatedNotification/"
+                    "properties/useCases"
+                ),
+            ),
+            (
+                (
+                    "server_notification:ServerNotification:method:"
+                    "model/verification"
+                ),
+                "params",
+                "$/params/verifications",
+                (
+                    "#/definitions/ModelVerificationNotification/"
+                    "properties/verifications"
+                ),
+            ),
+        }
+        if discovered != expected:
+            raise FixtureError(
+                "A1.2 B3 explicit-empty-array schema paths changed: "
+                f"{sorted(discovered)}"
+            )
+
+        model_list_key = next(
+            key
+            for key in self.a12_b3_operation_keys
+            if key.name == "model/list"
+        )
+        model_target, model_base = operation_samples[
+            (model_list_key, "result")
+        ]
+        data_fixture_id = (
+            "operation:client_request:model/list:result:"
+            "explicit-empty-array:data"
+        )
+        empty_data = copy.deepcopy(model_base)
+        empty_data["data"] = []
+        self.add_positive(
+            data_fixture_id,
+            (
+                "cases/operations/client/model-list/supplements/"
+                "result-explicit-empty-array-data.json"
+            ),
+            "operation_explicit_empty_array",
+            model_target,
+            empty_data,
+            model_list_key,
+            directions_exercised=("Decode",),
+        )
+
+        model_arrays_fixture_id = (
+            "operation:client_request:model/list:result:"
+            "explicit-empty-array:model-collections"
+        )
+        empty_model_arrays = copy.deepcopy(model_base)
+        model = empty_model_arrays["data"][0]
+        for field in (
+            "additionalSpeedTiers",
+            "inputModalities",
+            "serviceTiers",
+            "supportedReasoningEfforts",
+        ):
+            model[field] = []
+        self.add_positive(
+            model_arrays_fixture_id,
+            (
+                "cases/operations/client/model-list/supplements/"
+                "result-explicit-empty-array-model-collections.json"
+            ),
+            "operation_explicit_empty_array",
+            model_target,
+            empty_model_arrays,
+            model_list_key,
+            directions_exercised=("Decode",),
+        )
+        self.a12_b3_operation_root_coverage[
+            model_list_key.compact()
+        ]["roots"]["result"][
+            "explicit_present_empty_array_fixture_ids"
+        ] = [
+            data_fixture_id,
+            model_arrays_fixture_id,
+        ]
+
+        safety_key = next(
+            key
+            for key in self.a12_b3_notification_keys
+            if key.name == "model/safetyBuffering/updated"
+        )
+        safety_target, safety_index, safety_base = notification_samples[
+            safety_key
+        ]
+        safety_fixture_id = (
+            "baseline:server_notification:model/safetyBuffering/updated:"
+            "explicit-empty-array:reasons-use-cases"
+        )
+        empty_safety_arrays = copy.deepcopy(safety_base)
+        empty_safety_arrays["params"]["reasons"] = []
+        empty_safety_arrays["params"]["useCases"] = []
+        self.add_positive(
+            safety_fixture_id,
+            (
+                "cases/notifications/server/model-safetybuffering-updated/"
+                "supplements/explicit-empty-array-reasons-use-cases.json"
+            ),
+            "notification_explicit_empty_array",
+            safety_target,
+            empty_safety_arrays,
+            safety_key,
+            (safety_index,),
+            directions_exercised=("Decode",),
+        )
+        self.a12_b3_notification_root_coverage[
+            safety_key.compact()
+        ]["explicit_present_empty_array_fixture_ids"] = [
+            safety_fixture_id
+        ]
+
+        verification_key = next(
+            key
+            for key in self.a12_b3_notification_keys
+            if key.name == "model/verification"
+        )
+        (
+            verification_target,
+            verification_index,
+            verification_base,
+        ) = notification_samples[verification_key]
+        verification_fixture_id = (
+            "baseline:server_notification:model/verification:"
+            "explicit-empty-array:verifications"
+        )
+        empty_verifications = copy.deepcopy(verification_base)
+        empty_verifications["params"]["verifications"] = []
+        self.add_positive(
+            verification_fixture_id,
+            (
+                "cases/notifications/server/model-verification/"
+                "supplements/explicit-empty-array-verifications.json"
+            ),
+            "notification_explicit_empty_array",
+            verification_target,
+            empty_verifications,
+            verification_key,
+            (verification_index,),
+            directions_exercised=("Decode",),
+        )
+        self.a12_b3_notification_root_coverage[
+            verification_key.compact()
+        ]["explicit_present_empty_array_fixture_ids"] = [
+            verification_fixture_id
+        ]
+
+        evidence = [
+            {
+                "direction": "Decode",
+                "fixture_id": data_fixture_id,
+                "instance_path": "$/data",
+                "root": "result",
+                "schema_path": "#/properties/data",
+                "surface_key": model_list_key.to_json(),
+                "value_state": "present_empty_array",
+            },
+            *(
+                {
+                    "direction": "Decode",
+                    "fixture_id": model_arrays_fixture_id,
+                    "instance_path": f"$/data/0/{field}",
+                    "root": "result",
+                    "schema_path": (
+                        f"#/definitions/Model/properties/{field}"
+                    ),
+                    "surface_key": model_list_key.to_json(),
+                    "value_state": "present_empty_array",
+                }
+                for field in (
+                    "additionalSpeedTiers",
+                    "inputModalities",
+                    "serviceTiers",
+                    "supportedReasoningEfforts",
+                )
+            ),
+            *(
+                {
+                    "direction": "Decode",
+                    "fixture_id": safety_fixture_id,
+                    "instance_path": f"$/params/{field}",
+                    "root": "params",
+                    "schema_path": (
+                        "#/definitions/"
+                        "ModelSafetyBufferingUpdatedNotification/"
+                        f"properties/{field}"
+                    ),
+                    "surface_key": safety_key.to_json(),
+                    "value_state": "present_empty_array",
+                }
+                for field in ("reasons", "useCases")
+            ),
+            {
+                "direction": "Decode",
+                "fixture_id": verification_fixture_id,
+                "instance_path": "$/params/verifications",
+                "root": "params",
+                "schema_path": (
+                    "#/definitions/ModelVerificationNotification/"
+                    "properties/verifications"
+                ),
+                "surface_key": verification_key.to_json(),
+                "value_state": "present_empty_array",
+            },
+        ]
+        self.a12_b3_empty_array_coverage = {
+            "counts": {
+                "fixtures": 4,
+                "schema_paths": 8,
+            },
+            "fixture_ids": sorted(
+                {
+                    data_fixture_id,
+                    model_arrays_fixture_id,
+                    safety_fixture_id,
+                    verification_fixture_id,
+                }
+            ),
+            "path_evidence": sorted(
+                evidence,
+                key=lambda record: (
+                    record["surface_key"]["category"],
+                    record["surface_key"]["name"],
+                    record["instance_path"],
+                ),
+            ),
+        }
 
     def _build_union_fixtures(self) -> None:
         codex_error_target = self.catalog.union_target("CodexErrorInfo")
@@ -8574,20 +9212,22 @@ class CorpusBuilder:
             sorted(enum_coverage.items())
         )
 
-    def _build_a12_b2_open_enum_fixtures(self) -> None:
+    def _build_a12_open_enum_fixtures(
+        self,
+        *,
+        batch: str,
+        expected_enums: Mapping[str, tuple[str, ...]],
+        encode_only: set[str],
+        embedded_targets: Mapping[str, str],
+        expected_known_values: int,
+    ) -> dict[str, Any]:
         enum_coverage: dict[str, Any] = {}
-        encode_only = {
-            "AddCreditsNudgeCreditType",
-            "LoginAppBrand",
-        }
-        for domain, expected_values in sorted(
-            A12_B2_OPEN_STRING_ENUMS.items()
-        ):
+        for domain, expected_values in sorted(expected_enums.items()):
             target = (
                 self.catalog.embedded_definition_target(
-                    "ChatgptAuthTokensRefreshParams", domain
+                    embedded_targets[domain], domain
                 )
-                if domain == "ChatgptAuthTokensRefreshReason"
+                if domain in embedded_targets
                 else self.catalog.union_target(domain)
             )
             resolved, _ = self.catalog.resolve(
@@ -8612,7 +9252,7 @@ class CorpusBuilder:
                         )
             if actual_values != expected_values:
                 raise FixtureError(
-                    "A1.2 B2 open-enum pin mismatch for "
+                    f"{batch} open-enum pin mismatch for "
                     f"{domain}: {actual_values!r}"
                 )
             diagnostic_code = (
@@ -8667,19 +9307,46 @@ class CorpusBuilder:
                 ],
             }
         if (
-            len(enum_coverage) != 13
+            len(enum_coverage) != len(expected_enums)
             or sum(
                 len(record["known_value_fixture_ids"])
                 for record in enum_coverage.values()
             )
-            != 48
+            != expected_known_values
         ):
             raise FixtureError(
-                "A1.2 B2 open-enum fixture accounting changed"
+                f"{batch} open-enum fixture accounting changed"
             )
+        return dict(sorted(enum_coverage.items()))
+
+    def _build_a12_b2_open_enum_fixtures(self) -> None:
         self.a12_b2_negative_coverage[
             "open_string_enums"
-        ] = dict(sorted(enum_coverage.items()))
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.2 B2",
+            expected_enums=A12_B2_OPEN_STRING_ENUMS,
+            encode_only={
+                "AddCreditsNudgeCreditType",
+                "LoginAppBrand",
+            },
+            embedded_targets={
+                "ChatgptAuthTokensRefreshReason": (
+                    "ChatgptAuthTokensRefreshParams"
+                )
+            },
+            expected_known_values=48,
+        )
+
+    def _build_a12_b3_open_enum_fixtures(self) -> None:
+        self.a12_b3_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.2 B3",
+            expected_enums=A12_B3_OPEN_STRING_ENUMS,
+            encode_only=set(),
+            embedded_targets={},
+            expected_known_values=4,
+        )
 
 
 def generated_outputs(

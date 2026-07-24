@@ -72,6 +72,7 @@ set(
     "typed/Conversation.h"
     "typed/Events.h"
     "typed/Items.h"
+    "typed/Models.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"

@@ -631,10 +631,10 @@ int main() {
         static_cast<std::size_t>(std::count_if(descriptors.begin(), descriptors.end(), [](const auto& descriptor) {
             const auto& row = detail::entryFor(descriptor.target);
             return !descriptor.a11ConversationDomain && row.typedSchemaStatus == detail::TypedSchemaStatus::Partial &&
-                   (descriptor.key.name == "error" || descriptor.key.name == "model/rerouted");
+                   descriptor.key.name == "error";
         }));
-    result.expectTrue(residualPartialDescriptors == 2,
-                      "error and model/rerouted remain the exact two residual partial descriptor rows independent of later slices");
+    result.expectTrue(residualPartialDescriptors == 1,
+                      "error remains the exact residual partial descriptor row while B3 completes model/rerouted");
 
     std::map<std::string, std::size_t> roles;
     std::set<detail::ServerNotificationTarget> baseTargets;

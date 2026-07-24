@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 191 && schemaPartial == 7 && schemaNotImplemented == 141 && schemaNotApplicable == 48,
-                      "the B2 registry reaches the exact staged 191/7/141/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 196 && schemaPartial == 6 && schemaNotImplemented == 137 && schemaNotApplicable == 48,
+                      "the B3 registry reaches the exact staged 196/6/137/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -207,7 +207,7 @@ int main() {
 
     expectTargets<detail::ClientRequestTarget>(
         result,
-        std::array<std::string_view, 32>{"initialize",
+        std::array<std::string_view, 34>{"initialize",
                                          "account/login/cancel",
                                          "account/login/start",
                                          "account/logout",
@@ -217,6 +217,8 @@ int main() {
                                          "account/sendAddCreditsNudgeEmail",
                                          "account/usage/read",
                                          "account/workspaceMessages/read",
+                                         "model/list",
+                                         "modelProvider/capabilities/read",
                                          "thread/start",
                                          "thread/resume",
                                          "thread/list",
@@ -245,10 +247,12 @@ int main() {
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 42>{"error",
+        std::array<std::string_view, 44>{"error",
                                          "account/login/completed",
                                          "account/rateLimits/updated",
                                          "account/updated",
+                                         "model/safetyBuffering/updated",
+                                         "model/verification",
                                          "thread/started",
                                          "thread/status/changed",
                                          "turn/started",
@@ -287,7 +291,7 @@ int main() {
                                          "turn/moderationMetadata",
                                          "turn/plan/updated",
                                          "model/rerouted"},
-        "all 42 typed notification dispatch targets resolve to their exact registered wire methods");
+        "all 44 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
         std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
@@ -588,6 +592,71 @@ int main() {
         "the B2 account operation descriptors form the exact nine-row "
         "registry/contract/decoder bijection with one Unit and eight Concrete results");
 
+    struct ExpectedModelOperation {
+        std::string_view method;
+        std::string_view parameterType;
+        std::string_view resultType;
+        detail::ClientRequestTarget target;
+        detail::ClientOperationResultDecoder resultDecoder;
+    };
+    constexpr std::array<ExpectedModelOperation, 2> expectedModelOperations{{
+        {"model/list",
+         "ModelListParams",
+         "ModelListResponse",
+         detail::ClientRequestTarget::ModelList,
+         detail::ClientOperationResultDecoder::ModelListResponse},
+        {"modelProvider/capabilities/read",
+         "ModelProviderCapabilitiesReadParams",
+         "ModelProviderCapabilitiesReadResponse",
+         detail::ClientRequestTarget::ModelProviderCapabilitiesRead,
+         detail::ClientOperationResultDecoder::
+             ModelProviderCapabilitiesReadResponse},
+    }};
+    bool exactModelOperations = true;
+    std::size_t modelOperationCount = 0;
+    for (const detail::ClientOperationCodecDescriptor& descriptor :
+         operationDescriptors) {
+        const auto expected = std::find_if(
+            expectedModelOperations.begin(),
+            expectedModelOperations.end(),
+            [&](const ExpectedModelOperation& candidate) {
+                return candidate.method == descriptor.key.name;
+            });
+        if (expected == expectedModelOperations.end()) {
+            continue;
+        }
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        exactModelOperations =
+            exactModelOperations && descriptor.target == expected->target &&
+            descriptor.parameterTypeIdentity == expected->parameterType &&
+            descriptor.resultTypeIdentity == expected->resultType &&
+            descriptor.resultKind == detail::ResultContractKind::Concrete &&
+            descriptor.resultDecoder == expected->resultDecoder &&
+            descriptor.key ==
+                detail::ProtocolSurfaceKey{
+                    detail::SurfaceCategory::ClientRequest,
+                    "ClientRequest",
+                    "method",
+                    expected->method,
+                } &&
+            entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+            entry.operationContract.parameterTypeIdentity ==
+                descriptor.parameterTypeIdentity &&
+            entry.operationContract.resultTypeIdentity ==
+                descriptor.resultTypeIdentity &&
+            entry.operationContract.resultKind == descriptor.resultKind;
+        ++modelOperationCount;
+    }
+    result.expectTrue(
+        exactModelOperations &&
+            modelOperationCount == expectedModelOperations.size(),
+        "the B3 model/provider operation descriptors form the exact two-row "
+        "registry/target/contract/decoder bijection with two Concrete results");
+
     const auto validateWithOperationDescriptors =
         [&](std::span<const detail::ProtocolSurfaceEntry> entries,
             std::span<const detail::ClientOperationCodecDescriptor>
@@ -753,6 +822,27 @@ int main() {
         "with exactly CodecDescriptorContractMismatch");
 
     std::vector<detail::ClientOperationCodecDescriptor>
+        wrongModelOperationResultDecoder(
+            operationDescriptors.begin(), operationDescriptors.end());
+    const auto modelListDescriptor = std::find_if(
+        wrongModelOperationResultDecoder.begin(),
+        wrongModelOperationResultDecoder.end(),
+        [](const detail::ClientOperationCodecDescriptor& descriptor) {
+            return descriptor.key.name == "model/list";
+        });
+    modelListDescriptor->resultDecoder =
+        detail::ClientOperationResultDecoder::
+            ModelProviderCapabilitiesReadResponse;
+    result.expectTrue(
+        hasExactCodes(
+            validateWithOperationDescriptors(
+                registry, wrongModelOperationResultDecoder),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorContractMismatch}),
+        "binding the exact B3 model/list row to the provider-capabilities "
+        "result decoder emits exactly CodecDescriptorContractMismatch");
+
+    std::vector<detail::ClientOperationCodecDescriptor>
         wrongOperationTargetIdentity(
             operationDescriptors.begin(), operationDescriptors.end());
     wrongOperationTargetIdentity.front().runtimeTargetIdentity =
@@ -862,16 +952,15 @@ int main() {
             ++residualPartialNotificationDescriptors;
             exactResidualNotificationDescriptors =
                 exactResidualNotificationDescriptors &&
-                (descriptor.key.name == "error" ||
-                 descriptor.key.name == "model/rerouted");
+                descriptor.key.name == "error";
         }
     }
     result.expectTrue(
         exactNotificationDescriptors && a11NotificationDescriptors == 37 &&
-            residualPartialNotificationDescriptors == 2 &&
+            residualPartialNotificationDescriptors == 1 &&
             exactResidualNotificationDescriptors,
         "generated notification descriptors preserve the exact 37-row A1.1 "
-        "registry/payload bijection and two residual partial rows independent of later slices");
+        "registry/payload bijection and one residual partial row independent of later slices");
 
     constexpr std::array<std::pair<std::string_view, std::string_view>, 3>
         expectedAccountNotifications{{
@@ -918,6 +1007,46 @@ int main() {
             accountNotificationCount == expectedAccountNotifications.size(),
         "the B2 account notification descriptors form the exact three-row "
         "registry/payload bijection without changing A1.1 membership");
+
+    constexpr std::array<std::pair<std::string_view, std::string_view>, 3>
+        expectedModelNotifications{{
+            {"model/rerouted", "typed::ModelRerouted"},
+            {"model/safetyBuffering/updated",
+             "typed::ModelSafetyBufferingUpdatedNotification"},
+            {"model/verification",
+             "typed::ModelVerificationNotification"},
+        }};
+    bool exactModelNotifications = true;
+    std::size_t modelNotificationCount = 0;
+    for (const detail::ServerNotificationCodecDescriptor& descriptor :
+         notificationDescriptors) {
+        if (!descriptor.key.name.starts_with("model/")) {
+            continue;
+        }
+        const auto expected = std::find_if(
+            expectedModelNotifications.begin(),
+            expectedModelNotifications.end(),
+            [&](const auto& candidate) {
+                return candidate.first == descriptor.key.name;
+            });
+        const detail::ProtocolSurfaceEntry& entry =
+            detail::entryFor(descriptor.target);
+        exactModelNotifications =
+            exactModelNotifications &&
+            expected != expectedModelNotifications.end() &&
+            descriptor.payloadTypeIdentity == expected->second &&
+            !descriptor.a11ConversationDomain &&
+            entry.key == descriptor.key &&
+            entry.a1Slice == detail::A1Slice::A1_2 &&
+            entry.typedModule == "AccountsModelsConfiguration" &&
+            entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete;
+        ++modelNotificationCount;
+    }
+    result.expectTrue(
+        exactModelNotifications &&
+            modelNotificationCount == expectedModelNotifications.size(),
+        "the B3 model notification descriptors form the exact three-row "
+        "registry/payload bijection while retaining model/rerouted semantics");
 
     const auto validateWithNotificationDescriptors =
         [&](std::span<const detail::ProtocolSurfaceEntry> entries,
@@ -1061,6 +1190,25 @@ int main() {
                  CodecDescriptorContractMismatch}),
         "a notification descriptor payload mismatch emits exactly "
         "CodecDescriptorContractMismatch");
+
+    std::vector<detail::ServerNotificationCodecDescriptor>
+        wrongModelNotificationPayload(
+            notificationDescriptors.begin(), notificationDescriptors.end());
+    std::find_if(
+        wrongModelNotificationPayload.begin(),
+        wrongModelNotificationPayload.end(),
+        [](const detail::ServerNotificationCodecDescriptor& descriptor) {
+            return descriptor.key.name ==
+                   "model/safetyBuffering/updated";
+        })->payloadTypeIdentity = "typed::ModelVerificationNotification";
+    result.expectTrue(
+        hasExactCodes(
+            validateWithNotificationDescriptors(
+                registry, wrongModelNotificationPayload),
+            {detail::ProtocolSurfaceErrorCode::
+                 CodecDescriptorContractMismatch}),
+        "binding the exact B3 safety-buffering row to the model-verification "
+        "payload emits exactly CodecDescriptorContractMismatch");
 
     std::vector<detail::ServerNotificationCodecDescriptor>
         falseNotificationSlice(
@@ -2254,7 +2402,7 @@ int main() {
         });
 
     const detail::ProtocolSurfaceEntry* deferred =
-        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "model/list");
+        detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "config/read");
     result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
                           deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
                           std::holds_alternative<std::monostate>(deferred->runtimeTarget),

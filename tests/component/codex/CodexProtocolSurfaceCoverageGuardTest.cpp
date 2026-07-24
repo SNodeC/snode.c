@@ -374,6 +374,32 @@ namespace {
         return counts;
     }
 
+    SchemaStatusCounts schemaStatusCountsForSlice(
+        std::span<const detail::ProtocolSurfaceEntry> entries,
+        detail::A1Slice slice) {
+        SchemaStatusCounts counts;
+        for (const detail::ProtocolSurfaceEntry& entry : entries) {
+            if (entry.a1Slice != slice) {
+                continue;
+            }
+            switch (entry.typedSchemaStatus) {
+                case detail::TypedSchemaStatus::Complete:
+                    ++counts.complete;
+                    break;
+                case detail::TypedSchemaStatus::Partial:
+                    ++counts.partial;
+                    break;
+                case detail::TypedSchemaStatus::NotImplemented:
+                    ++counts.notImplemented;
+                    break;
+                case detail::TypedSchemaStatus::NotApplicable:
+                    ++counts.notApplicable;
+                    break;
+            }
+        }
+        return counts;
+    }
+
     Json loadManifest() {
         std::ifstream input(CODEX_PHASE_A0_SURFACE_MANIFEST);
         if (!input) {
@@ -394,15 +420,18 @@ int main() {
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}),
-                      "the B2 registry retains every locked A1.0 and exact A1.1 batch identity");
+                      "the B3 registry retains every locked A1.0 and exact A1.1 batch identity");
     result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
                                                           tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
-                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 122,
-                      "A1.1 B3 through B5 and A1.2 B2 add exactly 122 typed identities while completing inherited partial rows");
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 126,
+                      "A1.1 B3 through B5 and A1.2 B2+B3 add exactly 126 typed identities while completing inherited partial rows");
     result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{151, 0, 0, 0},
                       "the final A1.1 slice is exactly Complete 151, Partial 0, NotImplemented 0, NotApplicable 0");
-    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{191, 7, 141, 48},
-                      "the B2 global registry is exactly Complete 191, Partial 7, NotImplemented 141, NotApplicable 48");
+    result.expectTrue(schemaStatusCountsForSlice(baseline, detail::A1Slice::A1_2) ==
+                          SchemaStatusCounts{29, 0, 16, 0},
+                      "the staged A1.2 B3 slice is exactly Complete 29, Partial 0, NotImplemented 16, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{196, 6, 137, 48},
+                      "the B3 global registry is exactly Complete 196, Partial 6, NotImplemented 137, NotApplicable 48");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry =

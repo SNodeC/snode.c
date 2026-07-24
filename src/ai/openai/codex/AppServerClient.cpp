@@ -1108,6 +1108,7 @@ namespace ai::openai::codex {
         : impl(std::make_unique<Impl>(std::move(transport), std::move(clientInfo))) {
         impl->installTypedClient(std::unique_ptr<typed::Client>(
             new typed::Client(std::unique_ptr<typed::Accounts>(new typed::Accounts(impl->raw())),
+                              std::unique_ptr<typed::Models>(new typed::Models(impl->raw())),
                               std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
                               std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
                               std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),

@@ -13,9 +13,11 @@
 #include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
+#include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
+#include "ai/openai/codex/typed/Models.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -541,11 +543,14 @@ namespace ai::openai::codex::detail {
             if (error.empty()) {
                 error = "notification payload could not be decoded";
             }
-            const bool accountNotification = notification.method == "account/login/completed" ||
-                                             notification.method == "account/rateLimits/updated" ||
-                                             notification.method == "account/updated";
+            const bool exactPathNotification = notification.method == "account/login/completed" ||
+                                               notification.method == "account/rateLimits/updated" ||
+                                               notification.method == "account/updated" ||
+                                               notification.method == "model/rerouted" ||
+                                               notification.method == "model/safetyBuffering/updated" ||
+                                               notification.method == "model/verification";
             std::string fieldPath = "$.params";
-            if (accountNotification) {
+            if (exactPathNotification) {
                 const std::size_t begin = error.find("'$");
                 if (begin != std::string::npos) {
                     const std::size_t end = error.find('\'', begin + 1);
@@ -1232,25 +1237,30 @@ namespace ai::openai::codex::detail {
 
         typed::Event decodeModelRerouted(const Notification& notification) {
             std::string error;
-            std::string threadId;
-            std::string turnId;
-            std::string fromModel;
-            std::string toModel;
-            std::string reason;
-            if (!requireParamsObject(notification, error) || !requireString(notification.params, "threadId", threadId, error) ||
-                !requireString(notification.params, "turnId", turnId, error) ||
-                !requireString(notification.params, "fromModel", fromModel, error) ||
-                !requireString(notification.params, "toModel", toModel, error) ||
-                !requireString(notification.params, "reason", reason, error)) {
+            auto decoded = decodeModelReroutedNotification(notification, error);
+            if (!decoded) {
                 return malformedEvent(notification, std::move(error));
             }
+            typed::ModelRerouted event{decoded->threadId,
+                                       decoded->turnId,
+                                       decoded->fromModel,
+                                       decoded->toModel,
+                                       decoded->reason.value,
+                                       notification.raw,
+                                       std::move(*decoded)};
+            return typed::Event{std::move(event)};
+        }
 
-            return typed::Event{typed::ModelRerouted{typed::ThreadId{std::move(threadId)},
-                                                     typed::TurnId{std::move(turnId)},
-                                                     typed::ModelId{std::move(fromModel)},
-                                                     typed::ModelId{std::move(toModel)},
-                                                     std::move(reason),
-                                                     notification.raw}};
+        typed::Event decodeModelSafetyBufferingUpdated(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeModelSafetyBufferingUpdatedNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
+        }
+
+        typed::Event decodeModelVerification(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeModelVerificationNotification(notification, error);
+            return decoded ? typed::Event{std::move(*decoded)} : malformedEvent(notification, std::move(error));
         }
 
         typed::Event decodeAccountLoginCompleted(const Notification& notification) {
@@ -1333,6 +1343,10 @@ namespace ai::openai::codex::detail {
                     return decodeAccountRateLimitsUpdated(notification);
                 case ServerNotificationTarget::AccountUpdated:
                     return decodeAccountUpdated(notification);
+                case ServerNotificationTarget::ModelSafetyBufferingUpdated:
+                    return decodeModelSafetyBufferingUpdated(notification);
+                case ServerNotificationTarget::ModelVerification:
+                    return decodeModelVerification(notification);
                 case ServerNotificationTarget::ThreadStarted:
                     return decodeThreadStarted(notification);
                 case ServerNotificationTarget::ThreadStatusChanged:

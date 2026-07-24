@@ -794,6 +794,12 @@ namespace ai::openai::codex::backend {
                 [](const typed::ModelRerouted& value) -> std::vector<BackendEvent> {
                     return {ModelRerouted{value.threadId, value.turnId, value.from, value.to, value.reason}};
                 },
+                [](const typed::ModelSafetyBufferingUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ModelSafetyBufferingUpdated);
+                },
+                [](const typed::ModelVerificationNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ModelVerification);
+                },
                 [](const typed::TurnErrorEvent& value) -> std::vector<BackendEvent> {
                     return {TurnErrorUpdated{value.threadId, value.turnId, value.error, value.willRetry}};
                 },

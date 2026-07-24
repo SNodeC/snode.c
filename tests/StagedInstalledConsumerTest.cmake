@@ -30,6 +30,7 @@ foreach(
           ai/openai/codex/detail/ProtocolCodec.h
           ai/openai/codex/detail/EventDecoder.h
           ai/openai/codex/detail/ItemDecoder.h
+          ai/openai/codex/detail/ModelCodec.h
           ai/openai/codex/detail/ProtocolSurfaceRegistry.h
           ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
           ai/openai/codex/detail/ServerRequestDecoder.h
@@ -71,6 +72,7 @@ set(
     "typed/Conversation.h"
     "typed/Events.h"
     "typed/Items.h"
+    "typed/Models.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"

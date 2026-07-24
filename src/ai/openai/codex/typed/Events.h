@@ -11,6 +11,7 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/CodexErrorInfo.h"
+#include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Threads.h"
 
 #include <compare>
@@ -453,6 +454,9 @@ namespace ai::openai::codex::typed {
     using CanonicalServerNotification = std::variant<AccountLoginCompletedNotification,
                                                      AccountRateLimitsUpdatedNotification,
                                                      AccountUpdatedNotification,
+                                                     ModelReroutedNotification,
+                                                     ModelSafetyBufferingUpdatedNotification,
+                                                     ModelVerificationNotification,
                                                      AgentMessageDeltaNotification,
                                                      CommandExecutionOutputDeltaNotification,
                                                      TerminalInteractionNotification,
@@ -593,6 +597,7 @@ namespace ai::openai::codex::typed {
         ModelId to;
         std::string reason;
         Json raw;
+        std::optional<ModelReroutedNotification> canonical = std::nullopt;
     };
 
     struct TurnErrorEvent {
@@ -653,6 +658,8 @@ namespace ai::openai::codex::typed {
                                AccountRateLimitsUpdatedNotification,
                                AccountUpdatedNotification,
                                ModelRerouted,
+                               ModelSafetyBufferingUpdatedNotification,
+                               ModelVerificationNotification,
                                TurnErrorEvent,
                                UnknownEvent>;
 

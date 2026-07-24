@@ -549,7 +549,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             "StartStateDocumentMismatch",
         )
 
-    def test_live_plan_rows_are_the_exact_b2_progress_boundary(
+    def test_live_plan_rows_are_the_exact_b3_progress_boundary(
         self,
     ) -> None:
         identities = self.plan["identities"]
@@ -561,22 +561,16 @@ class CodexA12AuditToolTest(unittest.TestCase):
             for row in identities
             if isinstance(row, dict)
         }
-        b2_keys = expected_batch_keys()["B2"]
-        residual_partial = {
-            (
-                "server_notification",
-                "ServerNotification",
-                "method",
-                "model/rerouted",
-            )
-        }
-        self.assertEqual("B2", counts["current_progress_stage"])
+        complete_keys = (
+            expected_batch_keys()["B2"] | expected_batch_keys()["B3"]
+        )
+        self.assertEqual("B3", counts["current_progress_stage"])
         self.assertEqual(
-            {"Complete": 24, "NotImplemented": 20, "Partial": 1},
+            {"Complete": 29, "NotImplemented": 16},
             counts["current_a1_2_schema_status"],
         )
         self.assertEqual(
-            {"Implemented": 25, "NotImplemented": 20},
+            {"Implemented": 29, "NotImplemented": 16},
             counts["current_a1_2_implementation_status"],
         )
         self.assertEqual(
@@ -584,7 +578,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             counts["initial_a1_2_schema_status"],
         )
         self.assertEqual(
-            b2_keys,
+            complete_keys,
             {
                 key
                 for key, row in rows.items()
@@ -592,7 +586,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             },
         )
         self.assertEqual(
-            residual_partial,
+            set(),
             {
                 key
                 for key, row in rows.items()
@@ -600,7 +594,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
             },
         )
         self.assertEqual(
-            b2_keys | residual_partial,
+            complete_keys,
             {
                 key
                 for key, row in rows.items()
@@ -613,7 +607,7 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 rows[key]["current_runtime_target"]
                 not in (None, "", "std::monostate{}")
                 and rows[key]["current_fixture_ids"]
-                for key in b2_keys
+                for key in complete_keys
             )
         )
 
@@ -1280,9 +1274,9 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 value
                 for value in identities
                 if isinstance(value, dict)
-                and value.get("current_schema_status") == "Partial"
+                and value.get("current_schema_status") == "Complete"
             )
-            row["current_schema_status"] = "NotImplemented"
+            row["current_schema_status"] = "Partial"
 
         def coherent_live_progress_status_swap(
             plan: dict[str, object], _: dict[str, object]
@@ -1291,11 +1285,11 @@ class CodexA12AuditToolTest(unittest.TestCase):
             counts = plan["counts"]
             assert isinstance(identities, list)
             assert isinstance(counts, dict)
-            partial = next(
+            completed = next(
                 row
                 for row in identities
                 if isinstance(row, dict)
-                and row.get("current_schema_status") == "Partial"
+                and row.get("current_schema_status") == "Complete"
             )
             unimplemented = next(
                 row
@@ -1304,11 +1298,11 @@ class CodexA12AuditToolTest(unittest.TestCase):
                 and row.get("current_schema_status")
                 == "NotImplemented"
             )
-            partial["current_schema_status"], unimplemented[
+            completed["current_schema_status"], unimplemented[
                 "current_schema_status"
             ] = (
                 unimplemented["current_schema_status"],
-                partial["current_schema_status"],
+                completed["current_schema_status"],
             )
             counts["identity_live_progress_mapping_sha256"] = (
                 self.tool.sha256_json(
