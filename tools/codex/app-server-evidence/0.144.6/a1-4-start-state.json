@@ -1,0 +1,3576 @@
+{
+  "base_sha": "bed5ee05184739d54cddc6518bd43b264e2b496d",
+  "base_tree": "8bf44f0eed6bd8c9d5309176db07a7d6a6240ef3",
+  "capture_sources": {
+    "assignment": {
+      "path": "tools/codex/app-server-evidence/0.144.6/module-slice-assignment.json",
+      "sha256": "e9097d1d27acd3915da65f7c955c2e8fb25f7ee0fce9b185e4415a1ba85396cf"
+    },
+    "contracts": {
+      "path": "tools/codex/app-server-evidence/0.144.6/operation-contracts.json",
+      "sha256": "226c552c5602301966c39539bbf466f345d4aa625e06d6ca603a9dbcd25e3a9e"
+    },
+    "fixture_coverage": {
+      "path": "tools/codex/app-server-evidence/0.144.6/fixture-coverage.json",
+      "sha256": "2fdd569f46b37674127cf230eb0559cfd6a00101d0c7b866936cec7a6ac32870"
+    },
+    "manifest": {
+      "path": "tools/codex/app-server-surface/0.144.6.json",
+      "sha256": "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021"
+    },
+    "nested_reachability": {
+      "path": "tools/codex/app-server-evidence/0.144.6/nested-reachability.json",
+      "sha256": "07c8bfc8096cb565d7ca0cb1e97c1ffffdeda5b50a82a841971035e506f3ce9a"
+    },
+    "protocol_provenance": {
+      "path": "tools/codex/app-server-protocol-source/0.144.6/PROVENANCE.json",
+      "sha256": "6b8af60c405b54363537d9b09d3f19fc25991b517d4e802a1b02c7e5990c38b0"
+    },
+    "registry": {
+      "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc",
+      "sha256": "7de3790505aaa6e63e95b8e5fb811616e9b2d85c1ef7f47e0c2f20906e5cf4de"
+    },
+    "schema_completeness": {
+      "path": "tools/codex/app-server-evidence/0.144.6/schema-completeness-evidence.json",
+      "sha256": "2fb1711bb73012839e004be7d757b641a9777324d889d4730df5102310d7f6f8"
+    },
+    "schema_provenance": {
+      "path": "tools/codex/app-server-schema/0.144.6/PROVENANCE.json",
+      "sha256": "91c5853c85f77dba868425a56d8b8d87c1a17281c8edf10929e5f480b721ace9"
+    },
+    "soversion_authority": {
+      "path": "CMakeLists.txt",
+      "sha256": "2f96eb43d668348121fcad099714eaef13de5fab919a40984ec6abd021d2bfa3"
+    }
+  },
+  "codex_version": "codex-cli 0.144.6",
+  "counts": {
+    "global_schema_status": {
+      "Complete": 280,
+      "NotApplicable": 48,
+      "NotImplemented": 55,
+      "Partial": 4
+    },
+    "identity_count": 56,
+    "native_schema_status": {
+      "Complete": 0,
+      "NotApplicable": 0,
+      "NotImplemented": 55,
+      "Partial": 1
+    },
+    "runtime_dispositions": {
+      "Deferred": 29,
+      "OpaquePreserved": 7,
+      "RawPreserved": 19,
+      "Typed": 1
+    },
+    "taxonomy": {
+      "client_request": 29,
+      "server_notification": 16,
+      "server_request": 4,
+      "tagged_union_discriminator": 7
+    }
+  },
+  "format_version": 1,
+  "generated_notice": "Frozen A1.4 audit start state; review evidence only, never a runtime registry.",
+  "identities": [
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "app/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "app/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/AppsList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "app/list",
+        "parameter_type_identity": "AppsListParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "AppsListResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "externalAgentConfig/detect"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/detect"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigDetect",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "externalAgentConfig/detect",
+        "parameter_type_identity": "ExternalAgentConfigDetectParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "ExternalAgentConfigDetectResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "externalAgentConfig/import"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/import"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigImport",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "externalAgentConfig/import",
+        "parameter_type_identity": "ExternalAgentConfigImportParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "ExternalAgentConfigImportResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "externalAgentConfig/import/readHistories"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "externalAgentConfig/import/readHistories"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ExternalAgentConfigImportHistoriesRead",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "externalAgentConfig/import/readHistories",
+        "parameter_type_identity": "Unit",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "ExternalAgentConfigImportHistoriesReadResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "feedback/upload"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "feedback/upload"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FeedbackUpload",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "feedback/upload",
+        "parameter_type_identity": "FeedbackUploadParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "FeedbackUploadResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "hooks/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "hooks/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/HooksList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "hooks/list",
+        "parameter_type_identity": "HooksListParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "HooksListResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "marketplace/add"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/add"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceAdd",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "marketplace/add",
+        "parameter_type_identity": "MarketplaceAddParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "MarketplaceAddResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "marketplace/remove"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/remove"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceRemove",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "marketplace/remove",
+        "parameter_type_identity": "MarketplaceRemoveParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "MarketplaceRemoveResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "marketplace/upgrade"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "marketplace/upgrade"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/MarketplaceUpgrade",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "marketplace/upgrade",
+        "parameter_type_identity": "MarketplaceUpgradeParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "MarketplaceUpgradeResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "mcpServer/oauth/login"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/oauth/login"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerOauthLogin",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "mcpServer/oauth/login",
+        "parameter_type_identity": "McpServerOauthLoginParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "McpServerOauthLoginResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "mcpServer/resource/read"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/resource/read"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpResourceRead",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "mcpServer/resource/read",
+        "parameter_type_identity": "McpResourceReadParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "McpResourceReadResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "mcpServer/tool/call"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServer/tool/call"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerToolCall",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "mcpServer/tool/call",
+        "parameter_type_identity": "McpServerToolCallParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "McpServerToolCallResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "mcpServerStatus/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "mcpServerStatus/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/McpServerStatusList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "mcpServerStatus/list",
+        "parameter_type_identity": "ListMcpServerStatusParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "ListMcpServerStatusResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/install"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/install"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginInstall",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/install",
+        "parameter_type_identity": "PluginInstallParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginInstallResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/installed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/installed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginInstalled",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/installed",
+        "parameter_type_identity": "PluginInstalledParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginInstalledResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/list",
+        "parameter_type_identity": "PluginListParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginListResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/read"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/read"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginRead",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/read",
+        "parameter_type_identity": "PluginReadParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginReadResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/share/checkout"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/checkout"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareCheckout",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/share/checkout",
+        "parameter_type_identity": "PluginShareCheckoutParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginShareCheckoutResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/share/delete"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/delete"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareDelete",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/share/delete",
+        "parameter_type_identity": "PluginShareDeleteParams",
+        "result_contract_kind": "Unit",
+        "result_type_identity": "Unit",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/share/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/share/list",
+        "parameter_type_identity": "PluginShareListParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginShareListResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/share/save"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/save"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareSave",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/share/save",
+        "parameter_type_identity": "PluginShareSaveParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginShareSaveResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/share/updateTargets"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/share/updateTargets"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginShareUpdateTargets",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/share/updateTargets",
+        "parameter_type_identity": "PluginShareUpdateTargetsParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginShareUpdateTargetsResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/skill/read"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/skill/read"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginSkillRead",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/skill/read",
+        "parameter_type_identity": "PluginSkillReadParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "PluginSkillReadResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "plugin/uninstall"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "plugin/uninstall"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PluginUninstall",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "plugin/uninstall",
+        "parameter_type_identity": "PluginUninstallParams",
+        "result_contract_kind": "Unit",
+        "result_type_identity": "Unit",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "skills/config/write"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/config/write"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsConfigWrite",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "skills/config/write",
+        "parameter_type_identity": "SkillsConfigWriteParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "SkillsConfigWriteResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "skills/extraRoots/set"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/extraRoots/set"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsExtraRootsSet",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "skills/extraRoots/set",
+        "parameter_type_identity": "SkillsExtraRootsSetParams",
+        "result_contract_kind": "Unit",
+        "result_type_identity": "Unit",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "skills/list"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "skills/list"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/SkillsList",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "skills/list",
+        "parameter_type_identity": "SkillsListParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "SkillsListResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "windowsSandbox/readiness"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "windowsSandbox/readiness"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/WindowsSandboxReadiness",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "windowsSandbox/readiness",
+        "parameter_type_identity": "Unit",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "WindowsSandboxReadinessResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "windowsSandbox/setupStart"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "windowsSandbox/setupStart"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/WindowsSandboxSetupStart",
+        "association_evidence_kind": "VendoredRust",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "client_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "frontend_exposure": "NotExposed",
+        "frontend_security": "Unresolved",
+        "name": "windowsSandbox/setupStart",
+        "parameter_type_identity": "WindowsSandboxSetupStartParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "WindowsSandboxSetupStartResponse",
+        "runtime_disposition": "Deferred",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "app/list/updated"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "app/list/updated"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "app/list/updated",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "deprecationNotice"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "deprecationNotice"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "deprecationNotice",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "externalAgentConfig/import/completed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "externalAgentConfig/import/completed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "externalAgentConfig/import/completed",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "externalAgentConfig/import/progress"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "externalAgentConfig/import/progress"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "externalAgentConfig/import/progress",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "hook/completed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "hook/completed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "hook/completed",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "hook/started"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "hook/started"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "hook/started",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "mcpServer/oauthLogin/completed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "mcpServer/oauthLogin/completed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "mcpServer/oauthLogin/completed",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "mcpServer/startupStatus/updated"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "mcpServer/startupStatus/updated"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "mcpServer/startupStatus/updated",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "process/exited"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "process/exited"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "process/exited",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "process/outputDelta"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "process/outputDelta"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "process/outputDelta",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "remoteControl/status/changed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "remoteControl/status/changed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "remoteControl/status/changed",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "serverRequest/resolved"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "serverRequest/resolved"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "serverRequest/resolved",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "skills/changed"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "skills/changed"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "skills/changed",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "warning"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "warning"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "warning",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "windows/worldWritableWarning"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "windows/worldWritableWarning"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "windows/worldWritableWarning",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "windowsSandbox/setupCompleted"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "windowsSandbox/setupCompleted"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_notification",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "frontend_exposure": "GenericExtension",
+        "frontend_security": "ExistingRedactedExtensionContract",
+        "name": "windowsSandbox/setupCompleted",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "attestation/generate"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "attestation/generate"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "stable/ServerRequest.json#/oneOf/7+stable/AttestationGenerateResponse.json",
+        "association_evidence_kind": "VendoredSchemaPair",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "frontend_exposure": "GenericUnknownRequest",
+        "frontend_security": "ExistingGenericContractDedicatedUnresolved",
+        "name": "attestation/generate",
+        "parameter_type_identity": "AttestationGenerateParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "AttestationGenerateResponse",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/tool/call"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/tool/call"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "stable/ServerRequest.json#/oneOf/5+stable/DynamicToolCallResponse.json",
+        "association_evidence_kind": "VendoredSchemaPair",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "frontend_exposure": "GenericUnknownRequest",
+        "frontend_security": "ExistingGenericContractDedicatedUnresolved",
+        "name": "item/tool/call",
+        "parameter_type_identity": "DynamicToolCallParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "DynamicToolCallResponse",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/tool/requestUserInput"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/tool/requestUserInput"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "stable/ServerRequest.json#/oneOf/2+stable/ToolRequestUserInputResponse.json",
+        "association_evidence_kind": "VendoredSchemaPair",
+        "backend_status": "Implemented",
+        "canonical_state_status": "Implemented",
+        "category": "server_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "frontend_exposure": "ExistingOperationSubset",
+        "frontend_security": "ExistingOperationSubsetExpansionUnresolved",
+        "name": "item/tool/requestUserInput",
+        "parameter_type_identity": "ToolRequestUserInputParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "ToolRequestUserInputResponse",
+        "runtime_disposition": "Typed",
+        "runtime_target": "ServerRequestTarget::ToolRequestUserInput",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "Partial",
+        "typed_status": "Implemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "StablePublicRoot",
+        "module": "IntegrationsAndLongTail",
+        "reason": "fixed A1 domain-root assignment",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "mcpServer/elicitation/request"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "mcpServer/elicitation/request"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "stable/ServerRequest.json#/oneOf/3+stable/McpServerElicitationRequestResponse.json",
+        "association_evidence_kind": "VendoredSchemaPair",
+        "backend_status": "NotImplemented",
+        "canonical_state_status": "NotImplemented",
+        "category": "server_request",
+        "deprecated": false,
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "frontend_exposure": "GenericUnknownRequest",
+        "frontend_security": "ExistingGenericContractDedicatedUnresolved",
+        "name": "mcpServer/elicitation/request",
+        "parameter_type_identity": "McpServerElicitationRequestParams",
+        "result_contract_kind": "Concrete",
+        "result_type_identity": "McpServerElicitationRequestResponse",
+        "runtime_disposition": "RawPreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": true,
+          "direction_assertions_exercised": false,
+          "fixture_current": true,
+          "independently_schema_validated": true,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": true,
+          "optional_present_exercised": true,
+          "positive_fixture_coverage": true,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": true,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "RootOwnedNestedUnion",
+        "module": "IntegrationsAndLongTail",
+        "reason": "assigned to its sole reaching stable root slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "mode",
+          "domain": "McpServerElicitationRequestParams",
+          "name": "form"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "form"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "form",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "RootOwnedNestedUnion",
+        "module": "IntegrationsAndLongTail",
+        "reason": "assigned to its sole reaching stable root slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "mode",
+          "domain": "McpServerElicitationRequestParams",
+          "name": "openai/form"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "openai/form"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "openai/form",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "RootOwnedNestedUnion",
+        "module": "IntegrationsAndLongTail",
+        "reason": "assigned to its sole reaching stable root slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "mode",
+          "domain": "McpServerElicitationRequestParams",
+          "name": "url"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "name": "url"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "mode",
+        "domain": "McpServerElicitationRequestParams",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "url",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "SharedWithinSlice",
+        "module": "IntegrationsAndLongTail",
+        "reason": "shared by multiple stable roots in one fixed slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "PluginSource",
+          "name": "git"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "git"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "git",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "SharedWithinSlice",
+        "module": "IntegrationsAndLongTail",
+        "reason": "shared by multiple stable roots in one fixed slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "PluginSource",
+          "name": "local"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "local"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "local",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "SharedWithinSlice",
+        "module": "IntegrationsAndLongTail",
+        "reason": "shared by multiple stable roots in one fixed slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "PluginSource",
+          "name": "npm"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "npm"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "npm",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    },
+    {
+      "assignment": {
+        "a1_slice": "A1.4",
+        "classification": "SharedWithinSlice",
+        "module": "IntegrationsAndLongTail",
+        "reason": "shared by multiple stable roots in one fixed slice",
+        "slice": "A1.4",
+        "stability": "stable",
+        "surface_key": {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "PluginSource",
+          "name": "remote"
+        }
+      },
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "name": "remote"
+      },
+      "registry": {
+        "a1_slice": "A1.4",
+        "association_evidence_key": "",
+        "association_evidence_kind": "NotApplicable",
+        "backend_status": "NotApplicable",
+        "canonical_state_status": "NotApplicable",
+        "category": "tagged_union_discriminator",
+        "deprecated": false,
+        "discriminator_field": "type",
+        "domain": "PluginSource",
+        "frontend_exposure": "NotApplicable",
+        "frontend_security": "NotApplicable",
+        "name": "remote",
+        "parameter_type_identity": "",
+        "result_contract_kind": "NotApplicable",
+        "result_type_identity": "",
+        "runtime_disposition": "OpaquePreserved",
+        "runtime_target": "std::monostate{}",
+        "schema_completeness": {
+          "authoritative_root_association": false,
+          "direction_assertions_exercised": false,
+          "fixture_current": false,
+          "independently_schema_validated": false,
+          "no_known_schema_fields_dropped": false,
+          "nullable_semantics_exercised": false,
+          "opaque_fields_declared": false,
+          "optional_omitted_exercised": false,
+          "optional_present_exercised": false,
+          "positive_fixture_coverage": false,
+          "reachable_union_alternatives_exercised": false,
+          "required_fields_exercised": false,
+          "runtime_decoder_matches_registry": false,
+          "schema_properties_exercised": false
+        },
+        "stability": "stable",
+        "typed_module": "IntegrationsAndLongTail",
+        "typed_schema_status": "NotImplemented",
+        "typed_status": "NotImplemented"
+      }
+    }
+  ],
+  "inherited_a1_0_partial_identities": [
+    {
+      "category": "client_notification",
+      "discriminator_field": "method",
+      "domain": "ClientNotification",
+      "name": "initialized"
+    },
+    {
+      "category": "client_request",
+      "discriminator_field": "method",
+      "domain": "ClientRequest",
+      "name": "initialize"
+    },
+    {
+      "category": "server_notification",
+      "discriminator_field": "method",
+      "domain": "ServerNotification",
+      "name": "error"
+    }
+  ],
+  "native_partial_identity": {
+    "category": "server_request",
+    "discriminator_field": "method",
+    "domain": "ServerRequest",
+    "name": "item/tool/requestUserInput"
+  },
+  "protected_predecessor_evidence": {
+    "tools/codex/app-server-evidence/0.144.6/a1-1-closure-report.json": "be9e5f028de164b57519a956a0b2615b15faa238d889b7f1391b07c3b473fb41",
+    "tools/codex/app-server-evidence/0.144.6/a1-1-implementation-plan.json": "59fbbd1e6c1ffcd5e0064e7ff7e2a6a68673ececac5ccb19d3d46cc57eda7661",
+    "tools/codex/app-server-evidence/0.144.6/a1-1-notification-production-coverage.json": "191c9e9152fe6c3a2fd052f542911c510e6643e78bfaf2b293729f9bfe7e62b0",
+    "tools/codex/app-server-evidence/0.144.6/a1-1-operation-production-coverage.json": "9e9cc9a58651d39f2e2b5e9ee9cdb712a6338660029a77814988a7e904ef156e",
+    "tools/codex/app-server-evidence/0.144.6/a1-1-start-state.json": "1614414ea6320f8ac5eb47ef928c4bc8de587c9f429f86d7f94ffeb437b6c705",
+    "tools/codex/app-server-evidence/0.144.6/a1-1-type-closure.json": "187db47c37d094b5f22c27cb0a6c1fc656cd0b3e34c63faf9b81ededce2f8bfc",
+    "tools/codex/app-server-evidence/0.144.6/a1-2-closure-report.json": "6324a85d998fdbf6c3601f7e19b90c61cea472fde63b49c676511ce1654494cc",
+    "tools/codex/app-server-evidence/0.144.6/a1-2-implementation-plan.json": "ff5ab66b79cd53c614a93a8d5cd1a065c54b8a251c706adeb805c900f43f44c4",
+    "tools/codex/app-server-evidence/0.144.6/a1-2-start-state.json": "86dc9319ab212c3bdea0d483a6759dfde7d7eba7d5ab92a440a206d1097ab7b9",
+    "tools/codex/app-server-evidence/0.144.6/a1-2-type-closure.json": "2b8bc5de1c56b1ce7b809939a744ec1027a78574adfc9e5e8c1e966a385047cb",
+    "tools/codex/app-server-evidence/0.144.6/a1-3-api-abi-evidence.json": "b6d05bd993ec421aa7d2ff3e720a399fc54d801305c906f3a8c9c7557be9b611",
+    "tools/codex/app-server-evidence/0.144.6/a1-3-closure-report.json": "3eb5d5c7a0691e59f8a4910334b2661f171d331cd5994d88457a3421c4d3e592",
+    "tools/codex/app-server-evidence/0.144.6/a1-3-implementation-plan.json": "d5905f4f60f1ca2a298c2a910d2effbde13a9bfa6b755d5896dc2d5b6b21034d",
+    "tools/codex/app-server-evidence/0.144.6/a1-3-start-state.json": "ee93456760b366e399f55ba48f3aea343d836dd2544b09a4274bc60850bb16fb",
+    "tools/codex/app-server-evidence/0.144.6/a1-3-type-closure.json": "223e10abd517ac63481276905a19605ed7dd5bd34f806f0adc15a698b8f88e0e"
+  },
+  "provenance": {
+    "codex_version": "codex-cli 0.144.6",
+    "protocol_source_files": [
+      {
+        "bytes": 140314,
+        "path": "codex-rs/app-server-protocol/src/protocol/common.rs",
+        "sha256": "5679cbc5b3e935a2edd69fbe62b82b956eff4d5d050c9969b090ccc9d367fdee"
+      },
+      {
+        "bytes": 10926,
+        "path": "LICENSE.openai-codex",
+        "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc"
+      },
+      {
+        "bytes": 242,
+        "path": "NOTICE.openai-codex",
+        "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915"
+      }
+    ],
+    "protocol_source_provenance_sha256": "6b8af60c405b54363537d9b09d3f19fc25991b517d4e802a1b02c7e5990c38b0",
+    "schema_provenance_sha256": "91c5853c85f77dba868425a56d8b8d87c1a17281c8edf10929e5f480b721ace9",
+    "schema_trees": {
+      "experimental": {
+        "aggregate_sha256": "4a0ef96787255364d99b15fe40fcfd6227901978d0cddc8b20340bfef98a0d1b",
+        "file_count": 337
+      },
+      "stable": {
+        "aggregate_sha256": "cee1ac3bcaf95e5fcdcf07499c7e6b00fc423b90c670ea3380f1799434b72add",
+        "file_count": 267
+      }
+    },
+    "source_commit_sha": "5d1fbf26c43abc65a203928b2e31561cb039e06d",
+    "typescript_aggregate_sha256": {
+      "experimental": "d561ef0b4ef8a921fff50de4e3c662a0fdff643e82868f2b05a3e71f912aec8c",
+      "stable": "73c95b6a19d5559939519a771e0f7285cc60bbfaa1aac8bd9c52ba308c6e6811"
+    },
+    "upstream_tag": "rust-v0.144.6"
+  },
+  "upstream_tag": "rust-v0.144.6"
+}
