@@ -41,6 +41,22 @@ EXPECTED_GLOBAL_STATUS = {
     "NotImplemented": 55,
     "Partial": 4,
 }
+# These two records describe the historical A1.3 closure boundary. Successor
+# audit phases may extend the closure checker and source-package guard without
+# rewriting the already captured A1.3 report; their live semantics are checked
+# by successor-aware tokens below.
+FROZEN_SUCCESSOR_MUTABLE_SOURCES = {
+    "closure_generator": {
+        "path": "tools/codex/app_server_a1_3_closure.py",
+        "sha256":
+            "678e8b97267919d61ec99a0a9fa3b259d3d3c1f20eca7cb91fc068cb182f87fe",
+    },
+    "source_package_guard": {
+        "path": "tests/CodexSourcePackageTest.cmake",
+        "sha256":
+            "7a95b8cdd07dcc9702bb21bd249da09de1789efed44149f1d53401a919f08cce",
+    },
+}
 EXPECTED_CLASSIFICATIONS = {
     "RootOwnedNestedUnion": 17,
     "SharedWithinSlice": 22,
@@ -1138,12 +1154,22 @@ def validate_package_and_integrity(
         "synthetic-secret source-tree guard reported a finding",
         "ClosureSecurityGuardMismatch",
     )
+    successor_compatibility = require_tokens(
+        Path(__file__).resolve(),
+        (
+            "FROZEN_SUCCESSOR_MUTABLE_SOURCES",
+            '"A1.4 partition and implementation-plan audit"',
+        ),
+        "ClosurePackageMismatch",
+        "successor-aware A1.3 closure checker",
+    )
+    del successor_compatibility
     source_package = require_tokens(
         arguments.source_package_test,
         (
-            'assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 22)',
-            'assert_retained_prefix("docs/ai/openai/codex" 18)',
-            "top_level_codex_tool_count EQUAL 13",
+            'assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 27)',
+            'assert_retained_prefix("docs/ai/openai/codex" 19)',
+            "top_level_codex_tool_count EQUAL 14",
             '"tools/codex/app_server_a1_3.py"',
             '"tools/codex/app_server_a1_3_closure.py"',
             '"tools/codex/app-server-evidence/0.144.6/a1-3-closure-report.json"',
@@ -1153,6 +1179,14 @@ def validate_package_and_integrity(
             '"docs/ai/openai/codex/a1-3-test-integrity.md"',
             '"A1.3 implementation-plan/type-closure audit"',
             '"A1.3 final closure report"',
+            '"tools/codex/app_server_a1_4.py"',
+            '"tools/codex/app-server-evidence/0.144.6/a1-4-start-state.json"',
+            '"tools/codex/app-server-evidence/0.144.6/a1-4-total-partition.json"',
+            '"tools/codex/app-server-evidence/0.144.6/a1-4-type-closure.json"',
+            '"tools/codex/app-server-evidence/0.144.6/a1-4-implementation-plan.json"',
+            '"tools/codex/app-server-evidence/0.144.6/a1-final-cross-slice-ledger.json"',
+            '"tests/component/codex/CodexA14AuditToolTest.py"',
+            '"A1.4 partition and implementation-plan audit"',
         ),
         "ClosurePackageMismatch",
         "source-package closure guard",
@@ -1456,6 +1490,11 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "test_integrity": arguments.test_integrity,
         "type_closure": arguments.type_closure,
     }
+    source_records = {
+        name: source_record(path, arguments.repo_root)
+        for name, path in sorted(source_paths.items())
+    }
+    source_records.update(FROZEN_SUCCESSOR_MUTABLE_SOURCES)
     return {
         "api_abi": api_abi,
         "authority": {
@@ -1499,10 +1538,7 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "public_api": public_api,
         "response_root_obligations": response_roots,
         "server_requests": server_requests,
-        "sources": {
-            name: source_record(path, arguments.repo_root)
-            for name, path in sorted(source_paths.items())
-        },
+        "sources": source_records,
         "staged_exact_complete_ratchets": staged,
         "transport_and_lifecycle": transport,
         "union_alternatives": union_alternatives,

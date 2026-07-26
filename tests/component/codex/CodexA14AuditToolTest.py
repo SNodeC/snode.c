@@ -46,13 +46,22 @@ class CodexA14AuditToolTest(unittest.TestCase):
                 str(OPTIONS.partition),
                 "--closure-output",
                 str(OPTIONS.closure),
+                "--plan-output",
+                str(OPTIONS.plan),
+                "--ledger-output",
+                str(OPTIONS.ledger),
             ]
         )
         for name, value in vars(cls.arguments).items():
             if isinstance(value, Path):
                 setattr(cls.arguments, name, value.resolve())
         cls.inputs = cls.tool.load_inputs(cls.arguments)
-        cls.partition, cls.closure = cls.tool.build_foundation(
+        (
+            cls.partition,
+            cls.closure,
+            cls.plan,
+            cls.ledger,
+        ) = cls.tool.build_reports(
             cls.arguments
         )
 
@@ -92,12 +101,35 @@ class CodexA14AuditToolTest(unittest.TestCase):
                 self.tool._operation_rows(inputs, keys)
         self.assertIn(expected_code, raised.exception.codes)
 
+    def assert_plan_mutation(
+        self,
+        mutate: Callable[[dict[str, object], dict[str, object]], None],
+        expected_code: str,
+    ) -> None:
+        plan = copy.deepcopy(self.plan)
+        ledger = copy.deepcopy(self.ledger)
+        mutate(plan, ledger)
+        diagnostics = self.tool.planning_diagnostics(plan, ledger)
+        self.assertIn(
+            expected_code,
+            {row.code for row in diagnostics},
+        )
+        with self.assertRaises(self.tool.AuditError):
+            self.tool.validate_planning_reports(plan, ledger)
+
     def test_checked_reports_are_current_and_deterministic(self) -> None:
-        second_partition, second_closure = (
-            self.tool.build_foundation(self.arguments)
+        (
+            second_partition,
+            second_closure,
+            second_plan,
+            second_ledger,
+        ) = (
+            self.tool.build_reports(self.arguments)
         )
         self.assertEqual(self.partition, second_partition)
         self.assertEqual(self.closure, second_closure)
+        self.assertEqual(self.plan, second_plan)
+        self.assertEqual(self.ledger, second_ledger)
         self.assertEqual(
             self.partition,
             json.loads(OPTIONS.partition.read_text(encoding="utf-8")),
@@ -106,8 +138,19 @@ class CodexA14AuditToolTest(unittest.TestCase):
             self.closure,
             json.loads(OPTIONS.closure.read_text(encoding="utf-8")),
         )
+        self.assertEqual(
+            self.plan,
+            json.loads(OPTIONS.plan.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(
+            self.ledger,
+            json.loads(OPTIONS.ledger.read_text(encoding="utf-8")),
+        )
         self.tool.validate_foundation_reports(
             self.partition, self.closure
+        )
+        self.tool.validate_planning_reports(
+            self.plan, self.ledger
         )
 
     def test_total_partition_and_stability_are_exact(self) -> None:
@@ -928,6 +971,266 @@ class CodexA14AuditToolTest(unittest.TestCase):
                     include, "A14IdentitySetMismatch"
                 )
 
+    def test_implementation_batches_cover_native_slice_once(self) -> None:
+        batches = {
+            row["batch"]: row
+            for row in self.plan["implementation_batches"]
+        }
+        self.assertEqual(
+            {
+                "A14-UserIntegrations",
+                "A14-McpReverse",
+                "A14-RuntimePlatform",
+            },
+            set(batches),
+        )
+        self.assertEqual(
+            {
+                "A14-UserIntegrations": 33,
+                "A14-McpReverse": 13,
+                "A14-RuntimePlatform": 10,
+            },
+            {
+                name: row["identity_count"]
+                for name, row in batches.items()
+            },
+        )
+        keys = [
+            self.tool.Key.from_row(
+                row["protocol_surface_key"]
+            )
+            for batch in batches.values()
+            for row in batch["identities"]
+        ]
+        self.assertEqual(56, len(keys))
+        self.assertEqual(56, len(set(keys)))
+        self.assertEqual(
+            self.tool.expected_a1_4_keys(), set(keys)
+        )
+        self.assertEqual(
+            {
+                "Complete": 336,
+                "NotApplicable": 48,
+                "NotImplemented": 0,
+                "Partial": 3,
+            },
+            batches["A14-RuntimePlatform"]["global_metrics"]["end"],
+        )
+
+    def test_cross_slice_ledger_freezes_ownership(self) -> None:
+        inherited = self.ledger[
+            "inherited_final_a1_obligations"
+        ]
+        self.assertEqual(
+            {"initialize", "initialized", "error"},
+            {
+                row["protocol_surface_key"]["name"]
+                for row in inherited
+            },
+        )
+        self.assertTrue(
+            all(
+                row["current_module"] == "Common"
+                and row["current_slice"] == "A1.0"
+                and row["current_status"] == "Partial"
+                and row["completion_stage"]
+                == "final A1 closure in A1.4"
+                and row["assignment_unchanged_proof"][
+                    "registry_matches_assignment"
+                ]
+                for row in inherited
+            )
+        )
+        native = self.ledger["native_a1_4_obligation"]
+        self.assertEqual(
+            "item/tool/requestUserInput",
+            native["protocol_surface_key"]["name"],
+        )
+        self.assertEqual("A1.4", native["current_slice"])
+        self.assertEqual(
+            "native A1.4 implementation",
+            native["completion_stage"],
+        )
+        self.assertTrue(
+            all(
+                len(row["missing_schema_completeness_facts"]) == 7
+                for row in [*inherited, native]
+            )
+        )
+
+    def test_server_request_resolved_semantics_are_frozen(self) -> None:
+        resolved = self.plan[
+            "server_request_resolved_semantics"
+        ]
+        self.assertEqual(
+            {
+                "requestId": "string | int64",
+                "threadId": "string",
+            },
+            resolved["payload"]["required_fields"],
+        )
+        self.assertEqual(
+            "original server-generated JSON-RPC request ID",
+            resolved["identifier_semantics"]["kind"],
+        )
+        emitting = {
+            row["method"]
+            for row in resolved["emission_method_matrix"]
+            if row["emits_notification"]
+        }
+        self.assertEqual(
+            {
+                "item/commandExecution/requestApproval",
+                "item/fileChange/requestApproval",
+                "item/permissions/requestApproval",
+                "item/tool/requestUserInput",
+                "mcpServer/elicitation/request",
+            },
+            emitting,
+        )
+        direct = resolved["direct_response_non_regression"]
+        self.assertTrue(
+            all(
+                direct[field] is False
+                for field in (
+                    "is_response_transport",
+                    "is_response_prerequisite",
+                    "is_acknowledgement_prerequisite",
+                    "is_second_terminal_completion",
+                    "can_reopen_completed_occurrence",
+                    "changes_a1_3_response_contract",
+                )
+            )
+        )
+        self.assertTrue(resolved["ordering"]["direct_response_is_earlier"])
+        self.assertTrue(
+            resolved["recipient_behavior"][
+                "already_consumed_possible"
+            ]
+        )
+
+    def test_public_api_abi_security_and_package_plans_are_exact(
+        self,
+    ) -> None:
+        api = self.plan["public_api_plan"]
+        self.assertEqual(29, len(api["facade_operations"]))
+        self.assertEqual(16, len(api["notification_ownership"]))
+        self.assertEqual(4, len(api["server_request_ownership"]))
+        variants = api["variant_and_layout_plan"]["current"]
+        self.assertEqual(
+            51, len(variants["CanonicalServerNotification"])
+        )
+        self.assertEqual(53, len(variants["Event"]))
+        self.assertEqual(8, len(variants["TypedServerRequest"]))
+        soversion = self.plan["api_abi_and_soversion"]
+        self.assertEqual(
+            "bump Codex SOVERSION 1 -> 2",
+            soversion["final_action"]["decision"],
+        )
+        self.assertEqual(
+            68,
+            soversion["current_authority"][
+                "declarations_using_global_authority"
+            ],
+        )
+        self.assertEqual(
+            127,
+            self.plan["security_and_sensitive_data"][
+                "heuristic_schema_paths"
+            ]["count"],
+        )
+        source_counts = self.plan[
+            "source_and_binary_package_plan"
+        ]["source_counts"]
+        self.assertEqual(
+            {"before": 22, "after": 27},
+            source_counts["evidence_files"],
+        )
+        self.assertEqual(
+            {"before": 18, "after": 19},
+            source_counts["codex_docs"],
+        )
+
+    def test_plan_and_ledger_mutation_guards(self) -> None:
+        cases = (
+            (
+                "native denominator includes inherited partials",
+                lambda plan, ledger: plan["native_start"].__setitem__(
+                    "identity_count", 59
+                ),
+                "NativeDenominatorMismatch",
+            ),
+            (
+                "missing implementation identity",
+                lambda plan, ledger: plan[
+                    "implementation_batches"
+                ][0]["identities"].pop(),
+                "ImplementationPlanIdentityMissing",
+            ),
+            (
+                "duplicate implementation ownership",
+                lambda plan, ledger: plan[
+                    "implementation_batches"
+                ][1]["identities"].append(
+                    copy.deepcopy(
+                        plan["implementation_batches"][0][
+                            "identities"
+                        ][0]
+                    )
+                ),
+                "ImplementationPlanIdentityOverlap",
+            ),
+            (
+                "wrong per-PR arithmetic",
+                lambda plan, ledger: plan[
+                    "implementation_batches"
+                ][1]["global_metrics"]["end"].__setitem__(
+                    "Complete", 325
+                ),
+                "NativeCompletionArithmeticMismatch",
+            ),
+            (
+                "resolved becomes response transport",
+                lambda plan, ledger: plan[
+                    "server_request_resolved_semantics"
+                ]["direct_response_non_regression"].__setitem__(
+                    "is_response_transport", True
+                ),
+                "ResponsePathMismatch",
+            ),
+            (
+                "missing ledger entry",
+                lambda plan, ledger: ledger[
+                    "inherited_final_a1_obligations"
+                ].pop(),
+                "CrossSliceLedgerMismatch",
+            ),
+            (
+                "reassign inherited identity",
+                lambda plan, ledger: ledger[
+                    "inherited_final_a1_obligations"
+                ][0].__setitem__("current_slice", "A1.4"),
+                "CrossSliceOwnershipMismatch",
+            ),
+            (
+                "wrong final A1 arithmetic",
+                lambda plan, ledger: plan[
+                    "final_a1_closure"
+                ]["global_end"].__setitem__("Partial", 1),
+                "FinalA1ArithmeticMismatch",
+            ),
+            (
+                "missing SOVERSION closure decision",
+                lambda plan, ledger: plan[
+                    "api_abi_and_soversion"
+                ].pop("final_action"),
+                "SOVERSIONDecisionMissing",
+            ),
+        )
+        for name, mutate, code in cases:
+            with self.subTest(case=name):
+                self.assert_plan_mutation(mutate, code)
+
     def test_stale_generated_report_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory(
             prefix="codex-a1-4-stale-"
@@ -969,6 +1272,16 @@ def parse_options() -> argparse.Namespace:
         "--closure",
         type=Path,
         default=evidence / "a1-4-type-closure.json",
+    )
+    parser.add_argument(
+        "--plan",
+        type=Path,
+        default=evidence / "a1-4-implementation-plan.json",
+    )
+    parser.add_argument(
+        "--ledger",
+        type=Path,
+        default=evidence / "a1-final-cross-slice-ledger.json",
     )
     return parser.parse_args()
 

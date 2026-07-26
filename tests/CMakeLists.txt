@@ -69,6 +69,10 @@ add_test(
         ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-total-partition.json
         --closure
         ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-type-closure.json
+        --plan
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-implementation-plan.json
+        --ledger
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-final-cross-slice-ledger.json
 )
 set_tests_properties(
     CodexA14AuditToolTest
