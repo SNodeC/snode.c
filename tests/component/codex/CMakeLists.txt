@@ -308,6 +308,27 @@ set_tests_properties(
 )
 
 add_test(
+    NAME CodexA13ClosureEvidenceTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA13ClosureEvidenceTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_3_closure.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --report
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-closure-report.json
+)
+set_tests_properties(
+    CodexA13ClosureEvidenceTest
+    PROPERTIES
+        DEPENDS CodexA13AuditToolTest
+        LABELS
+        "component;ai;openai;codex;phase-a1-3;closure;generated;documentation"
+        TIMEOUT 30
+)
+
+add_test(
     NAME CodexA11OperationProductionCoverageGuardTest
     COMMAND
         ${Python3_EXECUTABLE}

@@ -154,9 +154,9 @@ assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 5884)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 20)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 22)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
-assert_retained_prefix("docs/ai/openai/codex" 17)
+assert_retained_prefix("docs/ai/openai/codex" 18)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
 )
@@ -169,10 +169,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 12)
+if(NOT top_level_codex_tool_count EQUAL 13)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 12, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 13, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -223,11 +223,18 @@ set(
     "tools/codex/app-server-evidence/0.144.6/a1-2-implementation-plan.json"
     "tools/codex/app-server-evidence/0.144.6/a1-2-type-closure.json"
     "tools/codex/app-server-evidence/0.144.6/a1-2-closure-report.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-3-start-state.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-3-implementation-plan.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-3-type-closure.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-3-api-abi-evidence.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-3-closure-report.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
     "tools/codex/app_server_a1_1.py"
     "tools/codex/app_server_a1_1_closure.py"
     "tools/codex/app_server_a1_2.py"
     "tools/codex/app_server_a1_2_closure.py"
+    "tools/codex/app_server_a1_3.py"
+    "tools/codex/app_server_a1_3_closure.py"
     "tools/codex/app_server_a1_shared.py"
     "tools/codex/app_server_schema_paths.py"
     "tools/codex/app_server_surface.py"
@@ -280,6 +287,9 @@ set(
     "tests/component/codex/CodexA12AuditToolTest.py"
     "tests/component/codex/CodexA12ClosureEvidenceTest.py"
     "tests/component/codex/CodexA12DocumentationConsistencyTest.py"
+    "tests/component/codex/CodexA13AuditToolTest.py"
+    "tests/component/codex/CodexA13ClosureEvidenceTest.py"
+    "tests/installed/codex/CodexA13AbiLayoutProbe.cpp"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
     "tests/component/codex/CodexConversationCodecTest.cpp"
@@ -330,6 +340,8 @@ set(
     "docs/ai/openai/codex/a1-1-test-integrity.md"
     "docs/ai/openai/codex/a1-2-accounts-models-configuration.md"
     "docs/ai/openai/codex/a1-2-test-integrity.md"
+    "docs/ai/openai/codex/a1-3-commands-filesystem-reviews-approvals.md"
+    "docs/ai/openai/codex/a1-3-test-integrity.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
 )
 foreach(required_entry IN LISTS required_source_entries)
@@ -569,6 +581,28 @@ run_extracted_check(
     "A1.2 final closure report"
     "${CODEX_PYTHON_EXECUTABLE}"
     "${extracted_root}/tools/codex/app_server_a1_2_closure.py"
+    check
+    --repo-root
+    "${extracted_root}"
+)
+run_extracted_check(
+    "A1.3 implementation-plan/type-closure audit"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_3.py"
+    check
+    --repo-root
+    "${extracted_root}"
+    --start-state
+    "${extracted_evidence_root}/a1-3-start-state.json"
+    --plan-output
+    "${extracted_evidence_root}/a1-3-implementation-plan.json"
+    --closure-output
+    "${extracted_evidence_root}/a1-3-type-closure.json"
+)
+run_extracted_check(
+    "A1.3 final closure report"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_3_closure.py"
     check
     --repo-root
     "${extracted_root}"
