@@ -1,0 +1,52 @@
+name: AISuite extraction snapshot
+
+on:
+  push:
+    branches:
+      - extraction/aisuite-source-snapshot
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify immutable extraction source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "d18b231a1d2ec2235fd6f204786b0a761cc24ff5"
+          printf 'source_commit=%s\n' "$(git rev-parse HEAD^)" | tee extraction-source.txt
+          printf 'source_tree=%s\n' "$(git rev-parse HEAD^^{tree})" | tee -a extraction-source.txt
+          printf 'snapshot_commit=%s\n' "$(git rev-parse HEAD)" | tee -a extraction-source.txt
+
+      - name: Create history bundle and source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle create snodec-history.bundle --all
+          git archive \
+            --format=tar.gz \
+            --prefix=snode.c-d18b231/ \
+            --output=snodec-source.tar.gz \
+            d18b231a1d2ec2235fd6f204786b0a761cc24ff5
+          sha256sum snodec-history.bundle snodec-source.tar.gz extraction-source.txt \
+            | tee SHA256SUMS
+
+      - name: Upload extraction snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: aisuite-extraction-snapshot
+          path: |
+            snodec-history.bundle
+            snodec-source.tar.gz
+            extraction-source.txt
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7
