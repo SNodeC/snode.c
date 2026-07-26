@@ -280,6 +280,33 @@ set_tests_properties(
         TIMEOUT 10
 )
 
+set(CODEX_PHASE_A1_3_EVIDENCE_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+add_test(
+    NAME CodexA13AuditToolTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA13AuditToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_3.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --start-state
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-start-state.json
+        --plan
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-implementation-plan.json
+        --closure
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-type-closure.json
+)
+set_tests_properties(
+    CodexA13AuditToolTest
+    PROPERTIES
+        DEPENDS CodexA12ClosureEvidenceTest
+        LABELS "component;ai;openai;codex;phase-a1-3;schema;audit;generated"
+        TIMEOUT 60
+)
+
 add_test(
     NAME CodexA11OperationProductionCoverageGuardTest
     COMMAND
