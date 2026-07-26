@@ -14,6 +14,7 @@
 #include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
+#include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
@@ -550,6 +551,9 @@ namespace ai::openai::codex::detail {
                                                notification.method == "account/updated" ||
                                                notification.method == "command/exec/outputDelta" ||
                                                notification.method == "configWarning" ||
+                                               notification.method == "fs/changed" ||
+                                               notification.method == "fuzzyFileSearch/sessionCompleted" ||
+                                               notification.method == "fuzzyFileSearch/sessionUpdated" ||
                                                notification.method == "model/rerouted" ||
                                                notification.method == "model/safetyBuffering/updated" ||
                                                notification.method == "model/verification";
@@ -573,6 +577,33 @@ namespace ai::openai::codex::detail {
         typed::Event decodeCommandExecOutputDelta(const Notification& notification) {
             std::string error;
             auto decoded = decodeCommandExecOutputDeltaNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeFsChanged(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeFsChangedNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeFuzzyFileSearchSessionCompleted(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeFuzzyFileSearchSessionCompletedNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeFuzzyFileSearchSessionUpdated(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeFuzzyFileSearchSessionUpdatedNotification(notification, error);
             if (!decoded) {
                 return malformedEvent(notification, std::move(error));
             }
@@ -1446,6 +1477,12 @@ namespace ai::openai::codex::detail {
                     return decodeModelRerouted(notification);
                 case ServerNotificationTarget::CommandExecOutputDelta:
                     return decodeCommandExecOutputDelta(notification);
+                case ServerNotificationTarget::FsChanged:
+                    return decodeFsChanged(notification);
+                case ServerNotificationTarget::FuzzyFileSearchSessionCompleted:
+                    return decodeFuzzyFileSearchSessionCompleted(notification);
+                case ServerNotificationTarget::FuzzyFileSearchSessionUpdated:
+                    return decodeFuzzyFileSearchSessionUpdated(notification);
                 case ServerNotificationTarget::Count:
                     break;
             }

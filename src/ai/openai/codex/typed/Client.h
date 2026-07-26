@@ -12,6 +12,7 @@
 #include "ai/openai/codex/typed/Commands.h"       // IWYU pragma: export
 #include "ai/openai/codex/typed/Configuration.h"  // IWYU pragma: export
 #include "ai/openai/codex/typed/Events.h"         // IWYU pragma: export
+#include "ai/openai/codex/typed/Filesystem.h"     // IWYU pragma: export
 #include "ai/openai/codex/typed/Models.h"         // IWYU pragma: export
 #include "ai/openai/codex/typed/ServerRequests.h" // IWYU pragma: export
 #include "ai/openai/codex/typed/Threads.h"        // IWYU pragma: export
@@ -41,6 +42,9 @@ namespace ai::openai::codex::typed {
         Commands& commands() noexcept;
         const Commands& commands() const noexcept;
 
+        Filesystem& filesystem() noexcept;
+        const Filesystem& filesystem() const noexcept;
+
         Configuration& configuration() noexcept;
         const Configuration& configuration() const noexcept;
 
@@ -64,6 +68,7 @@ namespace ai::openai::codex::typed {
 
         Client(std::unique_ptr<Accounts> accounts,
                std::unique_ptr<Commands> commands,
+               std::unique_ptr<Filesystem> filesystem,
                std::unique_ptr<Configuration> configuration,
                std::unique_ptr<Models> models,
                std::unique_ptr<Threads> threads,

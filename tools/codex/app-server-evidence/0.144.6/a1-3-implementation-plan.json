@@ -63,17 +63,17 @@
       "B5": 15
     },
     "current_a1_3_schema_status": {
-      "Complete": 5,
-      "NotImplemented": 61,
+      "Complete": 18,
+      "NotImplemented": 48,
       "Partial": 2
     },
     "current_global_schema_status": {
-      "Complete": 217,
+      "Complete": 230,
       "NotApplicable": 48,
-      "NotImplemented": 116,
+      "NotImplemented": 103,
       "Partial": 6
     },
-    "current_progress_stage": "B2",
+    "current_progress_stage": "B3",
     "expected_final_global_schema_status": {
       "Complete": 280,
       "NotApplicable": 48,
@@ -301,9 +301,11 @@
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/copy:params",
+        "operation:client_request:fs/copy:params:minimum",
+        "operation:client_request:fs/copy:params:optional-omitted:recursive",
         "operation:client_request:fs/copy:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -312,34 +314,37 @@
         "name": "fs/copy"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsCopy",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/createDirectory:params",
+        "operation:client_request:fs/createDirectory:params:minimum",
+        "operation:client_request:fs/createDirectory:params:nullable-null:recursive",
+        "operation:client_request:fs/createDirectory:params:optional-omitted:recursive",
         "operation:client_request:fs/createDirectory:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -348,34 +353,46 @@
         "name": "fs/createDirectory"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsCreateDirectory",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/getMetadata:params",
-        "operation:client_request:fs/getMetadata:result"
+        "operation:client_request:fs/getMetadata:params:minimum",
+        "operation:client_request:fs/getMetadata:result",
+        "operation:client_request:fs/getMetadata:result:directory",
+        "operation:client_request:fs/getMetadata:result:file",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-maximum",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-minimum",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-overflow",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-underflow",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-maximum",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-minimum",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-overflow",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-underflow",
+        "operation:client_request:fs/getMetadata:result:symlink"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -384,34 +401,36 @@
         "name": "fs/getMetadata"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsGetMetadata",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/readDirectory:params",
-        "operation:client_request:fs/readDirectory:result"
+        "operation:client_request:fs/readDirectory:params:minimum",
+        "operation:client_request:fs/readDirectory:result",
+        "operation:client_request:fs/readDirectory:result:explicit-empty-entries"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -420,34 +439,35 @@
         "name": "fs/readDirectory"
       },
       "reachable_definition_count": 4,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsReadDirectory",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/readFile:params",
+        "operation:client_request:fs/readFile:params:minimum",
         "operation:client_request:fs/readFile:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -456,34 +476,39 @@
         "name": "fs/readFile"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsReadFile",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/remove:params",
+        "operation:client_request:fs/remove:params:minimum",
+        "operation:client_request:fs/remove:params:nullable-null:force",
+        "operation:client_request:fs/remove:params:nullable-null:recursive",
+        "operation:client_request:fs/remove:params:optional-omitted:force",
+        "operation:client_request:fs/remove:params:optional-omitted:recursive",
         "operation:client_request:fs/remove:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -492,34 +517,35 @@
         "name": "fs/remove"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsRemove",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/unwatch:params",
+        "operation:client_request:fs/unwatch:params:minimum",
         "operation:client_request:fs/unwatch:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -528,34 +554,35 @@
         "name": "fs/unwatch"
       },
       "reachable_definition_count": 2,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsUnwatch",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/watch:params",
+        "operation:client_request:fs/watch:params:minimum",
         "operation:client_request:fs/watch:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -564,34 +591,35 @@
         "name": "fs/watch"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsWatch",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fs/writeFile:params",
+        "operation:client_request:fs/writeFile:params:minimum",
         "operation:client_request:fs/writeFile:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -600,34 +628,47 @@
         "name": "fs/writeFile"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FsWriteFile",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:fuzzyFileSearch:params",
-        "operation:client_request:fuzzyFileSearch:result"
+        "operation:client_request:fuzzyFileSearch:params:minimum",
+        "operation:client_request:fuzzyFileSearch:params:nullable-null:cancellationtoken",
+        "operation:client_request:fuzzyFileSearch:params:optional-omitted:cancellationtoken",
+        "operation:client_request:fuzzyFileSearch:result",
+        "operation:client_request:fuzzyFileSearch:result:explicit-empty-files",
+        "operation:client_request:fuzzyFileSearch:result:nullable-null:files-0-indices",
+        "operation:client_request:fuzzyFileSearch:result:optional-omitted:files-0-indices",
+        "operation:client_request:fuzzyFileSearch:result:ordered-file-and-directory",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-maximum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-minimum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-overflow",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-maximum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-minimum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-overflow"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -636,25 +677,25 @@
         "name": "fuzzyFileSearch"
       },
       "reachable_definition_count": 4,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::FuzzyFileSearch",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
@@ -803,8 +844,11 @@
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fs/changed",
+        "baseline:server_notification:ServerNotification:method:fs/changed:explicit-empty-changedPaths"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_notification",
@@ -813,31 +857,33 @@
         "name": "fs/changed"
       },
       "reachable_definition_count": 2,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::FsChanged",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionCompleted"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_notification",
@@ -846,31 +892,36 @@
         "name": "fuzzyFileSearch/sessionCompleted"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::FuzzyFileSearchSessionCompleted",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
       "classification": "StablePublicRoot",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:explicit-empty-files",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:nullable-null:params-files-0-indices",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:optional-omitted:params-files-0-indices"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_notification",
@@ -879,25 +930,25 @@
         "name": "fuzzyFileSearch/sessionUpdated"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::FuzzyFileSearchSessionUpdated",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B5",
@@ -3008,26 +3059,67 @@
   "sensitivity": {
     "evidence_uses_synthetic_values_only": true,
     "fields": [
+      "additionalDetails",
       "approvalId",
+      "arguments",
+      "argv",
+      "branch",
       "callId",
+      "cancellationToken",
+      "changedPaths",
       "command",
       "commandActions",
       "content",
+      "createdAtMs",
       "cwd",
+      "data",
       "dataBase64",
       "deltaBase64",
       "description",
+      "destinationPath",
+      "diff",
+      "entries",
       "env",
       "event",
       "fileChanges",
+      "fileName",
+      "file_name",
+      "files",
       "grantRoot",
+      "host",
+      "id",
+      "indices",
+      "instructions",
+      "isDirectory",
+      "isFile",
+      "isSymlink",
       "message",
+      "modifiedAtMs",
+      "move_path",
+      "network_policy_amendment",
       "path",
+      "pattern",
+      "permissions",
+      "port",
+      "processId",
+      "program",
+      "proposedExecpolicyAmendment",
+      "proposedNetworkPolicyAmendments",
+      "query",
+      "rationale",
       "reason",
+      "root",
+      "roots",
+      "score",
+      "sessionId",
+      "sha",
+      "sourcePath",
       "stderr",
       "stdin",
       "stdout",
-      "unified_diff"
+      "unified_diff",
+      "watchId",
+      "writableRoots"
     ],
     "production_payload_logging_permitted": false
   },

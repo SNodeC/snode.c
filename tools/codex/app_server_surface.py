@@ -1637,6 +1637,66 @@ RUNTIME_TARGETS = {
         "method",
         "command/exec/write",
     ): "ClientRequestTarget::CommandExecWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/copy",
+    ): "ClientRequestTarget::FsCopy",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/createDirectory",
+    ): "ClientRequestTarget::FsCreateDirectory",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/getMetadata",
+    ): "ClientRequestTarget::FsGetMetadata",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/readDirectory",
+    ): "ClientRequestTarget::FsReadDirectory",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/readFile",
+    ): "ClientRequestTarget::FsReadFile",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/remove",
+    ): "ClientRequestTarget::FsRemove",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/unwatch",
+    ): "ClientRequestTarget::FsUnwatch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/watch",
+    ): "ClientRequestTarget::FsWatch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/writeFile",
+    ): "ClientRequestTarget::FsWriteFile",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fuzzyFileSearch",
+    ): "ClientRequestTarget::FuzzyFileSearch",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1727,6 +1787,24 @@ RUNTIME_TARGETS = {
         "method",
         "command/exec/outputDelta",
     ): "ServerNotificationTarget::CommandExecOutputDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fs/changed",
+    ): "ServerNotificationTarget::FsChanged",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fuzzyFileSearch/sessionCompleted",
+    ): "ServerNotificationTarget::FuzzyFileSearchSessionCompleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fuzzyFileSearch/sessionUpdated",
+    ): "ServerNotificationTarget::FuzzyFileSearchSessionUpdated",
     (
         "server_notification",
         "ServerNotification",
@@ -2253,6 +2331,13 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "command/exec/outputDelta": "typed::CommandExecOutputDeltaNotification",
     "configWarning": "typed::ConfigWarningNotification",
     "error": "typed::TurnErrorEvent",
+    "fs/changed": "typed::FsChangedNotification",
+    "fuzzyFileSearch/sessionCompleted": (
+        "typed::FuzzyFileSearchSessionCompletedNotification"
+    ),
+    "fuzzyFileSearch/sessionUpdated": (
+        "typed::FuzzyFileSearchSessionUpdatedNotification"
+    ),
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
     "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
     "item/commandExecution/terminalInteraction": "typed::TerminalInteractionNotification",
@@ -2339,7 +2424,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 46
+    len(SERVER_NOTIFICATION_CODECS) != 49
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5503,18 +5588,34 @@ def registry_statuses(
                     "command/exec/resize",
                     "command/exec/terminate",
                     "command/exec/write",
+                    "fs/copy",
+                    "fs/createDirectory",
+                    "fs/getMetadata",
+                    "fs/readDirectory",
+                    "fs/readFile",
+                    "fs/remove",
+                    "fs/unwatch",
+                    "fs/watch",
+                    "fs/writeFile",
+                    "fuzzyFileSearch",
                 }
             )
             or (
                 identity[0] == "server_notification"
-                and identity[3] == "command/exec/outputDelta"
+                and identity[3]
+                in {
+                    "command/exec/outputDelta",
+                    "fs/changed",
+                    "fuzzyFileSearch/sessionCompleted",
+                    "fuzzyFileSearch/sessionUpdated",
+                }
             )
         )
     ):
-        # The staged A1.3 command descriptors bind the exact one-off command
-        # methods and output notification to their reviewed production codecs.
-        # Schema-derived fixtures and focused command wire tests cover both
-        # directions without conflating A1.1 ThreadItem command execution.
+        # The staged A1.3 command and filesystem descriptors bind exact stable
+        # roots to their reviewed production codecs. Schema-derived fixtures
+        # and focused wire tests cover both directions without adding a local
+        # command runner, filesystem implementation, or fuzzy matcher.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -6100,6 +6201,16 @@ def generate_client_operation_descriptor_data(
                     "command/exec/resize",
                     "command/exec/terminate",
                     "command/exec/write",
+                    "fs/copy",
+                    "fs/createDirectory",
+                    "fs/getMetadata",
+                    "fs/readDirectory",
+                    "fs/readFile",
+                    "fs/remove",
+                    "fs/unwatch",
+                    "fs/watch",
+                    "fs/writeFile",
+                    "fuzzyFileSearch",
                 }
             )
         )
@@ -6112,9 +6223,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 44
+        len(expected_keys) != 54
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 44
+        or len(set(targets.values())) != 54
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6122,9 +6233,9 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
-            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
-            "A1.2 B4, 5 A1.2 B5, and 4 A1.3 command client requests must "
-            "each own one unique ClientRequestTarget"
+            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, 2 A1.2 B4, "
+            "5 A1.2 B5, 4 A1.3 command, and 10 A1.3 filesystem/fuzzy "
+            "client requests must each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
         raise SurfaceError(
@@ -6150,10 +6261,15 @@ def generate_client_operation_descriptor_data(
         "command/exec/terminate",
         "command/exec/write",
         "config/mcpServer/reload",
+        "fs/copy",
+        "fs/createDirectory",
+        "fs/remove",
+        "fs/unwatch",
+        "fs/writeFile",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 32
+        or len(expected_keys - unit_keys) != 37
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6161,8 +6277,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2+B3+B4+B5+A1.3 command requests must remain "
-            "exactly 12 Unit and 32 Concrete requests"
+            "typed A1.1+A1.2+A1.3 command/filesystem requests must remain "
+            "exactly 17 Unit and 37 Concrete requests"
         )
 
     result_decoders = {
@@ -6175,6 +6291,11 @@ def generate_client_operation_descriptor_data(
         "ConfigWriteResponse",
         "ExperimentalFeatureEnablementSetResponse",
         "ExperimentalFeatureListResponse",
+        "FsGetMetadataResponse",
+        "FsReadDirectoryResponse",
+        "FsReadFileResponse",
+        "FsWatchResponse",
+        "FuzzyFileSearchResponse",
         "GetAccountRateLimitsResponse",
         "GetAccountResponse",
         "GetAccountTokenUsageResponse",
@@ -6258,14 +6379,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 46
+        len(expected_keys) != 49
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 46
+        != 49
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 46 typed server-notification targets must own "
+            "every one of the 49 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -6315,19 +6436,34 @@ def generate_server_notification_descriptor_data(
         and key[3] == "command/exec/outputDelta"
     }
     residual_keys -= a13_command_keys
+    a13_filesystem_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3]
+        in {
+            "fs/changed",
+            "fuzzyFileSearch/sessionCompleted",
+            "fuzzyFileSearch/sessionUpdated",
+        }
+    }
+    residual_keys -= a13_filesystem_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
         or len(a12_b3_keys) != 3
         or len(a12_b4_keys) != 1
         or len(a13_command_keys) != 1
+        or len(a13_filesystem_keys) != 3
         or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
             "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
-            "3 A1.2 B3, 1 A1.2 B4, and 1 A1.3 command row from the "
-            "residual partial error row"
+            "3 A1.2 B3, 1 A1.2 B4, 1 A1.3 command, and 3 A1.3 "
+            "filesystem/fuzzy rows from the residual partial error row"
         )
 
     lines = [

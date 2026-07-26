@@ -1,0 +1,23 @@
+{
+  "files": [
+    {
+      "file_name": "synthetic-first.txt",
+      "indices": [
+        0,
+        10
+      ],
+      "match_type": "file",
+      "path": "/synthetic/project/synthetic-first.txt",
+      "root": "/synthetic/project",
+      "score": 20
+    },
+    {
+      "file_name": "synthetic-directory",
+      "indices": null,
+      "match_type": "directory",
+      "path": "/synthetic/project/synthetic-directory",
+      "root": "/synthetic/project",
+      "score": 10
+    }
+  ]
+}

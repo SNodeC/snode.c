@@ -811,6 +811,15 @@ namespace ai::openai::codex::backend {
                 },
                 [](const typed::CommandExecOutputDeltaNotification& value) -> std::vector<BackendEvent> {
                     return preserveTypedNotification(value, ServerNotificationTarget::CommandExecOutputDelta);
+                },
+                [](const typed::FsChangedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::FsChanged);
+                },
+                [](const typed::FuzzyFileSearchSessionCompletedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::FuzzyFileSearchSessionCompleted);
+                },
+                [](const typed::FuzzyFileSearchSessionUpdatedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::FuzzyFileSearchSessionUpdated);
                 }},
             event);
     }

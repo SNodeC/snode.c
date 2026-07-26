@@ -38,6 +38,9 @@ namespace {
     concept HasDirectCommandsAccessor = requires(Client& client) { client.commands(); };
 
     template <typename Client>
+    concept HasDirectFilesystemAccessor = requires(Client& client) { client.filesystem(); };
+
+    template <typename Client>
     concept HasDirectModelsAccessor = requires(Client& client) {
         client.models();
     };
@@ -243,6 +246,7 @@ int main() {
     static_assert(std::is_same_v<decltype(std::declval<const codex::AppServerClient&>().typed()), const codex::typed::Client&>);
     static_assert(!HasDirectAccountsAccessor<codex::AppServerClient>);
     static_assert(!HasDirectCommandsAccessor<codex::AppServerClient>);
+    static_assert(!HasDirectFilesystemAccessor<codex::AppServerClient>);
     static_assert(!HasDirectModelsAccessor<codex::AppServerClient>);
     static_assert(!HasDirectConfigurationAccessor<codex::AppServerClient>);
 
@@ -256,6 +260,8 @@ int main() {
                       "accounts() returns the same facade backed by the grouped client's one RawProtocol");
     result.expectTrue(&client.typed().commands() == &constClient.typed().commands(),
                       "commands() returns the same facade backed by the grouped client's one RawProtocol");
+    result.expectTrue(&client.typed().filesystem() == &constClient.typed().filesystem(),
+                      "filesystem() returns the same facade backed by the grouped client's one RawProtocol");
     result.expectTrue(&client.typed().models() == &constClient.typed().models(),
                       "models() returns the same facade backed by the grouped client's one RawProtocol");
     result.expectTrue(&client.typed().configuration() == &constClient.typed().configuration(),

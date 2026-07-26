@@ -39,8 +39,8 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 45);
-    static_assert(std::variant_size_v<typed::Event> == 47);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 48);
+    static_assert(std::variant_size_v<typed::Event> == 50);
     static_assert(std::variant_size_v<typed::Account> == 4);
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);

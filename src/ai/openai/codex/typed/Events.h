@@ -13,6 +13,7 @@
 #include "ai/openai/codex/typed/CodexErrorInfo.h"
 #include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Threads.h"
 
@@ -497,7 +498,10 @@ namespace ai::openai::codex::typed {
                                                      TurnModerationMetadataNotification,
                                                      TurnPlanUpdatedNotification,
                                                      TurnStartedNotification,
-                                                     CommandExecOutputDeltaNotification>;
+                                                     CommandExecOutputDeltaNotification,
+                                                     FsChangedNotification,
+                                                     FuzzyFileSearchSessionCompletedNotification,
+                                                     FuzzyFileSearchSessionUpdatedNotification>;
 
     struct ThreadStarted {
         Thread thread;
@@ -667,7 +671,10 @@ namespace ai::openai::codex::typed {
                                ModelVerificationNotification,
                                TurnErrorEvent,
                                UnknownEvent,
-                               CommandExecOutputDeltaNotification>;
+                               CommandExecOutputDeltaNotification,
+                               FsChangedNotification,
+                               FuzzyFileSearchSessionCompletedNotification,
+                               FuzzyFileSearchSessionUpdatedNotification>;
 
     class Events {
     public:

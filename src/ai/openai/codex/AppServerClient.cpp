@@ -1109,6 +1109,7 @@ namespace ai::openai::codex {
         impl->installTypedClient(std::unique_ptr<typed::Client>(
             new typed::Client(std::unique_ptr<typed::Accounts>(new typed::Accounts(impl->raw())),
                               std::unique_ptr<typed::Commands>(new typed::Commands(impl->raw())),
+                              std::unique_ptr<typed::Filesystem>(new typed::Filesystem(impl->raw())),
                               std::unique_ptr<typed::Configuration>(new typed::Configuration(impl->raw())),
                               std::unique_ptr<typed::Models>(new typed::Models(impl->raw())),
                               std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),

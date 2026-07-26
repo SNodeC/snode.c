@@ -1709,7 +1709,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:CommandExecutionApprovalDecision<oneOf:3>.applyNetworkPolicyAmendment.network_policy_amendment",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "reference"
     },
     {
@@ -1880,7 +1880,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:CommandExecutionRequestApprovalParams.proposedExecpolicyAmendment",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -1918,7 +1918,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:CommandExecutionRequestApprovalParams.proposedNetworkPolicyAmendments",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -2317,7 +2317,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:FileChange<oneOf:2>.move_path",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2507,7 +2507,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:FuzzyFileSearchParams.cancellationToken",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2526,7 +2526,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchParams.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2545,7 +2545,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchParams.roots",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -2583,7 +2583,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchResponse.files",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -2621,7 +2621,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchResult.file_name",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2640,7 +2640,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:FuzzyFileSearchResult.indices",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -2716,7 +2716,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchResult.root",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2735,7 +2735,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchResult.score",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "integer"
     },
     {
@@ -2754,7 +2754,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchSessionCompletedNotification.sessionId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2773,7 +2773,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchSessionUpdatedNotification.files",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -2811,7 +2811,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchSessionUpdatedNotification.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2830,7 +2830,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:FuzzyFileSearchSessionUpdatedNotification.sessionId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2887,7 +2887,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:NetworkApprovalContext.host",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -2944,7 +2944,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:NetworkPolicyAmendment.host",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -3134,7 +3134,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "legacy:ParsedCommand<oneOf:2>.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -3267,7 +3267,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:PermissionsRequestApprovalParams.permissions",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "reference"
     },
     {
@@ -3362,7 +3362,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:PermissionsRequestApprovalResponse.permissions",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "reference"
     },
     {
@@ -3476,7 +3476,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:ReviewDecision<oneOf:3>.network_policy_amendment",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "object"
     },
     {
@@ -3495,7 +3495,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "legacy:ReviewDecision<oneOf:3>.network_policy_amendment.network_policy_amendment",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "reference"
     },
     {
@@ -3514,7 +3514,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:AdditionalFileSystemPermissions.entries",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -4103,7 +4103,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:CommandAction<oneOf:2>.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4217,7 +4217,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:CommandExecOutputDeltaNotification.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4412,7 +4412,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:CommandExecParams.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4545,7 +4545,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:CommandExecResizeParams.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4678,7 +4678,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:CommandExecTerminateParams.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4735,7 +4735,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:CommandExecWriteParams.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -4868,7 +4868,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FileSystemPath<oneOf:1>.pattern",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5153,7 +5153,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FileUpdateChange.diff",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5210,7 +5210,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsChangedNotification.changedPaths",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -5248,7 +5248,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsChangedNotification.watchId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5267,7 +5267,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsCopyParams.destinationPath",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "opaque"
     },
     {
@@ -5305,7 +5305,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsCopyParams.sourcePath",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "opaque"
     },
     {
@@ -5381,7 +5381,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsGetMetadataResponse.createdAtMs",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "integer"
     },
     {
@@ -5400,7 +5400,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsGetMetadataResponse.isDirectory",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "boolean"
     },
     {
@@ -5419,7 +5419,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsGetMetadataResponse.isFile",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "boolean"
     },
     {
@@ -5438,7 +5438,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsGetMetadataResponse.isSymlink",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "boolean"
     },
     {
@@ -5457,7 +5457,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsGetMetadataResponse.modifiedAtMs",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "integer"
     },
     {
@@ -5476,7 +5476,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsReadDirectoryEntry.fileName",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5495,7 +5495,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsReadDirectoryEntry.isDirectory",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "boolean"
     },
     {
@@ -5514,7 +5514,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsReadDirectoryEntry.isFile",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "boolean"
     },
     {
@@ -5552,7 +5552,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsReadDirectoryResponse.entries",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -5685,7 +5685,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsUnwatchParams.watchId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5723,7 +5723,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:FsWatchParams.watchId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5799,7 +5799,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:GuardianApprovalReview.rationale",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -5951,7 +5951,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:1>.argv",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -6008,7 +6008,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:1>.program",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -6084,7 +6084,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:2>.files",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -6141,7 +6141,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:3>.host",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -6160,7 +6160,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:3>.port",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "integer"
     },
     {
@@ -6350,7 +6350,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:GuardianApprovalReviewAction<oneOf:5>.permissions",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "reference"
     },
     {
@@ -6977,7 +6977,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:MemoryCitation.entries",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -7167,7 +7167,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:PatchChangeKind<oneOf:2>.move_path",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -7262,7 +7262,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:PermissionProfileListResponse.data",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -7357,7 +7357,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:PermissionProfileSummary.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -7528,7 +7528,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ReviewTarget<oneOf:1>.branch",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -7566,7 +7566,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ReviewTarget<oneOf:2>.sha",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -7623,7 +7623,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ReviewTarget<oneOf:3>.instructions",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -7832,7 +7832,7 @@
       "nullable": false,
       "required": false,
       "schema_path": "v2:SandboxPolicy<oneOf:3>.writableRoots",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "array"
     },
     {
@@ -8003,7 +8003,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:0>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8079,7 +8079,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:1>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8117,7 +8117,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:2>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8212,7 +8212,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:3>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8307,7 +8307,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:4>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8516,7 +8516,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:5>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8535,7 +8535,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:ThreadItem<oneOf:5>.processId",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8649,7 +8649,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:6>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8725,7 +8725,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:7>.arguments",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "unconstrained"
     },
     {
@@ -8782,7 +8782,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:7>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -8934,7 +8934,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:8>.arguments",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "unconstrained"
     },
     {
@@ -9010,7 +9010,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:8>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9164,7 +9164,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:9>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9392,7 +9392,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:10>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9468,7 +9468,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:11>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9487,7 +9487,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:11>.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9525,7 +9525,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:12>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9601,7 +9601,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:13>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9639,7 +9639,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:14>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9753,7 +9753,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:15>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9810,7 +9810,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:16>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9867,7 +9867,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:ThreadItem<oneOf:17>.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -9962,7 +9962,7 @@
       "nullable": false,
       "required": true,
       "schema_path": "v2:Turn.id",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -10076,7 +10076,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:TurnError.additionalDetails",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -10475,7 +10475,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:WebSearchAction<oneOf:0>.query",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {
@@ -10551,7 +10551,7 @@
       "nullable": true,
       "required": false,
       "schema_path": "v2:WebSearchAction<oneOf:2>.pattern",
-      "sensitive": false,
+      "sensitive": true,
       "value_kind": "string"
     },
     {

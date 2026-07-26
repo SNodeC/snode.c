@@ -3952,6 +3952,266 @@ class AppServerFixtureToolTest(unittest.TestCase):
             },
         )
 
+    def test_a1_3_filesystem_fuzzy_fixture_plan_is_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def payload(fixture_id: str) -> object:
+            return json.loads(
+                (
+                    configured.fixture_root
+                    / records_by_id[fixture_id]["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        filesystem = index["a1_3_filesystem_fuzzy"]
+        operation_keys = filesystem[
+            "assignment_derived_operation_keys"
+        ]
+        notification_keys = filesystem[
+            "assignment_derived_notification_keys"
+        ]
+        self.assertEqual(len(operation_keys), 10)
+        self.assertEqual(
+            {record["name"] for record in operation_keys},
+            set(tool.A13_FILESYSTEM_CLIENT_REQUEST_METHODS),
+        )
+        self.assertEqual(len(notification_keys), 3)
+        self.assertEqual(
+            {record["name"] for record in notification_keys},
+            set(tool.A13_FILESYSTEM_NOTIFICATION_METHODS),
+        )
+        self.assertTrue(
+            {
+                "fuzzyFileSearch/sessionStart",
+                "fuzzyFileSearch/sessionUpdate",
+                "fuzzyFileSearch/sessionStop",
+            }.isdisjoint(
+                {record["name"] for record in operation_keys}
+            )
+        )
+
+        indexed = filesystem["indexed_schema_coverage"]
+        self.assertEqual(len(indexed), 13)
+        for key, record in indexed.items():
+            expected_directions = (
+                {"Decode", "Encode"}
+                if key.startswith("client_request:")
+                else {"Decode"}
+            )
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertEqual(
+                set(record["directions_exercised"]),
+                expected_directions,
+            )
+            self.assertTrue(all(record["schema_fixture_facts"].values()))
+            self.assertLessEqual(
+                set(record["required_reachable_fixture_ids"]),
+                set(records_by_id),
+            )
+
+        operation_plan = filesystem["operation_root_fixture_plan"]
+        self.assertEqual(len(operation_plan), 10)
+        self.assertEqual(
+            sum(
+                len(operation["roots"])
+                for operation in operation_plan.values()
+            ),
+            20,
+        )
+        mutation_counts = {
+            field: sum(
+                len(root[field])
+                for operation in operation_plan.values()
+                for root in operation["roots"].values()
+            )
+            for field in (
+                "missing_required_fixture_ids",
+                "nullable_null_fixture_ids",
+                "required_nullable_null_fixture_ids",
+                "optional_omitted_fixture_ids",
+                "wrong_type_fixture_ids",
+            )
+        }
+        self.assertEqual(
+            mutation_counts,
+            {
+                "missing_required_fixture_ids": 31,
+                "nullable_null_fixture_ids": 5,
+                "required_nullable_null_fixture_ids": 0,
+                "optional_omitted_fixture_ids": 6,
+                "wrong_type_fixture_ids": 41,
+            },
+        )
+        self.assertEqual(
+            filesystem["negative_coverage"][
+                "operation_opaque_exclusions"
+            ],
+            [],
+        )
+
+        unit_invariants = filesystem["negative_coverage"][
+            "unit_result_invariants"
+        ]
+        self.assertEqual(len(unit_invariants), 5)
+        self.assertEqual(
+            {record["method"] for record in unit_invariants},
+            {
+                "fs/copy",
+                "fs/createDirectory",
+                "fs/remove",
+                "fs/unwatch",
+                "fs/writeFile",
+            },
+        )
+        for unit in unit_invariants:
+            self.assertEqual(unit["result_contract_kind"], "Unit")
+            self.assertEqual(unit["result_type_identity"], "Unit")
+            self.assertEqual(payload(unit["empty_result_fixture_id"]), {})
+            mutated_unit_schema = copy.deepcopy(
+                unit["reviewed_result_schema"]
+            )
+            mutated_unit_schema["properties"] = {
+                "futureProperty": {"type": "boolean"}
+            }
+            with self.assertRaisesRegex(
+                tool.FixtureError,
+                "Unit result no longer resolves",
+            ):
+                tool.require_reviewed_unit_result_schema(
+                    method=unit["method"],
+                    actual=mutated_unit_schema,
+                    expected=unit["reviewed_result_schema"],
+                )
+
+        positive = filesystem["positive_coverage"]
+        self.assertEqual(len(positive["minimum_request_fixture_ids"]), 10)
+        self.assertEqual(len(positive["full_request_fixture_ids"]), 10)
+        self.assertEqual(len(positive["concrete_result_fixture_ids"]), 5)
+        self.assertEqual(len(positive["unit_result_fixture_ids"]), 5)
+        fuzzy_minimum = payload(
+            "operation:client_request:fuzzyFileSearch:params:minimum"
+        )
+        self.assertEqual(
+            fuzzy_minimum,
+            {"query": "synthetic query", "roots": []},
+        )
+        full_write = payload(
+            "operation:client_request:fs/writeFile:params"
+        )
+        self.assertEqual(
+            full_write,
+            {
+                "dataBase64": "c3ludGhldGljLWZpbGUtZGF0YQ==",
+                "path": "/synthetic/project/synthetic-entry.txt",
+            },
+        )
+        for fixture_id in positive[
+            "explicit_empty_array_fixture_ids"
+        ]:
+            value = payload(fixture_id)
+            self.assertIn([], value.values())
+
+        ordered = payload(
+            positive["ordered_fuzzy_result_fixture_id"]
+        )
+        self.assertEqual(
+            [record["file_name"] for record in ordered["files"]],
+            ["synthetic-first.txt", "synthetic-directory"],
+        )
+        self.assertEqual(
+            [record["match_type"] for record in ordered["files"]],
+            ["file", "directory"],
+        )
+        self.assertEqual(
+            [record["score"] for record in ordered["files"]],
+            [20, 10],
+        )
+        self.assertEqual(len(positive["metadata_variant_fixture_ids"]), 3)
+        self.assertEqual(len(positive["integer_boundaries"]), 4)
+        self.assertEqual(
+            {
+                field: sum(
+                    len(record[field])
+                    for record in positive["integer_boundaries"].values()
+                )
+                for field in (
+                    "schema_valid_representable",
+                    "schema_valid_typed_unrepresentable",
+                    "schema_invalid",
+                )
+            },
+            {
+                "schema_valid_representable": 8,
+                "schema_valid_typed_unrepresentable": 6,
+                "schema_invalid": 6,
+            },
+        )
+
+        notification_plan = filesystem[
+            "notification_root_fixture_plan"
+        ]
+        self.assertEqual(len(notification_plan), 3)
+        self.assertEqual(
+            filesystem["negative_coverage"][
+                "notification_payload_mutations"
+            ]["counts"],
+            {
+                "base_generated": 3,
+                "missing_required": 17,
+                "nullable_null": 1,
+                "optional_omitted": 1,
+                "required_nullable_null": 0,
+                "wrong_type": 21,
+                "wrong_type_opaque_exclusions": 0,
+            },
+        )
+        self.assertEqual(
+            len(positive["notification_fixture_ids"]), 3
+        )
+        self.assertEqual(
+            len(positive["notification_empty_array_fixture_ids"]), 2
+        )
+        for fixture_id in positive[
+            "notification_empty_array_fixture_ids"
+        ]:
+            params = payload(fixture_id)["params"]
+            self.assertTrue(
+                params.get("changedPaths") == []
+                or params.get("files") == []
+            )
+
+        enum_coverage = filesystem["negative_coverage"][
+            "open_string_enums"
+        ]
+        self.assertEqual(
+            set(enum_coverage), {"FuzzyFileSearchMatchType"}
+        )
+        match_type = enum_coverage["FuzzyFileSearchMatchType"]
+        self.assertEqual(
+            match_type["known_value_fixture_ids"],
+            [
+                "enum:FuzzyFileSearchMatchType:file",
+                "enum:FuzzyFileSearchMatchType:directory",
+            ],
+        )
+        self.assertEqual(match_type["directions_exercised"], ["Decode"])
+        for fixture_id in (
+            match_type["future_value_fixture_id"],
+            match_type["empty_value_fixture_id"],
+        ):
+            self.assertEqual(
+                records_by_id[fixture_id]["expected_diagnostic_codes"],
+                ["enum_mismatch"],
+            )
+
     def test_fixture_generator_has_no_production_decoder_inputs(self) -> None:
         source = (
             REPOSITORY_ROOT / "tools/codex/app_server_fixtures.py"
@@ -3973,9 +4233,9 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 4943,
-                "positive": 1937,
-                "negative": 3006,
+                "total": 5111,
+                "positive": 1987,
+                "negative": 3124,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
@@ -3989,31 +4249,31 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "malformed_known_wrong_outer_shape": 4,
                     "malformed_known_wrong_type": 328,
                     "nested_union_failure": 4,
-                    "notification_explicit_empty_array": 2,
-                    "notification_missing_required": 330,
-                    "notification_nullable_null": 80,
+                    "notification_explicit_empty_array": 4,
+                    "notification_missing_required": 347,
+                    "notification_nullable_null": 81,
                     "notification_numeric_boundary": 1,
                     "notification_numeric_boundary_invalid": 2,
-                    "notification_optional_omitted": 86,
+                    "notification_optional_omitted": 87,
                     "notification_pinned_format_unrepresentable": 1,
                     "notification_stream_alternative": 1,
-                    "notification_wrong_type": 433,
-                    "open_enum_known_value": 173,
+                    "notification_wrong_type": 454,
+                    "open_enum_known_value": 175,
                     "operation_empty_aggregate": 3,
-                    "operation_explicit_empty_array": 6,
+                    "operation_explicit_empty_array": 8,
                     "operation_explicit_empty_map": 3,
                     "operation_helper_union_branch": 13,
-                    "operation_known_enum_values": 1,
-                    "operation_minimum_request": 4,
-                    "operation_missing_required": 424,
-                    "operation_nullable_null": 385,
-                    "operation_numeric_boundary": 22,
-                    "operation_numeric_boundary_invalid": 20,
+                    "operation_known_enum_values": 5,
+                    "operation_minimum_request": 14,
+                    "operation_missing_required": 455,
+                    "operation_nullable_null": 390,
+                    "operation_numeric_boundary": 30,
+                    "operation_numeric_boundary_invalid": 26,
                     "operation_opaque_value": 26,
-                    "operation_optional_omitted": 424,
-                    "operation_pinned_format_unrepresentable": 14,
-                    "operation_wrong_type": 918,
-                    "server_notification_identity": 32,
+                    "operation_optional_omitted": 430,
+                    "operation_pinned_format_unrepresentable": 20,
+                    "operation_wrong_type": 959,
+                    "server_notification_identity": 35,
                     "server_request_params": 10,
                     "server_request_response": 10,
                     "union_branch": 127,
@@ -4021,7 +4281,7 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "union_nullable_null": 130,
                     "union_optional_omitted": 142,
                     "unknown_discriminator": 27,
-                    "unknown_enum_value": 139,
+                    "unknown_enum_value": 141,
                     "unknown_method": 4,
                 },
             },
@@ -4029,15 +4289,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 19421,
-                "required_locations": 19421,
-                "required_field_removals_rejected": 19421,
-                "wrong_type_mutations_rejected": 19243,
+                "selected_branch_required_locations": 19609,
+                "required_locations": 19609,
+                "required_field_removals_rejected": 19609,
+                "wrong_type_mutations_rejected": 19431,
                 "wrong_type_unconstrained_exclusions": 178,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 20076,
-                "globally_optional_locations": 20076,
-                "optional_omissions_accepted": 20076,
+                "optional_present_locations": 20095,
+                "globally_optional_locations": 20095,
+                "optional_omissions_accepted": 20095,
                 "optional_cross_fragment_exclusions": 0,
             },
         )
@@ -4083,21 +4343,21 @@ class AppServerFixtureToolTest(unittest.TestCase):
         completeness = json.loads(first[completeness_path].decode("utf-8"))
         self.assertEqual(completeness["counts"]["surface_identities"], 387)
         self.assertEqual(
-            completeness["counts"]["identities_with_positive_fixtures"], 271
+            completeness["counts"]["identities_with_positive_fixtures"], 274
         )
         self.assertEqual(
             completeness["counts"]["facts_true_by_field"],
             {
-                "authoritative_root_association": 271,
-                "fixture_current": 271,
-                "independently_schema_validated": 271,
-                "nullable_semantics_exercised": 217,
-                "optional_omitted_exercised": 271,
-                "optional_present_exercised": 271,
-                "positive_fixture_coverage": 271,
-                "reachable_union_alternatives_exercised": 217,
-                "required_fields_exercised": 271,
-                "schema_properties_exercised": 217,
+                "authoritative_root_association": 274,
+                "fixture_current": 274,
+                "independently_schema_validated": 274,
+                "nullable_semantics_exercised": 230,
+                "optional_omitted_exercised": 274,
+                "optional_present_exercised": 274,
+                "positive_fixture_coverage": 274,
+                "reachable_union_alternatives_exercised": 230,
+                "required_fields_exercised": 274,
+                "schema_properties_exercised": 230,
             },
         )
         self.assertEqual(len(completeness["records"]), 387)

@@ -207,6 +207,28 @@ namespace ai::openai::codex::backend {
                 }
                 return sanitizeExtensionJson(methodSanitized, state);
             }
+            if (method == "fs/changed" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"changedPaths", "watchId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
+            if ((method == "fuzzyFileSearch/sessionCompleted" || method == "fuzzyFileSearch/sessionUpdated") && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"files", "query", "sessionId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
             if (method == "configWarning" && value.is_object()) {
                 Json methodSanitized = value;
                 const auto details = methodSanitized.find("details");

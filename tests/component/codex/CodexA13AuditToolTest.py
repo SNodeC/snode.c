@@ -100,10 +100,19 @@ class CodexA13AuditToolTest(unittest.TestCase):
             {"NotImplemented": 66, "Partial": 2},
             counts["initial_a1_3_schema_status"],
         )
-        self.assertEqual("B2", counts["current_progress_stage"])
+        self.assertEqual("B3", counts["current_progress_stage"])
         self.assertEqual(
-            {"Complete": 5, "NotImplemented": 61, "Partial": 2},
+            {"Complete": 18, "NotImplemented": 48, "Partial": 2},
             counts["current_a1_3_schema_status"],
+        )
+        self.assertEqual(
+            {
+                "Complete": 230,
+                "NotApplicable": 48,
+                "NotImplemented": 103,
+                "Partial": 6,
+            },
+            counts["current_global_schema_status"],
         )
 
     def test_full_transitive_schema_closure_is_frozen(self) -> None:

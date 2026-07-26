@@ -13,6 +13,7 @@
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/Threads.h"
@@ -70,7 +71,12 @@ namespace ai::openai::codex::detail {
                                                      typed::ThreadUnsubscribeResponse,
                                                      typed::TurnStartResponse,
                                                      typed::TurnSteerResponse,
-                                                     typed::CommandExecResponse>;
+                                                     typed::CommandExecResponse,
+                                                     typed::FsGetMetadataResponse,
+                                                     typed::FsReadDirectoryResponse,
+                                                     typed::FsReadFileResponse,
+                                                     typed::FsWatchResponse,
+                                                     typed::FuzzyFileSearchResponse>;
 
     struct ClientOperationDecodeDiagnostic {
         ClientOperationDecodeCode code = ClientOperationDecodeCode::MalformedKnownPayload;

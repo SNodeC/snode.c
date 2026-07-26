@@ -15,6 +15,7 @@
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
+#include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
@@ -25,6 +26,7 @@
 #include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Events.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
@@ -51,6 +53,7 @@ namespace ai::openai::codex::typed {
     public:
         Impl(std::unique_ptr<Accounts> accounts,
              std::unique_ptr<Commands> commands,
+             std::unique_ptr<Filesystem> filesystem,
              std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
              std::unique_ptr<Threads> threads,
@@ -59,6 +62,7 @@ namespace ai::openai::codex::typed {
              std::unique_ptr<Requests> requests)
             : accounts(std::move(accounts))
             , commands(std::move(commands))
+            , filesystem(std::move(filesystem))
             , configuration(std::move(configuration))
             , models(std::move(models))
             , threads(std::move(threads))
@@ -69,6 +73,7 @@ namespace ai::openai::codex::typed {
 
         std::unique_ptr<Accounts> accounts;
         std::unique_ptr<Commands> commands;
+        std::unique_ptr<Filesystem> filesystem;
         std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
         std::unique_ptr<Threads> threads;
@@ -79,6 +84,7 @@ namespace ai::openai::codex::typed {
 
     Client::Client(std::unique_ptr<Accounts> accounts,
                    std::unique_ptr<Commands> commands,
+                   std::unique_ptr<Filesystem> filesystem,
                    std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
                    std::unique_ptr<Threads> threads,
@@ -87,6 +93,7 @@ namespace ai::openai::codex::typed {
                    std::unique_ptr<Requests> requests)
         : impl(std::make_unique<Impl>(std::move(accounts),
                                      std::move(commands),
+                                     std::move(filesystem),
                                      std::move(configuration),
                                      std::move(models),
                                      std::move(threads),
@@ -111,6 +118,14 @@ namespace ai::openai::codex::typed {
 
     const Commands& Client::commands() const noexcept {
         return *impl->commands;
+    }
+
+    Filesystem& Client::filesystem() noexcept {
+        return *impl->filesystem;
+    }
+
+    const Filesystem& Client::filesystem() const noexcept {
+        return *impl->filesystem;
     }
 
     Configuration& Client::configuration() noexcept {
@@ -360,6 +375,60 @@ namespace ai::openai::codex::typed {
     Commands::Submission Commands::write(CommandExecWriteParams params, UnitResultHandler handler) {
         return submitTypedRequest<Unit>(
             protocol, detail::ClientRequestTarget::CommandExecWrite, params, std::move(handler), detail::encodeCommandExecWriteParams);
+    }
+
+    Filesystem::Filesystem(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Filesystem::Submission Filesystem::copy(FsCopyParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsCopy, params, std::move(handler), detail::encodeFsCopyParams);
+    }
+
+    Filesystem::Submission Filesystem::createDirectory(FsCreateDirectoryParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsCreateDirectory, params, std::move(handler), detail::encodeFsCreateDirectoryParams);
+    }
+
+    Filesystem::Submission Filesystem::getMetadata(FsGetMetadataParams params, GetMetadataResultHandler handler) {
+        return submitTypedRequest<FsGetMetadataResponse>(
+            protocol, detail::ClientRequestTarget::FsGetMetadata, params, std::move(handler), detail::encodeFsGetMetadataParams);
+    }
+
+    Filesystem::Submission Filesystem::readDirectory(FsReadDirectoryParams params, ReadDirectoryResultHandler handler) {
+        return submitTypedRequest<FsReadDirectoryResponse>(
+            protocol, detail::ClientRequestTarget::FsReadDirectory, params, std::move(handler), detail::encodeFsReadDirectoryParams);
+    }
+
+    Filesystem::Submission Filesystem::readFile(FsReadFileParams params, ReadFileResultHandler handler) {
+        return submitTypedRequest<FsReadFileResponse>(
+            protocol, detail::ClientRequestTarget::FsReadFile, params, std::move(handler), detail::encodeFsReadFileParams);
+    }
+
+    Filesystem::Submission Filesystem::remove(FsRemoveParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsRemove, params, std::move(handler), detail::encodeFsRemoveParams);
+    }
+
+    Filesystem::Submission Filesystem::watch(FsWatchParams params, WatchResultHandler handler) {
+        return submitTypedRequest<FsWatchResponse>(
+            protocol, detail::ClientRequestTarget::FsWatch, params, std::move(handler), detail::encodeFsWatchParams);
+    }
+
+    Filesystem::Submission Filesystem::unwatch(FsUnwatchParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsUnwatch, params, std::move(handler), detail::encodeFsUnwatchParams);
+    }
+
+    Filesystem::Submission Filesystem::writeFile(FsWriteFileParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsWriteFile, params, std::move(handler), detail::encodeFsWriteFileParams);
+    }
+
+    Filesystem::Submission Filesystem::fuzzyFileSearch(FuzzyFileSearchParams params, FuzzyFileSearchResultHandler handler) {
+        return submitTypedRequest<FuzzyFileSearchResponse>(
+            protocol, detail::ClientRequestTarget::FuzzyFileSearch, params, std::move(handler), detail::encodeFuzzyFileSearchParams);
     }
 
     Accounts::Submission Accounts::readUsage(Unit params, ReadUsageResultHandler handler) {

@@ -110,6 +110,16 @@ namespace ai::openai::codex::detail {
         CommandExecResize,
         CommandExecTerminate,
         CommandExecWrite,
+        FsCopy,
+        FsCreateDirectory,
+        FsGetMetadata,
+        FsReadDirectory,
+        FsReadFile,
+        FsRemove,
+        FsUnwatch,
+        FsWatch,
+        FsWriteFile,
+        FuzzyFileSearch,
         Count
     };
 
@@ -162,6 +172,9 @@ namespace ai::openai::codex::detail {
         TurnPlanUpdated,
         ModelRerouted,
         CommandExecOutputDelta,
+        FsChanged,
+        FuzzyFileSearchSessionCompleted,
+        FuzzyFileSearchSessionUpdated,
         Count
     };
 
@@ -363,6 +376,11 @@ namespace ai::openai::codex::detail {
         TurnStartResponse,
         TurnSteerResponse,
         CommandExecResponse,
+        FsGetMetadataResponse,
+        FsReadDirectoryResponse,
+        FsReadFileResponse,
+        FsWatchResponse,
+        FuzzyFileSearchResponse,
         Count
     };
 

@@ -1,0 +1,8 @@
+{
+  "method": "fs/changed",
+  "params": {
+    "changedPaths": [
+      "/synthetic/project/synthetic-entry.txt"
+    ]
+  }
+}

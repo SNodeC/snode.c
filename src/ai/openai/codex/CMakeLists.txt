@@ -16,6 +16,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/ConfigurationCodec.cpp
     detail/ConversationCodec.cpp
     detail/EventDecoder.cpp
+    detail/FilesystemCodec.cpp
     detail/ItemDecoder.cpp
     detail/ModelCodec.cpp
     detail/ProtocolCodec.cpp
@@ -50,6 +51,7 @@ set(AI_OPENAI_CODEX_H
     detail/ServerRequestCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
+    detail/FilesystemCodec.h
     detail/ItemDecoder.h
     detail/ModelCodec.h
     detail/ProtocolCodec.h
@@ -68,6 +70,7 @@ set(AI_OPENAI_CODEX_H
     typed/Configuration.h
     typed/Conversation.h
     typed/Events.h
+    typed/Filesystem.h
     typed/Items.h
     typed/Models.h
     typed/Results.h
@@ -118,6 +121,7 @@ install(
           typed/Configuration.h
           typed/Conversation.h
           typed/Events.h
+          typed/Filesystem.h
           typed/Items.h
           typed/Models.h
           typed/Results.h

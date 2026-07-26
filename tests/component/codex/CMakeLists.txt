@@ -721,6 +721,59 @@ set_tests_properties(
 )
 
 snodec_add_test(
+    CodexA13FilesystemCodecTest
+    CodexA13FilesystemCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13FilesystemCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13FilesystemCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;codec;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13FilesystemWireTest
+    CodexA13FilesystemWireTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13FilesystemWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13FilesystemWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;operation;wire;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA13FilesystemBackendCompatibilityTest
+    CodexA13FilesystemBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemBackendCompatibilityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA13FilesystemBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13FilesystemBackendCompatibilityTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;backend;compatibility;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
     CodexA12AuthRefreshWireTest
     CodexA12AuthRefreshWireTest.cpp
 )

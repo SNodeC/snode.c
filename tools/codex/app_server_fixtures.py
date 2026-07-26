@@ -728,6 +728,35 @@ A13_COMMAND_NOTIFICATION_METHODS = frozenset(
 A13_COMMAND_OPEN_STRING_ENUMS = {
     "CommandExecOutputStream": ("stdout", "stderr"),
 }
+
+# Phase A1.3 Commit 3 owns the stable App Server filesystem operations, the
+# one-shot fuzzy search operation, and their three notifications.  The
+# experimental fuzzy-search session controls deliberately remain outside this
+# assignment-derived batch.
+A13_FILESYSTEM_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "fs/copy",
+        "fs/createDirectory",
+        "fs/getMetadata",
+        "fs/readDirectory",
+        "fs/readFile",
+        "fs/remove",
+        "fs/unwatch",
+        "fs/watch",
+        "fs/writeFile",
+        "fuzzyFileSearch",
+    }
+)
+A13_FILESYSTEM_NOTIFICATION_METHODS = frozenset(
+    {
+        "fs/changed",
+        "fuzzyFileSearch/sessionCompleted",
+        "fuzzyFileSearch/sessionUpdated",
+    }
+)
+A13_FILESYSTEM_OPEN_STRING_ENUMS = {
+    "FuzzyFileSearchMatchType": ("file", "directory"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1419,6 +1448,53 @@ def derive_a13_command_keys(
     return operations, notifications
 
 
+def derive_a13_filesystem_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[tuple[SurfaceKey, ...], tuple[SurfaceKey, ...]]:
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.3"
+            and assignment["module"]
+            == "CommandsFilesystemReviewsApprovals"
+            and (
+                key.name in A13_FILESYSTEM_CLIENT_REQUEST_METHODS
+                or key.name in A13_FILESYSTEM_NOTIFICATION_METHODS
+            )
+        )
+    )
+    operations = tuple(
+        key for key in batch if key.category == CLIENT_REQUEST
+    )
+    notifications = tuple(
+        key for key in batch if key.category == SERVER_NOTIFICATION
+    )
+    if (
+        len(batch) != 13
+        or len(operations) != 10
+        or len(notifications) != 3
+        or {key.name for key in operations}
+        != A13_FILESYSTEM_CLIENT_REQUEST_METHODS
+        or {key.name for key in notifications}
+        != A13_FILESYSTEM_NOTIFICATION_METHODS
+        or any(
+            key.domain
+            not in {"ClientRequest", "ServerNotification"}
+            or key.discriminator_field != "method"
+            or assignments[key]["classification"] != "StablePublicRoot"
+            or assignments[key]["stability"] != "stable"
+            for key in batch
+        )
+    ):
+        raise FixtureError(
+            "A1.3 filesystem/fuzzy assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"notifications={len(notifications)}"
+        )
+    return operations, notifications
+
+
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """Replace generated account/auth values with low-risk reviewed samples.
 
@@ -1521,6 +1597,44 @@ def normalize_a13_command_sample(value: Any) -> None:
                 node["stream"] = "stdout"
             for nested in node.values():
                 visit(nested)
+        elif isinstance(node, list):
+            for nested in node:
+                visit(nested)
+
+    visit(value)
+
+
+def normalize_a13_filesystem_sample(value: Any) -> None:
+    """Replace filesystem, content, and search values with synthetic data."""
+
+    string_replacements = {
+        "cancellationToken": "synthetic-cancellation-token",
+        "dataBase64": "c3ludGhldGljLWZpbGUtZGF0YQ==",
+        "destinationPath": "/synthetic/destination",
+        "fileName": "synthetic-entry.txt",
+        "path": "/synthetic/project/synthetic-entry.txt",
+        "query": "synthetic query",
+        "root": "/synthetic/project",
+        "sessionId": "synthetic-session-id",
+        "sourcePath": "/synthetic/source",
+        "watchId": "synthetic-watch-id",
+    }
+
+    def visit(node: Any) -> None:
+        if isinstance(node, dict):
+            for field, nested in node.items():
+                if field in string_replacements and isinstance(
+                    nested, str
+                ):
+                    node[field] = string_replacements[field]
+                elif field == "changedPaths" and isinstance(nested, list):
+                    node[field] = [
+                        "/synthetic/project/synthetic-entry.txt"
+                    ]
+                elif field == "roots" and isinstance(nested, list):
+                    node[field] = ["/synthetic/project"]
+                else:
+                    visit(nested)
         elif isinstance(node, list):
             for nested in node:
                 visit(nested)
@@ -3864,6 +3978,13 @@ class CorpusBuilder:
         self.a13_command_operation_root_coverage: dict[str, Any] = {}
         self.a13_command_notification_root_coverage: dict[str, Any] = {}
         self.a13_command_positive_coverage: dict[str, Any] = {}
+        self.a13_filesystem_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_filesystem_notification_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_filesystem_negative_coverage: dict[str, Any] = {}
+        self.a13_filesystem_indexed_coverage: dict[str, Any] = {}
+        self.a13_filesystem_operation_root_coverage: dict[str, Any] = {}
+        self.a13_filesystem_notification_root_coverage: dict[str, Any] = {}
+        self.a13_filesystem_positive_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -4046,6 +4167,10 @@ class CorpusBuilder:
             self.a13_command_operation_keys,
             self.a13_command_notification_keys,
         ) = derive_a13_command_keys(self.assignments)
+        (
+            self.a13_filesystem_operation_keys,
+            self.a13_filesystem_notification_keys,
+        ) = derive_a13_filesystem_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
@@ -4054,6 +4179,7 @@ class CorpusBuilder:
         self._build_a12_b4_operation_supplements()
         self._build_a12_b5_operation_supplements()
         self._build_a13_command_operation_supplements()
+        self._build_a13_filesystem_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_a12_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
@@ -4063,9 +4189,11 @@ class CorpusBuilder:
         self._build_a12_b3_empty_array_fixtures()
         self._build_a12_b4_notification_fixtures()
         self._build_a13_command_notification_fixtures()
+        self._build_a13_filesystem_notification_fixtures()
         self._build_a12_b4_positive_supplements()
         self._build_a12_b5_positive_supplements()
         self._build_a13_command_positive_supplements()
+        self._build_a13_filesystem_positive_supplements()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
@@ -4076,6 +4204,7 @@ class CorpusBuilder:
         self._build_a12_b4_open_enum_fixtures()
         self._build_a12_b5_open_enum_fixtures()
         self._build_a13_command_open_enum_fixtures()
+        self._build_a13_filesystem_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -4167,6 +4296,9 @@ class CorpusBuilder:
             positive_records, positive_fixture_ids
         )
         self._apply_a13_command_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a13_filesystem_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -4396,6 +4528,31 @@ class CorpusBuilder:
                 "positive_coverage": self.a13_command_positive_coverage,
                 "negative_coverage": self.a13_command_negative_coverage,
             },
+            "a1_3_filesystem_fuzzy": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_filesystem_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_filesystem_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_filesystem_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_filesystem_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_filesystem_notification_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_filesystem_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_filesystem_negative_coverage
+                ),
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -4531,6 +4688,17 @@ class CorpusBuilder:
                 if is_a13_command
                 else {}
             )
+            is_a13_filesystem = key in {
+                *self.a13_filesystem_operation_keys,
+                *self.a13_filesystem_notification_keys,
+            }
+            a13_filesystem_schema_facts = (
+                self.a13_filesystem_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a13_filesystem
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -4560,6 +4728,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a13_command
+                else self.a13_filesystem_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a13_filesystem
                 else {}
             )
             coverage_records.append(
@@ -4640,6 +4812,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_filesystem_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -4702,6 +4879,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_filesystem_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -4758,6 +4940,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a13_command_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a13_filesystem_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -4941,6 +5129,31 @@ class CorpusBuilder:
                 ),
                 "positive_coverage": self.a13_command_positive_coverage,
                 "negative_coverage": self.a13_command_negative_coverage,
+            },
+            "a1_3_filesystem_fuzzy": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_filesystem_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_filesystem_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_filesystem_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_filesystem_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_filesystem_notification_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_filesystem_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_filesystem_negative_coverage
+                ),
             },
             "fixtures": [
                 compact_generated_record(record)
@@ -5747,6 +5960,7 @@ class CorpusBuilder:
             **A12_B3_OPEN_STRING_ENUMS,
             **A12_B4_OPEN_STRING_ENUMS,
             **A13_COMMAND_OPEN_STRING_ENUMS,
+            **A13_FILESYSTEM_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -6098,6 +6312,39 @@ class CorpusBuilder:
                 f"identities, got {len(self.a13_command_indexed_coverage)}"
             )
 
+    def _apply_a13_filesystem_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self.a13_filesystem_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a13_filesystem_operation_keys,
+                batch="A1.3 filesystem/fuzzy",
+                known_enum_values=A13_FILESYSTEM_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a13_filesystem_indexed_coverage.update(
+            self._apply_b5_notification_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                notification_keys=self.a13_filesystem_notification_keys,
+                batch="A1.3 filesystem/fuzzy",
+            )
+        )
+        self.a13_filesystem_indexed_coverage = dict(
+            sorted(self.a13_filesystem_indexed_coverage.items())
+        )
+        if len(self.a13_filesystem_indexed_coverage) != 13:
+            raise FixtureError(
+                "A1.3 filesystem/fuzzy indexed coverage must contain "
+                "exactly 13 identities, got "
+                f"{len(self.a13_filesystem_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -6115,6 +6362,8 @@ class CorpusBuilder:
                 normalize_a12_b4_configuration_sample(parameter_value)
             if key in self.a13_command_operation_keys:
                 normalize_a13_command_sample(parameter_value)
+            if key in self.a13_filesystem_operation_keys:
+                normalize_a13_filesystem_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
                 if key.category == CLIENT_REQUEST
@@ -6138,6 +6387,7 @@ class CorpusBuilder:
                     or key in self.a12_b4_operation_keys
                     or key in self.a12_b5_operation_keys
                     or key in self.a13_command_operation_keys
+                    or key in self.a13_filesystem_operation_keys
                     else ("Decode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -6168,6 +6418,8 @@ class CorpusBuilder:
                 normalize_a12_b4_configuration_sample(result_value)
             if key in self.a13_command_operation_keys:
                 normalize_a13_command_sample(result_value)
+            if key in self.a13_filesystem_operation_keys:
+                normalize_a13_filesystem_sample(result_value)
             result_role = (
                 "client_request_result"
                 if key.category == CLIENT_REQUEST
@@ -6191,6 +6443,7 @@ class CorpusBuilder:
                     or key in self.a12_b4_operation_keys
                     or key in self.a12_b5_operation_keys
                     or key in self.a13_command_operation_keys
+                    or key in self.a13_filesystem_operation_keys
                     else ("Encode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -6250,6 +6503,8 @@ class CorpusBuilder:
                     normalize_a12_b4_configuration_sample(base_value)
                 if key in self.a13_command_operation_keys:
                     normalize_a13_command_sample(base_value)
+                if key in self.a13_filesystem_operation_keys:
+                    normalize_a13_filesystem_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
                     self.catalog, target, base_value
@@ -7049,7 +7304,124 @@ class CorpusBuilder:
             unit_contracts, key=lambda record: record["method"]
         )
 
-    def _add_a13_command_integer_boundaries(
+    def _build_a13_filesystem_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a13_filesystem_operation_keys,
+            "A1.3 filesystem/fuzzy",
+        )
+        if opaque_exclusions:
+            raise FixtureError(
+                "A1.3 filesystem/fuzzy operations unexpectedly contain an "
+                f"unconstrained schema value: {opaque_exclusions}"
+            )
+
+        unit_contracts: list[dict[str, Any]] = []
+        expected_unit_schemas = {
+            "fs/copy": (
+                "FsCopyResponse",
+                "Successful response for `fs/copy`.",
+            ),
+            "fs/createDirectory": (
+                "FsCreateDirectoryResponse",
+                "Successful response for `fs/createDirectory`.",
+            ),
+            "fs/remove": (
+                "FsRemoveResponse",
+                "Successful response for `fs/remove`.",
+            ),
+            "fs/unwatch": (
+                "FsUnwatchResponse",
+                "Successful response for `fs/unwatch`.",
+            ),
+            "fs/writeFile": (
+                "FsWriteFileResponse",
+                "Successful response for `fs/writeFile`.",
+            ),
+        }
+        concrete_results = {
+            "fs/getMetadata": "FsGetMetadataResponse",
+            "fs/readDirectory": "FsReadDirectoryResponse",
+            "fs/readFile": "FsReadFileResponse",
+            "fs/watch": "FsWatchResponse",
+            "fuzzyFileSearch": "FuzzyFileSearchResponse",
+        }
+        for key in self.a13_filesystem_operation_keys:
+            contract = self.contracts[key]
+            expected_concrete = concrete_results.get(key.name)
+            if expected_concrete is not None:
+                if (
+                    contract["result_contract_kind"] != "Concrete"
+                    or contract["result_type_identity"]
+                    != expected_concrete
+                ):
+                    raise FixtureError(
+                        "A1.3 filesystem/fuzzy concrete result contract "
+                        f"changed: {key.name}"
+                    )
+                continue
+
+            expected = expected_unit_schemas.get(key.name)
+            if expected is None:
+                raise FixtureError(
+                    "unexpected A1.3 filesystem/fuzzy Unit method: "
+                    f"{key.name}"
+                )
+            title, description = expected
+            expected_schema = {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": title,
+                "description": description,
+                "type": "object",
+            }
+            result_schema_type = str(
+                contract["result_schema_type_identity"]
+            )
+            target = self.catalog.standalone(result_schema_type)
+            require_reviewed_unit_result_schema(
+                method=key.name,
+                actual=target.schema,
+                expected=expected_schema,
+            )
+            if (
+                result_schema_type != title
+                or contract["result_type_identity"] != "Unit"
+                or contract["result_contract_kind"] != "Unit"
+                or self.synthesizer.sample(target) != {}
+            ):
+                raise FixtureError(
+                    f"{key.name} no longer has the reviewed Unit result"
+                )
+            unit_contracts.append(
+                {
+                    "method": key.name,
+                    "result_type_identity": "Unit",
+                    "result_schema_type_identity": result_schema_type,
+                    "result_contract_kind": "Unit",
+                    "empty_result_fixture_id": (
+                        f"operation:client_request:{key.name}:result"
+                    ),
+                    "reviewed_result_schema": expected_schema,
+                    "property_count": 0,
+                    "future_property_addition_fails_generation": True,
+                }
+            )
+
+        if len(unit_contracts) != 5 or len(concrete_results) != 5:
+            raise FixtureError(
+                "A1.3 filesystem/fuzzy must retain exactly five Unit and "
+                "five Concrete contracts"
+            )
+        self.a13_filesystem_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a13_filesystem_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = []
+        self.a13_filesystem_negative_coverage[
+            "unit_result_invariants"
+        ] = sorted(unit_contracts, key=lambda record: record["method"])
+
+    def _add_a13_integer_boundaries(
         self,
         *,
         key: SurfaceKey,
@@ -7060,9 +7432,10 @@ class CorpusBuilder:
         minimum_representable: int,
         maximum_representable: int,
         unsigned: bool,
+        normalizer: Any = normalize_a13_command_sample,
     ) -> dict[str, list[str]]:
         base = self.synthesizer.sample(target)
-        normalize_a13_command_sample(base)
+        normalizer(base)
         validator = self.catalog.target_validator(target)
         direction = "Encode" if root_name == "params" else "Decode"
         path_slug = slug(json_path(instance_path))
@@ -7158,7 +7531,7 @@ class CorpusBuilder:
         codes = sorted({item.code for item in diagnostics})
         if not codes:
             raise FixtureError(
-                "A1.3 command fractional integer boundary was accepted: "
+                "A1.3 fractional integer boundary was accepted: "
                 f"{key.name}:{root_name}:{json_path(instance_path)}"
             )
         fractional_id = (
@@ -7378,7 +7751,7 @@ class CorpusBuilder:
                 f"{key.name}:{root_name}:{json_path(instance_path)}"
             )
             integer_boundaries[coverage_key] = (
-                self._add_a13_command_integer_boundaries(
+                self._add_a13_integer_boundaries(
                     key=key,
                     root_name=root_name,
                     target=target,
@@ -7420,6 +7793,285 @@ class CorpusBuilder:
                 sorted(integer_boundaries.items())
             ),
         })
+
+    def _build_a13_filesystem_positive_supplements(self) -> None:
+        keys = {
+            key.name: key
+            for key in self.a13_filesystem_operation_keys
+        }
+        minimal_values = {
+            "fs/copy": {
+                "destinationPath": "/synthetic/destination",
+                "sourcePath": "/synthetic/source",
+            },
+            "fs/createDirectory": {"path": "/synthetic/directory"},
+            "fs/getMetadata": {
+                "path": "/synthetic/project/synthetic-entry.txt"
+            },
+            "fs/readDirectory": {"path": "/synthetic/project"},
+            "fs/readFile": {
+                "path": "/synthetic/project/synthetic-entry.txt"
+            },
+            "fs/remove": {
+                "path": "/synthetic/project/synthetic-entry.txt"
+            },
+            "fs/unwatch": {"watchId": "synthetic-watch-id"},
+            "fs/watch": {
+                "path": "/synthetic/project",
+                "watchId": "synthetic-watch-id",
+            },
+            "fs/writeFile": {
+                "dataBase64": "c3ludGhldGljLWZpbGUtZGF0YQ==",
+                "path": "/synthetic/project/synthetic-entry.txt",
+            },
+            "fuzzyFileSearch": {
+                "query": "synthetic query",
+                "roots": [],
+            },
+        }
+        minimal_fixture_ids: list[str] = []
+        for method, value in sorted(minimal_values.items()):
+            key = keys[method]
+            target = self.catalog.standalone(
+                str(self.contracts[key]["parameter_type_identity"])
+            )
+            fixture_id = (
+                f"operation:client_request:{method}:params:minimum"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/operations/client/{slug(method)}/supplements/"
+                    "params-minimum.json"
+                ),
+                "operation_minimum_request",
+                target,
+                value,
+                key,
+                directions_exercised=("Encode",),
+            )
+            minimal_fixture_ids.append(fixture_id)
+
+        empty_array_fixture_ids: list[str] = []
+        for method, result_type, field in (
+            ("fs/readDirectory", "FsReadDirectoryResponse", "entries"),
+            ("fuzzyFileSearch", "FuzzyFileSearchResponse", "files"),
+        ):
+            key = keys[method]
+            target = self.catalog.standalone(result_type)
+            value = {field: []}
+            fixture_id = (
+                f"operation:client_request:{method}:result:"
+                f"explicit-empty-{field}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/operations/client/{slug(method)}/supplements/"
+                    f"result-explicit-empty-{field}.json"
+                ),
+                "operation_explicit_empty_array",
+                target,
+                value,
+                key,
+                directions_exercised=("Decode",),
+            )
+            empty_array_fixture_ids.append(fixture_id)
+
+        fuzzy_key = keys["fuzzyFileSearch"]
+        fuzzy_target = self.catalog.standalone(
+            "FuzzyFileSearchResponse"
+        )
+        ordered_fuzzy_value = {
+            "files": [
+                {
+                    "file_name": "synthetic-first.txt",
+                    "indices": [0, 10],
+                    "match_type": "file",
+                    "path": "/synthetic/project/synthetic-first.txt",
+                    "root": "/synthetic/project",
+                    "score": 20,
+                },
+                {
+                    "file_name": "synthetic-directory",
+                    "indices": None,
+                    "match_type": "directory",
+                    "path": "/synthetic/project/synthetic-directory",
+                    "root": "/synthetic/project",
+                    "score": 10,
+                },
+            ]
+        }
+        ordered_fuzzy_id = (
+            "operation:client_request:fuzzyFileSearch:result:"
+            "ordered-file-and-directory"
+        )
+        self.add_positive(
+            ordered_fuzzy_id,
+            (
+                "cases/operations/client/fuzzyfilesearch/supplements/"
+                "result-ordered-file-and-directory.json"
+            ),
+            "operation_known_enum_values",
+            fuzzy_target,
+            ordered_fuzzy_value,
+            fuzzy_key,
+            directions_exercised=("Decode",),
+        )
+
+        metadata_key = keys["fs/getMetadata"]
+        metadata_target = self.catalog.standalone(
+            "FsGetMetadataResponse"
+        )
+        metadata_fixture_ids: list[str] = []
+        for kind, flags in (
+            (
+                "file",
+                {
+                    "isDirectory": False,
+                    "isFile": True,
+                    "isSymlink": False,
+                },
+            ),
+            (
+                "directory",
+                {
+                    "isDirectory": True,
+                    "isFile": False,
+                    "isSymlink": False,
+                },
+            ),
+            (
+                "symlink",
+                {
+                    "isDirectory": False,
+                    "isFile": False,
+                    "isSymlink": True,
+                },
+            ),
+        ):
+            value = {
+                "createdAtMs": 1000,
+                "modifiedAtMs": 2000,
+                **flags,
+            }
+            fixture_id = (
+                "operation:client_request:fs/getMetadata:result:"
+                f"{kind}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/operations/client/fs-getmetadata/supplements/"
+                    f"result-{kind}.json"
+                ),
+                "operation_known_enum_values",
+                metadata_target,
+                value,
+                metadata_key,
+                directions_exercised=("Decode",),
+            )
+            metadata_fixture_ids.append(fixture_id)
+
+        integer_boundaries: dict[str, Any] = {}
+        for (
+            key,
+            target,
+            instance_path,
+            format_name,
+            minimum,
+            maximum,
+            unsigned,
+        ) in (
+            (
+                metadata_key,
+                metadata_target,
+                ("createdAtMs",),
+                "int64",
+                -9_223_372_036_854_775_808,
+                9_223_372_036_854_775_807,
+                False,
+            ),
+            (
+                metadata_key,
+                metadata_target,
+                ("modifiedAtMs",),
+                "int64",
+                -9_223_372_036_854_775_808,
+                9_223_372_036_854_775_807,
+                False,
+            ),
+            (
+                fuzzy_key,
+                fuzzy_target,
+                ("files", 0, "score"),
+                "uint32",
+                0,
+                4_294_967_295,
+                True,
+            ),
+            (
+                fuzzy_key,
+                fuzzy_target,
+                ("files", 0, "indices", 0),
+                "uint32",
+                0,
+                4_294_967_295,
+                True,
+            ),
+        ):
+            coverage_key = (
+                f"{key.name}:result:{json_path(instance_path)}"
+            )
+            integer_boundaries[coverage_key] = (
+                self._add_a13_integer_boundaries(
+                    key=key,
+                    root_name="result",
+                    target=target,
+                    instance_path=instance_path,
+                    format_name=format_name,
+                    minimum_representable=minimum,
+                    maximum_representable=maximum,
+                    unsigned=unsigned,
+                    normalizer=normalize_a13_filesystem_sample,
+                )
+            )
+
+        self.a13_filesystem_positive_coverage.update(
+            {
+                "minimum_request_fixture_ids": sorted(
+                    minimal_fixture_ids
+                ),
+                "full_request_fixture_ids": [
+                    f"operation:client_request:{method}:params"
+                    for method in sorted(keys)
+                ],
+                "concrete_result_fixture_ids": [
+                    f"operation:client_request:{method}:result"
+                    for method in (
+                        "fs/getMetadata",
+                        "fs/readDirectory",
+                        "fs/readFile",
+                        "fs/watch",
+                        "fuzzyFileSearch",
+                    )
+                ],
+                "unit_result_fixture_ids": [
+                    record["empty_result_fixture_id"]
+                    for record in self.a13_filesystem_negative_coverage[
+                        "unit_result_invariants"
+                    ]
+                ],
+                "explicit_empty_array_fixture_ids": sorted(
+                    empty_array_fixture_ids
+                ),
+                "ordered_fuzzy_result_fixture_id": ordered_fuzzy_id,
+                "metadata_variant_fixture_ids": metadata_fixture_ids,
+                "integer_boundaries": dict(
+                    sorted(integer_boundaries.items())
+                ),
+            }
+        )
 
     def _build_b4_helper_union_fixtures(self) -> None:
         coverage: dict[str, Any] = {}
@@ -8208,6 +8860,89 @@ class CorpusBuilder:
             f"baseline:{key.compact()}",
             fixture_id,
         ]
+
+    def _build_a13_filesystem_notification_fixtures(self) -> None:
+        def normalize(_key: SurfaceKey, value: Any) -> None:
+            normalize_a13_filesystem_sample(value)
+
+        (
+            self.a13_filesystem_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.a13_filesystem_notification_keys,
+            batch="A1.3 filesystem/fuzzy",
+            expected_existing=0,
+            expected_generated=3,
+            expected_counts={
+                "base_generated": 3,
+                "missing_required": 17,
+                "nullable_null": 1,
+                "optional_omitted": 1,
+                "required_nullable_null": 0,
+                "wrong_type": 21,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            expected_opaque_paths=set(),
+            normalizer=normalize,
+        )
+        self.a13_filesystem_negative_coverage[
+            "notification_payload_mutations"
+        ] = payload_mutations
+
+        empty_array_fixture_ids: list[str] = []
+        for key in self.a13_filesystem_notification_keys:
+            if key.name not in {
+                "fs/changed",
+                "fuzzyFileSearch/sessionUpdated",
+            }:
+                continue
+            target, index, branch = self.catalog.method_target(
+                key.category, key.name
+            )
+            branch_path = pointer_child(
+                pointer_child(target.schema_path, "oneOf"), index
+            )
+            value = self.synthesizer.sample(target, branch, branch_path)
+            normalize_a13_filesystem_sample(value)
+            params = (
+                value.get("params") if isinstance(value, dict) else None
+            )
+            if not isinstance(params, dict):
+                raise FixtureError(
+                    "A1.3 filesystem/fuzzy notification lacks params: "
+                    f"{key.name}"
+                )
+            field = (
+                "changedPaths" if key.name == "fs/changed" else "files"
+            )
+            params[field] = []
+            fixture_id = (
+                f"baseline:{key.compact()}:explicit-empty-{field}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/notifications/server/{slug(key.name)}/"
+                    f"supplements/explicit-empty-{field}.json"
+                ),
+                "notification_explicit_empty_array",
+                target,
+                value,
+                key,
+                (index,),
+                directions_exercised=("Decode",),
+            )
+            empty_array_fixture_ids.append(fixture_id)
+
+        self.a13_filesystem_positive_coverage[
+            "notification_fixture_ids"
+        ] = [
+            f"baseline:{key.compact()}"
+            for key in self.a13_filesystem_notification_keys
+        ]
+        self.a13_filesystem_positive_coverage[
+            "notification_empty_array_fixture_ids"
+        ] = sorted(empty_array_fixture_ids)
 
     def _build_a12_b4_positive_supplements(self) -> None:
         config_key = next(
@@ -12155,6 +12890,21 @@ class CorpusBuilder:
             embedded_targets={
                 "CommandExecOutputStream": (
                     "CommandExecOutputDeltaNotification"
+                )
+            },
+            expected_known_values=2,
+        )
+
+    def _build_a13_filesystem_open_enum_fixtures(self) -> None:
+        self.a13_filesystem_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.3 filesystem/fuzzy",
+            expected_enums=A13_FILESYSTEM_OPEN_STRING_ENUMS,
+            encode_only=set(),
+            embedded_targets={
+                "FuzzyFileSearchMatchType": (
+                    "FuzzyFileSearchResponse"
                 )
             },
             expected_known_values=2,

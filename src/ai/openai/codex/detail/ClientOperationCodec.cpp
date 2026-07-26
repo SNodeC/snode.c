@@ -10,6 +10,7 @@
 #include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
+#include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
@@ -56,6 +57,11 @@ namespace ai::openai::codex::detail {
             "TurnStartResponse",
             "TurnSteerResponse",
             "CommandExecResponse",
+            "FsGetMetadataResponse",
+            "FsReadDirectoryResponse",
+            "FsReadFileResponse",
+            "FsWatchResponse",
+            "FuzzyFileSearchResponse",
         }};
 
         std::string_view resultDecoderIdentity(ClientOperationResultDecoder decoder) noexcept {
@@ -86,7 +92,17 @@ namespace ai::openai::codex::detail {
                    target == ExperimentalFeatureList ||
                    target == ModelList ||
                    target == ModelProviderCapabilitiesRead ||
-                   target == CommandExec;
+                   target == CommandExec ||
+                   target == FsCopy ||
+                   target == FsCreateDirectory ||
+                   target == FsGetMetadata ||
+                   target == FsReadDirectory ||
+                   target == FsReadFile ||
+                   target == FsRemove ||
+                   target == FsUnwatch ||
+                   target == FsWatch ||
+                   target == FsWriteFile ||
+                   target == FuzzyFileSearch;
         }
 
         std::string decoderFieldPath(ClientRequestTarget target,
@@ -264,6 +280,16 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeTurnSteerResponse(raw, error), error);
                 case CommandExecResponse:
                     return decode(target, key, decodeCommandExecResponse(raw, error), error);
+                case FsGetMetadataResponse:
+                    return decode(target, key, decodeFsGetMetadataResponse(raw, error), error);
+                case FsReadDirectoryResponse:
+                    return decode(target, key, decodeFsReadDirectoryResponse(raw, error), error);
+                case FsReadFileResponse:
+                    return decode(target, key, decodeFsReadFileResponse(raw, error), error);
+                case FsWatchResponse:
+                    return decode(target, key, decodeFsWatchResponse(raw, error), error);
+                case FuzzyFileSearchResponse:
+                    return decode(target, key, decodeFuzzyFileSearchResponse(raw, error), error);
                 case Count:
                     break;
             }

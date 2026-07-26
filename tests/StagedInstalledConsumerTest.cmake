@@ -76,6 +76,7 @@ set(
     "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
+    "typed/Filesystem.h"
     "typed/Items.h"
     "typed/Models.h"
     "typed/Results.h"

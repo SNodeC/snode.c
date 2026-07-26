@@ -31,6 +31,12 @@ The two Partial identities are
 Complete in A1.3 and global 280 Complete, 4 Partial, 55 NotImplemented, and 48
 NotApplicable.
 
+After the filesystem/fuzzy implementation batch, the staged A1.3 state is
+18 Complete, 2 Partial, and 48 NotImplemented. The corresponding global state
+is 230 Complete, 6 Partial, 103 NotImplemented, and 48 NotApplicable. This is
+the exact reviewed B3 checkpoint; later approval and review batches remain
+scheduled and are not credited by this evidence.
+
 The transitive stable closure contains 59 root/union seeds, 123 named
 definitions (97 v2 and 26 legacy), and 480 property, array-element, and
 map-value paths. The generated evidence records required, optional, nullable,
@@ -110,6 +116,16 @@ AppServerClient -> RawProtocol -> typed::Client -> typed facade/events/requests
 There is one transport, JSONL engine, request-ID allocator, pending-operation
 map, cancellation path, generation counter, notification dispatcher, and
 pending-server-request registry.
+
+Filesystem paths are carried as protocol strings without normalization,
+canonicalization, separator rewriting, relative-path resolution, or local
+access. File data remains in the stable base64-bearing string representation.
+`fs/watch` and `fs/unwatch` preserve the supplied connection-scoped watch
+identifier; `fs/changed` uses the existing event observer and does not create a
+local watcher object or backend watcher state. The one-shot
+`fuzzyFileSearch` preserves server ordering and scores. Its stable session
+notifications are observable even though the three experimental session
+control requests remain unavailable.
 
 `command/exec` is connection-scoped one-off execution. It does not create a
 thread, turn, or `ThreadItem`. Its output notification is distinct from A1.1

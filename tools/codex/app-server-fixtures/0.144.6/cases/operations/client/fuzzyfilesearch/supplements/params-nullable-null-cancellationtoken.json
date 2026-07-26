@@ -1,0 +1,7 @@
+{
+  "cancellationToken": null,
+  "query": "synthetic query",
+  "roots": [
+    "/synthetic/project"
+  ]
+}

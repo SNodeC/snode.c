@@ -1,0 +1,19 @@
+{
+  "method": "fuzzyFileSearch/sessionUpdated",
+  "params": {
+    "files": [
+      {
+        "file_name": "synthetic-a8b7b4d557",
+        "indices": [
+          0
+        ],
+        "match_type": "file",
+        "path": "/synthetic/project/synthetic-entry.txt",
+        "root": "/synthetic/project",
+        "score": 0
+      }
+    ],
+    "query": null,
+    "sessionId": "synthetic-session-id"
+  }
+}
