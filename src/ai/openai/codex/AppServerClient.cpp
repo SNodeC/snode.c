@@ -1129,6 +1129,7 @@ namespace ai::openai::codex {
                               std::unique_ptr<typed::Configuration>(new typed::Configuration(impl->raw())),
                               std::unique_ptr<typed::Models>(new typed::Models(impl->raw())),
                               std::unique_ptr<typed::PermissionProfiles>(new typed::PermissionProfiles(impl->raw())),
+                              std::unique_ptr<typed::Reviews>(new typed::Reviews(impl->raw())),
                               std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
                               std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
                               std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),

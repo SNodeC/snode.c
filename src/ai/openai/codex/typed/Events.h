@@ -15,6 +15,7 @@
 #include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/Threads.h"
 
 #include <compare>
@@ -501,7 +502,10 @@ namespace ai::openai::codex::typed {
                                                      CommandExecOutputDeltaNotification,
                                                      FsChangedNotification,
                                                      FuzzyFileSearchSessionCompletedNotification,
-                                                     FuzzyFileSearchSessionUpdatedNotification>;
+                                                     FuzzyFileSearchSessionUpdatedNotification,
+                                                     GuardianWarningNotification,
+                                                     ItemGuardianApprovalReviewCompletedNotification,
+                                                     ItemGuardianApprovalReviewStartedNotification>;
 
     struct ThreadStarted {
         Thread thread;
@@ -674,7 +678,10 @@ namespace ai::openai::codex::typed {
                                CommandExecOutputDeltaNotification,
                                FsChangedNotification,
                                FuzzyFileSearchSessionCompletedNotification,
-                               FuzzyFileSearchSessionUpdatedNotification>;
+                               FuzzyFileSearchSessionUpdatedNotification,
+                               GuardianWarningNotification,
+                               ItemGuardianApprovalReviewCompletedNotification,
+                               ItemGuardianApprovalReviewStartedNotification>;
 
     class Events {
     public:

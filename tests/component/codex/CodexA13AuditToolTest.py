@@ -100,16 +100,16 @@ class CodexA13AuditToolTest(unittest.TestCase):
             {"NotImplemented": 66, "Partial": 2},
             counts["initial_a1_3_schema_status"],
         )
-        self.assertEqual("B4", counts["current_progress_stage"])
+        self.assertEqual("B5", counts["current_progress_stage"])
         self.assertEqual(
-            {"Complete": 53, "NotImplemented": 15},
+            {"Complete": 68},
             counts["current_a1_3_schema_status"],
         )
         self.assertEqual(
             {
-                "Complete": 265,
+                "Complete": 280,
                 "NotApplicable": 48,
-                "NotImplemented": 70,
+                "NotImplemented": 55,
                 "Partial": 4,
             },
             counts["current_global_schema_status"],
@@ -134,7 +134,7 @@ class CodexA13AuditToolTest(unittest.TestCase):
         self.assertEqual(114, counts["nullable_paths"])
         self.assertEqual(20, counts["default_bearing_paths"])
 
-    def test_b4_approval_permission_checkpoint_is_exact(self) -> None:
+    def test_b4_and_b5_implementation_checkpoints_are_exact(self) -> None:
         b4 = [
             row for row in self.plan["identities"] if row["batch"] == "B4"
         ]
@@ -184,6 +184,31 @@ class CodexA13AuditToolTest(unittest.TestCase):
                 "ReviewDecision": 7,
             },
             union_counts,
+        )
+        b5 = [
+            row for row in self.plan["identities"] if row["batch"] == "B5"
+        ]
+        self.assertEqual(15, len(b5))
+        self.assertTrue(
+            all(
+                row["implementation_status"] == "Implemented"
+                and row["schema_status"] == "Complete"
+                and row["fixture_ids"]
+                for row in b5
+            )
+        )
+        b5_union_counts = {
+            row["domain"]: len(row["alternatives"])
+            for row in self.plan["union_families"]
+            if row["domain"]
+            in {"GuardianApprovalReviewAction", "ReviewTarget"}
+        }
+        self.assertEqual(
+            {
+                "GuardianApprovalReviewAction": 6,
+                "ReviewTarget": 4,
+            },
+            b5_union_counts,
         )
 
     def test_server_request_resolved_is_excluded_from_transport(self) -> None:

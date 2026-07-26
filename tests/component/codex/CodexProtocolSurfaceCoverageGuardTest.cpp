@@ -417,22 +417,67 @@ int main() {
     const std::span<const detail::ProtocolSurfaceEntry> production = detail::protocolSurfaceRegistry();
     const std::vector<detail::ProtocolSurfaceEntry> baseline(production.begin(), production.end());
 
+    std::set<OwnedKey> a13DescriptorKeys;
+    std::size_t a13ClientDescriptors = 0;
+    std::size_t a13NotificationDescriptors = 0;
+    std::size_t a13ServerRequestDescriptors = 0;
+    std::size_t a13UnionDescriptors = 0;
+    bool exactA13Descriptors = true;
+    const auto collectA13Descriptor = [&](const auto& descriptor, std::size_t& count) {
+        const detail::ProtocolSurfaceEntry& entry = detail::entryFor(descriptor.target);
+        if (entry.a1Slice != detail::A1Slice::A1_3) {
+            return;
+        }
+        ++count;
+        exactA13Descriptors = exactA13Descriptors && descriptor.key == entry.key && a13DescriptorKeys.insert(ownedKey(entry)).second;
+    };
+    for (const detail::ClientOperationCodecDescriptor& descriptor : detail::clientOperationCodecDescriptors()) {
+        collectA13Descriptor(descriptor, a13ClientDescriptors);
+    }
+    for (const detail::ServerNotificationCodecDescriptor& descriptor : detail::serverNotificationCodecDescriptors()) {
+        collectA13Descriptor(descriptor, a13NotificationDescriptors);
+    }
+    for (const detail::ServerRequestCodecDescriptor& descriptor : detail::serverRequestCodecDescriptors()) {
+        collectA13Descriptor(descriptor, a13ServerRequestDescriptors);
+    }
+    for (const detail::CommandsFilesystemReviewsApprovalsUnionCodecDescriptor& descriptor :
+         detail::commandsFilesystemReviewsApprovalsUnionCodecDescriptors()) {
+        collectA13Descriptor(descriptor, a13UnionDescriptors);
+    }
+    std::size_t a13Rows = 0;
+    bool exactA13FixtureBijection = true;
+    for (const detail::ProtocolSurfaceEntry& entry : baseline) {
+        if (entry.a1Slice != detail::A1Slice::A1_3) {
+            continue;
+        }
+        ++a13Rows;
+        exactA13FixtureBijection = exactA13FixtureBijection && entry.typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+                                   entry.schemaCompleteness.positiveFixtureCoverage && entry.schemaCompleteness.fixtureCurrent &&
+                                   entry.schemaCompleteness.runtimeDecoderMatchesRegistry && a13DescriptorKeys.contains(ownedKey(entry));
+    }
+
     result.expectTrue(hasExactCoverageCodes(baseline, manifest, {}),
                       "schema-derived manifest and canonical production runtime registry agree exactly");
     result.expectTrue(hasExactRatchetCodes(baseline, {}),
                       "the B4 registry retains every locked A1.0 and exact A1.1 batch identity");
     result.expectTrue(typedIdentityCount(baseline) == tests::component::codex::TypedSurfaceBaseline.size() +
                                                           tests::component::codex::CodexErrorInfoTypedSurfaceBaseline.size() +
-                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 193,
-                      "A1.1 B3-B5, A1.2, and A1.3 through approvals add exactly 193 typed identities while completing "
+                                                          tests::component::codex::CodexA11B2TypedSurfaceBaseline.size() + 208,
+                      "A1.1 B3-B5, A1.2, and complete A1.3 add exactly 208 typed identities while completing "
                       "inherited partial rows");
     result.expectTrue(schemaStatusCounts(baseline, true) == SchemaStatusCounts{151, 0, 0, 0},
                       "the final A1.1 slice is exactly Complete 151, Partial 0, NotImplemented 0, NotApplicable 0");
     result.expectTrue(schemaStatusCountsForSlice(baseline, detail::A1Slice::A1_2) ==
                           SchemaStatusCounts{45, 0, 0, 0},
                       "the final A1.2 B5 slice is exactly Complete 45, Partial 0, NotImplemented 0, NotApplicable 0");
-    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{265, 4, 70, 48},
-                      "the staged A1.3 approvals registry is exactly Complete 265, Partial 4, NotImplemented 70, NotApplicable 48");
+    result.expectTrue(schemaStatusCountsForSlice(baseline, detail::A1Slice::A1_3) == SchemaStatusCounts{68, 0, 0, 0},
+                      "the final A1.3 slice is exactly Complete 68, Partial 0, NotImplemented 0, NotApplicable 0");
+    result.expectTrue(schemaStatusCounts(baseline) == SchemaStatusCounts{280, 4, 55, 48},
+                      "the complete A1.3 registry is exactly Complete 280, Partial 4, NotImplemented 55, NotApplicable 48");
+    result.expectTrue(exactA13Descriptors && exactA13FixtureBijection && a13Rows == 68 && a13DescriptorKeys.size() == 68 &&
+                          a13ClientDescriptors == 17 && a13NotificationDescriptors == 7 && a13ServerRequestDescriptors == 5 &&
+                          a13UnionDescriptors == 39,
+                      "all 68 A1.3 rows form an exact registry/descriptor/current-fixture bijection");
 
     std::vector<detail::ProtocolSurfaceEntry> missing = baseline;
     const auto missingEntry =

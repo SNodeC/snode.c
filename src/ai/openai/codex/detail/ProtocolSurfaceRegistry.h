@@ -121,6 +121,8 @@ namespace ai::openai::codex::detail {
         FsWriteFile,
         FuzzyFileSearch,
         PermissionProfileList,
+        ReviewStart,
+        ThreadApproveGuardianDeniedAction,
         Count
     };
 
@@ -176,6 +178,9 @@ namespace ai::openai::codex::detail {
         FsChanged,
         FuzzyFileSearchSessionCompleted,
         FuzzyFileSearchSessionUpdated,
+        GuardianWarning,
+        ItemGuardianApprovalReviewCompleted,
+        ItemGuardianApprovalReviewStarted,
         Count
     };
 
@@ -373,6 +378,16 @@ namespace ai::openai::codex::detail {
         ReviewDecisionDenied,
         ReviewDecisionNetworkPolicyAmendment,
         ReviewDecisionTimedOut,
+        GuardianApprovalReviewActionApplyPatch,
+        GuardianApprovalReviewActionCommand,
+        GuardianApprovalReviewActionExecve,
+        GuardianApprovalReviewActionMcpToolCall,
+        GuardianApprovalReviewActionNetworkAccess,
+        GuardianApprovalReviewActionRequestPermissions,
+        ReviewTargetBaseBranch,
+        ReviewTargetCommit,
+        ReviewTargetCustom,
+        ReviewTargetUncommittedChanges,
         Count
     };
 
@@ -419,6 +434,7 @@ namespace ai::openai::codex::detail {
         FsWatchResponse,
         FuzzyFileSearchResponse,
         PermissionProfileListResponse,
+        ReviewStartResponse,
         Count
     };
 

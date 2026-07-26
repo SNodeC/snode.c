@@ -22,6 +22,7 @@ set(AI_OPENAI_CODEX_CPP
     detail/ModelCodec.cpp
     detail/ProtocolCodec.cpp
     detail/ProtocolSurfaceRegistry.cpp
+    detail/ReviewCodec.cpp
     detail/ServerRequestDecoder.cpp
     detail/ThreadCodec.cpp
     detail/Transport.cpp
@@ -60,6 +61,7 @@ set(AI_OPENAI_CODEX_H
     detail/ProtocolCodec.h
     detail/ProtocolSurfaceRegistry.h
     detail/ProtocolSurfaceRegistryData.inc
+    detail/ReviewCodec.h
     detail/ServerRequestDecoder.h
     detail/ThreadCodec.h
     detail/Transport.h
@@ -77,6 +79,7 @@ set(AI_OPENAI_CODEX_H
     typed/Items.h
     typed/Models.h
     typed/PermissionProfiles.h
+    typed/Reviews.h
     typed/Results.h
     typed/ServerRequests.h
     typed/Threads.h
@@ -129,6 +132,7 @@ install(
           typed/Items.h
           typed/Models.h
           typed/PermissionProfiles.h
+          typed/Reviews.h
           typed/Results.h
           typed/ServerRequests.h
           typed/Threads.h

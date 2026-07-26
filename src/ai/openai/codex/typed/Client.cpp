@@ -19,6 +19,7 @@
 #include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "ai/openai/codex/detail/ReviewCodec.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
@@ -31,6 +32,7 @@
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/PermissionProfiles.h"
 #include "ai/openai/codex/typed/Results.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
@@ -60,6 +62,7 @@ namespace ai::openai::codex::typed {
              std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
              std::unique_ptr<PermissionProfiles> permissionProfiles,
+             std::unique_ptr<Reviews> reviews,
              std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
@@ -70,6 +73,7 @@ namespace ai::openai::codex::typed {
             , configuration(std::move(configuration))
             , models(std::move(models))
             , permissionProfiles(std::move(permissionProfiles))
+            , reviews(std::move(reviews))
             , threads(std::move(threads))
             , turns(std::move(turns))
             , events(std::move(events))
@@ -82,6 +86,7 @@ namespace ai::openai::codex::typed {
         std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
         std::unique_ptr<PermissionProfiles> permissionProfiles;
+        std::unique_ptr<Reviews> reviews;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
         std::unique_ptr<Events> events;
@@ -94,6 +99,7 @@ namespace ai::openai::codex::typed {
                    std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
                    std::unique_ptr<PermissionProfiles> permissionProfiles,
+                   std::unique_ptr<Reviews> reviews,
                    std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
@@ -104,6 +110,7 @@ namespace ai::openai::codex::typed {
                                       std::move(configuration),
                                       std::move(models),
                                       std::move(permissionProfiles),
+                                      std::move(reviews),
                                       std::move(threads),
                                       std::move(turns),
                                       std::move(events),
@@ -158,6 +165,14 @@ namespace ai::openai::codex::typed {
 
     const PermissionProfiles& Client::permissionProfiles() const noexcept {
         return *impl->permissionProfiles;
+    }
+
+    Reviews& Client::reviews() noexcept {
+        return *impl->reviews;
+    }
+
+    const Reviews& Client::reviews() const noexcept {
+        return *impl->reviews;
     }
 
     Threads& Client::threads() noexcept {
@@ -554,6 +569,15 @@ namespace ai::openai::codex::typed {
                                                                  detail::encodePermissionProfileListParams);
     }
 
+    Reviews::Reviews(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Reviews::Submission Reviews::start(ReviewStartParams params, ReviewStartResultHandler handler) {
+        return submitTypedRequest<ReviewStartResponse>(
+            protocol, detail::ClientRequestTarget::ReviewStart, params, std::move(handler), detail::encodeReviewStartParams);
+    }
+
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept
         : protocol(&protocol) {
     }
@@ -604,6 +628,14 @@ namespace ai::openai::codex::typed {
             params,
             std::move(handler),
             detail::encodeThreadArchiveParams);
+    }
+
+    Threads::Submission Threads::approveGuardianDeniedAction(ThreadApproveGuardianDeniedActionParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(protocol,
+                                        detail::ClientRequestTarget::ThreadApproveGuardianDeniedAction,
+                                        params,
+                                        std::move(handler),
+                                        detail::encodeThreadApproveGuardianDeniedActionParams);
     }
 
     Threads::Submission Threads::startCompaction(ThreadCompactStartParams params, UnitResultHandler handler) {

@@ -17,6 +17,7 @@
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/PermissionProfiles.h"
 #include "ai/openai/codex/typed/Results.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
 #include "ai/openai/codex/typed/Types.h"
@@ -78,7 +79,8 @@ namespace ai::openai::codex::detail {
                                                      typed::FsReadFileResponse,
                                                      typed::FsWatchResponse,
                                                      typed::FuzzyFileSearchResponse,
-                                                     typed::PermissionProfileListResponse>;
+                                                     typed::PermissionProfileListResponse,
+                                                     typed::ReviewStartResponse>;
 
     struct ClientOperationDecodeDiagnostic {
         ClientOperationDecodeCode code = ClientOperationDecodeCode::MalformedKnownPayload;

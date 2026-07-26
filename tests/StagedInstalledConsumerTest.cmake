@@ -36,6 +36,7 @@ foreach(
           ai/openai/codex/detail/ModelCodec.h
           ai/openai/codex/detail/ProtocolSurfaceRegistry.h
           ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
+          ai/openai/codex/detail/ReviewCodec.h
           ai/openai/codex/detail/ServerRequestDecoder.h
           ai/openai/codex/detail/ThreadCodec.h
           ai/openai/codex/detail/Transport.h
@@ -80,6 +81,7 @@ set(
     "typed/Items.h"
     "typed/Models.h"
     "typed/PermissionProfiles.h"
+    "typed/Reviews.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"
@@ -152,6 +154,8 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "ClientOperationCodecDescriptors.inc"
        OR installed_name STREQUAL "CommandCodec.cpp"
        OR installed_name STREQUAL "CommandCodec.h"
+       OR installed_name STREQUAL "ReviewCodec.cpp"
+       OR installed_name STREQUAL "ReviewCodec.h"
        OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
        OR installed_name STREQUAL "ThreadItemCodecDescriptors.inc"
        OR installed_name STREQUAL "ResponseItemCodecDescriptors.inc"

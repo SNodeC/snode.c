@@ -1,0 +1,9 @@
+{
+  "event": [
+    "synthetic",
+    {
+      "approved": false
+    }
+  ],
+  "threadId": "synthetic-thread-id"
+}

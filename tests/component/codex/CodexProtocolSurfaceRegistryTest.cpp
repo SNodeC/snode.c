@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 265 && schemaPartial == 4 && schemaNotImplemented == 70 && schemaNotApplicable == 48,
-                      "the staged A1.3 approvals batch reaches the exact 265/4/70/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 280 && schemaPartial == 4 && schemaNotImplemented == 55 && schemaNotApplicable == 48,
+                      "the complete A1.3 slice reaches the exact 280/4/55/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -206,7 +206,7 @@ int main() {
                       "every identity has one fixed module/slice assignment and a mechanically derived schema status");
 
     expectTargets<detail::ClientRequestTarget>(result,
-                                               std::array<std::string_view, 56>{"initialize",
+                                               std::array<std::string_view, 58>{"initialize",
                                                                                 "account/login/cancel",
                                                                                 "account/login/start",
                                                                                 "account/logout",
@@ -261,14 +261,16 @@ int main() {
                                                                                 "fs/watch",
                                                                                 "fs/writeFile",
                                                                                 "fuzzyFileSearch",
-                                                                                "permissionProfile/list"},
+                                                                                "permissionProfile/list",
+                                                                                "review/start",
+                                                                                "thread/approveGuardianDeniedAction"},
                                                "every typed outgoing request target resolves to its exact registered wire method");
     expectTargets<detail::ClientNotificationTarget>(result,
                                                     std::array<std::string_view, 1>{"initialized"},
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 49>{"error",
+        std::array<std::string_view, 52>{"error",
                                          "account/login/completed",
                                          "account/rateLimits/updated",
                                          "account/updated",
@@ -316,8 +318,11 @@ int main() {
                                          "command/exec/outputDelta",
                                          "fs/changed",
                                          "fuzzyFileSearch/sessionCompleted",
-                                         "fuzzyFileSearch/sessionUpdated"},
-        "all 49 typed notification dispatch targets resolve to their exact registered wire methods");
+                                         "fuzzyFileSearch/sessionUpdated",
+                                         "guardianWarning",
+                                         "item/autoApprovalReview/completed",
+                                         "item/autoApprovalReview/started"},
+        "all 52 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
         std::array<std::string_view, 7>{"item/commandExecution/requestApproval",

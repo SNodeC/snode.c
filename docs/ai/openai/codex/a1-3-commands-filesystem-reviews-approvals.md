@@ -31,12 +31,13 @@ The two Partial identities are
 Complete in A1.3 and global 280 Complete, 4 Partial, 55 NotImplemented, and 48
 NotApplicable.
 
-After the approvals/permissions/file-changes implementation batch, the staged
-A1.3 state is 53 Complete, 0 Partial, and 15 NotImplemented. The corresponding
-global state is 265 Complete, 4 Partial, 70 NotImplemented, and 48
-NotApplicable. This is the exact reviewed B4 checkpoint. Both formerly Partial
-approval roots are Complete; only the review and guardian batch remains
-scheduled and is not credited by this evidence.
+After the review and guardian implementation batch, the final A1.3 state is 68
+Complete, 0 Partial, and 0 NotImplemented. The corresponding global state is
+280 Complete, 4 Partial, 55 NotImplemented, and 48 NotApplicable. This is the
+exact mechanically derived B5 checkpoint. Both formerly Partial approval roots
+and all 66 formerly NotImplemented A1.3 identities are Complete. The four
+remaining Partial identities are `initialize`, `initialized`, `error`, and
+`item/tool/requestUserInput`; none belongs to A1.3.
 
 The transitive stable closure contains 59 root/union seeds, 123 named
 definitions (97 v2 and 26 legacy), and 480 property, array-element, and
@@ -106,7 +107,7 @@ must report the final object-layout evidence explicitly. The project ABI
 policy, rather than symbol-list equivalence alone, decides whether a
 SOVERSION change is warranted.
 
-At the B4 checkpoint, the established `TypedServerRequest` alternatives keep
+The established `TypedServerRequest` alternatives keep
 indices 0 through 4 and the three newly typed legacy/permission requests are
 appended at indices 5 through 7. `CommandApprovalRequest` and
 `FileChangeApprovalRequest` retain their existing source-level field names but
@@ -117,6 +118,19 @@ one-pointer and PIMPL object layouts, respectively. SOVERSION remains 1 under
 the frozen A1 policy, which defers the milestone-wide bump decision to A1.4;
 this document does not claim binary compatibility from an unchanged symbol
 list.
+
+The final B5 event additions follow the same append-only source policy.
+`Event` keeps its previous alternatives at indices 0 through 49 and appends
+`GuardianWarningNotification`,
+`ItemGuardianApprovalReviewCompletedNotification`, and
+`ItemGuardianApprovalReviewStartedNotification` at indices 50 through 52.
+`CanonicalServerNotification` likewise keeps indices 0 through 47 and appends
+the three notification payloads at indices 48 through 50. These public
+variants therefore change size/layout and require an installed-consumer
+rebuild; their preserved existing indices do not constitute binary
+compatibility. The new `ReviewTarget` and
+`GuardianApprovalReviewAction` variants each place a raw-preserving
+future-unknown alternative after all known alternatives.
 
 ## Architecture and lifecycles
 
@@ -192,8 +206,31 @@ item, and event surfaces.
 Guardian actions remain explicit typed alternatives for `applyPatch`,
 `command`, `execve`, `mcpToolCall`, `networkAccess`, and
 `requestPermissions`. Opaque leaves remain JSON only where the stable schema
-is deliberately opaque. The library makes no automatic guardian or approval
-decision.
+is deliberately opaque. In particular,
+`thread/approveGuardianDeniedAction.event` is the schema's unconstrained
+serialized guardian event; the surrounding thread-scoped request remains
+typed and uses the existing Threads facade. Command and execve actions retain
+their distinct command/program/argv, cwd, and source fields. Patch actions
+retain ordered files. Network actions retain host, uint16 port, protocol, and
+target. MCP actions preserve the three optional-null connector/tool labels.
+Permission actions reuse the complete permission-profile model and preserve
+the optional-null reason.
+
+`guardianWarning`, `item/autoApprovalReview/started`, and
+`item/autoApprovalReview/completed` use the existing Events observer. The two
+review notifications preserve their action, review status/rationale/risk/user
+authorization, review and target identities, int64 timestamps, and terminal
+decision source. Incoming open values remain forward compatible. The library
+makes no automatic guardian or approval decision.
+
+The generated fixture evidence covers all 15 B5 identities: two operation
+roots and results, three notification roots, all ten union alternatives,
+review delivery omitted/null/inline/detached, opaque guardian-event JSON
+shapes, empty and non-empty action arrays, uint16 network-port and int64
+timestamp boundaries, every reviewed open-enum value, future values, and
+malformed-known mutations. The complete deterministic corpus contains 2,268
+positive fixtures after B5; its exact count remains generated evidence rather
+than runtime authority.
 
 ## Compatibility and security plan
 
@@ -208,10 +245,10 @@ data, and review instructions are sensitive. Production diagnostics identify
 only the method/union, structural reason, and safe field path. Tests and
 evidence use synthetic paths and values.
 
-Closure requires all 68 registry identities Complete, every root/response and
-union alternative exercised, public headers installed and self-contained,
-direct reverse-response and five-way concurrent socket evidence, no
-experimental leakage, no frontend/backend semantic expansion, package and
-consumer checks, API/ABI evidence, secret and test-integrity guards, and the
-four residual Partial identities `initialize`, `initialized`, `error`, and
-`item/tool/requestUserInput`.
+The B5 implementation checkpoint proves all 68 registry identities Complete,
+every root/response and union alternative fixture-covered, and the exact final
+global metrics above. Final closure additionally requires public headers
+installed and self-contained, direct reverse-response and five-way concurrent
+socket evidence, no experimental leakage, no frontend/backend semantic
+expansion, package and consumer checks, API/ABI evidence, secret and
+test-integrity guards, and the same four residual Partial identities.

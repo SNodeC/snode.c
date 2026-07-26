@@ -236,6 +236,28 @@ namespace ai::openai::codex::backend {
                 }
                 return sanitizeExtensionJson(methodSanitized, state);
             }
+            if (method == "guardianWarning" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"message", "threadId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
+            if ((method == "item/autoApprovalReview/started" || method == "item/autoApprovalReview/completed") && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"action", "review", "reviewId", "targetItemId", "threadId", "turnId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
             if (method == "applyPatchApproval" && value.is_object()) {
                 Json methodSanitized = value;
                 for (const char* field : {"callId", "conversationId", "fileChanges", "grantRoot", "reason"}) {

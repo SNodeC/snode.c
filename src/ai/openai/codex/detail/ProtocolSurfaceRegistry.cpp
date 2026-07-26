@@ -101,7 +101,7 @@ namespace ai::openai::codex::detail {
         constexpr ClientOperationCodecDescriptor ClientOperationDescriptors[] = {
 #include "ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
         };
-        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 55);
+        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 57);
 
 #undef CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR
 

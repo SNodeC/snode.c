@@ -820,6 +820,15 @@ namespace ai::openai::codex::backend {
                 },
                 [](const typed::FuzzyFileSearchSessionUpdatedNotification& value) -> std::vector<BackendEvent> {
                     return preserveTypedNotification(value, ServerNotificationTarget::FuzzyFileSearchSessionUpdated);
+                },
+                [](const typed::GuardianWarningNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::GuardianWarning);
+                },
+                [](const typed::ItemGuardianApprovalReviewCompletedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ItemGuardianApprovalReviewCompleted);
+                },
+                [](const typed::ItemGuardianApprovalReviewStartedNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::ItemGuardianApprovalReviewStarted);
                 }},
             event);
     }

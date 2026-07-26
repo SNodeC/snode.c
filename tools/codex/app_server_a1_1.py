@@ -179,7 +179,7 @@ PRIOR_SLICE_REUSED_DEFINITIONS = {
     "TurnError",
 }
 FORWARD_SLICE_NAMES = {"A1.2", "A1.3", "A1.4"}
-MONOTONIC_SUCCESSOR_SLICE = "A1.2"
+MONOTONIC_SUCCESSOR_SLICES = frozenset({"A1.2", "A1.3"})
 EXPECTED_STRONG_IDENTIFIER_COUNTS = {
     "ClientUserMessageId": {
         "scalar_property_paths": 3,
@@ -739,7 +739,8 @@ def historical_source_records(
     """Project the exact reviewed A1.1 source snapshot into its reports.
 
     Immutable A1.1 inputs remain live hash ratchets. Only the explicitly
-    shared/global inputs and this generator may move as A1.2 progresses.
+    shared/global inputs and this generator may move as reviewed successor
+    slices progress.
     """
 
     return shared.historical_source_records(
@@ -3053,9 +3054,10 @@ def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
             "StaleCanonicalRegistry",
         )
     # Shared production/test trees inside completed A1.1 coverage documents
-    # necessarily grow in A1.2. Their exact frozen bytes were checked above;
-    # the generated-registry comparison is projected to the exact 151 A1.1
-    # rows, and later-slice rows are checked monotonically elsewhere.
+    # necessarily grow in reviewed successor slices. Their exact frozen bytes
+    # were checked above; the generated-registry comparison is projected to
+    # the exact 151 A1.1 rows, and later-slice rows are checked monotonically
+    # elsewhere.
     return LiveInputs(**vars(common))
 
 
@@ -3278,7 +3280,7 @@ def unrelated_live_diagnostics(
     baseline: Mapping[Key, Mapping[str, Any]],
     live_registry: Mapping[Key, Mapping[str, Any]],
 ) -> list[AuditDiagnostic]:
-    """Guard non-A1.1 rows while permitting only monotonic A1.2 progress."""
+    """Guard non-A1.1 rows while permitting reviewed monotonic successor progress."""
 
     diagnostics: list[AuditDiagnostic] = []
     live_keys = set(live_registry) - set(a1_keys)
@@ -3303,10 +3305,13 @@ def unrelated_live_diagnostics(
             continue
         live_projection = registry_projection(live_registry[key])
         slice_name = frozen_projection.get("a1_slice")
-        if slice_name == MONOTONIC_SUCCESSOR_SLICE:
+        if slice_name in MONOTONIC_SUCCESSOR_SLICES:
             diagnostics.extend(
                 monotonic_registry_projection_diagnostics(
-                    key, frozen_projection, live_projection
+                    key,
+                    frozen_projection,
+                    live_projection,
+                    str(slice_name),
                 )
             )
         elif frozen_projection != live_projection:
@@ -3341,10 +3346,18 @@ def monotonic_registry_projection_diagnostics(
     key: Key,
     frozen: Mapping[str, Any],
     live: Mapping[str, Any],
+    successor_slice: str,
 ) -> list[AuditDiagnostic]:
-    """Return exact diagnostics for an attempted A1.2 registry transition."""
+    """Return exact diagnostics for an attempted successor registry transition."""
 
-    return registry_transition_diagnostics(key, frozen, live, "A1.2")
+    require(
+        successor_slice in MONOTONIC_SUCCESSOR_SLICES,
+        f"unreviewed A1.1 successor slice: {successor_slice}",
+        "UnrelatedSliceDrift",
+    )
+    return registry_transition_diagnostics(
+        key, frozen, live, successor_slice
+    )
 
 
 def identity_has_advanced(

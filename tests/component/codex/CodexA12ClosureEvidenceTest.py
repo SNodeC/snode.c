@@ -132,6 +132,145 @@ class CodexA12ClosureEvidenceTest(unittest.TestCase):
             272, counts["type_closure"]["property_declarations"]
         )
 
+    def test_live_a1_3_successor_is_projected_historically(self) -> None:
+        arguments = tool_arguments(self.tool)
+        rows = self.tool.surface.parse_registry_data(arguments.registry)
+        registry = self.tool.indexed(
+            rows,
+            self.tool.Key.from_row,
+            "registry",
+        )
+        self.tool.validate_successor_registry(registry)
+        self.assertEqual(
+            self.tool.EXPECTED_A1_3_SUCCESSOR_GLOBAL_STATUS,
+            self.tool.status_counts(registry.values()),
+        )
+        self.assertEqual(
+            self.tool.a1_2.EXPECTED_FINAL_GLOBAL_STATUS,
+            self.expected["counts"]["global_schema_status"],
+        )
+        self.assertEqual(
+            4,
+            sum(
+                row["typed_schema_status"] == "Partial"
+                for row in registry.values()
+            ),
+        )
+        self.assertEqual(
+            6,
+            len(self.expected["exact_residual_partial_identities"]),
+        )
+
+    def test_incomplete_a1_3_successor_is_rejected(self) -> None:
+        arguments = tool_arguments(self.tool)
+        registry = self.tool.indexed(
+            self.tool.surface.parse_registry_data(arguments.registry),
+            self.tool.Key.from_row,
+            "registry",
+        )
+        changed = copy.deepcopy(registry)
+        successor_key = next(
+            key
+            for key, row in changed.items()
+            if row["a1_slice"] == self.tool.a1_2.MONOTONIC_SUCCESSOR_SLICE
+        )
+        changed[successor_key]["typed_schema_status"] = "Partial"
+        with self.assertRaises(self.tool.AuditError) as caught:
+            self.tool.validate_successor_registry(changed)
+        self.assertEqual(
+            ("ClosureSuccessorProgressMismatch",),
+            caught.exception.codes,
+        )
+
+    def test_a1_4_registry_progress_remains_rejected(self) -> None:
+        arguments = tool_arguments(self.tool)
+        inputs = self.tool.a1_2.load_live_inputs(arguments)
+        changed = copy.deepcopy(inputs)
+        unrelated_key = next(
+            key
+            for key, row in changed.registry.items()
+            if row["a1_slice"] == "A1.4"
+        )
+        changed.registry[unrelated_key]["typed_schema_status"] = "Partial"
+        start_state = self.tool.shared.load_json(arguments.start_state)
+        baseline = self.tool.a1_2.start_state_by_key(start_state)
+        unrelated = self.tool.a1_2.unrelated_start_state_by_key(start_state)
+        keys = self.tool.a1_2.frozen_a1_2_keys(changed.assignments)
+        with self.assertRaises(self.tool.AuditError) as caught:
+            self.tool.a1_2.validate_live_progress(
+                keys,
+                baseline,
+                unrelated,
+                changed,
+            )
+        self.assertEqual(("UnrelatedSliceDrift",), caught.exception.codes)
+
+    def test_successor_fixture_and_boundary_mutations_are_rejected(
+        self,
+    ) -> None:
+        arguments = tool_arguments(self.tool)
+        fixture_index = self.tool.shared.load_json(arguments.fixture_index)
+        fixture_coverage = self.tool.shared.load_json(
+            arguments.fixture_coverage
+        )
+        schema_completeness = self.tool.shared.load_json(
+            arguments.schema_completeness
+        )
+        changed_index = copy.deepcopy(fixture_index)
+        changed_index["counts"]["positive"] -= 1
+        with self.assertRaises(self.tool.AuditError) as fixture_error:
+            self.tool.validate_successor_fixture_evidence(
+                changed_index,
+                fixture_coverage,
+                schema_completeness,
+            )
+        self.assertEqual(
+            ("ClosureSuccessorFixtureMismatch",),
+            fixture_error.exception.codes,
+        )
+
+        source_trees = {
+            relative: self.tool.tree_fingerprint(
+                arguments.repo_root,
+                relative,
+            )
+            for relative in self.tool.EXPECTED_TREE_FINGERPRINTS
+        }
+        changed_trees = copy.deepcopy(source_trees)
+        changed_trees["src/ai/openai/codex/backend"]["sha256"] = "0" * 64
+        frontend_protocol = {
+            relative: self.tool.shared.sha256_file(
+                arguments.repo_root / relative
+            )
+            for relative in self.tool.EXPECTED_FRONTEND_PROTOCOL_FINGERPRINTS
+        }
+        with self.assertRaises(self.tool.AuditError) as boundary_error:
+            self.tool.validate_successor_boundaries(
+                changed_trees,
+                frontend_protocol,
+            )
+        self.assertEqual(
+            ("ClosureBoundaryFingerprintMismatch",),
+            boundary_error.exception.codes,
+        )
+
+    def test_immutable_a1_2_closure_source_is_live_checked(self) -> None:
+        arguments = tool_arguments(self.tool)
+        with tempfile.TemporaryDirectory(
+            dir=OPTIONS.repo_root
+        ) as temporary:
+            changed_closure = Path(temporary) / "a1-2-type-closure.json"
+            changed_closure.write_bytes(
+                arguments.type_closure.read_bytes() + b"\n"
+            )
+            arguments.type_closure = changed_closure
+            with self.assertRaises(self.tool.AuditError) as caught:
+                self.tool.build_report(arguments)
+        self.assertIn(
+            "ClosureSourceMismatch",
+            caught.exception.codes,
+        )
+
     def test_logical_mutations_have_exact_diagnostic_codes(self) -> None:
         Mutation = Callable[[dict[str, Any]], None]
 

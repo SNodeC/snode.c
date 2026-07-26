@@ -411,6 +411,135 @@ class CodexA11AuditToolTest(unittest.TestCase):
                     "PreserveOmittedNullValue",
                     row["default_behavior"],
                 )
+
+    def test_successor_registry_compatibility_is_exactly_a1_2_and_a1_3(
+        self,
+    ) -> None:
+        start_state = load_json(OPTIONS.start_state)
+        frozen_a1 = self.tool.start_state_by_key(start_state)
+        frozen_unrelated = self.tool.unrelated_start_state_by_key(
+            start_state
+        )
+        live_registry = {
+            self.tool.Key.from_row(row): row
+            for row in self.tool.surface.parse_registry_data(
+                OPTIONS.registry
+            )
+        }
+
+        self.assertEqual(
+            frozenset({"A1.2", "A1.3"}),
+            self.tool.MONOTONIC_SUCCESSOR_SLICES,
+        )
+        self.assertEqual(
+            [],
+            self.tool.unrelated_live_diagnostics(
+                sorted(frozen_a1),
+                frozen_unrelated,
+                live_registry,
+            ),
+        )
+        self.assertEqual(
+            {"A1.2": 45, "A1.3": 68},
+            {
+                slice_name: sum(
+                    row["registry_projection"].get("a1_slice")
+                    == slice_name
+                    for row in frozen_unrelated.values()
+                )
+                for slice_name in self.tool.MONOTONIC_SUCCESSOR_SLICES
+            },
+        )
+
+        def key_in_slice(slice_name: str) -> object:
+            return next(
+                key
+                for key, row in frozen_unrelated.items()
+                if row["registry_projection"].get("a1_slice")
+                == slice_name
+            )
+
+        a1_3_key = key_in_slice("A1.3")
+        static_drift = copy.deepcopy(live_registry)
+        static_drift[a1_3_key]["result_type_identity"] = (
+            "MutatedResultType"
+        )
+        self.assertEqual(
+            ("StaticIdentityDrift",),
+            tuple(
+                diagnostic.code
+                for diagnostic in self.tool.unrelated_live_diagnostics(
+                    sorted(frozen_a1),
+                    frozen_unrelated,
+                    static_drift,
+                )
+            ),
+        )
+
+        a1_4_key = key_in_slice("A1.4")
+        a1_4_progress = copy.deepcopy(live_registry)
+        a1_4_progress[a1_4_key]["typed_status"] = "Implemented"
+        a1_4_progress[a1_4_key]["typed_schema_status"] = "Complete"
+        a1_4_progress[a1_4_key]["runtime_disposition"] = "Typed"
+        a1_4_progress[a1_4_key]["runtime_target"] = (
+            "ClientRequestTarget::UnexpectedA14"
+        )
+        a1_4_progress[a1_4_key]["schema_completeness"] = {
+            field: True
+            for field in a1_4_progress[a1_4_key][
+                "schema_completeness"
+            ]
+        }
+        self.assertEqual(
+            ("UnrelatedSliceDrift",),
+            tuple(
+                diagnostic.code
+                for diagnostic in self.tool.unrelated_live_diagnostics(
+                    sorted(frozen_a1),
+                    frozen_unrelated,
+                    a1_4_progress,
+                )
+            ),
+        )
+
+        unrelated_key = key_in_slice("InventoryOnly")
+        unrelated_drift = copy.deepcopy(live_registry)
+        unrelated_drift[unrelated_key]["frontend_security"] = "Mutated"
+        self.assertEqual(
+            ("UnrelatedSliceDrift",),
+            tuple(
+                diagnostic.code
+                for diagnostic in self.tool.unrelated_live_diagnostics(
+                    sorted(frozen_a1),
+                    frozen_unrelated,
+                    unrelated_drift,
+                )
+            ),
+        )
+
+        missing_identity = copy.deepcopy(live_registry)
+        missing_identity.pop(a1_3_key)
+        self.assertEqual(
+            ("UnrelatedSliceIdentityDrift",),
+            tuple(
+                diagnostic.code
+                for diagnostic in self.tool.unrelated_live_diagnostics(
+                    sorted(frozen_a1),
+                    frozen_unrelated,
+                    missing_identity,
+                )
+            ),
+        )
+
+        with self.assertRaises(self.tool.AuditError) as caught:
+            self.tool.monotonic_registry_projection_diagnostics(
+                a1_4_key,
+                frozen_unrelated[a1_4_key]["registry_projection"],
+                self.tool.registry_projection(live_registry[a1_4_key]),
+                "A1.4",
+            )
+        self.assertEqual("UnrelatedSliceDrift", caught.exception.code)
+
     def test_exact_report_mutation_diagnostics(self) -> None:
         def identity(
             plan: dict[str, object],

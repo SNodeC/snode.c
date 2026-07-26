@@ -11,22 +11,32 @@
 #include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/CommandCodec.h"
-#include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
+#include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ItemDecoder.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "ai/openai/codex/detail/ReviewCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
+#include "ai/openai/codex/typed/CodexErrorInfo.h"
+#include "ai/openai/codex/typed/Items.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/Threads.h"
+#include "ai/openai/codex/typed/Turns.h"
+#include "ai/openai/codex/typed/Types.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <limits>
+#include <map>
+#include <nlohmann/json.hpp>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -546,17 +556,14 @@ namespace ai::openai::codex::detail {
             if (error.empty()) {
                 error = "notification payload could not be decoded";
             }
-            const bool exactPathNotification = notification.method == "account/login/completed" ||
-                                               notification.method == "account/rateLimits/updated" ||
-                                               notification.method == "account/updated" ||
-                                               notification.method == "command/exec/outputDelta" ||
-                                               notification.method == "configWarning" ||
-                                               notification.method == "fs/changed" ||
-                                               notification.method == "fuzzyFileSearch/sessionCompleted" ||
-                                               notification.method == "fuzzyFileSearch/sessionUpdated" ||
-                                               notification.method == "model/rerouted" ||
-                                               notification.method == "model/safetyBuffering/updated" ||
-                                               notification.method == "model/verification";
+            const bool exactPathNotification =
+                notification.method == "account/login/completed" || notification.method == "account/rateLimits/updated" ||
+                notification.method == "account/updated" || notification.method == "command/exec/outputDelta" ||
+                notification.method == "configWarning" || notification.method == "fs/changed" ||
+                notification.method == "fuzzyFileSearch/sessionCompleted" || notification.method == "fuzzyFileSearch/sessionUpdated" ||
+                notification.method == "guardianWarning" || notification.method == "item/autoApprovalReview/completed" ||
+                notification.method == "item/autoApprovalReview/started" || notification.method == "model/rerouted" ||
+                notification.method == "model/safetyBuffering/updated" || notification.method == "model/verification";
             std::string fieldPath = "$.params";
             if (exactPathNotification) {
                 const std::size_t begin = error.find("'$");
@@ -604,6 +611,33 @@ namespace ai::openai::codex::detail {
         typed::Event decodeFuzzyFileSearchSessionUpdated(const Notification& notification) {
             std::string error;
             auto decoded = decodeFuzzyFileSearchSessionUpdatedNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeGuardianWarning(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeGuardianWarningNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeItemGuardianApprovalReviewCompleted(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeItemGuardianApprovalReviewCompletedNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
+        }
+
+        typed::Event decodeItemGuardianApprovalReviewStarted(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeItemGuardianApprovalReviewStartedNotification(notification, error);
             if (!decoded) {
                 return malformedEvent(notification, std::move(error));
             }
@@ -1483,6 +1517,12 @@ namespace ai::openai::codex::detail {
                     return decodeFuzzyFileSearchSessionCompleted(notification);
                 case ServerNotificationTarget::FuzzyFileSearchSessionUpdated:
                     return decodeFuzzyFileSearchSessionUpdated(notification);
+                case ServerNotificationTarget::GuardianWarning:
+                    return decodeGuardianWarning(notification);
+                case ServerNotificationTarget::ItemGuardianApprovalReviewCompleted:
+                    return decodeItemGuardianApprovalReviewCompleted(notification);
+                case ServerNotificationTarget::ItemGuardianApprovalReviewStarted:
+                    return decodeItemGuardianApprovalReviewStarted(notification);
                 case ServerNotificationTarget::Count:
                     break;
             }

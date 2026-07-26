@@ -9,6 +9,8 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/detail/Transport.h"
 #include "ai/openai/codex/typed/Client.h"
+#include "ai/openai/codex/typed/Events.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "support/TestResult.h"
 
 #include <concepts>
@@ -17,6 +19,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace {
@@ -49,6 +52,9 @@ namespace {
     concept HasDirectPermissionProfilesAccessor = requires(Client& client) { client.permissionProfiles(); };
 
     template <typename Client>
+    concept HasDirectReviewsAccessor = requires(Client& client) { client.reviews(); };
+
+    template <typename Client>
     concept HasDirectConfigurationAccessor = requires(Client& client) {
         client.configuration();
     };
@@ -67,6 +73,10 @@ namespace {
         typed::ThreadId, std::vector<typed::TurnInput>, typed::TurnStartOptions, typed::Turns::TurnResultHandler);
     using LegacyTurnInterruptMember =
         typed::Turns::Submission (typed::Turns::*)(typed::ThreadId, typed::TurnId, typed::Turns::InterruptResultHandler);
+    using ReviewStartMember = typed::Reviews::Submission (typed::Reviews::*)(typed::ReviewStartParams,
+                                                                             typed::Reviews::ReviewStartResultHandler);
+    using GuardianApprovalMember = typed::Threads::Submission (typed::Threads::*)(typed::ThreadApproveGuardianDeniedActionParams,
+                                                                                  typed::Threads::UnitResultHandler);
 
     static_assert(std::same_as<decltype(static_cast<LegacyThreadStartMember>(&typed::Threads::start)), LegacyThreadStartMember>);
     static_assert(std::same_as<decltype(static_cast<LegacyThreadResumeMember>(&typed::Threads::resume)), LegacyThreadResumeMember>);
@@ -76,6 +86,8 @@ namespace {
         std::same_as<decltype(static_cast<LegacyThreadReadOptionsMember>(&typed::Threads::read)), LegacyThreadReadOptionsMember>);
     static_assert(std::same_as<decltype(static_cast<LegacyTurnStartMember>(&typed::Turns::start)), LegacyTurnStartMember>);
     static_assert(std::same_as<decltype(static_cast<LegacyTurnInterruptMember>(&typed::Turns::interrupt)), LegacyTurnInterruptMember>);
+    static_assert(std::same_as<decltype(&typed::Reviews::start), ReviewStartMember>);
+    static_assert(std::same_as<decltype(&typed::Threads::approveGuardianDeniedAction), GuardianApprovalMember>);
 
     static_assert(requires(typed::Threads& threads,
                            typed::ThreadStartOptions& options,
@@ -252,7 +264,21 @@ int main() {
     static_assert(!HasDirectFilesystemAccessor<codex::AppServerClient>);
     static_assert(!HasDirectModelsAccessor<codex::AppServerClient>);
     static_assert(!HasDirectPermissionProfilesAccessor<codex::AppServerClient>);
+    static_assert(!HasDirectReviewsAccessor<codex::AppServerClient>);
     static_assert(!HasDirectConfigurationAccessor<codex::AppServerClient>);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 51);
+    static_assert(std::is_same_v<std::variant_alternative_t<47, typed::CanonicalServerNotification>,
+                                 typed::FuzzyFileSearchSessionUpdatedNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<48, typed::CanonicalServerNotification>, typed::GuardianWarningNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<49, typed::CanonicalServerNotification>,
+                                 typed::ItemGuardianApprovalReviewCompletedNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<50, typed::CanonicalServerNotification>,
+                                 typed::ItemGuardianApprovalReviewStartedNotification>);
+    static_assert(std::variant_size_v<typed::Event> == 53);
+    static_assert(std::is_same_v<std::variant_alternative_t<49, typed::Event>, typed::FuzzyFileSearchSessionUpdatedNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<50, typed::Event>, typed::GuardianWarningNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<51, typed::Event>, typed::ItemGuardianApprovalReviewCompletedNotification>);
+    static_assert(std::is_same_v<std::variant_alternative_t<52, typed::Event>, typed::ItemGuardianApprovalReviewStartedNotification>);
 
     tests::support::TestResult result;
     TestClient client;
@@ -271,6 +297,8 @@ int main() {
     result.expectTrue(&client.typed().permissionProfiles() == &constClient.typed().permissionProfiles(),
                       "permissionProfiles() returns the same facade backed by the grouped "
                       "client's one RawProtocol");
+    result.expectTrue(&client.typed().reviews() == &constClient.typed().reviews(),
+                      "reviews() returns the same facade backed by the grouped client's one RawProtocol");
     result.expectTrue(&client.typed().configuration() == &constClient.typed().configuration(),
                       "configuration() returns the same facade backed by the grouped client's one RawProtocol");
 

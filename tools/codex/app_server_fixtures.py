@@ -839,6 +839,57 @@ A13_APPROVAL_OPEN_STRING_ENUMS = {
     "NetworkPolicyRuleAction": ("allow", "deny"),
     "PermissionGrantScope": ("turn", "session"),
 }
+
+# Phase A1.3 Commit 5 owns review/start, the thread-scoped guardian approval
+# acknowledgement, the three stable guardian/review notifications, and the
+# ten reviewed union alternatives reached by those roots.
+A13_REVIEW_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "review/start",
+        "thread/approveGuardianDeniedAction",
+    }
+)
+A13_REVIEW_NOTIFICATION_METHODS = frozenset(
+    {
+        "guardianWarning",
+        "item/autoApprovalReview/completed",
+        "item/autoApprovalReview/started",
+    }
+)
+A13_REVIEW_UNION_FAMILY_IDENTITIES = {
+    "GuardianApprovalReviewAction": (
+        "applyPatch",
+        "command",
+        "execve",
+        "mcpToolCall",
+        "networkAccess",
+        "requestPermissions",
+    ),
+    "ReviewTarget": (
+        "baseBranch",
+        "commit",
+        "custom",
+        "uncommittedChanges",
+    ),
+}
+A13_REVIEW_UNION_DIRECTIONS = {
+    "GuardianApprovalReviewAction": ("Decode",),
+    "ReviewTarget": ("Encode",),
+}
+A13_REVIEW_OPEN_STRING_ENUMS = {
+    "AutoReviewDecisionSource": ("agent",),
+    "GuardianApprovalReviewStatus": (
+        "inProgress",
+        "approved",
+        "denied",
+        "timedOut",
+        "aborted",
+    ),
+    "GuardianCommandSource": ("shell", "unifiedExec"),
+    "GuardianRiskLevel": ("low", "medium", "high", "critical"),
+    "GuardianUserAuthorization": ("unknown", "low", "medium", "high"),
+    "ReviewDelivery": ("inline", "detached"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1639,6 +1690,72 @@ def derive_a13_approval_keys(
     return operations, unions
 
 
+def derive_a13_review_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[
+    tuple[SurfaceKey, ...],
+    tuple[SurfaceKey, ...],
+    tuple[SurfaceKey, ...],
+]:
+    expected_unions = {
+        (domain, name)
+        for domain, names in A13_REVIEW_UNION_FAMILY_IDENTITIES.items()
+        for name in names
+    }
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.3"
+            and assignment["module"]
+            == "CommandsFilesystemReviewsApprovals"
+            and (
+                key.name in A13_REVIEW_CLIENT_REQUEST_METHODS
+                or key.name in A13_REVIEW_NOTIFICATION_METHODS
+                or (key.domain, key.name) in expected_unions
+            )
+        )
+    )
+    operations = tuple(
+        key for key in batch if key.category == CLIENT_REQUEST
+    )
+    notifications = tuple(
+        key for key in batch if key.category == SERVER_NOTIFICATION
+    )
+    unions = tuple(
+        key
+        for key in batch
+        if key.category == TAGGED_UNION_DISCRIMINATOR
+    )
+    if (
+        len(batch) != 15
+        or len(operations) != 2
+        or len(notifications) != 3
+        or len(unions) != 10
+        or {key.name for key in operations}
+        != A13_REVIEW_CLIENT_REQUEST_METHODS
+        or {key.name for key in notifications}
+        != A13_REVIEW_NOTIFICATION_METHODS
+        or {(key.domain, key.name) for key in unions} != expected_unions
+        or any(
+            assignments[key]["classification"]
+            not in {
+                "StablePublicRoot",
+                "RootOwnedNestedUnion",
+                "SharedWithinSlice",
+            }
+            or assignments[key]["stability"] != "stable"
+            for key in batch
+        )
+    ):
+        raise FixtureError(
+            "A1.3 review/guardian assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"notifications={len(notifications)} unions={len(unions)}"
+        )
+    return operations, notifications, unions
+
+
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """Replace generated account/auth values with low-risk reviewed samples.
 
@@ -1808,6 +1925,54 @@ def normalize_a13_approval_sample(value: Any) -> None:
                     node[field] = ["synthetic-tool", "--synthetic-flag"]
                 else:
                     visit(nested)
+        elif isinstance(node, list):
+            for nested in node:
+                visit(nested)
+
+    visit(value)
+
+
+def normalize_a13_review_sample(value: Any) -> None:
+    """Keep review targets and guardian notification evidence synthetic."""
+
+    replacements = {
+        "argv": ["synthetic-tool", "--synthetic-flag"],
+        "branch": "synthetic-base-branch",
+        "command": "synthetic command",
+        "connectorId": "synthetic-connector-id",
+        "connectorName": "synthetic connector",
+        "cwd": "/synthetic/project",
+        "event": {"syntheticGuardianEvent": True},
+        "files": ["/synthetic/project/synthetic-entry.txt"],
+        "host": "example.invalid",
+        "instructions": "Review the synthetic change.",
+        "message": "Synthetic guardian warning.",
+        "program": "synthetic-tool",
+        "rationale": "Synthetic review rationale.",
+        "reason": "Synthetic permission rationale.",
+        "reviewId": "synthetic-review-id",
+        "sha": "0123456789abcdef0123456789abcdef01234567",
+        "target": "example.invalid:443",
+        "targetItemId": "synthetic-item-id",
+        "threadId": "synthetic-thread-id",
+        "title": "Synthetic commit",
+        "toolName": "synthetic_tool",
+        "toolTitle": "Synthetic tool",
+        "turnId": "synthetic-turn-id",
+    }
+
+    def visit(node: Any) -> None:
+        if isinstance(node, dict):
+            for field, nested in list(node.items()):
+                if field in replacements:
+                    replacement = replacements[field]
+                    if (
+                        isinstance(replacement, str)
+                        and isinstance(nested, str)
+                    ) or isinstance(replacement, (dict, list)):
+                        node[field] = copy.deepcopy(replacement)
+                        nested = node[field]
+                visit(nested)
         elif isinstance(node, list):
             for nested in node:
                 visit(nested)
@@ -4168,6 +4333,14 @@ class CorpusBuilder:
         self.a13_approval_indexed_coverage: dict[str, Any] = {}
         self.a13_approval_operation_root_coverage: dict[str, Any] = {}
         self.a13_approval_positive_coverage: dict[str, Any] = {}
+        self.a13_review_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_review_notification_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_review_union_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_review_negative_coverage: dict[str, Any] = {}
+        self.a13_review_indexed_coverage: dict[str, Any] = {}
+        self.a13_review_operation_root_coverage: dict[str, Any] = {}
+        self.a13_review_notification_root_coverage: dict[str, Any] = {}
+        self.a13_review_positive_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -4358,6 +4531,11 @@ class CorpusBuilder:
             self.a13_approval_operation_keys,
             self.a13_approval_union_keys,
         ) = derive_a13_approval_keys(self.assignments)
+        (
+            self.a13_review_operation_keys,
+            self.a13_review_notification_keys,
+            self.a13_review_union_keys,
+        ) = derive_a13_review_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
@@ -4368,6 +4546,7 @@ class CorpusBuilder:
         self._build_a13_command_operation_supplements()
         self._build_a13_filesystem_operation_supplements()
         self._build_a13_approval_operation_supplements()
+        self._build_a13_review_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_a12_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
@@ -4378,11 +4557,13 @@ class CorpusBuilder:
         self._build_a12_b4_notification_fixtures()
         self._build_a13_command_notification_fixtures()
         self._build_a13_filesystem_notification_fixtures()
+        self._build_a13_review_notification_fixtures()
         self._build_a12_b4_positive_supplements()
         self._build_a12_b5_positive_supplements()
         self._build_a13_command_positive_supplements()
         self._build_a13_filesystem_positive_supplements()
         self._build_a13_approval_positive_supplements()
+        self._build_a13_review_positive_supplements()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
@@ -4395,6 +4576,7 @@ class CorpusBuilder:
         self._build_a13_command_open_enum_fixtures()
         self._build_a13_filesystem_open_enum_fixtures()
         self._build_a13_approval_open_enum_fixtures()
+        self._build_a13_review_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -4492,6 +4674,9 @@ class CorpusBuilder:
             positive_records, positive_fixture_ids
         )
         self._apply_a13_approval_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a13_review_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -4768,6 +4953,35 @@ class CorpusBuilder:
                     self.a13_approval_negative_coverage
                 ),
             },
+            "a1_3_reviews_guardian": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_review_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_review_notification_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json()
+                    for key in self.a13_review_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_review_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_review_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_review_notification_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_review_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_review_negative_coverage
+                ),
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -4925,6 +5139,18 @@ class CorpusBuilder:
                 if is_a13_approval
                 else {}
             )
+            is_a13_review = key in {
+                *self.a13_review_operation_keys,
+                *self.a13_review_notification_keys,
+                *self.a13_review_union_keys,
+            }
+            a13_review_schema_facts = (
+                self.a13_review_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a13_review
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -4962,6 +5188,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a13_approval
+                else self.a13_review_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a13_review
                 else {}
             )
             coverage_records.append(
@@ -5052,6 +5282,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_review_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -5124,6 +5359,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_review_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -5192,6 +5432,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a13_approval_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a13_review_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -5423,6 +5669,35 @@ class CorpusBuilder:
                     self.a13_approval_negative_coverage
                 ),
             },
+            "a1_3_reviews_guardian": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_review_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_review_notification_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json()
+                    for key in self.a13_review_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_review_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_review_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_review_notification_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_review_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_review_negative_coverage
+                ),
+            },
             "fixtures": [
                 compact_generated_record(record)
                 for record in positive_records
@@ -5483,16 +5758,25 @@ class CorpusBuilder:
 
         indexed_coverage: dict[str, Any] = {}
         for key in selected_keys:
-            records = records_by_key.get(key, [])
+            all_records = records_by_key.get(key, [])
             base_id = f"union:{key.domain}:{key.name}"
             base_records = [
-                record for record in records if record["id"] == base_id
+                record
+                for record in all_records
+                if record["id"] == base_id
             ]
             if len(base_records) != 1:
                 raise FixtureError(
                     f"{batch} identity lacks exactly one base fixture: {key.compact()}"
                 )
             base_coverage = base_records[0]["schema_fixture_coverage"]
+            records = [
+                record
+                for record in all_records
+                if isinstance(
+                    record.get("schema_fixture_coverage"), dict
+                )
+            ]
             expected_properties = set(
                 base_coverage["property_schema_paths_present"]
             )
@@ -5621,6 +5905,11 @@ class CorpusBuilder:
             self.a13_approval_indexed_coverage.update(indexed_coverage)
             self.a13_approval_indexed_coverage = dict(
                 sorted(self.a13_approval_indexed_coverage.items())
+            )
+        elif batch == "A1.3 reviews/guardian":
+            self.a13_review_indexed_coverage.update(indexed_coverage)
+            self.a13_review_indexed_coverage = dict(
+                sorted(self.a13_review_indexed_coverage.items())
             )
         else:
             raise FixtureError(f"unsupported indexed union batch {batch}")
@@ -6235,6 +6524,7 @@ class CorpusBuilder:
             **A13_COMMAND_OPEN_STRING_ENUMS,
             **A13_FILESYSTEM_OPEN_STRING_ENUMS,
             **A13_APPROVAL_OPEN_STRING_ENUMS,
+            **A13_REVIEW_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -6651,6 +6941,46 @@ class CorpusBuilder:
                 f"{len(self.a13_approval_indexed_coverage)}"
             )
 
+    def _apply_a13_review_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self._apply_b2_indexed_completeness(
+            positive_records,
+            positive_fixture_ids,
+            keys=self.a13_review_union_keys,
+            directions_by_domain=A13_REVIEW_UNION_DIRECTIONS,
+            batch="A1.3 reviews/guardian",
+        )
+        self.a13_review_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a13_review_operation_keys,
+                batch="A1.3 reviews/guardian",
+                known_enum_values=A13_REVIEW_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a13_review_indexed_coverage.update(
+            self._apply_b5_notification_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                notification_keys=self.a13_review_notification_keys,
+                batch="A1.3 reviews/guardian",
+            )
+        )
+        self.a13_review_indexed_coverage = dict(
+            sorted(self.a13_review_indexed_coverage.items())
+        )
+        if len(self.a13_review_indexed_coverage) != 15:
+            raise FixtureError(
+                "A1.3 review/guardian indexed coverage must contain "
+                "exactly 15 identities, got "
+                f"{len(self.a13_review_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -6672,6 +7002,8 @@ class CorpusBuilder:
                 normalize_a13_filesystem_sample(parameter_value)
             if key in self.a13_approval_operation_keys:
                 normalize_a13_approval_sample(parameter_value)
+            if key in self.a13_review_operation_keys:
+                normalize_a13_review_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
                 if key.category == CLIENT_REQUEST
@@ -6700,6 +7032,7 @@ class CorpusBuilder:
                         key in self.a13_approval_operation_keys
                         and key.category == CLIENT_REQUEST
                     )
+                    or key in self.a13_review_operation_keys
                     else ("Decode",)
                     if (
                         (
@@ -6737,6 +7070,8 @@ class CorpusBuilder:
                 normalize_a13_filesystem_sample(result_value)
             if key in self.a13_approval_operation_keys:
                 normalize_a13_approval_sample(result_value)
+            if key in self.a13_review_operation_keys:
+                normalize_a13_review_sample(result_value)
             result_role = (
                 "client_request_result"
                 if key.category == CLIENT_REQUEST
@@ -6765,6 +7100,7 @@ class CorpusBuilder:
                         key in self.a13_approval_operation_keys
                         and key.category == CLIENT_REQUEST
                     )
+                    or key in self.a13_review_operation_keys
                     else ("Encode",)
                     if (
                         (
@@ -6831,6 +7167,8 @@ class CorpusBuilder:
                     normalize_a13_filesystem_sample(base_value)
                 if key in self.a13_approval_operation_keys:
                     normalize_a13_approval_sample(base_value)
+                if key in self.a13_review_operation_keys:
+                    normalize_a13_review_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
                     self.catalog, target, base_value
@@ -7775,6 +8113,71 @@ class CorpusBuilder:
             "operation_opaque_exclusions"
         ] = []
 
+    def _build_a13_review_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a13_review_operation_keys,
+            "A1.3 reviews/guardian",
+        )
+        actual_opaque = {
+            (
+                record["operation"],
+                record["root"],
+                record["instance_path"],
+                record["schema_path"],
+            )
+            for record in opaque_exclusions
+        }
+        expected_opaque = {
+            (
+                "thread/approveGuardianDeniedAction",
+                "params",
+                "$/event",
+                "#/properties/event",
+            )
+        }
+        if actual_opaque != expected_opaque:
+            raise FixtureError(
+                "A1.3 review/guardian opaque-path accounting changed: "
+                f"{sorted(actual_opaque)}"
+            )
+        if (
+            len(self.a13_review_operation_keys) != 2
+            or self.contracts[
+                next(
+                    key
+                    for key in self.a13_review_operation_keys
+                    if key.name == "review/start"
+                )
+            ]["result_contract_kind"]
+            != "Concrete"
+            or self.contracts[
+                next(
+                    key
+                    for key in self.a13_review_operation_keys
+                    if key.name
+                    == "thread/approveGuardianDeniedAction"
+                )
+            ]["result_contract_kind"]
+            != "Unit"
+        ):
+            raise FixtureError(
+                "A1.3 review/guardian batch must retain one Concrete and "
+                "one Unit operation result"
+            )
+        self.a13_review_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a13_review_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = sorted(
+            opaque_exclusions,
+            key=lambda record: (
+                record["operation"],
+                record["root"],
+                record["instance_path"],
+            ),
+        )
+
     def _add_a13_integer_boundaries(
         self,
         *,
@@ -8638,6 +9041,464 @@ class CorpusBuilder:
                 ),
                 "integer_boundaries": dict(
                     sorted(integer_boundaries.items())
+                ),
+            }
+        )
+
+    def _build_a13_review_positive_supplements(self) -> None:
+        keys = {
+            key.name: key for key in self.a13_review_operation_keys
+        }
+        review_key = keys["review/start"]
+        review_target = self.catalog.standalone("ReviewStartParams")
+        review_base = self.synthesizer.sample(review_target)
+        normalize_a13_review_sample(review_base)
+
+        delivery_ids: list[str] = []
+        for name, delivery in (
+            ("omitted", ...),
+            ("null", None),
+            ("inline", "inline"),
+            ("detached", "detached"),
+        ):
+            value = copy.deepcopy(review_base)
+            if delivery is ...:
+                value.pop("delivery", None)
+            else:
+                value["delivery"] = delivery
+            fixture_id = (
+                "operation:client_request:review/start:params:"
+                f"delivery-{name}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/operations/client/review-start/supplements/"
+                    f"params-delivery-{name}.json"
+                ),
+                "operation_optional_nullable_delivery",
+                review_target,
+                value,
+                review_key,
+                directions_exercised=("Encode",),
+            )
+            delivery_ids.append(fixture_id)
+
+        guardian_key = keys["thread/approveGuardianDeniedAction"]
+        guardian_target = self.catalog.standalone(
+            "ThreadApproveGuardianDeniedActionParams"
+        )
+        opaque_event_ids: list[str] = []
+        for name, event in (
+            ("null", None),
+            ("boolean", True),
+            ("array", ["synthetic", {"approved": False}]),
+            ("object", {"syntheticGuardianEvent": True}),
+        ):
+            value = {
+                "event": event,
+                "threadId": "synthetic-thread-id",
+            }
+            fixture_id = (
+                "operation:client_request:"
+                "thread/approveGuardianDeniedAction:params:"
+                f"opaque-event-{name}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/operations/client/"
+                    "thread-approveguardiandeniedaction/supplements/"
+                    f"params-opaque-event-{name}.json"
+                ),
+                "operation_opaque_json_value",
+                guardian_target,
+                value,
+                guardian_key,
+                directions_exercised=("Encode",),
+            )
+            opaque_event_ids.append(fixture_id)
+
+        minimum_ids: list[str] = []
+        for key in self.a13_review_operation_keys:
+            contract = self.contracts[key]
+            target = self.catalog.standalone(
+                str(contract["parameter_type_identity"])
+            )
+            value = self.synthesizer.sample(target)
+            normalize_a13_review_sample(value)
+            optional_locations = sorted(
+                collect_optional_present_locations(
+                    self.catalog, target, value
+                ),
+                key=lambda location: (
+                    -len(location.instance_path),
+                    tuple(map(str, location.instance_path)),
+                ),
+            )
+            for location in optional_locations:
+                try:
+                    parent, field = get_parent_path(
+                        value, location.instance_path
+                    )
+                except (KeyError, TypeError):
+                    continue
+                if isinstance(parent, dict) and isinstance(field, str):
+                    parent.pop(field, None)
+            fixture_id = (
+                f"operation:client_request:{key.name}:params:minimum"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/operations/client/{slug(key.name)}/"
+                    "supplements/params-minimum.json"
+                ),
+                "operation_minimum_request",
+                target,
+                value,
+                key,
+                directions_exercised=("Encode",),
+            )
+            minimum_ids.append(fixture_id)
+
+        review_result_target = self.catalog.standalone(
+            "ReviewStartResponse"
+        )
+        review_result_base = self.synthesizer.sample(review_result_target)
+        normalize_a13_review_sample(review_result_base)
+        review_thread_ids: list[str] = []
+        for delivery, review_thread_id in (
+            ("inline", "synthetic-thread-id"),
+            ("detached", "synthetic-detached-review-thread-id"),
+        ):
+            value = copy.deepcopy(review_result_base)
+            value["reviewThreadId"] = review_thread_id
+            fixture_id = (
+                "operation:client_request:review/start:result:"
+                f"{delivery}-review-thread"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/operations/client/review-start/supplements/"
+                    f"result-{delivery}-review-thread.json"
+                ),
+                "operation_review_thread_identity",
+                review_result_target,
+                value,
+                review_key,
+                directions_exercised=("Decode",),
+            )
+            review_thread_ids.append(fixture_id)
+
+        action_target = self.catalog.union_target(
+            "GuardianApprovalReviewAction"
+        )
+        empty_array_ids: list[str] = []
+        for alternative, field in (
+            ("applyPatch", "files"),
+            ("execve", "argv"),
+        ):
+            key = next(
+                key
+                for key in self.a13_review_union_keys
+                if key.domain == "GuardianApprovalReviewAction"
+                and key.name == alternative
+            )
+            index, branch, forced_scalar, forced_property = (
+                branch_for_union_identity(
+                    self.catalog,
+                    action_target,
+                    key.discriminator_field,
+                    key.name,
+                )
+            )
+            branch_path = pointer_child(
+                pointer_child(action_target.schema_path, "oneOf"), index
+            )
+            value = self.synthesizer.sample(
+                action_target,
+                branch,
+                branch_path,
+                forced_scalar,
+                forced_property,
+            )
+            normalize_a13_review_sample(value)
+            value[field] = []
+            fixture_id = (
+                f"union:GuardianApprovalReviewAction:{alternative}:"
+                f"explicit-empty-{field}"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    "cases/unions/guardianapprovalreviewaction/"
+                    f"{slug(alternative)}-explicit-empty-{field}.json"
+                ),
+                "union_explicit_empty_array",
+                action_target,
+                value,
+                key,
+                (index,),
+                directions_exercised=("Decode",),
+            )
+            empty_array_ids.append(fixture_id)
+
+        network_key = next(
+            key
+            for key in self.a13_review_union_keys
+            if key.domain == "GuardianApprovalReviewAction"
+            and key.name == "networkAccess"
+        )
+        network_index, network_branch, forced_scalar, forced_property = (
+            branch_for_union_identity(
+                self.catalog,
+                action_target,
+                network_key.discriminator_field,
+                network_key.name,
+            )
+        )
+        network_path = pointer_child(
+            pointer_child(action_target.schema_path, "oneOf"),
+            network_index,
+        )
+        network_base = self.synthesizer.sample(
+            action_target,
+            network_branch,
+            network_path,
+            forced_scalar,
+            forced_property,
+        )
+        normalize_a13_review_sample(network_base)
+        port_boundary_ids: dict[str, list[str]] = {
+            "schema_valid_representable": [],
+            "schema_valid_typed_unrepresentable": [],
+            "schema_invalid": [],
+        }
+        for name, number, representable in (
+            ("minimum", 0, True),
+            ("maximum", 65_535, True),
+            ("overflow", 65_536, False),
+            ("negative", -1, False),
+            ("fractional", 0.5, False),
+        ):
+            value = copy.deepcopy(network_base)
+            value["port"] = number
+            diagnostics = self.catalog.target_validator(
+                action_target
+            ).validate_subschema(
+                value,
+                action_target.schema,
+                action_target.schema_path,
+            )
+            fixture_id = (
+                "union:GuardianApprovalReviewAction:networkAccess:"
+                f"uint16-port-{name}"
+            )
+            relative = (
+                "cases/unions/guardianapprovalreviewaction/"
+                f"networkaccess-uint16-port-{name}.json"
+            )
+            if diagnostics:
+                codes = sorted({item.code for item in diagnostics})
+                self.add_negative(
+                    fixture_id,
+                    relative,
+                    "union_numeric_boundary_invalid",
+                    action_target,
+                    value,
+                    codes,
+                    network_key,
+                    f"uint16_{name}",
+                )
+                port_boundary_ids["schema_invalid"].append(fixture_id)
+            else:
+                self.add_positive(
+                    fixture_id,
+                    relative,
+                    (
+                        "union_numeric_boundary"
+                        if representable
+                        else "union_pinned_format_unrepresentable"
+                    ),
+                    action_target,
+                    value,
+                    network_key,
+                    (network_index,),
+                    directions_exercised=(
+                        ("Decode",) if representable else ()
+                    ),
+                )
+                bucket = (
+                    "schema_valid_representable"
+                    if representable
+                    else "schema_valid_typed_unrepresentable"
+                )
+                port_boundary_ids[bucket].append(fixture_id)
+                if not representable:
+                    self.records[-1]["typed_state_boundary"] = {
+                        "format": "uint16",
+                        "instance_path": "$/port",
+                        "maximum_representable": 65_535,
+                        "minimum_representable": 0,
+                        "production_diagnostic_expected": False,
+                        "reason": (
+                            "Draft-07 format is annotative; the value is "
+                            "outside the reviewed uint16 public state"
+                        ),
+                        "representable": False,
+                    }
+
+        timestamp_boundaries: dict[str, Any] = {}
+        for key in self.a13_review_notification_keys:
+            fields = (
+                ("startedAtMs",)
+                if key.name == "item/autoApprovalReview/started"
+                else ("startedAtMs", "completedAtMs")
+                if key.name == "item/autoApprovalReview/completed"
+                else ()
+            )
+            if not fields:
+                continue
+            target, index, branch = self.catalog.method_target(
+                key.category, key.name
+            )
+            branch_path = pointer_child(
+                pointer_child(target.schema_path, "oneOf"), index
+            )
+            base = self.synthesizer.sample(target, branch, branch_path)
+            normalize_a13_review_sample(base)
+            for field in fields:
+                buckets: dict[str, list[str]] = {
+                    "schema_valid_representable": [],
+                    "schema_valid_typed_unrepresentable": [],
+                    "schema_invalid": [],
+                }
+                for name, number, representable in (
+                    (
+                        "minimum",
+                        -9_223_372_036_854_775_808,
+                        True,
+                    ),
+                    (
+                        "maximum",
+                        9_223_372_036_854_775_807,
+                        True,
+                    ),
+                    (
+                        "underflow",
+                        -9_223_372_036_854_775_809,
+                        False,
+                    ),
+                    (
+                        "overflow",
+                        9_223_372_036_854_775_808,
+                        False,
+                    ),
+                    ("fractional", 0.5, False),
+                ):
+                    value = copy.deepcopy(base)
+                    value["params"][field] = number
+                    diagnostics = self.catalog.target_validator(
+                        target
+                    ).validate_subschema(
+                        value, target.schema, target.schema_path
+                    )
+                    fixture_id = (
+                        f"baseline:{key.compact()}:"
+                        f"int64-{slug(field)}-{name}"
+                    )
+                    relative = (
+                        f"cases/notifications/server/{slug(key.name)}/"
+                        f"{'supplements' if not diagnostics else 'mutations'}/"
+                        f"int64-{slug(field)}-{name}.json"
+                    )
+                    if diagnostics:
+                        codes = sorted(
+                            {item.code for item in diagnostics}
+                        )
+                        self.add_negative(
+                            fixture_id,
+                            relative,
+                            "notification_numeric_boundary_invalid",
+                            target,
+                            value,
+                            codes,
+                            key,
+                            f"int64_{name}",
+                        )
+                        buckets["schema_invalid"].append(fixture_id)
+                    else:
+                        self.add_positive(
+                            fixture_id,
+                            relative,
+                            (
+                                "notification_numeric_boundary"
+                                if representable
+                                else (
+                                    "notification_pinned_format_"
+                                    "unrepresentable"
+                                )
+                            ),
+                            target,
+                            value,
+                            key,
+                            (index,),
+                            directions_exercised=(
+                                ("Decode",) if representable else ()
+                            ),
+                        )
+                        bucket = (
+                            "schema_valid_representable"
+                            if representable
+                            else "schema_valid_typed_unrepresentable"
+                        )
+                        buckets[bucket].append(fixture_id)
+                        if not representable:
+                            self.records[-1]["typed_state_boundary"] = {
+                                "format": "int64",
+                                "instance_path": f"$/params/{field}",
+                                "maximum_representable": (
+                                    9_223_372_036_854_775_807
+                                ),
+                                "minimum_representable": (
+                                    -9_223_372_036_854_775_808
+                                ),
+                                "production_diagnostic_expected": False,
+                                "reason": (
+                                    "Draft-07 format is annotative; the "
+                                    "value is outside the reviewed int64 "
+                                    "public state"
+                                ),
+                                "representable": False,
+                            }
+                timestamp_boundaries[f"{key.name}:{field}"] = buckets
+
+        self.a13_review_positive_coverage.update(
+            {
+                "delivery_fixture_ids": sorted(delivery_ids),
+                "guardian_action_empty_array_fixture_ids": sorted(
+                    empty_array_ids
+                ),
+                "guardian_network_port_boundaries": port_boundary_ids,
+                "full_request_fixture_ids": [
+                    f"operation:client_request:{key.name}:params"
+                    for key in self.a13_review_operation_keys
+                ],
+                "minimum_request_fixture_ids": sorted(minimum_ids),
+                "opaque_guardian_event_fixture_ids": sorted(
+                    opaque_event_ids
+                ),
+                "response_fixture_ids": [
+                    f"operation:client_request:{key.name}:result"
+                    for key in self.a13_review_operation_keys
+                ],
+                "review_thread_identity_fixture_ids": sorted(
+                    review_thread_ids
+                ),
+                "timestamp_boundaries": dict(
+                    sorted(timestamp_boundaries.items())
                 ),
             }
         )
@@ -9512,6 +10373,40 @@ class CorpusBuilder:
         self.a13_filesystem_positive_coverage[
             "notification_empty_array_fixture_ids"
         ] = sorted(empty_array_fixture_ids)
+
+    def _build_a13_review_notification_fixtures(self) -> None:
+        def normalize(_key: SurfaceKey, value: Any) -> None:
+            normalize_a13_review_sample(value)
+
+        (
+            self.a13_review_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.a13_review_notification_keys,
+            batch="A1.3 reviews/guardian",
+            expected_existing=0,
+            expected_generated=3,
+            expected_counts={
+                "base_generated": 3,
+                "missing_required": 32,
+                "nullable_null": 8,
+                "optional_omitted": 8,
+                "required_nullable_null": 0,
+                "wrong_type": 40,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            expected_opaque_paths=set(),
+            normalizer=normalize,
+        )
+        self.a13_review_negative_coverage[
+            "notification_payload_mutations"
+        ] = payload_mutations
+        self.a13_review_positive_coverage[
+            "notification_fixture_ids"
+        ] = [
+            f"baseline:{key.compact()}"
+            for key in self.a13_review_notification_keys
+        ]
 
     def _build_a12_b4_positive_supplements(self) -> None:
         config_key = next(
@@ -11068,6 +11963,9 @@ class CorpusBuilder:
         a13_approval_domains = tuple(
             sorted({key.domain for key in self.a13_approval_union_keys})
         )
+        a13_review_domains = tuple(
+            sorted({key.domain for key in self.a13_review_union_keys})
+        )
         for domain in (
             "CodexErrorInfo",
             *b2_domains,
@@ -11105,6 +12003,16 @@ class CorpusBuilder:
                 and candidate not in b4_domains
                 and candidate not in a12_b2_domains
                 and candidate not in a12_b4_domains
+            ),
+            *(
+                candidate
+                for candidate in a13_review_domains
+                if candidate not in b2_domains
+                and candidate not in b3_domains
+                and candidate not in b4_domains
+                and candidate not in a12_b2_domains
+                and candidate not in a12_b4_domains
+                and candidate not in a13_approval_domains
             ),
         ):
             target = self.catalog.union_target(domain)
@@ -11162,6 +12070,15 @@ class CorpusBuilder:
                     ),
                     key=lambda key: key.name,
                 )
+            elif domain in a13_review_domains:
+                identities = sorted(
+                    (
+                        key
+                        for key in self.a13_review_union_keys
+                        if key.domain == domain
+                    ),
+                    key=lambda key: key.name,
+                )
             else:
                 identities = sorted(
                     (
@@ -11208,6 +12125,8 @@ class CorpusBuilder:
                     normalize_a12_b4_configuration_sample(value)
                 if key in self.a13_approval_union_keys:
                     normalize_a13_approval_sample(value)
+                if key in self.a13_review_union_keys:
+                    normalize_a13_review_sample(value)
                 known_union_values[(domain, key.name)] = (
                     target,
                     copy.deepcopy(value),
@@ -11237,6 +12156,8 @@ class CorpusBuilder:
                         if domain in a12_b4_domains
                         else A13_APPROVAL_UNION_DIRECTIONS[domain]
                         if domain in a13_approval_domains
+                        else A13_REVIEW_UNION_DIRECTIONS[domain]
+                        if domain in a13_review_domains
                         else ()
                     ),
                 )
@@ -11274,6 +12195,12 @@ class CorpusBuilder:
             keys=self.a13_approval_union_keys,
             directions_by_domain=A13_APPROVAL_UNION_DIRECTIONS,
             batch="A1.3 approvals",
+        )
+        self._build_b2_union_supplements(
+            known_union_values,
+            keys=self.a13_review_union_keys,
+            directions_by_domain=A13_REVIEW_UNION_DIRECTIONS,
+            batch="A1.3 reviews/guardian",
         )
 
         target = codex_error_target
@@ -11911,6 +12838,10 @@ class CorpusBuilder:
         elif batch == "A1.3 approvals":
             self.a13_approval_negative_coverage[
                 "approval_permission_unions"
+            ] = coverage
+        elif batch == "A1.3 reviews/guardian":
+            self.a13_review_negative_coverage[
+                "review_guardian_unions"
             ] = coverage
         else:
             raise FixtureError(f"unsupported generic union batch {batch}")
@@ -13526,6 +14457,17 @@ class CorpusBuilder:
             },
             embedded_targets={},
             expected_known_values=15,
+        )
+
+    def _build_a13_review_open_enum_fixtures(self) -> None:
+        self.a13_review_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.3 reviews/guardian",
+            expected_enums=A13_REVIEW_OPEN_STRING_ENUMS,
+            encode_only={"ReviewDelivery"},
+            embedded_targets={},
+            expected_known_values=18,
         )
 
 

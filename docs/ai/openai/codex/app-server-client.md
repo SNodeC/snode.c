@@ -9,12 +9,12 @@ communicates over standard input and standard output.
 The client implements process and transport lifecycle, the Codex initialization
 handshake, a generic raw protocol engine, and typed facades over that engine.
 Callers can submit arbitrary raw App Server messages or use the grouped
-accounts, models, configuration, thread, turn, event, approval, and user-input
-API after the client reaches `Ready`. See
+accounts, models, configuration, command, filesystem, review, thread, turn,
+event, approval, and user-input API after the client reaches `Ready`. See
 [Typed Codex App Server API](typed-api.md) for the public model and
 forward-compatibility rules, and the
-[A1.2 accounts, models, and configuration report](a1-2-accounts-models-configuration.md)
-for that slice's exact closure and compatibility evidence.
+[A1.3 commands, filesystem, reviews, and approvals report](a1-3-commands-filesystem-reviews-approvals.md)
+for the latest slice's exact scope and compatibility evidence.
 
 ## Public interface
 
@@ -58,14 +58,18 @@ client.typed().requests();
 client.typed().accounts();
 client.typed().models();
 client.typed().configuration();
+client.typed().commands();
+client.typed().filesystem();
+client.typed().permissionProfiles();
+client.typed().reviews();
 ```
 
-`typed::Client` delegates to all seven facade objects attached to the same raw
-protocol engine. The legacy direct `threads()`, `turns()`, `events()`, and
-`requests()` accessors remain deprecated source-compatible forwarders.
-Accounts, models, and configuration were introduced only in grouped form, so
-`AppServerClient` has no direct `accounts()`, `models()`, or
-`configuration()` accessor.
+`typed::Client` delegates to all eleven facade objects attached to the same
+raw protocol engine. The legacy direct `threads()`, `turns()`, `events()`, and
+`requests()` accessors remain deprecated source-compatible forwarders. All
+newer domain facades were introduced only in grouped form, so
+`AppServerClient` has no direct account/model/configuration/command/filesystem/
+permission-profile/review accessors.
 
 The A1.2 local typed operations are:
 
@@ -90,6 +94,22 @@ backend commands, frontend commands or state, REST/WebSocket/MQTT endpoints,
 or any other remote exposure. The two `experimentalFeature/*` names above are
 stable management methods in the pinned schema; they do not pull
 experimental-only App Server operations into the typed surface.
+
+The A1.3 local typed operations add:
+
+- commands: `exec`, `resize`, `terminate`, and `write`;
+- filesystem/search: `copy`, `createDirectory`, `getMetadata`,
+  `readDirectory`, `readFile`, `remove`, `watch`, `unwatch`, `writeFile`, and
+  `fuzzyFileSearch`;
+- permission profiles: `list`;
+- reviews: `start`; and
+- threads: `approveGuardianDeniedAction`.
+
+They remain asynchronous protocol calls over the same RawProtocol. SNode.C
+does not execute commands, access the local filesystem, run fuzzy matching, or
+apply guardian policy. The A1.3 notification payloads use the existing Events
+observer, and its five reverse approval/permission requests use the existing
+Requests occurrence/response path.
 
 The authentication-refresh server request remains under
 `client.typed().requests()`. Its canonical request and response types preserve

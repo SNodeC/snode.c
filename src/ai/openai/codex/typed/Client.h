@@ -15,6 +15,7 @@
 #include "ai/openai/codex/typed/Filesystem.h"     // IWYU pragma: export
 #include "ai/openai/codex/typed/Models.h"         // IWYU pragma: export
 #include "ai/openai/codex/typed/PermissionProfiles.h" // IWYU pragma: export
+#include "ai/openai/codex/typed/Reviews.h"            // IWYU pragma: export
 #include "ai/openai/codex/typed/ServerRequests.h" // IWYU pragma: export
 #include "ai/openai/codex/typed/Threads.h"        // IWYU pragma: export
 #include "ai/openai/codex/typed/Turns.h"          // IWYU pragma: export
@@ -55,6 +56,9 @@ namespace ai::openai::codex::typed {
         PermissionProfiles& permissionProfiles() noexcept;
         const PermissionProfiles& permissionProfiles() const noexcept;
 
+        Reviews& reviews() noexcept;
+        const Reviews& reviews() const noexcept;
+
         Threads& threads() noexcept;
         const Threads& threads() const noexcept;
 
@@ -76,6 +80,7 @@ namespace ai::openai::codex::typed {
                std::unique_ptr<Configuration> configuration,
                std::unique_ptr<Models> models,
                std::unique_ptr<PermissionProfiles> permissionProfiles,
+               std::unique_ptr<Reviews> reviews,
                std::unique_ptr<Threads> threads,
                std::unique_ptr<Turns> turns,
                std::unique_ptr<Events> events,

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "fileSystem": {
+      "entries": false,
+      "globScanMaxDepth": 1,
+      "read": [
+        "synthetic-f2afe5ff17"
+      ],
+      "write": [
+        "synthetic-f2afe5ff17"
+      ]
+    },
+    "network": {
+      "enabled": false
+    }
+  },
+  "reason": "Synthetic permission rationale.",
+  "type": "requestPermissions"
+}

@@ -22,7 +22,7 @@ target_link_libraries(
 foreach(
     domain
     IN ITEMS Accounts Models Configuration Commands Filesystem
-             PermissionProfiles
+             PermissionProfiles Reviews
 )
     add_executable(
         SNodeCInstalledCodex${domain}HeaderConsumer

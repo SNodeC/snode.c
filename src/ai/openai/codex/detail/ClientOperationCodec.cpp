@@ -13,6 +13,7 @@
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
+#include "ai/openai/codex/detail/ReviewCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 
@@ -64,6 +65,7 @@ namespace ai::openai::codex::detail {
             "FsWatchResponse",
             "FuzzyFileSearchResponse",
             "PermissionProfileListResponse",
+            "ReviewStartResponse",
         }};
 
         std::string_view resultDecoderIdentity(ClientOperationResultDecoder decoder) noexcept {
@@ -86,7 +88,7 @@ namespace ai::openai::codex::detail {
                    target == ModelList || target == ModelProviderCapabilitiesRead || target == CommandExec || target == FsCopy ||
                    target == FsCreateDirectory || target == FsGetMetadata || target == FsReadDirectory || target == FsReadFile ||
                    target == FsRemove || target == FsUnwatch || target == FsWatch || target == FsWriteFile || target == FuzzyFileSearch ||
-                   target == PermissionProfileList;
+                   target == PermissionProfileList || target == ReviewStart || target == ThreadApproveGuardianDeniedAction;
         }
 
         std::string decoderFieldPath(ClientRequestTarget target,
@@ -276,6 +278,8 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeFuzzyFileSearchResponse(raw, error), error);
                 case PermissionProfileListResponse:
                     return decode(target, key, decodePermissionProfileListResponse(raw, error), error);
+                case ReviewStartResponse:
+                    return decode(target, key, decodeReviewStartResponse(raw, error), error);
                 case Count:
                     break;
             }

@@ -53,6 +53,36 @@ EXPECTED_START_CAPTURE_SOURCES_SHA256 = (
 EXPECTED_START_STATE_DOCUMENT_SHA256 = (
     "fe8cb2ec653e4f87636f358b9eef6dd0504b846e052202795840b41cddc5ceab"
 )
+# The completed A1.2 reports retain their reviewed source snapshot. Later
+# slices necessarily extend the shared fixture generator and maintain this
+# live compatibility guard, so those two records are projected from the
+# frozen report while every immutable authority remains live-hash checked.
+FROZEN_HISTORICAL_SOURCE_SHA256 = {
+    "assignments":
+        "e9097d1d27acd3915da65f7c955c2e8fb25f7ee0fce9b185e4415a1ba85396cf",
+    "fixture_generator":
+        "76d4a099c6c9532b5be3dcaf6fe8841fe42430d1308fa24d92b13141a1e53ded",
+    "generator":
+        "def1e1e4906270f6fd2184284c7e2444cbe19e973b71966eb309d7a976702c0d",
+    "manifest":
+        "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021",
+    "operation_contracts":
+        "226c552c5602301966c39539bbf466f345d4aa625e06d6ca603a9dbcd25e3a9e",
+    "reachability":
+        "07c8bfc8096cb565d7ca0cb1e97c1ffffdeda5b50a82a841971035e506f3ce9a",
+    "shared_a1_validation":
+        "630597817c5a58792d50d66f00e2686c5a839d4e62f75da12a9599411f308935",
+    "shared_schema_path_walker":
+        "dbba364c8ec18ddc417c4b271af049a4f5c07196175e754bd12f2fa03d4eb86a",
+    "stable_aggregate":
+        "40c67e463e6170a8666b681caa4636a030e303cee94e7f0cc893fa8af7680466",
+    "start_state":
+        "86dc9319ab212c3bdea0d483a6759dfde7d7eba7d5ab92a440a206d1097ab7b9",
+}
+HISTORICALLY_MUTABLE_SOURCE_NAMES = {
+    "fixture_generator",
+    "generator",
+}
 
 AuditError = shared.AuditError
 AuditDiagnostic = shared.AuditDiagnostic
@@ -117,6 +147,7 @@ EXPECTED_FINAL_GLOBAL_STATUS = {
     "NotImplemented": 121,
     "Partial": 6,
 }
+MONOTONIC_SUCCESSOR_SLICE = "A1.3"
 EXPECTED_RESULT_KINDS = {"Concrete": 16, "Unit": 2}
 EXPECTED_UNIT_METHODS = {
     "account/logout",
@@ -1018,6 +1049,28 @@ def _source_record(path: Path, repo_root: Path) -> dict[str, str]:
     }
 
 
+def historical_source_records(
+    paths: Mapping[str, Path], repo_root: Path
+) -> dict[str, dict[str, str]]:
+    """Project reviewed A1.2 records while checking immutable authorities."""
+
+    return shared.historical_source_records(
+        paths,
+        repo_root,
+        frozen_hashes=FROZEN_HISTORICAL_SOURCE_SHA256,
+        mutable_names=HISTORICALLY_MUTABLE_SOURCE_NAMES,
+        source_set_error=lambda: AuditError(
+            "A1.2 historical source set changed",
+            "HistoricalSourceSetDrift",
+        ),
+        immutable_source_error=lambda relative: AuditError(
+            f"immutable A1.2 source changed: {relative}",
+            "HistoricalSourceDrift",
+        ),
+        resolve_paths=True,
+    )
+
+
 def start_state_document(
     arguments: argparse.Namespace, base_sha: str
 ) -> dict[str, Any]:
@@ -1360,9 +1413,23 @@ def validate_live_progress(
         frozen_projection = unrelated_baseline[key].get(
             "registry_projection"
         )
-        if frozen_projection != a11.registry_projection(
-            inputs.registry[key]
+        live_projection = a11.registry_projection(inputs.registry[key])
+        if (
+            isinstance(frozen_projection, Mapping)
+            and frozen_projection.get("a1_slice")
+            == MONOTONIC_SUCCESSOR_SLICE
         ):
+            diagnostics.extend(
+                shared.registry_transition_diagnostics(
+                    key,
+                    frozen_projection,
+                    live_projection,
+                    shared.RegistryTransitionPolicy(
+                        scope=MONOTONIC_SUCCESSOR_SLICE
+                    ),
+                )
+            )
+        elif frozen_projection != live_projection:
             add(
                 "UnrelatedSliceDrift",
                 key,
@@ -3478,10 +3545,9 @@ def build_reports(
         "stable_aggregate": aggregate_path,
         "start_state": arguments.start_state,
     }
-    sources = {
-        name: _source_record(path, arguments.repo_root)
-        for name, path in sorted(immutable_paths.items())
-    }
+    sources = historical_source_records(
+        immutable_paths, arguments.repo_root
+    )
     live_progress_inputs = {
         name: {
             "path": path.resolve()

@@ -423,12 +423,13 @@ SOVERSION remains `1` in A1.0 and is bumped once at A1 closure in A1.4. This
 document does not claim binary compatibility for public types changed during
 A1.
 
-## Later slices
+## Slice roadmap
 
-- A1.1 completes threads, turns, sessions, and their transitively reachable
+- A1.1 completed threads, turns, sessions, and their transitively reachable
   item/response unions.
-- A1.2 completes accounts, models, and configuration.
-- A1.3 completes commands, filesystem, reviews, and approvals.
+- A1.2 completed accounts, models, and configuration.
+- A1.3 completed all 68 commands, filesystem, reviews, approvals, guardian,
+  permission-profile, and stable fuzzy-search identities.
 - A1.4 completes the remaining stable domains, verifies full-depth union
   coverage, and closes the A1 rebuild/SOVERSION decision.
 

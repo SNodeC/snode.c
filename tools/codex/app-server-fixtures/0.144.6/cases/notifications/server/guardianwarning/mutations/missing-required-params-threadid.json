@@ -1,0 +1,6 @@
+{
+  "method": "guardianWarning",
+  "params": {
+    "message": "Synthetic guardian warning."
+  }
+}

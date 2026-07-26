@@ -17,6 +17,7 @@
 #include <ai/openai/codex/typed/Models.h>
 #include <ai/openai/codex/typed/PermissionProfiles.h>
 #include <ai/openai/codex/typed/Results.h>
+#include <ai/openai/codex/typed/Reviews.h>
 #include <ai/openai/codex/typed/ServerRequests.h>
 #include <ai/openai/codex/typed/Threads.h>
 #include <ai/openai/codex/typed/Turns.h>
@@ -40,8 +41,8 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 48);
-    static_assert(std::variant_size_v<typed::Event> == 50);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 51);
+    static_assert(std::variant_size_v<typed::Event> == 53);
     static_assert(std::variant_size_v<typed::Account> == 4);
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
@@ -52,7 +53,12 @@ int main() {
     static_assert(std::variant_size_v<typed::FileSystemSpecialPath> == 7);
     static_assert(std::variant_size_v<typed::ParsedCommand> == 5);
     static_assert(std::variant_size_v<typed::ReviewDecision> == 8);
+    static_assert(std::variant_size_v<typed::ReviewTarget> == 5);
+    static_assert(std::variant_size_v<typed::GuardianApprovalReviewAction> == 7);
     static_assert(std::variant_size_v<typed::TypedServerRequest> == 8);
+    static_assert(std::is_constructible_v<typed::Event, typed::GuardianWarningNotification>);
+    static_assert(std::is_constructible_v<typed::Event, typed::ItemGuardianApprovalReviewStartedNotification>);
+    static_assert(std::is_constructible_v<typed::Event, typed::ItemGuardianApprovalReviewCompletedNotification>);
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
@@ -110,6 +116,25 @@ int main() {
                   .description = typed::OptionalNullable<std::string>::withValue("Synthetic profile"),
                   .id = "synthetic-profile"}},
         .nextCursor = typed::OptionalNullable<std::string>::explicitNull(),
+    };
+    typed::ReviewStartParams installedReviewParams{
+        .threadId = {"thread-installed-review"},
+        .target =
+            typed::CommitReviewTarget{
+                .sha = "0123456789abcdef",
+                .title = typed::OptionalNullable<std::string>::explicitNull(),
+            },
+        .delivery = typed::OptionalNullable<typed::ReviewDelivery>::withValue(typed::ReviewDelivery::detached()),
+    };
+    [[maybe_unused]] typed::GuardianApprovalReviewAction installedGuardianAction = typed::NetworkAccessGuardianApprovalReviewAction{
+        .host = "synthetic.invalid",
+        .port = 443,
+        .protocol = typed::NetworkApprovalProtocol::https(),
+        .target = "https://synthetic.invalid/resource",
+    };
+    [[maybe_unused]] typed::Event installedGuardianEvent = typed::GuardianWarningNotification{
+        .message = "Synthetic installed warning.",
+        .threadId = {"thread-installed-review"},
     };
     [[maybe_unused]] typed::CommandExecutionApprovalDecision installedCommandDecision =
         typed::AcceptWithExecpolicyAmendmentCommandExecutionApprovalDecision{.execpolicyAmendment = {"synthetic-command"}};
@@ -430,15 +455,27 @@ int main() {
 
     const auto archiveSubmission = client.typed().threads().archive(
         {.threadId = installedThread.id}, [](const typed::OperationResult<typed::Unit>&) {});
+    const auto guardianApprovalSubmission = client.typed().threads().approveGuardianDeniedAction(
+        {
+            .threadId = installedThread.id,
+            .event = {{"assessment", "synthetic-installed-denied"}},
+        },
+        [](const typed::OperationResult<typed::Unit>&) {
+        });
     const auto goalSubmission = client.typed().threads().getGoal(
         {.threadId = installedThread.id}, [](const typed::OperationResult<typed::ThreadGoalGetResponse>&) {});
+    const auto reviewSubmission =
+        client.typed().reviews().start(std::move(installedReviewParams), [](const typed::OperationResult<typed::ReviewStartResponse>&) {
+        });
     const auto steerSubmission = client.typed().turns().steer(
         {.threadId = installedThread.id,
          .expectedTurnId = installedTurn.id,
          .input = {typed::TextUserInput{.text = "Steer the current turn."}}},
         [](const typed::OperationResult<typed::TurnSteerResponse>&) {});
     (void) archiveSubmission;
+    (void) guardianApprovalSubmission;
     (void) goalSubmission;
+    (void) reviewSubmission;
     (void) steerSubmission;
 
     const auto cancelLoginSubmission = client.typed().accounts().cancelLogin(

@@ -147,16 +147,16 @@ endfunction()
 
 # These exact pinned counts make omission of any authoritative input or fixture
 # mechanically visible. The fixture generator's extracted-package check below
-# additionally proves that all 4815 index records resolve to the retained files
+# additionally proves that all 5883 index records resolve to the retained files
 # with their recorded hashes and that no stale or extra fixture exists.
 assert_retained_prefix("tools/codex/app-server-schema/0.144.6" 607)
-assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 4816)
+assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 5884)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 17)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 20)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
-assert_retained_prefix("docs/ai/openai/codex" 16)
+assert_retained_prefix("docs/ai/openai/codex" 17)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
 )
@@ -169,10 +169,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 11)
+if(NOT top_level_codex_tool_count EQUAL 12)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 11, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 12, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -254,6 +254,8 @@ set(
     "src/ai/openai/codex/detail/ConfigurationCodec.h"
     "src/ai/openai/codex/detail/ModelCodec.cpp"
     "src/ai/openai/codex/detail/ModelCodec.h"
+    "src/ai/openai/codex/detail/ReviewCodec.cpp"
+    "src/ai/openai/codex/detail/ReviewCodec.h"
     "src/ai/openai/codex/detail/ThreadItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ResponseItemCodecDescriptors.inc"
     "src/ai/openai/codex/detail/ServerRequestCodecDescriptors.inc"
@@ -270,6 +272,7 @@ set(
     "src/ai/openai/codex/typed/Models.cpp"
     "src/ai/openai/codex/typed/Models.h"
     "src/ai/openai/codex/typed/PermissionProfiles.h"
+    "src/ai/openai/codex/typed/Reviews.h"
     "tests/CodexBinaryPackageTest.cmake"
     "tests/component/codex/CodexA11B2TypedSurfaceBaseline.h"
     "tests/component/codex/CodexA11ArtifactByteIdentityTest.py"
@@ -307,6 +310,9 @@ set(
     "tests/component/codex/CodexA13ApprovalBackendCompatibilityTest.cpp"
     "tests/component/codex/CodexA13ApprovalCodecTest.cpp"
     "tests/component/codex/CodexA13ApprovalWireTest.cpp"
+    "tests/component/codex/CodexA13ReviewBackendCompatibilityTest.cpp"
+    "tests/component/codex/CodexA13ReviewCodecTest.cpp"
+    "tests/component/codex/CodexA13ReviewWireTest.cpp"
     "tests/component/codex/CodexDraft07ValidatorTest.py"
     "tests/component/codex/CodexTypedClientFacadeTest.cpp"
     "tests/component/codex/CodexTypedFacadeUsageGuardTest.py"
@@ -316,6 +322,7 @@ set(
     "tests/installed/codex/CodexFilesystemHeaderConsumer.cpp"
     "tests/installed/codex/CodexModelsHeaderConsumer.cpp"
     "tests/installed/codex/CodexPermissionProfilesHeaderConsumer.cpp"
+    "tests/installed/codex/CodexReviewsHeaderConsumer.cpp"
     "tests/installed/codex/CodexTypedConsumer.cpp"
     "tests/policy/codex/CodexA12PublicHeaderPolicyTest.cpp"
     "tests/policy/security/CodexSyntheticSecretLeakGuardTest.py"

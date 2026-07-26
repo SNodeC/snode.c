@@ -428,10 +428,10 @@ NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
 
 # A1.1's checked production-coverage documents are frozen historical evidence.
 # Their source inventories still describe the exact tool and CMake inputs used to
-# close that slice.  Later A1 slices may extend those two files, so retain only
-# those historical source-record values while continuing to hash every production
-# implementation/test source live.  The current CMake registrations are validated
-# independently below before either historical record is used.
+# close that slice. Later A1 slices may extend the shared files listed below,
+# so retain their historical source-record values while continuing to hash
+# every other production implementation/test source live. Current CMake
+# registrations are validated independently before historical records are used.
 _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
     "src/ai/openai/codex/detail/ClientOperationCodec.cpp": {
         "path": "src/ai/openai/codex/detail/ClientOperationCodec.cpp",
@@ -500,6 +500,13 @@ _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
         "bytes": 21876,
         "sha256": (
             "aaaac633ae3bc3f0e023b477590f819c2930113f57678fb0907e9d0bdc50ba18"
+        ),
+    },
+    "src/ai/openai/codex/typed/Threads.h": {
+        "path": "src/ai/openai/codex/typed/Threads.h",
+        "bytes": 17629,
+        "sha256": (
+            "679ff54526c98e3c43b3c880f4bb114adad38686de1b418acbe9f6c46ee82f78"
         ),
     },
     "tests/component/codex/CodexA11NotificationCodecTest.cpp": {
@@ -1528,6 +1535,17 @@ A13_APPROVAL_UNION_FAMILIES = {
             "unknown",
         ),
     ),
+    "GuardianApprovalReviewAction": (
+        "type",
+        (
+            "applyPatch",
+            "command",
+            "execve",
+            "mcpToolCall",
+            "networkAccess",
+            "requestPermissions",
+        ),
+    ),
     "ParsedCommand": (
         "type",
         ("list_files", "read", "search", "unknown"),
@@ -1542,6 +1560,15 @@ A13_APPROVAL_UNION_FAMILIES = {
             "denied",
             "network_policy_amendment",
             "timed_out",
+        ),
+    ),
+    "ReviewTarget": (
+        "type",
+        (
+            "baseBranch",
+            "commit",
+            "custom",
+            "uncommittedChanges",
         ),
     ),
 }
@@ -1582,7 +1609,11 @@ COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS = {
             if discriminator == "$variant"
             else "ConversationUnionCodecShape::InternallyTaggedObject"
         ),
-        "ConversationUnionCodecDirection::Bidirectional",
+        (
+            "ConversationUnionCodecDirection::DecodeOnly"
+            if domain == "GuardianApprovalReviewAction"
+            else "ConversationUnionCodecDirection::Bidirectional"
+        ),
     )
     for domain, (discriminator, names) in A13_APPROVAL_UNION_FAMILIES.items()
     for name in names
@@ -1788,6 +1819,18 @@ RUNTIME_TARGETS = {
         "method",
         "permissionProfile/list",
     ): "ClientRequestTarget::PermissionProfileList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "review/start",
+    ): "ClientRequestTarget::ReviewStart",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/approveGuardianDeniedAction",
+    ): "ClientRequestTarget::ThreadApproveGuardianDeniedAction",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1896,6 +1939,24 @@ RUNTIME_TARGETS = {
         "method",
         "fuzzyFileSearch/sessionUpdated",
     ): "ServerNotificationTarget::FuzzyFileSearchSessionUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "guardianWarning",
+    ): "ServerNotificationTarget::GuardianWarning",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/autoApprovalReview/completed",
+    ): "ServerNotificationTarget::ItemGuardianApprovalReviewCompleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/autoApprovalReview/started",
+    ): "ServerNotificationTarget::ItemGuardianApprovalReviewStarted",
     (
         "server_notification",
         "ServerNotification",
@@ -2462,6 +2523,13 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "fuzzyFileSearch/sessionUpdated": (
         "typed::FuzzyFileSearchSessionUpdatedNotification"
     ),
+    "guardianWarning": "typed::GuardianWarningNotification",
+    "item/autoApprovalReview/completed": (
+        "typed::ItemGuardianApprovalReviewCompletedNotification"
+    ),
+    "item/autoApprovalReview/started": (
+        "typed::ItemGuardianApprovalReviewStartedNotification"
+    ),
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
     "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
     "item/commandExecution/terminalInteraction": "typed::TerminalInteractionNotification",
@@ -2548,7 +2616,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 49
+    len(SERVER_NOTIFICATION_CODECS) != 52
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5725,6 +5793,8 @@ def registry_statuses(
                     "fs/writeFile",
                     "fuzzyFileSearch",
                     "permissionProfile/list",
+                    "review/start",
+                    "thread/approveGuardianDeniedAction",
                 }
             )
             or (
@@ -5735,6 +5805,9 @@ def registry_statuses(
                     "fs/changed",
                     "fuzzyFileSearch/sessionCompleted",
                     "fuzzyFileSearch/sessionUpdated",
+                    "guardianWarning",
+                    "item/autoApprovalReview/completed",
+                    "item/autoApprovalReview/started",
                 }
             )
             or (
@@ -5750,10 +5823,11 @@ def registry_statuses(
             )
         )
     ):
-        # The staged A1.3 command, filesystem, and approval descriptors bind
-        # exact stable roots/unions to their reviewed production codecs.
-        # Schema-derived fixtures and focused wire tests cover both directions
-        # without adding local execution, filesystem, or approval policy.
+        # The staged A1.3 command, filesystem, approval, review, and guardian
+        # descriptors bind exact stable roots/unions to their reviewed
+        # production codecs. Schema-derived fixtures and focused wire tests
+        # cover every required direction without adding local execution,
+        # filesystem access, approval policy, or review state.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -6221,7 +6295,7 @@ def generate_commands_filesystem_reviews_approvals_union_descriptor_data(
     schema_root: Path,
     evidence: dict[str, Any] | None = None,
 ) -> str:
-    """Generate exact private A1.3 approval/permission union metadata."""
+    """Generate exact private A1.3 union metadata."""
 
     evidence = (
         evidence if evidence is not None else load_a1_registry_evidence()
@@ -6250,14 +6324,15 @@ def generate_commands_filesystem_reviews_approvals_union_descriptor_data(
     }
     if (
         expected_keys != descriptor_keys
-        or len(descriptor_keys) != 29
+        or len(descriptor_keys) != 39
         or actual_family_counts != expected_family_counts
     ):
         raise SurfaceError(
             "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch: "
             "the exact 6 command decisions, 3 file changes, 3 filesystem "
-            "paths, 6 special paths, 4 parsed commands, and 7 review "
-            "decisions must each own one descriptor"
+            "paths, 6 special paths, 6 guardian actions, 4 parsed commands, "
+            "7 review decisions, and 4 review targets must each own one "
+            "descriptor"
         )
     targets = [
         metadata[0]
@@ -6265,21 +6340,42 @@ def generate_commands_filesystem_reviews_approvals_union_descriptor_data(
             COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.values()
         )
     ]
-    if len(set(targets)) != 29:
+    if len(set(targets)) != 39:
         raise SurfaceError(
             "DuplicateCommandsFilesystemReviewsApprovalsUnionDescriptorTarget: "
             "each exact key must own one unique runtime target"
         )
-    if any(
-        metadata[2]
-        != "ConversationUnionCodecDirection::Bidirectional"
-        for metadata in (
-            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.values()
+    directions = {
+        key: metadata[2]
+        for key, metadata in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.items()
+        )
+    }
+    if (
+        sum(
+            direction == "ConversationUnionCodecDirection::DecodeOnly"
+            for direction in directions.values()
+        )
+        != 6
+        or sum(
+            direction == "ConversationUnionCodecDirection::Bidirectional"
+            for direction in directions.values()
+        )
+        != 33
+        or any(
+            direction
+            != (
+                "ConversationUnionCodecDirection::DecodeOnly"
+                if key[1] == "GuardianApprovalReviewAction"
+                else "ConversationUnionCodecDirection::Bidirectional"
+            )
+            for key, direction in directions.items()
         )
     ):
         raise SurfaceError(
             "CommandsFilesystemReviewsApprovalsUnionDescriptorDirectionMismatch: "
-            "all 29 approval/permission alternatives must remain bidirectional"
+            "the 6 guardian actions must remain decode-only and the other "
+            "33 A1.3 alternatives must remain bidirectional"
         )
 
     entries = {
@@ -6524,6 +6620,8 @@ def generate_client_operation_descriptor_data(
                     "fs/writeFile",
                     "fuzzyFileSearch",
                     "permissionProfile/list",
+                    "review/start",
+                    "thread/approveGuardianDeniedAction",
                 }
             )
         )
@@ -6536,9 +6634,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 55
+        len(expected_keys) != 57
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 55
+        or len(set(targets.values())) != 57
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6547,8 +6645,8 @@ def generate_client_operation_descriptor_data(
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
             "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, 2 A1.2 B4, "
-            "5 A1.2 B5, 4 A1.3 command, 10 A1.3 filesystem/fuzzy, and "
-            "1 A1.3 permission-profile "
+            "5 A1.2 B5, 4 A1.3 command, 10 A1.3 filesystem/fuzzy, "
+            "1 A1.3 permission-profile, and 2 A1.3 review/guardian "
             "client requests must each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -6580,10 +6678,11 @@ def generate_client_operation_descriptor_data(
         "fs/remove",
         "fs/unwatch",
         "fs/writeFile",
+        "thread/approveGuardianDeniedAction",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 38
+        or len(expected_keys - unit_keys) != 39
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6591,8 +6690,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2+A1.3 requests must remain exactly 17 Unit and "
-            "38 Concrete requests"
+            "typed A1.1+A1.2+A1.3 requests must remain exactly 18 Unit and "
+            "39 Concrete requests"
         )
 
     result_decoders = {
@@ -6618,6 +6717,7 @@ def generate_client_operation_descriptor_data(
         "ModelListResponse",
         "ModelProviderCapabilitiesReadResponse",
         "PermissionProfileListResponse",
+        "ReviewStartResponse",
         "SendAddCreditsNudgeEmailResponse",
         "ThreadForkResponse",
         "ThreadGoalClearResponse",
@@ -6694,14 +6794,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 49
+        len(expected_keys) != 52
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 49
+        != 52
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 49 typed server-notification targets must own "
+            "every one of the 52 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -6765,6 +6865,20 @@ def generate_server_notification_descriptor_data(
         }
     }
     residual_keys -= a13_filesystem_keys
+    a13_review_guardian_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3]
+        in {
+            "guardianWarning",
+            "item/autoApprovalReview/completed",
+            "item/autoApprovalReview/started",
+        }
+    }
+    residual_keys -= a13_review_guardian_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
@@ -6772,13 +6886,15 @@ def generate_server_notification_descriptor_data(
         or len(a12_b4_keys) != 1
         or len(a13_command_keys) != 1
         or len(a13_filesystem_keys) != 3
+        or len(a13_review_guardian_keys) != 3
         or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
             "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
             "3 A1.2 B3, 1 A1.2 B4, 1 A1.3 command, and 3 A1.3 "
-            "filesystem/fuzzy rows from the residual partial error row"
+            "filesystem/fuzzy, and 3 A1.3 review/guardian rows from the "
+            "residual partial error row"
         )
 
     lines = [
@@ -9889,8 +10005,8 @@ def parser() -> argparse.ArgumentParser:
     a13_union_descriptors = subparsers.add_parser(
         "commands-filesystem-reviews-approvals-union-descriptors",
         help=(
-            "generate private A1.3 approval/permission union codec "
-            "descriptors"
+            "generate private A1.3 command/filesystem/review/approval union "
+            "codec descriptors"
         ),
     )
     a13_union_descriptors.add_argument(
