@@ -1,0 +1,9 @@
+{
+  "method": null,
+  "params": {
+    "capReached": false,
+    "deltaBase64": "c3ludGhldGljLWRhdGE=",
+    "processId": "synthetic-process-id",
+    "stream": "stdout"
+  }
+}

@@ -10,6 +10,7 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
@@ -20,6 +21,7 @@
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 #include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Events.h"
@@ -48,6 +50,7 @@ namespace ai::openai::codex::typed {
     class Client::Impl {
     public:
         Impl(std::unique_ptr<Accounts> accounts,
+             std::unique_ptr<Commands> commands,
              std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
              std::unique_ptr<Threads> threads,
@@ -55,6 +58,7 @@ namespace ai::openai::codex::typed {
              std::unique_ptr<Events> events,
              std::unique_ptr<Requests> requests)
             : accounts(std::move(accounts))
+            , commands(std::move(commands))
             , configuration(std::move(configuration))
             , models(std::move(models))
             , threads(std::move(threads))
@@ -64,6 +68,7 @@ namespace ai::openai::codex::typed {
         }
 
         std::unique_ptr<Accounts> accounts;
+        std::unique_ptr<Commands> commands;
         std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
         std::unique_ptr<Threads> threads;
@@ -73,6 +78,7 @@ namespace ai::openai::codex::typed {
     };
 
     Client::Client(std::unique_ptr<Accounts> accounts,
+                   std::unique_ptr<Commands> commands,
                    std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
                    std::unique_ptr<Threads> threads,
@@ -80,6 +86,7 @@ namespace ai::openai::codex::typed {
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
         : impl(std::make_unique<Impl>(std::move(accounts),
+                                     std::move(commands),
                                      std::move(configuration),
                                      std::move(models),
                                      std::move(threads),
@@ -96,6 +103,14 @@ namespace ai::openai::codex::typed {
 
     const Accounts& Client::accounts() const noexcept {
         return *impl->accounts;
+    }
+
+    Commands& Client::commands() noexcept {
+        return *impl->commands;
+    }
+
+    const Commands& Client::commands() const noexcept {
+        return *impl->commands;
     }
 
     Configuration& Client::configuration() noexcept {
@@ -318,6 +333,33 @@ namespace ai::openai::codex::typed {
                                                                     params,
                                                                     std::move(handler),
                                                                     detail::encodeSendAddCreditsNudgeEmailParams);
+    }
+
+    Commands::Commands(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Commands::Submission Commands::exec(CommandExecParams params, ExecResultHandler handler) {
+        return submitTypedRequest<CommandExecResponse>(
+            protocol, detail::ClientRequestTarget::CommandExec, params, std::move(handler), detail::encodeCommandExecParams);
+    }
+
+    Commands::Submission Commands::resize(CommandExecResizeParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::CommandExecResize, params, std::move(handler), detail::encodeCommandExecResizeParams);
+    }
+
+    Commands::Submission Commands::terminate(CommandExecTerminateParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(protocol,
+                                        detail::ClientRequestTarget::CommandExecTerminate,
+                                        params,
+                                        std::move(handler),
+                                        detail::encodeCommandExecTerminateParams);
+    }
+
+    Commands::Submission Commands::write(CommandExecWriteParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::CommandExecWrite, params, std::move(handler), detail::encodeCommandExecWriteParams);
     }
 
     Accounts::Submission Accounts::readUsage(Unit params, ReadUsageResultHandler handler) {

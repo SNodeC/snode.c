@@ -9,6 +9,7 @@
 #include <ai/openai/codex/stdio/Client.h>
 #include <ai/openai/codex/typed/Accounts.h>
 #include <ai/openai/codex/typed/Client.h>
+#include <ai/openai/codex/typed/Commands.h>
 #include <ai/openai/codex/typed/Configuration.h>
 #include <ai/openai/codex/typed/Conversation.h>
 #include <ai/openai/codex/typed/Events.h>
@@ -38,7 +39,8 @@ int main() {
     static_assert(std::variant_size_v<typed::WebSearchAction> == 5);
     static_assert(std::variant_size_v<typed::ThreadItem> == 19);
     static_assert(std::variant_size_v<typed::ResponseItem> == 17);
-    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 44);
+    static_assert(std::variant_size_v<typed::CanonicalServerNotification> == 45);
+    static_assert(std::variant_size_v<typed::Event> == 47);
     static_assert(std::variant_size_v<typed::Account> == 4);
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
@@ -75,6 +77,27 @@ int main() {
         typed::UpdatePatchChangeKind{.movePath = typed::OptionalNullable<std::string>::explicitNull()};
     [[maybe_unused]] typed::SandboxPolicy sandbox =
         typed::WorkspaceWriteSandboxPolicy{.writableRoots = std::vector<typed::AbsolutePathBuf>{{"/tmp"}}};
+    typed::CommandExecParams installedCommandParams{
+        .command = {"synthetic-command", "argument with spaces", ""},
+        .cwd = typed::OptionalNullable<std::string>::explicitNull(),
+        .env = typed::OptionalNullable<std::map<std::string, std::optional<std::string>>>::withValue(
+            {{"SET", "synthetic-value"}, {"UNSET", std::nullopt}}),
+        .processId = typed::OptionalNullable<typed::CommandExecProcessId>::withValue({"installed-process"}),
+        .streamStdin = true,
+        .streamStdoutStderr = true,
+    };
+    [[maybe_unused]] typed::CommandExecResponse installedCommandResponse{
+        .exitCode = 0,
+        .stdoutData = "synthetic-stdout",
+        .stderrData = "synthetic-stderr",
+        .raw = {{"exitCode", 0}, {"stdout", "synthetic-stdout"}, {"stderr", "synthetic-stderr"}},
+    };
+    [[maybe_unused]] typed::Event installedCommandEvent = typed::CommandExecOutputDeltaNotification{
+        .capReached = false,
+        .deltaBase64 = "c3ludGhldGlj",
+        .processId = {"installed-process"},
+        .stream = typed::CommandExecOutputStream::stdoutStream(),
+    };
     [[maybe_unused]] typed::UserInput userInput =
         typed::TextUserInput{.text = "Describe this directory.", .textElements = std::vector<typed::TextElement>{}};
     [[maybe_unused]] typed::WebSearchAction web =
@@ -473,6 +496,26 @@ int main() {
     (void) configValueWriteSubmission;
     (void) featureEnablementSubmission;
     (void) featureListSubmission;
+
+    const auto commandExecSubmission =
+        client.typed().commands().exec(std::move(installedCommandParams), [](const typed::OperationResult<typed::CommandExecResponse>&) {
+        });
+    const auto commandResizeSubmission = client.typed().commands().resize({.processId = {"installed-process"}, .size = {120, 40}},
+                                                                          [](const typed::OperationResult<typed::Unit>&) {
+                                                                          });
+    const auto commandTerminateSubmission =
+        client.typed().commands().terminate({.processId = {"installed-process"}}, [](const typed::OperationResult<typed::Unit>&) {
+        });
+    const auto commandWriteSubmission =
+        client.typed().commands().write({.processId = {"installed-process"},
+                                         .deltaBase64 = typed::OptionalNullable<std::string>::withValue("c3ludGhldGlj"),
+                                         .closeStdin = true},
+                                        [](const typed::OperationResult<typed::Unit>&) {
+                                        });
+    (void) commandExecSubmission;
+    (void) commandResizeSubmission;
+    (void) commandTerminateSubmission;
+    (void) commandWriteSubmission;
 
     typed::ThreadStartParams launchParams;
     launchParams.cwd = typed::OptionalNullable<std::string>::withValue("/tmp");

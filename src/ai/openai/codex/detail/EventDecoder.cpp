@@ -10,6 +10,7 @@
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConversationCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
@@ -547,6 +548,7 @@ namespace ai::openai::codex::detail {
             const bool exactPathNotification = notification.method == "account/login/completed" ||
                                                notification.method == "account/rateLimits/updated" ||
                                                notification.method == "account/updated" ||
+                                               notification.method == "command/exec/outputDelta" ||
                                                notification.method == "configWarning" ||
                                                notification.method == "model/rerouted" ||
                                                notification.method == "model/safetyBuffering/updated" ||
@@ -566,6 +568,15 @@ namespace ai::openai::codex::detail {
                 unknown->diagnostic->fieldPath = std::move(fieldPath);
             }
             return event;
+        }
+
+        typed::Event decodeCommandExecOutputDelta(const Notification& notification) {
+            std::string error;
+            auto decoded = decodeCommandExecOutputDeltaNotification(notification, error);
+            if (!decoded) {
+                return malformedEvent(notification, std::move(error));
+            }
+            return typed::Event{std::move(*decoded)};
         }
 
         typed::Event decodeThreadStarted(const Notification& notification) {
@@ -1433,6 +1444,8 @@ namespace ai::openai::codex::detail {
                     return decodeTurnPlanUpdated(notification);
                 case ServerNotificationTarget::ModelRerouted:
                     return decodeModelRerouted(notification);
+                case ServerNotificationTarget::CommandExecOutputDelta:
+                    return decodeCommandExecOutputDelta(notification);
                 case ServerNotificationTarget::Count:
                     break;
             }

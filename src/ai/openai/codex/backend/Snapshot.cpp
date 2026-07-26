@@ -196,6 +196,17 @@ namespace ai::openai::codex::backend {
         }
 
         Json sanitizeExtensionJsonForMethod(std::string_view method, const Json& value, JsonSanitizerState& state) {
+            if (method == "command/exec/outputDelta" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"deltaBase64", "processId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
             if (method == "configWarning" && value.is_object()) {
                 Json methodSanitized = value;
                 const auto details = methodSanitized.find("details");

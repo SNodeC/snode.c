@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 270,
-      "fixture_current": 270,
-      "independently_schema_validated": 270,
-      "nullable_semantics_exercised": 212,
-      "optional_omitted_exercised": 270,
-      "optional_present_exercised": 270,
-      "positive_fixture_coverage": 270,
-      "reachable_union_alternatives_exercised": 212,
-      "required_fields_exercised": 270,
-      "schema_properties_exercised": 212
+      "authoritative_root_association": 271,
+      "fixture_current": 271,
+      "independently_schema_validated": 271,
+      "nullable_semantics_exercised": 217,
+      "optional_omitted_exercised": 271,
+      "optional_present_exercised": 271,
+      "positive_fixture_coverage": 271,
+      "reachable_union_alternatives_exercised": 217,
+      "required_fields_exercised": 271,
+      "schema_properties_exercised": 217
     },
-    "identities_with_positive_fixtures": 270,
+    "identities_with_positive_fixtures": 271,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -404,9 +404,49 @@
     {
       "fixture_ids": [
         "operation:client_request:command/exec:params",
-        "operation:client_request:command/exec:result"
+        "operation:client_request:command/exec:params:explicit-empty-environment",
+        "operation:client_request:command/exec:params:int64-timeoutms-maximum",
+        "operation:client_request:command/exec:params:int64-timeoutms-minimum",
+        "operation:client_request:command/exec:params:int64-timeoutms-overflow",
+        "operation:client_request:command/exec:params:int64-timeoutms-underflow",
+        "operation:client_request:command/exec:params:minimum",
+        "operation:client_request:command/exec:params:nullable-null:cwd",
+        "operation:client_request:command/exec:params:nullable-null:env",
+        "operation:client_request:command/exec:params:nullable-null:outputbytescap",
+        "operation:client_request:command/exec:params:nullable-null:processid",
+        "operation:client_request:command/exec:params:nullable-null:sandboxpolicy",
+        "operation:client_request:command/exec:params:nullable-null:size",
+        "operation:client_request:command/exec:params:nullable-null:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:cwd",
+        "operation:client_request:command/exec:params:optional-omitted:disableoutputcap",
+        "operation:client_request:command/exec:params:optional-omitted:disabletimeout",
+        "operation:client_request:command/exec:params:optional-omitted:env",
+        "operation:client_request:command/exec:params:optional-omitted:outputbytescap",
+        "operation:client_request:command/exec:params:optional-omitted:processid",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy-networkaccess",
+        "operation:client_request:command/exec:params:optional-omitted:size",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdin",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdoutstderr",
+        "operation:client_request:command/exec:params:optional-omitted:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:tty",
+        "operation:client_request:command/exec:params:schema-valid-empty-command",
+        "operation:client_request:command/exec:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec:params:uint16-size-rows-overflow",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-maximum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-minimum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-overflow",
+        "operation:client_request:command/exec:result",
+        "operation:client_request:command/exec:result:int32-exitcode-maximum",
+        "operation:client_request:command/exec:result:int32-exitcode-minimum",
+        "operation:client_request:command/exec:result:int32-exitcode-overflow",
+        "operation:client_request:command/exec:result:int32-exitcode-underflow"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 42,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -417,21 +457,28 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/resize:params",
+        "operation:client_request:command/exec/resize:params:minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-overflow",
         "operation:client_request:command/exec/resize:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 9,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -442,21 +489,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/terminate:params",
+        "operation:client_request:command/exec/terminate:params:minimum",
         "operation:client_request:command/exec/terminate:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -467,21 +515,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/write:params",
+        "operation:client_request:command/exec/write:params:minimum",
+        "operation:client_request:command/exec/write:params:nullable-null:deltabase64",
+        "operation:client_request:command/exec/write:params:optional-omitted:closestdin",
+        "operation:client_request:command/exec/write:params:optional-omitted:deltabase64",
         "operation:client_request:command/exec/write:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -492,13 +544,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5006,8 +5058,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta",
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta:stderr-cap-reached"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5015,16 +5070,16 @@
         "name": "command/exec/outputDelta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

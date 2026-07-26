@@ -808,6 +808,9 @@ namespace ai::openai::codex::backend {
                 },
                 [](const typed::UnknownEvent& value) -> std::vector<BackendEvent> {
                     return {detail::preserveUnmodeledTypedEvent({value.method, value.params, value.decodingError, value.diagnostic})};
+                },
+                [](const typed::CommandExecOutputDeltaNotification& value) -> std::vector<BackendEvent> {
+                    return preserveTypedNotification(value, ServerNotificationTarget::CommandExecOutputDelta);
                 }},
             event);
     }

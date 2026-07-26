@@ -21,6 +21,7 @@ foreach(
           ai/openai/codex/detail/CodexErrorInfoCodec.h
           ai/openai/codex/detail/AccountCodec.h
           ai/openai/codex/detail/ClientOperationCodec.h
+          ai/openai/codex/detail/CommandCodec.h
           ai/openai/codex/detail/ConfigurationCodec.h
           ai/openai/codex/detail/ConversationCodec.h
           ai/openai/codex/detail/ClientOperationCodecDescriptors.inc
@@ -71,6 +72,7 @@ set(
     "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
+    "typed/Commands.h"
     "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
@@ -146,6 +148,8 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "ClientOperationCodec.cpp"
        OR installed_name STREQUAL "ClientOperationCodec.h"
        OR installed_name STREQUAL "ClientOperationCodecDescriptors.inc"
+       OR installed_name STREQUAL "CommandCodec.cpp"
+       OR installed_name STREQUAL "CommandCodec.h"
        OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
        OR installed_name STREQUAL "ThreadItemCodecDescriptors.inc"
        OR installed_name STREQUAL "ResponseItemCodecDescriptors.inc"

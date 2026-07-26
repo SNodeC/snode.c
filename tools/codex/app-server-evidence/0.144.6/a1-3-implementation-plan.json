@@ -63,16 +63,17 @@
       "B5": 15
     },
     "current_a1_3_schema_status": {
-      "NotImplemented": 66,
+      "Complete": 5,
+      "NotImplemented": 61,
       "Partial": 2
     },
     "current_global_schema_status": {
-      "Complete": 212,
+      "Complete": 217,
       "NotApplicable": 48,
-      "NotImplemented": 121,
+      "NotImplemented": 116,
       "Partial": 6
     },
-    "current_progress_stage": "Start",
+    "current_progress_stage": "B2",
     "expected_final_global_schema_status": {
       "Complete": 280,
       "NotApplicable": 48,
@@ -104,9 +105,49 @@
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:command/exec:params",
-        "operation:client_request:command/exec:result"
+        "operation:client_request:command/exec:params:explicit-empty-environment",
+        "operation:client_request:command/exec:params:int64-timeoutms-maximum",
+        "operation:client_request:command/exec:params:int64-timeoutms-minimum",
+        "operation:client_request:command/exec:params:int64-timeoutms-overflow",
+        "operation:client_request:command/exec:params:int64-timeoutms-underflow",
+        "operation:client_request:command/exec:params:minimum",
+        "operation:client_request:command/exec:params:nullable-null:cwd",
+        "operation:client_request:command/exec:params:nullable-null:env",
+        "operation:client_request:command/exec:params:nullable-null:outputbytescap",
+        "operation:client_request:command/exec:params:nullable-null:processid",
+        "operation:client_request:command/exec:params:nullable-null:sandboxpolicy",
+        "operation:client_request:command/exec:params:nullable-null:size",
+        "operation:client_request:command/exec:params:nullable-null:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:cwd",
+        "operation:client_request:command/exec:params:optional-omitted:disableoutputcap",
+        "operation:client_request:command/exec:params:optional-omitted:disabletimeout",
+        "operation:client_request:command/exec:params:optional-omitted:env",
+        "operation:client_request:command/exec:params:optional-omitted:outputbytescap",
+        "operation:client_request:command/exec:params:optional-omitted:processid",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy-networkaccess",
+        "operation:client_request:command/exec:params:optional-omitted:size",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdin",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdoutstderr",
+        "operation:client_request:command/exec:params:optional-omitted:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:tty",
+        "operation:client_request:command/exec:params:schema-valid-empty-command",
+        "operation:client_request:command/exec:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec:params:uint16-size-rows-overflow",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-maximum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-minimum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-overflow",
+        "operation:client_request:command/exec:result",
+        "operation:client_request:command/exec:result:int32-exitcode-maximum",
+        "operation:client_request:command/exec:result:int32-exitcode-minimum",
+        "operation:client_request:command/exec:result:int32-exitcode-overflow",
+        "operation:client_request:command/exec:result:int32-exitcode-underflow"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -115,34 +156,41 @@
         "name": "command/exec"
       },
       "reachable_definition_count": 6,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::CommandExec",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B2",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:command/exec/resize:params",
+        "operation:client_request:command/exec/resize:params:minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-overflow",
         "operation:client_request:command/exec/resize:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -151,34 +199,35 @@
         "name": "command/exec/resize"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::CommandExecResize",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B2",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:command/exec/terminate:params",
+        "operation:client_request:command/exec/terminate:params:minimum",
         "operation:client_request:command/exec/terminate:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -187,34 +236,38 @@
         "name": "command/exec/terminate"
       },
       "reachable_definition_count": 2,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::CommandExecTerminate",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B2",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:command/exec/write:params",
+        "operation:client_request:command/exec/write:params:minimum",
+        "operation:client_request:command/exec/write:params:nullable-null:deltabase64",
+        "operation:client_request:command/exec/write:params:optional-omitted:closestdin",
+        "operation:client_request:command/exec/write:params:optional-omitted:deltabase64",
         "operation:client_request:command/exec/write:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -223,25 +276,25 @@
         "name": "command/exec/write"
       },
       "reachable_definition_count": 2,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::CommandExecWrite",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",
@@ -714,8 +767,11 @@
     {
       "batch": "B2",
       "classification": "StablePublicRoot",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta",
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta:stderr-cap-reached"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_notification",
@@ -724,25 +780,25 @@
         "name": "command/exec/outputDelta"
       },
       "reachable_definition_count": 2,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerNotificationTarget::CommandExecOutputDelta",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B3",

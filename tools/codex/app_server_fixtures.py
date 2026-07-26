@@ -709,6 +709,25 @@ A12_B5_OPEN_STRING_ENUMS = {
     "MergeStrategy": ("replace", "upsert"),
     "WriteStatus": ("ok", "okOverridden"),
 }
+
+# Phase A1.3 Commit 2 owns only the connection-scoped one-off command
+# operations and their output notification. Assignment evidence remains the
+# source of exact keys; these reviewed sets independently ratchet the staged
+# fixture routing without pulling later A1.3 domains into this batch.
+A13_COMMAND_CLIENT_REQUEST_METHODS = frozenset(
+    {
+        "command/exec",
+        "command/exec/resize",
+        "command/exec/terminate",
+        "command/exec/write",
+    }
+)
+A13_COMMAND_NOTIFICATION_METHODS = frozenset(
+    {"command/exec/outputDelta"}
+)
+A13_COMMAND_OPEN_STRING_ENUMS = {
+    "CommandExecOutputStream": ("stdout", "stderr"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1353,6 +1372,53 @@ def derive_a12_b5_configuration_mutation_keys(
     return operations
 
 
+def derive_a13_command_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[tuple[SurfaceKey, ...], tuple[SurfaceKey, ...]]:
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.3"
+            and assignment["module"]
+            == "CommandsFilesystemReviewsApprovals"
+            and (
+                key.name in A13_COMMAND_CLIENT_REQUEST_METHODS
+                or key.name in A13_COMMAND_NOTIFICATION_METHODS
+            )
+        )
+    )
+    operations = tuple(
+        key for key in batch if key.category == CLIENT_REQUEST
+    )
+    notifications = tuple(
+        key for key in batch if key.category == SERVER_NOTIFICATION
+    )
+    if (
+        len(batch) != 5
+        or len(operations) != 4
+        or len(notifications) != 1
+        or {key.name for key in operations}
+        != A13_COMMAND_CLIENT_REQUEST_METHODS
+        or {key.name for key in notifications}
+        != A13_COMMAND_NOTIFICATION_METHODS
+        or any(
+            key.domain
+            not in {"ClientRequest", "ServerNotification"}
+            or key.discriminator_field != "method"
+            or assignments[key]["classification"] != "StablePublicRoot"
+            or assignments[key]["stability"] != "stable"
+            for key in batch
+        )
+    ):
+        raise FixtureError(
+            "A1.3 command assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"notifications={len(notifications)}"
+        )
+    return operations, notifications
+
+
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """Replace generated account/auth values with low-risk reviewed samples.
 
@@ -1409,6 +1475,52 @@ def normalize_a12_b4_configuration_sample(value: Any) -> None:
                     node[field] = replacements[field]
                 else:
                     visit(nested)
+        elif isinstance(node, list):
+            for nested in node:
+                visit(nested)
+
+    visit(value)
+
+
+def normalize_a13_command_sample(value: Any) -> None:
+    """Replace every sensitive command field with reviewed synthetic data."""
+
+    def visit(node: Any) -> None:
+        if isinstance(node, dict):
+            if "command" in node and isinstance(node["command"], list):
+                node["command"] = [
+                    "synthetic-tool",
+                    "--synthetic-flag",
+                    "synthetic argument",
+                ]
+            replacements: dict[str, Any] = {
+                "cwd": "/synthetic/project",
+                "deltaBase64": "c3ludGhldGljLWRhdGE=",
+                "processId": "synthetic-process-id",
+                "stderr": "synthetic stderr",
+                "stdout": "synthetic stdout",
+            }
+            for field, replacement in replacements.items():
+                if field in node and isinstance(node[field], str):
+                    node[field] = replacement
+            if "env" in node and isinstance(node["env"], dict):
+                node["env"] = {
+                    "SYNTHETIC_VALUE": "synthetic-environment-value",
+                    "SYNTHETIC_UNSET": None,
+                }
+            if "sandboxPolicy" in node and isinstance(
+                node["sandboxPolicy"], dict
+            ):
+                node["sandboxPolicy"] = {
+                    "type": "readOnly",
+                    "networkAccess": False,
+                }
+            if "size" in node and isinstance(node["size"], dict):
+                node["size"] = {"cols": 80, "rows": 24}
+            if "stream" in node and isinstance(node["stream"], str):
+                node["stream"] = "stdout"
+            for nested in node.values():
+                visit(nested)
         elif isinstance(node, list):
             for nested in node:
                 visit(nested)
@@ -3745,6 +3857,13 @@ class CorpusBuilder:
         self.a12_b5_indexed_coverage: dict[str, Any] = {}
         self.a12_b5_operation_root_coverage: dict[str, Any] = {}
         self.a12_b5_positive_coverage: dict[str, Any] = {}
+        self.a13_command_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_command_notification_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_command_negative_coverage: dict[str, Any] = {}
+        self.a13_command_indexed_coverage: dict[str, Any] = {}
+        self.a13_command_operation_root_coverage: dict[str, Any] = {}
+        self.a13_command_notification_root_coverage: dict[str, Any] = {}
+        self.a13_command_positive_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -3923,6 +4042,10 @@ class CorpusBuilder:
         self.a12_b5_operation_keys = (
             derive_a12_b5_configuration_mutation_keys(self.assignments)
         )
+        (
+            self.a13_command_operation_keys,
+            self.a13_command_notification_keys,
+        ) = derive_a13_command_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
@@ -3930,6 +4053,7 @@ class CorpusBuilder:
         self._build_a12_b3_operation_supplements()
         self._build_a12_b4_operation_supplements()
         self._build_a12_b5_operation_supplements()
+        self._build_a13_command_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_a12_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
@@ -3938,8 +4062,10 @@ class CorpusBuilder:
         self._build_a12_b3_notification_fixtures()
         self._build_a12_b3_empty_array_fixtures()
         self._build_a12_b4_notification_fixtures()
+        self._build_a13_command_notification_fixtures()
         self._build_a12_b4_positive_supplements()
         self._build_a12_b5_positive_supplements()
+        self._build_a13_command_positive_supplements()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
@@ -3949,6 +4075,7 @@ class CorpusBuilder:
         self._build_a12_b3_open_enum_fixtures()
         self._build_a12_b4_open_enum_fixtures()
         self._build_a12_b5_open_enum_fixtures()
+        self._build_a13_command_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -4037,6 +4164,9 @@ class CorpusBuilder:
             positive_records, positive_fixture_ids
         )
         self._apply_a12_b5_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a13_command_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -4245,6 +4375,27 @@ class CorpusBuilder:
                 "positive_coverage": self.a12_b5_positive_coverage,
                 "negative_coverage": self.a12_b5_negative_coverage,
             },
+            "a1_3_commands": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_command_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_command_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_command_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_command_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_command_notification_root_coverage
+                ),
+                "positive_coverage": self.a13_command_positive_coverage,
+                "negative_coverage": self.a13_command_negative_coverage,
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -4369,6 +4520,17 @@ class CorpusBuilder:
                 if is_a12_b5
                 else {}
             )
+            is_a13_command = key in {
+                *self.a13_command_operation_keys,
+                *self.a13_command_notification_keys,
+            }
+            a13_command_schema_facts = (
+                self.a13_command_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a13_command
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -4394,6 +4556,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a12_b5
+                else self.a13_command_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a13_command
                 else {}
             )
             coverage_records.append(
@@ -4469,6 +4635,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_command_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -4526,6 +4697,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_command_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -4576,6 +4752,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a12_b5_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a13_command_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -4738,6 +4920,27 @@ class CorpusBuilder:
                 ),
                 "positive_coverage": self.a12_b5_positive_coverage,
                 "negative_coverage": self.a12_b5_negative_coverage,
+            },
+            "a1_3_commands": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_command_operation_keys
+                ],
+                "assignment_derived_notification_keys": [
+                    key.to_json()
+                    for key in self.a13_command_notification_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_command_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_command_operation_root_coverage
+                ),
+                "notification_root_fixture_plan": (
+                    self.a13_command_notification_root_coverage
+                ),
+                "positive_coverage": self.a13_command_positive_coverage,
+                "negative_coverage": self.a13_command_negative_coverage,
             },
             "fixtures": [
                 compact_generated_record(record)
@@ -5543,6 +5746,7 @@ class CorpusBuilder:
             **A12_B2_OPEN_STRING_ENUMS,
             **A12_B3_OPEN_STRING_ENUMS,
             **A12_B4_OPEN_STRING_ENUMS,
+            **A13_COMMAND_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -5862,6 +6066,38 @@ class CorpusBuilder:
                 f"identities, got {len(self.a12_b5_indexed_coverage)}"
             )
 
+    def _apply_a13_command_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self.a13_command_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a13_command_operation_keys,
+                batch="A1.3 commands",
+                known_enum_values=A13_COMMAND_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a13_command_indexed_coverage.update(
+            self._apply_b5_notification_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                notification_keys=self.a13_command_notification_keys,
+                batch="A1.3 commands",
+            )
+        )
+        self.a13_command_indexed_coverage = dict(
+            sorted(self.a13_command_indexed_coverage.items())
+        )
+        if len(self.a13_command_indexed_coverage) != 5:
+            raise FixtureError(
+                "A1.3 command indexed coverage must contain exactly 5 "
+                f"identities, got {len(self.a13_command_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -5877,6 +6113,8 @@ class CorpusBuilder:
                 or key in self.a12_b5_operation_keys
             ):
                 normalize_a12_b4_configuration_sample(parameter_value)
+            if key in self.a13_command_operation_keys:
+                normalize_a13_command_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
                 if key.category == CLIENT_REQUEST
@@ -5899,6 +6137,7 @@ class CorpusBuilder:
                     or key in self.a12_b3_operation_keys
                     or key in self.a12_b4_operation_keys
                     or key in self.a12_b5_operation_keys
+                    or key in self.a13_command_operation_keys
                     else ("Decode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -5927,6 +6166,8 @@ class CorpusBuilder:
                 or key in self.a12_b5_operation_keys
             ):
                 normalize_a12_b4_configuration_sample(result_value)
+            if key in self.a13_command_operation_keys:
+                normalize_a13_command_sample(result_value)
             result_role = (
                 "client_request_result"
                 if key.category == CLIENT_REQUEST
@@ -5949,6 +6190,7 @@ class CorpusBuilder:
                     or key in self.a12_b3_operation_keys
                     or key in self.a12_b4_operation_keys
                     or key in self.a12_b5_operation_keys
+                    or key in self.a13_command_operation_keys
                     else ("Encode",)
                     if (
                         key in self.a12_b2_operation_keys
@@ -6006,6 +6248,8 @@ class CorpusBuilder:
                     or key in self.a12_b5_operation_keys
                 ):
                     normalize_a12_b4_configuration_sample(base_value)
+                if key in self.a13_command_operation_keys:
+                    normalize_a13_command_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
                     self.catalog, target, base_value
@@ -6704,6 +6948,478 @@ class CorpusBuilder:
             "schema_valid_typed_unrepresentable": [boundary_ids[2]],
             "schema_invalid": boundary_ids[3:],
         }
+
+    def _build_a13_command_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a13_command_operation_keys, "A1.3 commands"
+        )
+        if opaque_exclusions:
+            raise FixtureError(
+                "A1.3 command operations unexpectedly contain an "
+                f"unconstrained schema value: {opaque_exclusions}"
+            )
+
+        unit_contracts: list[dict[str, Any]] = []
+        expected_unit_schemas = {
+            "command/exec/resize": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "CommandExecResizeResponse",
+                "description": (
+                    "Empty success response for `command/exec/resize`."
+                ),
+                "type": "object",
+            },
+            "command/exec/terminate": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "CommandExecTerminateResponse",
+                "description": (
+                    "Empty success response for `command/exec/terminate`."
+                ),
+                "type": "object",
+            },
+            "command/exec/write": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "CommandExecWriteResponse",
+                "description": (
+                    "Empty success response for `command/exec/write`."
+                ),
+                "type": "object",
+            },
+        }
+        for key in self.a13_command_operation_keys:
+            contract = self.contracts[key]
+            if key.name == "command/exec":
+                if (
+                    contract["result_contract_kind"] != "Concrete"
+                    or contract["result_type_identity"]
+                    != "CommandExecResponse"
+                ):
+                    raise FixtureError(
+                        "A1.3 command/exec concrete result contract changed"
+                    )
+                continue
+            expected_schema = expected_unit_schemas.get(key.name)
+            if expected_schema is None:
+                raise FixtureError(
+                    f"unexpected A1.3 command Unit method: {key.name}"
+                )
+            result_schema_type = str(
+                contract["result_schema_type_identity"]
+            )
+            target = self.catalog.standalone(result_schema_type)
+            require_reviewed_unit_result_schema(
+                method=key.name,
+                actual=target.schema,
+                expected=expected_schema,
+            )
+            if (
+                contract["result_type_identity"] != "Unit"
+                or contract["result_contract_kind"] != "Unit"
+                or self.synthesizer.sample(target) != {}
+            ):
+                raise FixtureError(
+                    f"{key.name} no longer has the reviewed Unit result"
+                )
+            unit_contracts.append(
+                {
+                    "method": key.name,
+                    "result_type_identity": "Unit",
+                    "result_schema_type_identity": result_schema_type,
+                    "result_contract_kind": "Unit",
+                    "empty_result_fixture_id": (
+                        f"operation:client_request:{key.name}:result"
+                    ),
+                    "reviewed_result_schema": expected_schema,
+                    "property_count": 0,
+                    "future_property_addition_fails_generation": True,
+                }
+            )
+
+        if len(unit_contracts) != 3:
+            raise FixtureError(
+                "A1.3 commands must retain exactly three Unit contracts"
+            )
+        self.a13_command_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a13_command_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = []
+        self.a13_command_negative_coverage["unit_result_invariants"] = sorted(
+            unit_contracts, key=lambda record: record["method"]
+        )
+
+    def _add_a13_command_integer_boundaries(
+        self,
+        *,
+        key: SurfaceKey,
+        root_name: str,
+        target: SchemaTarget,
+        instance_path: tuple[str, ...],
+        format_name: str,
+        minimum_representable: int,
+        maximum_representable: int,
+        unsigned: bool,
+    ) -> dict[str, list[str]]:
+        base = self.synthesizer.sample(target)
+        normalize_a13_command_sample(base)
+        validator = self.catalog.target_validator(target)
+        direction = "Encode" if root_name == "params" else "Decode"
+        path_slug = slug(json_path(instance_path))
+        if unsigned:
+            cases = (
+                ("minimum", minimum_representable, True),
+                ("maximum", maximum_representable, True),
+                ("overflow", maximum_representable + 1, False),
+                ("negative", -1, False),
+            )
+        else:
+            cases = (
+                ("minimum", minimum_representable, True),
+                ("maximum", maximum_representable, True),
+                ("underflow", minimum_representable - 1, False),
+                ("overflow", maximum_representable + 1, False),
+            )
+
+        schema_valid_representable: list[str] = []
+        schema_valid_unrepresentable: list[str] = []
+        schema_invalid: list[str] = []
+        for case, number, representable in cases:
+            value = copy.deepcopy(base)
+            parent, field = get_parent_path(value, instance_path)
+            parent[field] = number
+            diagnostics = validator.validate_subschema(
+                value, target.schema, target.schema_path
+            )
+            schema_valid = not diagnostics
+            fixture_id = (
+                f"operation:{key.category}:{key.name}:{root_name}:"
+                f"{format_name}-{path_slug}-{case}"
+            )
+            relative = (
+                f"cases/operations/client/{slug(key.name)}/"
+                f"{'supplements' if schema_valid else 'mutations'}/"
+                f"{root_name}-{format_name}-{path_slug}-{case}.json"
+            )
+            if schema_valid:
+                self.add_positive(
+                    fixture_id,
+                    relative,
+                    (
+                        "operation_numeric_boundary"
+                        if representable
+                        else "operation_pinned_format_unrepresentable"
+                    ),
+                    target,
+                    value,
+                    key,
+                    directions_exercised=(
+                        (direction,) if representable else ()
+                    ),
+                )
+                if representable:
+                    schema_valid_representable.append(fixture_id)
+                else:
+                    schema_valid_unrepresentable.append(fixture_id)
+                    self.records[-1]["typed_state_boundary"] = {
+                        "representable": False,
+                        "production_diagnostic_expected": False,
+                        "instance_path": json_path(instance_path),
+                        "format": format_name,
+                        "minimum_representable": minimum_representable,
+                        "maximum_representable": maximum_representable,
+                        "reason": (
+                            "Draft-07 format is annotative; this pinned "
+                            f"{format_name} value is outside the reviewed "
+                            "public typed state and cannot reach the runtime "
+                            "codec"
+                        ),
+                    }
+            else:
+                codes = sorted({item.code for item in diagnostics})
+                self.add_negative(
+                    fixture_id,
+                    relative,
+                    "operation_numeric_boundary_invalid",
+                    target,
+                    value,
+                    codes,
+                    key,
+                    f"{format_name}_{case}",
+                )
+                schema_invalid.append(fixture_id)
+
+        fractional = copy.deepcopy(base)
+        parent, field = get_parent_path(fractional, instance_path)
+        parent[field] = 0.5
+        diagnostics = validator.validate_subschema(
+            fractional, target.schema, target.schema_path
+        )
+        codes = sorted({item.code for item in diagnostics})
+        if not codes:
+            raise FixtureError(
+                "A1.3 command fractional integer boundary was accepted: "
+                f"{key.name}:{root_name}:{json_path(instance_path)}"
+            )
+        fractional_id = (
+            f"operation:{key.category}:{key.name}:{root_name}:"
+            f"{format_name}-{path_slug}-fractional"
+        )
+        self.add_negative(
+            fractional_id,
+            (
+                f"cases/operations/client/{slug(key.name)}/mutations/"
+                f"{root_name}-{format_name}-{path_slug}-fractional.json"
+            ),
+            "operation_numeric_boundary_invalid",
+            target,
+            fractional,
+            codes,
+            key,
+            f"{format_name}_fractional",
+        )
+        schema_invalid.append(fractional_id)
+        return {
+            "schema_valid_representable": schema_valid_representable,
+            "schema_valid_typed_unrepresentable": (
+                schema_valid_unrepresentable
+            ),
+            "schema_invalid": schema_invalid,
+        }
+
+    def _build_a13_command_positive_supplements(self) -> None:
+        keys = {
+            key.name: key for key in self.a13_command_operation_keys
+        }
+        minimal_values = {
+            "command/exec": {"command": ["synthetic-tool"]},
+            "command/exec/resize": {
+                "processId": "synthetic-process-id",
+                "size": {"cols": 80, "rows": 24},
+            },
+            "command/exec/terminate": {
+                "processId": "synthetic-process-id"
+            },
+            "command/exec/write": {
+                "processId": "synthetic-process-id"
+            },
+        }
+        minimal_fixture_ids: list[str] = []
+        for method, value in sorted(minimal_values.items()):
+            key = keys[method]
+            target = self.catalog.standalone(
+                str(self.contracts[key]["parameter_type_identity"])
+            )
+            fixture_id = (
+                f"operation:client_request:{method}:params:minimum"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/operations/client/{slug(method)}/supplements/"
+                    "params-minimum.json"
+                ),
+                "operation_minimum_request",
+                target,
+                value,
+                key,
+                directions_exercised=("Encode",),
+            )
+            minimal_fixture_ids.append(fixture_id)
+
+        exec_key = keys["command/exec"]
+        exec_target = self.catalog.standalone("CommandExecParams")
+        exec_base = self.synthesizer.sample(exec_target)
+        normalize_a13_command_sample(exec_base)
+
+        empty_environment = copy.deepcopy(exec_base)
+        empty_environment["env"] = {}
+        empty_environment_id = (
+            "operation:client_request:command/exec:params:"
+            "explicit-empty-environment"
+        )
+        self.add_positive(
+            empty_environment_id,
+            (
+                "cases/operations/client/command-exec/supplements/"
+                "params-explicit-empty-environment.json"
+            ),
+            "operation_explicit_empty_map",
+            exec_target,
+            empty_environment,
+            exec_key,
+            directions_exercised=("Encode",),
+        )
+
+        empty_command = copy.deepcopy(exec_base)
+        empty_command["command"] = []
+        empty_command_id = (
+            "operation:client_request:command/exec:params:"
+            "schema-valid-empty-command"
+        )
+        self.add_positive(
+            empty_command_id,
+            (
+                "cases/operations/client/command-exec/supplements/"
+                "params-schema-valid-empty-command.json"
+            ),
+            "operation_empty_aggregate",
+            exec_target,
+            empty_command,
+            exec_key,
+        )
+        self.records[-1]["typed_state_boundary"] = {
+            "representable": True,
+            "production_diagnostic_expected": True,
+            "instance_path": "$/command",
+            "schema_accepts": True,
+            "typed_submission_accepts": False,
+            "production_evidence": [
+                "CommandExecParams::command is an argv vector",
+                "the command encoder rejects an empty argv vector",
+            ],
+            "reason": (
+                "the pinned schema documents empty argv rejection but omits "
+                "minItems; the typed encoder enforces that explicit contract"
+            ),
+        }
+
+        integer_boundaries: dict[str, Any] = {}
+        boundary_specs = (
+            (
+                exec_key,
+                "params",
+                exec_target,
+                ("outputBytesCap",),
+                "uint64",
+                0,
+                18_446_744_073_709_551_615,
+                True,
+            ),
+            (
+                exec_key,
+                "params",
+                exec_target,
+                ("timeoutMs",),
+                "int64",
+                -9_223_372_036_854_775_808,
+                9_223_372_036_854_775_807,
+                False,
+            ),
+            (
+                exec_key,
+                "params",
+                exec_target,
+                ("size", "cols"),
+                "uint16",
+                0,
+                65_535,
+                True,
+            ),
+            (
+                exec_key,
+                "params",
+                exec_target,
+                ("size", "rows"),
+                "uint16",
+                0,
+                65_535,
+                True,
+            ),
+        )
+        resize_key = keys["command/exec/resize"]
+        resize_target = self.catalog.standalone(
+            "CommandExecResizeParams"
+        )
+        response_target = self.catalog.standalone("CommandExecResponse")
+        boundary_specs += (
+            (
+                resize_key,
+                "params",
+                resize_target,
+                ("size", "cols"),
+                "uint16",
+                0,
+                65_535,
+                True,
+            ),
+            (
+                resize_key,
+                "params",
+                resize_target,
+                ("size", "rows"),
+                "uint16",
+                0,
+                65_535,
+                True,
+            ),
+            (
+                exec_key,
+                "result",
+                response_target,
+                ("exitCode",),
+                "int32",
+                -2_147_483_648,
+                2_147_483_647,
+                False,
+            ),
+        )
+        for (
+            key,
+            root_name,
+            target,
+            instance_path,
+            format_name,
+            minimum,
+            maximum,
+            unsigned,
+        ) in boundary_specs:
+            coverage_key = (
+                f"{key.name}:{root_name}:{json_path(instance_path)}"
+            )
+            integer_boundaries[coverage_key] = (
+                self._add_a13_command_integer_boundaries(
+                    key=key,
+                    root_name=root_name,
+                    target=target,
+                    instance_path=instance_path,
+                    format_name=format_name,
+                    minimum_representable=minimum,
+                    maximum_representable=maximum,
+                    unsigned=unsigned,
+                )
+            )
+
+        self.a13_command_positive_coverage.update({
+            "minimum_request_fixture_ids": sorted(
+                minimal_fixture_ids
+            ),
+            "full_request_fixture_ids": [
+                f"operation:client_request:{method}:params"
+                for method in sorted(keys)
+            ],
+            "concrete_result_fixture_id": (
+                "operation:client_request:command/exec:result"
+            ),
+            "unit_result_fixture_ids": [
+                record["empty_result_fixture_id"]
+                for record in self.a13_command_negative_coverage[
+                    "unit_result_invariants"
+                ]
+            ],
+            "environment_map": {
+                "nonempty_string_and_null_fixture_id": (
+                    "operation:client_request:command/exec:params"
+                ),
+                "explicit_empty_fixture_id": empty_environment_id,
+            },
+            "empty_command_typed_rejection_fixture_id": (
+                empty_command_id
+            ),
+            "integer_boundaries": dict(
+                sorted(integer_boundaries.items())
+            ),
+        })
 
     def _build_b4_helper_union_fixtures(self) -> None:
         coverage: dict[str, Any] = {}
@@ -7427,6 +8143,71 @@ class CorpusBuilder:
         self.a12_b4_negative_coverage[
             "notification_payload_mutations"
         ] = payload_mutations
+
+    def _build_a13_command_notification_fixtures(self) -> None:
+        def normalize(_key: SurfaceKey, value: Any) -> None:
+            normalize_a13_command_sample(value)
+
+        (
+            self.a13_command_notification_root_coverage,
+            payload_mutations,
+        ) = self._build_notification_fixtures(
+            self.a13_command_notification_keys,
+            batch="A1.3 commands",
+            expected_existing=0,
+            expected_generated=1,
+            expected_counts={
+                "base_generated": 1,
+                "missing_required": 6,
+                "nullable_null": 0,
+                "optional_omitted": 0,
+                "required_nullable_null": 0,
+                "wrong_type": 6,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            expected_opaque_paths=set(),
+            normalizer=normalize,
+        )
+        self.a13_command_negative_coverage[
+            "notification_payload_mutations"
+        ] = payload_mutations
+
+        key = self.a13_command_notification_keys[0]
+        target, index, branch = self.catalog.method_target(
+            key.category, key.name
+        )
+        branch_path = pointer_child(
+            pointer_child(target.schema_path, "oneOf"), index
+        )
+        value = self.synthesizer.sample(target, branch, branch_path)
+        normalize_a13_command_sample(value)
+        params = value.get("params") if isinstance(value, dict) else None
+        if not isinstance(params, dict):
+            raise FixtureError(
+                "A1.3 command output notification lacks params"
+            )
+        params["stream"] = "stderr"
+        params["capReached"] = True
+        fixture_id = f"baseline:{key.compact()}:stderr-cap-reached"
+        self.add_positive(
+            fixture_id,
+            (
+                "cases/notifications/server/command-exec-outputdelta/"
+                "supplements/stderr-cap-reached.json"
+            ),
+            "notification_stream_alternative",
+            target,
+            value,
+            key,
+            (index,),
+            directions_exercised=("Decode",),
+        )
+        self.a13_command_positive_coverage[
+            "notification_fixture_ids"
+        ] = [
+            f"baseline:{key.compact()}",
+            fixture_id,
+        ]
 
     def _build_a12_b4_positive_supplements(self) -> None:
         config_key = next(
@@ -11362,6 +12143,21 @@ class CorpusBuilder:
             encode_only={"MergeStrategy"},
             embedded_targets={},
             expected_known_values=9,
+        )
+
+    def _build_a13_command_open_enum_fixtures(self) -> None:
+        self.a13_command_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.3 commands",
+            expected_enums=A13_COMMAND_OPEN_STRING_ENUMS,
+            encode_only=set(),
+            embedded_targets={
+                "CommandExecOutputStream": (
+                    "CommandExecOutputDeltaNotification"
+                )
+            },
+            expected_known_values=2,
         )
 
 

@@ -96,9 +96,13 @@ class CodexA13AuditToolTest(unittest.TestCase):
             counts["result_contract_kinds"],
         )
         self.assertEqual(5, counts["server_request_response_contracts"])
-        self.assertEqual("Start", counts["current_progress_stage"])
         self.assertEqual(
             {"NotImplemented": 66, "Partial": 2},
+            counts["initial_a1_3_schema_status"],
+        )
+        self.assertEqual("B2", counts["current_progress_stage"])
+        self.assertEqual(
+            {"Complete": 5, "NotImplemented": 61, "Partial": 2},
             counts["current_a1_3_schema_status"],
         )
 

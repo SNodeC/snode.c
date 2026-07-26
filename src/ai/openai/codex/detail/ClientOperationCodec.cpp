@@ -8,6 +8,7 @@
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
@@ -54,6 +55,7 @@ namespace ai::openai::codex::detail {
             "ThreadUnsubscribeResponse",
             "TurnStartResponse",
             "TurnSteerResponse",
+            "CommandExecResponse",
         }};
 
         std::string_view resultDecoderIdentity(ClientOperationResultDecoder decoder) noexcept {
@@ -66,7 +68,7 @@ namespace ai::openai::codex::detail {
             return {std::nullopt, {code, target, surfaceKey, "$", std::move(message)}};
         }
 
-        bool hasA12ExactDecoderPaths(ClientRequestTarget target) noexcept {
+        bool hasExactDecoderPaths(ClientRequestTarget target) noexcept {
             using enum ClientRequestTarget;
             return target == AccountLoginCancel || target == AccountLoginStart ||
                    target == AccountLogout ||
@@ -83,12 +85,13 @@ namespace ai::openai::codex::detail {
                    target == ExperimentalFeatureEnablementSet ||
                    target == ExperimentalFeatureList ||
                    target == ModelList ||
-                   target == ModelProviderCapabilitiesRead;
+                   target == ModelProviderCapabilitiesRead ||
+                   target == CommandExec;
         }
 
         std::string decoderFieldPath(ClientRequestTarget target,
                                      const std::string& error) {
-            if (!hasA12ExactDecoderPaths(target)) {
+            if (!hasExactDecoderPaths(target)) {
                 return "$";
             }
             const std::size_t begin = error.find("'$");
@@ -259,6 +262,8 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeTurnStartResponse(raw, *contextualThreadId, error), error);
                 case TurnSteerResponse:
                     return decode(target, key, decodeTurnSteerResponse(raw, error), error);
+                case CommandExecResponse:
+                    return decode(target, key, decodeCommandExecResponse(raw, error), error);
                 case Count:
                     break;
             }

@@ -1,0 +1,9 @@
+{
+  "method": "command/exec/outputDelta",
+  "params": {
+    "capReached": false,
+    "deltaBase64": null,
+    "processId": "synthetic-process-id",
+    "stream": "stdout"
+  }
+}

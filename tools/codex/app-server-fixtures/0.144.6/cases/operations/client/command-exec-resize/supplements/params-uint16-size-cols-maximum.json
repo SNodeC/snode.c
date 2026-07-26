@@ -1,0 +1,7 @@
+{
+  "processId": "synthetic-process-id",
+  "size": {
+    "cols": 65535,
+    "rows": 24
+  }
+}

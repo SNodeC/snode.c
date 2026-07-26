@@ -11,6 +11,7 @@
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
 #include "ai/openai/codex/typed/Models.h"
 #include "ai/openai/codex/typed/Results.h"
@@ -68,7 +69,8 @@ namespace ai::openai::codex::detail {
                                                      typed::ThreadUnarchiveResponse,
                                                      typed::ThreadUnsubscribeResponse,
                                                      typed::TurnStartResponse,
-                                                     typed::TurnSteerResponse>;
+                                                     typed::TurnSteerResponse,
+                                                     typed::CommandExecResponse>;
 
     struct ClientOperationDecodeDiagnostic {
         ClientOperationDecodeCode code = ClientOperationDecodeCode::MalformedKnownPayload;

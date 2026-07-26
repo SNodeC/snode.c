@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 40:
+    if len(rows) != 44:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 40 rows"
+            "client-operation descriptor must contain exactly 44 rows"
         )
     method_rows = {
         match.group(1): line
@@ -425,8 +425,14 @@ def test_operation_descriptor_guards(
         "experimentalFeature/enablement/set",
         "experimentalFeature/list",
     }
+    a1_3_command_methods = {
+        "command/exec",
+        "command/exec/resize",
+        "command/exec/terminate",
+        "command/exec/write",
+    }
     if (
-        len(method_rows) != 40
+        len(method_rows) != 44
         or len(a1_1_methods) != 22
         or set(method_rows)
         != a1_1_methods
@@ -434,6 +440,7 @@ def test_operation_descriptor_guards(
         | a1_2_b3_methods
         | a1_2_b4_methods
         | a1_2_b5_methods
+        | a1_3_command_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
         or (
@@ -447,11 +454,19 @@ def test_operation_descriptor_guards(
             | a1_2_b4_methods
         )
         & a1_2_b5_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+        )
+        & a1_3_command_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
             "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 / five A1.2 B5 "
-            "slice projection"
+            "/ four A1.3 command slice projection"
         )
     targets = {
         match.group(1)
@@ -462,7 +477,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 40:
+    if len(targets) != 44:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -483,13 +498,13 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::Unit)" in line
             for line in rows
         )
-        != 9
+        != 12
         or sum(
             "ResultContractKind::Concrete, "
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 31
+        != 32
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -532,6 +547,16 @@ def test_operation_descriptor_guards(
             for method in a1_2_b5_methods
         )
         != 4
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_3_command_methods
+        )
+        != 3
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_command_methods
+        )
+        != 1
         or any(
             expected not in method_rows[method]
             for method, expected in {
@@ -604,6 +629,34 @@ def test_operation_descriptor_guards(
                     "ClientOperationResultDecoder::"
                     "ExperimentalFeatureListResponse"
                 ),
+                "command/exec": (
+                    "ClientRequestTarget::CommandExec, "
+                    '"ClientRequestTarget::CommandExec", '
+                    '"CommandExecParams", "CommandExecResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::CommandExecResponse"
+                ),
+                "command/exec/resize": (
+                    "ClientRequestTarget::CommandExecResize, "
+                    '"ClientRequestTarget::CommandExecResize", '
+                    '"CommandExecResizeParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "command/exec/terminate": (
+                    "ClientRequestTarget::CommandExecTerminate, "
+                    '"ClientRequestTarget::CommandExecTerminate", '
+                    '"CommandExecTerminateParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "command/exec/write": (
+                    "ClientRequestTarget::CommandExecWrite, "
+                    '"ClientRequestTarget::CommandExecWrite", '
+                    '"CommandExecWriteParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
             }.items()
         )
     ):
@@ -644,6 +697,28 @@ def test_operation_descriptor_guards(
         "remove one exact B4 client-request assignment",
     )
 
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec",
+        )
+    )
+    assignment["module"] = "WrongCommandModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ClientOperationDescriptorAssignmentMismatch",
+        "move one exact A1.3 command request out of its reviewed module",
+    )
+
     wrong_contract = copy.deepcopy(evidence)
     contract = next(
         row
@@ -663,7 +738,29 @@ def test_operation_descriptor_guards(
             manifest, wrong_contract
         ),
         "WrongResultType",
-        "change one reviewed Unit result contract",
+        "change one reviewed B4 Unit result contract",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec/resize",
+        )
+    )
+    contract["result_contract_kind"] = "Concrete"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change one reviewed A1.3 command Unit result contract",
     )
 
     original_targets = dict(tool.RUNTIME_TARGETS)
@@ -681,6 +778,32 @@ def test_operation_descriptor_guards(
             "thread/compact/start",
         )
         tool.RUNTIME_TARGETS[compact] = tool.RUNTIME_TARGETS[archive]
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_client_operation_descriptor_data(
+                manifest, evidence
+            ),
+            "ClientOperationDescriptorAssignmentMismatch",
+            "duplicate one existing client-operation runtime target",
+        )
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
+
+        command_exec = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec",
+        )
+        command_resize = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec/resize",
+        )
+        tool.RUNTIME_TARGETS[command_resize] = tool.RUNTIME_TARGETS[
+            command_exec
+        ]
         expect_surface_error_code(
             tool,
             lambda: tool.generate_client_operation_descriptor_data(
@@ -770,11 +893,12 @@ def test_notification_descriptor_guards(
         "model/verification",
     }
     a1_2_b4_methods = {"configWarning"}
+    a1_3_command_methods = {"command/exec/outputDelta"}
     residual_methods = {"error"}
     if (
-        len(rows) != 45
-        or len(targets) != 45
-        or len(method_rows) != 45
+        len(rows) != 46
+        or len(targets) != 46
+        or len(method_rows) != 46
         or len(a1_1_methods) != 37
         or set(method_rows)
         != (
@@ -782,6 +906,7 @@ def test_notification_descriptor_guards(
             | a1_2_b2_methods
             | a1_2_b3_methods
             | a1_2_b4_methods
+            | a1_3_command_methods
             | residual_methods
         )
         or (
@@ -789,6 +914,7 @@ def test_notification_descriptor_guards(
             | a1_2_b2_methods
             | a1_2_b3_methods
             | a1_2_b4_methods
+            | a1_3_command_methods
         )
         & residual_methods
         or a1_1_methods & a1_2_b2_methods
@@ -797,14 +923,21 @@ def test_notification_descriptor_guards(
             a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
         )
         & a1_2_b4_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+        )
+        & a1_3_command_methods
     ):
         raise AssertionError(
-            "server-notification descriptors are not an exact 45-row "
+            "server-notification descriptors are not an exact 46-row "
             "target bijection with the reviewed slice projection"
         )
     if (
         sum(line.endswith(", true)") for line in rows) != 37
-        or sum(line.endswith(", false)") for line in rows) != 8
+        or sum(line.endswith(", false)") for line in rows) != 9
         or any(
             not method_rows[method].endswith(", true)")
             for method in a1_1_methods
@@ -815,6 +948,7 @@ def test_notification_descriptor_guards(
                 a1_2_b2_methods
                 | a1_2_b3_methods
                 | a1_2_b4_methods
+                | a1_3_command_methods
                 | residual_methods
             )
         )
@@ -837,12 +971,17 @@ def test_notification_descriptor_guards(
                     "ServerNotificationTarget::ConfigWarning, "
                     '"typed::ConfigWarningNotification", false)'
                 ),
+                "command/exec/outputDelta": (
+                    "ServerNotificationTarget::CommandExecOutputDelta, "
+                    '"typed::CommandExecOutputDeltaNotification", false)'
+                ),
             }.items()
         )
     ):
         raise AssertionError(
             "server-notification descriptors lost the exact 37 A1.1 / "
-            "three A1.2 B2 / three A1.2 B3 / one A1.2 B4 / one residual split"
+            "three A1.2 B2 / three A1.2 B3 / one A1.2 B4 / one A1.3 "
+            "command / one residual split"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -865,6 +1004,28 @@ def test_notification_descriptor_guards(
         ),
         "ServerNotificationDescriptorSliceMismatch",
         "move one notification descriptor out of the exact A1.1 slice",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "command/exec/outputDelta",
+        )
+    )
+    assignment["module"] = "WrongCommandModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move the command notification descriptor out of its exact A1.3 module",
     )
 
     original_codecs = dict(tool.SERVER_NOTIFICATION_CODECS)

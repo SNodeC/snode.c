@@ -4,6 +4,7 @@
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "account/login/completed", ServerNotificationTarget::AccountLoginCompleted, "typed::AccountLoginCompletedNotification", false)
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "account/rateLimits/updated", ServerNotificationTarget::AccountRateLimitsUpdated, "typed::AccountRateLimitsUpdatedNotification", false)
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "account/updated", ServerNotificationTarget::AccountUpdated, "typed::AccountUpdatedNotification", false)
+CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "command/exec/outputDelta", ServerNotificationTarget::CommandExecOutputDelta, "typed::CommandExecOutputDeltaNotification", false)
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "configWarning", ServerNotificationTarget::ConfigWarning, "typed::ConfigWarningNotification", false)
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "error", ServerNotificationTarget::Error, "typed::TurnErrorEvent", false)
 CODEX_SERVER_NOTIFICATION_CODEC_DESCRIPTOR(SurfaceCategory::ServerNotification, "ServerNotification", "method", "item/agentMessage/delta", ServerNotificationTarget::AgentMessageDelta, "typed::AgentMessageDeltaNotification", true)

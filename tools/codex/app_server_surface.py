@@ -1613,6 +1613,30 @@ RUNTIME_TARGETS = {
         "method",
         "experimentalFeature/list",
     ): "ClientRequestTarget::ExperimentalFeatureList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec",
+    ): "ClientRequestTarget::CommandExec",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/resize",
+    ): "ClientRequestTarget::CommandExecResize",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/terminate",
+    ): "ClientRequestTarget::CommandExecTerminate",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/write",
+    ): "ClientRequestTarget::CommandExecWrite",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1697,6 +1721,12 @@ RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "turn/steer"): "ClientRequestTarget::TurnSteer",
     ("client_notification", "ClientNotification", "method", "initialized"): "ClientNotificationTarget::Initialized",
     ("server_notification", "ServerNotification", "method", "error"): "ServerNotificationTarget::Error",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "command/exec/outputDelta",
+    ): "ServerNotificationTarget::CommandExecOutputDelta",
     (
         "server_notification",
         "ServerNotification",
@@ -2220,6 +2250,7 @@ SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "account/login/completed": "typed::AccountLoginCompletedNotification",
     "account/rateLimits/updated": "typed::AccountRateLimitsUpdatedNotification",
     "account/updated": "typed::AccountUpdatedNotification",
+    "command/exec/outputDelta": "typed::CommandExecOutputDeltaNotification",
     "configWarning": "typed::ConfigWarningNotification",
     "error": "typed::TurnErrorEvent",
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
@@ -2308,7 +2339,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 45
+    len(SERVER_NOTIFICATION_CODECS) != 46
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5459,6 +5490,36 @@ def registry_statuses(
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
     if (
+        assignment.get("slice") == "A1.3"
+        and assignment.get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and target is not None
+        and (
+            (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "command/exec",
+                    "command/exec/resize",
+                    "command/exec/terminate",
+                    "command/exec/write",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3] == "command/exec/outputDelta"
+            )
+        )
+    ):
+        # The staged A1.3 command descriptors bind the exact one-off command
+        # methods and output notification to their reviewed production codecs.
+        # Schema-derived fixtures and focused command wire tests cover both
+        # directions without conflating A1.1 ThreadItem command execution.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
         identity[0] == "client_request"
         and assignment.get("slice") == "A1.1"
         and operation_production_coverage is not None
@@ -5999,9 +6060,14 @@ def generate_client_operation_descriptor_data(
         for key, assignment in assignments.items()
         if key[0] == "client_request"
         and (
-            assignment.get("slice") == "A1.1"
+            (
+                assignment.get("slice") == "A1.1"
+                and assignment.get("module") == "ThreadsTurnsSessions"
+            )
             or (
                 assignment.get("slice") == "A1.2"
+                and assignment.get("module")
+                == "AccountsModelsConfiguration"
                 and key[3]
                 in {
                     "account/login/cancel",
@@ -6024,10 +6090,20 @@ def generate_client_operation_descriptor_data(
                     "experimentalFeature/list",
                 }
             )
+            or (
+                assignment.get("slice") == "A1.3"
+                and assignment.get("module")
+                == "CommandsFilesystemReviewsApprovals"
+                and key[3]
+                in {
+                    "command/exec",
+                    "command/exec/resize",
+                    "command/exec/terminate",
+                    "command/exec/write",
+                }
+            )
         )
         and assignment.get("classification") == "StablePublicRoot"
-        and assignment.get("module")
-        in {"ThreadsTurnsSessions", "AccountsModelsConfiguration"}
         and assignment.get("stability") == "stable"
     }
     targets = {
@@ -6036,9 +6112,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 40
+        len(expected_keys) != 44
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 40
+        or len(set(targets.values())) != 44
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6047,7 +6123,7 @@ def generate_client_operation_descriptor_data(
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
             "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
-            "A1.2 B4, and 5 A1.2 B5 client requests must "
+            "A1.2 B4, 5 A1.2 B5, and 4 A1.3 command client requests must "
             "each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -6070,11 +6146,14 @@ def generate_client_operation_descriptor_data(
         "thread/shellCommand",
         "turn/interrupt",
         "account/logout",
+        "command/exec/resize",
+        "command/exec/terminate",
+        "command/exec/write",
         "config/mcpServer/reload",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 31
+        or len(expected_keys - unit_keys) != 32
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6082,13 +6161,14 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2+B3+B4+B5 requests must remain exactly 9 Unit "
-            "and 31 Concrete requests"
+            "typed A1.1+A1.2 B2+B3+B4+B5+A1.3 command requests must remain "
+            "exactly 12 Unit and 32 Concrete requests"
         )
 
     result_decoders = {
         "Unit",
         "CancelLoginAccountResponse",
+        "CommandExecResponse",
         "ConsumeAccountRateLimitResetCreditResponse",
         "ConfigReadResponse",
         "ConfigRequirementsReadResponse",
@@ -6178,14 +6258,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 45
+        len(expected_keys) != 46
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 45
+        != 46
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 45 typed server-notification targets must own "
+            "every one of the 46 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -6226,17 +6306,28 @@ def generate_server_notification_descriptor_data(
         and key[3] == "configWarning"
     }
     residual_keys -= a12_b4_keys
+    a13_command_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3] == "command/exec/outputDelta"
+    }
+    residual_keys -= a13_command_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
         or len(a12_b3_keys) != 3
         or len(a12_b4_keys) != 1
+        or len(a13_command_keys) != 1
         or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
             "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
-            "3 A1.2 B3, and 1 A1.2 B4 rows from the residual partial error row"
+            "3 A1.2 B3, 1 A1.2 B4, and 1 A1.3 command row from the "
+            "residual partial error row"
         )
 
     lines = [

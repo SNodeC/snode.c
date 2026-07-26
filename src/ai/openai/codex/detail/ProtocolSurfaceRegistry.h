@@ -106,6 +106,10 @@ namespace ai::openai::codex::detail {
         ThreadUnarchive,
         ThreadUnsubscribe,
         TurnSteer,
+        CommandExec,
+        CommandExecResize,
+        CommandExecTerminate,
+        CommandExecWrite,
         Count
     };
 
@@ -157,6 +161,7 @@ namespace ai::openai::codex::detail {
         TurnModerationMetadata,
         TurnPlanUpdated,
         ModelRerouted,
+        CommandExecOutputDelta,
         Count
     };
 
@@ -357,6 +362,7 @@ namespace ai::openai::codex::detail {
         ThreadUnsubscribeResponse,
         TurnStartResponse,
         TurnSteerResponse,
+        CommandExecResponse,
         Count
     };
 
