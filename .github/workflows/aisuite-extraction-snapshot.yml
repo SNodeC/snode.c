@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - extraction/aisuite-source-snapshot
+  pull_request:
+    branches:
+      - master
 
 permissions:
   contents: read
@@ -21,9 +24,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "d18b231a1d2ec2235fd6f204786b0a761cc24ff5"
-          printf 'source_commit=%s\n' "$(git rev-parse HEAD^)" | tee extraction-source.txt
-          printf 'source_tree=%s\n' "$(git rev-parse HEAD^^{tree})" | tee -a extraction-source.txt
+          source_commit=d18b231a1d2ec2235fd6f204786b0a761cc24ff5
+          git merge-base --is-ancestor "${source_commit}" HEAD
+          printf 'source_commit=%s\n' "${source_commit}" | tee extraction-source.txt
+          printf 'source_tree=%s\n' "$(git rev-parse "${source_commit}^{tree}")" | tee -a extraction-source.txt
           printf 'snapshot_commit=%s\n' "$(git rev-parse HEAD)" | tee -a extraction-source.txt
 
       - name: Create history bundle and source archive
