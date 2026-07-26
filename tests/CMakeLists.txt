@@ -49,6 +49,39 @@ add_subdirectory(unit)
 add_subdirectory(component)
 add_subdirectory(policy)
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+set(CODEX_PHASE_A1_4_EVIDENCE_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+add_test(
+    NAME CodexA14AuditToolTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${PROJECT_SOURCE_DIR}/tests/component/codex/CodexA14AuditToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_4.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --start-state
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-start-state.json
+        --partition
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-total-partition.json
+        --closure
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-type-closure.json
+        --plan
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-implementation-plan.json
+        --ledger
+        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-final-cross-slice-ledger.json
+)
+set_tests_properties(
+    CodexA14AuditToolTest
+    PROPERTIES
+        DEPENDS CodexA13ClosureEvidenceTest
+        LABELS "component;ai;openai;codex;phase-a1-4;schema;audit;generated"
+        TIMEOUT 60
+)
+
 add_test(NAME StagedInstalledConsumerTest
          COMMAND ${CMAKE_COMMAND}
                  -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}

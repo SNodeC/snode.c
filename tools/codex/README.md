@@ -372,6 +372,40 @@ evidence. `serverRequest/resolved` and experimental controls remain excluded.
 BackendCommand, BackendState, Frontend Protocol v1, and reference applications
 remain outside A1.3 semantics.
 
+## A1.4 integrations, long tail, and final-A1 planning audit
+
+The A1.4 audit reuses the shared schema catalog, definition graph, Draft-07
+walker, registry/assignment/contract parsers, deterministic JSON writer, and
+mutation-diagnostic conventions:
+
+```sh
+python3 tools/codex/app_server_a1_4.py generate
+python3 tools/codex/app_server_a1_4.py check
+```
+
+The checked artifacts are:
+
+- `app-server-evidence/0.144.6/a1-4-start-state.json`;
+- `app-server-evidence/0.144.6/a1-4-total-partition.json`;
+- `app-server-evidence/0.144.6/a1-4-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-4-implementation-plan.json`; and
+- `app-server-evidence/0.144.6/a1-final-cross-slice-ledger.json`.
+
+The audit proves the exact 387-key partition
+`19/151/45/68/56/48`, including the corrected InventoryOnly split of
+36 experimental-only plus 12 stable-unreachable identities. It freezes the
+native 29/16/4/7 A1.4 taxonomy, 26 Concrete/3 Unit client-result split,
+0/1/55 native start state, three implementation batches, inherited A1.0
+closure ledger, `serverRequest/resolved` lifecycle semantics, and the final
+Codex SOVERSION `1 -> 2` plan.
+
+The reviewed plan is documented in
+`docs/ai/openai/codex/a1-4-integrations-and-long-tail-plan.md`. This is an
+audit-only boundary: it does not implement the 56 identities, promote the
+production registry, rewrite assignment, change SOVERSION, or expand backend,
+frontend, and application behavior. The focused test is registered from the
+root test CMake file so immutable A1.3 closure evidence remains unchanged.
+
 ## Re-running the pinned upstream generation
 
 The TypeScript trees are an independent method and discriminator cross-check;
@@ -471,6 +505,12 @@ Do not hand-edit these generated artifacts:
 - `app-server-evidence/0.144.6/a1-3-type-closure.json`;
 - `app-server-evidence/0.144.6/a1-3-api-abi-evidence.json`;
 - `app-server-evidence/0.144.6/a1-3-closure-report.json`;
+- `app-server-evidence/0.144.6/a1-4-start-state.json` (one-time immutable
+  Commit 1 freeze; never ordinary regeneration);
+- `app-server-evidence/0.144.6/a1-4-total-partition.json`;
+- `app-server-evidence/0.144.6/a1-4-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-4-implementation-plan.json`;
+- `app-server-evidence/0.144.6/a1-final-cross-slice-ledger.json`;
 - `app-server-fixtures/0.144.6/`;
 - `ClientOperationCodecDescriptors.inc`;
 - `ConversationUnionCodecDescriptors.inc`;

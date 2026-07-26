@@ -154,9 +154,9 @@ assert_retained_prefix("tools/codex/app-server-fixtures/0.144.6" 5884)
 assert_retained_prefix(
     "tools/codex/app-server-protocol-source/0.144.6" 4
 )
-assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 22)
+assert_retained_prefix("tools/codex/app-server-evidence/0.144.6" 27)
 assert_retained_prefix("tools/codex/app-server-surface" 1)
-assert_retained_prefix("docs/ai/openai/codex" 18)
+assert_retained_prefix("docs/ai/openai/codex" 19)
 assert_retained_prefix(
     "tests/component/codex/fixtures/app-server-0.144.6" 7
 )
@@ -169,10 +169,10 @@ file(
 )
 list(SORT top_level_codex_tools)
 list(LENGTH top_level_codex_tools top_level_codex_tool_count)
-if(NOT top_level_codex_tool_count EQUAL 13)
+if(NOT top_level_codex_tool_count EQUAL 14)
     message(
         FATAL_ERROR
-            "pinned top-level Codex tool count changed: expected 13, found ${top_level_codex_tool_count}"
+            "pinned top-level Codex tool count changed: expected 14, found ${top_level_codex_tool_count}"
     )
 endif()
 set(observed_top_level_codex_tools)
@@ -228,6 +228,11 @@ set(
     "tools/codex/app-server-evidence/0.144.6/a1-3-type-closure.json"
     "tools/codex/app-server-evidence/0.144.6/a1-3-api-abi-evidence.json"
     "tools/codex/app-server-evidence/0.144.6/a1-3-closure-report.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-4-start-state.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-4-total-partition.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-4-type-closure.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-4-implementation-plan.json"
+    "tools/codex/app-server-evidence/0.144.6/a1-final-cross-slice-ledger.json"
     "tools/codex/app-server-fixtures/0.144.6/index.json"
     "tools/codex/app_server_a1_1.py"
     "tools/codex/app_server_a1_1_closure.py"
@@ -235,6 +240,7 @@ set(
     "tools/codex/app_server_a1_2_closure.py"
     "tools/codex/app_server_a1_3.py"
     "tools/codex/app_server_a1_3_closure.py"
+    "tools/codex/app_server_a1_4.py"
     "tools/codex/app_server_a1_shared.py"
     "tools/codex/app_server_schema_paths.py"
     "tools/codex/app_server_surface.py"
@@ -289,6 +295,7 @@ set(
     "tests/component/codex/CodexA12DocumentationConsistencyTest.py"
     "tests/component/codex/CodexA13AuditToolTest.py"
     "tests/component/codex/CodexA13ClosureEvidenceTest.py"
+    "tests/component/codex/CodexA14AuditToolTest.py"
     "tests/installed/codex/CodexA13AbiLayoutProbe.cpp"
     "tests/component/codex/CodexAppServerContractsToolTest.py"
     "tests/component/codex/CodexAppServerFixtureToolTest.py"
@@ -342,6 +349,7 @@ set(
     "docs/ai/openai/codex/a1-2-test-integrity.md"
     "docs/ai/openai/codex/a1-3-commands-filesystem-reviews-approvals.md"
     "docs/ai/openai/codex/a1-3-test-integrity.md"
+    "docs/ai/openai/codex/a1-4-integrations-and-long-tail-plan.md"
     "docs/ai/openai/codex/a1-typed-foundation.md"
 )
 foreach(required_entry IN LISTS required_source_entries)
@@ -426,9 +434,9 @@ set(extracted_fixture_root
 
 # Run the guards from the extracted archive, not the checkout. This validates
 # every schema/provenance hash, all provenance-listed Rust files, the exact
-# operation contracts/reports, A1.2 audit regeneration, the full indexed
-# fixture corpus, deterministic regeneration, and all required-field/wrong-type
-# mutations using only packaged inputs.
+# operation contracts/reports, A1.1-A1.4 audit and closure regeneration, the
+# full indexed fixture corpus, deterministic regeneration, and all
+# required-field/wrong-type mutations using only packaged inputs.
 run_extracted_check(
     "schema provenance/integrity"
     "${CODEX_PYTHON_EXECUTABLE}"
@@ -603,6 +611,14 @@ run_extracted_check(
     "A1.3 final closure report"
     "${CODEX_PYTHON_EXECUTABLE}"
     "${extracted_root}/tools/codex/app_server_a1_3_closure.py"
+    check
+    --repo-root
+    "${extracted_root}"
+)
+run_extracted_check(
+    "A1.4 partition and implementation-plan audit"
+    "${CODEX_PYTHON_EXECUTABLE}"
+    "${extracted_root}/tools/codex/app_server_a1_4.py"
     check
     --repo-root
     "${extracted_root}"
