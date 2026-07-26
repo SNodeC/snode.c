@@ -46,6 +46,9 @@ namespace {
     };
 
     template <typename Client>
+    concept HasDirectPermissionProfilesAccessor = requires(Client& client) { client.permissionProfiles(); };
+
+    template <typename Client>
     concept HasDirectConfigurationAccessor = requires(Client& client) {
         client.configuration();
     };
@@ -248,6 +251,7 @@ int main() {
     static_assert(!HasDirectCommandsAccessor<codex::AppServerClient>);
     static_assert(!HasDirectFilesystemAccessor<codex::AppServerClient>);
     static_assert(!HasDirectModelsAccessor<codex::AppServerClient>);
+    static_assert(!HasDirectPermissionProfilesAccessor<codex::AppServerClient>);
     static_assert(!HasDirectConfigurationAccessor<codex::AppServerClient>);
 
     tests::support::TestResult result;
@@ -264,6 +268,9 @@ int main() {
                       "filesystem() returns the same facade backed by the grouped client's one RawProtocol");
     result.expectTrue(&client.typed().models() == &constClient.typed().models(),
                       "models() returns the same facade backed by the grouped client's one RawProtocol");
+    result.expectTrue(&client.typed().permissionProfiles() == &constClient.typed().permissionProfiles(),
+                      "permissionProfiles() returns the same facade backed by the grouped "
+                      "client's one RawProtocol");
     result.expectTrue(&client.typed().configuration() == &constClient.typed().configuration(),
                       "configuration() returns the same facade backed by the grouped client's one RawProtocol");
 

@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 230 && schemaPartial == 6 && schemaNotImplemented == 103 && schemaNotApplicable == 48,
-                      "the staged A1.3 filesystem batch reaches the exact 230/6/103/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 265 && schemaPartial == 4 && schemaNotImplemented == 70 && schemaNotApplicable == 48,
+                      "the staged A1.3 approvals batch reaches the exact 265/4/70/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -205,64 +205,64 @@ int main() {
                                   }),
                       "every identity has one fixed module/slice assignment and a mechanically derived schema status");
 
-    expectTargets<detail::ClientRequestTarget>(
-        result,
-        std::array<std::string_view, 55>{"initialize",
-                                         "account/login/cancel",
-                                         "account/login/start",
-                                         "account/logout",
-                                         "account/rateLimitResetCredit/consume",
-                                         "account/rateLimits/read",
-                                         "account/read",
-                                         "account/sendAddCreditsNudgeEmail",
-                                         "account/usage/read",
-                                         "account/workspaceMessages/read",
-                                         "config/batchWrite",
-                                         "config/mcpServer/reload",
-                                         "config/read",
-                                         "config/value/write",
-                                         "configRequirements/read",
-                                         "experimentalFeature/enablement/set",
-                                         "experimentalFeature/list",
-                                         "model/list",
-                                         "modelProvider/capabilities/read",
-                                         "thread/start",
-                                         "thread/resume",
-                                         "thread/list",
-                                         "thread/read",
-                                         "turn/start",
-                                         "turn/interrupt",
-                                         "thread/archive",
-                                         "thread/compact/start",
-                                         "thread/delete",
-                                         "thread/fork",
-                                         "thread/goal/clear",
-                                         "thread/goal/get",
-                                         "thread/goal/set",
-                                         "thread/inject_items",
-                                         "thread/loaded/list",
-                                         "thread/metadata/update",
-                                         "thread/name/set",
-                                         "thread/rollback",
-                                         "thread/shellCommand",
-                                         "thread/unarchive",
-                                         "thread/unsubscribe",
-                                         "turn/steer",
-                                         "command/exec",
-                                         "command/exec/resize",
-                                         "command/exec/terminate",
-                                         "command/exec/write",
-                                         "fs/copy",
-                                         "fs/createDirectory",
-                                         "fs/getMetadata",
-                                         "fs/readDirectory",
-                                         "fs/readFile",
-                                         "fs/remove",
-                                         "fs/unwatch",
-                                         "fs/watch",
-                                         "fs/writeFile",
-                                         "fuzzyFileSearch"},
-        "every typed outgoing request target resolves to its exact registered wire method");
+    expectTargets<detail::ClientRequestTarget>(result,
+                                               std::array<std::string_view, 56>{"initialize",
+                                                                                "account/login/cancel",
+                                                                                "account/login/start",
+                                                                                "account/logout",
+                                                                                "account/rateLimitResetCredit/consume",
+                                                                                "account/rateLimits/read",
+                                                                                "account/read",
+                                                                                "account/sendAddCreditsNudgeEmail",
+                                                                                "account/usage/read",
+                                                                                "account/workspaceMessages/read",
+                                                                                "config/batchWrite",
+                                                                                "config/mcpServer/reload",
+                                                                                "config/read",
+                                                                                "config/value/write",
+                                                                                "configRequirements/read",
+                                                                                "experimentalFeature/enablement/set",
+                                                                                "experimentalFeature/list",
+                                                                                "model/list",
+                                                                                "modelProvider/capabilities/read",
+                                                                                "thread/start",
+                                                                                "thread/resume",
+                                                                                "thread/list",
+                                                                                "thread/read",
+                                                                                "turn/start",
+                                                                                "turn/interrupt",
+                                                                                "thread/archive",
+                                                                                "thread/compact/start",
+                                                                                "thread/delete",
+                                                                                "thread/fork",
+                                                                                "thread/goal/clear",
+                                                                                "thread/goal/get",
+                                                                                "thread/goal/set",
+                                                                                "thread/inject_items",
+                                                                                "thread/loaded/list",
+                                                                                "thread/metadata/update",
+                                                                                "thread/name/set",
+                                                                                "thread/rollback",
+                                                                                "thread/shellCommand",
+                                                                                "thread/unarchive",
+                                                                                "thread/unsubscribe",
+                                                                                "turn/steer",
+                                                                                "command/exec",
+                                                                                "command/exec/resize",
+                                                                                "command/exec/terminate",
+                                                                                "command/exec/write",
+                                                                                "fs/copy",
+                                                                                "fs/createDirectory",
+                                                                                "fs/getMetadata",
+                                                                                "fs/readDirectory",
+                                                                                "fs/readFile",
+                                                                                "fs/remove",
+                                                                                "fs/unwatch",
+                                                                                "fs/watch",
+                                                                                "fs/writeFile",
+                                                                                "fuzzyFileSearch",
+                                                                                "permissionProfile/list"},
+                                               "every typed outgoing request target resolves to its exact registered wire method");
     expectTargets<detail::ClientNotificationTarget>(result,
                                                     std::array<std::string_view, 1>{"initialized"},
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
@@ -320,10 +320,13 @@ int main() {
         "all 49 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
-        std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
+        std::array<std::string_view, 7>{"item/commandExecution/requestApproval",
                                         "item/fileChange/requestApproval",
                                         "item/tool/requestUserInput",
-                                        "account/chatgptAuthTokens/refresh"},
+                                        "account/chatgptAuthTokens/refresh",
+                                        "applyPatchApproval",
+                                        "execCommandApproval",
+                                        "item/permissions/requestApproval"},
         "every existing typed server-request dispatch target resolves to its exact registered wire method");
     expectTargets<detail::ItemDiscriminatorTarget>(
         result,
@@ -1581,32 +1584,27 @@ int main() {
 
     const std::span<const detail::ServerRequestCodecDescriptor>
         serverRequestDescriptors = detail::serverRequestCodecDescriptors();
+    const auto authRefreshDescriptor = std::find_if(
+        serverRequestDescriptors.begin(), serverRequestDescriptors.end(), [](const detail::ServerRequestCodecDescriptor& descriptor) {
+            return descriptor.target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh;
+        });
     const bool exactAuthRefreshDescriptor =
-        serverRequestDescriptors.size() == 1 &&
-        serverRequestDescriptors.front().key ==
+        serverRequestDescriptors.size() == 6 && authRefreshDescriptor != serverRequestDescriptors.end() &&
+        authRefreshDescriptor->key ==
             detail::ProtocolSurfaceKey{
                 detail::SurfaceCategory::ServerRequest,
                 "ServerRequest",
                 "method",
                 "account/chatgptAuthTokens/refresh",
             } &&
-        serverRequestDescriptors.front().target ==
-            detail::ServerRequestTarget::ChatgptAuthTokensRefresh &&
-        serverRequestDescriptors.front().parameterTypeIdentity ==
-            "ChatgptAuthTokensRefreshParams" &&
-        serverRequestDescriptors.front().resultTypeIdentity ==
-            "ChatgptAuthTokensRefreshResponse" &&
-        serverRequestDescriptors.front().resultKind ==
-            detail::ResultContractKind::Concrete &&
-        detail::entryFor(serverRequestDescriptors.front().target).key ==
-            serverRequestDescriptors.front().key &&
-        detail::entryFor(serverRequestDescriptors.front().target)
-                .typedSchemaStatus ==
-            detail::TypedSchemaStatus::Complete &&
-        detail::entryFor(serverRequestDescriptors.front().target).a1Slice ==
-            detail::A1Slice::A1_2 &&
-        detail::entryFor(serverRequestDescriptors.front().target)
-                .typedModule == "AccountsModelsConfiguration";
+        authRefreshDescriptor->target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh &&
+        authRefreshDescriptor->parameterTypeIdentity == "ChatgptAuthTokensRefreshParams" &&
+        authRefreshDescriptor->resultTypeIdentity == "ChatgptAuthTokensRefreshResponse" &&
+        authRefreshDescriptor->resultKind == detail::ResultContractKind::Concrete &&
+        detail::entryFor(authRefreshDescriptor->target).key == authRefreshDescriptor->key &&
+        detail::entryFor(authRefreshDescriptor->target).typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+        detail::entryFor(authRefreshDescriptor->target).a1Slice == detail::A1Slice::A1_2 &&
+        detail::entryFor(authRefreshDescriptor->target).typedModule == "AccountsModelsConfiguration";
     result.expectTrue(
         exactAuthRefreshDescriptor,
         "the generated B2 auth-refresh server-request descriptor is the exact "
@@ -1929,8 +1927,13 @@ int main() {
         "a duplicate auth-refresh descriptor emits exactly "
         "DuplicateCodecDescriptor");
 
-    std::vector<detail::ServerRequestCodecDescriptor>
-        missingServerRequestDescriptor;
+    std::vector<detail::ServerRequestCodecDescriptor> missingServerRequestDescriptor(serverRequestDescriptors.begin(),
+                                                                                     serverRequestDescriptors.end());
+    missingServerRequestDescriptor.erase(std::find_if(missingServerRequestDescriptor.begin(),
+                                                      missingServerRequestDescriptor.end(),
+                                                      [](const detail::ServerRequestCodecDescriptor& descriptor) {
+                                                          return descriptor.target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh;
+                                                      }));
     result.expectTrue(
         hasExactCodes(
             validateWithB2Descriptors(

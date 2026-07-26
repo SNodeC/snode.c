@@ -63,17 +63,16 @@
       "B5": 15
     },
     "current_a1_3_schema_status": {
-      "Complete": 18,
-      "NotImplemented": 48,
-      "Partial": 2
+      "Complete": 53,
+      "NotImplemented": 15
     },
     "current_global_schema_status": {
-      "Complete": 230,
+      "Complete": 265,
       "NotApplicable": 48,
-      "NotImplemented": 103,
-      "Partial": 6
+      "NotImplemented": 70,
+      "Partial": 4
     },
-    "current_progress_stage": "B3",
+    "current_progress_stage": "B4",
     "expected_final_global_schema_status": {
       "Complete": 280,
       "NotApplicable": 48,
@@ -702,9 +701,25 @@
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:client_request:permissionProfile/list:params",
-        "operation:client_request:permissionProfile/list:result"
+        "operation:client_request:permissionProfile/list:params:minimum",
+        "operation:client_request:permissionProfile/list:params:nullable-null:cursor",
+        "operation:client_request:permissionProfile/list:params:nullable-null:cwd",
+        "operation:client_request:permissionProfile/list:params:nullable-null:limit",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:cursor",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:cwd",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:limit",
+        "operation:client_request:permissionProfile/list:params:uint32-maximum",
+        "operation:client_request:permissionProfile/list:params:uint32-overflow",
+        "operation:client_request:permissionProfile/list:params:uint32-zero",
+        "operation:client_request:permissionProfile/list:result",
+        "operation:client_request:permissionProfile/list:result:explicit-empty-data",
+        "operation:client_request:permissionProfile/list:result:nullable-null:data-0-description",
+        "operation:client_request:permissionProfile/list:result:nullable-null:nextcursor",
+        "operation:client_request:permissionProfile/list:result:optional-omitted:data-0-description",
+        "operation:client_request:permissionProfile/list:result:optional-omitted:nextcursor",
+        "operation:client_request:permissionProfile/list:result:ordered-profiles"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "client_request",
@@ -713,25 +728,25 @@
         "name": "permissionProfile/list"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "Deferred",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ClientRequestTarget::PermissionProfileList",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B5",
@@ -1054,9 +1069,14 @@
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:server_request:applyPatchApproval:params",
+        "operation:server_request:applyPatchApproval:params:minimum",
+        "operation:server_request:applyPatchApproval:params:nullable-null:grantroot",
+        "operation:server_request:applyPatchApproval:params:nullable-null:reason",
+        "operation:server_request:applyPatchApproval:params:optional-omitted:grantroot",
+        "operation:server_request:applyPatchApproval:params:optional-omitted:reason",
         "operation:server_request:applyPatchApproval:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_request",
@@ -1065,34 +1085,39 @@
         "name": "applyPatchApproval"
       },
       "reachable_definition_count": 7,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerRequestTarget::ApplyPatchApproval",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:server_request:execCommandApproval:params",
+        "operation:server_request:execCommandApproval:params:minimum",
+        "operation:server_request:execCommandApproval:params:nullable-null:approvalid",
+        "operation:server_request:execCommandApproval:params:nullable-null:reason",
+        "operation:server_request:execCommandApproval:params:optional-omitted:approvalid",
+        "operation:server_request:execCommandApproval:params:optional-omitted:reason",
         "operation:server_request:execCommandApproval:result"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_request",
@@ -1101,25 +1126,25 @@
         "name": "execCommandApproval"
       },
       "reachable_definition_count": 7,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerRequestTarget::ExecCommandApproval",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
@@ -1127,6 +1152,29 @@
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:item/commandExecution/requestApproval",
         "operation:server_request:item/commandExecution/requestApproval:params",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/commandExecution/requestApproval:params:minimum",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:approvalid",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:command",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:commandactions",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:cwd",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:environmentid",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:networkapprovalcontext",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:proposedexecpolicyamendment",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:proposednetworkpolicyamendments",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:approvalid",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:command",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:commandactions",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:cwd",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:environmentid",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:networkapprovalcontext",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:proposedexecpolicyamendment",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:proposednetworkpolicyamendments",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:reason",
         "operation:server_request:item/commandExecution/requestApproval:result"
       ],
       "implementation_status": "Implemented",
@@ -1142,21 +1190,21 @@
       "runtime_target": "ServerRequestTarget::CommandExecutionRequestApproval",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "Partial"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
@@ -1164,6 +1212,15 @@
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:item/fileChange/requestApproval",
         "operation:server_request:item/fileChange/requestApproval:params",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/fileChange/requestApproval:params:minimum",
+        "operation:server_request:item/fileChange/requestApproval:params:nullable-null:grantroot",
+        "operation:server_request:item/fileChange/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/fileChange/requestApproval:params:optional-omitted:grantroot",
+        "operation:server_request:item/fileChange/requestApproval:params:optional-omitted:reason",
         "operation:server_request:item/fileChange/requestApproval:result"
       ],
       "implementation_status": "Implemented",
@@ -1179,30 +1236,76 @@
       "runtime_target": "ServerRequestTarget::FileChangeRequestApproval",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "Partial"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "StablePublicRoot",
       "fixture_ids": [
         "operation:server_request:item/permissions/requestApproval:params",
-        "operation:server_request:item/permissions/requestApproval:result"
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/permissions/requestApproval:params:minimum",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:environmentid",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:environmentid",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:reason",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-maximum",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-minimum",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-overflow",
+        "operation:server_request:item/permissions/requestApproval:result",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:strictautoreview",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:scope",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:strictautoreview",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-maximum",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-minimum",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-overflow"
       ],
-      "implementation_status": "NotImplemented",
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "server_request",
@@ -1211,31 +1314,33 @@
         "name": "item/permissions/requestApproval"
       },
       "reachable_definition_count": 13,
-      "runtime_disposition": "RawPreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "ServerRequestTarget::PermissionsRequestApproval",
       "schema_completeness": {
         "authoritative_root_association": true,
-        "direction_assertions_exercised": false,
+        "direction_assertions_exercised": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:accept"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1244,31 +1349,33 @@
         "name": "accept"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAccept",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:acceptForSession"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1277,31 +1384,33 @@
         "name": "acceptForSession"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAcceptForSession",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:acceptWithExecpolicyAmendment"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1310,31 +1419,33 @@
         "name": "acceptWithExecpolicyAmendment"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAcceptWithExecpolicyAmendment",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:applyNetworkPolicyAmendment"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1343,31 +1454,33 @@
         "name": "applyNetworkPolicyAmendment"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionApplyNetworkPolicyAmendment",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:cancel"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1376,31 +1489,33 @@
         "name": "cancel"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionCancel",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:decline"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1409,31 +1524,33 @@
         "name": "decline"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionDecline",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileChange:add"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1442,31 +1559,33 @@
         "name": "add"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeAdd",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileChange:delete"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1475,31 +1594,35 @@
         "name": "delete"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeDelete",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileChange:update",
+        "union:FileChange:update:nullable-null:move_path",
+        "union:FileChange:update:optional-omitted:move_path"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1508,31 +1631,33 @@
         "name": "update"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeUpdate",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemPath:glob_pattern"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1541,31 +1666,33 @@
         "name": "glob_pattern"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathGlobPattern",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemPath:path"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1574,31 +1701,33 @@
         "name": "path"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathPath",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemPath:special"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1607,31 +1736,33 @@
         "name": "special"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathSpecial",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:minimal"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1640,31 +1771,35 @@
         "name": "minimal"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathMinimal",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:project_roots",
+        "union:FileSystemSpecialPath:project_roots:nullable-null:subpath",
+        "union:FileSystemSpecialPath:project_roots:optional-omitted:subpath"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1673,31 +1808,33 @@
         "name": "project_roots"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathProjectRoots",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:root"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1706,31 +1843,33 @@
         "name": "root"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathRoot",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:slash_tmp"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1739,31 +1878,33 @@
         "name": "slash_tmp"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathSlashTmp",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:tmpdir"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1772,31 +1913,35 @@
         "name": "tmpdir"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathTmpdir",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:unknown",
+        "union:FileSystemSpecialPath:unknown:nullable-null:subpath",
+        "union:FileSystemSpecialPath:unknown:optional-omitted:subpath"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -1805,25 +1950,25 @@
         "name": "unknown"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathUnknown",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B5",
@@ -2026,8 +2171,12 @@
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ParsedCommand:list_files",
+        "union:ParsedCommand:list_files:nullable-null:path",
+        "union:ParsedCommand:list_files:optional-omitted:path"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2036,31 +2185,33 @@
         "name": "list_files"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandListFiles",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ParsedCommand:read"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2069,31 +2220,37 @@
         "name": "read"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandRead",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ParsedCommand:search",
+        "union:ParsedCommand:search:nullable-null:path",
+        "union:ParsedCommand:search:nullable-null:query",
+        "union:ParsedCommand:search:optional-omitted:path",
+        "union:ParsedCommand:search:optional-omitted:query"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2102,31 +2259,33 @@
         "name": "search"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandSearch",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "RootOwnedNestedUnion",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ParsedCommand:unknown"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2135,31 +2294,33 @@
         "name": "unknown"
       },
       "reachable_definition_count": 1,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandUnknown",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:abort"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2168,31 +2329,33 @@
         "name": "abort"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionAbort",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:approved"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2201,31 +2364,33 @@
         "name": "approved"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApproved",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:approved_execpolicy_amendment"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2234,31 +2399,33 @@
         "name": "approved_execpolicy_amendment"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApprovedExecpolicyAmendment",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:approved_for_session"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2267,31 +2434,33 @@
         "name": "approved_for_session"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApprovedForSession",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:denied"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2300,31 +2469,33 @@
         "name": "denied"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionDenied",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:network_policy_amendment"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2333,31 +2504,33 @@
         "name": "network_policy_amendment"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionNetworkPolicyAmendment",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B4",
       "classification": "SharedWithinSlice",
-      "fixture_ids": [],
-      "implementation_status": "NotImplemented",
+      "fixture_ids": [
+        "union:ReviewDecision:timed_out"
+      ],
+      "implementation_status": "Implemented",
       "module": "CommandsFilesystemReviewsApprovals",
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
@@ -2366,25 +2539,25 @@
         "name": "timed_out"
       },
       "reachable_definition_count": 3,
-      "runtime_disposition": "OpaquePreserved",
-      "runtime_target": "std::monostate{}",
+      "runtime_disposition": "Typed",
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionTimedOut",
       "schema_completeness": {
-        "authoritative_root_association": false,
-        "direction_assertions_exercised": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "no_known_schema_fields_dropped": false,
-        "nullable_semantics_exercised": false,
-        "opaque_fields_declared": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "runtime_decoder_matches_registry": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
       },
-      "schema_status": "NotImplemented"
+      "schema_status": "Complete"
     },
     {
       "batch": "B5",

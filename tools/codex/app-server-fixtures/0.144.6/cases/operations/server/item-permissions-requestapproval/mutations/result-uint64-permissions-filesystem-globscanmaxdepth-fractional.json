@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "fileSystem": {
+      "entries": [
+        {
+          "access": "read",
+          "path": {
+            "path": "/synthetic/project/synthetic-entry.txt",
+            "type": "path"
+          }
+        }
+      ],
+      "globScanMaxDepth": 0.5,
+      "read": [
+        "synthetic-f2afe5ff17"
+      ],
+      "write": [
+        "synthetic-f2afe5ff17"
+      ]
+    },
+    "network": {
+      "enabled": false
+    }
+  },
+  "scope": "turn",
+  "strictAutoReview": false
+}

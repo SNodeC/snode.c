@@ -774,6 +774,63 @@ set_tests_properties(
 )
 
 snodec_add_test(
+    CodexA13ApprovalCodecTest
+    CodexA13ApprovalCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13ApprovalCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ApprovalCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;approval;permission;codec;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13ApprovalWireTest
+    CodexA13ApprovalWireTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13ApprovalWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ApprovalWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;approval;permission;server-request;wire;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexA13ApprovalBackendCompatibilityTest
+    CodexA13ApprovalBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalBackendCompatibilityTest
+    PRIVATE
+        snodec-test-support
+        snodec::ai-openai-codex
+        snodec::ai-openai-codex-frontend
+)
+target_compile_features(
+    CodexA13ApprovalBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13ApprovalBackendCompatibilityTest
+    PROPERTIES
+        LABELS
+            "component;ai;openai;codex;typed;approval;permission;backend;frontend;compatibility;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
     CodexA12AuthRefreshWireTest
     CodexA12AuthRefreshWireTest.cpp
 )

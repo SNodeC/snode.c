@@ -31,11 +31,12 @@ The two Partial identities are
 Complete in A1.3 and global 280 Complete, 4 Partial, 55 NotImplemented, and 48
 NotApplicable.
 
-After the filesystem/fuzzy implementation batch, the staged A1.3 state is
-18 Complete, 2 Partial, and 48 NotImplemented. The corresponding global state
-is 230 Complete, 6 Partial, 103 NotImplemented, and 48 NotApplicable. This is
-the exact reviewed B3 checkpoint; later approval and review batches remain
-scheduled and are not credited by this evidence.
+After the approvals/permissions/file-changes implementation batch, the staged
+A1.3 state is 53 Complete, 0 Partial, and 15 NotImplemented. The corresponding
+global state is 265 Complete, 4 Partial, 70 NotImplemented, and 48
+NotApplicable. This is the exact reviewed B4 checkpoint. Both formerly Partial
+approval roots are Complete; only the review and guardian batch remains
+scheduled and is not credited by this evidence.
 
 The transitive stable closure contains 59 root/union seeds, 123 named
 definitions (97 v2 and 26 legacy), and 480 property, array-element, and
@@ -105,6 +106,18 @@ must report the final object-layout evidence explicitly. The project ABI
 policy, rather than symbol-list equivalence alone, decides whether a
 SOVERSION change is warranted.
 
+At the B4 checkpoint, the established `TypedServerRequest` alternatives keep
+indices 0 through 4 and the three newly typed legacy/permission requests are
+appended at indices 5 through 7. `CommandApprovalRequest` and
+`FileChangeApprovalRequest` retain their existing source-level field names but
+gain schema-complete canonical parameters and diagnostics. Those aggregate
+and variant layout changes are ABI changes: consumers using the installed
+typed aggregates must rebuild. `typed::Client` and `AppServerClient` keep their
+one-pointer and PIMPL object layouts, respectively. SOVERSION remains 1 under
+the frozen A1 policy, which defers the milestone-wide bump decision to A1.4;
+this document does not claim binary compatibility from an unchanged symbol
+list.
+
 ## Architecture and lifecycles
 
 All operations use the existing path:
@@ -140,6 +153,15 @@ once, and written with the original JSON-RPC request id. Duplicate, stale,
 wrong-type, and wrong-generation responses fail locally. All five types may
 remain pending concurrently and may be answered out of arrival order without
 cross-delivery.
+
+The deprecated legacy `applyPatchApproval` and `execCommandApproval` roots
+retain distinct request and response types from the v2 command, file-change,
+and permission approvals. `permissionProfile/list` is a typed read operation;
+its `allowed` field remains server data and does not authorize or select a
+profile. The six B4 union families expose all 29 known alternatives, preserve
+the literal `unknown` alternatives, and keep a separate future-unknown payload
+path. Scope-broadening command decisions and execution/network policy
+amendments are never reduced to a boolean.
 
 `serverRequest/resolved` belongs to A1.4. It is excluded from A1.3 and is not a
 response transport dependency. A1.3 responds directly through the existing

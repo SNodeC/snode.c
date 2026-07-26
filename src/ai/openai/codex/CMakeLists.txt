@@ -10,6 +10,7 @@ pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 set(AI_OPENAI_CODEX_CPP
     AppServerClient.cpp
     detail/AccountCodec.cpp
+    detail/ApprovalCodec.cpp
     detail/CodexErrorInfoCodec.cpp
     detail/ClientOperationCodec.cpp
     detail/CommandCodec.cpp
@@ -39,9 +40,11 @@ set(AI_OPENAI_CODEX_H
     Protocol.h
     detail/AccountCodec.h
     detail/AccountsModelsConfigurationUnionCodecDescriptors.inc
+    detail/ApprovalCodec.h
     detail/CodexErrorInfoCodec.h
     detail/ClientOperationCodec.h
     detail/CommandCodec.h
+    detail/CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc
     detail/ConfigurationCodec.h
     detail/ConversationCodec.h
     detail/ConversationUnionCodecDescriptors.inc
@@ -73,6 +76,7 @@ set(AI_OPENAI_CODEX_H
     typed/Filesystem.h
     typed/Items.h
     typed/Models.h
+    typed/PermissionProfiles.h
     typed/Results.h
     typed/ServerRequests.h
     typed/Threads.h
@@ -124,6 +128,7 @@ install(
           typed/Filesystem.h
           typed/Items.h
           typed/Models.h
+          typed/PermissionProfiles.h
           typed/Results.h
           typed/ServerRequests.h
           typed/Threads.h

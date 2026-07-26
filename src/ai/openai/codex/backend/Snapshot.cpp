@@ -7,14 +7,21 @@
 
 #include "ai/openai/codex/backend/Snapshot.h"
 
-#include <algorithm>
+#include "ai/openai/codex/typed/Client.h"
+#include "ai/openai/codex/typed/Items.h"
+#include "ai/openai/codex/typed/Types.h"
+
 #include <cctype>
 #include <cstddef>
+#include <initializer_list>
+#include <nlohmann/detail/iterators/iter_impl.hpp>
+#include <nlohmann/detail/iterators/iteration_proxy.hpp>
+#include <nlohmann/detail/json_ref.hpp>
 #include <set>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
+#include <variant>
 
 namespace ai::openai::codex::backend {
 
@@ -229,6 +236,39 @@ namespace ai::openai::codex::backend {
                 }
                 return sanitizeExtensionJson(methodSanitized, state);
             }
+            if (method == "applyPatchApproval" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"callId", "conversationId", "fileChanges", "grantRoot", "reason"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
+            if (method == "execCommandApproval" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"approvalId", "callId", "command", "conversationId", "cwd", "parsedCmd", "reason"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
+            if (method == "item/permissions/requestApproval" && value.is_object()) {
+                Json methodSanitized = value;
+                for (const char* field : {"cwd", "environmentId", "itemId", "permissions", "reason", "threadId", "turnId"}) {
+                    const auto sensitive = methodSanitized.find(field);
+                    if (sensitive != methodSanitized.end()) {
+                        *sensitive = "[redacted]";
+                        state.redacted = true;
+                    }
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
             if (method == "configWarning" && value.is_object()) {
                 Json methodSanitized = value;
                 const auto details = methodSanitized.find("details");
@@ -433,6 +473,37 @@ namespace ai::openai::codex::backend {
             return snapshot;
         }
 
+        void snapshotGenericRequest(PendingRequestSnapshot& snapshot,
+                                    std::string method,
+                                    const Json& params,
+                                    std::optional<std::string> decodingError = std::nullopt) {
+            snapshot.type = "unknown";
+            const ExtensionSnapshot safeParams = makeExtensionSnapshot(
+                ExtensionRecord{std::move(method), params, std::move(decodingError), std::nullopt, std::nullopt, std::nullopt});
+            snapshot.details["method"] = safeParams.method;
+            if (safeParams.methodTruncated) {
+                snapshot.details["methodTruncated"] = true;
+                snapshot.details["originalMethodBytes"] = safeParams.originalMethodBytes;
+            }
+            snapshot.details["params"] = safeParams.payload;
+            if (safeParams.sensitiveFieldsRedacted) {
+                snapshot.details["sensitiveFieldsRedacted"] = true;
+            }
+            if (safeParams.payloadTruncated) {
+                snapshot.details["paramsTruncated"] = true;
+                if (safeParams.originalPayloadBytes.has_value()) {
+                    snapshot.details["originalParamsBytes"] = *safeParams.originalPayloadBytes;
+                }
+            }
+            if (safeParams.decodingError) {
+                snapshot.details["decodingError"] = *safeParams.decodingError;
+            }
+            if (safeParams.decodingErrorTruncated) {
+                snapshot.details["decodingErrorTruncated"] = true;
+                snapshot.details["originalDecodingErrorBytes"] = safeParams.originalDecodingErrorBytes;
+            }
+        }
+
         PendingRequestSnapshot snapshotPendingRequest(const PendingRequestState& state) {
             PendingRequestSnapshot snapshot;
             snapshot.id = state.id;
@@ -493,31 +564,16 @@ namespace ai::openai::codex::backend {
                                       }
                                   },
                                   [&snapshot](const typed::UnknownServerRequest& value) {
-                                      snapshot.type = "unknown";
-                                      const ExtensionSnapshot safeParams = makeExtensionSnapshot(ExtensionRecord{
-                                          value.method, value.params, value.decodingError, std::nullopt, std::nullopt, std::nullopt});
-                                      snapshot.details["method"] = safeParams.method;
-                                      if (safeParams.methodTruncated) {
-                                          snapshot.details["methodTruncated"] = true;
-                                          snapshot.details["originalMethodBytes"] = safeParams.originalMethodBytes;
-                                      }
-                                      snapshot.details["params"] = safeParams.payload;
-                                      if (safeParams.sensitiveFieldsRedacted) {
-                                          snapshot.details["sensitiveFieldsRedacted"] = true;
-                                      }
-                                      if (safeParams.payloadTruncated) {
-                                          snapshot.details["paramsTruncated"] = true;
-                                          if (safeParams.originalPayloadBytes.has_value()) {
-                                              snapshot.details["originalParamsBytes"] = *safeParams.originalPayloadBytes;
-                                          }
-                                      }
-                                      if (safeParams.decodingError) {
-                                          snapshot.details["decodingError"] = *safeParams.decodingError;
-                                      }
-                                      if (safeParams.decodingErrorTruncated) {
-                                          snapshot.details["decodingErrorTruncated"] = true;
-                                          snapshot.details["originalDecodingErrorBytes"] = safeParams.originalDecodingErrorBytes;
-                                      }
+                                      snapshotGenericRequest(snapshot, value.method, value.params, value.decodingError);
+                                  },
+                                  [&snapshot](const typed::ApplyPatchApprovalRequest& value) {
+                                      snapshotGenericRequest(snapshot, "applyPatchApproval", value.params.raw);
+                                  },
+                                  [&snapshot](const typed::ExecCommandApprovalRequest& value) {
+                                      snapshotGenericRequest(snapshot, "execCommandApproval", value.params.raw);
+                                  },
+                                  [&snapshot](const typed::PermissionsApprovalRequest& value) {
+                                      snapshotGenericRequest(snapshot, "item/permissions/requestApproval", value.params.raw);
                                   }},
                        state.request);
             snapshot.details = boundedJson(snapshot.details);

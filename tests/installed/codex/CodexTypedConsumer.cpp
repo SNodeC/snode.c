@@ -15,6 +15,7 @@
 #include <ai/openai/codex/typed/Events.h>
 #include <ai/openai/codex/typed/Items.h>
 #include <ai/openai/codex/typed/Models.h>
+#include <ai/openai/codex/typed/PermissionProfiles.h>
 #include <ai/openai/codex/typed/Results.h>
 #include <ai/openai/codex/typed/ServerRequests.h>
 #include <ai/openai/codex/typed/Threads.h>
@@ -45,6 +46,13 @@ int main() {
     static_assert(std::variant_size_v<typed::LoginAccountParams> == 5);
     static_assert(std::variant_size_v<typed::LoginAccountResponse> == 5);
     static_assert(std::variant_size_v<typed::ConfigLayerSource> == 9);
+    static_assert(std::variant_size_v<typed::CommandExecutionApprovalDecision> == 7);
+    static_assert(std::variant_size_v<typed::FileChange> == 4);
+    static_assert(std::variant_size_v<typed::FileSystemPath> == 4);
+    static_assert(std::variant_size_v<typed::FileSystemSpecialPath> == 7);
+    static_assert(std::variant_size_v<typed::ParsedCommand> == 5);
+    static_assert(std::variant_size_v<typed::ReviewDecision> == 8);
+    static_assert(std::variant_size_v<typed::TypedServerRequest> == 8);
     static_assert(std::is_same_v<typed::Item, typed::ThreadItem>);
     static_assert(!std::is_same_v<typed::ThreadItem, typed::ResponseItem>);
     static_assert(std::is_same_v<typed::TurnInput, typed::UserInput>);
@@ -92,6 +100,20 @@ int main() {
         .stderrData = "synthetic-stderr",
         .raw = {{"exitCode", 0}, {"stdout", "synthetic-stdout"}, {"stderr", "synthetic-stderr"}},
     };
+    [[maybe_unused]] typed::PermissionProfileListParams installedProfileParams{
+        .cursor = typed::OptionalNullable<std::string>::explicitNull(),
+        .cwd = typed::OptionalNullable<std::string>::withValue("/synthetic/project"),
+        .limit = typed::OptionalNullable<std::uint32_t>::withValue(25),
+    };
+    [[maybe_unused]] typed::PermissionProfileListResponse installedProfileResponse{
+        .data = {{.allowed = true,
+                  .description = typed::OptionalNullable<std::string>::withValue("Synthetic profile"),
+                  .id = "synthetic-profile"}},
+        .nextCursor = typed::OptionalNullable<std::string>::explicitNull(),
+    };
+    [[maybe_unused]] typed::CommandExecutionApprovalDecision installedCommandDecision =
+        typed::AcceptWithExecpolicyAmendmentCommandExecutionApprovalDecision{.execpolicyAmendment = {"synthetic-command"}};
+    [[maybe_unused]] typed::ReviewDecision installedReviewDecision = typed::ApprovedReviewDecision{};
     [[maybe_unused]] typed::Event installedCommandEvent = typed::CommandExecOutputDeltaNotification{
         .capReached = false,
         .deltaBase64 = "c3ludGhldGlj",

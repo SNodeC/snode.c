@@ -10,9 +10,10 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/AccountCodec.h"
-#include "ai/openai/codex/detail/CommandCodec.h"
-#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/ApprovalCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
 #include "ai/openai/codex/detail/FilesystemCodec.h"
@@ -23,11 +24,12 @@
 #include "ai/openai/codex/detail/TurnCodec.h"
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/Commands.h"
-#include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Events.h"
 #include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/PermissionProfiles.h"
 #include "ai/openai/codex/typed/Results.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 #include "ai/openai/codex/typed/Threads.h"
@@ -43,6 +45,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -56,6 +59,7 @@ namespace ai::openai::codex::typed {
              std::unique_ptr<Filesystem> filesystem,
              std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
+             std::unique_ptr<PermissionProfiles> permissionProfiles,
              std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
@@ -65,6 +69,7 @@ namespace ai::openai::codex::typed {
             , filesystem(std::move(filesystem))
             , configuration(std::move(configuration))
             , models(std::move(models))
+            , permissionProfiles(std::move(permissionProfiles))
             , threads(std::move(threads))
             , turns(std::move(turns))
             , events(std::move(events))
@@ -76,6 +81,7 @@ namespace ai::openai::codex::typed {
         std::unique_ptr<Filesystem> filesystem;
         std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
+        std::unique_ptr<PermissionProfiles> permissionProfiles;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
         std::unique_ptr<Events> events;
@@ -87,19 +93,21 @@ namespace ai::openai::codex::typed {
                    std::unique_ptr<Filesystem> filesystem,
                    std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
+                   std::unique_ptr<PermissionProfiles> permissionProfiles,
                    std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
         : impl(std::make_unique<Impl>(std::move(accounts),
-                                     std::move(commands),
-                                     std::move(filesystem),
-                                     std::move(configuration),
-                                     std::move(models),
-                                     std::move(threads),
-                                     std::move(turns),
-                                     std::move(events),
-                                     std::move(requests))) {
+                                      std::move(commands),
+                                      std::move(filesystem),
+                                      std::move(configuration),
+                                      std::move(models),
+                                      std::move(permissionProfiles),
+                                      std::move(threads),
+                                      std::move(turns),
+                                      std::move(events),
+                                      std::move(requests))) {
     }
 
     Client::~Client() = default;
@@ -142,6 +150,14 @@ namespace ai::openai::codex::typed {
 
     const Models& Client::models() const noexcept {
         return *impl->models;
+    }
+
+    PermissionProfiles& Client::permissionProfiles() noexcept {
+        return *impl->permissionProfiles;
+    }
+
+    const PermissionProfiles& Client::permissionProfiles() const noexcept {
+        return *impl->permissionProfiles;
     }
 
     Threads& Client::threads() noexcept {
@@ -188,6 +204,10 @@ namespace ai::openai::codex::typed {
 
         std::string registeredMethod(detail::ClientRequestTarget target) {
             return std::string(detail::entryFor(target).key.name);
+        }
+
+        std::string_view registeredMethod(detail::ServerRequestTarget target) {
+            return detail::entryFor(target).key.name;
         }
 
         template <typename T, typename Handler>
@@ -520,6 +540,18 @@ namespace ai::openai::codex::typed {
                                                                          params,
                                                                          std::move(handler),
                                                                          detail::encodeModelProviderCapabilitiesReadParams);
+    }
+
+    PermissionProfiles::PermissionProfiles(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    PermissionProfiles::Submission PermissionProfiles::list(PermissionProfileListParams params, ListResultHandler handler) {
+        return submitTypedRequest<PermissionProfileListResponse>(protocol,
+                                                                 detail::ClientRequestTarget::PermissionProfileList,
+                                                                 params,
+                                                                 std::move(handler),
+                                                                 detail::encodePermissionProfileListParams);
     }
 
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept
@@ -906,14 +938,80 @@ namespace ai::openai::codex::typed {
         if (decision.value.empty()) {
             return validationFailure("approval decision must not be empty");
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"decision", std::move(decision.value)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::CommandExecutionRequestApproval),
+                                      Json{{"decision", std::move(decision.value)}});
+    }
+
+    Requests::SendResult Requests::respond(const CommandApprovalRequest& request, CommandExecutionRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeCommandExecutionRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::CommandExecutionRequestApproval),
+                                      std::move(*encoded));
     }
 
     Requests::SendResult Requests::respond(const FileChangeApprovalRequest& request, ApprovalDecision decision) {
         if (decision.value.empty()) {
             return validationFailure("approval decision must not be empty");
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"decision", std::move(decision.value)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::FileChangeRequestApproval),
+                                      Json{{"decision", std::move(decision.value)}});
+    }
+
+    Requests::SendResult Requests::respond(const FileChangeApprovalRequest& request, FileChangeRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeFileChangeRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::FileChangeRequestApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const ApplyPatchApprovalRequest& request, ApplyPatchApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeApplyPatchApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ApplyPatchApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const ExecCommandApprovalRequest& request, ExecCommandApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeExecCommandApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ExecCommandApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const PermissionsApprovalRequest& request, PermissionsRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodePermissionsRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::PermissionsRequestApproval),
+                                      std::move(*encoded));
     }
 
     Requests::SendResult Requests::respond(const UserInputRequest& request, std::vector<UserInputAnswer> answers) {
@@ -934,7 +1032,10 @@ namespace ai::openai::codex::typed {
             encodedAnswers[answer.questionId] = Json{{"answers", std::move(answer.answers)}};
         }
 
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"answers", std::move(encodedAnswers)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ToolRequestUserInput),
+                                      Json{{"answers", std::move(encodedAnswers)}});
     }
 
     Requests::SendResult Requests::respondRefresh(const ChatgptAuthTokensRefreshRequest& request,
@@ -944,7 +1045,10 @@ namespace ai::openai::codex::typed {
         if (!result) {
             return validationFailure(std::move(error));
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, std::move(*result));
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ChatgptAuthTokensRefresh),
+                                      std::move(*result));
     }
 
     Requests::SendResult Requests::respond(const AuthenticationRequest& request, AuthenticationResponse response) {

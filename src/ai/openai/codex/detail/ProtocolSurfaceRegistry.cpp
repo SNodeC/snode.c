@@ -101,7 +101,7 @@ namespace ai::openai::codex::detail {
         constexpr ClientOperationCodecDescriptor ClientOperationDescriptors[] = {
 #include "ai/openai/codex/detail/ClientOperationCodecDescriptors.inc"
         };
-        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 54);
+        static_assert(sizeof(ClientOperationDescriptors) / sizeof(*ClientOperationDescriptors) == 55);
 
 #undef CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR
 
@@ -146,6 +146,18 @@ namespace ai::openai::codex::detail {
                       static_cast<std::size_t>(AccountsModelsConfigurationUnionTarget::Count));
 
 #undef CODEX_ACCOUNTS_MODELS_CONFIGURATION_UNION_CODEC_DESCRIPTOR
+
+#define CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)        \
+    {{category, domain, field, name}, target, shape, direction},
+
+        constexpr CommandsFilesystemReviewsApprovalsUnionCodecDescriptor CommandsFilesystemReviewsApprovalsUnionDescriptors[] = {
+#include "ai/openai/codex/detail/CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc"
+        };
+        static_assert(sizeof(CommandsFilesystemReviewsApprovalsUnionDescriptors) /
+                          sizeof(*CommandsFilesystemReviewsApprovalsUnionDescriptors) ==
+                      static_cast<std::size_t>(CommandsFilesystemReviewsApprovalsUnionTarget::Count));
+
+#undef CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODEC_DESCRIPTOR
 
 #define CODEX_THREAD_ITEM_CODEC_DESCRIPTOR(category, domain, field, name, target, shape, direction)                                       \
     {{category, domain, field, name}, target, shape, direction},
@@ -236,6 +248,8 @@ namespace ai::openai::codex::detail {
                     } else if constexpr (std::is_same_v<Target, ConversationUnionTarget>) {
                         return SurfaceCategory::TaggedUnionDiscriminator;
                     } else if constexpr (std::is_same_v<Target, AccountsModelsConfigurationUnionTarget>) {
+                        return SurfaceCategory::TaggedUnionDiscriminator;
+                    } else if constexpr (std::is_same_v<Target, CommandsFilesystemReviewsApprovalsUnionTarget>) {
                         return SurfaceCategory::TaggedUnionDiscriminator;
                     } else {
                         static_assert(std::is_same_v<Target, void>, "new runtime target type needs an explicit surface category");
@@ -365,6 +379,9 @@ namespace ai::openai::codex::detail {
             const AccountsModelsConfigurationUnionCodecDescriptor* canonicalAccountsModelsConfigurationUnion =
                 canonicalDescriptorForTarget<AccountsModelsConfigurationUnionTarget>(entry,
                                                                                      accountsModelsConfigurationUnionCodecDescriptors());
+            const CommandsFilesystemReviewsApprovalsUnionCodecDescriptor* canonicalCommandsFilesystemReviewsApprovalsUnion =
+                canonicalDescriptorForTarget<CommandsFilesystemReviewsApprovalsUnionTarget>(
+                    entry, commandsFilesystemReviewsApprovalsUnionCodecDescriptors());
             const ThreadItemCodecDescriptor* canonicalThreadItem =
                 canonicalDescriptorForTarget<ItemDiscriminatorTarget>(entry, threadItemCodecDescriptors());
             const ResponseItemCodecDescriptor* canonicalResponseItem =
@@ -388,6 +405,12 @@ namespace ai::openai::codex::detail {
                 (canonicalAccountsModelsConfigurationUnion != nullptr && canonicalAccountsModelsConfigurationUnion->key == entry.key &&
                  matchingCodecDescriptor<AccountsModelsConfigurationUnionTarget>(entry, accountsModelsConfigurationUnionDescriptors) !=
                      nullptr);
+            const bool commandsFilesystemReviewsApprovalsUnionDecoderMatches =
+                !std::holds_alternative<CommandsFilesystemReviewsApprovalsUnionTarget>(entry.runtimeTarget) ||
+                (canonicalCommandsFilesystemReviewsApprovalsUnion != nullptr &&
+                 canonicalCommandsFilesystemReviewsApprovalsUnion->key == entry.key &&
+                 matchingCodecDescriptor<CommandsFilesystemReviewsApprovalsUnionTarget>(
+                     entry, commandsFilesystemReviewsApprovalsUnionCodecDescriptors()) != nullptr);
             const bool threadItemDecoderMatches =
                 !std::holds_alternative<ItemDiscriminatorTarget>(entry.runtimeTarget) ||
                 (canonicalThreadItem != nullptr && canonicalThreadItem->key == entry.key &&
@@ -408,10 +431,10 @@ namespace ai::openai::codex::detail {
                 !std::holds_alternative<ServerRequestTarget>(entry.runtimeTarget) ||
                 (canonicalServerRequest != nullptr && canonicalServerRequest->key == entry.key &&
                  matchingCodecDescriptor<ServerRequestTarget>(entry, serverRequestDescriptors) != nullptr);
-            const bool decoderMatches = codexErrorInfoDecoderMatches && conversationUnionDecoderMatches &&
-                                        accountsModelsConfigurationUnionDecoderMatches && threadItemDecoderMatches &&
-                                        responseItemDecoderMatches && clientOperationDecoderMatches && serverNotificationDecoderMatches &&
-                                        serverRequestDecoderMatches;
+            const bool decoderMatches =
+                codexErrorInfoDecoderMatches && conversationUnionDecoderMatches && accountsModelsConfigurationUnionDecoderMatches &&
+                commandsFilesystemReviewsApprovalsUnionDecoderMatches && threadItemDecoderMatches && responseItemDecoderMatches &&
+                clientOperationDecoderMatches && serverNotificationDecoderMatches && serverRequestDecoderMatches;
             return completeSchemaEvidence(entry.schemaCompleteness) && decoderMatches ? TypedSchemaStatus::Complete
                                                                                       : TypedSchemaStatus::Partial;
         }
@@ -600,7 +623,8 @@ namespace ai::openai::codex::detail {
                         return candidate.target == descriptor.target;
                     });
                 const bool shapeMatchesField =
-                    (descriptor.key.field == "type" && descriptor.shape == ConversationUnionCodecShape::InternallyTaggedObject) ||
+                    ((descriptor.key.field == "type" || descriptor.key.field == "kind") &&
+                     descriptor.shape == ConversationUnionCodecShape::InternallyTaggedObject) ||
                     (descriptor.key.field == "$variant" && (descriptor.shape == ConversationUnionCodecShape::ScalarString ||
                                                             descriptor.shape == ConversationUnionCodecShape::ExternallyTaggedObject));
                 if (descriptor.shape == ConversationUnionCodecShape::Count || !shapeMatchesField ||
@@ -671,12 +695,21 @@ namespace ai::openai::codex::detail {
         return findTarget(target);
     }
 
+    const ProtocolSurfaceEntry& entryFor(CommandsFilesystemReviewsApprovalsUnionTarget target) {
+        return findTarget(target);
+    }
+
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept {
         return ConversationUnionDescriptors;
     }
 
     std::span<const AccountsModelsConfigurationUnionCodecDescriptor> accountsModelsConfigurationUnionCodecDescriptors() noexcept {
         return AccountsModelsConfigurationUnionDescriptors;
+    }
+
+    std::span<const CommandsFilesystemReviewsApprovalsUnionCodecDescriptor>
+    commandsFilesystemReviewsApprovalsUnionCodecDescriptors() noexcept {
+        return CommandsFilesystemReviewsApprovalsUnionDescriptors;
     }
 
     std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept {
@@ -824,7 +857,7 @@ namespace ai::openai::codex::detail {
         std::span<const ClientOperationCodecDescriptor> clientOperationDescriptors,
         std::span<const ServerNotificationCodecDescriptor> serverNotificationDescriptors,
         std::span<const ServerRequestCodecDescriptor> serverRequestDescriptors) {
-        static_assert(std::variant_size_v<RuntimeTarget> == 10, "new runtime target type needs an explicit validateTargets invocation");
+        static_assert(std::variant_size_v<RuntimeTarget> == 11, "new runtime target type needs an explicit validateTargets invocation");
 
         ProtocolSurfaceValidation result;
 
@@ -1124,6 +1157,21 @@ namespace ai::openai::codex::detail {
                                                                              accountsModelsConfigurationUnionCodecDescriptors(),
                                                                              "accounts/models/configuration union",
                                                                              result);
+        }
+        if (containsRuntimeTarget<CommandsFilesystemReviewsApprovalsUnionTarget>(entries)) {
+            validateTargets(entries,
+                            CommandsFilesystemReviewsApprovalsUnionTarget::Count,
+                            "commands/filesystem/reviews/approvals union discriminator",
+                            result);
+            validateTaggedUnionDescriptorMetadata(commandsFilesystemReviewsApprovalsUnionCodecDescriptors(),
+                                                  commandsFilesystemReviewsApprovalsUnionCodecDescriptors(),
+                                                  result);
+            validateCodecDescriptors<CommandsFilesystemReviewsApprovalsUnionTarget>(
+                entries,
+                commandsFilesystemReviewsApprovalsUnionCodecDescriptors(),
+                commandsFilesystemReviewsApprovalsUnionCodecDescriptors(),
+                "commands/filesystem/reviews/approvals union",
+                result);
         }
         if (!threadItemDescriptors.empty() || containsRuntimeTarget<ItemDiscriminatorTarget>(entries)) {
             validateTaggedUnionDescriptorMetadata(threadItemDescriptors, threadItemCodecDescriptors(), result);

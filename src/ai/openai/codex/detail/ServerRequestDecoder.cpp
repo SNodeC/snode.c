@@ -7,14 +7,21 @@
 
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 
+#include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/ApprovalCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Items.h"
+#include "ai/openai/codex/typed/Types.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <exception>
-#include <limits>
+#include <map>
+#include <nlohmann/detail/iterators/iter_impl.hpp>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -43,10 +50,8 @@ namespace ai::openai::codex::detail {
                     request.params,
                     request.raw,
                     std::move(decodingError),
-                    malformed ? std::optional<typed::DecodeDiagnostic>{
-                                    malformedKnownDiagnostic(request.method, std::move(fieldPath))}
-                              : std::optional<typed::DecodeDiagnostic>{
-                                    unknownMethodDiagnostic(request.method)}};
+                    malformed ? std::optional<typed::DecodeDiagnostic>{malformedKnownDiagnostic(request.method, std::move(fieldPath))}
+                              : std::optional<typed::DecodeDiagnostic>{unknownMethodDiagnostic(request.method)}};
         }
 
         bool requireObject(const Json& value, std::string_view context, std::string& error) {
@@ -73,22 +78,6 @@ namespace ai::openai::codex::detail {
             return true;
         }
 
-        bool readOptionalString(
-            const Json& object, const char* field, std::string_view context, std::optional<std::string>& value, std::string& error) {
-            const auto member = object.find(field);
-            if (member == object.end() || member->is_null()) {
-                value.reset();
-                return true;
-            }
-            if (!member->is_string()) {
-                error = std::string(context) + " params field '" + field + "' is neither a string nor null";
-                return false;
-            }
-
-            value = member->get<std::string>();
-            return true;
-        }
-
         bool readOptionalBoolean(
             const Json& object, const char* field, std::string_view context, bool defaultValue, bool& value, std::string& error) {
             const auto member = object.find(field);
@@ -103,29 +92,6 @@ namespace ai::openai::codex::detail {
 
             value = member->get<bool>();
             return true;
-        }
-
-        bool
-        readRequiredInt64(const Json& object, const char* field, std::string_view context, std::int64_t& decodedValue, std::string& error) {
-            const auto member = object.find(field);
-            if (member == object.end()) {
-                error = std::string(context) + " params is missing required integer field '" + field + "'";
-                return false;
-            }
-
-            if (member->is_number_unsigned()) {
-                const std::uint64_t value = member->get<std::uint64_t>();
-                if (value <= static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())) {
-                    decodedValue = static_cast<std::int64_t>(value);
-                    return true;
-                }
-            } else if (member->is_number_integer()) {
-                decodedValue = member->get<std::int64_t>();
-                return true;
-            }
-
-            error = std::string(context) + " params field '" + field + "' is outside the signed 64-bit integer range";
-            return false;
         }
 
         bool readOptionalUint64(
@@ -153,72 +119,95 @@ namespace ai::openai::codex::detail {
         }
 
         std::optional<typed::CommandApprovalRequest> decodeCommandApproval(const ServerRequest& request, std::string& error) {
-            const Json& params = request.params;
-            const std::string_view method = entryFor(ServerRequestTarget::CommandExecutionRequestApproval).key.name;
-            if (!requireObject(params, method, error)) {
+            std::optional<typed::CommandExecutionRequestApprovalParams> canonical =
+                decodeCommandExecutionRequestApprovalParams(request.params, error);
+            if (!canonical) {
                 return std::nullopt;
             }
 
-            std::string threadId;
-            std::string turnId;
-            std::string itemId;
-            std::int64_t startedAtMs = 0;
             std::optional<std::string> command;
             std::optional<std::string> cwd;
             std::optional<std::string> reason;
-            if (!readRequiredString(params, "threadId", method, threadId, error) ||
-                !readRequiredString(params, "turnId", method, turnId, error) ||
-                !readRequiredString(params, "itemId", method, itemId, error) ||
-                !readRequiredInt64(params, "startedAtMs", method, startedAtMs, error) ||
-                !readOptionalString(params, "command", method, command, error) || !readOptionalString(params, "cwd", method, cwd, error) ||
-                !readOptionalString(params, "reason", method, reason, error)) {
-                return std::nullopt;
+            if (canonical->command.value) {
+                command = *canonical->command.value;
+            }
+            if (canonical->cwd.value) {
+                cwd = canonical->cwd.value->value;
+            }
+            if (canonical->reason.value) {
+                reason = *canonical->reason.value;
             }
 
+            std::vector<typed::DecodeDiagnostic> diagnostics = canonical->diagnostics;
             return typed::CommandApprovalRequest{request.id,
                                                  request.token,
-                                                 typed::ThreadId{std::move(threadId)},
-                                                 typed::TurnId{std::move(turnId)},
-                                                 typed::ItemId{std::move(itemId)},
-                                                 startedAtMs,
+                                                 canonical->threadId,
+                                                 canonical->turnId,
+                                                 canonical->itemId,
+                                                 canonical->startedAtMs,
                                                  std::move(command),
                                                  std::move(cwd),
                                                  std::move(reason),
-                                                 params,
-                                                 request.raw};
+                                                 request.params,
+                                                 request.raw,
+                                                 std::move(*canonical),
+                                                 std::move(diagnostics)};
         }
 
         std::optional<typed::FileChangeApprovalRequest> decodeFileChangeApproval(const ServerRequest& request, std::string& error) {
-            const Json& params = request.params;
-            const std::string_view method = entryFor(ServerRequestTarget::FileChangeRequestApproval).key.name;
-            if (!requireObject(params, method, error)) {
+            std::optional<typed::FileChangeRequestApprovalParams> canonical = decodeFileChangeRequestApprovalParams(request.params, error);
+            if (!canonical) {
                 return std::nullopt;
             }
 
-            std::string threadId;
-            std::string turnId;
-            std::string itemId;
-            std::int64_t startedAtMs = 0;
             std::optional<std::string> reason;
             std::optional<std::string> grantRoot;
-            if (!readRequiredString(params, "threadId", method, threadId, error) ||
-                !readRequiredString(params, "turnId", method, turnId, error) ||
-                !readRequiredString(params, "itemId", method, itemId, error) ||
-                !readRequiredInt64(params, "startedAtMs", method, startedAtMs, error) ||
-                !readOptionalString(params, "reason", method, reason, error) ||
-                !readOptionalString(params, "grantRoot", method, grantRoot, error)) {
-                return std::nullopt;
+            if (canonical->reason.value) {
+                reason = *canonical->reason.value;
+            }
+            if (canonical->grantRoot.value) {
+                grantRoot = *canonical->grantRoot.value;
             }
 
+            std::vector<typed::DecodeDiagnostic> diagnostics = canonical->diagnostics;
             return typed::FileChangeApprovalRequest{request.id,
                                                     request.token,
-                                                    typed::ThreadId{std::move(threadId)},
-                                                    typed::TurnId{std::move(turnId)},
-                                                    typed::ItemId{std::move(itemId)},
-                                                    startedAtMs,
+                                                    canonical->threadId,
+                                                    canonical->turnId,
+                                                    canonical->itemId,
+                                                    canonical->startedAtMs,
                                                     std::move(reason),
                                                     std::move(grantRoot),
-                                                    request.raw};
+                                                    request.raw,
+                                                    std::move(*canonical),
+                                                    std::move(diagnostics)};
+        }
+
+        std::optional<typed::ApplyPatchApprovalRequest> decodeApplyPatchApproval(const ServerRequest& request, std::string& error) {
+            std::optional<typed::ApplyPatchApprovalParams> params = decodeApplyPatchApprovalParams(request.params, error);
+            if (!params) {
+                return std::nullopt;
+            }
+            std::vector<typed::DecodeDiagnostic> diagnostics = params->diagnostics;
+            return typed::ApplyPatchApprovalRequest{request.id, request.token, std::move(*params), request.raw, std::move(diagnostics)};
+        }
+
+        std::optional<typed::ExecCommandApprovalRequest> decodeExecCommandApproval(const ServerRequest& request, std::string& error) {
+            std::optional<typed::ExecCommandApprovalParams> params = decodeExecCommandApprovalParams(request.params, error);
+            if (!params) {
+                return std::nullopt;
+            }
+            std::vector<typed::DecodeDiagnostic> diagnostics = params->diagnostics;
+            return typed::ExecCommandApprovalRequest{request.id, request.token, std::move(*params), request.raw, std::move(diagnostics)};
+        }
+
+        std::optional<typed::PermissionsApprovalRequest> decodePermissionsApproval(const ServerRequest& request, std::string& error) {
+            std::optional<typed::PermissionsRequestApprovalParams> params = decodePermissionsRequestApprovalParams(request.params, error);
+            if (!params) {
+                return std::nullopt;
+            }
+            std::vector<typed::DecodeDiagnostic> diagnostics = params->diagnostics;
+            return typed::PermissionsApprovalRequest{request.id, request.token, std::move(*params), request.raw, std::move(diagnostics)};
         }
 
         bool decodeUserInputOption(const Json& raw,
@@ -332,8 +321,7 @@ namespace ai::openai::codex::detail {
         }
 
         std::optional<typed::AuthenticationRequest> decodeAuthentication(const ServerRequest& request, std::string& error) {
-            std::optional<typed::ChatgptAuthTokensRefreshParams> canonical =
-                decodeChatgptAuthTokensRefreshParams(request.params, error);
+            std::optional<typed::ChatgptAuthTokensRefreshParams> canonical = decodeChatgptAuthTokensRefreshParams(request.params, error);
             if (!canonical) {
                 return std::nullopt;
             }
@@ -383,6 +371,21 @@ namespace ai::openai::codex::detail {
                 }
                 case ServerRequestTarget::ChatgptAuthTokensRefresh: {
                     std::optional<typed::AuthenticationRequest> decoded = decodeAuthentication(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::ApplyPatchApproval: {
+                    std::optional<typed::ApplyPatchApprovalRequest> decoded = decodeApplyPatchApproval(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::ExecCommandApproval: {
+                    std::optional<typed::ExecCommandApprovalRequest> decoded = decodeExecCommandApproval(request, error);
+                    return decoded ? typed::TypedServerRequest{std::move(*decoded)}
+                                   : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
+                }
+                case ServerRequestTarget::PermissionsRequestApproval: {
+                    std::optional<typed::PermissionsApprovalRequest> decoded = decodePermissionsApproval(request, error);
                     return decoded ? typed::TypedServerRequest{std::move(*decoded)}
                                    : typed::TypedServerRequest{unknownRequest(request, std::move(error))};
                 }

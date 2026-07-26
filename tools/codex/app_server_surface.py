@@ -1503,6 +1503,91 @@ ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS = {
     ),
 }
 
+A13_APPROVAL_UNION_FAMILIES = {
+    "CommandExecutionApprovalDecision": (
+        "$variant",
+        (
+            "accept",
+            "acceptForSession",
+            "acceptWithExecpolicyAmendment",
+            "applyNetworkPolicyAmendment",
+            "cancel",
+            "decline",
+        ),
+    ),
+    "FileChange": ("type", ("add", "delete", "update")),
+    "FileSystemPath": ("type", ("glob_pattern", "path", "special")),
+    "FileSystemSpecialPath": (
+        "kind",
+        (
+            "minimal",
+            "project_roots",
+            "root",
+            "slash_tmp",
+            "tmpdir",
+            "unknown",
+        ),
+    ),
+    "ParsedCommand": (
+        "type",
+        ("list_files", "read", "search", "unknown"),
+    ),
+    "ReviewDecision": (
+        "$variant",
+        (
+            "abort",
+            "approved",
+            "approved_execpolicy_amendment",
+            "approved_for_session",
+            "denied",
+            "network_policy_amendment",
+            "timed_out",
+        ),
+    ),
+}
+A13_APPROVAL_EXTERNALLY_TAGGED_ALTERNATIVES = {
+    (
+        "CommandExecutionApprovalDecision",
+        "acceptWithExecpolicyAmendment",
+    ),
+    (
+        "CommandExecutionApprovalDecision",
+        "applyNetworkPolicyAmendment",
+    ),
+    ("ReviewDecision", "approved_execpolicy_amendment"),
+    ("ReviewDecision", "network_policy_amendment"),
+}
+
+
+def a13_approval_target_suffix(name: str) -> str:
+    return "".join(
+        part[:1].upper() + part[1:] for part in name.split("_")
+    )
+
+
+COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        domain,
+        discriminator,
+        name,
+    ): (
+        "CommandsFilesystemReviewsApprovalsUnionTarget::"
+        f"{domain}{a13_approval_target_suffix(name)}",
+        (
+            "ConversationUnionCodecShape::ExternallyTaggedObject"
+            if (domain, name)
+            in A13_APPROVAL_EXTERNALLY_TAGGED_ALTERNATIVES
+            else "ConversationUnionCodecShape::ScalarString"
+            if discriminator == "$variant"
+            else "ConversationUnionCodecShape::InternallyTaggedObject"
+        ),
+        "ConversationUnionCodecDirection::Bidirectional",
+    )
+    for domain, (discriminator, names) in A13_APPROVAL_UNION_FAMILIES.items()
+    for name in names
+}
+
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
     (
@@ -1697,6 +1782,12 @@ RUNTIME_TARGETS = {
         "method",
         "fuzzyFileSearch",
     ): "ClientRequestTarget::FuzzyFileSearch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "permissionProfile/list",
+    ): "ClientRequestTarget::PermissionProfileList",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -2048,6 +2139,18 @@ RUNTIME_TARGETS = {
         "server_request",
         "ServerRequest",
         "method",
+        "applyPatchApproval",
+    ): "ServerRequestTarget::ApplyPatchApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
+        "execCommandApproval",
+    ): "ServerRequestTarget::ExecCommandApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
         "item/commandExecution/requestApproval",
     ): "ServerRequestTarget::CommandExecutionRequestApproval",
     (
@@ -2056,6 +2159,12 @@ RUNTIME_TARGETS = {
         "method",
         "item/fileChange/requestApproval",
     ): "ServerRequestTarget::FileChangeRequestApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
+        "item/permissions/requestApproval",
+    ): "ServerRequestTarget::PermissionsRequestApproval",
     (
         "server_request",
         "ServerRequest",
@@ -2320,6 +2429,21 @@ RUNTIME_TARGETS.update(
         key: descriptor[0]
         for key, descriptor in (
             ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS.items()
+        )
+    }
+)
+if set(RUNTIME_TARGETS) & set(
+    COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+):
+    raise AssertionError(
+        "commands/filesystem/reviews/approvals union targets duplicate an "
+        "existing runtime mapping"
+    )
+RUNTIME_TARGETS.update(
+    {
+        key: descriptor[0]
+        for key, descriptor in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.items()
         )
     }
 )
@@ -5580,7 +5704,9 @@ def registry_statuses(
         == "CommandsFilesystemReviewsApprovals"
         and target is not None
         and (
-            (
+            identity
+            in COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+            or (
                 identity[0] == "client_request"
                 and identity[3]
                 in {
@@ -5598,6 +5724,7 @@ def registry_statuses(
                     "fs/watch",
                     "fs/writeFile",
                     "fuzzyFileSearch",
+                    "permissionProfile/list",
                 }
             )
             or (
@@ -5610,12 +5737,23 @@ def registry_statuses(
                     "fuzzyFileSearch/sessionUpdated",
                 }
             )
+            or (
+                identity[0] == "server_request"
+                and identity[3]
+                in {
+                    "applyPatchApproval",
+                    "execCommandApproval",
+                    "item/commandExecution/requestApproval",
+                    "item/fileChange/requestApproval",
+                    "item/permissions/requestApproval",
+                }
+            )
         )
     ):
-        # The staged A1.3 command and filesystem descriptors bind exact stable
-        # roots to their reviewed production codecs. Schema-derived fixtures
-        # and focused wire tests cover both directions without adding a local
-        # command runner, filesystem implementation, or fuzzy matcher.
+        # The staged A1.3 command, filesystem, and approval descriptors bind
+        # exact stable roots/unions to their reviewed production codecs.
+        # Schema-derived fixtures and focused wire tests cover both directions
+        # without adding local execution, filesystem, or approval policy.
         evidence["direction_assertions_exercised"] = True
         evidence["runtime_decoder_matches_registry"] = True
         evidence["opaque_fields_declared"] = True
@@ -5773,7 +5911,10 @@ def generate_registry_data(
 
 
 def _conversation_union_schema_branch(
-    entry: dict[str, Any], schema_root: Path
+    entry: dict[str, Any],
+    schema_root: Path,
+    *,
+    require_v2: bool = True,
 ) -> dict[str, Any]:
     sources = entry.get("sources")
     if not isinstance(sources, list):
@@ -5788,14 +5929,17 @@ def _conversation_union_schema_branch(
             if isinstance(candidate, dict)
             and candidate.get("file") == "codex_app_server_protocol.schemas.json"
             and isinstance(candidate.get("pointer"), str)
-            and candidate["pointer"].startswith("/definitions/v2/")
+            and candidate["pointer"].startswith(
+                "/definitions/v2/" if require_v2 else "/definitions/"
+            )
         ),
         None,
     )
     if source is None:
         raise SurfaceError(
             "ConversationUnionDescriptorSchemaMismatch: "
-            f"{surface_key(entry)} has no stable v2 aggregate source"
+            f"{surface_key(entry)} has no stable "
+            f"{'v2 ' if require_v2 else ''}aggregate source"
         )
     path = schema_root / "stable" / source["file"]
     document = load_json(path)
@@ -5836,7 +5980,7 @@ def _validate_conversation_union_descriptor_shape(
             properties.get(field) if isinstance(properties, dict) else None
         )
         valid = (
-            field == "type"
+            field != "$variant"
             and branch.get("type") == "object"
             and isinstance(discriminator, dict)
             and discriminator.get("enum") == [name]
@@ -6072,6 +6216,130 @@ def generate_accounts_models_configuration_union_descriptor_data(
     return "\n".join(lines) + "\n"
 
 
+def generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private A1.3 approval/permission union metadata."""
+
+    evidence = (
+        evidence if evidence is not None else load_a1_registry_evidence()
+    )
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if assignment.get("slice") == "A1.3"
+        and assignment.get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[0] == "tagged_union_discriminator"
+        and key[1] in A13_APPROVAL_UNION_FAMILIES
+        and assignment.get("stability") == "stable"
+    }
+    descriptor_keys = set(
+        COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+    )
+    expected_family_counts = {
+        domain: len(names)
+        for domain, (_, names) in A13_APPROVAL_UNION_FAMILIES.items()
+    }
+    actual_family_counts = {
+        domain: sum(key[1] == domain for key in descriptor_keys)
+        for domain in A13_APPROVAL_UNION_FAMILIES
+    }
+    if (
+        expected_keys != descriptor_keys
+        or len(descriptor_keys) != 29
+        or actual_family_counts != expected_family_counts
+    ):
+        raise SurfaceError(
+            "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch: "
+            "the exact 6 command decisions, 3 file changes, 3 filesystem "
+            "paths, 6 special paths, 4 parsed commands, and 7 review "
+            "decisions must each own one descriptor"
+        )
+    targets = [
+        metadata[0]
+        for metadata in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.values()
+        )
+    ]
+    if len(set(targets)) != 29:
+        raise SurfaceError(
+            "DuplicateCommandsFilesystemReviewsApprovalsUnionDescriptorTarget: "
+            "each exact key must own one unique runtime target"
+        )
+    if any(
+        metadata[2]
+        != "ConversationUnionCodecDirection::Bidirectional"
+        for metadata in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.values()
+        )
+    ):
+        raise SurfaceError(
+            "CommandsFilesystemReviewsApprovalsUnionDescriptorDirectionMismatch: "
+            "all 29 approval/permission alternatives must remain bidirectional"
+        )
+
+    entries = {
+        surface_key(entry): entry
+        for entry in manifest.get("entries", [])
+    }
+    lines = [
+        (
+            "// Generated by tools/codex/app_server_surface.py "
+            "commands-filesystem-reviews-approvals-union-descriptors; "
+            "do not edit."
+        ),
+        (
+            "// Exact keys remain subordinate to "
+            "ProtocolSurfaceRegistryData.inc."
+        ),
+        (
+            "// Shape and direction are private codec metadata, not "
+            "production dispositions."
+        ),
+    ]
+    for key in sorted(descriptor_keys):
+        entry = entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category")
+            != "tagged_union_discriminator"
+        ):
+            raise SurfaceError(
+                "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch: "
+                f"missing stable tagged-union manifest entry for {key}"
+            )
+        target, shape, direction = (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[key]
+        )
+        branch = _conversation_union_schema_branch(
+            entry, schema_root, require_v2=False
+        )
+        _validate_conversation_union_descriptor_shape(
+            entry, branch, shape
+        )
+        lines.append(
+            "CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODEC_DESCRIPTOR("
+            + ", ".join(
+                (
+                    CPP_CATEGORIES[key[0]],
+                    cpp_string(key[1]),
+                    cpp_string(key[2]),
+                    cpp_string(key[3]),
+                    target,
+                    shape,
+                    direction,
+                )
+            )
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def generate_server_request_descriptor_data(
     manifest: dict[str, Any],
     evidence: dict[str, Any] | None = None,
@@ -6085,63 +6353,107 @@ def generate_server_request_descriptor_data(
     contracts = operation_contract_by_key(
         manifest, evidence["operation_contracts"]
     )
+    expected_methods = {
+        "account/chatgptAuthTokens/refresh",
+        "applyPatchApproval",
+        "execCommandApproval",
+        "item/commandExecution/requestApproval",
+        "item/fileChange/requestApproval",
+        "item/permissions/requestApproval",
+    }
     expected_keys = {
         key
         for key, assignment in assignments.items()
-        if key
-        == (
-            "server_request",
-            "ServerRequest",
-            "method",
-            "account/chatgptAuthTokens/refresh",
-        )
-        and assignment.get("slice") == "A1.2"
-        and assignment.get("module") == "AccountsModelsConfiguration"
+        if key[0] == "server_request"
+        and key[1] == "ServerRequest"
+        and key[2] == "method"
+        and key[3] in expected_methods
         and assignment.get("stability") == "stable"
-    }
-    if len(expected_keys) != 1:
-        raise SurfaceError(
-            "ServerRequestDescriptorAssignmentMismatch: the exact A1.2 "
-            "B2 auth-refresh server request is absent"
+        and (
+            (
+                key[3] == "account/chatgptAuthTokens/refresh"
+                and assignment.get("slice") == "A1.2"
+                and assignment.get("module")
+                == "AccountsModelsConfiguration"
+            )
+            or (
+                key[3] != "account/chatgptAuthTokens/refresh"
+                and assignment.get("slice") == "A1.3"
+                and assignment.get("module")
+                == "CommandsFilesystemReviewsApprovals"
+            )
         )
-    key = next(iter(expected_keys))
-    target = RUNTIME_TARGETS.get(key)
-    contract = contracts.get(key)
+    }
     if (
-        target != "ServerRequestTarget::ChatgptAuthTokensRefresh"
-        or contract is None
-        or contract.get("parameter_type_identity")
-        != "ChatgptAuthTokensRefreshParams"
-        or contract.get("result_type_identity")
-        != "ChatgptAuthTokensRefreshResponse"
-        or contract.get("result_contract_kind") != "Concrete"
+        len(expected_keys) != 6
+        or {key[3] for key in expected_keys} != expected_methods
     ):
         raise SurfaceError(
-            "ServerRequestDescriptorContractMismatch: auth-refresh target, "
-            "params, response, or result kind differs from authoritative "
+            "ServerRequestDescriptorAssignmentMismatch: the exact A1.2 "
+            "auth refresh and five A1.3 approval/permission requests are "
+            "required"
+        )
+    expected_targets = {
+        "account/chatgptAuthTokens/refresh": (
+            "ServerRequestTarget::ChatgptAuthTokensRefresh"
+        ),
+        "applyPatchApproval": "ServerRequestTarget::ApplyPatchApproval",
+        "execCommandApproval": "ServerRequestTarget::ExecCommandApproval",
+        "item/commandExecution/requestApproval": (
+            "ServerRequestTarget::CommandExecutionRequestApproval"
+        ),
+        "item/fileChange/requestApproval": (
+            "ServerRequestTarget::FileChangeRequestApproval"
+        ),
+        "item/permissions/requestApproval": (
+            "ServerRequestTarget::PermissionsRequestApproval"
+        ),
+    }
+    targets = {
+        key: RUNTIME_TARGETS.get(key) for key in expected_keys
+    }
+    if (
+        {
+            key[3]: target for key, target in targets.items()
+        }
+        != expected_targets
+        or len(set(targets.values())) != 6
+        or any(
+            contracts.get(key, {}).get("result_contract_kind")
+            != "Concrete"
+            for key in expected_keys
+        )
+    ):
+        raise SurfaceError(
+            "ServerRequestDescriptorContractMismatch: request target, "
+            "response contract, or result kind differs from authoritative "
             "evidence"
         )
     lines = [
         "// Generated by tools/codex/app_server_surface.py server-request-descriptors; do not edit.",
         "// Exact method keys and contracts remain subordinate to ProtocolSurfaceRegistryData.inc.",
         "// Descriptor rows are private codec metadata, not a second disposition registry.",
-        "CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR("
-        + ", ".join(
-            (
-                CPP_CATEGORIES[key[0]],
-                cpp_string(key[1]),
-                cpp_string(key[2]),
-                cpp_string(key[3]),
-                target,
-                cpp_string(str(contract["parameter_type_identity"])),
-                cpp_string(str(contract["result_type_identity"])),
-                CPP_RESULT_CONTRACT_KINDS[
-                    str(contract["result_contract_kind"])
-                ],
-            )
-        )
-        + ")",
     ]
+    for key in sorted(expected_keys):
+        contract = contracts[key]
+        lines.append(
+            "CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR("
+            + ", ".join(
+                (
+                    CPP_CATEGORIES[key[0]],
+                    cpp_string(key[1]),
+                    cpp_string(key[2]),
+                    cpp_string(key[3]),
+                    str(targets[key]),
+                    cpp_string(str(contract["parameter_type_identity"])),
+                    cpp_string(str(contract["result_type_identity"])),
+                    CPP_RESULT_CONTRACT_KINDS[
+                        str(contract["result_contract_kind"])
+                    ],
+                )
+            )
+            + ")"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -6211,6 +6523,7 @@ def generate_client_operation_descriptor_data(
                     "fs/watch",
                     "fs/writeFile",
                     "fuzzyFileSearch",
+                    "permissionProfile/list",
                 }
             )
         )
@@ -6223,9 +6536,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 54
+        len(expected_keys) != 55
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 54
+        or len(set(targets.values())) != 55
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6234,7 +6547,8 @@ def generate_client_operation_descriptor_data(
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
             "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, 2 A1.2 B4, "
-            "5 A1.2 B5, 4 A1.3 command, and 10 A1.3 filesystem/fuzzy "
+            "5 A1.2 B5, 4 A1.3 command, 10 A1.3 filesystem/fuzzy, and "
+            "1 A1.3 permission-profile "
             "client requests must each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
@@ -6269,7 +6583,7 @@ def generate_client_operation_descriptor_data(
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 37
+        or len(expected_keys - unit_keys) != 38
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6277,8 +6591,8 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2+A1.3 command/filesystem requests must remain "
-            "exactly 17 Unit and 37 Concrete requests"
+            "typed A1.1+A1.2+A1.3 requests must remain exactly 17 Unit and "
+            "38 Concrete requests"
         )
 
     result_decoders = {
@@ -6303,6 +6617,7 @@ def generate_client_operation_descriptor_data(
         "LoginAccountResponse",
         "ModelListResponse",
         "ModelProviderCapabilitiesReadResponse",
+        "PermissionProfileListResponse",
         "SendAddCreditsNudgeEmailResponse",
         "ThreadForkResponse",
         "ThreadGoalClearResponse",
@@ -9210,6 +9525,24 @@ def command_accounts_models_configuration_union_descriptors(
     )
 
 
+def command_commands_filesystem_reviews_approvals_union_descriptors(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = (
+        generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, arguments.schema_root, evidence
+        )
+    )
+    write_or_check_generated_descriptors(
+        arguments.output,
+        generated,
+        arguments.check,
+        "CommandsFilesystemReviewsApprovalsUnion",
+    )
+
+
 def command_server_request_descriptors(
     arguments: argparse.Namespace,
 ) -> None:
@@ -9551,6 +9884,32 @@ def parser() -> argparse.ArgumentParser:
     amc_union_descriptors.add_argument("--check", action="store_true")
     amc_union_descriptors.set_defaults(
         function=command_accounts_models_configuration_union_descriptors
+    )
+
+    a13_union_descriptors = subparsers.add_parser(
+        "commands-filesystem-reviews-approvals-union-descriptors",
+        help=(
+            "generate private A1.3 approval/permission union codec "
+            "descriptors"
+        ),
+    )
+    a13_union_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument(
+        "--schema-root", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    a13_union_descriptors.add_argument(
+        "--output", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument("--check", action="store_true")
+    a13_union_descriptors.set_defaults(
+        function=(
+            command_commands_filesystem_reviews_approvals_union_descriptors
+        )
     )
 
     server_request_descriptors = subparsers.add_parser(

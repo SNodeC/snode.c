@@ -313,19 +313,24 @@ namespace ai::openai::codex {
         }
 
         RawProtocol::SendResult respond(const ServerRequestId& id, Json result) {
-            return answerServerRequest(id, std::nullopt, std::move(result), std::nullopt);
+            return answerServerRequest(id, std::nullopt, std::nullopt, std::move(result), std::nullopt);
         }
 
         RawProtocol::SendResult reject(const ServerRequestId& id, ProtocolError error) {
-            return answerServerRequest(id, std::nullopt, nullptr, std::move(error));
+            return answerServerRequest(id, std::nullopt, std::nullopt, nullptr, std::move(error));
         }
 
         RawProtocol::SendResult respondOwned(const ServerRequestId& id, ServerRequestToken token, Json result) {
-            return answerServerRequest(id, token, std::move(result), std::nullopt);
+            return answerServerRequest(id, token, std::nullopt, std::move(result), std::nullopt);
+        }
+
+        RawProtocol::SendResult
+        respondOwned(const ServerRequestId& id, ServerRequestToken token, std::string_view expectedMethod, Json result) {
+            return answerServerRequest(id, token, expectedMethod, std::move(result), std::nullopt);
         }
 
         RawProtocol::SendResult rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error) {
-            return answerServerRequest(id, token, nullptr, std::move(error));
+            return answerServerRequest(id, token, std::nullopt, nullptr, std::move(error));
         }
 
         void setOnNotification(RawProtocol::NotificationHandler handler) {
@@ -839,6 +844,7 @@ namespace ai::openai::codex {
 
         RawProtocol::SendResult answerServerRequest(const ServerRequestId& id,
                                                     std::optional<ServerRequestToken> token,
+                                                    std::optional<std::string_view> expectedMethod,
                                                     Json result,
                                                     std::optional<ProtocolError> protocolError) {
             if (state != State::Ready || !lifetime->protocolActive) {
@@ -852,6 +858,9 @@ namespace ai::openai::codex {
             if (token.has_value() && pending->second.token != *token) {
                 return sendFailure(
                     Error::Category::InvalidState, ESTALE, "server request ownership token does not match the currently pending request");
+            }
+            if (expectedMethod.has_value() && pending->second.method != *expectedMethod) {
+                return sendFailure(Error::Category::InvalidState, EINVAL, "server request ownership token is bound to a different method");
             }
 
             std::string encodeError;
@@ -1099,6 +1108,13 @@ namespace ai::openai::codex {
         return impl->respondOwned(id, token, std::move(result));
     }
 
+    AppServerClient::RawProtocol::SendResult AppServerClient::RawProtocol::respondOwned(const ServerRequestId& id,
+                                                                                        ServerRequestToken token,
+                                                                                        std::string_view expectedMethod,
+                                                                                        Json result) {
+        return impl->respondOwned(id, token, expectedMethod, std::move(result));
+    }
+
     AppServerClient::RawProtocol::SendResult
     AppServerClient::RawProtocol::rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error) {
         return impl->rejectOwned(id, token, std::move(error));
@@ -1112,6 +1128,7 @@ namespace ai::openai::codex {
                               std::unique_ptr<typed::Filesystem>(new typed::Filesystem(impl->raw())),
                               std::unique_ptr<typed::Configuration>(new typed::Configuration(impl->raw())),
                               std::unique_ptr<typed::Models>(new typed::Models(impl->raw())),
+                              std::unique_ptr<typed::PermissionProfiles>(new typed::PermissionProfiles(impl->raw())),
                               std::unique_ptr<typed::Threads>(new typed::Threads(impl->raw())),
                               std::unique_ptr<typed::Turns>(new typed::Turns(impl->raw())),
                               std::unique_ptr<typed::Events>(new typed::Events(impl->raw())),

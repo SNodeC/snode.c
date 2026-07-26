@@ -19,7 +19,11 @@ target_link_libraries(
     SNodeCInstalledCodexTypedConsumer PRIVATE snodec::ai-openai-codex
 )
 
-foreach(domain IN ITEMS Accounts Models Configuration Commands Filesystem)
+foreach(
+    domain
+    IN ITEMS Accounts Models Configuration Commands Filesystem
+             PermissionProfiles
+)
     add_executable(
         SNodeCInstalledCodex${domain}HeaderConsumer
         Codex${domain}HeaderConsumer.cpp

@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 54:
+    if len(rows) != 55:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 54 rows"
+            "client-operation descriptor must contain exactly 55 rows"
         )
     method_rows = {
         match.group(1): line
@@ -443,8 +443,9 @@ def test_operation_descriptor_guards(
         "fs/writeFile",
         "fuzzyFileSearch",
     }
+    a1_3_permission_methods = {"permissionProfile/list"}
     if (
-        len(method_rows) != 54
+        len(method_rows) != 55
         or len(a1_1_methods) != 22
         or set(method_rows)
         != a1_1_methods
@@ -454,6 +455,7 @@ def test_operation_descriptor_guards(
         | a1_2_b5_methods
         | a1_3_command_methods
         | a1_3_filesystem_methods
+        | a1_3_permission_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
         or (
@@ -484,11 +486,22 @@ def test_operation_descriptor_guards(
             | a1_3_command_methods
         )
         & a1_3_filesystem_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+        )
+        & a1_3_permission_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
             "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 / five A1.2 B5 "
-            "/ four A1.3 command / ten A1.3 filesystem/fuzzy projection"
+            "/ four A1.3 command / ten A1.3 filesystem/fuzzy / one A1.3 "
+            "permission-profile projection"
         )
     targets = {
         match.group(1)
@@ -499,7 +512,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 54:
+    if len(targets) != 55:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -526,7 +539,7 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 37
+        != 38
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -589,6 +602,11 @@ def test_operation_descriptor_guards(
             for method in a1_3_filesystem_methods
         )
         != 5
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_permission_methods
+        )
+        != 1
         or any(
             expected not in method_rows[method]
             for method, expected in {
@@ -660,6 +678,15 @@ def test_operation_descriptor_guards(
                     "ResultContractKind::Concrete, "
                     "ClientOperationResultDecoder::"
                     "ExperimentalFeatureListResponse"
+                ),
+                "permissionProfile/list": (
+                    "ClientRequestTarget::PermissionProfileList, "
+                    '"ClientRequestTarget::PermissionProfileList", '
+                    '"PermissionProfileListParams", '
+                    '"PermissionProfileListResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "PermissionProfileListResponse"
                 ),
                 "command/exec": (
                     "ClientRequestTarget::CommandExec, "
@@ -1593,16 +1620,40 @@ def test_server_request_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR(")
     ]
+    expected_methods = {
+        "account/chatgptAuthTokens/refresh",
+        "applyPatchApproval",
+        "execCommandApproval",
+        "item/commandExecution/requestApproval",
+        "item/fileChange/requestApproval",
+        "item/permissions/requestApproval",
+    }
+    methods = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r'^CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR\('
+                r'[^,]+, "[^"]+", "[^"]+", "([^"]+)", ',
+                line,
+            )
+        )
+    }
     if (
-        len(rows) != 1
-        or '"account/chatgptAuthTokens/refresh"' not in rows[0]
-        or "ServerRequestTarget::ChatgptAuthTokensRefresh" not in rows[0]
-        or '"ChatgptAuthTokensRefreshParams"' not in rows[0]
-        or '"ChatgptAuthTokensRefreshResponse"' not in rows[0]
-        or not rows[0].endswith("ResultContractKind::Concrete)")
+        len(rows) != 6
+        or methods != expected_methods
+        or any(
+            not row.endswith("ResultContractKind::Concrete)")
+            for row in rows
+        )
+        or sum(
+            "ServerRequestTarget::" in row for row in rows
+        )
+        != 6
     ):
         raise AssertionError(
-            "server-request descriptor lost the exact auth-refresh contract"
+            "server-request descriptors lost the exact auth-refresh plus "
+            "five A1.3 concrete contracts"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -1682,6 +1733,181 @@ def test_server_request_descriptor_guards(
             ),
             "StaleGeneratedServerRequestDescriptors",
             "change the checked-in server-request descriptor artifact",
+        )
+
+
+def test_commands_filesystem_reviews_approvals_union_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = (
+        tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    )
+    if generated != (
+        tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    ):
+        raise AssertionError(
+            "A1.3 approval-union descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private A1.3 approval-union descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith(
+            "CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_"
+            "CODEC_DESCRIPTOR("
+        )
+    ]
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (CommandsFilesystemReviewsApprovalsUnionTarget::"
+                r"[A-Za-z0-9_]+), ",
+                line,
+            )
+        )
+    }
+    if (
+        len(rows) != 29
+        or len(targets) != 29
+        or sum(
+            "ConversationUnionCodecShape::ScalarString" in line
+            for line in rows
+        )
+        != 9
+        or sum(
+            "ConversationUnionCodecShape::ExternallyTaggedObject" in line
+            for line in rows
+        )
+        != 4
+        or sum(
+            "ConversationUnionCodecShape::InternallyTaggedObject" in line
+            for line in rows
+        )
+        != 16
+        or any(
+            not line.endswith(
+                "ConversationUnionCodecDirection::Bidirectional)"
+            )
+            for line in rows
+        )
+    ):
+        raise AssertionError(
+            "A1.3 approval-union descriptors lost the exact 29-row shape "
+            "and bidirectional contract"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "tagged_union_discriminator",
+            "FileChange",
+            "type",
+            "add",
+        )
+    )
+    assignment["slice"] = "A1.4"
+    expect_surface_error_code(
+        tool,
+        lambda: (
+            tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                manifest, schema_root, wrong_assignment
+            )
+        ),
+        "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch",
+        "move one approval union alternative out of A1.3",
+    )
+
+    original_codecs = dict(
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+    )
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[
+            keys[1]
+        ] = (
+            first[0],
+            second[1],
+            second[2],
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            (
+                "DuplicateCommandsFilesystemReviewsApprovalsUnion"
+                "DescriptorTarget"
+            ),
+            "duplicate one A1.3 approval-union target",
+        )
+
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[
+            keys[1]
+        ] = (
+            second[0],
+            second[1],
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            (
+                "CommandsFilesystemReviewsApprovalsUnionDescriptor"
+                "DirectionMismatch"
+            ),
+            "change one A1.3 approval-union direction",
+        )
+    finally:
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.clear()
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.update(
+            original_codecs
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-a13-approval-union-descriptors-"
+    ) as raw:
+        stale = (
+            Path(raw)
+            / "CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc"
+        )
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_generated_descriptors(
+                stale,
+                generated,
+                True,
+                "CommandsFilesystemReviewsApprovalsUnion",
+            ),
+            (
+                "StaleGeneratedCommandsFilesystemReviewsApprovalsUnion"
+                "Descriptors"
+            ),
+            "change the checked-in A1.3 approval-union descriptor artifact",
         )
 
 
@@ -2114,6 +2340,15 @@ def test_generated_artifacts(
         evidence,
         registry_path.with_name(
             "AccountsModelsConfigurationUnionCodecDescriptors.inc"
+        ),
+    )
+    test_commands_filesystem_reviews_approvals_union_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.with_name(
+            "CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc"
         ),
     )
     test_server_request_descriptor_guards(

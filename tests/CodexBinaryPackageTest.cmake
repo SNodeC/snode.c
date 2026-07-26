@@ -76,6 +76,7 @@ set(
     "typed/Filesystem.h"
     "typed/Items.h"
     "typed/Models.h"
+    "typed/PermissionProfiles.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"

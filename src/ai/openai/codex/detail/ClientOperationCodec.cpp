@@ -8,6 +8,7 @@
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/ApprovalCodec.h"
 #include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/FilesystemCodec.h"
@@ -62,6 +63,7 @@ namespace ai::openai::codex::detail {
             "FsReadFileResponse",
             "FsWatchResponse",
             "FuzzyFileSearchResponse",
+            "PermissionProfileListResponse",
         }};
 
         std::string_view resultDecoderIdentity(ClientOperationResultDecoder decoder) noexcept {
@@ -76,33 +78,15 @@ namespace ai::openai::codex::detail {
 
         bool hasExactDecoderPaths(ClientRequestTarget target) noexcept {
             using enum ClientRequestTarget;
-            return target == AccountLoginCancel || target == AccountLoginStart ||
-                   target == AccountLogout ||
-                   target == AccountRateLimitResetCreditConsume ||
-                   target == AccountRateLimitsRead || target == AccountRead ||
-                   target == AccountSendAddCreditsNudgeEmail ||
-                   target == AccountUsageRead ||
-                   target == AccountWorkspaceMessagesRead ||
-                   target == ConfigBatchWrite ||
-                   target == ConfigMcpServerReload ||
-                   target == ConfigRead ||
-                   target == ConfigValueWrite ||
-                   target == ConfigRequirementsRead ||
-                   target == ExperimentalFeatureEnablementSet ||
-                   target == ExperimentalFeatureList ||
-                   target == ModelList ||
-                   target == ModelProviderCapabilitiesRead ||
-                   target == CommandExec ||
-                   target == FsCopy ||
-                   target == FsCreateDirectory ||
-                   target == FsGetMetadata ||
-                   target == FsReadDirectory ||
-                   target == FsReadFile ||
-                   target == FsRemove ||
-                   target == FsUnwatch ||
-                   target == FsWatch ||
-                   target == FsWriteFile ||
-                   target == FuzzyFileSearch;
+            return target == AccountLoginCancel || target == AccountLoginStart || target == AccountLogout ||
+                   target == AccountRateLimitResetCreditConsume || target == AccountRateLimitsRead || target == AccountRead ||
+                   target == AccountSendAddCreditsNudgeEmail || target == AccountUsageRead || target == AccountWorkspaceMessagesRead ||
+                   target == ConfigBatchWrite || target == ConfigMcpServerReload || target == ConfigRead || target == ConfigValueWrite ||
+                   target == ConfigRequirementsRead || target == ExperimentalFeatureEnablementSet || target == ExperimentalFeatureList ||
+                   target == ModelList || target == ModelProviderCapabilitiesRead || target == CommandExec || target == FsCopy ||
+                   target == FsCreateDirectory || target == FsGetMetadata || target == FsReadDirectory || target == FsReadFile ||
+                   target == FsRemove || target == FsUnwatch || target == FsWatch || target == FsWriteFile || target == FuzzyFileSearch ||
+                   target == PermissionProfileList;
         }
 
         std::string decoderFieldPath(ClientRequestTarget target,
@@ -290,6 +274,8 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeFsWatchResponse(raw, error), error);
                 case FuzzyFileSearchResponse:
                     return decode(target, key, decodeFuzzyFileSearchResponse(raw, error), error);
+                case PermissionProfileListResponse:
+                    return decode(target, key, decodePermissionProfileListResponse(raw, error), error);
                 case Count:
                     break;
             }

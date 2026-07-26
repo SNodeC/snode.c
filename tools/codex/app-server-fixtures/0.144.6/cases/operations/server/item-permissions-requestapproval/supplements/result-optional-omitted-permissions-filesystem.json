@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "network": {
+      "enabled": false
+    }
+  },
+  "scope": "turn",
+  "strictAutoReview": false
+}

@@ -757,6 +757,88 @@ A13_FILESYSTEM_NOTIFICATION_METHODS = frozenset(
 A13_FILESYSTEM_OPEN_STRING_ENUMS = {
     "FuzzyFileSearchMatchType": ("file", "directory"),
 }
+
+# Phase A1.3 Commit 4 owns the permission-profile request, all five stable
+# reverse approval/permission requests, and the six reviewed union families
+# reached by those roots.  Legacy and v2 approval roots remain distinct.
+A13_APPROVAL_CLIENT_REQUEST_METHODS = frozenset(
+    {"permissionProfile/list"}
+)
+A13_APPROVAL_SERVER_REQUEST_METHODS = frozenset(
+    {
+        "applyPatchApproval",
+        "execCommandApproval",
+        "item/commandExecution/requestApproval",
+        "item/fileChange/requestApproval",
+        "item/permissions/requestApproval",
+    }
+)
+A13_APPROVAL_UNION_FAMILY_IDENTITIES = {
+    "CommandExecutionApprovalDecision": (
+        "accept",
+        "acceptForSession",
+        "acceptWithExecpolicyAmendment",
+        "applyNetworkPolicyAmendment",
+        "cancel",
+        "decline",
+    ),
+    "FileChange": ("add", "delete", "update"),
+    "FileSystemPath": ("glob_pattern", "path", "special"),
+    "FileSystemSpecialPath": (
+        "minimal",
+        "project_roots",
+        "root",
+        "slash_tmp",
+        "tmpdir",
+        "unknown",
+    ),
+    "ParsedCommand": ("list_files", "read", "search", "unknown"),
+    "ReviewDecision": (
+        "abort",
+        "approved",
+        "approved_execpolicy_amendment",
+        "approved_for_session",
+        "denied",
+        "network_policy_amendment",
+        "timed_out",
+    ),
+}
+A13_APPROVAL_UNION_DIRECTIONS = {
+    domain: ("Decode", "Encode")
+    for domain in A13_APPROVAL_UNION_FAMILY_IDENTITIES
+}
+# The legacy aggregate contains a nested `definitions.v2` inventory that is
+# not itself a valid Draft-07 schema definition.  Every A1.3 approval union
+# and reviewed open enum is also embedded in a concrete stable request or
+# response root, so use those authoritative documents directly and retain
+# their real provenance hashes.
+A13_APPROVAL_DEFINITION_SCHEMA_ROOTS = {
+    "CommandExecutionApprovalDecision": (
+        "CommandExecutionRequestApprovalResponse"
+    ),
+    "FileChangeApprovalDecision": "FileChangeRequestApprovalResponse",
+    "FileChange": "ApplyPatchApprovalParams",
+    "FileSystemAccessMode": "PermissionsRequestApprovalParams",
+    "FileSystemPath": "PermissionsRequestApprovalParams",
+    "FileSystemSpecialPath": "PermissionsRequestApprovalParams",
+    "NetworkApprovalProtocol": "CommandExecutionRequestApprovalParams",
+    "NetworkPolicyRuleAction": "ExecCommandApprovalResponse",
+    "ParsedCommand": "ExecCommandApprovalParams",
+    "PermissionGrantScope": "PermissionsRequestApprovalResponse",
+    "ReviewDecision": "ExecCommandApprovalResponse",
+}
+A13_APPROVAL_OPEN_STRING_ENUMS = {
+    "FileChangeApprovalDecision": (
+        "accept",
+        "acceptForSession",
+        "decline",
+        "cancel",
+    ),
+    "FileSystemAccessMode": ("read", "write", "deny"),
+    "NetworkApprovalProtocol": ("http", "https", "socks5Tcp", "socks5Udp"),
+    "NetworkPolicyRuleAction": ("allow", "deny"),
+    "PermissionGrantScope": ("turn", "session"),
+}
 SLICE_ORDER = {"A1.0": 0, "A1.1": 1, "A1.2": 2, "A1.3": 3, "A1.4": 4}
 SLICE_MODULES = {
     "A1.0": "Common",
@@ -1495,6 +1577,68 @@ def derive_a13_filesystem_keys(
     return operations, notifications
 
 
+def derive_a13_approval_keys(
+    assignments: Mapping[SurfaceKey, Mapping[str, Any]],
+) -> tuple[tuple[SurfaceKey, ...], tuple[SurfaceKey, ...]]:
+    expected_operations = (
+        A13_APPROVAL_CLIENT_REQUEST_METHODS
+        | A13_APPROVAL_SERVER_REQUEST_METHODS
+    )
+    expected_unions = {
+        (domain, name)
+        for domain, names in A13_APPROVAL_UNION_FAMILY_IDENTITIES.items()
+        for name in names
+    }
+    batch = tuple(
+        sorted(
+            key
+            for key, assignment in assignments.items()
+            if assignment["a1_slice"] == "A1.3"
+            and assignment["module"]
+            == "CommandsFilesystemReviewsApprovals"
+            and (
+                key.name in expected_operations
+                or (key.domain, key.name) in expected_unions
+            )
+        )
+    )
+    operations = tuple(
+        key
+        for key in batch
+        if key.category in {CLIENT_REQUEST, SERVER_REQUEST}
+    )
+    unions = tuple(
+        key
+        for key in batch
+        if key.category == TAGGED_UNION_DISCRIMINATOR
+    )
+    if (
+        len(batch) != 35
+        or len(operations) != 6
+        or len(unions) != 29
+        or {key.name for key in operations} != expected_operations
+        or {(key.domain, key.name) for key in unions} != expected_unions
+        or sum(key.category == CLIENT_REQUEST for key in operations) != 1
+        or sum(key.category == SERVER_REQUEST for key in operations) != 5
+        or any(
+            assignments[key]["classification"]
+            not in {
+                "StablePublicRoot",
+                "RootOwnedNestedUnion",
+                "SharedWithinSlice",
+            }
+            or assignments[key]["stability"] != "stable"
+            for key in batch
+        )
+    ):
+        raise FixtureError(
+            "A1.3 approval/permission assignment mismatch: "
+            f"batch={len(batch)} operations={len(operations)} "
+            f"unions={len(unions)}"
+        )
+    return operations, unions
+
+
 def normalize_a12_b2_sensitive_sample(value: Any) -> None:
     """Replace generated account/auth values with low-risk reviewed samples.
 
@@ -1633,6 +1777,35 @@ def normalize_a13_filesystem_sample(value: Any) -> None:
                     ]
                 elif field == "roots" and isinstance(nested, list):
                     node[field] = ["/synthetic/project"]
+                else:
+                    visit(nested)
+        elif isinstance(node, list):
+            for nested in node:
+                visit(nested)
+
+    visit(value)
+
+
+def normalize_a13_approval_sample(value: Any) -> None:
+    """Keep approval, permission, command, and path evidence synthetic."""
+
+    replacements = {
+        "command": "synthetic command",
+        "content": "synthetic patch content",
+        "cwd": "/synthetic/project",
+        "description": "synthetic permission profile",
+        "grantRoot": "/synthetic/project",
+        "path": "/synthetic/project/synthetic-entry.txt",
+        "reason": "synthetic approval reason",
+    }
+
+    def visit(node: Any) -> None:
+        if isinstance(node, dict):
+            for field, nested in node.items():
+                if field in replacements and isinstance(nested, str):
+                    node[field] = replacements[field]
+                elif field == "command" and isinstance(nested, list):
+                    node[field] = ["synthetic-tool", "--synthetic-flag"]
                 else:
                     visit(nested)
         elif isinstance(node, list):
@@ -1847,12 +2020,16 @@ class SchemaCatalog:
         )
 
     def union_target(self, domain: str) -> SchemaTarget:
+        a13_root = A13_APPROVAL_DEFINITION_SCHEMA_ROOTS.get(domain)
+        if a13_root is not None:
+            return self.embedded_definition_target(a13_root, domain)
+
         path = self.stable_root / "codex_app_server_protocol.v2.schemas.json"
         document = self.load(path)
         definitions = document.get("definitions", {})
         if domain not in definitions:
             raise FixtureError(
-                f"stable standalone v2 aggregate lacks union {domain}"
+                f"stable v2 aggregate schema lacks union {domain}"
             )
         self.validator(path)
         return SchemaTarget(
@@ -3985,6 +4162,12 @@ class CorpusBuilder:
         self.a13_filesystem_operation_root_coverage: dict[str, Any] = {}
         self.a13_filesystem_notification_root_coverage: dict[str, Any] = {}
         self.a13_filesystem_positive_coverage: dict[str, Any] = {}
+        self.a13_approval_operation_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_approval_union_keys: tuple[SurfaceKey, ...] = ()
+        self.a13_approval_negative_coverage: dict[str, Any] = {}
+        self.a13_approval_indexed_coverage: dict[str, Any] = {}
+        self.a13_approval_operation_root_coverage: dict[str, Any] = {}
+        self.a13_approval_positive_coverage: dict[str, Any] = {}
         self.reachability: dict[str, Any] = {}
         self.files: dict[str, bytes] = {}
         self.records: list[dict[str, Any]] = []
@@ -4171,6 +4354,10 @@ class CorpusBuilder:
             self.a13_filesystem_operation_keys,
             self.a13_filesystem_notification_keys,
         ) = derive_a13_filesystem_keys(self.assignments)
+        (
+            self.a13_approval_operation_keys,
+            self.a13_approval_union_keys,
+        ) = derive_a13_approval_keys(self.assignments)
 
         self._build_operation_fixtures()
         self._build_b4_operation_supplements()
@@ -4180,6 +4367,7 @@ class CorpusBuilder:
         self._build_a12_b5_operation_supplements()
         self._build_a13_command_operation_supplements()
         self._build_a13_filesystem_operation_supplements()
+        self._build_a13_approval_operation_supplements()
         self._build_b4_helper_union_fixtures()
         self._build_a12_b4_helper_union_fixtures()
         self._build_baseline_fixtures()
@@ -4194,6 +4382,7 @@ class CorpusBuilder:
         self._build_a12_b5_positive_supplements()
         self._build_a13_command_positive_supplements()
         self._build_a13_filesystem_positive_supplements()
+        self._build_a13_approval_positive_supplements()
         self._build_union_fixtures()
         self._build_b2_open_enum_fixtures()
         self._build_b3_open_enum_fixtures()
@@ -4205,6 +4394,7 @@ class CorpusBuilder:
         self._build_a12_b5_open_enum_fixtures()
         self._build_a13_command_open_enum_fixtures()
         self._build_a13_filesystem_open_enum_fixtures()
+        self._build_a13_approval_open_enum_fixtures()
 
         self.records.sort(key=lambda record: record["id"])
         fixture_counts: dict[str, int] = {}
@@ -4299,6 +4489,9 @@ class CorpusBuilder:
             positive_records, positive_fixture_ids
         )
         self._apply_a13_filesystem_indexed_completeness(
+            positive_records, positive_fixture_ids
+        )
+        self._apply_a13_approval_indexed_completeness(
             positive_records, positive_fixture_ids
         )
         mutation_counts = {
@@ -4553,6 +4746,28 @@ class CorpusBuilder:
                     self.a13_filesystem_negative_coverage
                 ),
             },
+            "a1_3_approvals_permissions": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_approval_operation_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json()
+                    for key in self.a13_approval_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_approval_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_approval_operation_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_approval_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_approval_negative_coverage
+                ),
+            },
             "fixtures": serialized_records,
         }
         self.files["index.json"] = encoded_json(index)
@@ -4699,6 +4914,17 @@ class CorpusBuilder:
                 if is_a13_filesystem
                 else {}
             )
+            is_a13_approval = key in {
+                *self.a13_approval_operation_keys,
+                *self.a13_approval_union_keys,
+            }
+            a13_approval_schema_facts = (
+                self.a13_approval_indexed_coverage.get(
+                    key.compact(), {}
+                ).get("schema_fixture_facts", {})
+                if is_a13_approval
+                else {}
+            )
             indexed_coverage = (
                 self.b2_indexed_coverage.get(key.compact(), {})
                 if is_b2_shared_common
@@ -4732,6 +4958,10 @@ class CorpusBuilder:
                     key.compact(), {}
                 )
                 if is_a13_filesystem
+                else self.a13_approval_indexed_coverage.get(
+                    key.compact(), {}
+                )
+                if is_a13_approval
                 else {}
             )
             coverage_records.append(
@@ -4817,6 +5047,11 @@ class CorpusBuilder:
                                     "schema_properties_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_approval_schema_facts.get(
+                                    "schema_properties_exercised", False
+                                )
+                            )
                         ),
                         "optional_present_exercised": bool(records)
                         and all(
@@ -4884,6 +5119,11 @@ class CorpusBuilder:
                                     "nullable_semantics_exercised", False
                                 )
                             )
+                            or bool(
+                                a13_approval_schema_facts.get(
+                                    "nullable_semantics_exercised", False
+                                )
+                            )
                         ),
                         "reachable_union_alternatives_exercised": (
                             (
@@ -4946,6 +5186,12 @@ class CorpusBuilder:
                             )
                             or bool(
                                 a13_filesystem_schema_facts.get(
+                                    "reachable_union_alternatives_exercised",
+                                    False,
+                                )
+                            )
+                            or bool(
+                                a13_approval_schema_facts.get(
                                     "reachable_union_alternatives_exercised",
                                     False,
                                 )
@@ -5155,6 +5401,28 @@ class CorpusBuilder:
                     self.a13_filesystem_negative_coverage
                 ),
             },
+            "a1_3_approvals_permissions": {
+                "assignment_derived_operation_keys": [
+                    key.to_json()
+                    for key in self.a13_approval_operation_keys
+                ],
+                "assignment_derived_union_keys": [
+                    key.to_json()
+                    for key in self.a13_approval_union_keys
+                ],
+                "indexed_schema_coverage": (
+                    self.a13_approval_indexed_coverage
+                ),
+                "operation_root_fixture_plan": (
+                    self.a13_approval_operation_root_coverage
+                ),
+                "positive_coverage": (
+                    self.a13_approval_positive_coverage
+                ),
+                "negative_coverage": (
+                    self.a13_approval_negative_coverage
+                ),
+            },
             "fixtures": [
                 compact_generated_record(record)
                 for record in positive_records
@@ -5348,6 +5616,11 @@ class CorpusBuilder:
             self.a12_b4_indexed_coverage.update(indexed_coverage)
             self.a12_b4_indexed_coverage = dict(
                 sorted(self.a12_b4_indexed_coverage.items())
+            )
+        elif batch == "A1.3 approvals":
+            self.a13_approval_indexed_coverage.update(indexed_coverage)
+            self.a13_approval_indexed_coverage = dict(
+                sorted(self.a13_approval_indexed_coverage.items())
             )
         else:
             raise FixtureError(f"unsupported indexed union batch {batch}")
@@ -5961,6 +6234,7 @@ class CorpusBuilder:
             **A12_B4_OPEN_STRING_ENUMS,
             **A13_COMMAND_OPEN_STRING_ENUMS,
             **A13_FILESYSTEM_OPEN_STRING_ENUMS,
+            **A13_APPROVAL_OPEN_STRING_ENUMS,
         }
         known_enum_fixture_ids = {
             domain: {
@@ -6345,6 +6619,38 @@ class CorpusBuilder:
                 f"{len(self.a13_filesystem_indexed_coverage)}"
             )
 
+    def _apply_a13_approval_indexed_completeness(
+        self,
+        positive_records: Sequence[MutableMapping[str, Any]],
+        positive_fixture_ids: set[str],
+    ) -> None:
+        self._apply_b2_indexed_completeness(
+            positive_records,
+            positive_fixture_ids,
+            keys=self.a13_approval_union_keys,
+            directions_by_domain=A13_APPROVAL_UNION_DIRECTIONS,
+            batch="A1.3 approvals",
+        )
+        self.a13_approval_indexed_coverage.update(
+            self._apply_b4_operation_indexed_completeness(
+                positive_records,
+                positive_fixture_ids,
+                operation_keys=self.a13_approval_operation_keys,
+                batch="A1.3 approvals",
+                known_enum_values=A13_APPROVAL_OPEN_STRING_ENUMS,
+                include_a11_operation_helpers=False,
+            )
+        )
+        self.a13_approval_indexed_coverage = dict(
+            sorted(self.a13_approval_indexed_coverage.items())
+        )
+        if len(self.a13_approval_indexed_coverage) != 35:
+            raise FixtureError(
+                "A1.3 approval/permission indexed coverage must contain "
+                "exactly 35 identities, got "
+                f"{len(self.a13_approval_indexed_coverage)}"
+            )
+
     def _build_operation_fixtures(self) -> None:
         for key, contract in sorted(self.contracts.items()):
             family = "client" if key.category == CLIENT_REQUEST else "server"
@@ -6364,6 +6670,8 @@ class CorpusBuilder:
                 normalize_a13_command_sample(parameter_value)
             if key in self.a13_filesystem_operation_keys:
                 normalize_a13_filesystem_sample(parameter_value)
+            if key in self.a13_approval_operation_keys:
+                normalize_a13_approval_sample(parameter_value)
             parameter_role = (
                 "client_request_params"
                 if key.category == CLIENT_REQUEST
@@ -6388,9 +6696,16 @@ class CorpusBuilder:
                     or key in self.a12_b5_operation_keys
                     or key in self.a13_command_operation_keys
                     or key in self.a13_filesystem_operation_keys
+                    or (
+                        key in self.a13_approval_operation_keys
+                        and key.category == CLIENT_REQUEST
+                    )
                     else ("Decode",)
                     if (
-                        key in self.a12_b2_operation_keys
+                        (
+                            key in self.a12_b2_operation_keys
+                            or key in self.a13_approval_operation_keys
+                        )
                         and key.category == SERVER_REQUEST
                     )
                     else ()
@@ -6420,6 +6735,8 @@ class CorpusBuilder:
                 normalize_a13_command_sample(result_value)
             if key in self.a13_filesystem_operation_keys:
                 normalize_a13_filesystem_sample(result_value)
+            if key in self.a13_approval_operation_keys:
+                normalize_a13_approval_sample(result_value)
             result_role = (
                 "client_request_result"
                 if key.category == CLIENT_REQUEST
@@ -6444,9 +6761,16 @@ class CorpusBuilder:
                     or key in self.a12_b5_operation_keys
                     or key in self.a13_command_operation_keys
                     or key in self.a13_filesystem_operation_keys
+                    or (
+                        key in self.a13_approval_operation_keys
+                        and key.category == CLIENT_REQUEST
+                    )
                     else ("Encode",)
                     if (
-                        key in self.a12_b2_operation_keys
+                        (
+                            key in self.a12_b2_operation_keys
+                            or key in self.a13_approval_operation_keys
+                        )
                         and key.category == SERVER_REQUEST
                     )
                     else ()
@@ -6505,6 +6829,8 @@ class CorpusBuilder:
                     normalize_a13_command_sample(base_value)
                 if key in self.a13_filesystem_operation_keys:
                     normalize_a13_filesystem_sample(base_value)
+                if key in self.a13_approval_operation_keys:
+                    normalize_a13_approval_sample(base_value)
                 validator = self.catalog.target_validator(target)
                 optional_locations = collect_optional_present_locations(
                     self.catalog, target, base_value
@@ -7421,6 +7747,34 @@ class CorpusBuilder:
             "unit_result_invariants"
         ] = sorted(unit_contracts, key=lambda record: record["method"])
 
+    def _build_a13_approval_operation_supplements(self) -> None:
+        coverage, opaque_exclusions = self._build_operation_supplements(
+            self.a13_approval_operation_keys,
+            "A1.3 approvals",
+        )
+        if opaque_exclusions:
+            raise FixtureError(
+                "A1.3 approval/permission operations unexpectedly contain "
+                f"an unconstrained schema value: {opaque_exclusions}"
+            )
+        if (
+            len(self.a13_approval_operation_keys) != 6
+            or any(
+                self.contracts[key]["result_contract_kind"] != "Concrete"
+                for key in self.a13_approval_operation_keys
+            )
+        ):
+            raise FixtureError(
+                "A1.3 approval/permission batch must retain six concrete "
+                "operation contracts"
+            )
+        self.a13_approval_operation_root_coverage = dict(
+            sorted(coverage.items())
+        )
+        self.a13_approval_negative_coverage[
+            "operation_opaque_exclusions"
+        ] = []
+
     def _add_a13_integer_boundaries(
         self,
         *,
@@ -7438,6 +7792,9 @@ class CorpusBuilder:
         normalizer(base)
         validator = self.catalog.target_validator(target)
         direction = "Encode" if root_name == "params" else "Decode"
+        if key.category == SERVER_REQUEST:
+            direction = "Decode" if root_name == "params" else "Encode"
+        family = "client" if key.category == CLIENT_REQUEST else "server"
         path_slug = slug(json_path(instance_path))
         if unsigned:
             cases = (
@@ -7470,7 +7827,7 @@ class CorpusBuilder:
                 f"{format_name}-{path_slug}-{case}"
             )
             relative = (
-                f"cases/operations/client/{slug(key.name)}/"
+                f"cases/operations/{family}/{slug(key.name)}/"
                 f"{'supplements' if schema_valid else 'mutations'}/"
                 f"{root_name}-{format_name}-{path_slug}-{case}.json"
             )
@@ -7541,7 +7898,7 @@ class CorpusBuilder:
         self.add_negative(
             fractional_id,
             (
-                f"cases/operations/client/{slug(key.name)}/mutations/"
+                f"cases/operations/{family}/{slug(key.name)}/mutations/"
                 f"{root_name}-{format_name}-{path_slug}-fractional.json"
             ),
             "operation_numeric_boundary_invalid",
@@ -8067,6 +8424,218 @@ class CorpusBuilder:
                 ),
                 "ordered_fuzzy_result_fixture_id": ordered_fuzzy_id,
                 "metadata_variant_fixture_ids": metadata_fixture_ids,
+                "integer_boundaries": dict(
+                    sorted(integer_boundaries.items())
+                ),
+            }
+        )
+
+    def _build_a13_approval_positive_supplements(self) -> None:
+        keys = {
+            key.name: key for key in self.a13_approval_operation_keys
+        }
+        minimum_fixture_ids: list[str] = []
+        for method, key in sorted(keys.items()):
+            contract = self.contracts[key]
+            target = self.catalog.standalone(
+                str(contract["parameter_type_identity"])
+            )
+            value = self.synthesizer.sample(target)
+            normalize_a13_approval_sample(value)
+            optional_locations = sorted(
+                collect_optional_present_locations(
+                    self.catalog, target, value
+                ),
+                key=lambda location: (
+                    -len(location.instance_path),
+                    tuple(map(str, location.instance_path)),
+                ),
+            )
+            for location in optional_locations:
+                try:
+                    parent, field = get_parent_path(
+                        value, location.instance_path
+                    )
+                except (KeyError, TypeError):
+                    continue
+                if isinstance(parent, dict) and isinstance(field, str):
+                    parent.pop(field, None)
+            diagnostics = self.catalog.target_validator(
+                target
+            ).validate_subschema(
+                value, target.schema, target.schema_path
+            )
+            if diagnostics:
+                raise FixtureError(
+                    "A1.3 approval minimum request is invalid: "
+                    f"{method}:{[item.code for item in diagnostics[:5]]}"
+                )
+            family = (
+                "client" if key.category == CLIENT_REQUEST else "server"
+            )
+            fixture_id = (
+                f"operation:{key.category}:{method}:params:minimum"
+            )
+            self.add_positive(
+                fixture_id,
+                (
+                    f"cases/operations/{family}/{slug(method)}/"
+                    "supplements/params-minimum.json"
+                ),
+                "operation_minimum_request",
+                target,
+                value,
+                key,
+                directions_exercised=(
+                    ("Encode",)
+                    if key.category == CLIENT_REQUEST
+                    else ("Decode",)
+                ),
+            )
+            minimum_fixture_ids.append(fixture_id)
+
+        permission_key = keys["permissionProfile/list"]
+        permission_result = self.catalog.standalone(
+            "PermissionProfileListResponse"
+        )
+        ordered_id = (
+            "operation:client_request:permissionProfile/list:result:"
+            "ordered-profiles"
+        )
+        self.add_positive(
+            ordered_id,
+            (
+                "cases/operations/client/permissionprofile-list/"
+                "supplements/result-ordered-profiles.json"
+            ),
+            "operation_explicit_ordering",
+            permission_result,
+            {
+                "data": [
+                    {
+                        "allowed": True,
+                        "description": "synthetic first profile",
+                        "id": "synthetic-profile-first",
+                    },
+                    {
+                        "allowed": False,
+                        "id": "synthetic-profile-second",
+                    },
+                ],
+                "nextCursor": None,
+            },
+            permission_key,
+            directions_exercised=("Decode",),
+        )
+        empty_data_id = (
+            "operation:client_request:permissionProfile/list:result:"
+            "explicit-empty-data"
+        )
+        self.add_positive(
+            empty_data_id,
+            (
+                "cases/operations/client/permissionprofile-list/"
+                "supplements/result-explicit-empty-data.json"
+            ),
+            "operation_explicit_empty_array",
+            permission_result,
+            {"data": []},
+            permission_key,
+            directions_exercised=("Decode",),
+        )
+
+        permission_boundaries = self._build_uint32_boundary_fixtures(
+            key=permission_key,
+            target=self.catalog.standalone("PermissionProfileListParams"),
+            field="limit",
+            schema_path="#/properties/limit",
+            production_evidence=(
+                "PermissionProfileListParams::limit is "
+                "OptionalNullable<std::uint32_t>",
+                "the typed encoder retains uint32 values exactly",
+                "the public model is bounded by numeric_limits<uint32_t>",
+            ),
+        )
+
+        integer_boundaries: dict[str, Any] = {}
+        for method in (
+            "item/commandExecution/requestApproval",
+            "item/fileChange/requestApproval",
+            "item/permissions/requestApproval",
+        ):
+            key = keys[method]
+            target = self.catalog.standalone(
+                str(self.contracts[key]["parameter_type_identity"])
+            )
+            coverage_key = f"{method}:params:$/startedAtMs"
+            integer_boundaries[coverage_key] = (
+                self._add_a13_integer_boundaries(
+                    key=key,
+                    root_name="params",
+                    target=target,
+                    instance_path=("startedAtMs",),
+                    format_name="int64",
+                    minimum_representable=-9_223_372_036_854_775_808,
+                    maximum_representable=9_223_372_036_854_775_807,
+                    unsigned=False,
+                    normalizer=normalize_a13_approval_sample,
+                )
+            )
+
+        for method, root_name, type_name in (
+            (
+                "item/permissions/requestApproval",
+                "params",
+                "PermissionsRequestApprovalParams",
+            ),
+            (
+                "item/permissions/requestApproval",
+                "result",
+                "PermissionsRequestApprovalResponse",
+            ),
+        ):
+            key = keys[method]
+            target = self.catalog.standalone(type_name)
+            coverage_key = (
+                f"{method}:{root_name}:"
+                "$/permissions/fileSystem/globScanMaxDepth"
+            )
+            integer_boundaries[coverage_key] = (
+                self._add_a13_integer_boundaries(
+                    key=key,
+                    root_name=root_name,
+                    target=target,
+                    instance_path=(
+                        "permissions",
+                        "fileSystem",
+                        "globScanMaxDepth",
+                    ),
+                    format_name="uint64",
+                    minimum_representable=1,
+                    maximum_representable=18_446_744_073_709_551_615,
+                    unsigned=True,
+                    normalizer=normalize_a13_approval_sample,
+                )
+            )
+
+        self.a13_approval_positive_coverage.update(
+            {
+                "minimum_request_fixture_ids": sorted(
+                    minimum_fixture_ids
+                ),
+                "full_request_fixture_ids": [
+                    f"operation:{key.category}:{key.name}:params"
+                    for key in self.a13_approval_operation_keys
+                ],
+                "response_fixture_ids": [
+                    f"operation:{key.category}:{key.name}:result"
+                    for key in self.a13_approval_operation_keys
+                ],
+                "permission_profile_empty_data_fixture_id": empty_data_id,
+                "permission_profile_ordered_fixture_id": ordered_id,
+                "permission_profile_uint32_boundaries": (
+                    permission_boundaries
+                ),
                 "integer_boundaries": dict(
                     sorted(integer_boundaries.items())
                 ),
@@ -10496,6 +11065,9 @@ class CorpusBuilder:
         a12_b4_domains = tuple(
             sorted({key.domain for key in self.a12_b4_union_keys})
         )
+        a13_approval_domains = tuple(
+            sorted({key.domain for key in self.a13_approval_union_keys})
+        )
         for domain in (
             "CodexErrorInfo",
             *b2_domains,
@@ -10524,6 +11096,15 @@ class CorpusBuilder:
                 and candidate not in b3_domains
                 and candidate not in b4_domains
                 and candidate not in a12_b2_domains
+            ),
+            *(
+                candidate
+                for candidate in a13_approval_domains
+                if candidate not in b2_domains
+                and candidate not in b3_domains
+                and candidate not in b4_domains
+                and candidate not in a12_b2_domains
+                and candidate not in a12_b4_domains
             ),
         ):
             target = self.catalog.union_target(domain)
@@ -10572,6 +11153,15 @@ class CorpusBuilder:
                     ),
                     key=lambda key: key.name,
                 )
+            elif domain in a13_approval_domains:
+                identities = sorted(
+                    (
+                        key
+                        for key in self.a13_approval_union_keys
+                        if key.domain == domain
+                    ),
+                    key=lambda key: key.name,
+                )
             else:
                 identities = sorted(
                     (
@@ -10616,6 +11206,8 @@ class CorpusBuilder:
                     normalize_a12_b2_sensitive_sample(value)
                 if key in self.a12_b4_union_keys:
                     normalize_a12_b4_configuration_sample(value)
+                if key in self.a13_approval_union_keys:
+                    normalize_a13_approval_sample(value)
                 known_union_values[(domain, key.name)] = (
                     target,
                     copy.deepcopy(value),
@@ -10643,6 +11235,8 @@ class CorpusBuilder:
                             domain
                         ]
                         if domain in a12_b4_domains
+                        else A13_APPROVAL_UNION_DIRECTIONS[domain]
+                        if domain in a13_approval_domains
                         else ()
                     ),
                 )
@@ -10674,6 +11268,12 @@ class CorpusBuilder:
         )
         self._build_a12_b4_union_family_supplements(
             known_union_values
+        )
+        self._build_b2_union_supplements(
+            known_union_values,
+            keys=self.a13_approval_union_keys,
+            directions_by_domain=A13_APPROVAL_UNION_DIRECTIONS,
+            batch="A1.3 approvals",
         )
 
         target = codex_error_target
@@ -11307,6 +11907,10 @@ class CorpusBuilder:
         elif batch == "A1.2 B4":
             self.a12_b4_negative_coverage[
                 "config_layer_source_unions"
+            ] = coverage
+        elif batch == "A1.3 approvals":
+            self.a13_approval_negative_coverage[
+                "approval_permission_unions"
             ] = coverage
         else:
             raise FixtureError(f"unsupported generic union batch {batch}")
@@ -12908,6 +13512,20 @@ class CorpusBuilder:
                 )
             },
             expected_known_values=2,
+        )
+
+    def _build_a13_approval_open_enum_fixtures(self) -> None:
+        self.a13_approval_negative_coverage[
+            "open_string_enums"
+        ] = self._build_a12_open_enum_fixtures(
+            batch="A1.3 approvals",
+            expected_enums=A13_APPROVAL_OPEN_STRING_ENUMS,
+            encode_only={
+                "FileChangeApprovalDecision",
+                "PermissionGrantScope",
+            },
+            embedded_targets={},
+            expected_known_values=15,
         )
 
 

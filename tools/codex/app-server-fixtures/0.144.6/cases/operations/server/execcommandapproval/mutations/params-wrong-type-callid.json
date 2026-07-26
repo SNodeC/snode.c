@@ -1,0 +1,19 @@
+{
+  "approvalId": "synthetic-35d8bd51e2",
+  "callId": null,
+  "command": [
+    "synthetic-tool",
+    "--synthetic-flag"
+  ],
+  "conversationId": "synthetic-51ed82670e",
+  "cwd": "/synthetic/project",
+  "parsedCmd": [
+    {
+      "cmd": "synthetic-c00233343c",
+      "name": "synthetic-e3034428fb",
+      "path": "/synthetic/project/synthetic-entry.txt",
+      "type": "read"
+    }
+  ],
+  "reason": "synthetic approval reason"
+}
