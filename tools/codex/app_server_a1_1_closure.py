@@ -21,6 +21,8 @@ from typing import Any, Iterable, Mapping, Sequence
 sys.dont_write_bytecode = True
 
 import app_server_surface as surface
+import app_server_a1_1 as a1_1
+import app_server_a1_shared as shared
 
 
 CODEX_VERSION = "0.144.6"
@@ -36,6 +38,109 @@ EXPECTED_GLOBAL_STATUS = {
     "NotApplicable": 48,
     "NotImplemented": 164,
     "Partial": 8,
+}
+# The final A1.1 report is a historical projection. These aggregate counts and
+# source hashes describe the reviewed A1.1 completion boundary; the live inputs
+# are still validated below, but later-slice additions must not rewrite history.
+FROZEN_FIXTURE_CORPUS_COUNTS = {
+    "by_role": {
+        "client_request_params": 87,
+        "client_request_result": 87,
+        "existing_typed_identity": 34,
+        "malformed_known": 1,
+        "malformed_known_conflicting_discriminators": 2,
+        "malformed_known_empty_string": 1,
+        "malformed_known_missing_discriminator": 81,
+        "malformed_known_missing_required": 151,
+        "malformed_known_wrong_discriminator_type": 81,
+        "malformed_known_wrong_outer_shape": 3,
+        "malformed_known_wrong_type": 304,
+        "nested_union_failure": 4,
+        "notification_missing_required": 279,
+        "notification_nullable_null": 59,
+        "notification_optional_omitted": 65,
+        "notification_wrong_type": 358,
+        "open_enum_known_value": 93,
+        "operation_helper_union_branch": 10,
+        "operation_missing_required": 299,
+        "operation_nullable_null": 250,
+        "operation_numeric_boundary": 2,
+        "operation_numeric_boundary_invalid": 2,
+        "operation_opaque_value": 3,
+        "operation_optional_omitted": 276,
+        "operation_pinned_format_unrepresentable": 1,
+        "operation_wrong_type": 621,
+        "server_notification_identity": 25,
+        "server_request_params": 10,
+        "server_request_response": 10,
+        "union_branch": 108,
+        "union_branch_supplement": 33,
+        "union_nullable_null": 126,
+        "union_optional_omitted": 136,
+        "unknown_discriminator": 23,
+        "unknown_enum_value": 85,
+        "unknown_method": 4,
+    },
+    "negative": 2299,
+    "positive": 1415,
+    "total": 3714,
+}
+FROZEN_FIXTURE_COVERAGE_COUNTS = {
+    "identities_with_positive_fixtures": 245,
+    "operation_role_actual": 194,
+    "operation_role_expected": 194,
+    "optional_omissions_accepted": 13452,
+    "optional_present_locations": 13452,
+    "positive_fixtures": 1415,
+    "required_field_removals_rejected": 15766,
+    "surface_identities": 387,
+    "wrong_type_mutations_rejected": 15701,
+    "wrong_type_unconstrained_exclusions": 65,
+}
+FROZEN_SCHEMA_COMPLETENESS_COUNTS = {
+    "facts_true_by_field": {
+        "authoritative_root_association": 245,
+        "fixture_current": 245,
+        "independently_schema_validated": 245,
+        "nullable_semantics_exercised": 167,
+        "optional_omitted_exercised": 245,
+        "optional_present_exercised": 245,
+        "positive_fixture_coverage": 245,
+        "reachable_union_alternatives_exercised": 167,
+        "required_fields_exercised": 245,
+        "schema_properties_exercised": 167,
+    },
+    "identities_with_positive_fixtures": 245,
+    "surface_identities": 387,
+}
+FROZEN_HISTORICAL_SOURCE_SHA256 = {
+    "documentation":
+        "b5c1c6b058df4cbf38afd1c8426d3721dbb4f994ae645d730b74f8c63efb7d0e",
+    "fixture_coverage":
+        "93b049b04981667c68ee2efed2fa59cada951aef34fbab5beaa11a9bb3a4c3c1",
+    "fixture_index":
+        "022eb437aa39dceb21912947ba8bcdc1b10ff4b6c5076ba5b1713abfd762ac33",
+    "generator":
+        "6d06653daf5aec7ae19498c16a5ca8a769f705d6b32e9fc6b9a1aabcb54718cc",
+    "implementation_plan":
+        "59fbbd1e6c1ffcd5e0064e7ff7e2a6a68673ececac5ccb19d3d46cc57eda7661",
+    "notification_production_coverage":
+        "191c9e9152fe6c3a2fd052f542911c510e6643e78bfaf2b293729f9bfe7e62b0",
+    "operation_production_coverage":
+        "9e9cc9a58651d39f2e2b5e9ee9cdb712a6338660029a77814988a7e904ef156e",
+    "registry":
+        "bcc4ee74c46e0f343b01e297049a764d5086067f82dc755d53c8f88854be3508",
+    "schema_completeness":
+        "f02e2bee0863f1d326b8d02acbba4a8ab8cbde06745ef7f96e24f10cda168436",
+    "type_closure":
+        "187db47c37d094b5f22c27cb0a6c1fc656cd0b3e34c63faf9b81ededce2f8bfc",
+}
+HISTORICALLY_MUTABLE_SOURCE_NAMES = {
+    "fixture_coverage",
+    "fixture_index",
+    "generator",
+    "registry",
+    "schema_completeness",
 }
 EXPECTED_TAXONOMY = {
     "client_request": 22,
@@ -145,11 +250,50 @@ def tree_fingerprint(repo_root: Path, relative: str) -> dict[str, Any]:
     return {"file_count": len(files), "sha256": digest.hexdigest()}
 
 
-def report_source(path: Path, repo_root: Path) -> dict[str, str]:
-    return {
-        "path": path.relative_to(repo_root).as_posix(),
-        "sha256": sha256_file(path),
-    }
+def historical_source_records(
+    paths: Mapping[str, Path], repo_root: Path
+) -> dict[str, dict[str, str]]:
+    return shared.historical_source_records(
+        paths,
+        repo_root,
+        frozen_hashes=FROZEN_HISTORICAL_SOURCE_SHA256,
+        mutable_names=HISTORICALLY_MUTABLE_SOURCE_NAMES,
+        source_set_error=lambda: ClosureError(
+            "final A1.1 closure historical source set changed"
+        ),
+        immutable_source_error=lambda relative: ClosureError(
+            "immutable final A1.1 closure source changed: "
+            f"{relative}"
+        ),
+        resolve_paths=False,
+    )
+
+
+def require_monotonic_count_floor(
+    live: Mapping[str, Any],
+    frozen: Mapping[str, Any],
+    location: str,
+) -> None:
+    """Require every historical aggregate count to remain present or grow."""
+
+    for field, frozen_value in frozen.items():
+        require(field in live, f"{location} lost historical count {field!r}")
+        live_value = live[field]
+        if isinstance(frozen_value, Mapping):
+            require(
+                isinstance(live_value, Mapping),
+                f"{location}.{field} is no longer a count object",
+            )
+            require_monotonic_count_floor(
+                live_value, frozen_value, f"{location}.{field}"
+            )
+        else:
+            require(
+                isinstance(frozen_value, int)
+                and isinstance(live_value, int)
+                and live_value >= frozen_value,
+                f"{location}.{field} regressed below the completed A1.1 floor",
+            )
 
 
 def taxonomy(keys: Iterable[tuple[str, str, str, str]]) -> dict[str, int]:
@@ -297,8 +441,28 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
     schema_completeness = load_json(arguments.schema_completeness)
     operation_coverage = load_json(arguments.operation_coverage)
     notification_coverage = load_json(arguments.notification_coverage)
+    start_state = load_json(arguments.start_state)
     registry_rows = surface.parse_registry_data(arguments.registry)
     registry = indexed(registry_rows, "registry")
+    frozen_a1 = a1_1.start_state_by_key(start_state)
+    frozen_unrelated = a1_1.unrelated_start_state_by_key(start_state)
+    live_registry_for_audit = {
+        a1_1.Key(*key): row for key, row in registry.items()
+    }
+    successor_diagnostics = a1_1.unrelated_live_diagnostics(
+        sorted(frozen_a1),
+        frozen_unrelated,
+        live_registry_for_audit,
+    )
+    require(
+        not successor_diagnostics,
+        "invalid live transition beyond the completed A1.1 boundary: "
+        + "; ".join(
+            f"{diagnostic.code} at {diagnostic.location}: "
+            f"{diagnostic.message}"
+            for diagnostic in successor_diagnostics
+        ),
+    )
 
     ratchet_rows = plan.get("final_exact_a1_1_ratchet")
     require(isinstance(ratchet_rows, list), "A1.1 plan lacks its exact final ratchet")
@@ -311,6 +475,10 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         set(ratchet_keys)
         == {key for key, row in registry.items() if row.get("a1_slice") == "A1.1"},
         "A1.1 final ratchet and canonical registry key set differ",
+    )
+    require(
+        {a1_1.Key(*key) for key in ratchet_keys} == set(frozen_a1),
+        "A1.1 final ratchet and frozen start-state key set differ",
     )
 
     plan_identities_value = plan.get("identities")
@@ -366,12 +534,18 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         for name in ("Complete", "NotApplicable", "NotImplemented", "Partial")
     }
     global_counter = Counter(row["typed_schema_status"] for row in registry_rows)
-    global_status = {
+    live_global_status = {
         name: global_counter[name]
         for name in ("Complete", "NotApplicable", "NotImplemented", "Partial")
     }
     require(a1_status == EXPECTED_A1_STATUS, f"final A1.1 metrics changed: {a1_status}")
-    require(global_status == EXPECTED_GLOBAL_STATUS, f"final global metrics changed: {global_status}")
+    require(
+        sum(live_global_status.values()) == 387,
+        f"live global registry denominator changed: {live_global_status}",
+    )
+    # The exact live transition was validated identity-by-identity above.
+    # Preserve the historical global metrics in the completed A1.1 report.
+    global_status = EXPECTED_GLOBAL_STATUS
 
     counts = plan["counts"]
     require(taxonomy(ratchet_keys) == EXPECTED_TAXONOMY, "final A1.1 taxonomy changed")
@@ -459,11 +633,16 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         previous = set(cumulative)
     require(previous == set(ratchet_keys), "B5 cumulative ratchet is not the exact A1.1 set")
 
-    residual = [
-        key_object(key)
-        for key, row in sorted(registry.items())
-        if row["typed_schema_status"] == "Partial"
-    ]
+    residual_keys = {
+        (key.category, key.domain, key.field, key.name)
+        for key, row in frozen_unrelated.items()
+        if row["registry_projection"].get("typed_schema_status") == "Partial"
+    }
+    require(
+        residual_keys == a1_1.EXPECTED_RESIDUAL_PARTIAL_KEYS,
+        "the frozen A1.1 residual-partial identity set changed",
+    )
+    residual = [key_object(key) for key in sorted(residual_keys)]
     require(
         residual == plan["expected_residual_partial_identities"],
         "the exact eight residual partial identities changed",
@@ -482,25 +661,45 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "schema-path dispositions no longer close exactly",
     )
 
-    fixture_counts = fixture_index.get("counts")
-    coverage_counts = fixture_coverage.get("counts")
-    schema_counts = schema_completeness.get("counts")
+    live_fixture_counts = fixture_index.get("counts")
+    live_coverage_counts = fixture_coverage.get("counts")
+    live_schema_counts = schema_completeness.get("counts")
     operation_counts = operation_coverage.get("counts")
     notification_counts = notification_coverage.get("counts")
     for value, name in (
-        (fixture_counts, "fixture index"),
-        (coverage_counts, "fixture coverage"),
-        (schema_counts, "schema completeness"),
+        (live_fixture_counts, "fixture index"),
+        (live_coverage_counts, "fixture coverage"),
+        (live_schema_counts, "schema completeness"),
         (operation_counts, "operation production coverage"),
         (notification_counts, "notification production coverage"),
     ):
         require(isinstance(value, dict), f"{name} lacks count evidence")
-    require(fixture_counts["total"] == 3714, "fixture corpus total changed")
-    require(
-        fixture_counts["positive"] == coverage_counts["positive_fixtures"] == 1415,
-        "positive fixture totals disagree",
+    assert isinstance(live_fixture_counts, dict)
+    assert isinstance(live_coverage_counts, dict)
+    assert isinstance(live_schema_counts, dict)
+    require_monotonic_count_floor(
+        live_fixture_counts,
+        FROZEN_FIXTURE_CORPUS_COUNTS,
+        "fixture corpus",
     )
-    require(fixture_counts["negative"] == 2299, "negative fixture total changed")
+    require_monotonic_count_floor(
+        live_coverage_counts,
+        FROZEN_FIXTURE_COVERAGE_COUNTS,
+        "fixture coverage",
+    )
+    require_monotonic_count_floor(
+        live_schema_counts,
+        FROZEN_SCHEMA_COMPLETENESS_COUNTS,
+        "schema completeness",
+    )
+    require(
+        live_fixture_counts["positive"]
+        == live_coverage_counts["positive_fixtures"],
+        "live positive fixture totals disagree",
+    )
+    fixture_counts = FROZEN_FIXTURE_CORPUS_COUNTS
+    coverage_counts = FROZEN_FIXTURE_COVERAGE_COUNTS
+    schema_counts = FROZEN_SCHEMA_COMPLETENESS_COUNTS
     require(operation_counts["operations"] == 22, "operation coverage count changed")
     require(
         operation_counts["unit_result_roots"] == 7
@@ -585,8 +784,10 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "operations": operations,
         "response_item_alternatives": response_items,
         "sources": {
-            name: report_source(path, repo_root)
-            for name, path in sorted(source_paths.items())
+            name: record
+            for name, record in historical_source_records(
+                source_paths, repo_root
+            ).items()
         },
         "staged_exact_complete_ratchets": staged,
         "thread_item_alternatives": thread_items,
@@ -630,6 +831,11 @@ def parser() -> argparse.ArgumentParser:
         "--schema-completeness",
         type=Path,
         default=evidence / "schema-completeness-evidence.json",
+    )
+    result.add_argument(
+        "--start-state",
+        type=Path,
+        default=evidence / "a1-1-start-state.json",
     )
     result.add_argument(
         "--operation-coverage",

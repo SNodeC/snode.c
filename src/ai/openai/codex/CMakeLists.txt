@@ -9,11 +9,14 @@ pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 
 set(AI_OPENAI_CODEX_CPP
     AppServerClient.cpp
+    detail/AccountCodec.cpp
     detail/CodexErrorInfoCodec.cpp
     detail/ClientOperationCodec.cpp
+    detail/ConfigurationCodec.cpp
     detail/ConversationCodec.cpp
     detail/EventDecoder.cpp
     detail/ItemDecoder.cpp
+    detail/ModelCodec.cpp
     detail/ProtocolCodec.cpp
     detail/ProtocolSurfaceRegistry.cpp
     detail/ServerRequestDecoder.cpp
@@ -22,23 +25,31 @@ set(AI_OPENAI_CODEX_CPP
     detail/TurnCodec.cpp
     stdio/Client.cpp
     stdio/StdioTransport.cpp
+    typed/Accounts.cpp
     typed/Client.cpp
+    typed/Configuration.cpp
+    typed/Models.cpp
     typed/Types.cpp
 )
 
 set(AI_OPENAI_CODEX_H
     AppServerClient.h
     Protocol.h
+    detail/AccountCodec.h
+    detail/AccountsModelsConfigurationUnionCodecDescriptors.inc
     detail/CodexErrorInfoCodec.h
     detail/ClientOperationCodec.h
+    detail/ConfigurationCodec.h
     detail/ConversationCodec.h
     detail/ConversationUnionCodecDescriptors.inc
     detail/ThreadItemCodecDescriptors.inc
     detail/ResponseItemCodecDescriptors.inc
     detail/ServerNotificationCodecDescriptors.inc
+    detail/ServerRequestCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
     detail/ItemDecoder.h
+    detail/ModelCodec.h
     detail/ProtocolCodec.h
     detail/ProtocolSurfaceRegistry.h
     detail/ProtocolSurfaceRegistryData.inc
@@ -48,11 +59,14 @@ set(AI_OPENAI_CODEX_H
     detail/TurnCodec.h
     stdio/Client.h
     stdio/StdioTransport.h
+    typed/Accounts.h
     typed/Client.h
     typed/CodexErrorInfo.h
+    typed/Configuration.h
     typed/Conversation.h
     typed/Events.h
     typed/Items.h
+    typed/Models.h
     typed/Results.h
     typed/ServerRequests.h
     typed/Threads.h
@@ -94,11 +108,14 @@ install(
 )
 
 install(
-    FILES typed/Client.h
+    FILES typed/Accounts.h
+          typed/Client.h
           typed/CodexErrorInfo.h
+          typed/Configuration.h
           typed/Conversation.h
           typed/Events.h
           typed/Items.h
+          typed/Models.h
           typed/Results.h
           typed/ServerRequests.h
           typed/Threads.h

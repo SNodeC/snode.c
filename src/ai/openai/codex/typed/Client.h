@@ -8,7 +8,10 @@
 #ifndef AI_OPENAI_CODEX_TYPED_CLIENT_H
 #define AI_OPENAI_CODEX_TYPED_CLIENT_H
 
+#include "ai/openai/codex/typed/Accounts.h"       // IWYU pragma: export
+#include "ai/openai/codex/typed/Configuration.h"  // IWYU pragma: export
 #include "ai/openai/codex/typed/Events.h"         // IWYU pragma: export
+#include "ai/openai/codex/typed/Models.h"         // IWYU pragma: export
 #include "ai/openai/codex/typed/ServerRequests.h" // IWYU pragma: export
 #include "ai/openai/codex/typed/Threads.h"        // IWYU pragma: export
 #include "ai/openai/codex/typed/Turns.h"          // IWYU pragma: export
@@ -31,6 +34,15 @@ namespace ai::openai::codex::typed {
 
         ~Client();
 
+        Accounts& accounts() noexcept;
+        const Accounts& accounts() const noexcept;
+
+        Configuration& configuration() noexcept;
+        const Configuration& configuration() const noexcept;
+
+        Models& models() noexcept;
+        const Models& models() const noexcept;
+
         Threads& threads() noexcept;
         const Threads& threads() const noexcept;
 
@@ -46,7 +58,10 @@ namespace ai::openai::codex::typed {
     private:
         friend class ::ai::openai::codex::AppServerClient;
 
-        Client(std::unique_ptr<Threads> threads,
+        Client(std::unique_ptr<Accounts> accounts,
+               std::unique_ptr<Configuration> configuration,
+               std::unique_ptr<Models> models,
+               std::unique_ptr<Threads> threads,
                std::unique_ptr<Turns> turns,
                std::unique_ptr<Events> events,
                std::unique_ptr<Requests> requests);

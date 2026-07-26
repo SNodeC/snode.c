@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import copy
-import hashlib
 import json
 import re
 import sys
@@ -20,7 +19,9 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 from urllib.parse import quote
 
+import app_server_a1_shared as shared
 import app_server_fixtures as fixture_tool
+import app_server_schema_paths as schema_walk
 import app_server_surface as surface
 
 
@@ -66,6 +67,49 @@ EXPECTED_FINAL_GLOBAL_SCHEMA_STATUS = {
     "NotApplicable": 48,
     "NotImplemented": 164,
     "Partial": 8,
+}
+# These hashes are part of the completed A1.1 evidence record. Shared/global
+# inputs may legitimately change while a later A1 slice is implemented, and
+# this generator necessarily changes when its live compatibility guard is
+# maintained. The historical reports therefore project the reviewed A1.1
+# hashes instead of pretending that their source snapshot was recaptured.
+FROZEN_HISTORICAL_SOURCE_SHA256 = {
+    "app_server_surface_generator":
+        "628254afe57d142e8c0862d0607180a169dadb93844a1ccabc35e61921408b23",
+    "assignments":
+        "e9097d1d27acd3915da65f7c955c2e8fb25f7ee0fce9b185e4415a1ba85396cf",
+    "draft07_validator":
+        "4ecd7d14f3d5eabe43b3ecc1f4eaf2994b47d7a6e99b10ff1569fde59487a39c",
+    "fixture_generator":
+        "0dbeb63cb7b333087fdb2c78ab71470f4e4791ef6aa4e8751c3b5c0362dc9d96",
+    "fixture_index":
+        "022eb437aa39dceb21912947ba8bcdc1b10ff4b6c5076ba5b1713abfd762ac33",
+    "generator":
+        "5ec99ac40778125a8517f9bcb14215444d4e84213d2323300317154ad72ea1b8",
+    "manifest":
+        "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021",
+    "operation_contracts":
+        "226c552c5602301966c39539bbf466f345d4aa625e06d6ca603a9dbcd25e3a9e",
+    "reachability":
+        "07c8bfc8096cb565d7ca0cb1e97c1ffffdeda5b50a82a841971035e506f3ce9a",
+    "stable_aggregate":
+        "40c67e463e6170a8666b681caa4636a030e303cee94e7f0cc893fa8af7680466",
+    "start_state":
+        "1614414ea6320f8ac5eb47ef928c4bc8de587c9f429f86d7f94ffeb437b6c705",
+}
+HISTORICALLY_MUTABLE_SOURCE_NAMES = {
+    "app_server_surface_generator",
+    "fixture_generator",
+    "fixture_index",
+    "generator",
+}
+FROZEN_A1_1_PRODUCTION_EVIDENCE_SHA256 = {
+    "notification_production_coverage":
+        "191c9e9152fe6c3a2fd052f542911c510e6643e78bfaf2b293729f9bfe7e62b0",
+    "operation_production_coverage":
+        "9e9cc9a58651d39f2e2b5e9ee9cdb712a6338660029a77814988a7e904ef156e",
+    "type_closure":
+        "187db47c37d094b5f22c27cb0a6c1fc656cd0b3e34c63faf9b81ededce2f8bfc",
 }
 EXPECTED_BATCH_IDENTITY_COUNTS = {"B2": 26, "B3": 50, "B4": 38, "B5": 37}
 EXPECTED_BATCH_DEFINITION_COUNTS = {"B2": 12, "B3": 32, "B4": 72, "B5": 48}
@@ -135,6 +179,7 @@ PRIOR_SLICE_REUSED_DEFINITIONS = {
     "TurnError",
 }
 FORWARD_SLICE_NAMES = {"A1.2", "A1.3", "A1.4"}
+MONOTONIC_SUCCESSOR_SLICE = "A1.2"
 EXPECTED_STRONG_IDENTIFIER_COUNTS = {
     "ClientUserMessageId": {
         "scalar_property_paths": 3,
@@ -656,51 +701,9 @@ VALID_CROSS_SLICE_OWNERSHIP = {
 }
 
 
-class AuditError(RuntimeError):
-    """A frozen A1.1 invariant was violated."""
-
-    def __init__(
-        self,
-        message: str,
-        code: str = "AuditInvariant",
-        codes: Sequence[str] | None = None,
-    ) -> None:
-        super().__init__(message)
-        self.code = code
-        self.codes = tuple(codes) if codes is not None else (code,)
-
-
-@dataclass(frozen=True, order=True)
-class AuditDiagnostic:
-    """Stable intrinsic diagnostic emitted for a mutated generated report."""
-
-    code: str
-    location: str
-    message: str
-
-
-@dataclass(frozen=True, order=True)
-class Key:
-    category: str
-    domain: str
-    field: str
-    name: str
-
-    @classmethod
-    def from_row(cls, row: Mapping[str, Any]) -> "Key":
-        category, domain, field, name = surface.surface_key(dict(row))
-        return cls(category, domain, field, name)
-
-    def object(self) -> dict[str, str]:
-        return {
-            "category": self.category,
-            "domain": self.domain,
-            "discriminator_field": self.field,
-            "name": self.name,
-        }
-
-    def compact(self) -> str:
-        return f"{self.category}:{self.domain}:{self.field}:{self.name}"
+AuditError = shared.AuditError
+AuditDiagnostic = shared.AuditDiagnostic
+Key = shared.Key
 
 
 @dataclass
@@ -721,64 +724,43 @@ class LiveInputs:
     fixture_coverage: dict[Key, dict[str, Any]]
 
 
-def fail(message: str, code: str = "AuditInvariant") -> None:
-    raise AuditError(message, code)
+fail = shared.fail
+require = shared.require
+load_json = shared.load_json
+canonical_json = shared.canonical_json
+sha256_file = shared.sha256_file
+sha256_json = shared.sha256_json
 
 
-def require(
-    condition: bool,
-    message: str,
-    code: str = "AuditInvariant",
-) -> None:
-    if not condition:
-        fail(message, code)
+def historical_source_records(
+    paths: Mapping[str, Path],
+    repo_root: Path,
+) -> dict[str, dict[str, str]]:
+    """Project the exact reviewed A1.1 source snapshot into its reports.
+
+    Immutable A1.1 inputs remain live hash ratchets. Only the explicitly
+    shared/global inputs and this generator may move as A1.2 progresses.
+    """
+
+    return shared.historical_source_records(
+        paths,
+        repo_root,
+        frozen_hashes=FROZEN_HISTORICAL_SOURCE_SHA256,
+        mutable_names=HISTORICALLY_MUTABLE_SOURCE_NAMES,
+        source_set_error=lambda: AuditError(
+            "A1.1 historical source set changed",
+            "HistoricalSourceSetDrift",
+        ),
+        immutable_source_error=lambda relative: AuditError(
+            f"immutable A1.1 source changed: {relative}",
+            "HistoricalSourceDrift",
+        ),
+        resolve_paths=True,
+    )
 
 
-def load_json(path: Path) -> dict[str, Any]:
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as error:
-        raise AuditError(f"unable to load {path}: {error}") from error
-    if not isinstance(value, dict):
-        fail(f"expected an object-valued JSON document: {path}")
-    return value
-
-
-def canonical_json(value: Any) -> str:
-    return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
-
-
-def sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def sha256_json(value: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(
-            value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-        ).encode("utf-8")
-    ).hexdigest()
-
-
-def indexed(
-    records: Iterable[Mapping[str, Any]], description: str
-) -> dict[Key, dict[str, Any]]:
-    result: dict[Key, dict[str, Any]] = {}
-    for raw in records:
-        row = dict(raw)
-        key = Key.from_row(row)
-        if key in result:
-            fail(f"duplicate {description} identity: {key.compact()}")
-        result[key] = row
-    return result
-
-
-def records(document: Mapping[str, Any], names: Sequence[str], description: str) -> list[dict[str, Any]]:
-    for name in names:
-        value = document.get(name)
-        if isinstance(value, list) and all(isinstance(row, dict) for row in value):
-            return [dict(row) for row in value]
-    fail(f"{description} lacks one of the expected arrays: {', '.join(names)}")
+indexed = shared.indexed
+records = shared.records
 
 
 def pascal(value: str) -> str:
@@ -787,23 +769,11 @@ def pascal(value: str) -> str:
 
 
 def schema_references(value: Any) -> set[str]:
-    result: set[str] = set()
-
-    def walk(node: Any) -> None:
-        if isinstance(node, dict):
-            reference = node.get("$ref")
-            if isinstance(reference, str):
-                match = re.fullmatch(r"#/definitions/v2/([^/]+)", reference)
-                if match:
-                    result.add(match.group(1).replace("~1", "/").replace("~0", "~"))
-            for child in node.values():
-                walk(child)
-        elif isinstance(node, list):
-            for child in node:
-                walk(child)
-
-    walk(value)
-    return result
+    return {
+        identity.name
+        for identity in fixture_tool.schema_references(value)
+        if identity.namespace == "v2"
+    }
 
 
 def schema_reference_records(value: Any) -> list[tuple[str, str]]:
@@ -1064,46 +1034,20 @@ def validate_closure_references(
 
 
 def transitive_closure(starts: Iterable[str], edges: Mapping[str, set[str]]) -> set[str]:
-    reached: set[str] = set()
-    pending = list(starts)
-    while pending:
-        current = pending.pop()
-        if current in reached:
-            continue
-        if current not in edges:
-            fail(f"schema closure references an unknown v2 definition: {current}")
-        reached.add(current)
-        pending.extend(sorted(edges[current] - reached))
-    return reached
+    return set(
+        shared.transitive_closure(
+            starts,
+            edges,
+            unknown_node_error=lambda current: AuditError(
+                "schema closure references an unknown v2 definition: "
+                f"{current}"
+            ),
+        )
+    )
 
 
 def find_cycle(nodes: Iterable[str], edges: Mapping[str, set[str]]) -> list[str] | None:
-    allowed = set(nodes)
-    visited: set[str] = set()
-    active: set[str] = set()
-    stack: list[str] = []
-
-    def visit(node: str) -> list[str] | None:
-        visited.add(node)
-        active.add(node)
-        stack.append(node)
-        for dependency in sorted(edges[node] & allowed):
-            if dependency not in visited:
-                cycle = visit(dependency)
-                if cycle:
-                    return cycle
-            elif dependency in active:
-                return stack[stack.index(dependency):] + [dependency]
-        stack.pop()
-        active.remove(node)
-        return None
-
-    for node in sorted(allowed):
-        if node not in visited:
-            cycle = visit(node)
-            if cycle:
-                return cycle
-    return None
+    return shared.find_dependency_cycle(nodes, edges)
 
 
 def schema_shape(schema: Mapping[str, Any]) -> str:
@@ -1122,33 +1066,7 @@ def schema_shape(schema: Mapping[str, Any]) -> str:
 
 
 def allows_null(schema: Any) -> bool:
-    if not isinstance(schema, dict):
-        return schema is True
-    # Draft-07's empty schema accepts every JSON instance, including null.
-    # Annotation-only schemas have the same validation semantics.
-    annotation_keywords = {
-        "$comment",
-        "$id",
-        "$schema",
-        "default",
-        "description",
-        "examples",
-        "readOnly",
-        "title",
-        "writeOnly",
-    }
-    if set(schema).issubset(annotation_keywords):
-        return True
-    schema_type = schema.get("type")
-    if schema_type == "null":
-        return True
-    if isinstance(schema_type, list) and "null" in schema_type:
-        return True
-    return any(
-        allows_null(branch)
-        for keyword in ("oneOf", "anyOf")
-        for branch in schema.get(keyword, [])
-    )
+    return shared.allows_null(schema)
 
 
 def definition_disposition(name: str, schema: Mapping[str, Any], shape: str) -> tuple[str, str]:
@@ -1263,38 +1181,7 @@ def semantic_strong_identifier(
 
 
 def non_null_schema(schema: Any) -> Any:
-    """Strip only a schema-level null alternative, retaining every wrapper."""
-
-    if not isinstance(schema, dict):
-        return schema
-    schema_type = schema.get("type")
-    if isinstance(schema_type, list) and "null" in schema_type:
-        non_null_types = [value for value in schema_type if value != "null"]
-        result = dict(schema)
-        result["type"] = (
-            non_null_types[0] if len(non_null_types) == 1 else non_null_types
-        )
-        return result
-    for keyword in ("oneOf", "anyOf"):
-        branches = schema.get(keyword)
-        if not isinstance(branches, list):
-            continue
-        non_null = [
-            branch
-            for branch in branches
-            if not (
-                isinstance(branch, dict)
-                and branch.get("type") == "null"
-                and set(branch) == {"type"}
-            )
-        ]
-        if len(non_null) != len(branches):
-            if len(non_null) == 1:
-                return non_null[0]
-            result = dict(schema)
-            result[keyword] = non_null
-            return result
-    return schema
+    return shared.non_null_schema(schema)
 
 
 def inline_cpp_type_name(owner: str, member: str, suffix: str = "") -> str:
@@ -1315,31 +1202,42 @@ def schema_cpp_base_type(
     member: str,
     semantic_identifier: tuple[str, str] | None,
 ) -> str:
-    explicit_mapping = EXPLICIT_SCHEMA_CPP_MAPPINGS.get(path)
-    if explicit_mapping is not None:
-        require(
-            semantic_identifier is None,
-            f"explicit C++ type conflicts with a strong identifier mapping: {path}",
-            "ConflictingClosureMapping",
-        )
-        return explicit_mapping[2]
-    if semantic_identifier is not None:
-        identifier, role = semantic_identifier
-        if role == "vector_property":
-            return f"std::vector<typed::{identifier}>"
-        return f"typed::{identifier}"
-    if path in EXPECTED_PROTOCOL_OPAQUE_PATHS:
-        return "Json"
-    if schema is True:
-        return "Json"
-    require(isinstance(schema, dict), f"schema path has a non-object schema: {path}")
+    root_path = path
 
-    schema = non_null_schema(schema)
-    require(isinstance(schema, dict), f"schema path has a malformed nullable schema: {path}")
-    reference = schema.get("$ref")
-    if isinstance(reference, str):
+    def semantic_type(
+        _schema: Any,
+        candidate_path: str,
+        _owner: str,
+        _member: str,
+    ) -> str | None:
+        explicit_mapping = EXPLICIT_SCHEMA_CPP_MAPPINGS.get(
+            candidate_path
+        )
+        if explicit_mapping is not None:
+            require(
+                semantic_identifier is None
+                or candidate_path != root_path,
+                "explicit C++ type conflicts with a strong identifier "
+                f"mapping: {candidate_path}",
+                "ConflictingClosureMapping",
+            )
+            return explicit_mapping[2]
+        if (
+            candidate_path == root_path
+            and semantic_identifier is not None
+        ):
+            identifier, role = semantic_identifier
+            if role == "vector_property":
+                return f"std::vector<typed::{identifier}>"
+            return f"typed::{identifier}"
+        return None
+
+    def reference_type(reference: str, candidate_path: str) -> str:
         match = re.fullmatch(r"#/definitions/v2/([^/]+)", reference)
-        require(match is not None, f"schema path has a non-v2 reference: {path}")
+        require(
+            match is not None,
+            f"schema path has a non-v2 reference: {candidate_path}",
+        )
         referenced_name = match.group(1)
         return (
             "typed::Unit"
@@ -1347,128 +1245,36 @@ def schema_cpp_base_type(
             else f"typed::{referenced_name}"
         )
 
-    all_of = schema.get("allOf")
-    if isinstance(all_of, list):
-        require(len(all_of) == 1, f"schema composition needs an explicit C++ mapping: {path}")
-        return schema_cpp_base_type(
-            all_of[0], path + "/allOf/0", owner, member, semantic_identifier
-        )
-
-    for keyword in ("oneOf", "anyOf"):
-        branches = schema.get(keyword)
-        if isinstance(branches, list):
-            branch_types: list[str] = []
-            for index, branch in enumerate(branches):
-                branch_type = schema_cpp_base_type(
-                    branch,
-                    f"{path}/{keyword}/{index}",
-                    owner,
-                    member,
-                    semantic_identifier,
-                )
-                if branch_type not in branch_types:
-                    branch_types.append(branch_type)
-            require(branch_types, f"schema union has no C++ alternatives: {path}")
-            return (
-                branch_types[0]
-                if len(branch_types) == 1
-                else "std::variant<" + ", ".join(branch_types) + ">"
-            )
-
-    enum_values = schema.get("enum")
-    if isinstance(enum_values, list):
-        require(
-            enum_values and all(isinstance(value, str) for value in enum_values),
-            f"schema enum has malformed values: {path}",
-        )
-        if len(enum_values) == 1:
-            return f'detail::ExactDiscriminatorLiteral<"{enum_values[0]}">'
-        return inline_cpp_type_name(owner, member, "Value")
-
-    schema_type = schema.get("type")
-    if schema_type == "array":
-        require("items" in schema, f"array schema has no item mapping: {path}")
-        item_type = schema_cpp_base_type(
-            schema["items"], path + "/items", owner, member + "[]", None
-        )
-        if allows_null(schema["items"]) and item_type != "Json":
-            item_type = f"std::optional<{item_type}>"
-        return f"std::vector<{item_type}>"
-    if schema_type == "object" or "properties" in schema:
-        additional = schema.get("additionalProperties")
-        if additional is True and not schema.get("properties"):
-            return "std::map<std::string, Json>"
-        if isinstance(additional, dict) and not schema.get("properties"):
-            value_type = schema_cpp_base_type(
-                additional,
-                path + "/additionalProperties",
-                owner,
-                member + "[*]",
-                None,
-            )
-            return f"std::map<std::string, {value_type}>"
-        return inline_cpp_type_name(owner, member)
-    if schema_type == "string":
-        return "std::string"
-    if schema_type == "boolean":
-        return "bool"
-    if schema_type == "integer":
-        integer_format = schema.get("format")
-        if integer_format == "int32":
-            return "std::int32_t"
-        if integer_format == "int64":
-            return "std::int64_t"
-        if integer_format == "uint16":
-            return "std::uint16_t"
-        if integer_format == "uint32":
-            return "std::uint32_t"
-        if integer_format in {"uint", "uint64"}:
-            return "std::uint64_t"
-        return (
-            "std::uint64_t"
-            if (
-                isinstance(schema.get("minimum"), (int, float))
-                and schema["minimum"] >= 0
-            )
-            else "std::int64_t"
-        )
-    if schema_type == "number":
-        return "double"
-    if schema_type == "null":
-        return "std::monostate"
-    if isinstance(schema_type, list):
-        mapped = [
-            schema_cpp_base_type(
-                {"type": value}, path, owner, member, semantic_identifier
-            )
-            for value in schema_type
-        ]
-        return "std::variant<" + ", ".join(mapped) + ">"
-    if not schema:
-        return "Json"
-    fail(f"schema path has no exact C++ type mapping: {path}", "MissingClosureMapping")
+    policy = shared.CppTypePolicy(
+        semantic_type=semantic_type,
+        reference_type=reference_type,
+        inline_type=inline_cpp_type_name,
+        special_string_union_type=(
+            lambda _schema, _owner, _member: None
+        ),
+        map_key_type=lambda _path: "std::string",
+        opaque_paths=frozenset(EXPECTED_PROTOCOL_OPAQUE_PATHS),
+        allow_unreviewed_true=True,
+        allow_empty_schema_json=True,
+        allow_annotation_only_json=False,
+        nullable_array_elements=True,
+        missing_mapping_code="MissingClosureMapping",
+    )
+    return shared.schema_cpp_base_type(
+        schema, path, owner, member, policy
+    )
 
 
 def property_presence_model(
     required: bool, nullable: bool, defaulted: bool = False
 ) -> str:
-    if required:
-        return "RequiredNullable" if nullable else "RequiredValue"
-    if nullable:
-        return "OptionalNullable"
-    return "DefaultedValue" if defaulted else "OptionalValue"
+    return shared.property_presence_model(
+        required, nullable, defaulted
+    )
 
 
 def wrap_property_cpp_type(base_type: str, presence_model: str) -> str:
-    if presence_model == "OptionalNullable":
-        return f"typed::OptionalNullable<{base_type}>"
-    if presence_model in {"OptionalValue", "RequiredNullable"}:
-        return f"std::optional<{base_type}>"
-    require(
-        presence_model in {"DefaultedValue", "RequiredValue"},
-        f"unknown property presence model: {presence_model}",
-    )
-    return base_type
+    return shared.wrap_property_cpp_type(base_type, presence_model)
 
 
 def path_disposition(
@@ -1622,100 +1428,59 @@ def collect_schema_paths(
             row["opaque_reason"] = EXPECTED_PROTOCOL_OPAQUE_PATHS[path]
         result.append(row)
 
-    def walk(
-        schema: Any,
-        path: str,
-        owner: str,
-        member_prefix: str,
-        directionality: str,
-    ) -> None:
-        if not isinstance(schema, dict):
-            return
-        required = set(schema.get("required", []))
-        properties = schema.get("properties", {})
-        if isinstance(properties, dict):
-            for name, child in sorted(properties.items()):
-                child_path = f"{path}/properties/{name}"
-                member_name = cpp_member_name(name)
-                if (
-                    member_name == "id"
-                    and owner.startswith("typed::")
-                    and owner.endswith("ThreadItem")
-                    and owner != "typed::ThreadItem"
-                ):
-                    # Incoming ThreadItem alternatives intentionally retain
-                    # the established envelope/raw provenance aggregate.
-                    member_name = "metadata.id"
-                child_member = (
-                    f"{member_prefix}.{member_name}"
-                    if member_prefix
-                    else member_name
-                )
-                add(
-                    child_path,
-                    "property",
-                    child,
-                    owner,
-                    child_member,
-                    directionality,
-                    name in required,
-                )
-                walk(
-                    child,
-                    child_path,
-                    owner,
-                    child_member,
-                    directionality,
-                )
-        if "items" in schema:
-            child = schema["items"]
-            child_path = f"{path}/items"
-            child_member = f"{member_prefix}[]" if member_prefix else "value[]"
-            add(
-                child_path,
-                "array_element",
-                child,
-                owner,
-                child_member,
-                directionality,
+    PathState = tuple[str, str, str]
+
+    def path_state_transition(
+        state: PathState,
+        kind: str,
+        token: str | int | None,
+        _path: str,
+        child: Any,
+        _required: bool | None,
+    ) -> PathState:
+        owner, member_prefix, directionality = state
+        if kind == schema_walk.PROPERTY:
+            require(
+                isinstance(token, str),
+                "shared schema walker returned a non-string property token",
             )
-            walk(child, child_path, owner, child_member, directionality)
-        if "additionalProperties" in schema:
-            child = schema["additionalProperties"]
-            # `additionalProperties: false` closes an object; it does not
-            # declare a map-value schema.  True and object-valued forms do.
-            if child is not False:
-                child_path = f"{path}/additionalProperties"
-                child_member = (
-                    f"{member_prefix}[*]" if member_prefix else "value[*]"
-                )
-                add(
-                    child_path,
-                    "map_value",
-                    child,
-                    owner,
-                    child_member,
-                    directionality,
-                )
-                walk(child, child_path, owner, child_member, directionality)
-        for keyword in ("oneOf", "anyOf", "allOf"):
-            branches = schema.get(keyword, [])
-            if isinstance(branches, list):
-                for index, branch in enumerate(branches):
-                    branch_owner = owner
-                    branch_member_prefix = member_prefix
-                    if isinstance(branch, dict):
-                        title = branch.get("title")
-                        if isinstance(title, str) and title:
-                            branch_owner = f"typed::{title}"
-                            branch_member_prefix = ""
-                    walk(
-                        branch,
-                        f"{path}/{keyword}/{index}",
-                        branch_owner,
-                        branch_member_prefix,
-                        directionality,
-                    )
+            member_name = cpp_member_name(token)
+            if (
+                member_name == "id"
+                and owner.startswith("typed::")
+                and owner.endswith("ThreadItem")
+                and owner != "typed::ThreadItem"
+            ):
+                # Incoming ThreadItem alternatives intentionally retain the
+                # established envelope/raw provenance aggregate.
+                member_name = "metadata.id"
+            member = (
+                f"{member_prefix}.{member_name}"
+                if member_prefix
+                else member_name
+            )
+            return owner, member, directionality
+        if kind == schema_walk.ARRAY_ELEMENT:
+            member = (
+                f"{member_prefix}[]"
+                if member_prefix
+                else "value[]"
+            )
+            return owner, member, directionality
+        if kind == schema_walk.MAP_VALUE:
+            member = (
+                f"{member_prefix}[*]"
+                if member_prefix
+                else "value[*]"
+            )
+            return owner, member, directionality
+        if kind in schema_walk.COMBINATOR_BRANCH_KINDS:
+            if isinstance(child, dict):
+                title = child.get("title")
+                if isinstance(title, str) and title:
+                    return f"typed::{title}", "", directionality
+            return state
+        fail(f"shared schema walker returned an unknown edge kind: {kind}")
 
     for name in sorted(closure):
         directionality = definition_directions[name]
@@ -1723,13 +1488,26 @@ def collect_schema_paths(
             directionality in VALID_DIRECTIONALITIES,
             f"definition has invalid directionality: {name}",
         )
-        walk(
+        for visit in schema_walk.walk_schema_paths(
             definitions[name],
-            f"#/definitions/v2/{name}",
-            f"typed::{name}",
-            "",
-            directionality,
-        )
+            path=f"#/definitions/v2/{name}",
+            state=(f"typed::{name}", "", directionality),
+            transition=path_state_transition,
+            value_keyword_order=("items", "additionalProperties"),
+            combinator_keyword_order=("oneOf", "anyOf", "allOf"),
+        ):
+            if visit.kind not in schema_walk.VALUE_PATH_KINDS:
+                continue
+            owner, member, visit_direction = visit.state
+            add(
+                visit.path,
+                visit.kind,
+                visit.schema,
+                owner,
+                member,
+                visit_direction,
+                visit.required,
+            )
 
     paths = [row["schema_path"] for row in result]
     require(len(paths) == len(set(paths)), "duplicate type-closure schema path disposition")
@@ -3196,18 +2974,22 @@ def validate_reviewed_public_mappings(
 
 
 def validate_input_versions(documents: Iterable[Mapping[str, Any]]) -> None:
-    for document in documents:
-        version = str(document.get("codex_version", ""))
-        require(version in {"0.144.6", CODEX_VERSION}, f"unexpected Codex evidence version: {version!r}")
+    shared.validate_input_versions(
+        documents, frozenset({"0.144.6", CODEX_VERSION})
+    )
 
 
 def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
-    manifest = load_json(arguments.manifest)
-    assignments_document = load_json(arguments.assignments)
-    reachability_document = load_json(arguments.reachability)
-    contracts_document = load_json(arguments.contracts)
-    completeness_document = load_json(arguments.schema_completeness)
-    fixture_document = load_json(arguments.fixture_coverage)
+    common = shared.load_surface_evidence_inputs(
+        manifest_path=arguments.manifest,
+        assignments_path=arguments.assignments,
+        reachability_path=arguments.reachability,
+        contracts_path=arguments.contracts,
+        completeness_path=arguments.schema_completeness,
+        fixture_coverage_path=arguments.fixture_coverage,
+        registry_path=arguments.registry,
+        allowed_versions=frozenset({"0.144.6", CODEX_VERSION}),
+    )
     production_coverage_document = load_json(arguments.production_coverage)
     notification_production_coverage_document = load_json(
         arguments.notification_production_coverage
@@ -3215,112 +2997,66 @@ def load_live_inputs(arguments: argparse.Namespace) -> LiveInputs:
     type_closure_document = load_json(arguments.closure_output)
     validate_input_versions(
         (
-            manifest,
-            assignments_document,
-            reachability_document,
-            contracts_document,
-            completeness_document,
-            fixture_document,
             production_coverage_document,
             notification_production_coverage_document,
             type_closure_document,
         )
     )
 
-    registry_rows = surface.parse_registry_data(arguments.registry)
-    registry = indexed(registry_rows, "registry")
-    manifest_rows = indexed(records(manifest, ("entries",), "surface manifest"), "manifest")
-    assignments = indexed(
-        records(assignments_document, ("assignments",), "module/slice assignment"),
-        "assignment",
-    )
-    reachability = indexed(
-        records(reachability_document, ("records",), "nested reachability"),
-        "reachability",
-    )
-    contracts = indexed(
-        records(contracts_document, ("contracts",), "operation contracts"),
-        "operation contract",
-    )
-    completeness = indexed(
-        records(completeness_document, ("records",), "schema completeness"),
-        "schema completeness",
-    )
-    fixture_coverage = indexed(
-        records(fixture_document, ("identity_coverage",), "fixture coverage"),
-        "fixture coverage",
-    )
-
-    if set(registry) != set(manifest_rows):
-        fail("registry/manifest exact-key mismatch", "LiveIdentityMismatch")
-    if set(assignments) != set(manifest_rows):
-        fail("assignment/manifest exact-key mismatch", "AssignmentMismatch")
-    if set(completeness) != set(manifest_rows):
-        fail("schema-completeness/manifest exact-key mismatch", "LiveIdentityMismatch")
-    if set(fixture_coverage) != set(manifest_rows):
-        fail("fixture-coverage/manifest exact-key mismatch", "LiveIdentityMismatch")
-
+    frozen_production_paths = {
+        "notification_production_coverage":
+            arguments.notification_production_coverage,
+        "operation_production_coverage": arguments.production_coverage,
+        "type_closure": arguments.closure_output,
+    }
+    for name, path in frozen_production_paths.items():
+        require(
+            sha256_file(path)
+            == FROZEN_A1_1_PRODUCTION_EVIDENCE_SHA256[name],
+            f"completed A1.1 production evidence changed: {path}",
+            "HistoricalSourceDrift",
+        )
     registry_evidence = {
-        "operation_contracts": contracts_document,
-        "assignments": assignments_document,
-        "reachability": reachability_document,
-        "fixture_coverage": fixture_document,
+        "operation_contracts": common.contracts_document,
+        "assignments": common.assignments_document,
+        "reachability": common.reachability_document,
+        "fixture_coverage": common.fixture_document,
         "operation_production_coverage": production_coverage_document,
         "notification_production_coverage":
             notification_production_coverage_document,
         "type_closure": type_closure_document,
     }
-    expected_registry_data = surface.generate_registry_data(manifest, registry_evidence)
-    if arguments.registry.read_text(encoding="utf-8") != expected_registry_data:
-        fail(
-            "canonical registry is stale relative to the guarded evidence",
+    expected_registry = indexed(
+        surface.parse_registry_data_text(
+            surface.generate_registry_data(
+                common.manifest, registry_evidence
+            ),
+            "<generated-A1.1-registry>",
+        ),
+        "generated A1.1 registry",
+    )
+    a1_1_registry_keys = {
+        key
+        for key, row in common.assignments.items()
+        if row.get("slice") == A1_1_SLICE
+    }
+    require(
+        len(a1_1_registry_keys) == 151,
+        "canonical A1.1 registry key set changed",
+        "StaleCanonicalRegistry",
+    )
+    for key in sorted(a1_1_registry_keys):
+        require(
+            expected_registry.get(key) == common.registry.get(key),
+            f"canonical A1.1 registry row differs from the exact "
+            f"generated production target: {key.compact()}",
             "StaleCanonicalRegistry",
         )
-    for key in sorted(manifest_rows):
-        if (
-            completeness[key].get("schema_fixture_facts")
-            != fixture_coverage[key].get("completeness_evidence")
-        ):
-            fail(
-                f"schema-completeness/fixture evidence mismatch: {key.compact()}",
-                "CompletenessEvidenceMismatch",
-            )
-
-    association_errors = surface.association_diagnostics(manifest, contracts_document, registry_rows)
-    if association_errors:
-        codes = tuple(sorted(str(error["code"]) for error in association_errors))
-        raise AuditError(
-            f"operation-contract mismatch: {association_errors}",
-            codes[0],
-            codes,
-        )
-    assignment_errors = surface.assignment_reachability_diagnostics(
-        manifest, assignments_document, reachability_document
-    )
-    if assignment_errors:
-        codes = tuple(sorted(str(error["code"]) for error in assignment_errors))
-        raise AuditError(
-            f"assignment/reachability mismatch: {assignment_errors}",
-            codes[0],
-            codes,
-        )
-
-    return LiveInputs(
-        manifest=manifest,
-        assignments_document=assignments_document,
-        reachability_document=reachability_document,
-        contracts_document=contracts_document,
-        completeness_document=completeness_document,
-        fixture_document=fixture_document,
-        registry_rows=registry_rows,
-        registry=registry,
-        manifest_rows=manifest_rows,
-        assignments=assignments,
-        reachability=reachability,
-        contracts=contracts,
-        completeness=completeness,
-        fixture_coverage=fixture_coverage,
-    )
+    # Shared production/test trees inside completed A1.1 coverage documents
+    # necessarily grow in A1.2. Their exact frozen bytes were checked above;
+    # the generated-registry comparison is projected to the exact 151 A1.1
+    # rows, and later-slice rows are checked monotonically elsewhere.
+    return LiveInputs(**vars(common))
 
 
 def frozen_a1_keys(assignments: Mapping[Key, Mapping[str, Any]]) -> list[Key]:
@@ -3540,10 +3276,12 @@ def unrelated_start_state_by_key(
 def unrelated_live_diagnostics(
     a1_keys: Sequence[Key],
     baseline: Mapping[Key, Mapping[str, Any]],
-    inputs: LiveInputs,
+    live_registry: Mapping[Key, Mapping[str, Any]],
 ) -> list[AuditDiagnostic]:
+    """Guard non-A1.1 rows while permitting only monotonic A1.2 progress."""
+
     diagnostics: list[AuditDiagnostic] = []
-    live_keys = set(inputs.registry) - set(a1_keys)
+    live_keys = set(live_registry) - set(a1_keys)
     if live_keys != set(baseline):
         diagnostics.append(
             AuditDiagnostic(
@@ -3554,15 +3292,59 @@ def unrelated_live_diagnostics(
         )
     for key in sorted(live_keys & set(baseline)):
         frozen_projection = baseline[key].get("registry_projection")
-        if frozen_projection != registry_projection(inputs.registry[key]):
+        if not isinstance(frozen_projection, Mapping):
+            diagnostics.append(
+                AuditDiagnostic(
+                    "StartStateIdentityDrift",
+                    key.compact(),
+                    "non-A1.1 frozen registry projection is malformed",
+                )
+            )
+            continue
+        live_projection = registry_projection(live_registry[key])
+        slice_name = frozen_projection.get("a1_slice")
+        if slice_name == MONOTONIC_SUCCESSOR_SLICE:
+            diagnostics.extend(
+                monotonic_registry_projection_diagnostics(
+                    key, frozen_projection, live_projection
+                )
+            )
+        elif frozen_projection != live_projection:
             diagnostics.append(
                 AuditDiagnostic(
                     "UnrelatedSliceDrift",
                     key.compact(),
-                    "non-A1.1 runtime, status, layer, completeness, or static field changed",
+                    f"{slice_name!r} registry projection changed while validating "
+                    "the frozen A1.1 boundary",
                 )
             )
     return sorted(diagnostics)
+
+
+def registry_transition_diagnostics(
+    key: Key,
+    frozen: Mapping[str, Any],
+    live: Mapping[str, Any],
+    scope: str,
+) -> list[AuditDiagnostic]:
+    """Validate one monotonic registry transition from a frozen boundary."""
+
+    return shared.registry_transition_diagnostics(
+        key,
+        frozen,
+        live,
+        shared.RegistryTransitionPolicy(scope=scope),
+    )
+
+
+def monotonic_registry_projection_diagnostics(
+    key: Key,
+    frozen: Mapping[str, Any],
+    live: Mapping[str, Any],
+) -> list[AuditDiagnostic]:
+    """Return exact diagnostics for an attempted A1.2 registry transition."""
+
+    return registry_transition_diagnostics(key, frozen, live, "A1.2")
 
 
 def identity_has_advanced(
@@ -3620,29 +3402,16 @@ def staged_progress_diagnostics(
     baseline: Mapping[Key, Mapping[str, Any]],
     inputs: LiveInputs,
 ) -> list[AuditDiagnostic]:
-    batch_order = ("B2", "B3", "B4", "B5")
-    batch_keys: dict[str, list[Key]] = defaultdict(list)
-    for key in keys:
-        batch_keys[identity_batch(inputs.assignments[key], key)].append(key)
-    diagnostics: list[AuditDiagnostic] = []
-    for index, batch in enumerate(batch_order):
-        if not any(identity_has_advanced(key, baseline[key], inputs) for key in batch_keys[batch]):
-            continue
-        incomplete_earlier = [
-            key
-            for earlier in batch_order[:index]
-            for key in batch_keys[earlier]
-            if inputs.registry[key].get("typed_schema_status") != "Complete"
-        ]
-        if incomplete_earlier:
-            diagnostics.append(
-                AuditDiagnostic(
-                    "NonContiguousBatchProgress",
-                    batch,
-                    f"{batch} advanced before all earlier batch identities were Complete",
-                )
-            )
-    return diagnostics
+    return shared.staged_progress_diagnostics(
+        keys,
+        inputs.registry,
+        batch_for_key=lambda key: identity_batch(
+            inputs.assignments[key], key
+        ),
+        identity_has_advanced=lambda key: identity_has_advanced(
+            key, baseline[key], inputs
+        ),
+    )
 
 
 def live_progress_diagnostics(
@@ -3656,19 +3425,6 @@ def live_progress_diagnostics(
 
     def add(code: str, key: Key, message: str) -> None:
         diagnostics.append(AuditDiagnostic(code, key.compact(), message))
-
-    schema_order = {"NotImplemented": 0, "Partial": 1, "Complete": 2}
-    implementation_order = {"NotImplemented": 0, "Implemented": 1}
-    layer_order = {"NotImplemented": 0, "Implemented": 1}
-    progress_fields = {
-        "backend_status",
-        "canonical_state_status",
-        "runtime_disposition",
-        "runtime_target",
-        "schema_completeness",
-        "typed_schema_status",
-        "typed_status",
-    }
 
     for key in keys:
         frozen = baseline[key]
@@ -3692,117 +3448,83 @@ def live_progress_diagnostics(
             add("StaticIdentityDrift", key, "module/slice assignment changed from the frozen base")
 
         live_registry = inputs.registry[key]
-        frozen_static = {
-            field: value
-            for field, value in frozen_registry.items()
-            if field not in progress_fields
-        }
-        live_static = {
-            field: value
-            for field, value in live_registry.items()
-            if field not in progress_fields
-        }
-        if frozen_static != live_static:
-            add("StaticIdentityDrift", key, "static canonical-registry fields changed")
+        diagnostics.extend(
+            registry_transition_diagnostics(
+                key, frozen_registry, live_registry, "A1.1"
+            )
+        )
 
-        frozen_implementation = frozen_registry.get("typed_status")
-        live_implementation = live_registry.get("typed_status")
-        if (
-            frozen_implementation not in implementation_order
-            or live_implementation not in implementation_order
-            or implementation_order[live_implementation]
-            < implementation_order[frozen_implementation]
-        ):
-            add("ImplementationDemotion", key, "typed implementation status regressed")
-
-        frozen_schema = frozen_registry.get("typed_schema_status")
-        live_schema = live_registry.get("typed_schema_status")
-        if (
-            frozen_schema not in schema_order
-            or live_schema not in schema_order
-            or schema_order[live_schema] < schema_order[frozen_schema]
-        ):
-            add("SchemaStatusDemotion", key, "typed schema status regressed")
-
-        for field in ("backend_status", "canonical_state_status"):
-            frozen_layer = frozen_registry.get(field)
-            live_layer = live_registry.get(field)
-            if frozen_layer == "NotApplicable":
-                regressed = live_layer != "NotApplicable"
-            else:
-                regressed = (
-                    frozen_layer not in layer_order
-                    or live_layer not in layer_order
-                    or layer_order[live_layer] < layer_order[frozen_layer]
-                )
-            if regressed:
-                add("LayerDispositionDemotion", key, f"{field} regressed")
-
-        if live_implementation == frozen_implementation:
-            if (
-                live_registry.get("runtime_disposition")
-                != frozen_registry.get("runtime_disposition")
-                or live_registry.get("runtime_target")
-                != frozen_registry.get("runtime_target")
-            ):
-                add(
-                    "StaticIdentityDrift",
-                    key,
-                    "runtime target/disposition changed without implementation advancement",
-                )
-        elif live_implementation == "Implemented":
-            if (
-                live_registry.get("runtime_disposition") != "Typed"
-                or live_registry.get("runtime_target") in {"", "std::monostate{}"}
-            ):
-                add(
-                    "InvalidRuntimePromotion",
-                    key,
-                    "implemented identity lacks a nonempty Typed runtime target",
-                )
-
-        frozen_schema_facts = frozen_registry.get("schema_completeness")
-        live_schema_facts = live_registry.get("schema_completeness")
-        if not isinstance(frozen_schema_facts, dict) or not isinstance(live_schema_facts, dict):
-            add("CompletenessDemotion", key, "schema-completeness projection is malformed")
-        else:
-            for field, frozen_value in frozen_schema_facts.items():
-                live_value = live_schema_facts.get(field)
-                if frozen_value is True and live_value is not True:
-                    add("CompletenessDemotion", key, f"schema-completeness fact {field} regressed")
-                    break
-                if not isinstance(live_value, bool):
-                    add("CompletenessDemotion", key, f"schema-completeness fact {field} is not boolean")
-                    break
-
-        live_completeness = inputs.completeness[key]
-        frozen_fixture_ids = set(frozen_completeness.get("fixture_ids", []))
-        live_fixture_ids = set(live_completeness.get("fixture_ids", []))
-        if not frozen_fixture_ids.issubset(live_fixture_ids):
-            add("FixtureCoverageDemotion", key, "schema-completeness fixture IDs regressed")
-
-        live_fixture = inputs.fixture_coverage[key]
-        frozen_coverage_ids = set(frozen_fixture.get("fixture_ids", []))
-        live_coverage_ids = set(live_fixture.get("fixture_ids", []))
-        if not frozen_coverage_ids.issubset(live_coverage_ids):
-            add("FixtureCoverageDemotion", key, "fixture-coverage IDs regressed")
-        for field in (
-            "positive_fixture_count",
-            "required_field_mutations",
-            "wrong_type_mutations",
-            "optional_omission_mutations",
-        ):
-            frozen_count = frozen_fixture.get(field, 0)
-            live_count = live_fixture.get(field, 0)
-            if (
-                not isinstance(frozen_count, int)
-                or not isinstance(live_count, int)
-                or live_count < frozen_count
-            ):
-                add("FixtureCoverageDemotion", key, f"fixture metric {field} regressed")
-                break
+        diagnostics.extend(
+            shared.fixture_transition_diagnostics(
+                key,
+                frozen_completeness,
+                inputs.completeness[key],
+                frozen_fixture,
+                inputs.fixture_coverage[key],
+                shared.FixtureTransitionPolicy(
+                    count_fields=(
+                        "positive_fixture_count",
+                        "required_field_mutations",
+                        "wrong_type_mutations",
+                        "optional_omission_mutations",
+                    )
+                ),
+            )
+        )
 
     diagnostics.extend(staged_progress_diagnostics(keys, baseline, inputs))
+    return sorted(set(diagnostics))
+
+
+def completed_a1_1_diagnostics(
+    keys: Sequence[Key],
+    live_registry: Mapping[Key, Mapping[str, Any]],
+) -> list[AuditDiagnostic]:
+    """Ratchet the merged A1.1 slice at exactly 151 Complete identities."""
+
+    diagnostics: list[AuditDiagnostic] = []
+    for key in keys:
+        row = live_registry[key]
+        if row.get("typed_status") != "Implemented":
+            diagnostics.append(
+                AuditDiagnostic(
+                    "ImplementationDemotion",
+                    key.compact(),
+                    "completed A1.1 identity is no longer implemented",
+                )
+            )
+        if row.get("typed_schema_status") != "Complete":
+            diagnostics.append(
+                AuditDiagnostic(
+                    "SchemaStatusDemotion",
+                    key.compact(),
+                    "completed A1.1 identity is no longer Complete",
+                )
+            )
+        if (
+            row.get("runtime_disposition") != "Typed"
+            or row.get("runtime_target") in {"", "std::monostate{}"}
+        ):
+            diagnostics.append(
+                AuditDiagnostic(
+                    "InvalidRuntimePromotion",
+                    key.compact(),
+                    "completed A1.1 identity lacks its Typed runtime target",
+                )
+            )
+        facts = row.get("schema_completeness")
+        if (
+            not isinstance(facts, Mapping)
+            or not facts
+            or any(value is not True for value in facts.values())
+        ):
+            diagnostics.append(
+                AuditDiagnostic(
+                    "CompletenessDemotion",
+                    key.compact(),
+                    "completed A1.1 identity lost a completeness fact",
+                )
+            )
     return sorted(set(diagnostics))
 
 
@@ -3813,18 +3535,14 @@ def validate_live_progress(
     unrelated_baseline: Mapping[Key, Mapping[str, Any]] | None = None,
 ) -> None:
     diagnostics = live_progress_diagnostics(keys, baseline, inputs)
+    diagnostics.extend(completed_a1_1_diagnostics(keys, inputs.registry))
     if unrelated_baseline is not None:
         diagnostics.extend(
-            unrelated_live_diagnostics(keys, unrelated_baseline, inputs)
+            unrelated_live_diagnostics(
+                keys, unrelated_baseline, inputs.registry
+            )
         )
-        diagnostics.sort()
-    if diagnostics:
-        codes = tuple(diagnostic.code for diagnostic in diagnostics)
-        message = "; ".join(
-            f"{diagnostic.code} at {diagnostic.location}: {diagnostic.message}"
-            for diagnostic in diagnostics
-        )
-        raise AuditError(message, diagnostics[0].code, codes)
+    shared.validate_diagnostics(diagnostics)
 
 
 def definition_directionalities(
@@ -4315,10 +4033,7 @@ def build_reports(arguments: argparse.Namespace) -> tuple[dict[str, Any], dict[s
         "start_state": arguments.start_state,
         "generator": Path(__file__).resolve(),
     }
-    sources = {
-        name: {"path": path.resolve().relative_to(arguments.repo_root).as_posix(), "sha256": sha256_file(path)}
-        for name, path in sorted(input_paths.items())
-    }
+    sources = historical_source_records(input_paths, arguments.repo_root)
     live_progress_inputs = {
         name: {
             "path": path.resolve().relative_to(arguments.repo_root).as_posix(),
@@ -4746,23 +4461,7 @@ def _report_surface_key(value: Any) -> tuple[str, str, str, str] | None:
 
 
 def _dependency_cycle(graph: Mapping[str, set[str]]) -> bool:
-    active: set[str] = set()
-    visited: set[str] = set()
-
-    def visit(node: str) -> bool:
-        if node in active:
-            return True
-        if node in visited:
-            return False
-        active.add(node)
-        for dependency in sorted(graph.get(node, set())):
-            if visit(dependency):
-                return True
-        active.remove(node)
-        visited.add(node)
-        return False
-
-    return any(visit(node) for node in sorted(graph))
+    return shared.has_dependency_cycle(graph)
 
 
 def report_diagnostics(
@@ -6131,31 +5830,16 @@ def report_diagnostics(
 def validate_generated_reports(
     plan: Mapping[str, Any], closure: Mapping[str, Any]
 ) -> None:
-    diagnostics = report_diagnostics(plan, closure)
-    if diagnostics:
-        codes = tuple(diagnostic.code for diagnostic in diagnostics)
-        message = "; ".join(
-            f"{diagnostic.code} at {diagnostic.location}: {diagnostic.message}"
-            for diagnostic in diagnostics
-        )
-        raise AuditError(message, diagnostics[0].code, codes)
+    shared.validate_diagnostics(report_diagnostics(plan, closure))
 
 
 def write_or_check(path: Path, document: Mapping[str, Any], check: bool) -> None:
-    generated = canonical_json(document)
-    if check:
-        try:
-            committed = path.read_text(encoding="utf-8")
-        except OSError as error:
-            raise AuditError(
-                f"missing generated A1.1 audit {path}: {error}",
-                "StaleGeneratedAudit",
-            ) from error
-        if committed != generated:
-            fail(f"generated A1.1 audit is stale: {path}", "StaleGeneratedAudit")
-    else:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(generated, encoding="utf-8")
+    shared.write_or_check(
+        path,
+        document,
+        check,
+        artifact_label="generated A1.1 audit",
+    )
 
 
 def parser() -> argparse.ArgumentParser:

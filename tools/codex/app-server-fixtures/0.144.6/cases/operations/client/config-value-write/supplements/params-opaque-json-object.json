@@ -1,0 +1,14 @@
+{
+  "expectedVersion": "synthetic-version",
+  "filePath": "/synthetic/config.toml",
+  "keyPath": "synthetic.config.key",
+  "mergeStrategy": "replace",
+  "value": {
+    "nested": [
+      true,
+      2,
+      "synthetic"
+    ],
+    "nullable": null
+  }
+}

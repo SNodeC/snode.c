@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "additionalSpeedTiers": [
+        "synthetic-f83473a7ef"
+      ],
+      "availabilityNux": {
+        "message": "synthetic-c9e2a9bd6c"
+      },
+      "defaultReasoningEffort": null,
+      "defaultServiceTier": "synthetic-e7b86cc40c",
+      "description": "synthetic-1076e10f40",
+      "displayName": "synthetic-eab887f02a",
+      "hidden": false,
+      "id": "synthetic-e85e6f817b",
+      "inputModalities": [
+        "text"
+      ],
+      "isDefault": false,
+      "model": "synthetic-1af7fcf9d9",
+      "serviceTiers": [
+        {
+          "description": "synthetic-f50cf4ecf1",
+          "id": "synthetic-0d05cc342f",
+          "name": "synthetic-7770d50db0"
+        }
+      ],
+      "supportedReasoningEfforts": [
+        {
+          "description": "synthetic-b024350262",
+          "reasoningEffort": "synthetic-b43c9594ba"
+        }
+      ],
+      "supportsPersonality": false,
+      "upgrade": "synthetic-e8c2ba45a4",
+      "upgradeInfo": {
+        "migrationMarkdown": "synthetic-27e1355ecd",
+        "model": "synthetic-a0ea9d34ee",
+        "modelLink": "synthetic-ab301ec13e",
+        "upgradeCopy": "synthetic-4eb08270c5"
+      }
+    }
+  ],
+  "nextCursor": "synthetic-9e08152d99"
+}

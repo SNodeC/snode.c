@@ -7,6 +7,7 @@
 
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 
+#include "ai/openai/codex/detail/AccountCodec.h"
 #include "ai/openai/codex/detail/DecodeDiagnostic.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 
@@ -26,6 +27,16 @@ namespace ai::openai::codex::detail {
     namespace {
         typed::UnknownServerRequest unknownRequest(const ServerRequest& request, std::optional<std::string> decodingError = std::nullopt) {
             const bool malformed = decodingError.has_value();
+            std::string fieldPath = "$.params";
+            if (malformed && request.method == "account/chatgptAuthTokens/refresh") {
+                const std::size_t begin = decodingError->find("'$");
+                if (begin != std::string::npos) {
+                    const std::size_t end = decodingError->find('\'', begin + 1);
+                    if (end != std::string::npos) {
+                        fieldPath = decodingError->substr(begin + 1, end - begin - 1);
+                    }
+                }
+            }
             return {request.id,
                     request.token,
                     request.method,
@@ -33,7 +44,7 @@ namespace ai::openai::codex::detail {
                     request.raw,
                     std::move(decodingError),
                     malformed ? std::optional<typed::DecodeDiagnostic>{
-                                    malformedKnownDiagnostic(request.method, "$.params")}
+                                    malformedKnownDiagnostic(request.method, std::move(fieldPath))}
                               : std::optional<typed::DecodeDiagnostic>{
                                     unknownMethodDiagnostic(request.method)}};
         }
@@ -321,20 +332,25 @@ namespace ai::openai::codex::detail {
         }
 
         std::optional<typed::AuthenticationRequest> decodeAuthentication(const ServerRequest& request, std::string& error) {
-            const Json& params = request.params;
-            const std::string_view method = entryFor(ServerRequestTarget::ChatgptAuthTokensRefresh).key.name;
-            if (!requireObject(params, method, error)) {
+            std::optional<typed::ChatgptAuthTokensRefreshParams> canonical =
+                decodeChatgptAuthTokensRefreshParams(request.params, error);
+            if (!canonical) {
                 return std::nullopt;
             }
 
-            std::string reason;
             std::optional<std::string> previousAccountId;
-            if (!readRequiredString(params, "reason", method, reason, error) ||
-                !readOptionalString(params, "previousAccountId", method, previousAccountId, error)) {
-                return std::nullopt;
+            if (canonical->previousAccountId.value) {
+                previousAccountId = canonical->previousAccountId.value->value;
             }
 
-            return typed::AuthenticationRequest{request.id, request.token, std::move(reason), std::move(previousAccountId), request.raw};
+            std::vector<typed::DecodeDiagnostic> diagnostics = canonical->diagnostics;
+            return typed::AuthenticationRequest{request.id,
+                                                request.token,
+                                                canonical->reason.value,
+                                                std::move(previousAccountId),
+                                                request.raw,
+                                                std::move(*canonical),
+                                                std::move(diagnostics)};
         }
     } // namespace
 

@@ -1,0 +1,24 @@
+{
+  "layers": [
+    {
+      "config": {},
+      "disabledReason": "synthetic-d4fe69c5b0",
+      "name": {
+        "domain": "synthetic-8c8afdab6c",
+        "key": "synthetic-d46be3e91e",
+        "type": "mdm"
+      },
+      "version": "synthetic-2f78816211"
+    }
+  ],
+  "origins": {
+    "syntheticKey": {
+      "name": {
+        "domain": "synthetic-8c8afdab6c",
+        "key": "synthetic-d46be3e91e",
+        "type": "mdm"
+      },
+      "version": "synthetic-100d071607"
+    }
+  }
+}

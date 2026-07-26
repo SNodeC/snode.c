@@ -1,0 +1,17 @@
+{
+  "config": {
+    "sandbox_workspace_write": {
+      "exclude_slash_tmp": false,
+      "exclude_tmpdir_env_var": false,
+      "network_access": false,
+      "writable_roots": []
+    },
+    "tools": {
+      "web_search": {
+        "allowed_domains": []
+      }
+    }
+  },
+  "layers": [],
+  "origins": {}
+}

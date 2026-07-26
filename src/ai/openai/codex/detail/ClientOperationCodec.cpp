@@ -7,6 +7,9 @@
 
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
+#include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/ConfigurationCodec.h"
+#include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 
@@ -21,6 +24,21 @@ namespace ai::openai::codex::detail {
     namespace {
         constexpr std::array<std::string_view, static_cast<std::size_t>(ClientOperationResultDecoder::Count)> ResultDecoderIdentities{{
             "Unit",
+            "CancelLoginAccountResponse",
+            "LoginAccountResponse",
+            "ConsumeAccountRateLimitResetCreditResponse",
+            "ConfigReadResponse",
+            "ConfigRequirementsReadResponse",
+            "ConfigWriteResponse",
+            "ExperimentalFeatureEnablementSetResponse",
+            "ExperimentalFeatureListResponse",
+            "GetAccountRateLimitsResponse",
+            "GetAccountResponse",
+            "SendAddCreditsNudgeEmailResponse",
+            "GetAccountTokenUsageResponse",
+            "GetWorkspaceMessagesResponse",
+            "ModelListResponse",
+            "ModelProviderCapabilitiesReadResponse",
             "ThreadForkResponse",
             "ThreadGoalClearResponse",
             "ThreadGoalGetResponse",
@@ -48,13 +66,50 @@ namespace ai::openai::codex::detail {
             return {std::nullopt, {code, target, surfaceKey, "$", std::move(message)}};
         }
 
+        bool hasA12ExactDecoderPaths(ClientRequestTarget target) noexcept {
+            using enum ClientRequestTarget;
+            return target == AccountLoginCancel || target == AccountLoginStart ||
+                   target == AccountLogout ||
+                   target == AccountRateLimitResetCreditConsume ||
+                   target == AccountRateLimitsRead || target == AccountRead ||
+                   target == AccountSendAddCreditsNudgeEmail ||
+                   target == AccountUsageRead ||
+                   target == AccountWorkspaceMessagesRead ||
+                   target == ConfigBatchWrite ||
+                   target == ConfigMcpServerReload ||
+                   target == ConfigRead ||
+                   target == ConfigValueWrite ||
+                   target == ConfigRequirementsRead ||
+                   target == ExperimentalFeatureEnablementSet ||
+                   target == ExperimentalFeatureList ||
+                   target == ModelList ||
+                   target == ModelProviderCapabilitiesRead;
+        }
+
+        std::string decoderFieldPath(ClientRequestTarget target,
+                                     const std::string& error) {
+            if (!hasA12ExactDecoderPaths(target)) {
+                return "$";
+            }
+            const std::size_t begin = error.find("'$");
+            if (begin == std::string::npos) {
+                return "$";
+            }
+            const std::size_t end = error.find('\'', begin + 1);
+            return end == std::string::npos ? "$" : error.substr(begin + 1, end - begin - 1);
+        }
+
         template <typename Result>
         ClientOperationDecodeResult
         decode(ClientRequestTarget target, ProtocolSurfaceKey surfaceKey, std::optional<Result> value, const std::string& decoderError) {
             if (!value) {
                 std::string message =
                     decoderError.empty() ? "known successful result does not match its pinned App Server schema" : decoderError;
-                return failure(target, ClientOperationDecodeCode::MalformedKnownPayload, surfaceKey, std::move(message));
+                ClientOperationDecodeResult result =
+                    failure(target, ClientOperationDecodeCode::MalformedKnownPayload, surfaceKey, std::move(message));
+                result.diagnostic.fieldPath =
+                    decoderFieldPath(target, decoderError);
+                return result;
             }
             return {ClientOperationDecodedValue{std::in_place_type<Result>, std::move(*value)},
                     {ClientOperationDecodeCode::Decoded, target, surfaceKey, "$", "decoded"}};
@@ -119,8 +174,10 @@ namespace ai::openai::codex::detail {
     decodeClientOperationResult(ClientRequestTarget target, const Json& raw, std::optional<typed::ThreadId> contextualThreadId) noexcept {
         const ClientOperationCodecDescriptor* descriptor = descriptorFor(target);
         if (target == ClientRequestTarget::Initialize || target == ClientRequestTarget::Count) {
-            return failure(
-                target, ClientOperationDecodeCode::UnsupportedTarget, {}, "client operation target is outside the A1.1 conversation slice");
+            return failure(target,
+                           ClientOperationDecodeCode::UnsupportedTarget,
+                           {},
+                           "client operation target has no typed successful-result decoder");
         }
         if (descriptor == nullptr || !registryMatches(*descriptor)) {
             return failure(target,
@@ -136,6 +193,36 @@ namespace ai::openai::codex::detail {
             switch (descriptor->resultDecoder) {
                 case Unit:
                     return decode(target, key, decodeUnitResult(raw, error), error);
+                case CancelLoginAccountResponse:
+                    return decode(target, key, decodeCancelLoginAccountResponse(raw, error), error);
+                case LoginAccountResponse:
+                    return decode(target, key, decodeLoginAccountResponse(raw, error), error);
+                case ConsumeAccountRateLimitResetCreditResponse:
+                    return decode(target, key, decodeConsumeAccountRateLimitResetCreditResponse(raw, error), error);
+                case ConfigReadResponse:
+                    return decode(target, key, decodeConfigReadResponse(raw, error), error);
+                case ConfigRequirementsReadResponse:
+                    return decode(target, key, decodeConfigRequirementsReadResponse(raw, error), error);
+                case ConfigWriteResponse:
+                    return decode(target, key, decodeConfigWriteResponse(raw, error), error);
+                case ExperimentalFeatureEnablementSetResponse:
+                    return decode(target, key, decodeExperimentalFeatureEnablementSetResponse(raw, error), error);
+                case ExperimentalFeatureListResponse:
+                    return decode(target, key, decodeExperimentalFeatureListResponse(raw, error), error);
+                case GetAccountRateLimitsResponse:
+                    return decode(target, key, decodeGetAccountRateLimitsResponse(raw, error), error);
+                case GetAccountResponse:
+                    return decode(target, key, decodeGetAccountResponse(raw, error), error);
+                case SendAddCreditsNudgeEmailResponse:
+                    return decode(target, key, decodeSendAddCreditsNudgeEmailResponse(raw, error), error);
+                case GetAccountTokenUsageResponse:
+                    return decode(target, key, decodeGetAccountTokenUsageResponse(raw, error), error);
+                case GetWorkspaceMessagesResponse:
+                    return decode(target, key, decodeGetWorkspaceMessagesResponse(raw, error), error);
+                case ModelListResponse:
+                    return decode(target, key, decodeModelListResponse(raw, error), error);
+                case ModelProviderCapabilitiesReadResponse:
+                    return decode(target, key, decodeModelProviderCapabilitiesReadResponse(raw, error), error);
                 case ThreadForkResponse:
                     return decode(target, key, decodeThreadForkResponse(raw, error), error);
                 case ThreadGoalClearResponse:

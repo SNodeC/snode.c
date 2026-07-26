@@ -1,0 +1,6 @@
+{
+  "method": "account/rateLimits/updated",
+  "params": {
+    "rateLimits": null
+  }
+}

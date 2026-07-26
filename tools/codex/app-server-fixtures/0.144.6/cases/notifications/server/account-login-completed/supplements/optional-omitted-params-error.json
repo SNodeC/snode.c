@@ -1,0 +1,7 @@
+{
+  "method": "account/login/completed",
+  "params": {
+    "loginId": "test-login-id",
+    "success": false
+  }
+}

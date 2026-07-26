@@ -195,6 +195,19 @@ namespace ai::openai::codex::backend {
             return value;
         }
 
+        Json sanitizeExtensionJsonForMethod(std::string_view method, const Json& value, JsonSanitizerState& state) {
+            if (method == "configWarning" && value.is_object()) {
+                Json methodSanitized = value;
+                const auto details = methodSanitized.find("details");
+                if (details != methodSanitized.end() && !details->is_null()) {
+                    *details = "[redacted]";
+                    state.redacted = true;
+                }
+                return sanitizeExtensionJson(methodSanitized, state);
+            }
+            return sanitizeExtensionJson(value, state);
+        }
+
         std::string lifecycleName(ItemLifecycle lifecycle) {
             switch (lifecycle) {
                 case ItemLifecycle::Unknown:
@@ -516,7 +529,7 @@ namespace ai::openai::codex::backend {
             }
 
             JsonSanitizerState sanitizer;
-            snapshot.payload = sanitizeExtensionJson(extension.payload, sanitizer);
+            snapshot.payload = sanitizeExtensionJsonForMethod(extension.method, extension.payload, sanitizer);
             snapshot.sensitiveFieldsRedacted = sanitizer.redacted;
             snapshot.payloadTruncated = snapshot.payloadTruncated || sanitizer.truncated;
             if (snapshot.payload.dump().size() > MaxSnapshotExtensionPayloadBytes) {

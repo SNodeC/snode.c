@@ -1,0 +1,10 @@
+{
+  "method": "model/verification",
+  "params": {
+    "threadId": null,
+    "turnId": "synthetic-c65516abd9",
+    "verifications": [
+      "trustedAccessForCyber"
+    ]
+  }
+}

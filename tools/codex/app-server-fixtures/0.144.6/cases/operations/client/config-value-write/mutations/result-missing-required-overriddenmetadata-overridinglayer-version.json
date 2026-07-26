@@ -1,0 +1,16 @@
+{
+  "filePath": "/synthetic/config.toml",
+  "overriddenMetadata": {
+    "effectiveValue": {},
+    "message": "synthetic-53bcfbc751",
+    "overridingLayer": {
+      "name": {
+        "domain": "synthetic-8c8afdab6c",
+        "key": "synthetic-d46be3e91e",
+        "type": "mdm"
+      }
+    }
+  },
+  "status": "ok",
+  "version": "synthetic-3c1eb1bd3c"
+}

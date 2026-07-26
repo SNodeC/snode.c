@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 245,
-      "fixture_current": 245,
-      "independently_schema_validated": 245,
-      "nullable_semantics_exercised": 167,
-      "optional_omitted_exercised": 245,
-      "optional_present_exercised": 245,
-      "positive_fixture_coverage": 245,
-      "reachable_union_alternatives_exercised": 167,
-      "required_fields_exercised": 245,
-      "schema_properties_exercised": 167
+      "authoritative_root_association": 270,
+      "fixture_current": 270,
+      "independently_schema_validated": 270,
+      "nullable_semantics_exercised": 212,
+      "optional_omitted_exercised": 270,
+      "optional_present_exercised": 270,
+      "positive_fixture_coverage": 270,
+      "reachable_union_alternatives_exercised": 212,
+      "required_fields_exercised": 270,
+      "schema_properties_exercised": 212
     },
-    "identities_with_positive_fixtures": 245,
+    "identities_with_positive_fixtures": 270,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -60,13 +60,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -85,13 +85,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -110,21 +110,23 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/rateLimitResetCredit/consume:params",
+        "operation:client_request:account/rateLimitResetCredit/consume:params:nullable-null:creditid",
+        "operation:client_request:account/rateLimitResetCredit/consume:params:optional-omitted:creditid",
         "operation:client_request:account/rateLimitResetCredit/consume:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -135,21 +137,85 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/rateLimits/read:params",
-        "operation:client_request:account/rateLimits/read:result"
+        "operation:client_request:account/rateLimits/read:result",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-description",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-expiresat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitresetcredits-credits-0-title",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-limitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-limitname",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-plantype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimits-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-credits",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-limitid",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-limitname",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-plantype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:nullable-null:ratelimitsbylimitid-synthetickey-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-description",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-expiresat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitresetcredits-credits-0-title",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-limitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-limitname",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-plantype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimits-secondary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-credits",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-credits-balance",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-individuallimit",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-limitid",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-limitname",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-plantype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-primary-windowdurationmins",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-ratelimitreachedtype",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary-resetsat",
+        "operation:client_request:account/rateLimits/read:result:optional-omitted:ratelimitsbylimitid-synthetickey-secondary-windowdurationmins"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 66,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -160,21 +226,24 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/read:params",
-        "operation:client_request:account/read:result"
+        "operation:client_request:account/read:params:optional-omitted:refreshtoken",
+        "operation:client_request:account/read:result",
+        "operation:client_request:account/read:result:nullable-null:account",
+        "operation:client_request:account/read:result:optional-omitted:account"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -185,13 +254,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -210,21 +279,33 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/usage/read:params",
-        "operation:client_request:account/usage/read:result"
+        "operation:client_request:account/usage/read:result",
+        "operation:client_request:account/usage/read:result:nullable-null:dailyusagebuckets",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-currentstreakdays",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-lifetimetokens",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-longestrunningturnsec",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-longeststreakdays",
+        "operation:client_request:account/usage/read:result:nullable-null:summary-peakdailytokens",
+        "operation:client_request:account/usage/read:result:optional-omitted:dailyusagebuckets",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-currentstreakdays",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-lifetimetokens",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-longestrunningturnsec",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-longeststreakdays",
+        "operation:client_request:account/usage/read:result:optional-omitted:summary-peakdailytokens"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 14,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -235,21 +316,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:account/workspaceMessages/read:params",
-        "operation:client_request:account/workspaceMessages/read:result"
+        "operation:client_request:account/workspaceMessages/read:result",
+        "operation:client_request:account/workspaceMessages/read:result:nullable-null:messages-0-archivedat",
+        "operation:client_request:account/workspaceMessages/read:result:nullable-null:messages-0-createdat",
+        "operation:client_request:account/workspaceMessages/read:result:optional-omitted:messages-0-archivedat",
+        "operation:client_request:account/workspaceMessages/read:result:optional-omitted:messages-0-createdat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -260,13 +345,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -419,9 +504,27 @@
     {
       "fixture_ids": [
         "operation:client_request:config/batchWrite:params",
-        "operation:client_request:config/batchWrite:result"
+        "operation:client_request:config/batchWrite:params:explicit-empty-edits",
+        "operation:client_request:config/batchWrite:params:nullable-null:expectedversion",
+        "operation:client_request:config/batchWrite:params:nullable-null:filepath",
+        "operation:client_request:config/batchWrite:params:opaque-json-all-kinds",
+        "operation:client_request:config/batchWrite:params:optional-omitted:expectedversion",
+        "operation:client_request:config/batchWrite:params:optional-omitted:filepath",
+        "operation:client_request:config/batchWrite:params:optional-omitted:reloaduserconfig",
+        "operation:client_request:config/batchWrite:params:required-nullable-null:edits-0-value",
+        "operation:client_request:config/batchWrite:result",
+        "operation:client_request:config/batchWrite:result:nullable-null:overriddenmetadata",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-array",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-boolean",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-integer",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-null",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-number",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-object",
+        "operation:client_request:config/batchWrite:result:opaque-effective-value-string",
+        "operation:client_request:config/batchWrite:result:optional-omitted:overriddenmetadata",
+        "operation:client_request:config/batchWrite:result:required-nullable-null:overriddenmetadata-effectivevalue"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 20,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -432,13 +535,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -457,21 +560,104 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:config/read:params",
-        "operation:client_request:config/read:result"
+        "operation:client_request:config/read:params:nullable-null:cwd",
+        "operation:client_request:config/read:params:optional-omitted:cwd",
+        "operation:client_request:config/read:params:optional-omitted:includelayers",
+        "operation:client_request:config/read:result",
+        "operation:client_request:config/read:result:authorized-opaque-values",
+        "operation:client_request:config/read:result:explicit-empty-aggregates",
+        "operation:client_request:config/read:result:explicit-empty-arrays-and-defaults",
+        "operation:client_request:config/read:result:int64-maximum",
+        "operation:client_request:config/read:result:int64-minimum",
+        "operation:client_request:config/read:result:int64-overflow",
+        "operation:client_request:config/read:result:int64-underflow",
+        "operation:client_request:config/read:result:nullable-null:config-analytics",
+        "operation:client_request:config/read:result:nullable-null:config-analytics-enabled",
+        "operation:client_request:config/read:result:nullable-null:config-approval_policy",
+        "operation:client_request:config/read:result:nullable-null:config-approvals_reviewer",
+        "operation:client_request:config/read:result:nullable-null:config-compact_prompt",
+        "operation:client_request:config/read:result:nullable-null:config-desktop",
+        "operation:client_request:config/read:result:nullable-null:config-developer_instructions",
+        "operation:client_request:config/read:result:nullable-null:config-forced_chatgpt_workspace_id",
+        "operation:client_request:config/read:result:nullable-null:config-forced_login_method",
+        "operation:client_request:config/read:result:nullable-null:config-instructions",
+        "operation:client_request:config/read:result:nullable-null:config-model",
+        "operation:client_request:config/read:result:nullable-null:config-model_auto_compact_token_limit",
+        "operation:client_request:config/read:result:nullable-null:config-model_auto_compact_token_limit_scope",
+        "operation:client_request:config/read:result:nullable-null:config-model_context_window",
+        "operation:client_request:config/read:result:nullable-null:config-model_provider",
+        "operation:client_request:config/read:result:nullable-null:config-model_reasoning_effort",
+        "operation:client_request:config/read:result:nullable-null:config-model_reasoning_summary",
+        "operation:client_request:config/read:result:nullable-null:config-model_verbosity",
+        "operation:client_request:config/read:result:nullable-null:config-review_model",
+        "operation:client_request:config/read:result:nullable-null:config-sandbox_mode",
+        "operation:client_request:config/read:result:nullable-null:config-sandbox_workspace_write",
+        "operation:client_request:config/read:result:nullable-null:config-service_tier",
+        "operation:client_request:config/read:result:nullable-null:config-tools",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-allowed_domains",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-context_size",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-city",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-country",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-region",
+        "operation:client_request:config/read:result:nullable-null:config-tools-web_search-location-timezone",
+        "operation:client_request:config/read:result:nullable-null:config-web_search",
+        "operation:client_request:config/read:result:nullable-null:layers",
+        "operation:client_request:config/read:result:nullable-null:layers-0-disabledreason",
+        "operation:client_request:config/read:result:optional-omitted:config-analytics",
+        "operation:client_request:config/read:result:optional-omitted:config-analytics-enabled",
+        "operation:client_request:config/read:result:optional-omitted:config-approval_policy",
+        "operation:client_request:config/read:result:optional-omitted:config-approvals_reviewer",
+        "operation:client_request:config/read:result:optional-omitted:config-compact_prompt",
+        "operation:client_request:config/read:result:optional-omitted:config-desktop",
+        "operation:client_request:config/read:result:optional-omitted:config-developer_instructions",
+        "operation:client_request:config/read:result:optional-omitted:config-forced_chatgpt_workspace_id",
+        "operation:client_request:config/read:result:optional-omitted:config-forced_login_method",
+        "operation:client_request:config/read:result:optional-omitted:config-instructions",
+        "operation:client_request:config/read:result:optional-omitted:config-model",
+        "operation:client_request:config/read:result:optional-omitted:config-model_auto_compact_token_limit",
+        "operation:client_request:config/read:result:optional-omitted:config-model_auto_compact_token_limit_scope",
+        "operation:client_request:config/read:result:optional-omitted:config-model_context_window",
+        "operation:client_request:config/read:result:optional-omitted:config-model_provider",
+        "operation:client_request:config/read:result:optional-omitted:config-model_reasoning_effort",
+        "operation:client_request:config/read:result:optional-omitted:config-model_reasoning_summary",
+        "operation:client_request:config/read:result:optional-omitted:config-model_verbosity",
+        "operation:client_request:config/read:result:optional-omitted:config-review_model",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_mode",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-exclude_slash_tmp",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-exclude_tmpdir_env_var",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-network_access",
+        "operation:client_request:config/read:result:optional-omitted:config-sandbox_workspace_write-writable_roots",
+        "operation:client_request:config/read:result:optional-omitted:config-service_tier",
+        "operation:client_request:config/read:result:optional-omitted:config-tools",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-allowed_domains",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-context_size",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-city",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-country",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-region",
+        "operation:client_request:config/read:result:optional-omitted:config-tools-web_search-location-timezone",
+        "operation:client_request:config/read:result:optional-omitted:config-web_search",
+        "operation:client_request:config/read:result:optional-omitted:layers",
+        "operation:client_request:config/read:result:optional-omitted:layers-0-disabledreason",
+        "operation:client_request:config/read:result:required-nullable-null:layers-0-config"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 85,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -482,21 +668,43 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:config/value/write:params",
-        "operation:client_request:config/value/write:result"
+        "operation:client_request:config/value/write:params:nullable-null:expectedversion",
+        "operation:client_request:config/value/write:params:nullable-null:filepath",
+        "operation:client_request:config/value/write:params:opaque-json-array",
+        "operation:client_request:config/value/write:params:opaque-json-boolean",
+        "operation:client_request:config/value/write:params:opaque-json-integer",
+        "operation:client_request:config/value/write:params:opaque-json-null",
+        "operation:client_request:config/value/write:params:opaque-json-number",
+        "operation:client_request:config/value/write:params:opaque-json-object",
+        "operation:client_request:config/value/write:params:opaque-json-string",
+        "operation:client_request:config/value/write:params:optional-omitted:expectedversion",
+        "operation:client_request:config/value/write:params:optional-omitted:filepath",
+        "operation:client_request:config/value/write:params:required-nullable-null:value",
+        "operation:client_request:config/value/write:result",
+        "operation:client_request:config/value/write:result:nullable-null:overriddenmetadata",
+        "operation:client_request:config/value/write:result:opaque-effective-value-array",
+        "operation:client_request:config/value/write:result:opaque-effective-value-boolean",
+        "operation:client_request:config/value/write:result:opaque-effective-value-integer",
+        "operation:client_request:config/value/write:result:opaque-effective-value-null",
+        "operation:client_request:config/value/write:result:opaque-effective-value-number",
+        "operation:client_request:config/value/write:result:opaque-effective-value-object",
+        "operation:client_request:config/value/write:result:opaque-effective-value-string",
+        "operation:client_request:config/value/write:result:optional-omitted:overriddenmetadata",
+        "operation:client_request:config/value/write:result:required-nullable-null:overriddenmetadata-effectivevalue"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 24,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -507,21 +715,61 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:configRequirements/read:params",
-        "operation:client_request:configRequirements/read:result"
+        "operation:client_request:configRequirements/read:result",
+        "operation:client_request:configRequirements/read:result:explicit-empty-arrays-and-maps",
+        "operation:client_request:configRequirements/read:result:explicit-empty-requirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowappshots",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedapprovalpolicies",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedpermissionprofiles",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedsandboxmodes",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedwebsearchmodes",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowedwindowssandboximplementations",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowmanagedhooksonly",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-allowremotecontrol",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-computeruse",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-computeruse-allowlockedcomputeruse",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-defaultpermissions",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-enforceresidency",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-featurerequirements",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-model",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-modelreasoningeffort",
+        "operation:client_request:configRequirements/read:result:nullable-null:requirements-models-newthread-servicetier",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowappshots",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedapprovalpolicies",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedpermissionprofiles",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedsandboxmodes",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedwebsearchmodes",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowedwindowssandboximplementations",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowmanagedhooksonly",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-allowremotecontrol",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-computeruse",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-computeruse-allowlockedcomputeruse",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-defaultpermissions",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-enforceresidency",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-featurerequirements",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-model",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-modelreasoningeffort",
+        "operation:client_request:configRequirements/read:result:optional-omitted:requirements-models-newthread-servicetier"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 42,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -532,13 +780,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -588,9 +836,11 @@
     {
       "fixture_ids": [
         "operation:client_request:experimentalFeature/enablement/set:params",
-        "operation:client_request:experimentalFeature/enablement/set:result"
+        "operation:client_request:experimentalFeature/enablement/set:params:explicit-empty-enablement",
+        "operation:client_request:experimentalFeature/enablement/set:result",
+        "operation:client_request:experimentalFeature/enablement/set:result:explicit-empty-enablement"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -601,21 +851,40 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:experimentalFeature/list:params",
-        "operation:client_request:experimentalFeature/list:result"
+        "operation:client_request:experimentalFeature/list:params:nullable-null:cursor",
+        "operation:client_request:experimentalFeature/list:params:nullable-null:limit",
+        "operation:client_request:experimentalFeature/list:params:nullable-null:threadid",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:cursor",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:limit",
+        "operation:client_request:experimentalFeature/list:params:optional-omitted:threadid",
+        "operation:client_request:experimentalFeature/list:params:uint32-maximum",
+        "operation:client_request:experimentalFeature/list:params:uint32-overflow",
+        "operation:client_request:experimentalFeature/list:params:uint32-zero",
+        "operation:client_request:experimentalFeature/list:result",
+        "operation:client_request:experimentalFeature/list:result:all-known-stages",
+        "operation:client_request:experimentalFeature/list:result:explicit-empty-data",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-announcement",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-description",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:data-0-displayname",
+        "operation:client_request:experimentalFeature/list:result:nullable-null:nextcursor",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-announcement",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-description",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:data-0-displayname",
+        "operation:client_request:experimentalFeature/list:result:optional-omitted:nextcursor"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 21,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -626,13 +895,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -1324,9 +1593,40 @@
     {
       "fixture_ids": [
         "operation:client_request:model/list:params",
-        "operation:client_request:model/list:result"
+        "operation:client_request:model/list:params:nullable-null:cursor",
+        "operation:client_request:model/list:params:nullable-null:includehidden",
+        "operation:client_request:model/list:params:nullable-null:limit",
+        "operation:client_request:model/list:params:optional-omitted:cursor",
+        "operation:client_request:model/list:params:optional-omitted:includehidden",
+        "operation:client_request:model/list:params:optional-omitted:limit",
+        "operation:client_request:model/list:params:uint32-maximum",
+        "operation:client_request:model/list:params:uint32-overflow",
+        "operation:client_request:model/list:params:uint32-zero",
+        "operation:client_request:model/list:result",
+        "operation:client_request:model/list:result:explicit-empty-array:data",
+        "operation:client_request:model/list:result:explicit-empty-array:model-collections",
+        "operation:client_request:model/list:result:nullable-null:data-0-availabilitynux",
+        "operation:client_request:model/list:result:nullable-null:data-0-defaultservicetier",
+        "operation:client_request:model/list:result:nullable-null:data-0-upgrade",
+        "operation:client_request:model/list:result:nullable-null:data-0-upgradeinfo",
+        "operation:client_request:model/list:result:nullable-null:data-0-upgradeinfo-migrationmarkdown",
+        "operation:client_request:model/list:result:nullable-null:data-0-upgradeinfo-modellink",
+        "operation:client_request:model/list:result:nullable-null:data-0-upgradeinfo-upgradecopy",
+        "operation:client_request:model/list:result:nullable-null:nextcursor",
+        "operation:client_request:model/list:result:optional-omitted:data-0-additionalspeedtiers",
+        "operation:client_request:model/list:result:optional-omitted:data-0-availabilitynux",
+        "operation:client_request:model/list:result:optional-omitted:data-0-defaultservicetier",
+        "operation:client_request:model/list:result:optional-omitted:data-0-inputmodalities",
+        "operation:client_request:model/list:result:optional-omitted:data-0-servicetiers",
+        "operation:client_request:model/list:result:optional-omitted:data-0-supportspersonality",
+        "operation:client_request:model/list:result:optional-omitted:data-0-upgrade",
+        "operation:client_request:model/list:result:optional-omitted:data-0-upgradeinfo",
+        "operation:client_request:model/list:result:optional-omitted:data-0-upgradeinfo-migrationmarkdown",
+        "operation:client_request:model/list:result:optional-omitted:data-0-upgradeinfo-modellink",
+        "operation:client_request:model/list:result:optional-omitted:data-0-upgradeinfo-upgradecopy",
+        "operation:client_request:model/list:result:optional-omitted:nextcursor"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 33,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1337,13 +1637,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -1362,13 +1662,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -4578,8 +4878,14 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/login/completed",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:nullable-null:params-error",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:nullable-null:params-loginid",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:optional-omitted:params-error",
+        "baseline:server_notification:ServerNotification:method:account/login/completed:optional-omitted:params-loginid"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4587,21 +4893,49 @@
         "name": "account/login/completed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-credits",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-credits-balance",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-individuallimit",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-limitid",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-limitname",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-plantype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-primary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-ratelimitreachedtype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:nullable-null:params-ratelimits-secondary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-credits",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-credits-balance",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-individuallimit",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-limitid",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-limitname",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-plantype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-primary-windowdurationmins",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-ratelimitreachedtype",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary-resetsat",
+        "baseline:server_notification:ServerNotification:method:account/rateLimits/updated:optional-omitted:params-ratelimits-secondary-windowdurationmins"
+      ],
+      "positive_fixture_count": 27,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4609,21 +4943,27 @@
         "name": "account/rateLimits/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:account/updated",
+        "baseline:server_notification:ServerNotification:method:account/updated:nullable-null:params-authmode",
+        "baseline:server_notification:ServerNotification:method:account/updated:nullable-null:params-plantype",
+        "baseline:server_notification:ServerNotification:method:account/updated:optional-omitted:params-authmode",
+        "baseline:server_notification:ServerNotification:method:account/updated:optional-omitted:params-plantype"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4631,16 +4971,16 @@
         "name": "account/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -4688,8 +5028,18 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:configWarning",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-details",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-path",
+        "baseline:server_notification:ServerNotification:method:configWarning:nullable-null:params-range",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-details",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-path",
+        "baseline:server_notification:ServerNotification:method:configWarning:optional-omitted:params-range",
+        "baseline:server_notification:ServerNotification:method:configWarning:uint-maximum",
+        "baseline:server_notification:ServerNotification:method:configWarning:uint-overflow"
+      ],
+      "positive_fixture_count": 9,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -4697,16 +5047,16 @@
         "name": "configWarning"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5332,18 +5682,23 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:model/safetyBuffering/updated",
+        "baseline:server_notification:ServerNotification:method:model/safetyBuffering/updated:nullable-null:params-fastermodel",
+        "baseline:server_notification:ServerNotification:method:model/safetyBuffering/updated:optional-omitted:params-fastermodel",
+        "baseline:server_notification:model/safetyBuffering/updated:explicit-empty-array:reasons-use-cases"
+      ],
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5351,21 +5706,24 @@
         "name": "model/safetyBuffering/updated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:model/verification",
+        "baseline:server_notification:model/verification:explicit-empty-array:verifications"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5373,16 +5731,16 @@
         "name": "model/verification"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6279,9 +6637,13 @@
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:account/chatgptAuthTokens/refresh",
         "operation:server_request:account/chatgptAuthTokens/refresh:params",
-        "operation:server_request:account/chatgptAuthTokens/refresh:result"
+        "operation:server_request:account/chatgptAuthTokens/refresh:params:nullable-null:previousaccountid",
+        "operation:server_request:account/chatgptAuthTokens/refresh:params:optional-omitted:previousaccountid",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result:nullable-null:chatgptplantype",
+        "operation:server_request:account/chatgptAuthTokens/refresh:result:optional-omitted:chatgptplantype"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6292,13 +6654,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6552,8 +6914,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:amazonBedrock",
+        "union:Account:amazonBedrock:optional-omitted:credentialsource"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6561,21 +6926,23 @@
         "name": "amazonBedrock"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6583,21 +6950,24 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:Account:chatgpt",
+        "union:Account:chatgpt:required-nullable-null:email"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -6605,16 +6975,16 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -7413,8 +7783,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:enterpriseManaged"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7422,21 +7794,23 @@
         "name": "enterpriseManaged"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:legacyManagedConfigTomlFromFile"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7444,21 +7818,23 @@
         "name": "legacyManagedConfigTomlFromFile"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:legacyManagedConfigTomlFromMdm"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7466,21 +7842,23 @@
         "name": "legacyManagedConfigTomlFromMdm"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:mdm"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7488,21 +7866,23 @@
         "name": "mdm"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:project"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7510,21 +7890,23 @@
         "name": "project"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:sessionFlags"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7532,21 +7914,23 @@
         "name": "sessionFlags"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:system"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7554,21 +7938,25 @@
         "name": "system"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ConfigLayerSource:user",
+        "union:ConfigLayerSource:user:nullable-null:profile",
+        "union:ConfigLayerSource:user:optional-omitted:profile"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -7576,16 +7964,16 @@
         "name": "user"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -8345,8 +8733,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8354,21 +8744,27 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgpt",
+        "union:LoginAccountParams:chatgpt:nullable-null:appbrand",
+        "union:LoginAccountParams:chatgpt:optional-omitted:appbrand",
+        "union:LoginAccountParams:chatgpt:optional-omitted:codexstreamlinedlogin",
+        "union:LoginAccountParams:chatgpt:optional-omitted:usehostedloginsuccesspage"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8376,21 +8772,25 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgptAuthTokens",
+        "union:LoginAccountParams:chatgptAuthTokens:nullable-null:chatgptplantype",
+        "union:LoginAccountParams:chatgptAuthTokens:optional-omitted:chatgptplantype"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8398,21 +8798,23 @@
         "name": "chatgptAuthTokens"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountParams:chatgptDeviceCode"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8420,21 +8822,23 @@
         "name": "chatgptDeviceCode"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:apiKey"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8442,21 +8846,23 @@
         "name": "apiKey"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgpt"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8464,21 +8870,23 @@
         "name": "chatgpt"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgptAuthTokens"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8486,21 +8894,23 @@
         "name": "chatgptAuthTokens"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:LoginAccountResponse:chatgptDeviceCode"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8508,16 +8918,16 @@
         "name": "chatgptDeviceCode"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

@@ -1,0 +1,72 @@
+{
+  "rateLimitResetCredits": {
+    "availableCount": 0,
+    "credits": [
+      {
+        "description": "synthetic-1d00fc85b5",
+        "expiresAt": 0,
+        "grantedAt": 0,
+        "id": "synthetic-0d9a4883f9",
+        "resetType": "codexRateLimits",
+        "status": "available",
+        "title": "synthetic-51d562b973"
+      }
+    ]
+  },
+  "rateLimits": {
+    "credits": {
+      "balance": "synthetic-42701f0c63",
+      "hasCredits": false,
+      "unlimited": false
+    },
+    "individualLimit": {
+      "limit": "synthetic-4a2ce389ae",
+      "remainingPercent": 0,
+      "resetsAt": 0,
+      "used": "synthetic-5d6fd96597"
+    },
+    "limitId": "synthetic-229f18e643",
+    "limitName": "synthetic-8d89f45c19",
+    "planType": "free",
+    "primary": {
+      "resetsAt": 0,
+      "usedPercent": 0,
+      "windowDurationMins": 0
+    },
+    "rateLimitReachedType": "rate_limit_reached",
+    "secondary": {
+      "resetsAt": 0,
+      "usedPercent": 0,
+      "windowDurationMins": 0
+    }
+  },
+  "rateLimitsByLimitId": {
+    "syntheticKey": {
+      "credits": {
+        "balance": "synthetic-42701f0c63",
+        "hasCredits": false,
+        "unlimited": false
+      },
+      "individualLimit": {
+        "limit": "synthetic-4a2ce389ae",
+        "remainingPercent": 0,
+        "resetsAt": 0,
+        "used": "synthetic-5d6fd96597"
+      },
+      "limitId": "synthetic-229f18e643",
+      "limitName": "synthetic-8d89f45c19",
+      "planType": "free",
+      "primary": {
+        "resetsAt": 0,
+        "usedPercent": null,
+        "windowDurationMins": 0
+      },
+      "rateLimitReachedType": "rate_limit_reached",
+      "secondary": {
+        "resetsAt": 0,
+        "usedPercent": 0,
+        "windowDurationMins": 0
+      }
+    }
+  }
+}

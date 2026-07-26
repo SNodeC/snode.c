@@ -1,0 +1,6 @@
+{
+  "loginId": "test-login-id",
+  "type": null,
+  "userCode": "test-device-user-code",
+  "verificationUrl": "https://example.invalid/device"
+}

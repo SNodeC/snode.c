@@ -1,0 +1,8 @@
+{
+  "config": {
+    "model_auto_compact_token_limit": -9223372036854775808,
+    "model_context_window": -9223372036854775808
+  },
+  "layers": [],
+  "origins": {}
+}

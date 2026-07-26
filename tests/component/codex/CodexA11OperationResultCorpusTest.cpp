@@ -65,6 +65,8 @@ namespace {
                     using Value = std::decay_t<decltype(value)>;
                     if constexpr (std::is_same_v<Value, typed::Unit>) {
                         return raw == codex::Json::object();
+                    } else if constexpr (std::is_same_v<Value, typed::LoginAccountResponse>) {
+                        return typed::loginAccountResponseRaw(value) == raw;
                     } else {
                         return value.raw == raw;
                     }
@@ -107,7 +109,12 @@ int main() {
     }
 
     const std::span<const detail::ClientOperationCodecDescriptor> descriptors = detail::clientOperationCodecDescriptors();
-    result.expectTrue(descriptors.size() == 22, "the production result corpus begins from exactly 22 generated A1.1 operation descriptors");
+    const std::size_t a11Descriptors =
+        static_cast<std::size_t>(std::count_if(descriptors.begin(), descriptors.end(), [](const auto& descriptor) {
+            return detail::entryFor(descriptor.target).a1Slice == detail::A1Slice::A1_1;
+        }));
+    result.expectTrue(a11Descriptors == 22,
+                      "the production result corpus begins from exactly 22 generated A1.1 operation descriptors, independent of later slices");
 
     std::map<std::string, std::size_t> roles;
     std::set<detail::ClientRequestTarget> baseTargets;

@@ -19,6 +19,20 @@ target_link_libraries(
     SNodeCInstalledCodexTypedConsumer PRIVATE snodec::ai-openai-codex
 )
 
+foreach(domain IN ITEMS Accounts Models Configuration)
+    add_executable(
+        SNodeCInstalledCodex${domain}HeaderConsumer
+        Codex${domain}HeaderConsumer.cpp
+    )
+    target_compile_features(
+        SNodeCInstalledCodex${domain}HeaderConsumer PRIVATE cxx_std_20
+    )
+    target_link_libraries(
+        SNodeCInstalledCodex${domain}HeaderConsumer
+        PRIVATE snodec::ai-openai-codex
+    )
+endforeach()
+
 add_executable(
     SNodeCInstalledCodexDeprecatedTypedConsumer
     CodexDeprecatedTypedConsumer.cpp

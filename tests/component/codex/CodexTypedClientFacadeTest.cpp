@@ -29,6 +29,21 @@ namespace {
         }
     };
 
+    template <typename Client>
+    concept HasDirectAccountsAccessor = requires(Client& client) {
+        client.accounts();
+    };
+
+    template <typename Client>
+    concept HasDirectModelsAccessor = requires(Client& client) {
+        client.models();
+    };
+
+    template <typename Client>
+    concept HasDirectConfigurationAccessor = requires(Client& client) {
+        client.configuration();
+    };
+
     using LegacyThreadStartMember =
         typed::Threads::Submission (typed::Threads::*)(typed::ThreadStartOptions, typed::Threads::ThreadResultHandler);
     using LegacyThreadResumeMember = typed::Threads::Submission (typed::Threads::*)(
@@ -223,6 +238,9 @@ int main() {
     static_assert(sizeof(codex::AppServerClient) == 2 * sizeof(void*));
     static_assert(std::is_same_v<decltype(std::declval<codex::AppServerClient&>().typed()), codex::typed::Client&>);
     static_assert(std::is_same_v<decltype(std::declval<const codex::AppServerClient&>().typed()), const codex::typed::Client&>);
+    static_assert(!HasDirectAccountsAccessor<codex::AppServerClient>);
+    static_assert(!HasDirectModelsAccessor<codex::AppServerClient>);
+    static_assert(!HasDirectConfigurationAccessor<codex::AppServerClient>);
 
     tests::support::TestResult result;
     TestClient client;
@@ -230,6 +248,12 @@ int main() {
 
     result.expectTrue(&client.typed() == &client.typed(), "non-const typed() returns one stable grouped facade");
     result.expectTrue(&constClient.typed() == &client.typed(), "const typed() returns the same grouped facade");
+    result.expectTrue(&client.typed().accounts() == &constClient.typed().accounts(),
+                      "accounts() returns the same facade backed by the grouped client's one RawProtocol");
+    result.expectTrue(&client.typed().models() == &constClient.typed().models(),
+                      "models() returns the same facade backed by the grouped client's one RawProtocol");
+    result.expectTrue(&client.typed().configuration() == &constClient.typed().configuration(),
+                      "configuration() returns the same facade backed by the grouped client's one RawProtocol");
 
     result.expectTrue(&client.threads() == &client.typed().threads(),
                       "deprecated threads() forwards to the grouped facade object");

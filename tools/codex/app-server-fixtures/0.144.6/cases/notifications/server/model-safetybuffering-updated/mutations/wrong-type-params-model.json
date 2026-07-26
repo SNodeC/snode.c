@@ -1,0 +1,16 @@
+{
+  "method": "model/safetyBuffering/updated",
+  "params": {
+    "fasterModel": "synthetic-a44983159e",
+    "model": null,
+    "reasons": [
+      "synthetic-9d57b71e44"
+    ],
+    "showBufferingUi": false,
+    "threadId": "synthetic-2e8202dcdb",
+    "turnId": "synthetic-9cf196a80e",
+    "useCases": [
+      "synthetic-dc4a9cffd9"
+    ]
+  }
+}

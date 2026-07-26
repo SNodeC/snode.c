@@ -1,0 +1,12 @@
+{
+  "edits": [
+    {
+      "keyPath": "synthetic-59c11105fc",
+      "mergeStrategy": null,
+      "value": {}
+    }
+  ],
+  "expectedVersion": "synthetic-2de204010f",
+  "filePath": "/synthetic/config.toml",
+  "reloadUserConfig": false
+}

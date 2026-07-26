@@ -1,0 +1,18 @@
+{
+  "method": "configWarning",
+  "params": {
+    "details": "synthetic-d225348762",
+    "path": "/synthetic/config.toml",
+    "range": {
+      "end": {
+        "column": 18446744073709551615,
+        "line": 18446744073709551615
+      },
+      "start": {
+        "column": 18446744073709551615,
+        "line": 18446744073709551615
+      }
+    },
+    "summary": "synthetic-6c09f2aa83"
+  }
+}

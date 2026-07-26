@@ -1,0 +1,11 @@
+{
+  "expectedVersion": "synthetic-version",
+  "filePath": "/synthetic/config.toml",
+  "keyPath": "synthetic.config.key",
+  "mergeStrategy": "replace",
+  "value": [
+    1,
+    "two",
+    null
+  ]
+}

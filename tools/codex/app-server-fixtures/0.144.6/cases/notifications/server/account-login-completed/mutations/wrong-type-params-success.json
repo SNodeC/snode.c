@@ -1,0 +1,8 @@
+{
+  "method": "account/login/completed",
+  "params": {
+    "error": "synthetic-efdd38f28a",
+    "loginId": "test-login-id",
+    "success": null
+  }
+}
