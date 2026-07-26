@@ -10,10 +10,11 @@
 
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/typed/Results.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/Turns.h"
 
-#include <cstdint>
 #include <concepts>
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <optional>
@@ -389,6 +390,7 @@ namespace ai::openai::codex::typed {
         using ThreadUnsubscribeResultHandler = std::function<void(const OperationResult<ThreadUnsubscribeResponse>&)>;
 
         Submission archive(ThreadArchiveParams params, UnitResultHandler handler);
+        Submission approveGuardianDeniedAction(ThreadApproveGuardianDeniedActionParams params, UnitResultHandler handler);
         Submission startCompaction(ThreadCompactStartParams params, UnitResultHandler handler);
         Submission remove(ThreadDeleteParams params, UnitResultHandler handler);
         Submission fork(ThreadForkParams params, ThreadForkResultHandler handler);

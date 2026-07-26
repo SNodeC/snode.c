@@ -1,0 +1,7 @@
+{
+  "method": "guardianWarning",
+  "params": {
+    "message": null,
+    "threadId": "synthetic-thread-id"
+  }
+}

@@ -21,6 +21,7 @@ foreach(
           ai/openai/codex/detail/CodexErrorInfoCodec.h
           ai/openai/codex/detail/AccountCodec.h
           ai/openai/codex/detail/ClientOperationCodec.h
+          ai/openai/codex/detail/CommandCodec.h
           ai/openai/codex/detail/ConfigurationCodec.h
           ai/openai/codex/detail/ConversationCodec.h
           ai/openai/codex/detail/ClientOperationCodecDescriptors.inc
@@ -35,6 +36,7 @@ foreach(
           ai/openai/codex/detail/ModelCodec.h
           ai/openai/codex/detail/ProtocolSurfaceRegistry.h
           ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc
+          ai/openai/codex/detail/ReviewCodec.h
           ai/openai/codex/detail/ServerRequestDecoder.h
           ai/openai/codex/detail/ThreadCodec.h
           ai/openai/codex/detail/Transport.h
@@ -71,11 +73,15 @@ set(
     "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
+    "typed/Commands.h"
     "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
+    "typed/Filesystem.h"
     "typed/Items.h"
     "typed/Models.h"
+    "typed/PermissionProfiles.h"
+    "typed/Reviews.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"
@@ -146,6 +152,10 @@ foreach(installed_entry IN LISTS installed_entries)
        OR installed_name STREQUAL "ClientOperationCodec.cpp"
        OR installed_name STREQUAL "ClientOperationCodec.h"
        OR installed_name STREQUAL "ClientOperationCodecDescriptors.inc"
+       OR installed_name STREQUAL "CommandCodec.cpp"
+       OR installed_name STREQUAL "CommandCodec.h"
+       OR installed_name STREQUAL "ReviewCodec.cpp"
+       OR installed_name STREQUAL "ReviewCodec.h"
        OR installed_name STREQUAL "ConversationUnionCodecDescriptors.inc"
        OR installed_name STREQUAL "ThreadItemCodecDescriptors.inc"
        OR installed_name STREQUAL "ResponseItemCodecDescriptors.inc"

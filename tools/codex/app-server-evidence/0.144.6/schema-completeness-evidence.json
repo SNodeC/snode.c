@@ -3,18 +3,18 @@
   "codex_version": "codex-cli 0.144.6",
   "counts": {
     "facts_true_by_field": {
-      "authoritative_root_association": 270,
-      "fixture_current": 270,
-      "independently_schema_validated": 270,
-      "nullable_semantics_exercised": 212,
-      "optional_omitted_exercised": 270,
-      "optional_present_exercised": 270,
-      "positive_fixture_coverage": 270,
-      "reachable_union_alternatives_exercised": 212,
-      "required_fields_exercised": 270,
-      "schema_properties_exercised": 212
+      "authoritative_root_association": 316,
+      "fixture_current": 316,
+      "independently_schema_validated": 316,
+      "nullable_semantics_exercised": 280,
+      "optional_omitted_exercised": 316,
+      "optional_present_exercised": 316,
+      "positive_fixture_coverage": 316,
+      "reachable_union_alternatives_exercised": 280,
+      "required_fields_exercised": 316,
+      "schema_properties_exercised": 280
     },
-    "identities_with_positive_fixtures": 270,
+    "identities_with_positive_fixtures": 316,
     "surface_identities": 387
   },
   "format_version": 1,
@@ -404,9 +404,49 @@
     {
       "fixture_ids": [
         "operation:client_request:command/exec:params",
-        "operation:client_request:command/exec:result"
+        "operation:client_request:command/exec:params:explicit-empty-environment",
+        "operation:client_request:command/exec:params:int64-timeoutms-maximum",
+        "operation:client_request:command/exec:params:int64-timeoutms-minimum",
+        "operation:client_request:command/exec:params:int64-timeoutms-overflow",
+        "operation:client_request:command/exec:params:int64-timeoutms-underflow",
+        "operation:client_request:command/exec:params:minimum",
+        "operation:client_request:command/exec:params:nullable-null:cwd",
+        "operation:client_request:command/exec:params:nullable-null:env",
+        "operation:client_request:command/exec:params:nullable-null:outputbytescap",
+        "operation:client_request:command/exec:params:nullable-null:processid",
+        "operation:client_request:command/exec:params:nullable-null:sandboxpolicy",
+        "operation:client_request:command/exec:params:nullable-null:size",
+        "operation:client_request:command/exec:params:nullable-null:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:cwd",
+        "operation:client_request:command/exec:params:optional-omitted:disableoutputcap",
+        "operation:client_request:command/exec:params:optional-omitted:disabletimeout",
+        "operation:client_request:command/exec:params:optional-omitted:env",
+        "operation:client_request:command/exec:params:optional-omitted:outputbytescap",
+        "operation:client_request:command/exec:params:optional-omitted:processid",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy",
+        "operation:client_request:command/exec:params:optional-omitted:sandboxpolicy-networkaccess",
+        "operation:client_request:command/exec:params:optional-omitted:size",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdin",
+        "operation:client_request:command/exec:params:optional-omitted:streamstdoutstderr",
+        "operation:client_request:command/exec:params:optional-omitted:timeoutms",
+        "operation:client_request:command/exec:params:optional-omitted:tty",
+        "operation:client_request:command/exec:params:schema-valid-empty-command",
+        "operation:client_request:command/exec:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec:params:uint16-size-rows-overflow",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-maximum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-minimum",
+        "operation:client_request:command/exec:params:uint64-outputbytescap-overflow",
+        "operation:client_request:command/exec:result",
+        "operation:client_request:command/exec:result:int32-exitcode-maximum",
+        "operation:client_request:command/exec:result:int32-exitcode-minimum",
+        "operation:client_request:command/exec:result:int32-exitcode-overflow",
+        "operation:client_request:command/exec:result:int32-exitcode-underflow"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 42,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -417,21 +457,28 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/resize:params",
+        "operation:client_request:command/exec/resize:params:minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-cols-overflow",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-maximum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-minimum",
+        "operation:client_request:command/exec/resize:params:uint16-size-rows-overflow",
         "operation:client_request:command/exec/resize:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 9,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -442,21 +489,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/terminate:params",
+        "operation:client_request:command/exec/terminate:params:minimum",
         "operation:client_request:command/exec/terminate:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -467,21 +515,25 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:command/exec/write:params",
+        "operation:client_request:command/exec/write:params:minimum",
+        "operation:client_request:command/exec/write:params:nullable-null:deltabase64",
+        "operation:client_request:command/exec/write:params:optional-omitted:closestdin",
+        "operation:client_request:command/exec/write:params:optional-omitted:deltabase64",
         "operation:client_request:command/exec/write:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 6,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -492,13 +544,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -1007,9 +1059,11 @@
     {
       "fixture_ids": [
         "operation:client_request:fs/copy:params",
+        "operation:client_request:fs/copy:params:minimum",
+        "operation:client_request:fs/copy:params:optional-omitted:recursive",
         "operation:client_request:fs/copy:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1020,21 +1074,24 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/createDirectory:params",
+        "operation:client_request:fs/createDirectory:params:minimum",
+        "operation:client_request:fs/createDirectory:params:nullable-null:recursive",
+        "operation:client_request:fs/createDirectory:params:optional-omitted:recursive",
         "operation:client_request:fs/createDirectory:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1045,21 +1102,33 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/getMetadata:params",
-        "operation:client_request:fs/getMetadata:result"
+        "operation:client_request:fs/getMetadata:params:minimum",
+        "operation:client_request:fs/getMetadata:result",
+        "operation:client_request:fs/getMetadata:result:directory",
+        "operation:client_request:fs/getMetadata:result:file",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-maximum",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-minimum",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-overflow",
+        "operation:client_request:fs/getMetadata:result:int64-createdatms-underflow",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-maximum",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-minimum",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-overflow",
+        "operation:client_request:fs/getMetadata:result:int64-modifiedatms-underflow",
+        "operation:client_request:fs/getMetadata:result:symlink"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 14,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1070,21 +1139,23 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/readDirectory:params",
-        "operation:client_request:fs/readDirectory:result"
+        "operation:client_request:fs/readDirectory:params:minimum",
+        "operation:client_request:fs/readDirectory:result",
+        "operation:client_request:fs/readDirectory:result:explicit-empty-entries"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1095,21 +1166,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/readFile:params",
+        "operation:client_request:fs/readFile:params:minimum",
         "operation:client_request:fs/readFile:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1120,21 +1192,26 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/remove:params",
+        "operation:client_request:fs/remove:params:minimum",
+        "operation:client_request:fs/remove:params:nullable-null:force",
+        "operation:client_request:fs/remove:params:nullable-null:recursive",
+        "operation:client_request:fs/remove:params:optional-omitted:force",
+        "operation:client_request:fs/remove:params:optional-omitted:recursive",
         "operation:client_request:fs/remove:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1145,21 +1222,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/unwatch:params",
+        "operation:client_request:fs/unwatch:params:minimum",
         "operation:client_request:fs/unwatch:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1170,21 +1248,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/watch:params",
+        "operation:client_request:fs/watch:params:minimum",
         "operation:client_request:fs/watch:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1195,21 +1274,22 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fs/writeFile:params",
+        "operation:client_request:fs/writeFile:params:minimum",
         "operation:client_request:fs/writeFile:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1220,21 +1300,34 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:client_request:fuzzyFileSearch:params",
-        "operation:client_request:fuzzyFileSearch:result"
+        "operation:client_request:fuzzyFileSearch:params:minimum",
+        "operation:client_request:fuzzyFileSearch:params:nullable-null:cancellationtoken",
+        "operation:client_request:fuzzyFileSearch:params:optional-omitted:cancellationtoken",
+        "operation:client_request:fuzzyFileSearch:result",
+        "operation:client_request:fuzzyFileSearch:result:explicit-empty-files",
+        "operation:client_request:fuzzyFileSearch:result:nullable-null:files-0-indices",
+        "operation:client_request:fuzzyFileSearch:result:optional-omitted:files-0-indices",
+        "operation:client_request:fuzzyFileSearch:result:ordered-file-and-directory",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-maximum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-minimum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-indices-0-overflow",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-maximum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-minimum",
+        "operation:client_request:fuzzyFileSearch:result:uint32-files-0-score-overflow"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 15,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1245,13 +1338,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -1674,9 +1767,25 @@
     {
       "fixture_ids": [
         "operation:client_request:permissionProfile/list:params",
-        "operation:client_request:permissionProfile/list:result"
+        "operation:client_request:permissionProfile/list:params:minimum",
+        "operation:client_request:permissionProfile/list:params:nullable-null:cursor",
+        "operation:client_request:permissionProfile/list:params:nullable-null:cwd",
+        "operation:client_request:permissionProfile/list:params:nullable-null:limit",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:cursor",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:cwd",
+        "operation:client_request:permissionProfile/list:params:optional-omitted:limit",
+        "operation:client_request:permissionProfile/list:params:uint32-maximum",
+        "operation:client_request:permissionProfile/list:params:uint32-overflow",
+        "operation:client_request:permissionProfile/list:params:uint32-zero",
+        "operation:client_request:permissionProfile/list:result",
+        "operation:client_request:permissionProfile/list:result:explicit-empty-data",
+        "operation:client_request:permissionProfile/list:result:nullable-null:data-0-description",
+        "operation:client_request:permissionProfile/list:result:nullable-null:nextcursor",
+        "operation:client_request:permissionProfile/list:result:optional-omitted:data-0-description",
+        "operation:client_request:permissionProfile/list:result:optional-omitted:nextcursor",
+        "operation:client_request:permissionProfile/list:result:ordered-profiles"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 18,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -1687,13 +1796,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2216,9 +2325,36 @@
     {
       "fixture_ids": [
         "operation:client_request:review/start:params",
-        "operation:client_request:review/start:result"
+        "operation:client_request:review/start:params:delivery-detached",
+        "operation:client_request:review/start:params:delivery-inline",
+        "operation:client_request:review/start:params:delivery-null",
+        "operation:client_request:review/start:params:delivery-omitted",
+        "operation:client_request:review/start:params:minimum",
+        "operation:client_request:review/start:params:nullable-null:delivery",
+        "operation:client_request:review/start:params:optional-omitted:delivery",
+        "operation:client_request:review/start:result",
+        "operation:client_request:review/start:result:detached-review-thread",
+        "operation:client_request:review/start:result:inline-review-thread",
+        "operation:client_request:review/start:result:nullable-null:turn-completedat",
+        "operation:client_request:review/start:result:nullable-null:turn-durationms",
+        "operation:client_request:review/start:result:nullable-null:turn-error",
+        "operation:client_request:review/start:result:nullable-null:turn-error-additionaldetails",
+        "operation:client_request:review/start:result:nullable-null:turn-error-codexerrorinfo",
+        "operation:client_request:review/start:result:nullable-null:turn-items-0-clientid",
+        "operation:client_request:review/start:result:nullable-null:turn-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:review/start:result:nullable-null:turn-startedat",
+        "operation:client_request:review/start:result:optional-omitted:turn-completedat",
+        "operation:client_request:review/start:result:optional-omitted:turn-durationms",
+        "operation:client_request:review/start:result:optional-omitted:turn-error",
+        "operation:client_request:review/start:result:optional-omitted:turn-error-additionaldetails",
+        "operation:client_request:review/start:result:optional-omitted:turn-error-codexerrorinfo",
+        "operation:client_request:review/start:result:optional-omitted:turn-items-0-clientid",
+        "operation:client_request:review/start:result:optional-omitted:turn-items-0-content-0-text_elements",
+        "operation:client_request:review/start:result:optional-omitted:turn-items-0-content-0-text_elements-0-placeholder",
+        "operation:client_request:review/start:result:optional-omitted:turn-itemsview",
+        "operation:client_request:review/start:result:optional-omitted:turn-startedat"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 29,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2229,13 +2365,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -2316,9 +2452,15 @@
     {
       "fixture_ids": [
         "operation:client_request:thread/approveGuardianDeniedAction:params",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:minimum",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:opaque-event-array",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:opaque-event-boolean",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:opaque-event-null",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:opaque-event-object",
+        "operation:client_request:thread/approveGuardianDeniedAction:params:required-nullable-null:event",
         "operation:client_request:thread/approveGuardianDeniedAction:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 8,
       "protocol_surface_key": {
         "category": "client_request",
         "discriminator_field": "method",
@@ -2329,13 +2471,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5006,8 +5148,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta",
+        "baseline:server_notification:ServerNotification:method:command/exec/outputDelta:stderr-cap-reached"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5015,16 +5160,16 @@
         "name": "command/exec/outputDelta"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5150,8 +5295,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fs/changed",
+        "baseline:server_notification:ServerNotification:method:fs/changed:explicit-empty-changedPaths"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5159,21 +5307,23 @@
         "name": "fs/changed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionCompleted"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5181,21 +5331,26 @@
         "name": "fuzzyFileSearch/sessionCompleted"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:explicit-empty-files",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:nullable-null:params-files-0-indices",
+        "baseline:server_notification:ServerNotification:method:fuzzyFileSearch/sessionUpdated:optional-omitted:params-files-0-indices"
+      ],
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5203,21 +5358,23 @@
         "name": "fuzzyFileSearch/sessionUpdated"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:guardianWarning"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5225,16 +5382,16 @@
         "name": "guardianWarning"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -5306,8 +5463,26 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-completedatms-maximum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-completedatms-minimum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-completedatms-overflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-completedatms-underflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-startedatms-maximum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-startedatms-minimum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-startedatms-overflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:int64-startedatms-underflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:nullable-null:params-review-rationale",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:nullable-null:params-review-risklevel",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:nullable-null:params-review-userauthorization",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:nullable-null:params-targetitemid",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:optional-omitted:params-review-rationale",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:optional-omitted:params-review-risklevel",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:optional-omitted:params-review-userauthorization",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/completed:optional-omitted:params-targetitemid"
+      ],
+      "positive_fixture_count": 17,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5315,21 +5490,35 @@
         "name": "item/autoApprovalReview/completed"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:int64-startedatms-maximum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:int64-startedatms-minimum",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:int64-startedatms-overflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:int64-startedatms-underflow",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:nullable-null:params-review-rationale",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:nullable-null:params-review-risklevel",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:nullable-null:params-review-userauthorization",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:nullable-null:params-targetitemid",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:optional-omitted:params-review-rationale",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:optional-omitted:params-review-risklevel",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:optional-omitted:params-review-userauthorization",
+        "baseline:server_notification:ServerNotification:method:item/autoApprovalReview/started:optional-omitted:params-targetitemid"
+      ],
+      "positive_fixture_count": 13,
       "protocol_surface_key": {
         "category": "server_notification",
         "discriminator_field": "method",
@@ -5337,16 +5526,16 @@
         "name": "item/autoApprovalReview/started"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6666,9 +6855,14 @@
     {
       "fixture_ids": [
         "operation:server_request:applyPatchApproval:params",
+        "operation:server_request:applyPatchApproval:params:minimum",
+        "operation:server_request:applyPatchApproval:params:nullable-null:grantroot",
+        "operation:server_request:applyPatchApproval:params:nullable-null:reason",
+        "operation:server_request:applyPatchApproval:params:optional-omitted:grantroot",
+        "operation:server_request:applyPatchApproval:params:optional-omitted:reason",
         "operation:server_request:applyPatchApproval:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6679,13 +6873,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -6738,9 +6932,14 @@
     {
       "fixture_ids": [
         "operation:server_request:execCommandApproval:params",
+        "operation:server_request:execCommandApproval:params:minimum",
+        "operation:server_request:execCommandApproval:params:nullable-null:approvalid",
+        "operation:server_request:execCommandApproval:params:nullable-null:reason",
+        "operation:server_request:execCommandApproval:params:optional-omitted:approvalid",
+        "operation:server_request:execCommandApproval:params:optional-omitted:reason",
         "operation:server_request:execCommandApproval:result"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6751,22 +6950,45 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:item/commandExecution/requestApproval",
         "operation:server_request:item/commandExecution/requestApproval:params",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/commandExecution/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/commandExecution/requestApproval:params:minimum",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:approvalid",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:command",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:commandactions",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:cwd",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:environmentid",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:networkapprovalcontext",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:proposedexecpolicyamendment",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:proposednetworkpolicyamendments",
+        "operation:server_request:item/commandExecution/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:approvalid",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:command",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:commandactions",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:cwd",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:environmentid",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:networkapprovalcontext",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:proposedexecpolicyamendment",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:proposednetworkpolicyamendments",
+        "operation:server_request:item/commandExecution/requestApproval:params:optional-omitted:reason",
         "operation:server_request:item/commandExecution/requestApproval:result"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 26,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6777,22 +6999,31 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "baseline:server_request:ServerRequest:method:item/fileChange/requestApproval",
         "operation:server_request:item/fileChange/requestApproval:params",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/fileChange/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/fileChange/requestApproval:params:minimum",
+        "operation:server_request:item/fileChange/requestApproval:params:nullable-null:grantroot",
+        "operation:server_request:item/fileChange/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/fileChange/requestApproval:params:optional-omitted:grantroot",
+        "operation:server_request:item/fileChange/requestApproval:params:optional-omitted:reason",
         "operation:server_request:item/fileChange/requestApproval:result"
       ],
-      "positive_fixture_count": 3,
+      "positive_fixture_count": 12,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6803,21 +7034,67 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
       "fixture_ids": [
         "operation:server_request:item/permissions/requestApproval:params",
-        "operation:server_request:item/permissions/requestApproval:result"
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-maximum",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-minimum",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-overflow",
+        "operation:server_request:item/permissions/requestApproval:params:int64-startedatms-underflow",
+        "operation:server_request:item/permissions/requestApproval:params:minimum",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:environmentid",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:params:nullable-null:reason",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:environmentid",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:params:optional-omitted:reason",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-maximum",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-minimum",
+        "operation:server_request:item/permissions/requestApproval:params:uint64-permissions-filesystem-globscanmaxdepth-overflow",
+        "operation:server_request:item/permissions/requestApproval:result",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:result:nullable-null:strictautoreview",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-entries",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-globscanmaxdepth",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-read",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-filesystem-write",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-network",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:permissions-network-enabled",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:scope",
+        "operation:server_request:item/permissions/requestApproval:result:optional-omitted:strictautoreview",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-maximum",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-minimum",
+        "operation:server_request:item/permissions/requestApproval:result:uint64-permissions-filesystem-globscanmaxdepth-overflow"
       ],
-      "positive_fixture_count": 2,
+      "positive_fixture_count": 48,
       "protocol_surface_key": {
         "category": "server_request",
         "discriminator_field": "method",
@@ -6828,13 +7105,13 @@
         "authoritative_root_association": true,
         "fixture_current": true,
         "independently_schema_validated": true,
-        "nullable_semantics_exercised": false,
+        "nullable_semantics_exercised": true,
         "optional_omitted_exercised": true,
         "optional_present_exercised": true,
         "positive_fixture_coverage": true,
-        "reachable_union_alternatives_exercised": false,
+        "reachable_union_alternatives_exercised": true,
         "required_fields_exercised": true,
-        "schema_properties_exercised": false
+        "schema_properties_exercised": true
       }
     },
     {
@@ -7651,8 +7928,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:accept"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7660,21 +7939,23 @@
         "name": "accept"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:acceptForSession"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7682,21 +7963,23 @@
         "name": "acceptForSession"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:acceptWithExecpolicyAmendment"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7704,21 +7987,23 @@
         "name": "acceptWithExecpolicyAmendment"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:applyNetworkPolicyAmendment"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7726,21 +8011,23 @@
         "name": "applyNetworkPolicyAmendment"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:cancel"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7748,21 +8035,23 @@
         "name": "cancel"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:CommandExecutionApprovalDecision:decline"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -7770,16 +8059,16 @@
         "name": "decline"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -8231,8 +8520,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileChange:add"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8240,21 +8531,23 @@
         "name": "add"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileChange:delete"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8262,21 +8555,25 @@
         "name": "delete"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileChange:update",
+        "union:FileChange:update:nullable-null:move_path",
+        "union:FileChange:update:optional-omitted:move_path"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8284,21 +8581,23 @@
         "name": "update"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemPath:glob_pattern"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8306,21 +8605,23 @@
         "name": "glob_pattern"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemPath:path"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8328,21 +8629,23 @@
         "name": "path"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemPath:special"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8350,21 +8653,23 @@
         "name": "special"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:minimal"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8372,21 +8677,25 @@
         "name": "minimal"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:project_roots",
+        "union:FileSystemSpecialPath:project_roots:nullable-null:subpath",
+        "union:FileSystemSpecialPath:project_roots:optional-omitted:subpath"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8394,21 +8703,23 @@
         "name": "project_roots"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:root"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8416,21 +8727,23 @@
         "name": "root"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:slash_tmp"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8438,21 +8751,23 @@
         "name": "slash_tmp"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:tmpdir"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8460,21 +8775,25 @@
         "name": "tmpdir"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:FileSystemSpecialPath:unknown",
+        "union:FileSystemSpecialPath:unknown:nullable-null:subpath",
+        "union:FileSystemSpecialPath:unknown:optional-omitted:subpath"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "kind",
@@ -8482,16 +8801,16 @@
         "name": "unknown"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -8569,8 +8888,11 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:applyPatch",
+        "union:GuardianApprovalReviewAction:applyPatch:explicit-empty-files"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8578,21 +8900,23 @@
         "name": "applyPatch"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:command"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8600,21 +8924,24 @@
         "name": "command"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:execve",
+        "union:GuardianApprovalReviewAction:execve:explicit-empty-argv"
+      ],
+      "positive_fixture_count": 2,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8622,21 +8949,29 @@
         "name": "execve"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:mcpToolCall",
+        "union:GuardianApprovalReviewAction:mcpToolCall:nullable-null:connectorid",
+        "union:GuardianApprovalReviewAction:mcpToolCall:nullable-null:connectorname",
+        "union:GuardianApprovalReviewAction:mcpToolCall:nullable-null:tooltitle",
+        "union:GuardianApprovalReviewAction:mcpToolCall:optional-omitted:connectorid",
+        "union:GuardianApprovalReviewAction:mcpToolCall:optional-omitted:connectorname",
+        "union:GuardianApprovalReviewAction:mcpToolCall:optional-omitted:tooltitle"
+      ],
+      "positive_fixture_count": 7,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8644,21 +8979,26 @@
         "name": "mcpToolCall"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:networkAccess",
+        "union:GuardianApprovalReviewAction:networkAccess:uint16-port-maximum",
+        "union:GuardianApprovalReviewAction:networkAccess:uint16-port-minimum",
+        "union:GuardianApprovalReviewAction:networkAccess:uint16-port-overflow"
+      ],
+      "positive_fixture_count": 4,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8666,21 +9006,39 @@
         "name": "networkAccess"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:GuardianApprovalReviewAction:requestPermissions",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-filesystem",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-filesystem-entries",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-filesystem-globscanmaxdepth",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-filesystem-read",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-filesystem-write",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-network",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:permissions-network-enabled",
+        "union:GuardianApprovalReviewAction:requestPermissions:nullable-null:reason",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-filesystem",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-filesystem-entries",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-filesystem-globscanmaxdepth",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-filesystem-read",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-filesystem-write",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-network",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:permissions-network-enabled",
+        "union:GuardianApprovalReviewAction:requestPermissions:optional-omitted:reason"
+      ],
+      "positive_fixture_count": 17,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -8688,16 +9046,16 @@
         "name": "requestPermissions"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -9063,8 +9421,12 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ParsedCommand:list_files",
+        "union:ParsedCommand:list_files:nullable-null:path",
+        "union:ParsedCommand:list_files:optional-omitted:path"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9072,21 +9434,23 @@
         "name": "list_files"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ParsedCommand:read"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9094,21 +9458,27 @@
         "name": "read"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ParsedCommand:search",
+        "union:ParsedCommand:search:nullable-null:path",
+        "union:ParsedCommand:search:nullable-null:query",
+        "union:ParsedCommand:search:optional-omitted:path",
+        "union:ParsedCommand:search:optional-omitted:query"
+      ],
+      "positive_fixture_count": 5,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9116,21 +9486,23 @@
         "name": "search"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ParsedCommand:unknown"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9138,16 +9510,16 @@
         "name": "unknown"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
@@ -9491,8 +9863,10 @@
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:abort"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9500,21 +9874,23 @@
         "name": "abort"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:approved"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9522,21 +9898,23 @@
         "name": "approved"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:approved_execpolicy_amendment"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9544,21 +9922,23 @@
         "name": "approved_execpolicy_amendment"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:approved_for_session"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9566,21 +9946,23 @@
         "name": "approved_for_session"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:denied"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9588,21 +9970,23 @@
         "name": "denied"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:network_policy_amendment"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9610,21 +9994,23 @@
         "name": "network_policy_amendment"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewDecision:timed_out"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "$variant",
@@ -9632,21 +10018,23 @@
         "name": "timed_out"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewTarget:baseBranch"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9654,21 +10042,25 @@
         "name": "baseBranch"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewTarget:commit",
+        "union:ReviewTarget:commit:nullable-null:title",
+        "union:ReviewTarget:commit:optional-omitted:title"
+      ],
+      "positive_fixture_count": 3,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9676,21 +10068,23 @@
         "name": "commit"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewTarget:custom"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9698,21 +10092,23 @@
         "name": "custom"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {
-      "fixture_ids": [],
-      "positive_fixture_count": 0,
+      "fixture_ids": [
+        "union:ReviewTarget:uncommittedChanges"
+      ],
+      "positive_fixture_count": 1,
       "protocol_surface_key": {
         "category": "tagged_union_discriminator",
         "discriminator_field": "type",
@@ -9720,16 +10116,16 @@
         "name": "uncommittedChanges"
       },
       "schema_fixture_facts": {
-        "authoritative_root_association": false,
-        "fixture_current": false,
-        "independently_schema_validated": false,
-        "nullable_semantics_exercised": false,
-        "optional_omitted_exercised": false,
-        "optional_present_exercised": false,
-        "positive_fixture_coverage": false,
-        "reachable_union_alternatives_exercised": false,
-        "required_fields_exercised": false,
-        "schema_properties_exercised": false
+        "authoritative_root_association": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "nullable_semantics_exercised": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "schema_properties_exercised": true
       }
     },
     {

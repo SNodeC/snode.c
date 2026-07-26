@@ -1,0 +1,7 @@
+{
+  "method": "fs/changed",
+  "params": {
+    "changedPaths": [],
+    "watchId": "synthetic-watch-id"
+  }
+}

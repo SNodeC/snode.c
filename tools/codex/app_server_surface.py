@@ -428,10 +428,10 @@ NOTIFICATION_PRODUCTION_COVERAGE_SOURCES = (
 
 # A1.1's checked production-coverage documents are frozen historical evidence.
 # Their source inventories still describe the exact tool and CMake inputs used to
-# close that slice.  Later A1 slices may extend those two files, so retain only
-# those historical source-record values while continuing to hash every production
-# implementation/test source live.  The current CMake registrations are validated
-# independently below before either historical record is used.
+# close that slice. Later A1 slices may extend the shared files listed below,
+# so retain their historical source-record values while continuing to hash
+# every other production implementation/test source live. Current CMake
+# registrations are validated independently before historical records are used.
 _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
     "src/ai/openai/codex/detail/ClientOperationCodec.cpp": {
         "path": "src/ai/openai/codex/detail/ClientOperationCodec.cpp",
@@ -500,6 +500,13 @@ _A1_1_FROZEN_EXTENSIBLE_SOURCE_RECORDS = {
         "bytes": 21876,
         "sha256": (
             "aaaac633ae3bc3f0e023b477590f819c2930113f57678fb0907e9d0bdc50ba18"
+        ),
+    },
+    "src/ai/openai/codex/typed/Threads.h": {
+        "path": "src/ai/openai/codex/typed/Threads.h",
+        "bytes": 17629,
+        "sha256": (
+            "679ff54526c98e3c43b3c880f4bb114adad38686de1b418acbe9f6c46ee82f78"
         ),
     },
     "tests/component/codex/CodexA11NotificationCodecTest.cpp": {
@@ -1503,6 +1510,115 @@ ACCOUNTS_MODELS_CONFIGURATION_UNION_CODECS = {
     ),
 }
 
+A13_APPROVAL_UNION_FAMILIES = {
+    "CommandExecutionApprovalDecision": (
+        "$variant",
+        (
+            "accept",
+            "acceptForSession",
+            "acceptWithExecpolicyAmendment",
+            "applyNetworkPolicyAmendment",
+            "cancel",
+            "decline",
+        ),
+    ),
+    "FileChange": ("type", ("add", "delete", "update")),
+    "FileSystemPath": ("type", ("glob_pattern", "path", "special")),
+    "FileSystemSpecialPath": (
+        "kind",
+        (
+            "minimal",
+            "project_roots",
+            "root",
+            "slash_tmp",
+            "tmpdir",
+            "unknown",
+        ),
+    ),
+    "GuardianApprovalReviewAction": (
+        "type",
+        (
+            "applyPatch",
+            "command",
+            "execve",
+            "mcpToolCall",
+            "networkAccess",
+            "requestPermissions",
+        ),
+    ),
+    "ParsedCommand": (
+        "type",
+        ("list_files", "read", "search", "unknown"),
+    ),
+    "ReviewDecision": (
+        "$variant",
+        (
+            "abort",
+            "approved",
+            "approved_execpolicy_amendment",
+            "approved_for_session",
+            "denied",
+            "network_policy_amendment",
+            "timed_out",
+        ),
+    ),
+    "ReviewTarget": (
+        "type",
+        (
+            "baseBranch",
+            "commit",
+            "custom",
+            "uncommittedChanges",
+        ),
+    ),
+}
+A13_APPROVAL_EXTERNALLY_TAGGED_ALTERNATIVES = {
+    (
+        "CommandExecutionApprovalDecision",
+        "acceptWithExecpolicyAmendment",
+    ),
+    (
+        "CommandExecutionApprovalDecision",
+        "applyNetworkPolicyAmendment",
+    ),
+    ("ReviewDecision", "approved_execpolicy_amendment"),
+    ("ReviewDecision", "network_policy_amendment"),
+}
+
+
+def a13_approval_target_suffix(name: str) -> str:
+    return "".join(
+        part[:1].upper() + part[1:] for part in name.split("_")
+    )
+
+
+COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS = {
+    (
+        "tagged_union_discriminator",
+        domain,
+        discriminator,
+        name,
+    ): (
+        "CommandsFilesystemReviewsApprovalsUnionTarget::"
+        f"{domain}{a13_approval_target_suffix(name)}",
+        (
+            "ConversationUnionCodecShape::ExternallyTaggedObject"
+            if (domain, name)
+            in A13_APPROVAL_EXTERNALLY_TAGGED_ALTERNATIVES
+            else "ConversationUnionCodecShape::ScalarString"
+            if discriminator == "$variant"
+            else "ConversationUnionCodecShape::InternallyTaggedObject"
+        ),
+        (
+            "ConversationUnionCodecDirection::DecodeOnly"
+            if domain == "GuardianApprovalReviewAction"
+            else "ConversationUnionCodecDirection::Bidirectional"
+        ),
+    )
+    for domain, (discriminator, names) in A13_APPROVAL_UNION_FAMILIES.items()
+    for name in names
+}
+
 RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "initialize"): "ClientRequestTarget::Initialize",
     (
@@ -1613,6 +1729,108 @@ RUNTIME_TARGETS = {
         "method",
         "experimentalFeature/list",
     ): "ClientRequestTarget::ExperimentalFeatureList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec",
+    ): "ClientRequestTarget::CommandExec",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/resize",
+    ): "ClientRequestTarget::CommandExecResize",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/terminate",
+    ): "ClientRequestTarget::CommandExecTerminate",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "command/exec/write",
+    ): "ClientRequestTarget::CommandExecWrite",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/copy",
+    ): "ClientRequestTarget::FsCopy",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/createDirectory",
+    ): "ClientRequestTarget::FsCreateDirectory",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/getMetadata",
+    ): "ClientRequestTarget::FsGetMetadata",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/readDirectory",
+    ): "ClientRequestTarget::FsReadDirectory",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/readFile",
+    ): "ClientRequestTarget::FsReadFile",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/remove",
+    ): "ClientRequestTarget::FsRemove",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/unwatch",
+    ): "ClientRequestTarget::FsUnwatch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/watch",
+    ): "ClientRequestTarget::FsWatch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fs/writeFile",
+    ): "ClientRequestTarget::FsWriteFile",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "fuzzyFileSearch",
+    ): "ClientRequestTarget::FuzzyFileSearch",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "permissionProfile/list",
+    ): "ClientRequestTarget::PermissionProfileList",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "review/start",
+    ): "ClientRequestTarget::ReviewStart",
+    (
+        "client_request",
+        "ClientRequest",
+        "method",
+        "thread/approveGuardianDeniedAction",
+    ): "ClientRequestTarget::ThreadApproveGuardianDeniedAction",
     ("client_request", "ClientRequest", "method", "thread/archive"): "ClientRequestTarget::ThreadArchive",
     (
         "client_request",
@@ -1697,6 +1915,48 @@ RUNTIME_TARGETS = {
     ("client_request", "ClientRequest", "method", "turn/steer"): "ClientRequestTarget::TurnSteer",
     ("client_notification", "ClientNotification", "method", "initialized"): "ClientNotificationTarget::Initialized",
     ("server_notification", "ServerNotification", "method", "error"): "ServerNotificationTarget::Error",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "command/exec/outputDelta",
+    ): "ServerNotificationTarget::CommandExecOutputDelta",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fs/changed",
+    ): "ServerNotificationTarget::FsChanged",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fuzzyFileSearch/sessionCompleted",
+    ): "ServerNotificationTarget::FuzzyFileSearchSessionCompleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "fuzzyFileSearch/sessionUpdated",
+    ): "ServerNotificationTarget::FuzzyFileSearchSessionUpdated",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "guardianWarning",
+    ): "ServerNotificationTarget::GuardianWarning",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/autoApprovalReview/completed",
+    ): "ServerNotificationTarget::ItemGuardianApprovalReviewCompleted",
+    (
+        "server_notification",
+        "ServerNotification",
+        "method",
+        "item/autoApprovalReview/started",
+    ): "ServerNotificationTarget::ItemGuardianApprovalReviewStarted",
     (
         "server_notification",
         "ServerNotification",
@@ -1940,6 +2200,18 @@ RUNTIME_TARGETS = {
         "server_request",
         "ServerRequest",
         "method",
+        "applyPatchApproval",
+    ): "ServerRequestTarget::ApplyPatchApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
+        "execCommandApproval",
+    ): "ServerRequestTarget::ExecCommandApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
         "item/commandExecution/requestApproval",
     ): "ServerRequestTarget::CommandExecutionRequestApproval",
     (
@@ -1948,6 +2220,12 @@ RUNTIME_TARGETS = {
         "method",
         "item/fileChange/requestApproval",
     ): "ServerRequestTarget::FileChangeRequestApproval",
+    (
+        "server_request",
+        "ServerRequest",
+        "method",
+        "item/permissions/requestApproval",
+    ): "ServerRequestTarget::PermissionsRequestApproval",
     (
         "server_request",
         "ServerRequest",
@@ -2215,13 +2493,43 @@ RUNTIME_TARGETS.update(
         )
     }
 )
+if set(RUNTIME_TARGETS) & set(
+    COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+):
+    raise AssertionError(
+        "commands/filesystem/reviews/approvals union targets duplicate an "
+        "existing runtime mapping"
+    )
+RUNTIME_TARGETS.update(
+    {
+        key: descriptor[0]
+        for key, descriptor in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.items()
+        )
+    }
+)
 
 SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD = {
     "account/login/completed": "typed::AccountLoginCompletedNotification",
     "account/rateLimits/updated": "typed::AccountRateLimitsUpdatedNotification",
     "account/updated": "typed::AccountUpdatedNotification",
+    "command/exec/outputDelta": "typed::CommandExecOutputDeltaNotification",
     "configWarning": "typed::ConfigWarningNotification",
     "error": "typed::TurnErrorEvent",
+    "fs/changed": "typed::FsChangedNotification",
+    "fuzzyFileSearch/sessionCompleted": (
+        "typed::FuzzyFileSearchSessionCompletedNotification"
+    ),
+    "fuzzyFileSearch/sessionUpdated": (
+        "typed::FuzzyFileSearchSessionUpdatedNotification"
+    ),
+    "guardianWarning": "typed::GuardianWarningNotification",
+    "item/autoApprovalReview/completed": (
+        "typed::ItemGuardianApprovalReviewCompletedNotification"
+    ),
+    "item/autoApprovalReview/started": (
+        "typed::ItemGuardianApprovalReviewStartedNotification"
+    ),
     "item/agentMessage/delta": "typed::AgentMessageDeltaNotification",
     "item/commandExecution/outputDelta": "typed::CommandExecutionOutputDeltaNotification",
     "item/commandExecution/terminalInteraction": "typed::TerminalInteractionNotification",
@@ -2308,7 +2616,7 @@ SERVER_NOTIFICATION_CODECS = {
     if key[0] == "server_notification"
 }
 if (
-    len(SERVER_NOTIFICATION_CODECS) != 45
+    len(SERVER_NOTIFICATION_CODECS) != 52
     or set(SERVER_NOTIFICATION_PAYLOAD_TYPES_BY_METHOD)
     != {key[3] for key in SERVER_NOTIFICATION_CODECS}
 ):
@@ -5459,6 +5767,72 @@ def registry_statuses(
         evidence["opaque_fields_declared"] = True
         evidence["no_known_schema_fields_dropped"] = True
     if (
+        assignment.get("slice") == "A1.3"
+        and assignment.get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and target is not None
+        and (
+            identity
+            in COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+            or (
+                identity[0] == "client_request"
+                and identity[3]
+                in {
+                    "command/exec",
+                    "command/exec/resize",
+                    "command/exec/terminate",
+                    "command/exec/write",
+                    "fs/copy",
+                    "fs/createDirectory",
+                    "fs/getMetadata",
+                    "fs/readDirectory",
+                    "fs/readFile",
+                    "fs/remove",
+                    "fs/unwatch",
+                    "fs/watch",
+                    "fs/writeFile",
+                    "fuzzyFileSearch",
+                    "permissionProfile/list",
+                    "review/start",
+                    "thread/approveGuardianDeniedAction",
+                }
+            )
+            or (
+                identity[0] == "server_notification"
+                and identity[3]
+                in {
+                    "command/exec/outputDelta",
+                    "fs/changed",
+                    "fuzzyFileSearch/sessionCompleted",
+                    "fuzzyFileSearch/sessionUpdated",
+                    "guardianWarning",
+                    "item/autoApprovalReview/completed",
+                    "item/autoApprovalReview/started",
+                }
+            )
+            or (
+                identity[0] == "server_request"
+                and identity[3]
+                in {
+                    "applyPatchApproval",
+                    "execCommandApproval",
+                    "item/commandExecution/requestApproval",
+                    "item/fileChange/requestApproval",
+                    "item/permissions/requestApproval",
+                }
+            )
+        )
+    ):
+        # The staged A1.3 command, filesystem, approval, review, and guardian
+        # descriptors bind exact stable roots/unions to their reviewed
+        # production codecs. Schema-derived fixtures and focused wire tests
+        # cover every required direction without adding local execution,
+        # filesystem access, approval policy, or review state.
+        evidence["direction_assertions_exercised"] = True
+        evidence["runtime_decoder_matches_registry"] = True
+        evidence["opaque_fields_declared"] = True
+        evidence["no_known_schema_fields_dropped"] = True
+    if (
         identity[0] == "client_request"
         and assignment.get("slice") == "A1.1"
         and operation_production_coverage is not None
@@ -5611,7 +5985,10 @@ def generate_registry_data(
 
 
 def _conversation_union_schema_branch(
-    entry: dict[str, Any], schema_root: Path
+    entry: dict[str, Any],
+    schema_root: Path,
+    *,
+    require_v2: bool = True,
 ) -> dict[str, Any]:
     sources = entry.get("sources")
     if not isinstance(sources, list):
@@ -5626,14 +6003,17 @@ def _conversation_union_schema_branch(
             if isinstance(candidate, dict)
             and candidate.get("file") == "codex_app_server_protocol.schemas.json"
             and isinstance(candidate.get("pointer"), str)
-            and candidate["pointer"].startswith("/definitions/v2/")
+            and candidate["pointer"].startswith(
+                "/definitions/v2/" if require_v2 else "/definitions/"
+            )
         ),
         None,
     )
     if source is None:
         raise SurfaceError(
             "ConversationUnionDescriptorSchemaMismatch: "
-            f"{surface_key(entry)} has no stable v2 aggregate source"
+            f"{surface_key(entry)} has no stable "
+            f"{'v2 ' if require_v2 else ''}aggregate source"
         )
     path = schema_root / "stable" / source["file"]
     document = load_json(path)
@@ -5674,7 +6054,7 @@ def _validate_conversation_union_descriptor_shape(
             properties.get(field) if isinstance(properties, dict) else None
         )
         valid = (
-            field == "type"
+            field != "$variant"
             and branch.get("type") == "object"
             and isinstance(discriminator, dict)
             and discriminator.get("enum") == [name]
@@ -5910,6 +6290,152 @@ def generate_accounts_models_configuration_union_descriptor_data(
     return "\n".join(lines) + "\n"
 
 
+def generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+    manifest: dict[str, Any],
+    schema_root: Path,
+    evidence: dict[str, Any] | None = None,
+) -> str:
+    """Generate exact private A1.3 union metadata."""
+
+    evidence = (
+        evidence if evidence is not None else load_a1_registry_evidence()
+    )
+    assignments = assignment_by_key(manifest, evidence["assignments"])
+    expected_keys = {
+        key
+        for key, assignment in assignments.items()
+        if assignment.get("slice") == "A1.3"
+        and assignment.get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[0] == "tagged_union_discriminator"
+        and key[1] in A13_APPROVAL_UNION_FAMILIES
+        and assignment.get("stability") == "stable"
+    }
+    descriptor_keys = set(
+        COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+    )
+    expected_family_counts = {
+        domain: len(names)
+        for domain, (_, names) in A13_APPROVAL_UNION_FAMILIES.items()
+    }
+    actual_family_counts = {
+        domain: sum(key[1] == domain for key in descriptor_keys)
+        for domain in A13_APPROVAL_UNION_FAMILIES
+    }
+    if (
+        expected_keys != descriptor_keys
+        or len(descriptor_keys) != 39
+        or actual_family_counts != expected_family_counts
+    ):
+        raise SurfaceError(
+            "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch: "
+            "the exact 6 command decisions, 3 file changes, 3 filesystem "
+            "paths, 6 special paths, 6 guardian actions, 4 parsed commands, "
+            "7 review decisions, and 4 review targets must each own one "
+            "descriptor"
+        )
+    targets = [
+        metadata[0]
+        for metadata in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.values()
+        )
+    ]
+    if len(set(targets)) != 39:
+        raise SurfaceError(
+            "DuplicateCommandsFilesystemReviewsApprovalsUnionDescriptorTarget: "
+            "each exact key must own one unique runtime target"
+        )
+    directions = {
+        key: metadata[2]
+        for key, metadata in (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.items()
+        )
+    }
+    if (
+        sum(
+            direction == "ConversationUnionCodecDirection::DecodeOnly"
+            for direction in directions.values()
+        )
+        != 6
+        or sum(
+            direction == "ConversationUnionCodecDirection::Bidirectional"
+            for direction in directions.values()
+        )
+        != 33
+        or any(
+            direction
+            != (
+                "ConversationUnionCodecDirection::DecodeOnly"
+                if key[1] == "GuardianApprovalReviewAction"
+                else "ConversationUnionCodecDirection::Bidirectional"
+            )
+            for key, direction in directions.items()
+        )
+    ):
+        raise SurfaceError(
+            "CommandsFilesystemReviewsApprovalsUnionDescriptorDirectionMismatch: "
+            "the 6 guardian actions must remain decode-only and the other "
+            "33 A1.3 alternatives must remain bidirectional"
+        )
+
+    entries = {
+        surface_key(entry): entry
+        for entry in manifest.get("entries", [])
+    }
+    lines = [
+        (
+            "// Generated by tools/codex/app_server_surface.py "
+            "commands-filesystem-reviews-approvals-union-descriptors; "
+            "do not edit."
+        ),
+        (
+            "// Exact keys remain subordinate to "
+            "ProtocolSurfaceRegistryData.inc."
+        ),
+        (
+            "// Shape and direction are private codec metadata, not "
+            "production dispositions."
+        ),
+    ]
+    for key in sorted(descriptor_keys):
+        entry = entries.get(key)
+        if (
+            entry is None
+            or entry.get("stability") != "stable"
+            or entry.get("category")
+            != "tagged_union_discriminator"
+        ):
+            raise SurfaceError(
+                "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch: "
+                f"missing stable tagged-union manifest entry for {key}"
+            )
+        target, shape, direction = (
+            COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[key]
+        )
+        branch = _conversation_union_schema_branch(
+            entry, schema_root, require_v2=False
+        )
+        _validate_conversation_union_descriptor_shape(
+            entry, branch, shape
+        )
+        lines.append(
+            "CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODEC_DESCRIPTOR("
+            + ", ".join(
+                (
+                    CPP_CATEGORIES[key[0]],
+                    cpp_string(key[1]),
+                    cpp_string(key[2]),
+                    cpp_string(key[3]),
+                    target,
+                    shape,
+                    direction,
+                )
+            )
+            + ")"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def generate_server_request_descriptor_data(
     manifest: dict[str, Any],
     evidence: dict[str, Any] | None = None,
@@ -5923,63 +6449,107 @@ def generate_server_request_descriptor_data(
     contracts = operation_contract_by_key(
         manifest, evidence["operation_contracts"]
     )
+    expected_methods = {
+        "account/chatgptAuthTokens/refresh",
+        "applyPatchApproval",
+        "execCommandApproval",
+        "item/commandExecution/requestApproval",
+        "item/fileChange/requestApproval",
+        "item/permissions/requestApproval",
+    }
     expected_keys = {
         key
         for key, assignment in assignments.items()
-        if key
-        == (
-            "server_request",
-            "ServerRequest",
-            "method",
-            "account/chatgptAuthTokens/refresh",
-        )
-        and assignment.get("slice") == "A1.2"
-        and assignment.get("module") == "AccountsModelsConfiguration"
+        if key[0] == "server_request"
+        and key[1] == "ServerRequest"
+        and key[2] == "method"
+        and key[3] in expected_methods
         and assignment.get("stability") == "stable"
-    }
-    if len(expected_keys) != 1:
-        raise SurfaceError(
-            "ServerRequestDescriptorAssignmentMismatch: the exact A1.2 "
-            "B2 auth-refresh server request is absent"
+        and (
+            (
+                key[3] == "account/chatgptAuthTokens/refresh"
+                and assignment.get("slice") == "A1.2"
+                and assignment.get("module")
+                == "AccountsModelsConfiguration"
+            )
+            or (
+                key[3] != "account/chatgptAuthTokens/refresh"
+                and assignment.get("slice") == "A1.3"
+                and assignment.get("module")
+                == "CommandsFilesystemReviewsApprovals"
+            )
         )
-    key = next(iter(expected_keys))
-    target = RUNTIME_TARGETS.get(key)
-    contract = contracts.get(key)
+    }
     if (
-        target != "ServerRequestTarget::ChatgptAuthTokensRefresh"
-        or contract is None
-        or contract.get("parameter_type_identity")
-        != "ChatgptAuthTokensRefreshParams"
-        or contract.get("result_type_identity")
-        != "ChatgptAuthTokensRefreshResponse"
-        or contract.get("result_contract_kind") != "Concrete"
+        len(expected_keys) != 6
+        or {key[3] for key in expected_keys} != expected_methods
     ):
         raise SurfaceError(
-            "ServerRequestDescriptorContractMismatch: auth-refresh target, "
-            "params, response, or result kind differs from authoritative "
+            "ServerRequestDescriptorAssignmentMismatch: the exact A1.2 "
+            "auth refresh and five A1.3 approval/permission requests are "
+            "required"
+        )
+    expected_targets = {
+        "account/chatgptAuthTokens/refresh": (
+            "ServerRequestTarget::ChatgptAuthTokensRefresh"
+        ),
+        "applyPatchApproval": "ServerRequestTarget::ApplyPatchApproval",
+        "execCommandApproval": "ServerRequestTarget::ExecCommandApproval",
+        "item/commandExecution/requestApproval": (
+            "ServerRequestTarget::CommandExecutionRequestApproval"
+        ),
+        "item/fileChange/requestApproval": (
+            "ServerRequestTarget::FileChangeRequestApproval"
+        ),
+        "item/permissions/requestApproval": (
+            "ServerRequestTarget::PermissionsRequestApproval"
+        ),
+    }
+    targets = {
+        key: RUNTIME_TARGETS.get(key) for key in expected_keys
+    }
+    if (
+        {
+            key[3]: target for key, target in targets.items()
+        }
+        != expected_targets
+        or len(set(targets.values())) != 6
+        or any(
+            contracts.get(key, {}).get("result_contract_kind")
+            != "Concrete"
+            for key in expected_keys
+        )
+    ):
+        raise SurfaceError(
+            "ServerRequestDescriptorContractMismatch: request target, "
+            "response contract, or result kind differs from authoritative "
             "evidence"
         )
     lines = [
         "// Generated by tools/codex/app_server_surface.py server-request-descriptors; do not edit.",
         "// Exact method keys and contracts remain subordinate to ProtocolSurfaceRegistryData.inc.",
         "// Descriptor rows are private codec metadata, not a second disposition registry.",
-        "CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR("
-        + ", ".join(
-            (
-                CPP_CATEGORIES[key[0]],
-                cpp_string(key[1]),
-                cpp_string(key[2]),
-                cpp_string(key[3]),
-                target,
-                cpp_string(str(contract["parameter_type_identity"])),
-                cpp_string(str(contract["result_type_identity"])),
-                CPP_RESULT_CONTRACT_KINDS[
-                    str(contract["result_contract_kind"])
-                ],
-            )
-        )
-        + ")",
     ]
+    for key in sorted(expected_keys):
+        contract = contracts[key]
+        lines.append(
+            "CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR("
+            + ", ".join(
+                (
+                    CPP_CATEGORIES[key[0]],
+                    cpp_string(key[1]),
+                    cpp_string(key[2]),
+                    cpp_string(key[3]),
+                    str(targets[key]),
+                    cpp_string(str(contract["parameter_type_identity"])),
+                    cpp_string(str(contract["result_type_identity"])),
+                    CPP_RESULT_CONTRACT_KINDS[
+                        str(contract["result_contract_kind"])
+                    ],
+                )
+            )
+            + ")"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -5999,9 +6569,14 @@ def generate_client_operation_descriptor_data(
         for key, assignment in assignments.items()
         if key[0] == "client_request"
         and (
-            assignment.get("slice") == "A1.1"
+            (
+                assignment.get("slice") == "A1.1"
+                and assignment.get("module") == "ThreadsTurnsSessions"
+            )
             or (
                 assignment.get("slice") == "A1.2"
+                and assignment.get("module")
+                == "AccountsModelsConfiguration"
                 and key[3]
                 in {
                     "account/login/cancel",
@@ -6024,10 +6599,33 @@ def generate_client_operation_descriptor_data(
                     "experimentalFeature/list",
                 }
             )
+            or (
+                assignment.get("slice") == "A1.3"
+                and assignment.get("module")
+                == "CommandsFilesystemReviewsApprovals"
+                and key[3]
+                in {
+                    "command/exec",
+                    "command/exec/resize",
+                    "command/exec/terminate",
+                    "command/exec/write",
+                    "fs/copy",
+                    "fs/createDirectory",
+                    "fs/getMetadata",
+                    "fs/readDirectory",
+                    "fs/readFile",
+                    "fs/remove",
+                    "fs/unwatch",
+                    "fs/watch",
+                    "fs/writeFile",
+                    "fuzzyFileSearch",
+                    "permissionProfile/list",
+                    "review/start",
+                    "thread/approveGuardianDeniedAction",
+                }
+            )
         )
         and assignment.get("classification") == "StablePublicRoot"
-        and assignment.get("module")
-        in {"ThreadsTurnsSessions", "AccountsModelsConfiguration"}
         and assignment.get("stability") == "stable"
     }
     targets = {
@@ -6036,9 +6634,9 @@ def generate_client_operation_descriptor_data(
         if key in expected_keys
     }
     if (
-        len(expected_keys) != 40
+        len(expected_keys) != 57
         or set(targets) != expected_keys
-        or len(set(targets.values())) != 40
+        or len(set(targets.values())) != 57
         or any(
             not target.startswith("ClientRequestTarget::")
             for target in targets.values()
@@ -6046,9 +6644,10 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorAssignmentMismatch: "
-            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, and 2 "
-            "A1.2 B4, and 5 A1.2 B5 client requests must "
-            "each own one unique ClientRequestTarget"
+            "the exact 22 stable A1.1, 9 A1.2 B2, 2 A1.2 B3, 2 A1.2 B4, "
+            "5 A1.2 B5, 4 A1.3 command, 10 A1.3 filesystem/fuzzy, "
+            "1 A1.3 permission-profile, and 2 A1.3 review/guardian "
+            "client requests must each own one unique ClientRequestTarget"
         )
     if set(contracts) & expected_keys != expected_keys:
         raise SurfaceError(
@@ -6070,11 +6669,20 @@ def generate_client_operation_descriptor_data(
         "thread/shellCommand",
         "turn/interrupt",
         "account/logout",
+        "command/exec/resize",
+        "command/exec/terminate",
+        "command/exec/write",
         "config/mcpServer/reload",
+        "fs/copy",
+        "fs/createDirectory",
+        "fs/remove",
+        "fs/unwatch",
+        "fs/writeFile",
+        "thread/approveGuardianDeniedAction",
     }
     if (
         {key[3] for key in unit_keys} != expected_unit_methods
-        or len(expected_keys - unit_keys) != 31
+        or len(expected_keys - unit_keys) != 39
         or any(
             contracts[key]["result_contract_kind"] != "Concrete"
             for key in expected_keys - unit_keys
@@ -6082,19 +6690,25 @@ def generate_client_operation_descriptor_data(
     ):
         raise SurfaceError(
             "ClientOperationDescriptorResultKindMismatch: "
-            "typed A1.1+A1.2 B2+B3+B4+B5 requests must remain exactly 9 Unit "
-            "and 31 Concrete requests"
+            "typed A1.1+A1.2+A1.3 requests must remain exactly 18 Unit and "
+            "39 Concrete requests"
         )
 
     result_decoders = {
         "Unit",
         "CancelLoginAccountResponse",
+        "CommandExecResponse",
         "ConsumeAccountRateLimitResetCreditResponse",
         "ConfigReadResponse",
         "ConfigRequirementsReadResponse",
         "ConfigWriteResponse",
         "ExperimentalFeatureEnablementSetResponse",
         "ExperimentalFeatureListResponse",
+        "FsGetMetadataResponse",
+        "FsReadDirectoryResponse",
+        "FsReadFileResponse",
+        "FsWatchResponse",
+        "FuzzyFileSearchResponse",
         "GetAccountRateLimitsResponse",
         "GetAccountResponse",
         "GetAccountTokenUsageResponse",
@@ -6102,6 +6716,8 @@ def generate_client_operation_descriptor_data(
         "LoginAccountResponse",
         "ModelListResponse",
         "ModelProviderCapabilitiesReadResponse",
+        "PermissionProfileListResponse",
+        "ReviewStartResponse",
         "SendAddCreditsNudgeEmailResponse",
         "ThreadForkResponse",
         "ThreadGoalClearResponse",
@@ -6178,14 +6794,14 @@ def generate_server_notification_descriptor_data(
     }
     descriptor_keys = set(SERVER_NOTIFICATION_CODECS)
     if (
-        len(expected_keys) != 45
+        len(expected_keys) != 52
         or descriptor_keys != expected_keys
         or len({metadata[0] for metadata in SERVER_NOTIFICATION_CODECS.values()})
-        != 45
+        != 52
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorAssignmentMismatch: "
-            "every one of the 45 typed server-notification targets must own "
+            "every one of the 52 typed server-notification targets must own "
             "one exact generated descriptor"
         )
 
@@ -6226,17 +6842,59 @@ def generate_server_notification_descriptor_data(
         and key[3] == "configWarning"
     }
     residual_keys -= a12_b4_keys
+    a13_command_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3] == "command/exec/outputDelta"
+    }
+    residual_keys -= a13_command_keys
+    a13_filesystem_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3]
+        in {
+            "fs/changed",
+            "fuzzyFileSearch/sessionCompleted",
+            "fuzzyFileSearch/sessionUpdated",
+        }
+    }
+    residual_keys -= a13_filesystem_keys
+    a13_review_guardian_keys = {
+        key
+        for key in residual_keys
+        if assignments[key].get("slice") == "A1.3"
+        and assignments[key].get("module")
+        == "CommandsFilesystemReviewsApprovals"
+        and key[3]
+        in {
+            "guardianWarning",
+            "item/autoApprovalReview/completed",
+            "item/autoApprovalReview/started",
+        }
+    }
+    residual_keys -= a13_review_guardian_keys
     if (
         len(a11_keys) != 37
         or len(a12_b2_keys) != 3
         or len(a12_b3_keys) != 3
         or len(a12_b4_keys) != 1
+        or len(a13_command_keys) != 1
+        or len(a13_filesystem_keys) != 3
+        or len(a13_review_guardian_keys) != 3
         or {key[3] for key in residual_keys} != {"error"}
     ):
         raise SurfaceError(
             "ServerNotificationDescriptorSliceMismatch: "
             "descriptors must distinguish the exact 37 A1.1, 3 A1.2 B2, "
-            "3 A1.2 B3, and 1 A1.2 B4 rows from the residual partial error row"
+            "3 A1.2 B3, 1 A1.2 B4, 1 A1.3 command, and 3 A1.3 "
+            "filesystem/fuzzy, and 3 A1.3 review/guardian rows from the "
+            "residual partial error row"
         )
 
     lines = [
@@ -8983,6 +9641,24 @@ def command_accounts_models_configuration_union_descriptors(
     )
 
 
+def command_commands_filesystem_reviews_approvals_union_descriptors(
+    arguments: argparse.Namespace,
+) -> None:
+    manifest = load_json(arguments.manifest)
+    evidence = load_a1_registry_evidence(arguments.evidence_root)
+    generated = (
+        generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, arguments.schema_root, evidence
+        )
+    )
+    write_or_check_generated_descriptors(
+        arguments.output,
+        generated,
+        arguments.check,
+        "CommandsFilesystemReviewsApprovalsUnion",
+    )
+
+
 def command_server_request_descriptors(
     arguments: argparse.Namespace,
 ) -> None:
@@ -9324,6 +10000,32 @@ def parser() -> argparse.ArgumentParser:
     amc_union_descriptors.add_argument("--check", action="store_true")
     amc_union_descriptors.set_defaults(
         function=command_accounts_models_configuration_union_descriptors
+    )
+
+    a13_union_descriptors = subparsers.add_parser(
+        "commands-filesystem-reviews-approvals-union-descriptors",
+        help=(
+            "generate private A1.3 command/filesystem/review/approval union "
+            "codec descriptors"
+        ),
+    )
+    a13_union_descriptors.add_argument(
+        "--manifest", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument(
+        "--schema-root", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument(
+        "--evidence-root", type=Path, default=DEFAULT_A1_EVIDENCE_ROOT
+    )
+    a13_union_descriptors.add_argument(
+        "--output", type=Path, required=True
+    )
+    a13_union_descriptors.add_argument("--check", action="store_true")
+    a13_union_descriptors.set_defaults(
+        function=(
+            command_commands_filesystem_reviews_approvals_union_descriptors
+        )
     )
 
     server_request_descriptors = subparsers.add_parser(

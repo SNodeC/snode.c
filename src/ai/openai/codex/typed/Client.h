@@ -9,9 +9,13 @@
 #define AI_OPENAI_CODEX_TYPED_CLIENT_H
 
 #include "ai/openai/codex/typed/Accounts.h"       // IWYU pragma: export
+#include "ai/openai/codex/typed/Commands.h"       // IWYU pragma: export
 #include "ai/openai/codex/typed/Configuration.h"  // IWYU pragma: export
 #include "ai/openai/codex/typed/Events.h"         // IWYU pragma: export
+#include "ai/openai/codex/typed/Filesystem.h"     // IWYU pragma: export
 #include "ai/openai/codex/typed/Models.h"         // IWYU pragma: export
+#include "ai/openai/codex/typed/PermissionProfiles.h" // IWYU pragma: export
+#include "ai/openai/codex/typed/Reviews.h"            // IWYU pragma: export
 #include "ai/openai/codex/typed/ServerRequests.h" // IWYU pragma: export
 #include "ai/openai/codex/typed/Threads.h"        // IWYU pragma: export
 #include "ai/openai/codex/typed/Turns.h"          // IWYU pragma: export
@@ -37,11 +41,23 @@ namespace ai::openai::codex::typed {
         Accounts& accounts() noexcept;
         const Accounts& accounts() const noexcept;
 
+        Commands& commands() noexcept;
+        const Commands& commands() const noexcept;
+
+        Filesystem& filesystem() noexcept;
+        const Filesystem& filesystem() const noexcept;
+
         Configuration& configuration() noexcept;
         const Configuration& configuration() const noexcept;
 
         Models& models() noexcept;
         const Models& models() const noexcept;
+
+        PermissionProfiles& permissionProfiles() noexcept;
+        const PermissionProfiles& permissionProfiles() const noexcept;
+
+        Reviews& reviews() noexcept;
+        const Reviews& reviews() const noexcept;
 
         Threads& threads() noexcept;
         const Threads& threads() const noexcept;
@@ -59,8 +75,12 @@ namespace ai::openai::codex::typed {
         friend class ::ai::openai::codex::AppServerClient;
 
         Client(std::unique_ptr<Accounts> accounts,
+               std::unique_ptr<Commands> commands,
+               std::unique_ptr<Filesystem> filesystem,
                std::unique_ptr<Configuration> configuration,
                std::unique_ptr<Models> models,
+               std::unique_ptr<PermissionProfiles> permissionProfiles,
+               std::unique_ptr<Reviews> reviews,
                std::unique_ptr<Threads> threads,
                std::unique_ptr<Turns> turns,
                std::unique_ptr<Events> events,

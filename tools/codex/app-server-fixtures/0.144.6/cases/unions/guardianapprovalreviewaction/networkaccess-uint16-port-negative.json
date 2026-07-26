@@ -1,0 +1,7 @@
+{
+  "host": "example.invalid",
+  "port": -1,
+  "protocol": "http",
+  "target": "example.invalid:443",
+  "type": "networkAccess"
+}

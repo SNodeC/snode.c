@@ -10,15 +10,19 @@ pkg_check_modules(CODEX_NLOHMANN_JSON REQUIRED nlohmann_json>=3.11)
 set(AI_OPENAI_CODEX_CPP
     AppServerClient.cpp
     detail/AccountCodec.cpp
+    detail/ApprovalCodec.cpp
     detail/CodexErrorInfoCodec.cpp
     detail/ClientOperationCodec.cpp
+    detail/CommandCodec.cpp
     detail/ConfigurationCodec.cpp
     detail/ConversationCodec.cpp
     detail/EventDecoder.cpp
+    detail/FilesystemCodec.cpp
     detail/ItemDecoder.cpp
     detail/ModelCodec.cpp
     detail/ProtocolCodec.cpp
     detail/ProtocolSurfaceRegistry.cpp
+    detail/ReviewCodec.cpp
     detail/ServerRequestDecoder.cpp
     detail/ThreadCodec.cpp
     detail/Transport.cpp
@@ -37,8 +41,11 @@ set(AI_OPENAI_CODEX_H
     Protocol.h
     detail/AccountCodec.h
     detail/AccountsModelsConfigurationUnionCodecDescriptors.inc
+    detail/ApprovalCodec.h
     detail/CodexErrorInfoCodec.h
     detail/ClientOperationCodec.h
+    detail/CommandCodec.h
+    detail/CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc
     detail/ConfigurationCodec.h
     detail/ConversationCodec.h
     detail/ConversationUnionCodecDescriptors.inc
@@ -48,11 +55,13 @@ set(AI_OPENAI_CODEX_H
     detail/ServerRequestCodecDescriptors.inc
     detail/DecodeDiagnostic.h
     detail/EventDecoder.h
+    detail/FilesystemCodec.h
     detail/ItemDecoder.h
     detail/ModelCodec.h
     detail/ProtocolCodec.h
     detail/ProtocolSurfaceRegistry.h
     detail/ProtocolSurfaceRegistryData.inc
+    detail/ReviewCodec.h
     detail/ServerRequestDecoder.h
     detail/ThreadCodec.h
     detail/Transport.h
@@ -62,11 +71,15 @@ set(AI_OPENAI_CODEX_H
     typed/Accounts.h
     typed/Client.h
     typed/CodexErrorInfo.h
+    typed/Commands.h
     typed/Configuration.h
     typed/Conversation.h
     typed/Events.h
+    typed/Filesystem.h
     typed/Items.h
     typed/Models.h
+    typed/PermissionProfiles.h
+    typed/Reviews.h
     typed/Results.h
     typed/ServerRequests.h
     typed/Threads.h
@@ -111,11 +124,15 @@ install(
     FILES typed/Accounts.h
           typed/Client.h
           typed/CodexErrorInfo.h
+          typed/Commands.h
           typed/Configuration.h
           typed/Conversation.h
           typed/Events.h
+          typed/Filesystem.h
           typed/Items.h
           typed/Models.h
+          typed/PermissionProfiles.h
+          typed/Reviews.h
           typed/Results.h
           typed/ServerRequests.h
           typed/Threads.h

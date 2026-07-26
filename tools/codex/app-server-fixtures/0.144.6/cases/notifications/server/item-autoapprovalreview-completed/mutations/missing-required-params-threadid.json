@@ -1,0 +1,23 @@
+{
+  "method": "item/autoApprovalReview/completed",
+  "params": {
+    "action": {
+      "command": "synthetic command",
+      "cwd": "/synthetic/project",
+      "source": "shell",
+      "type": "command"
+    },
+    "completedAtMs": 0,
+    "decisionSource": "agent",
+    "review": {
+      "rationale": "Synthetic review rationale.",
+      "riskLevel": "low",
+      "status": "inProgress",
+      "userAuthorization": "unknown"
+    },
+    "reviewId": "synthetic-review-id",
+    "startedAtMs": 0,
+    "targetItemId": "synthetic-item-id",
+    "turnId": "synthetic-turn-id"
+  }
+}

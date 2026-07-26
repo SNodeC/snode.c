@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "fileSystem": null,
+    "network": {
+      "enabled": false
+    }
+  },
+  "scope": "turn",
+  "strictAutoReview": false
+}

@@ -192,8 +192,8 @@ int main() {
                       "canonical registry carries all 87 Rust-derived client contracts and all 10 schema-paired server contracts");
     result.expectTrue(concreteResultContracts == 76 && unitResultContracts == 21,
                       "result contracts preserve 76 concrete and 21 explicit Unit identities without empty-string sentinels");
-    result.expectTrue(schemaComplete == 212 && schemaPartial == 6 && schemaNotImplemented == 121 && schemaNotApplicable == 48,
-                      "the completed A1.2 registry reaches the exact 212/6/121/48 global completeness metrics");
+    result.expectTrue(schemaComplete == 280 && schemaPartial == 4 && schemaNotImplemented == 55 && schemaNotApplicable == 48,
+                      "the complete A1.3 slice reaches the exact 280/4/55/48 global completeness metrics");
     result.expectTrue(slices == std::array<std::size_t, 6>{19, 151, 45, 68, 56, 48} && codexErrorInfoA1_0 == 16 &&
                           stableUnreachableInventory == 12,
                       "registry preserves the frozen A1 slice assignment, CodexErrorInfo exception, and 12 stable unreachable rows");
@@ -205,56 +205,72 @@ int main() {
                                   }),
                       "every identity has one fixed module/slice assignment and a mechanically derived schema status");
 
-    expectTargets<detail::ClientRequestTarget>(
-        result,
-        std::array<std::string_view, 41>{"initialize",
-                                         "account/login/cancel",
-                                         "account/login/start",
-                                         "account/logout",
-                                         "account/rateLimitResetCredit/consume",
-                                         "account/rateLimits/read",
-                                         "account/read",
-                                         "account/sendAddCreditsNudgeEmail",
-                                         "account/usage/read",
-                                         "account/workspaceMessages/read",
-                                         "config/batchWrite",
-                                         "config/mcpServer/reload",
-                                         "config/read",
-                                         "config/value/write",
-                                         "configRequirements/read",
-                                         "experimentalFeature/enablement/set",
-                                         "experimentalFeature/list",
-                                         "model/list",
-                                         "modelProvider/capabilities/read",
-                                         "thread/start",
-                                         "thread/resume",
-                                         "thread/list",
-                                         "thread/read",
-                                         "turn/start",
-                                         "turn/interrupt",
-                                         "thread/archive",
-                                         "thread/compact/start",
-                                         "thread/delete",
-                                         "thread/fork",
-                                         "thread/goal/clear",
-                                         "thread/goal/get",
-                                         "thread/goal/set",
-                                         "thread/inject_items",
-                                         "thread/loaded/list",
-                                         "thread/metadata/update",
-                                         "thread/name/set",
-                                         "thread/rollback",
-                                         "thread/shellCommand",
-                                         "thread/unarchive",
-                                         "thread/unsubscribe",
-                                         "turn/steer"},
-        "every typed outgoing request target resolves to its exact registered wire method");
+    expectTargets<detail::ClientRequestTarget>(result,
+                                               std::array<std::string_view, 58>{"initialize",
+                                                                                "account/login/cancel",
+                                                                                "account/login/start",
+                                                                                "account/logout",
+                                                                                "account/rateLimitResetCredit/consume",
+                                                                                "account/rateLimits/read",
+                                                                                "account/read",
+                                                                                "account/sendAddCreditsNudgeEmail",
+                                                                                "account/usage/read",
+                                                                                "account/workspaceMessages/read",
+                                                                                "config/batchWrite",
+                                                                                "config/mcpServer/reload",
+                                                                                "config/read",
+                                                                                "config/value/write",
+                                                                                "configRequirements/read",
+                                                                                "experimentalFeature/enablement/set",
+                                                                                "experimentalFeature/list",
+                                                                                "model/list",
+                                                                                "modelProvider/capabilities/read",
+                                                                                "thread/start",
+                                                                                "thread/resume",
+                                                                                "thread/list",
+                                                                                "thread/read",
+                                                                                "turn/start",
+                                                                                "turn/interrupt",
+                                                                                "thread/archive",
+                                                                                "thread/compact/start",
+                                                                                "thread/delete",
+                                                                                "thread/fork",
+                                                                                "thread/goal/clear",
+                                                                                "thread/goal/get",
+                                                                                "thread/goal/set",
+                                                                                "thread/inject_items",
+                                                                                "thread/loaded/list",
+                                                                                "thread/metadata/update",
+                                                                                "thread/name/set",
+                                                                                "thread/rollback",
+                                                                                "thread/shellCommand",
+                                                                                "thread/unarchive",
+                                                                                "thread/unsubscribe",
+                                                                                "turn/steer",
+                                                                                "command/exec",
+                                                                                "command/exec/resize",
+                                                                                "command/exec/terminate",
+                                                                                "command/exec/write",
+                                                                                "fs/copy",
+                                                                                "fs/createDirectory",
+                                                                                "fs/getMetadata",
+                                                                                "fs/readDirectory",
+                                                                                "fs/readFile",
+                                                                                "fs/remove",
+                                                                                "fs/unwatch",
+                                                                                "fs/watch",
+                                                                                "fs/writeFile",
+                                                                                "fuzzyFileSearch",
+                                                                                "permissionProfile/list",
+                                                                                "review/start",
+                                                                                "thread/approveGuardianDeniedAction"},
+                                               "every typed outgoing request target resolves to its exact registered wire method");
     expectTargets<detail::ClientNotificationTarget>(result,
                                                     std::array<std::string_view, 1>{"initialized"},
                                                     "the typed outgoing notification target resolves to its exact registered wire method");
     expectTargets<detail::ServerNotificationTarget>(
         result,
-        std::array<std::string_view, 45>{"error",
+        std::array<std::string_view, 52>{"error",
                                          "account/login/completed",
                                          "account/rateLimits/updated",
                                          "account/updated",
@@ -298,14 +314,24 @@ int main() {
                                          "turn/diff/updated",
                                          "turn/moderationMetadata",
                                          "turn/plan/updated",
-                                         "model/rerouted"},
-        "all 45 typed notification dispatch targets resolve to their exact registered wire methods");
+                                         "model/rerouted",
+                                         "command/exec/outputDelta",
+                                         "fs/changed",
+                                         "fuzzyFileSearch/sessionCompleted",
+                                         "fuzzyFileSearch/sessionUpdated",
+                                         "guardianWarning",
+                                         "item/autoApprovalReview/completed",
+                                         "item/autoApprovalReview/started"},
+        "all 52 typed notification dispatch targets resolve to their exact registered wire methods");
     expectTargets<detail::ServerRequestTarget>(
         result,
-        std::array<std::string_view, 4>{"item/commandExecution/requestApproval",
+        std::array<std::string_view, 7>{"item/commandExecution/requestApproval",
                                         "item/fileChange/requestApproval",
                                         "item/tool/requestUserInput",
-                                        "account/chatgptAuthTokens/refresh"},
+                                        "account/chatgptAuthTokens/refresh",
+                                        "applyPatchApproval",
+                                        "execCommandApproval",
+                                        "item/permissions/requestApproval"},
         "every existing typed server-request dispatch target resolves to its exact registered wire method");
     expectTargets<detail::ItemDiscriminatorTarget>(
         result,
@@ -1563,32 +1589,27 @@ int main() {
 
     const std::span<const detail::ServerRequestCodecDescriptor>
         serverRequestDescriptors = detail::serverRequestCodecDescriptors();
+    const auto authRefreshDescriptor = std::find_if(
+        serverRequestDescriptors.begin(), serverRequestDescriptors.end(), [](const detail::ServerRequestCodecDescriptor& descriptor) {
+            return descriptor.target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh;
+        });
     const bool exactAuthRefreshDescriptor =
-        serverRequestDescriptors.size() == 1 &&
-        serverRequestDescriptors.front().key ==
+        serverRequestDescriptors.size() == 6 && authRefreshDescriptor != serverRequestDescriptors.end() &&
+        authRefreshDescriptor->key ==
             detail::ProtocolSurfaceKey{
                 detail::SurfaceCategory::ServerRequest,
                 "ServerRequest",
                 "method",
                 "account/chatgptAuthTokens/refresh",
             } &&
-        serverRequestDescriptors.front().target ==
-            detail::ServerRequestTarget::ChatgptAuthTokensRefresh &&
-        serverRequestDescriptors.front().parameterTypeIdentity ==
-            "ChatgptAuthTokensRefreshParams" &&
-        serverRequestDescriptors.front().resultTypeIdentity ==
-            "ChatgptAuthTokensRefreshResponse" &&
-        serverRequestDescriptors.front().resultKind ==
-            detail::ResultContractKind::Concrete &&
-        detail::entryFor(serverRequestDescriptors.front().target).key ==
-            serverRequestDescriptors.front().key &&
-        detail::entryFor(serverRequestDescriptors.front().target)
-                .typedSchemaStatus ==
-            detail::TypedSchemaStatus::Complete &&
-        detail::entryFor(serverRequestDescriptors.front().target).a1Slice ==
-            detail::A1Slice::A1_2 &&
-        detail::entryFor(serverRequestDescriptors.front().target)
-                .typedModule == "AccountsModelsConfiguration";
+        authRefreshDescriptor->target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh &&
+        authRefreshDescriptor->parameterTypeIdentity == "ChatgptAuthTokensRefreshParams" &&
+        authRefreshDescriptor->resultTypeIdentity == "ChatgptAuthTokensRefreshResponse" &&
+        authRefreshDescriptor->resultKind == detail::ResultContractKind::Concrete &&
+        detail::entryFor(authRefreshDescriptor->target).key == authRefreshDescriptor->key &&
+        detail::entryFor(authRefreshDescriptor->target).typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+        detail::entryFor(authRefreshDescriptor->target).a1Slice == detail::A1Slice::A1_2 &&
+        detail::entryFor(authRefreshDescriptor->target).typedModule == "AccountsModelsConfiguration";
     result.expectTrue(
         exactAuthRefreshDescriptor,
         "the generated B2 auth-refresh server-request descriptor is the exact "
@@ -1911,8 +1932,13 @@ int main() {
         "a duplicate auth-refresh descriptor emits exactly "
         "DuplicateCodecDescriptor");
 
-    std::vector<detail::ServerRequestCodecDescriptor>
-        missingServerRequestDescriptor;
+    std::vector<detail::ServerRequestCodecDescriptor> missingServerRequestDescriptor(serverRequestDescriptors.begin(),
+                                                                                     serverRequestDescriptors.end());
+    missingServerRequestDescriptor.erase(std::find_if(missingServerRequestDescriptor.begin(),
+                                                      missingServerRequestDescriptor.end(),
+                                                      [](const detail::ServerRequestCodecDescriptor& descriptor) {
+                                                          return descriptor.target == detail::ServerRequestTarget::ChatgptAuthTokensRefresh;
+                                                      }));
     result.expectTrue(
         hasExactCodes(
             validateWithB2Descriptors(
@@ -2544,12 +2570,13 @@ int main() {
                                                    descriptors);
         });
 
-    const detail::ProtocolSurfaceEntry* deferred =
+    const detail::ProtocolSurfaceEntry* commandExec =
         detail::findSurface(detail::SurfaceCategory::ClientRequest, "ClientRequest", "method", "command/exec");
-    result.expectTrue(deferred && deferred->runtimeDisposition == detail::RuntimeDisposition::Deferred &&
-                          deferred->typedImplementation == detail::TypedImplementationStatus::NotImplemented &&
-                          std::holds_alternative<std::monostate>(deferred->runtimeTarget),
-                      "registered-but-unimplemented requests remain explicitly deferred rather than typed");
+    result.expectTrue(commandExec && commandExec->runtimeDisposition == detail::RuntimeDisposition::Typed &&
+                          commandExec->typedImplementation == detail::TypedImplementationStatus::Implemented &&
+                          commandExec->typedSchemaStatus == detail::TypedSchemaStatus::Complete &&
+                          commandExec->runtimeTarget == detail::RuntimeTarget{detail::ClientRequestTarget::CommandExec},
+                      "the completed command/exec request resolves to its exact typed runtime target");
     result.expectTrue(detail::findSurface(detail::SurfaceCategory::ServerNotification, "ServerNotification", "method", "future/unknown") ==
                           nullptr,
                       "future methods absent from the pinned upstream surface remain distinguishable from registered entries");

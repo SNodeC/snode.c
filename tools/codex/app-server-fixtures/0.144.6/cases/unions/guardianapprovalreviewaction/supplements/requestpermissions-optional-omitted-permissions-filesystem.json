@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "network": {
+      "enabled": false
+    }
+  },
+  "reason": "Synthetic permission rationale.",
+  "type": "requestPermissions"
+}

@@ -11,9 +11,13 @@
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
 #include "ai/openai/codex/typed/Accounts.h"
+#include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/PermissionProfiles.h"
 #include "ai/openai/codex/typed/Results.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
 #include "ai/openai/codex/typed/Types.h"
@@ -68,7 +72,15 @@ namespace ai::openai::codex::detail {
                                                      typed::ThreadUnarchiveResponse,
                                                      typed::ThreadUnsubscribeResponse,
                                                      typed::TurnStartResponse,
-                                                     typed::TurnSteerResponse>;
+                                                     typed::TurnSteerResponse,
+                                                     typed::CommandExecResponse,
+                                                     typed::FsGetMetadataResponse,
+                                                     typed::FsReadDirectoryResponse,
+                                                     typed::FsReadFileResponse,
+                                                     typed::FsWatchResponse,
+                                                     typed::FuzzyFileSearchResponse,
+                                                     typed::PermissionProfileListResponse,
+                                                     typed::ReviewStartResponse>;
 
     struct ClientOperationDecodeDiagnostic {
         ClientOperationDecodeCode code = ClientOperationDecodeCode::MalformedKnownPayload;

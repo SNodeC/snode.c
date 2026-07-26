@@ -1,0 +1,7 @@
+{
+  "applyNetworkPolicyAmendment": {
+    "network_policy_amendment": {
+      "action": "allow"
+    }
+  }
+}

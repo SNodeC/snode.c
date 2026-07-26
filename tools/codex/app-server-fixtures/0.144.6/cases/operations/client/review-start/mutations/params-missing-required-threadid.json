@@ -1,0 +1,6 @@
+{
+  "delivery": "inline",
+  "target": {
+    "type": "uncommittedChanges"
+  }
+}

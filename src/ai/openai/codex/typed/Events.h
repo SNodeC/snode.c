@@ -11,8 +11,11 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/typed/Accounts.h"
 #include "ai/openai/codex/typed/CodexErrorInfo.h"
+#include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/Threads.h"
 
 #include <compare>
@@ -495,7 +498,14 @@ namespace ai::openai::codex::typed {
                                                      TurnDiffUpdatedNotification,
                                                      TurnModerationMetadataNotification,
                                                      TurnPlanUpdatedNotification,
-                                                     TurnStartedNotification>;
+                                                     TurnStartedNotification,
+                                                     CommandExecOutputDeltaNotification,
+                                                     FsChangedNotification,
+                                                     FuzzyFileSearchSessionCompletedNotification,
+                                                     FuzzyFileSearchSessionUpdatedNotification,
+                                                     GuardianWarningNotification,
+                                                     ItemGuardianApprovalReviewCompletedNotification,
+                                                     ItemGuardianApprovalReviewStartedNotification>;
 
     struct ThreadStarted {
         Thread thread;
@@ -664,7 +674,14 @@ namespace ai::openai::codex::typed {
                                ModelSafetyBufferingUpdatedNotification,
                                ModelVerificationNotification,
                                TurnErrorEvent,
-                               UnknownEvent>;
+                               UnknownEvent,
+                               CommandExecOutputDeltaNotification,
+                               FsChangedNotification,
+                               FuzzyFileSearchSessionCompletedNotification,
+                               FuzzyFileSearchSessionUpdatedNotification,
+                               GuardianWarningNotification,
+                               ItemGuardianApprovalReviewCompletedNotification,
+                               ItemGuardianApprovalReviewStartedNotification>;
 
     class Events {
     public:

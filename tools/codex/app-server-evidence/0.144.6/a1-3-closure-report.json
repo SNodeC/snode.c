@@ -1,0 +1,4691 @@
+{
+  "api_abi": {
+    "capture": {
+      "authority": {
+        "base_sha": "304a817d371597fc764c3404c36cc880bf65536d",
+        "base_tree": "d0c8f21a415139655d4e9d92bb6efd0892b6bf4c",
+        "codex_version": "codex-cli 0.144.6",
+        "final_boundary": "Complete Codex reviews and guardian protocol",
+        "upstream_tag": "rust-v0.144.6"
+      },
+      "compiler": {
+        "binary": "/usr/bin/x86_64-linux-gnu-g++-15",
+        "binary_sha256": "11f460500a1641e69d0302aeb788b3268d9b790d8bcedb449bd4229b93b3289a",
+        "identity": "g++ (Debian 15.3.0-2) 15.3.0",
+        "language": "C++20"
+      },
+      "conclusion": {
+        "binary_compatible": false,
+        "installed_consumers_must_rebuild": true,
+        "reason": "Public aggregate and std::variant layouts changed; an unchanged SOVERSION or symbol list is not binary-compatibility proof.",
+        "soversion": 1
+      },
+      "format_version": 1,
+      "generated_notice": "Captured reproducibility evidence; paths in commands are placeholders and no transient final commit SHA is authoritative.",
+      "layout_probe": {
+        "base": {
+          "binary_sha256": "12fc73aafc57c5319cde38e5abf8fa1bf93f06b0de8399daa0b080fdc10ebda6",
+          "header_sha256": {
+            "src/ai/openai/codex/AppServerClient.h": "077e737996013f1445c7d8a1bb4d001b0a3b6693dc821e60da30133cf3b67269",
+            "src/ai/openai/codex/typed/Client.h": "64367604ec5c21df4b6828f7b0aa1b4e1c6ae98bc56334996756b8d2e0afba53",
+            "src/ai/openai/codex/typed/Events.h": "125fe356f43868573f1005e411c9b35ee39269f4b729dbe5d0a54736c91f17ca",
+            "src/ai/openai/codex/typed/ServerRequests.h": "f34b297531f8140d0042a726080d0aa6f8342f9d2bf26bf489b51769a15c8b41"
+          },
+          "stdout_lines": [
+            "AppServerClient=16",
+            "Client=8",
+            "Event=2776",
+            "CanonicalServerNotification=1400",
+            "TypedServerRequest=312",
+            "CommandApprovalRequest=304",
+            "FileChangeApprovalRequest=248"
+          ],
+          "stdout_sha256": "e40cca357795e548533592872259ed1aebeb763553b9d106546b55b1dd3085de"
+        },
+        "compile_command": "g++ -std=c++20 -I{source}/src -I{build}/_deps/json-src/single_include {repo}/tests/installed/codex/CodexA13AbiLayoutProbe.cpp -o {probe_binary}",
+        "final": {
+          "binary_sha256": "72786810bc67359bfd47eacba9e81c500c7088eae9b71b2e5c3e4507ea2b41b0",
+          "header_sha256": {
+            "src/ai/openai/codex/AppServerClient.h": "23f9c108ae70012da4278132fb4e33b879d9a5c5901008502d4efaf6d5571245",
+            "src/ai/openai/codex/typed/Client.h": "8575b41f098b82010270ff1c93a77ede38fe5a0e124278223925f2b069608a82",
+            "src/ai/openai/codex/typed/Events.h": "25c262350b5498e8bb4fca843b770d3d7710318306b668956e2e26faedaabd03",
+            "src/ai/openai/codex/typed/ServerRequests.h": "07b3a51559ed44d4c97ebc052e8e9837022ecb4afcae583ef610fa828690abdc"
+          },
+          "stdout_lines": [
+            "AppServerClient=16",
+            "Client=8",
+            "Event=2776",
+            "CanonicalServerNotification=1400",
+            "TypedServerRequest=960",
+            "CommandApprovalRequest=952",
+            "FileChangeApprovalRequest=512"
+          ],
+          "stdout_sha256": "dfe3be952f248a1c3b22aa96b9089c28629707e2e2b767aee82cead90451d309"
+        },
+        "run_command": "{probe_binary}",
+        "source": "tests/installed/codex/CodexA13AbiLayoutProbe.cpp",
+        "source_sha256": "f5882c89c70f3f30be54d3e417bebb7cbb2540efc69a6dc22553a540cc2d9228"
+      },
+      "shared_library_symbols": {
+        "added_in_final": 15733,
+        "base": {
+          "library_sha256": "a7b0280d19ff37075cdd9e57d158c884082d65b8e27212e51236b34d6cb6ad88",
+          "symbol_count": 47416,
+          "symbol_list_sha256": "0bd89fe1c936ec777f86050d807c6695b1d810c85d8e7af1b3fae47c72eb68a9"
+        },
+        "build_commands": [
+          "cmake -S {source} -B {build} -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF",
+          "cmake --build {build} --target ai-openai-codex --parallel {jobs}"
+        ],
+        "comparison_commands": [
+          "comm -23 {base_symbols} {final_symbols} | wc -l",
+          "comm -13 {base_symbols} {final_symbols} | wc -l"
+        ],
+        "extract_command": "nm -D --defined-only --format=posix {library} | cut -d ' ' -f1 | LC_ALL=C sort -u > {symbols}",
+        "final": {
+          "library_sha256": "d2139a2140454c83cff1ec86505ecb2fdd04436b74e7bd71fb7370695528c77b",
+          "symbol_count": 56863,
+          "symbol_list_sha256": "6b06827f8804c9a8a080a9d2cf30e4549a0e2517ceeb2f34ad87be8897edd0cb"
+        },
+        "removed_from_base": 6286,
+        "tool_availability": {
+          "abidiff": false,
+          "nm": true
+        }
+      }
+    },
+    "capture_source": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-3-api-abi-evidence.json",
+      "sha256": "b6d05bd993ec421aa7d2ff3e720a399fc54d801305c906f3a8c9c7557be9b611"
+    },
+    "live_final_header_sha256": {
+      "src/ai/openai/codex/AppServerClient.h": "23f9c108ae70012da4278132fb4e33b879d9a5c5901008502d4efaf6d5571245",
+      "src/ai/openai/codex/typed/Client.h": "8575b41f098b82010270ff1c93a77ede38fe5a0e124278223925f2b069608a82",
+      "src/ai/openai/codex/typed/Events.h": "25c262350b5498e8bb4fca843b770d3d7710318306b668956e2e26faedaabd03",
+      "src/ai/openai/codex/typed/ServerRequests.h": "07b3a51559ed44d4c97ebc052e8e9837022ecb4afcae583ef610fa828690abdc"
+    },
+    "live_probe_source": {
+      "path": "tests/installed/codex/CodexA13AbiLayoutProbe.cpp",
+      "sha256": "f5882c89c70f3f30be54d3e417bebb7cbb2540efc69a6dc22553a540cc2d9228"
+    }
+  },
+  "authority": {
+    "base_sha": "304a817d371597fc764c3404c36cc880bf65536d",
+    "base_tree": "d0c8f21a415139655d4e9d92bb6efd0892b6bf4c",
+    "production_authority": "ai::openai::codex::detail::ProtocolSurfaceRegistry",
+    "provenance": {
+      "codex_version": "codex-cli 0.144.6",
+      "experimental_schema_aggregate_sha256": "4a0ef96787255364d99b15fe40fcfd6227901978d0cddc8b20340bfef98a0d1b",
+      "protocol_source_commit": "5d1fbf26c43abc65a203928b2e31561cb039e06d",
+      "stable_schema_aggregate_sha256": "cee1ac3bcaf95e5fcdcf07499c7e6b00fc423b90c670ea3380f1799434b72add",
+      "upstream_tag": "rust-v0.144.6"
+    },
+    "report_role": "non-authoritative deterministic review and closure evidence"
+  },
+  "boundaries": {
+    "backend_command_and_state_unchanged": {
+      "src/ai/openai/codex/backend/BackendCommand.h": "702360f5f53e4c1959f6dbb81dec33f4a3d382bf9c2e72595e88af8a331b78f1",
+      "src/ai/openai/codex/backend/BackendState.h": "044f48c22ffff76d91518f932e5c96a5883e613f00dfb2deac69006e0c0e8b1b"
+    },
+    "forbidden_local_implementation_matches": [],
+    "frontend_protocol_v1": {
+      "docs/ai/openai/codex/frontend-protocol-v1.md": "5f53a6219f8dc45a09ec7ddca05f2f1f104ce0c7fee824de98492815fc502017",
+      "docs/ai/openai/codex/frontend-protocol-v1.schema.json": "a27721164607b79a8b268c3adb035211a6efa82cb4645632b9b9a59302734c04"
+    },
+    "source_trees": {
+      "src/ai/openai/codex/backend": {
+        "file_count": 14,
+        "sha256": "00fb78d5b7f2451cad7c8e81cd9716af23dca0e58c932c18d8d86b152c6c5261"
+      },
+      "src/ai/openai/codex/frontend": {
+        "file_count": 14,
+        "sha256": "2f87dfea3a01a2e74b8b9637b156f8535351c880b6c2d92d0723765e484583ff"
+      },
+      "src/apps/codex-backend": {
+        "file_count": 10,
+        "sha256": "2e3bebfbd4a3060eb7b39a6dfa2f5590175a4bc7874594f77de6f31a983737b9"
+      },
+      "src/apps/codex-backend-client": {
+        "file_count": 21,
+        "sha256": "c96bb51b727fd4f6a8a31034f906476e1e10aa1357ae889b9a664f11c09ea337"
+      }
+    }
+  },
+  "codex_version": "codex-cli 0.144.6",
+  "counts": {
+    "a1_3_schema_status": {
+      "Complete": 68,
+      "NotApplicable": 0,
+      "NotImplemented": 0,
+      "Partial": 0
+    },
+    "classifications": {
+      "RootOwnedNestedUnion": 17,
+      "SharedWithinSlice": 22,
+      "StablePublicRoot": 29
+    },
+    "fixture_corpus": {
+      "a1_3": {
+        "negative": 647,
+        "positive": 396,
+        "total": 1043
+      },
+      "global": {
+        "negative": 3615,
+        "positive": 2268,
+        "total": 5883
+      },
+      "required_root_roles": {
+        "client_request_params": 17,
+        "client_request_result": 17,
+        "server_notification_identity": 7,
+        "server_request_params": 5,
+        "server_request_response": 5,
+        "union_branch": 39
+      }
+    },
+    "global_schema_status": {
+      "Complete": 280,
+      "NotApplicable": 48,
+      "NotImplemented": 55,
+      "Partial": 4
+    },
+    "modules": {
+      "CommandsFilesystemReviewsApprovals": 68
+    },
+    "response_root_obligations_not_identities": {
+      "client_successful_results": 17,
+      "concrete_client_results": 8,
+      "server_request_responses": 5,
+      "total": 22,
+      "unit_client_results": 9
+    },
+    "result_contract_kinds": {
+      "Concrete": 8,
+      "Unit": 9
+    },
+    "schema_completeness": {
+      "facts_true_by_field": {
+        "authoritative_root_association": 316,
+        "fixture_current": 316,
+        "independently_schema_validated": 316,
+        "nullable_semantics_exercised": 280,
+        "optional_omitted_exercised": 316,
+        "optional_present_exercised": 316,
+        "positive_fixture_coverage": 316,
+        "reachable_union_alternatives_exercised": 280,
+        "required_fields_exercised": 316,
+        "schema_properties_exercised": 280
+      },
+      "identities_with_positive_fixtures": 316,
+      "surface_identities": 387
+    },
+    "taxonomy": {
+      "client_request": 17,
+      "server_notification": 7,
+      "server_request": 5,
+      "tagged_union_discriminator": 39
+    },
+    "type_closure": {
+      "default_bearing_paths": 20,
+      "definition_namespaces": {
+        "legacy": 26,
+        "v2": 97
+      },
+      "integer_formats": {
+        "int32": 2,
+        "int64": 15,
+        "uint": 4,
+        "uint16": 7,
+        "uint32": 5,
+        "uint64": 1
+      },
+      "nullable_paths": 114,
+      "optional_paths": 134,
+      "reachable_named_definitions": 123,
+      "required_paths": 346,
+      "schema_path_kinds": {
+        "array_element": 34,
+        "map_value": 3,
+        "property": 443
+      },
+      "schema_paths": 480,
+      "seed_definitions": 59
+    }
+  },
+  "descriptors": {
+    "a1_3_unions": {
+      "a1_3_rows": 39,
+      "generated_rows": 39,
+      "path": "src/ai/openai/codex/detail/CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc",
+      "sha256": "964bb176c9e62003aec93fb5de8f488e95c4277a5300f5276ea1316182b5a12e"
+    },
+    "client_operations": {
+      "a1_3_rows": 17,
+      "generated_rows": 57,
+      "path": "src/ai/openai/codex/detail/ClientOperationCodecDescriptors.inc",
+      "sha256": "ff62ad81904686cfccc95e7333dc29f3be1c984737722971dfc41a6deb0dbb36"
+    },
+    "server_notifications": {
+      "a1_3_rows": 7,
+      "generated_rows": 52,
+      "path": "src/ai/openai/codex/detail/ServerNotificationCodecDescriptors.inc",
+      "sha256": "025a02e07b56c8b1ccee5b755b6d5d5a22e77afe5af9b1854b2c55a0d013b1b2"
+    },
+    "server_requests": {
+      "a1_3_rows": 5,
+      "generated_rows": 6,
+      "path": "src/ai/openai/codex/detail/ServerRequestCodecDescriptors.inc",
+      "sha256": "40646d9ceb3220bc6f3e455aecdb6d5a4568042f521ac42ffcc10e12357377d2"
+    }
+  },
+  "exact_complete_a1_3_identities": [
+    {
+      "batch": "B2",
+      "fixture_count": 42,
+      "fixture_ids_sha256": "dd88a1350c14c1bfc9ebc01f48e3311d9ae4a787cbb318a2d3df676f0a4f3f8c",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec"
+      },
+      "runtime_target": "ClientRequestTarget::CommandExec",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B2",
+      "fixture_count": 9,
+      "fixture_ids_sha256": "c5b1e4ecc8dbfd5e8cdd7efed18a564b67baf179b8d03731898efffe02ef9a4c",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/resize"
+      },
+      "runtime_target": "ClientRequestTarget::CommandExecResize",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B2",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "51b22a5f5aa578b9a619a0214fe992b5bc3c9824c6b51dc3868186751f61fb03",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/terminate"
+      },
+      "runtime_target": "ClientRequestTarget::CommandExecTerminate",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B2",
+      "fixture_count": 6,
+      "fixture_ids_sha256": "e2e759348cb54072f61e5930339d0e25b95f55d63f472df8ae7d1ca3b597c9ae",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/write"
+      },
+      "runtime_target": "ClientRequestTarget::CommandExecWrite",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 4,
+      "fixture_ids_sha256": "6a4af47d0fd163c654bf10576c925eee908e0f3e65e1a2cf073b0a628238eb5c",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/copy"
+      },
+      "runtime_target": "ClientRequestTarget::FsCopy",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 5,
+      "fixture_ids_sha256": "7428b553beadcc144f68fc442962355526f920d27130a83f5ce39cc8bcb0a3c4",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/createDirectory"
+      },
+      "runtime_target": "ClientRequestTarget::FsCreateDirectory",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 14,
+      "fixture_ids_sha256": "42a6c3ed8879eec63399a8a33b4a70deaf4d1fbb9bacb78ba75b8ceccd57088b",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/getMetadata"
+      },
+      "runtime_target": "ClientRequestTarget::FsGetMetadata",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 4,
+      "fixture_ids_sha256": "0fe364559af58d225613a6bf5747bad846e397e152945e83f59bd381cae64771",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readDirectory"
+      },
+      "runtime_target": "ClientRequestTarget::FsReadDirectory",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "57a7813ddc7b953639f4fb022d1f2e2f872cc2c3cd819553dd4c09cf59ccaf1f",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readFile"
+      },
+      "runtime_target": "ClientRequestTarget::FsReadFile",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 7,
+      "fixture_ids_sha256": "4c53722f958656800de39b569382b995e92955cdf7207affe0d661b7ab98e1e2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/remove"
+      },
+      "runtime_target": "ClientRequestTarget::FsRemove",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "50a5ae11da0d7c8178f0fa047bd4c37487bba21ec45aebc4af75fbdaaeb8a2b2",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/unwatch"
+      },
+      "runtime_target": "ClientRequestTarget::FsUnwatch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "f1b1641792c37863299135e3878bb4f694854509b92eaef6c27bc1bada0af0cf",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/watch"
+      },
+      "runtime_target": "ClientRequestTarget::FsWatch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "cc960a130e4434c49071873ebe05e6229e1620ce7c0bf37d0974e485b06b38a7",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/writeFile"
+      },
+      "runtime_target": "ClientRequestTarget::FsWriteFile",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 15,
+      "fixture_ids_sha256": "117a5f729dfd28ff8ac7154258224dca0e89596da4ac936f8fd0513ff719b248",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch"
+      },
+      "runtime_target": "ClientRequestTarget::FuzzyFileSearch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 18,
+      "fixture_ids_sha256": "0854e001d30e33ca19be42cc2870ee794f99e9b93b791bed92757677566371d4",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "permissionProfile/list"
+      },
+      "runtime_target": "ClientRequestTarget::PermissionProfileList",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 29,
+      "fixture_ids_sha256": "33b3a7589fc521395f3f1a59fec6e90b7e834b5e6ec8b2b6f2a50007d41ecfd4",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "review/start"
+      },
+      "runtime_target": "ClientRequestTarget::ReviewStart",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 8,
+      "fixture_ids_sha256": "bd7723cab9f5d58a547d7b70ea31459d3b2a83195c19bb24010068c5deeef451",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/approveGuardianDeniedAction"
+      },
+      "runtime_target": "ClientRequestTarget::ThreadApproveGuardianDeniedAction",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B2",
+      "fixture_count": 2,
+      "fixture_ids_sha256": "d48e9326cfe41ec06481a33a6a328ce3d3e2658d8a21eac7eb5ed08b3718bbd4",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "command/exec/outputDelta"
+      },
+      "runtime_target": "ServerNotificationTarget::CommandExecOutputDelta",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 2,
+      "fixture_ids_sha256": "5b9593ef9218543454048cd7e94a9f219d8dd2247264acb397c7d82374d9b63d",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fs/changed"
+      },
+      "runtime_target": "ServerNotificationTarget::FsChanged",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "3a1f9c11abd5bf63255922aeb5c748488ae67cc23f60fb086b28885dd2791250",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionCompleted"
+      },
+      "runtime_target": "ServerNotificationTarget::FuzzyFileSearchSessionCompleted",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B3",
+      "fixture_count": 4,
+      "fixture_ids_sha256": "d87ed51571073950afc3de2ec56ad7f33f6636f08301bf4b829bf92fb31872fa",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionUpdated"
+      },
+      "runtime_target": "ServerNotificationTarget::FuzzyFileSearchSessionUpdated",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "23d4241a23f4b118631b4787711a61cb15f5c3aeabf522d287379ed0ac63d883",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "guardianWarning"
+      },
+      "runtime_target": "ServerNotificationTarget::GuardianWarning",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 17,
+      "fixture_ids_sha256": "c64f0198fddf03beac37e5ca42b5e0ad37277052a913232348cc2b940fa706a0",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/completed"
+      },
+      "runtime_target": "ServerNotificationTarget::ItemGuardianApprovalReviewCompleted",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 13,
+      "fixture_ids_sha256": "32ff8b88084e5ee4df56d0129cf6a0acb76bc945ced99bf3fe59f245bd774757",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/started"
+      },
+      "runtime_target": "ServerNotificationTarget::ItemGuardianApprovalReviewStarted",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 7,
+      "fixture_ids_sha256": "ec5f25b9a4894189c2f7002e9f17f859ec1178478ef7c0de768257dd3b6a8d85",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "applyPatchApproval"
+      },
+      "runtime_target": "ServerRequestTarget::ApplyPatchApproval",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 7,
+      "fixture_ids_sha256": "bbc85efad9bbccb6795fb7d996022f66fb1b3f59a03e7bc5cff738637b83008a",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "execCommandApproval"
+      },
+      "runtime_target": "ServerRequestTarget::ExecCommandApproval",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 26,
+      "fixture_ids_sha256": "066c3816331273ce33686f0afb5a51c5edf2bdb6f6e405cc58fa4f36e01fca75",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/commandExecution/requestApproval"
+      },
+      "runtime_target": "ServerRequestTarget::CommandExecutionRequestApproval",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 12,
+      "fixture_ids_sha256": "038ef28753283c7a3e69c0cd251a3f32cab6a7324ac21a7a03540215c09d62c3",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/fileChange/requestApproval"
+      },
+      "runtime_target": "ServerRequestTarget::FileChangeRequestApproval",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 48,
+      "fixture_ids_sha256": "ac6b83c5039df162464a877e3fc71d92839c44c93e864bf3ea1142e39a0e91be",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/permissions/requestApproval"
+      },
+      "runtime_target": "ServerRequestTarget::PermissionsRequestApproval",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "627cb4a67d93685fc2a573cc0c9b292ea76529ed7bd013ef52717d4fdfe54f16",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "accept"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAccept",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "7288d0341276187e1332ce0f9970aa76869ea81fe329ad2453c862e31728f31c",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "acceptForSession"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAcceptForSession",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "e285828e8a1029ae493523ed664d963d5db6759bc948c0d9f9d99fd9d55e9b83",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "acceptWithExecpolicyAmendment"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionAcceptWithExecpolicyAmendment",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "b800378ada3f00cf7b2950ecf7c079b19445ba9e8889b0cbea80e7989ba82ed8",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "applyNetworkPolicyAmendment"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionApplyNetworkPolicyAmendment",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "b2bfbbf518139acb244bdc43d67e6df2e1e50a8fa7344ca38ef1e47dbba5bb51",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "cancel"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionCancel",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "f19f225fd475f877601af8dbb3d87191b60167649338e67413173f58aa6dc354",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "CommandExecutionApprovalDecision",
+        "name": "decline"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::CommandExecutionApprovalDecisionDecline",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "2000805da7ca03ffb8d24fa608b207180ab43d58a9dc40bbfa39f740684bada5",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "add"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeAdd",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "3ef7e29e8c72c4a02ef409c1b5e29dec468d245e4f2cc8987fc9cadd4e7dbf87",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "delete"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeDelete",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "e1ea54ad6ee26c0e264b64539bea1e0d87b5a510c36fff23f0a7beddc03002d8",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileChange",
+        "name": "update"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileChangeUpdate",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "78b8879db552ed09b6d9a88b2cf413216c9dc4a2f3a11ddafa4685f185382344",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "glob_pattern"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathGlobPattern",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "c8643c0593d29e4483fc763138e952868321baf0c9fc7526a0880d1885ee376f",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "path"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathPath",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "1a00c217a99e788464e14e32e3867bbc9c5a85cd5639274eab885db91132e755",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "FileSystemPath",
+        "name": "special"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemPathSpecial",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "9eb87c7efb7396e6a09d6f11947f719300240e1e0e353a64da876c47f5d1ad97",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "minimal"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathMinimal",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "28b4edb1c36c63e52bc61310f8977ef98b8a3f77a51b96e32513f9db4983ab41",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "project_roots"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathProjectRoots",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "01386b1f6abe9ab3afa0910244fb13aa8eb4c84c1c3d12fe68f1f5b65e0d2e57",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "root"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathRoot",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "db8a24a9eb5b58b893b6ea984ad80144cb4e5bc40333661b7569c43c9ebe0fcd",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "slash_tmp"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathSlashTmp",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "82086dc37797d965b3fe4d05704a1a895bfc2041144888e2918ea7a55e875161",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "tmpdir"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathTmpdir",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "edafa2cc7d0f7352d0d62c867dd11d1d970157e7369afde26c63e9ab2fe375d1",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "kind",
+        "domain": "FileSystemSpecialPath",
+        "name": "unknown"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::FileSystemSpecialPathUnknown",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 2,
+      "fixture_ids_sha256": "4a157430a546d14c6f0abcd8647e60432784e753dc9553a157d7b9892daca0d9",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "applyPatch"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionApplyPatch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "def5ee6a3fa5767b5d151c7f4234ae09b0b09de692ad38910ebc2e1fbd2cce7b",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "command"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionCommand",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 2,
+      "fixture_ids_sha256": "2ff794fcdc241cb8e5ea2e7fd9a76da1486513806057516e9dc440d8f7b11bb3",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "execve"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionExecve",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 7,
+      "fixture_ids_sha256": "7919139428e4b4aeaa42bc92d729a1ed682040b64aa3b8c0309932147d61b669",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "mcpToolCall"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionMcpToolCall",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 4,
+      "fixture_ids_sha256": "371855d1d00aecd42a0ade4c57c2bf3ceed093b145573fb2eb394acfe665893f",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "networkAccess"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionNetworkAccess",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 17,
+      "fixture_ids_sha256": "0d66baa181b52fa2163111c38bedbf8945179f1b090ec7d9b26454f9af0a296d",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "GuardianApprovalReviewAction",
+        "name": "requestPermissions"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::GuardianApprovalReviewActionRequestPermissions",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "5130cf11b2a12917f31ee0ea213a8abecd1162665d04eb8d994128fa2907e537",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "list_files"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandListFiles",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "8d38804c9c5a2a0dccde9145a197ae53214f7dd6df7e91ac98f5ef4993898b8c",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "read"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandRead",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 5,
+      "fixture_ids_sha256": "797359e6ec0744e927b9f4c8857a5cd7584e3546d8221928dab23f7b0fd6149a",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "search"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandSearch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "b2b028a1bfda0e4856ee5666ba22213533c6a66afdbb7a95dab78c2d6205a2b6",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ParsedCommand",
+        "name": "unknown"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ParsedCommandUnknown",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "655eafa65c2d66f6b647a3870eb566b707cc43bc62d4a9c4bffd2ba6984b61f6",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "abort"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionAbort",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "8494dddd5d820356dbf6e894f413dbd30dddbecd2d833629acc94e03644fc999",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApproved",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "7057dc921dcc6853f91a8ebc2460b41e88295e253a9dee7099452e34ebbfde02",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved_execpolicy_amendment"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApprovedExecpolicyAmendment",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "4015f14af3d66fbc899863add71d4cae96d2cee3afcb634747f04884adc99c0c",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "approved_for_session"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionApprovedForSession",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "eee5549871423514543e12f1bac6499a1e1b7bc8705d8a7aafc6d31b884712f1",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "denied"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionDenied",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "a4c0503af7e18ff6d2c3dd57398dcf320c9e77990bf31108fe02452624eef0a6",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "network_policy_amendment"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionNetworkPolicyAmendment",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B4",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "af063204f84e9c9a1d2ef91ddf1a27e28637adb96303ab649624ca3b07768fde",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "$variant",
+        "domain": "ReviewDecision",
+        "name": "timed_out"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewDecisionTimedOut",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "696cd036cee7cc11a4eb319bab506e011df0f8eb94c37be67214f9b1f25ff9b2",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "baseBranch"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewTargetBaseBranch",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 3,
+      "fixture_ids_sha256": "e4af96671562b7e92def204fe1aa93c911ef4fa5b044a2c6ce1ea1a3bc757610",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "commit"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewTargetCommit",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "d580091b021fcf9c94937ab0dacb56a8346842bc9e0b81fa3f33e979f994fc23",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "custom"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewTargetCustom",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    },
+    {
+      "batch": "B5",
+      "fixture_count": 1,
+      "fixture_ids_sha256": "1527ff0ce7b08673ddf32eb8310dfe27b48cd8cd9a38e725936e9ab99a621cf9",
+      "protocol_surface_key": {
+        "category": "tagged_union_discriminator",
+        "discriminator_field": "type",
+        "domain": "ReviewTarget",
+        "name": "uncommittedChanges"
+      },
+      "runtime_target": "CommandsFilesystemReviewsApprovalsUnionTarget::ReviewTargetUncommittedChanges",
+      "schema_completeness": {
+        "authoritative_root_association": true,
+        "direction_assertions_exercised": true,
+        "fixture_current": true,
+        "independently_schema_validated": true,
+        "no_known_schema_fields_dropped": true,
+        "nullable_semantics_exercised": true,
+        "opaque_fields_declared": true,
+        "optional_omitted_exercised": true,
+        "optional_present_exercised": true,
+        "positive_fixture_coverage": true,
+        "reachable_union_alternatives_exercised": true,
+        "required_fields_exercised": true,
+        "runtime_decoder_matches_registry": true,
+        "schema_properties_exercised": true
+      }
+    }
+  ],
+  "exact_residual_partial_identities": [
+    {
+      "category": "client_notification",
+      "discriminator_field": "method",
+      "domain": "ClientNotification",
+      "name": "initialized"
+    },
+    {
+      "category": "client_request",
+      "discriminator_field": "method",
+      "domain": "ClientRequest",
+      "name": "initialize"
+    },
+    {
+      "category": "server_notification",
+      "discriminator_field": "method",
+      "domain": "ServerNotification",
+      "name": "error"
+    },
+    {
+      "category": "server_request",
+      "discriminator_field": "method",
+      "domain": "ServerRequest",
+      "name": "item/tool/requestUserInput"
+    }
+  ],
+  "format_version": 1,
+  "generated_notice": "Generated by tools/codex/app_server_a1_3_closure.py; do not edit.",
+  "notifications": [
+    {
+      "batch": "B2",
+      "params_type": "CommandExecOutputDeltaNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "command/exec/outputDelta"
+      }
+    },
+    {
+      "batch": "B3",
+      "params_type": "FsChangedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fs/changed"
+      }
+    },
+    {
+      "batch": "B3",
+      "params_type": "FuzzyFileSearchSessionCompletedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionCompleted"
+      }
+    },
+    {
+      "batch": "B3",
+      "params_type": "FuzzyFileSearchSessionUpdatedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "fuzzyFileSearch/sessionUpdated"
+      }
+    },
+    {
+      "batch": "B5",
+      "params_type": "GuardianWarningNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "guardianWarning"
+      }
+    },
+    {
+      "batch": "B5",
+      "params_type": "ItemGuardianApprovalReviewCompletedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/completed"
+      }
+    },
+    {
+      "batch": "B5",
+      "params_type": "ItemGuardianApprovalReviewStartedNotification",
+      "protocol_surface_key": {
+        "category": "server_notification",
+        "discriminator_field": "method",
+        "domain": "ServerNotification",
+        "name": "item/autoApprovalReview/started"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/OneOffCommandExec",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B2",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "CommandExecParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "CommandExecResponse",
+      "result_type": "CommandExecResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecResize",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B2",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "CommandExecResizeParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/resize"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "CommandExecResizeResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecTerminate",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B2",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "CommandExecTerminateParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/terminate"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "CommandExecTerminateResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/CommandExecWrite",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B2",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "CommandExecWriteParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "command/exec/write"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "CommandExecWriteResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsCopy",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsCopyParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/copy"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "FsCopyResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsCreateDirectory",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsCreateDirectoryParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/createDirectory"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "FsCreateDirectoryResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsGetMetadata",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsGetMetadataParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/getMetadata"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FsGetMetadataResponse",
+      "result_type": "FsGetMetadataResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsReadDirectory",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsReadDirectoryParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readDirectory"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FsReadDirectoryResponse",
+      "result_type": "FsReadDirectoryResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsReadFile",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsReadFileParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/readFile"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FsReadFileResponse",
+      "result_type": "FsReadFileResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsRemove",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsRemoveParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/remove"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "FsRemoveResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsUnwatch",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsUnwatchParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/unwatch"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "FsUnwatchResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsWatch",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsWatchParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/watch"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FsWatchResponse",
+      "result_type": "FsWatchResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FsWriteFile",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FsWriteFileParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fs/writeFile"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "FsWriteFileResponse",
+      "result_type": "Unit"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/FuzzyFileSearch",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B3",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "FuzzyFileSearchParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "fuzzyFileSearch"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FuzzyFileSearchResponse",
+      "result_type": "FuzzyFileSearchResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/PermissionProfileList",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "PermissionProfileListParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "permissionProfile/list"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "PermissionProfileListResponse",
+      "result_type": "PermissionProfileListResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ReviewStart",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B5",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "ReviewStartParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "review/start"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "ReviewStartResponse",
+      "result_type": "ReviewStartResponse"
+    },
+    {
+      "association_evidence_key": "codex-rs/app-server-protocol/src/protocol/common.rs#client_request_definitions!/ThreadApproveGuardianDeniedAction",
+      "association_evidence_kind": "VendoredRust",
+      "batch": "B5",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": false,
+      "parameter_type": "ThreadApproveGuardianDeniedActionParams",
+      "protocol_surface_key": {
+        "category": "client_request",
+        "discriminator_field": "method",
+        "domain": "ClientRequest",
+        "name": "thread/approveGuardianDeniedAction"
+      },
+      "result_kind": "Unit",
+      "result_schema_type": "ThreadApproveGuardianDeniedActionResponse",
+      "result_type": "Unit"
+    }
+  ],
+  "package_and_test_integrity": {
+    "binary_package_private_evidence_excluded": true,
+    "secret_guard": {
+      "closure_source_scope_scan": {
+        "finding_count": 0,
+        "scopes": [
+          "src",
+          "tests",
+          "tools",
+          "docs"
+        ],
+        "status": "passed"
+      },
+      "finding_count": 0,
+      "negative_self_test": "passed",
+      "package_build_tree_scan": "registered final validation; not claimed by this build-independent closure check",
+      "registered_test": "CodexSyntheticSecretLeakGuardTest"
+    },
+    "source_package_offline_checks": [
+      "A1.3 implementation-plan/type-closure audit",
+      "A1.3 final closure report"
+    ],
+    "test_integrity_report": {
+      "path": "docs/ai/openai/codex/a1-3-test-integrity.md",
+      "sha256": "381a7530951fd541e57eecad6a5db0c4cd4074acd57338008f9fb5b5bc263e54"
+    }
+  },
+  "public_api": {
+    "facades": {
+      "Commands": {
+        "accessor": "typed::Client::commands",
+        "header": "ai/openai/codex/typed/Commands.h",
+        "methods": [
+          "exec",
+          "resize",
+          "terminate",
+          "write"
+        ]
+      },
+      "Events": {
+        "accessor": "typed::Client::events",
+        "header": "ai/openai/codex/typed/Events.h",
+        "methods": [
+          "setOnEvent"
+        ]
+      },
+      "Filesystem": {
+        "accessor": "typed::Client::filesystem",
+        "header": "ai/openai/codex/typed/Filesystem.h",
+        "methods": [
+          "copy",
+          "createDirectory",
+          "getMetadata",
+          "readDirectory",
+          "readFile",
+          "remove",
+          "watch",
+          "unwatch",
+          "writeFile",
+          "fuzzyFileSearch"
+        ]
+      },
+      "PermissionProfiles": {
+        "accessor": "typed::Client::permissionProfiles",
+        "header": "ai/openai/codex/typed/PermissionProfiles.h",
+        "methods": [
+          "list"
+        ]
+      },
+      "Reviews": {
+        "accessor": "typed::Client::reviews",
+        "header": "ai/openai/codex/typed/Reviews.h",
+        "methods": [
+          "start"
+        ]
+      },
+      "ServerRequests": {
+        "accessor": "typed::Client::requests",
+        "header": "ai/openai/codex/typed/ServerRequests.h",
+        "methods": [
+          "setOnRequest",
+          "respond"
+        ]
+      },
+      "Threads": {
+        "accessor": "typed::Client::threads",
+        "header": "ai/openai/codex/typed/Threads.h",
+        "methods": [
+          "approveGuardianDeniedAction"
+        ]
+      }
+    },
+    "installed_consumers": [
+      "CodexCommandsHeaderConsumer.cpp",
+      "CodexFilesystemHeaderConsumer.cpp",
+      "CodexPermissionProfilesHeaderConsumer.cpp",
+      "CodexReviewsHeaderConsumer.cpp",
+      "CodexTypedConsumer.cpp"
+    ],
+    "installed_typed_headers": [
+      "typed/Accounts.h",
+      "typed/Client.h",
+      "typed/CodexErrorInfo.h",
+      "typed/Commands.h",
+      "typed/Configuration.h",
+      "typed/Conversation.h",
+      "typed/Events.h",
+      "typed/Filesystem.h",
+      "typed/Items.h",
+      "typed/Models.h",
+      "typed/PermissionProfiles.h",
+      "typed/Results.h",
+      "typed/Reviews.h",
+      "typed/ServerRequests.h",
+      "typed/Threads.h",
+      "typed/Turns.h",
+      "typed/Types.h"
+    ]
+  },
+  "response_root_obligations": {
+    "client": [
+      {
+        "method": "command/exec",
+        "result_kind": "Concrete",
+        "result_schema_type": "CommandExecResponse",
+        "result_type": "CommandExecResponse"
+      },
+      {
+        "method": "command/exec/resize",
+        "result_kind": "Unit",
+        "result_schema_type": "CommandExecResizeResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "command/exec/terminate",
+        "result_kind": "Unit",
+        "result_schema_type": "CommandExecTerminateResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "command/exec/write",
+        "result_kind": "Unit",
+        "result_schema_type": "CommandExecWriteResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fs/copy",
+        "result_kind": "Unit",
+        "result_schema_type": "FsCopyResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fs/createDirectory",
+        "result_kind": "Unit",
+        "result_schema_type": "FsCreateDirectoryResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fs/getMetadata",
+        "result_kind": "Concrete",
+        "result_schema_type": "FsGetMetadataResponse",
+        "result_type": "FsGetMetadataResponse"
+      },
+      {
+        "method": "fs/readDirectory",
+        "result_kind": "Concrete",
+        "result_schema_type": "FsReadDirectoryResponse",
+        "result_type": "FsReadDirectoryResponse"
+      },
+      {
+        "method": "fs/readFile",
+        "result_kind": "Concrete",
+        "result_schema_type": "FsReadFileResponse",
+        "result_type": "FsReadFileResponse"
+      },
+      {
+        "method": "fs/remove",
+        "result_kind": "Unit",
+        "result_schema_type": "FsRemoveResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fs/unwatch",
+        "result_kind": "Unit",
+        "result_schema_type": "FsUnwatchResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fs/watch",
+        "result_kind": "Concrete",
+        "result_schema_type": "FsWatchResponse",
+        "result_type": "FsWatchResponse"
+      },
+      {
+        "method": "fs/writeFile",
+        "result_kind": "Unit",
+        "result_schema_type": "FsWriteFileResponse",
+        "result_type": "Unit"
+      },
+      {
+        "method": "fuzzyFileSearch",
+        "result_kind": "Concrete",
+        "result_schema_type": "FuzzyFileSearchResponse",
+        "result_type": "FuzzyFileSearchResponse"
+      },
+      {
+        "method": "permissionProfile/list",
+        "result_kind": "Concrete",
+        "result_schema_type": "PermissionProfileListResponse",
+        "result_type": "PermissionProfileListResponse"
+      },
+      {
+        "method": "review/start",
+        "result_kind": "Concrete",
+        "result_schema_type": "ReviewStartResponse",
+        "result_type": "ReviewStartResponse"
+      },
+      {
+        "method": "thread/approveGuardianDeniedAction",
+        "result_kind": "Unit",
+        "result_schema_type": "ThreadApproveGuardianDeniedActionResponse",
+        "result_type": "Unit"
+      }
+    ],
+    "server_request": [
+      {
+        "method": "applyPatchApproval",
+        "response_type": "ApplyPatchApprovalResponse"
+      },
+      {
+        "method": "execCommandApproval",
+        "response_type": "ExecCommandApprovalResponse"
+      },
+      {
+        "method": "item/commandExecution/requestApproval",
+        "response_type": "CommandExecutionRequestApprovalResponse"
+      },
+      {
+        "method": "item/fileChange/requestApproval",
+        "response_type": "FileChangeRequestApprovalResponse"
+      },
+      {
+        "method": "item/permissions/requestApproval",
+        "response_type": "PermissionsRequestApprovalResponse"
+      }
+    ]
+  },
+  "server_requests": [
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/8+stable/ApplyPatchApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": true,
+      "parameter_type": "ApplyPatchApprovalParams",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "applyPatchApproval"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "ApplyPatchApprovalResponse",
+      "result_type": "ApplyPatchApprovalResponse"
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/9+stable/ExecCommandApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": true,
+      "parameter_type": "ExecCommandApprovalParams",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "execCommandApproval"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "ExecCommandApprovalResponse",
+      "result_type": "ExecCommandApprovalResponse"
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/0+stable/CommandExecutionRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": true,
+      "parameter_type": "CommandExecutionRequestApprovalParams",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/commandExecution/requestApproval"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "CommandExecutionRequestApprovalResponse",
+      "result_type": "CommandExecutionRequestApprovalResponse"
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/1+stable/FileChangeRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": true,
+      "parameter_type": "FileChangeRequestApprovalParams",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/fileChange/requestApproval"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "FileChangeRequestApprovalResponse",
+      "result_type": "FileChangeRequestApprovalResponse"
+    },
+    {
+      "association_evidence_key": "stable/ServerRequest.json#/oneOf/4+stable/PermissionsRequestApprovalResponse.json",
+      "association_evidence_kind": "VendoredSchemaPair",
+      "batch": "B4",
+      "depends_on_server_request_resolved": false,
+      "direct_raw_protocol_response": true,
+      "parameter_type": "PermissionsRequestApprovalParams",
+      "protocol_surface_key": {
+        "category": "server_request",
+        "discriminator_field": "method",
+        "domain": "ServerRequest",
+        "name": "item/permissions/requestApproval"
+      },
+      "result_kind": "Concrete",
+      "result_schema_type": "PermissionsRequestApprovalResponse",
+      "result_type": "PermissionsRequestApprovalResponse"
+    }
+  ],
+  "sources": {
+    "api_abi_evidence": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-3-api-abi-evidence.json",
+      "sha256": "b6d05bd993ec421aa7d2ff3e720a399fc54d801305c906f3a8c9c7557be9b611"
+    },
+    "api_abi_probe": {
+      "path": "tests/installed/codex/CodexA13AbiLayoutProbe.cpp",
+      "sha256": "f5882c89c70f3f30be54d3e417bebb7cbb2540efc69a6dc22553a540cc2d9228"
+    },
+    "assignment": {
+      "path": "tools/codex/app-server-evidence/0.144.6/module-slice-assignment.json",
+      "sha256": "e9097d1d27acd3915da65f7c955c2e8fb25f7ee0fce9b185e4415a1ba85396cf"
+    },
+    "audit_generator": {
+      "path": "tools/codex/app_server_a1_3.py",
+      "sha256": "90eb100e83bcdce59c226f7192ccc39bdb14f18ec571b16396f63a0e5be62e8c"
+    },
+    "closure_generator": {
+      "path": "tools/codex/app_server_a1_3_closure.py",
+      "sha256": "678e8b97267919d61ec99a0a9fa3b259d3d3c1f20eca7cb91fc068cb182f87fe"
+    },
+    "closure_test": {
+      "path": "tests/component/codex/CodexA13ClosureEvidenceTest.py",
+      "sha256": "75d1a29e82629f8ef2d8eaa019c5d4a0b20d4d90305322e1014bee16a6db7260"
+    },
+    "component_test_registration": {
+      "path": "tests/component/codex/CMakeLists.txt",
+      "sha256": "355e8e4efbadb0f7892601aee8467d0f752b81619f6af511d5da1538c623dcbb"
+    },
+    "contracts": {
+      "path": "tools/codex/app-server-evidence/0.144.6/operation-contracts.json",
+      "sha256": "226c552c5602301966c39539bbf466f345d4aa625e06d6ca603a9dbcd25e3a9e"
+    },
+    "documentation": {
+      "path": "docs/ai/openai/codex/a1-3-commands-filesystem-reviews-approvals.md",
+      "sha256": "a860b717b0f6ab1f1c5c6f31f0d6a6006057db0547229b47e57d09906bf4d0e8"
+    },
+    "fixture_coverage": {
+      "path": "tools/codex/app-server-evidence/0.144.6/fixture-coverage.json",
+      "sha256": "2fdd569f46b37674127cf230eb0559cfd6a00101d0c7b866936cec7a6ac32870"
+    },
+    "fixture_index": {
+      "path": "tools/codex/app-server-fixtures/0.144.6/index.json",
+      "sha256": "283117f546b6a2e193ea12b0db7aa6849d435d5c270e2163ffe78a4d63856a60"
+    },
+    "implementation_plan": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-3-implementation-plan.json",
+      "sha256": "d5905f4f60f1ca2a298c2a910d2effbde13a9bfa6b755d5896dc2d5b6b21034d"
+    },
+    "manifest": {
+      "path": "tools/codex/app-server-surface/0.144.6.json",
+      "sha256": "b975aa514fd951161cc68eb26aac2b291b894afb62fd6cc3982bfeacf56a7021"
+    },
+    "protocol_provenance": {
+      "path": "tools/codex/app-server-protocol-source/0.144.6/PROVENANCE.json",
+      "sha256": "6b8af60c405b54363537d9b09d3f19fc25991b517d4e802a1b02c7e5990c38b0"
+    },
+    "registry": {
+      "path": "src/ai/openai/codex/detail/ProtocolSurfaceRegistryData.inc",
+      "sha256": "7de3790505aaa6e63e95b8e5fb811616e9b2d85c1ef7f47e0c2f20906e5cf4de"
+    },
+    "schema_completeness": {
+      "path": "tools/codex/app-server-evidence/0.144.6/schema-completeness-evidence.json",
+      "sha256": "2fb1711bb73012839e004be7d757b641a9777324d889d4730df5102310d7f6f8"
+    },
+    "schema_provenance": {
+      "path": "tools/codex/app-server-schema/0.144.6/PROVENANCE.json",
+      "sha256": "91c5853c85f77dba868425a56d8b8d87c1a17281c8edf10929e5f480b721ace9"
+    },
+    "source_package_guard": {
+      "path": "tests/CodexSourcePackageTest.cmake",
+      "sha256": "7a95b8cdd07dcc9702bb21bd249da09de1789efed44149f1d53401a919f08cce"
+    },
+    "start_state": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-3-start-state.json",
+      "sha256": "ee93456760b366e399f55ba48f3aea343d836dd2544b09a4274bc60850bb16fb"
+    },
+    "test_integrity": {
+      "path": "docs/ai/openai/codex/a1-3-test-integrity.md",
+      "sha256": "381a7530951fd541e57eecad6a5db0c4cd4074acd57338008f9fb5b5bc263e54"
+    },
+    "type_closure": {
+      "path": "tools/codex/app-server-evidence/0.144.6/a1-3-type-closure.json",
+      "sha256": "223e10abd517ac63481276905a19605ed7dd5bd34f806f0adc15a698b8f88e0e"
+    }
+  },
+  "staged_exact_complete_ratchets": [
+    {
+      "batch": "B2",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/resize"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/terminate"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/write"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "command/exec/outputDelta"
+        }
+      ],
+      "complete_cumulative_identity_count": 5,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/resize"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/terminate"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/write"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "command/exec/outputDelta"
+        }
+      ],
+      "complete_owned_identity_count": 5,
+      "derived_global_schema_status": {
+        "Complete": 217,
+        "NotApplicable": 48,
+        "NotImplemented": 116,
+        "Partial": 6
+      }
+    },
+    {
+      "batch": "B3",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/resize"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/terminate"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/write"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/copy"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/createDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/getMetadata"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/remove"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/unwatch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/watch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/writeFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fuzzyFileSearch"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "command/exec/outputDelta"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fs/changed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionCompleted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionUpdated"
+        }
+      ],
+      "complete_cumulative_identity_count": 18,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/copy"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/createDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/getMetadata"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/remove"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/unwatch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/watch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/writeFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fuzzyFileSearch"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fs/changed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionCompleted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionUpdated"
+        }
+      ],
+      "complete_owned_identity_count": 13,
+      "derived_global_schema_status": {
+        "Complete": 230,
+        "NotApplicable": 48,
+        "NotImplemented": 103,
+        "Partial": 6
+      }
+    },
+    {
+      "batch": "B4",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/resize"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/terminate"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/write"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/copy"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/createDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/getMetadata"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/remove"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/unwatch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/watch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/writeFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fuzzyFileSearch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "permissionProfile/list"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "command/exec/outputDelta"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fs/changed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionCompleted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionUpdated"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "applyPatchApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "execCommandApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/commandExecution/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/fileChange/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/permissions/requestApproval"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "accept"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptForSession"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptWithExecpolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "applyNetworkPolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "cancel"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "decline"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "add"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "delete"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "update"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "glob_pattern"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "path"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "special"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "minimal"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "project_roots"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "root"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "slash_tmp"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "tmpdir"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "list_files"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "read"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "search"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "abort"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_execpolicy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_for_session"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "denied"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "network_policy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "timed_out"
+        }
+      ],
+      "complete_cumulative_identity_count": 53,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "permissionProfile/list"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "applyPatchApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "execCommandApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/commandExecution/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/fileChange/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/permissions/requestApproval"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "accept"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptForSession"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptWithExecpolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "applyNetworkPolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "cancel"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "decline"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "add"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "delete"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "update"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "glob_pattern"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "path"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "special"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "minimal"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "project_roots"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "root"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "slash_tmp"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "tmpdir"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "list_files"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "read"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "search"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "abort"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_execpolicy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_for_session"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "denied"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "network_policy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "timed_out"
+        }
+      ],
+      "complete_owned_identity_count": 35,
+      "derived_global_schema_status": {
+        "Complete": 265,
+        "NotApplicable": 48,
+        "NotImplemented": 70,
+        "Partial": 4
+      }
+    },
+    {
+      "batch": "B5",
+      "complete_cumulative_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/resize"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/terminate"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "command/exec/write"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/copy"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/createDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/getMetadata"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readDirectory"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/readFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/remove"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/unwatch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/watch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fs/writeFile"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "fuzzyFileSearch"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "permissionProfile/list"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "review/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "thread/approveGuardianDeniedAction"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "command/exec/outputDelta"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fs/changed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionCompleted"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "fuzzyFileSearch/sessionUpdated"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "guardianWarning"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "item/autoApprovalReview/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "item/autoApprovalReview/started"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "applyPatchApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "execCommandApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/commandExecution/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/fileChange/requestApproval"
+        },
+        {
+          "category": "server_request",
+          "discriminator_field": "method",
+          "domain": "ServerRequest",
+          "name": "item/permissions/requestApproval"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "accept"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptForSession"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "acceptWithExecpolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "applyNetworkPolicyAmendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "cancel"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "CommandExecutionApprovalDecision",
+          "name": "decline"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "add"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "delete"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileChange",
+          "name": "update"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "glob_pattern"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "path"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "FileSystemPath",
+          "name": "special"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "minimal"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "project_roots"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "root"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "slash_tmp"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "tmpdir"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "kind",
+          "domain": "FileSystemSpecialPath",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "applyPatch"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "command"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "execve"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "mcpToolCall"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "networkAccess"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "requestPermissions"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "list_files"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "read"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "search"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ParsedCommand",
+          "name": "unknown"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "abort"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_execpolicy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "approved_for_session"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "denied"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "network_policy_amendment"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "$variant",
+          "domain": "ReviewDecision",
+          "name": "timed_out"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "baseBranch"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "commit"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "custom"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "uncommittedChanges"
+        }
+      ],
+      "complete_cumulative_identity_count": 68,
+      "complete_owned_identities": [
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "review/start"
+        },
+        {
+          "category": "client_request",
+          "discriminator_field": "method",
+          "domain": "ClientRequest",
+          "name": "thread/approveGuardianDeniedAction"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "guardianWarning"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "item/autoApprovalReview/completed"
+        },
+        {
+          "category": "server_notification",
+          "discriminator_field": "method",
+          "domain": "ServerNotification",
+          "name": "item/autoApprovalReview/started"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "applyPatch"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "command"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "execve"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "mcpToolCall"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "networkAccess"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "GuardianApprovalReviewAction",
+          "name": "requestPermissions"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "baseBranch"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "commit"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "custom"
+        },
+        {
+          "category": "tagged_union_discriminator",
+          "discriminator_field": "type",
+          "domain": "ReviewTarget",
+          "name": "uncommittedChanges"
+        }
+      ],
+      "complete_owned_identity_count": 15,
+      "derived_global_schema_status": {
+        "Complete": 280,
+        "NotApplicable": 48,
+        "NotImplemented": 55,
+        "Partial": 4
+      }
+    }
+  ],
+  "transport_and_lifecycle": {
+    "acceptance_test_sources": {
+      "CodexA13ApprovalBackendCompatibilityTest.cpp": {
+        "path": "tests/component/codex/CodexA13ApprovalBackendCompatibilityTest.cpp",
+        "sha256": "809ba05e4c16614e6867a7bf25ee15ac150cbafdc44e2df6d3ae68432c6890e5"
+      },
+      "CodexA13ApprovalCodecTest.cpp": {
+        "path": "tests/component/codex/CodexA13ApprovalCodecTest.cpp",
+        "sha256": "8404fcb7b7d0b0845685e910c06cbb5b0c1cf92b97490ba44b81d7cf9b24185a"
+      },
+      "CodexA13ApprovalWireTest.cpp": {
+        "path": "tests/component/codex/CodexA13ApprovalWireTest.cpp",
+        "sha256": "72cb24e23c1d2dc8b91437b1809bcbf54f825d22260be4c4c3a804cb1009224d"
+      },
+      "CodexA13CommandBackendCompatibilityTest.cpp": {
+        "path": "tests/component/codex/CodexA13CommandBackendCompatibilityTest.cpp",
+        "sha256": "85844fac9cb2a65516dc48a43d3c21bd3e72cb102a36deaf566a58fd793b0895"
+      },
+      "CodexA13CommandCodecTest.cpp": {
+        "path": "tests/component/codex/CodexA13CommandCodecTest.cpp",
+        "sha256": "3185eeae8db5752a544b705cb2087d2f49656d276ce98a1c5f56ebca202c2717"
+      },
+      "CodexA13CommandWireTest.cpp": {
+        "path": "tests/component/codex/CodexA13CommandWireTest.cpp",
+        "sha256": "280440ff80625f2e90d38b28ed0a3154585e55c179e85ba6d559458ffc35f35d"
+      },
+      "CodexA13FilesystemBackendCompatibilityTest.cpp": {
+        "path": "tests/component/codex/CodexA13FilesystemBackendCompatibilityTest.cpp",
+        "sha256": "4cc3c5966244d154564a79640e779febee085ecada64000b4a468e4921ad7d99"
+      },
+      "CodexA13FilesystemCodecTest.cpp": {
+        "path": "tests/component/codex/CodexA13FilesystemCodecTest.cpp",
+        "sha256": "4d58c891278964d1ee226180b312bb402cf09f4fca38d0233e207b2ab48b00f5"
+      },
+      "CodexA13FilesystemWireTest.cpp": {
+        "path": "tests/component/codex/CodexA13FilesystemWireTest.cpp",
+        "sha256": "a16647c9e023cf68ec955d1a9aa08612113e3470e20a1bf758eb0c2d2ecb1579"
+      },
+      "CodexA13ReviewBackendCompatibilityTest.cpp": {
+        "path": "tests/component/codex/CodexA13ReviewBackendCompatibilityTest.cpp",
+        "sha256": "79682ba6fd8f4f6777794316513c4ed8f926388e24578a7dcea2e88660f49ccd"
+      },
+      "CodexA13ReviewCodecTest.cpp": {
+        "path": "tests/component/codex/CodexA13ReviewCodecTest.cpp",
+        "sha256": "5e8d35be37c2774d229070fc3789023d785f61e0d83fb35c09b63ef9a085610c"
+      },
+      "CodexA13ReviewWireTest.cpp": {
+        "path": "tests/component/codex/CodexA13ReviewWireTest.cpp",
+        "sha256": "7f88e791f54027cd3f249e5cf2559097c6d42d07ff9d9ac22e88fe8464cf9e8c"
+      }
+    },
+    "cross_delivery_prevented": true,
+    "direct_raw_protocol_response": true,
+    "out_of_order_response_correlation": true,
+    "server_request_resolved_dependency": false,
+    "server_request_types_concurrently_pending": 5,
+    "wire_tests": [
+      "CodexA13CommandWireTest",
+      "CodexA13FilesystemWireTest",
+      "CodexA13ApprovalWireTest",
+      "CodexA13ReviewWireTest"
+    ]
+  },
+  "union_alternatives": [
+    {
+      "alternative": "accept",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "acceptForSession",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "acceptWithExecpolicyAmendment",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "applyNetworkPolicyAmendment",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "cancel",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "decline",
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision"
+    },
+    {
+      "alternative": "add",
+      "discriminator_notation": "type",
+      "domain": "FileChange"
+    },
+    {
+      "alternative": "delete",
+      "discriminator_notation": "type",
+      "domain": "FileChange"
+    },
+    {
+      "alternative": "update",
+      "discriminator_notation": "type",
+      "domain": "FileChange"
+    },
+    {
+      "alternative": "glob_pattern",
+      "discriminator_notation": "type",
+      "domain": "FileSystemPath"
+    },
+    {
+      "alternative": "path",
+      "discriminator_notation": "type",
+      "domain": "FileSystemPath"
+    },
+    {
+      "alternative": "special",
+      "discriminator_notation": "type",
+      "domain": "FileSystemPath"
+    },
+    {
+      "alternative": "minimal",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "project_roots",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "root",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "slash_tmp",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "tmpdir",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "unknown",
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath"
+    },
+    {
+      "alternative": "applyPatch",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "command",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "execve",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "mcpToolCall",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "networkAccess",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "requestPermissions",
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction"
+    },
+    {
+      "alternative": "list_files",
+      "discriminator_notation": "type",
+      "domain": "ParsedCommand"
+    },
+    {
+      "alternative": "read",
+      "discriminator_notation": "type",
+      "domain": "ParsedCommand"
+    },
+    {
+      "alternative": "search",
+      "discriminator_notation": "type",
+      "domain": "ParsedCommand"
+    },
+    {
+      "alternative": "unknown",
+      "discriminator_notation": "type",
+      "domain": "ParsedCommand"
+    },
+    {
+      "alternative": "abort",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "approved",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "approved_execpolicy_amendment",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "approved_for_session",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "denied",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "network_policy_amendment",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "timed_out",
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision"
+    },
+    {
+      "alternative": "baseBranch",
+      "discriminator_notation": "type",
+      "domain": "ReviewTarget"
+    },
+    {
+      "alternative": "commit",
+      "discriminator_notation": "type",
+      "domain": "ReviewTarget"
+    },
+    {
+      "alternative": "custom",
+      "discriminator_notation": "type",
+      "domain": "ReviewTarget"
+    },
+    {
+      "alternative": "uncommittedChanges",
+      "discriminator_notation": "type",
+      "domain": "ReviewTarget"
+    }
+  ],
+  "union_families": [
+    {
+      "alternatives": [
+        "accept",
+        "acceptForSession",
+        "acceptWithExecpolicyAmendment",
+        "applyNetworkPolicyAmendment",
+        "cancel",
+        "decline"
+      ],
+      "discriminator_notation": "$variant",
+      "domain": "CommandExecutionApprovalDecision",
+      "wire_note": "$variant is inventory notation and is never emitted unless the concrete schema defines a member"
+    },
+    {
+      "alternatives": [
+        "add",
+        "delete",
+        "update"
+      ],
+      "discriminator_notation": "type",
+      "domain": "FileChange",
+      "wire_note": "wire discriminator member is type"
+    },
+    {
+      "alternatives": [
+        "glob_pattern",
+        "path",
+        "special"
+      ],
+      "discriminator_notation": "type",
+      "domain": "FileSystemPath",
+      "wire_note": "wire discriminator member is type"
+    },
+    {
+      "alternatives": [
+        "minimal",
+        "project_roots",
+        "root",
+        "slash_tmp",
+        "tmpdir",
+        "unknown"
+      ],
+      "discriminator_notation": "kind",
+      "domain": "FileSystemSpecialPath",
+      "wire_note": "wire discriminator member is kind"
+    },
+    {
+      "alternatives": [
+        "applyPatch",
+        "command",
+        "execve",
+        "mcpToolCall",
+        "networkAccess",
+        "requestPermissions"
+      ],
+      "discriminator_notation": "type",
+      "domain": "GuardianApprovalReviewAction",
+      "wire_note": "wire discriminator member is type"
+    },
+    {
+      "alternatives": [
+        "list_files",
+        "read",
+        "search",
+        "unknown"
+      ],
+      "discriminator_notation": "type",
+      "domain": "ParsedCommand",
+      "wire_note": "wire discriminator member is type"
+    },
+    {
+      "alternatives": [
+        "abort",
+        "approved",
+        "approved_execpolicy_amendment",
+        "approved_for_session",
+        "denied",
+        "network_policy_amendment",
+        "timed_out"
+      ],
+      "discriminator_notation": "$variant",
+      "domain": "ReviewDecision",
+      "wire_note": "$variant is inventory notation and is never emitted unless the concrete schema defines a member"
+    },
+    {
+      "alternatives": [
+        "baseBranch",
+        "commit",
+        "custom",
+        "uncommittedChanges"
+      ],
+      "discriminator_notation": "type",
+      "domain": "ReviewTarget",
+      "wire_note": "wire discriminator member is type"
+    }
+  ],
+  "upstream_tag": "rust-v0.144.6"
+}

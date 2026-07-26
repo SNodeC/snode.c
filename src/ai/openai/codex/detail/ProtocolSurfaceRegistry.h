@@ -106,6 +106,23 @@ namespace ai::openai::codex::detail {
         ThreadUnarchive,
         ThreadUnsubscribe,
         TurnSteer,
+        CommandExec,
+        CommandExecResize,
+        CommandExecTerminate,
+        CommandExecWrite,
+        FsCopy,
+        FsCreateDirectory,
+        FsGetMetadata,
+        FsReadDirectory,
+        FsReadFile,
+        FsRemove,
+        FsUnwatch,
+        FsWatch,
+        FsWriteFile,
+        FuzzyFileSearch,
+        PermissionProfileList,
+        ReviewStart,
+        ThreadApproveGuardianDeniedAction,
         Count
     };
 
@@ -157,6 +174,13 @@ namespace ai::openai::codex::detail {
         TurnModerationMetadata,
         TurnPlanUpdated,
         ModelRerouted,
+        CommandExecOutputDelta,
+        FsChanged,
+        FuzzyFileSearchSessionCompleted,
+        FuzzyFileSearchSessionUpdated,
+        GuardianWarning,
+        ItemGuardianApprovalReviewCompleted,
+        ItemGuardianApprovalReviewStarted,
         Count
     };
 
@@ -165,6 +189,9 @@ namespace ai::openai::codex::detail {
         FileChangeRequestApproval,
         ToolRequestUserInput,
         ChatgptAuthTokensRefresh,
+        ApplyPatchApproval,
+        ExecCommandApproval,
+        PermissionsRequestApproval,
         Count
     };
 
@@ -321,6 +348,49 @@ namespace ai::openai::codex::detail {
         Count
     };
 
+    enum class CommandsFilesystemReviewsApprovalsUnionTarget {
+        CommandExecutionApprovalDecisionAccept,
+        CommandExecutionApprovalDecisionAcceptForSession,
+        CommandExecutionApprovalDecisionAcceptWithExecpolicyAmendment,
+        CommandExecutionApprovalDecisionApplyNetworkPolicyAmendment,
+        CommandExecutionApprovalDecisionCancel,
+        CommandExecutionApprovalDecisionDecline,
+        FileChangeAdd,
+        FileChangeDelete,
+        FileChangeUpdate,
+        FileSystemPathGlobPattern,
+        FileSystemPathPath,
+        FileSystemPathSpecial,
+        FileSystemSpecialPathMinimal,
+        FileSystemSpecialPathProjectRoots,
+        FileSystemSpecialPathRoot,
+        FileSystemSpecialPathSlashTmp,
+        FileSystemSpecialPathTmpdir,
+        FileSystemSpecialPathUnknown,
+        ParsedCommandListFiles,
+        ParsedCommandRead,
+        ParsedCommandSearch,
+        ParsedCommandUnknown,
+        ReviewDecisionAbort,
+        ReviewDecisionApproved,
+        ReviewDecisionApprovedExecpolicyAmendment,
+        ReviewDecisionApprovedForSession,
+        ReviewDecisionDenied,
+        ReviewDecisionNetworkPolicyAmendment,
+        ReviewDecisionTimedOut,
+        GuardianApprovalReviewActionApplyPatch,
+        GuardianApprovalReviewActionCommand,
+        GuardianApprovalReviewActionExecve,
+        GuardianApprovalReviewActionMcpToolCall,
+        GuardianApprovalReviewActionNetworkAccess,
+        GuardianApprovalReviewActionRequestPermissions,
+        ReviewTargetBaseBranch,
+        ReviewTargetCommit,
+        ReviewTargetCustom,
+        ReviewTargetUncommittedChanges,
+        Count
+    };
+
     enum class ConversationUnionCodecShape { ScalarString, ExternallyTaggedObject, InternallyTaggedObject, Count };
 
     enum class ConversationUnionCodecDirection { DecodeOnly, EncodeOnly, Bidirectional, Count };
@@ -357,6 +427,14 @@ namespace ai::openai::codex::detail {
         ThreadUnsubscribeResponse,
         TurnStartResponse,
         TurnSteerResponse,
+        CommandExecResponse,
+        FsGetMetadataResponse,
+        FsReadDirectoryResponse,
+        FsReadFileResponse,
+        FsWatchResponse,
+        FuzzyFileSearchResponse,
+        PermissionProfileListResponse,
+        ReviewStartResponse,
         Count
     };
 
@@ -369,7 +447,8 @@ namespace ai::openai::codex::detail {
                                        ResponseItemTarget,
                                        CodexErrorInfoTarget,
                                        ConversationUnionTarget,
-                                       AccountsModelsConfigurationUnionTarget>;
+                                       AccountsModelsConfigurationUnionTarget,
+                                       CommandsFilesystemReviewsApprovalsUnionTarget>;
 
     struct ProtocolSurfaceKey {
         SurfaceCategory category = SurfaceCategory::TaggedUnionDiscriminator;
@@ -396,6 +475,13 @@ namespace ai::openai::codex::detail {
     struct AccountsModelsConfigurationUnionCodecDescriptor {
         ProtocolSurfaceKey key;
         AccountsModelsConfigurationUnionTarget target = AccountsModelsConfigurationUnionTarget::Count;
+        ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
+        ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
+    };
+
+    struct CommandsFilesystemReviewsApprovalsUnionCodecDescriptor {
+        ProtocolSurfaceKey key;
+        CommandsFilesystemReviewsApprovalsUnionTarget target = CommandsFilesystemReviewsApprovalsUnionTarget::Count;
         ConversationUnionCodecShape shape = ConversationUnionCodecShape::Count;
         ConversationUnionCodecDirection direction = ConversationUnionCodecDirection::Count;
     };
@@ -572,10 +658,13 @@ namespace ai::openai::codex::detail {
     const ProtocolSurfaceEntry& entryFor(CodexErrorInfoTarget target);
     const ProtocolSurfaceEntry& entryFor(ConversationUnionTarget target);
     const ProtocolSurfaceEntry& entryFor(AccountsModelsConfigurationUnionTarget target);
+    const ProtocolSurfaceEntry& entryFor(CommandsFilesystemReviewsApprovalsUnionTarget target);
 
     std::span<const ConversationUnionCodecDescriptor> conversationUnionCodecDescriptors() noexcept;
     std::span<const AccountsModelsConfigurationUnionCodecDescriptor>
     accountsModelsConfigurationUnionCodecDescriptors() noexcept;
+    std::span<const CommandsFilesystemReviewsApprovalsUnionCodecDescriptor>
+    commandsFilesystemReviewsApprovalsUnionCodecDescriptors() noexcept;
     std::span<const ClientOperationCodecDescriptor> clientOperationCodecDescriptors() noexcept;
     std::span<const ServerNotificationCodecDescriptor> serverNotificationCodecDescriptors() noexcept;
     std::span<const ServerRequestCodecDescriptor> serverRequestCodecDescriptors() noexcept;

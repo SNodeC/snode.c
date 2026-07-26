@@ -3563,6 +3563,1017 @@ class AppServerFixtureToolTest(unittest.TestCase):
             },
         )
 
+    def test_a1_3_command_fixture_plan_is_exact_and_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def payload(fixture_id: str) -> object:
+            return json.loads(
+                (
+                    configured.fixture_root
+                    / records_by_id[fixture_id]["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        commands = index["a1_3_commands"]
+        operation_keys = commands["assignment_derived_operation_keys"]
+        notification_keys = commands[
+            "assignment_derived_notification_keys"
+        ]
+        self.assertEqual(len(operation_keys), 4)
+        self.assertEqual(
+            {record["name"] for record in operation_keys},
+            set(tool.A13_COMMAND_CLIENT_REQUEST_METHODS),
+        )
+        self.assertEqual(len(notification_keys), 1)
+        self.assertEqual(
+            {record["name"] for record in notification_keys},
+            set(tool.A13_COMMAND_NOTIFICATION_METHODS),
+        )
+        self.assertTrue(
+            all(
+                record["category"] == "client_request"
+                and record["domain"] == "ClientRequest"
+                and record["discriminator_field"] == "method"
+                for record in operation_keys
+            )
+        )
+        self.assertTrue(
+            all(
+                record["category"] == "server_notification"
+                and record["domain"] == "ServerNotification"
+                and record["discriminator_field"] == "method"
+                for record in notification_keys
+            )
+        )
+
+        indexed = commands["indexed_schema_coverage"]
+        self.assertEqual(len(indexed), 5)
+        for key, record in indexed.items():
+            expected_directions = (
+                {"Decode", "Encode"}
+                if key.startswith("client_request:")
+                else {"Decode"}
+            )
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertEqual(
+                set(record["directions_exercised"]),
+                expected_directions,
+            )
+            self.assertTrue(all(record["schema_fixture_facts"].values()))
+            self.assertLessEqual(
+                set(record["required_reachable_fixture_ids"]),
+                set(records_by_id),
+            )
+
+        operation_plan = commands["operation_root_fixture_plan"]
+        self.assertEqual(len(operation_plan), 4)
+        self.assertEqual(
+            sum(
+                len(operation["roots"])
+                for operation in operation_plan.values()
+            ),
+            8,
+        )
+        self.assertTrue(
+            all(
+                {
+                    root_name: root["direction"]
+                    for root_name, root in operation["roots"].items()
+                }
+                == {"params": "Encode", "result": "Decode"}
+                for operation in operation_plan.values()
+            )
+        )
+        mutation_counts = {
+            field: sum(
+                len(root[field])
+                for operation in operation_plan.values()
+                for root in operation["roots"].values()
+            )
+            for field in (
+                "missing_required_fixture_ids",
+                "nullable_null_fixture_ids",
+                "required_nullable_null_fixture_ids",
+                "optional_omitted_fixture_ids",
+                "wrong_type_fixture_ids",
+            )
+        }
+        self.assertEqual(
+            mutation_counts,
+            {
+                "missing_required_fixture_ids": 13,
+                "nullable_null_fixture_ids": 8,
+                "required_nullable_null_fixture_ids": 0,
+                "optional_omitted_fixture_ids": 15,
+                "wrong_type_fixture_ids": 33,
+            },
+        )
+        self.assertEqual(
+            commands["negative_coverage"]["operation_opaque_exclusions"],
+            [],
+        )
+
+        unit_invariants = commands["negative_coverage"][
+            "unit_result_invariants"
+        ]
+        self.assertEqual(len(unit_invariants), 3)
+        self.assertEqual(
+            {
+                (
+                    record["method"],
+                    record["result_schema_type_identity"],
+                )
+                for record in unit_invariants
+            },
+            {
+                (
+                    "command/exec/resize",
+                    "CommandExecResizeResponse",
+                ),
+                (
+                    "command/exec/terminate",
+                    "CommandExecTerminateResponse",
+                ),
+                (
+                    "command/exec/write",
+                    "CommandExecWriteResponse",
+                ),
+            },
+        )
+        for unit in unit_invariants:
+            self.assertEqual(unit["result_contract_kind"], "Unit")
+            self.assertEqual(unit["result_type_identity"], "Unit")
+            self.assertEqual(unit["property_count"], 0)
+            self.assertTrue(
+                unit["future_property_addition_fails_generation"]
+            )
+            self.assertEqual(
+                payload(unit["empty_result_fixture_id"]),
+                {},
+            )
+            mutated_unit_schema = copy.deepcopy(
+                unit["reviewed_result_schema"]
+            )
+            mutated_unit_schema["properties"] = {
+                "futureProperty": {"type": "boolean"}
+            }
+            with self.assertRaisesRegex(
+                tool.FixtureError,
+                "Unit result no longer resolves",
+            ):
+                tool.require_reviewed_unit_result_schema(
+                    method=unit["method"],
+                    actual=mutated_unit_schema,
+                    expected=unit["reviewed_result_schema"],
+                )
+
+        positive = commands["positive_coverage"]
+        self.assertEqual(len(positive["minimum_request_fixture_ids"]), 4)
+        self.assertEqual(len(positive["full_request_fixture_ids"]), 4)
+        minimum_exec_id = next(
+            fixture_id
+            for fixture_id in positive["minimum_request_fixture_ids"]
+            if fixture_id.endswith("command/exec:params:minimum")
+        )
+        self.assertEqual(
+            payload(minimum_exec_id),
+            {"command": ["synthetic-tool"]},
+        )
+        full_exec = payload(
+            "operation:client_request:command/exec:params"
+        )
+        self.assertEqual(
+            full_exec["command"],
+            [
+                "synthetic-tool",
+                "--synthetic-flag",
+                "synthetic argument",
+            ],
+        )
+        self.assertEqual(full_exec["cwd"], "/synthetic/project")
+        self.assertEqual(
+            full_exec["env"],
+            {
+                "SYNTHETIC_UNSET": None,
+                "SYNTHETIC_VALUE": "synthetic-environment-value",
+            },
+        )
+        self.assertEqual(full_exec["processId"], "synthetic-process-id")
+        self.assertEqual(full_exec["size"], {"cols": 80, "rows": 24})
+        self.assertNotIn("permissionProfile", full_exec)
+
+        environment = positive["environment_map"]
+        self.assertEqual(
+            payload(environment["explicit_empty_fixture_id"])["env"],
+            {},
+        )
+        self.assertEqual(
+            environment["nonempty_string_and_null_fixture_id"],
+            "operation:client_request:command/exec:params",
+        )
+        empty_command_id = positive[
+            "empty_command_typed_rejection_fixture_id"
+        ]
+        self.assertEqual(payload(empty_command_id)["command"], [])
+        empty_command_record = records_by_id[empty_command_id]
+        self.assertTrue(
+            empty_command_record["typed_state_boundary"]["schema_accepts"]
+        )
+        self.assertFalse(
+            empty_command_record["typed_state_boundary"][
+                "typed_submission_accepts"
+            ]
+        )
+        self.assertEqual(
+            payload(positive["concrete_result_fixture_id"]),
+            {
+                "exitCode": 0,
+                "stderr": "synthetic stderr",
+                "stdout": "synthetic stdout",
+            },
+        )
+        self.assertEqual(len(positive["unit_result_fixture_ids"]), 3)
+
+        boundaries = positive["integer_boundaries"]
+        self.assertEqual(len(boundaries), 7)
+        self.assertEqual(
+            {
+                field: sum(
+                    len(record[field]) for record in boundaries.values()
+                )
+                for field in (
+                    "schema_valid_representable",
+                    "schema_valid_typed_unrepresentable",
+                    "schema_invalid",
+                )
+            },
+            {
+                "schema_valid_representable": 14,
+                "schema_valid_typed_unrepresentable": 9,
+                "schema_invalid": 12,
+            },
+        )
+        for record in boundaries.values():
+            for fixture_id in record[
+                "schema_valid_typed_unrepresentable"
+            ]:
+                self.assertFalse(
+                    records_by_id[fixture_id]["typed_state_boundary"][
+                        "representable"
+                    ]
+                )
+            for fixture_id in record["schema_invalid"]:
+                self.assertFalse(records_by_id[fixture_id]["expected_valid"])
+                self.assertTrue(
+                    records_by_id[fixture_id][
+                        "expected_diagnostic_codes"
+                    ]
+                )
+
+        notification_plan = commands["notification_root_fixture_plan"]
+        self.assertEqual(len(notification_plan), 1)
+        notification = next(iter(notification_plan.values()))
+        self.assertEqual(
+            {
+                field: len(notification[field])
+                for field in (
+                    "missing_required_fixture_ids",
+                    "nullable_null_fixture_ids",
+                    "required_nullable_null_fixture_ids",
+                    "optional_omitted_fixture_ids",
+                    "wrong_type_fixture_ids",
+                )
+            },
+            {
+                "missing_required_fixture_ids": 6,
+                "nullable_null_fixture_ids": 0,
+                "required_nullable_null_fixture_ids": 0,
+                "optional_omitted_fixture_ids": 0,
+                "wrong_type_fixture_ids": 6,
+            },
+        )
+        self.assertEqual(
+            commands["negative_coverage"][
+                "notification_payload_mutations"
+            ]["counts"],
+            {
+                "base_generated": 1,
+                "missing_required": 6,
+                "nullable_null": 0,
+                "optional_omitted": 0,
+                "required_nullable_null": 0,
+                "wrong_type": 6,
+                "wrong_type_opaque_exclusions": 0,
+            },
+        )
+        notification_fixture_ids = positive[
+            "notification_fixture_ids"
+        ]
+        self.assertEqual(len(notification_fixture_ids), 2)
+        notifications = [
+            payload(fixture_id) for fixture_id in notification_fixture_ids
+        ]
+        self.assertEqual(
+            [record["params"]["stream"] for record in notifications],
+            ["stdout", "stderr"],
+        )
+        self.assertEqual(
+            [record["params"]["capReached"] for record in notifications],
+            [False, True],
+        )
+        self.assertTrue(
+            all(
+                record["method"] == "command/exec/outputDelta"
+                and record["params"]["processId"]
+                == "synthetic-process-id"
+                and record["params"]["deltaBase64"]
+                == "c3ludGhldGljLWRhdGE="
+                for record in notifications
+            )
+        )
+
+        enum_coverage = commands["negative_coverage"][
+            "open_string_enums"
+        ]
+        self.assertEqual(set(enum_coverage), {"CommandExecOutputStream"})
+        output_stream = enum_coverage["CommandExecOutputStream"]
+        self.assertEqual(
+            output_stream["known_value_fixture_ids"],
+            [
+                "enum:CommandExecOutputStream:stdout",
+                "enum:CommandExecOutputStream:stderr",
+            ],
+        )
+        self.assertEqual(
+            output_stream["directions_exercised"],
+            ["Decode"],
+        )
+        for fixture_id in (
+            output_stream["future_value_fixture_id"],
+            output_stream["empty_value_fixture_id"],
+        ):
+            self.assertEqual(
+                records_by_id[fixture_id]["expected_diagnostic_codes"],
+                ["one_of_zero"],
+            )
+
+        diagnostic_counts: dict[tuple[str, ...], int] = {}
+        batch_names = (
+            set(tool.A13_COMMAND_CLIENT_REQUEST_METHODS)
+            | set(tool.A13_COMMAND_NOTIFICATION_METHODS)
+        )
+        for fixture in index["fixtures"]:
+            if (
+                fixture.get("expected_valid", True)
+                or fixture.get("protocol_surface_key", {}).get("name")
+                not in batch_names
+            ):
+                continue
+            codes = tuple(fixture["expected_diagnostic_codes"])
+            diagnostic_counts[codes] = (
+                diagnostic_counts.get(codes, 0) + 1
+            )
+        self.assertEqual(
+            diagnostic_counts,
+            {
+                ("any_of_zero",): 13,
+                ("minimum",): 3,
+                ("one_of_zero",): 12,
+                ("required_missing",): 10,
+                ("type_mismatch",): 32,
+            },
+        )
+
+    def test_a1_3_filesystem_fuzzy_fixture_plan_is_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def payload(fixture_id: str) -> object:
+            return json.loads(
+                (
+                    configured.fixture_root
+                    / records_by_id[fixture_id]["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        filesystem = index["a1_3_filesystem_fuzzy"]
+        operation_keys = filesystem[
+            "assignment_derived_operation_keys"
+        ]
+        notification_keys = filesystem[
+            "assignment_derived_notification_keys"
+        ]
+        self.assertEqual(len(operation_keys), 10)
+        self.assertEqual(
+            {record["name"] for record in operation_keys},
+            set(tool.A13_FILESYSTEM_CLIENT_REQUEST_METHODS),
+        )
+        self.assertEqual(len(notification_keys), 3)
+        self.assertEqual(
+            {record["name"] for record in notification_keys},
+            set(tool.A13_FILESYSTEM_NOTIFICATION_METHODS),
+        )
+        self.assertTrue(
+            {
+                "fuzzyFileSearch/sessionStart",
+                "fuzzyFileSearch/sessionUpdate",
+                "fuzzyFileSearch/sessionStop",
+            }.isdisjoint(
+                {record["name"] for record in operation_keys}
+            )
+        )
+
+        indexed = filesystem["indexed_schema_coverage"]
+        self.assertEqual(len(indexed), 13)
+        for key, record in indexed.items():
+            expected_directions = (
+                {"Decode", "Encode"}
+                if key.startswith("client_request:")
+                else {"Decode"}
+            )
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertEqual(
+                set(record["directions_exercised"]),
+                expected_directions,
+            )
+            self.assertTrue(all(record["schema_fixture_facts"].values()))
+            self.assertLessEqual(
+                set(record["required_reachable_fixture_ids"]),
+                set(records_by_id),
+            )
+
+        operation_plan = filesystem["operation_root_fixture_plan"]
+        self.assertEqual(len(operation_plan), 10)
+        self.assertEqual(
+            sum(
+                len(operation["roots"])
+                for operation in operation_plan.values()
+            ),
+            20,
+        )
+        mutation_counts = {
+            field: sum(
+                len(root[field])
+                for operation in operation_plan.values()
+                for root in operation["roots"].values()
+            )
+            for field in (
+                "missing_required_fixture_ids",
+                "nullable_null_fixture_ids",
+                "required_nullable_null_fixture_ids",
+                "optional_omitted_fixture_ids",
+                "wrong_type_fixture_ids",
+            )
+        }
+        self.assertEqual(
+            mutation_counts,
+            {
+                "missing_required_fixture_ids": 31,
+                "nullable_null_fixture_ids": 5,
+                "required_nullable_null_fixture_ids": 0,
+                "optional_omitted_fixture_ids": 6,
+                "wrong_type_fixture_ids": 41,
+            },
+        )
+        self.assertEqual(
+            filesystem["negative_coverage"][
+                "operation_opaque_exclusions"
+            ],
+            [],
+        )
+
+        unit_invariants = filesystem["negative_coverage"][
+            "unit_result_invariants"
+        ]
+        self.assertEqual(len(unit_invariants), 5)
+        self.assertEqual(
+            {record["method"] for record in unit_invariants},
+            {
+                "fs/copy",
+                "fs/createDirectory",
+                "fs/remove",
+                "fs/unwatch",
+                "fs/writeFile",
+            },
+        )
+        for unit in unit_invariants:
+            self.assertEqual(unit["result_contract_kind"], "Unit")
+            self.assertEqual(unit["result_type_identity"], "Unit")
+            self.assertEqual(payload(unit["empty_result_fixture_id"]), {})
+            mutated_unit_schema = copy.deepcopy(
+                unit["reviewed_result_schema"]
+            )
+            mutated_unit_schema["properties"] = {
+                "futureProperty": {"type": "boolean"}
+            }
+            with self.assertRaisesRegex(
+                tool.FixtureError,
+                "Unit result no longer resolves",
+            ):
+                tool.require_reviewed_unit_result_schema(
+                    method=unit["method"],
+                    actual=mutated_unit_schema,
+                    expected=unit["reviewed_result_schema"],
+                )
+
+        positive = filesystem["positive_coverage"]
+        self.assertEqual(len(positive["minimum_request_fixture_ids"]), 10)
+        self.assertEqual(len(positive["full_request_fixture_ids"]), 10)
+        self.assertEqual(len(positive["concrete_result_fixture_ids"]), 5)
+        self.assertEqual(len(positive["unit_result_fixture_ids"]), 5)
+        fuzzy_minimum = payload(
+            "operation:client_request:fuzzyFileSearch:params:minimum"
+        )
+        self.assertEqual(
+            fuzzy_minimum,
+            {"query": "synthetic query", "roots": []},
+        )
+        full_write = payload(
+            "operation:client_request:fs/writeFile:params"
+        )
+        self.assertEqual(
+            full_write,
+            {
+                "dataBase64": "c3ludGhldGljLWZpbGUtZGF0YQ==",
+                "path": "/synthetic/project/synthetic-entry.txt",
+            },
+        )
+        for fixture_id in positive[
+            "explicit_empty_array_fixture_ids"
+        ]:
+            value = payload(fixture_id)
+            self.assertIn([], value.values())
+
+        ordered = payload(
+            positive["ordered_fuzzy_result_fixture_id"]
+        )
+        self.assertEqual(
+            [record["file_name"] for record in ordered["files"]],
+            ["synthetic-first.txt", "synthetic-directory"],
+        )
+        self.assertEqual(
+            [record["match_type"] for record in ordered["files"]],
+            ["file", "directory"],
+        )
+        self.assertEqual(
+            [record["score"] for record in ordered["files"]],
+            [20, 10],
+        )
+        self.assertEqual(len(positive["metadata_variant_fixture_ids"]), 3)
+        self.assertEqual(len(positive["integer_boundaries"]), 4)
+        self.assertEqual(
+            {
+                field: sum(
+                    len(record[field])
+                    for record in positive["integer_boundaries"].values()
+                )
+                for field in (
+                    "schema_valid_representable",
+                    "schema_valid_typed_unrepresentable",
+                    "schema_invalid",
+                )
+            },
+            {
+                "schema_valid_representable": 8,
+                "schema_valid_typed_unrepresentable": 6,
+                "schema_invalid": 6,
+            },
+        )
+
+        notification_plan = filesystem[
+            "notification_root_fixture_plan"
+        ]
+        self.assertEqual(len(notification_plan), 3)
+        self.assertEqual(
+            filesystem["negative_coverage"][
+                "notification_payload_mutations"
+            ]["counts"],
+            {
+                "base_generated": 3,
+                "missing_required": 17,
+                "nullable_null": 1,
+                "optional_omitted": 1,
+                "required_nullable_null": 0,
+                "wrong_type": 21,
+                "wrong_type_opaque_exclusions": 0,
+            },
+        )
+        self.assertEqual(
+            len(positive["notification_fixture_ids"]), 3
+        )
+        self.assertEqual(
+            len(positive["notification_empty_array_fixture_ids"]), 2
+        )
+        for fixture_id in positive[
+            "notification_empty_array_fixture_ids"
+        ]:
+            params = payload(fixture_id)["params"]
+            self.assertTrue(
+                params.get("changedPaths") == []
+                or params.get("files") == []
+            )
+
+        enum_coverage = filesystem["negative_coverage"][
+            "open_string_enums"
+        ]
+        self.assertEqual(
+            set(enum_coverage), {"FuzzyFileSearchMatchType"}
+        )
+        match_type = enum_coverage["FuzzyFileSearchMatchType"]
+        self.assertEqual(
+            match_type["known_value_fixture_ids"],
+            [
+                "enum:FuzzyFileSearchMatchType:file",
+                "enum:FuzzyFileSearchMatchType:directory",
+            ],
+        )
+        self.assertEqual(match_type["directions_exercised"], ["Decode"])
+        for fixture_id in (
+            match_type["future_value_fixture_id"],
+            match_type["empty_value_fixture_id"],
+        ):
+            self.assertEqual(
+                records_by_id[fixture_id]["expected_diagnostic_codes"],
+                ["enum_mismatch"],
+            )
+
+    def test_a1_3_approval_permission_fixture_plan_is_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def payload(fixture_id: str) -> object:
+            return json.loads(
+                (
+                    configured.fixture_root
+                    / records_by_id[fixture_id]["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        approvals = index["a1_3_approvals_permissions"]
+        operation_keys = approvals[
+            "assignment_derived_operation_keys"
+        ]
+        union_keys = approvals["assignment_derived_union_keys"]
+        self.assertEqual(6, len(operation_keys))
+        self.assertEqual(
+            {
+                record["name"] for record in operation_keys
+            },
+            (
+                set(tool.A13_APPROVAL_CLIENT_REQUEST_METHODS)
+                | set(tool.A13_APPROVAL_SERVER_REQUEST_METHODS)
+            ),
+        )
+        self.assertEqual(29, len(union_keys))
+        self.assertEqual(
+            {
+                (record["domain"], record["name"])
+                for record in union_keys
+            },
+            {
+                (domain, name)
+                for domain, names in (
+                    tool.A13_APPROVAL_UNION_FAMILY_IDENTITIES.items()
+                )
+                for name in names
+            },
+        )
+
+        indexed = approvals["indexed_schema_coverage"]
+        self.assertEqual(35, len(indexed))
+        for record in indexed.values():
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertTrue(all(record["schema_fixture_facts"].values()))
+            self.assertEqual(
+                {"Decode", "Encode"},
+                set(record["directions_exercised"]),
+            )
+
+        operation_plan = approvals["operation_root_fixture_plan"]
+        self.assertEqual(6, len(operation_plan))
+        self.assertEqual(
+            12,
+            sum(
+                len(operation["roots"])
+                for operation in operation_plan.values()
+            ),
+        )
+        positive = approvals["positive_coverage"]
+        self.assertEqual(6, len(positive["minimum_request_fixture_ids"]))
+        self.assertEqual(6, len(positive["full_request_fixture_ids"]))
+        self.assertEqual(6, len(positive["response_fixture_ids"]))
+        self.assertEqual(
+            {},
+            payload(
+                "operation:client_request:permissionProfile/list:"
+                "params:minimum"
+            ),
+        )
+        ordered = payload(
+            positive["permission_profile_ordered_fixture_id"]
+        )
+        self.assertEqual(
+            [
+                "synthetic-profile-first",
+                "synthetic-profile-second",
+            ],
+            [record["id"] for record in ordered["data"]],
+        )
+        self.assertEqual(
+            [],
+            payload(
+                positive[
+                    "permission_profile_empty_data_fixture_id"
+                ]
+            )["data"],
+        )
+
+        negative = approvals["negative_coverage"]
+        self.assertEqual([], negative["operation_opaque_exclusions"])
+        union_coverage = negative["approval_permission_unions"]
+        self.assertEqual(29, union_coverage["assignment_derived_key_count"])
+        self.assertEqual(
+            {
+                domain: len(names)
+                for domain, names in (
+                    tool.A13_APPROVAL_UNION_FAMILY_IDENTITIES.items()
+                )
+            },
+            union_coverage["family_counts"],
+        )
+        for domain, family in union_coverage["families"].items():
+            future_id = family["future_discriminator_fixture_id"]
+            self.assertIn(future_id, records_by_id)
+            if "unknown" in tool.A13_APPROVAL_UNION_FAMILY_IDENTITIES[
+                domain
+            ]:
+                self.assertNotEqual(
+                    f"union:{domain}:unknown", future_id
+                )
+
+        enum_coverage = negative["open_string_enums"]
+        self.assertEqual(
+            set(tool.A13_APPROVAL_OPEN_STRING_ENUMS),
+            set(enum_coverage),
+        )
+        self.assertEqual(
+            15,
+            sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            ),
+        )
+        for record in enum_coverage.values():
+            self.assertIn(record["future_value_fixture_id"], records_by_id)
+            self.assertIn(record["empty_value_fixture_id"], records_by_id)
+
+        self.assertEqual(
+            5,
+            len(positive["permission_profile_uint32_boundaries"]),
+        )
+        self.assertEqual(5, len(positive["integer_boundaries"]))
+        self.assertEqual(
+            {
+                "applyPatchApproval",
+                "execCommandApproval",
+                "item/commandExecution/requestApproval",
+                "item/fileChange/requestApproval",
+                "item/permissions/requestApproval",
+            },
+            {
+                record["name"]
+                for record in operation_keys
+                if record["category"] == "server_request"
+            },
+        )
+
+    def test_a1_3_review_guardian_fixture_plan_is_complete(self) -> None:
+        configured = arguments()
+        index = json.loads(
+            (configured.fixture_root / "index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        records_by_id = {
+            record["id"]: record for record in index["fixtures"]
+        }
+
+        def payload(fixture_id: str) -> object:
+            return json.loads(
+                (
+                    configured.fixture_root
+                    / records_by_id[fixture_id]["file"]
+                ).read_text(encoding="utf-8")
+            )
+
+        reviews = index["a1_3_reviews_guardian"]
+        operation_keys = reviews[
+            "assignment_derived_operation_keys"
+        ]
+        notification_keys = reviews[
+            "assignment_derived_notification_keys"
+        ]
+        union_keys = reviews["assignment_derived_union_keys"]
+        self.assertEqual(2, len(operation_keys))
+        self.assertEqual(
+            set(tool.A13_REVIEW_CLIENT_REQUEST_METHODS),
+            {record["name"] for record in operation_keys},
+        )
+        self.assertEqual(3, len(notification_keys))
+        self.assertEqual(
+            set(tool.A13_REVIEW_NOTIFICATION_METHODS),
+            {record["name"] for record in notification_keys},
+        )
+        self.assertEqual(10, len(union_keys))
+        self.assertEqual(
+            {
+                (domain, name)
+                for domain, names in (
+                    tool.A13_REVIEW_UNION_FAMILY_IDENTITIES.items()
+                )
+                for name in names
+            },
+            {
+                (record["domain"], record["name"])
+                for record in union_keys
+            },
+        )
+
+        indexed = reviews["indexed_schema_coverage"]
+        self.assertEqual(15, len(indexed))
+        for key, record in indexed.items():
+            self.assertTrue(record["schema_direction_coverage"])
+            self.assertTrue(all(record["schema_fixture_facts"].values()))
+            if key.startswith("client_request:"):
+                self.assertEqual(
+                    {"Decode", "Encode"},
+                    set(record["directions_exercised"]),
+                )
+            elif key.startswith("server_notification:"):
+                self.assertEqual(
+                    {"Decode"}, set(record["directions_exercised"])
+                )
+
+        self.assertEqual(2, len(reviews["operation_root_fixture_plan"]))
+        self.assertEqual(
+            4,
+            sum(
+                len(operation["roots"])
+                for operation in reviews[
+                    "operation_root_fixture_plan"
+                ].values()
+            ),
+        )
+        self.assertEqual(
+            3, len(reviews["notification_root_fixture_plan"])
+        )
+
+        positive = reviews["positive_coverage"]
+        self.assertEqual(4, len(positive["delivery_fixture_ids"]))
+        delivery_values = {
+            fixture_id.rsplit("-", 1)[-1]: payload(fixture_id)
+            for fixture_id in positive["delivery_fixture_ids"]
+        }
+        self.assertNotIn("delivery", delivery_values["omitted"])
+        self.assertIsNone(delivery_values["null"]["delivery"])
+        self.assertEqual("inline", delivery_values["inline"]["delivery"])
+        self.assertEqual(
+            "detached", delivery_values["detached"]["delivery"]
+        )
+        self.assertEqual(
+            4, len(positive["opaque_guardian_event_fixture_ids"])
+        )
+        self.assertEqual(
+            2, len(positive["guardian_action_empty_array_fixture_ids"])
+        )
+        for fixture_id in positive[
+            "guardian_action_empty_array_fixture_ids"
+        ]:
+            value = payload(fixture_id)
+            field = "files" if value["type"] == "applyPatch" else "argv"
+            self.assertEqual([], value[field])
+        self.assertEqual(
+            {
+                "schema_valid_representable": 2,
+                "schema_valid_typed_unrepresentable": 1,
+                "schema_invalid": 2,
+            },
+            {
+                name: len(fixture_ids)
+                for name, fixture_ids in positive[
+                    "guardian_network_port_boundaries"
+                ].items()
+            },
+        )
+        self.assertEqual(3, len(positive["timestamp_boundaries"]))
+        for boundaries in positive["timestamp_boundaries"].values():
+            self.assertEqual(
+                {
+                    "schema_valid_representable": 2,
+                    "schema_valid_typed_unrepresentable": 2,
+                    "schema_invalid": 1,
+                },
+                {
+                    name: len(fixture_ids)
+                    for name, fixture_ids in boundaries.items()
+                },
+            )
+
+        negative = reviews["negative_coverage"]
+        self.assertEqual(
+            [
+                {
+                    "instance_path": "$/event",
+                    "operation": (
+                        "thread/approveGuardianDeniedAction"
+                    ),
+                    "reason": (
+                        "the pinned protocol schema accepts semantically "
+                        "arbitrary JSON at this path"
+                    ),
+                    "root": "params",
+                    "schema_path": "#/properties/event",
+                }
+            ],
+            negative["operation_opaque_exclusions"],
+        )
+        self.assertEqual(
+            {
+                "base_generated": 3,
+                "missing_required": 32,
+                "nullable_null": 8,
+                "optional_omitted": 8,
+                "required_nullable_null": 0,
+                "wrong_type": 40,
+                "wrong_type_opaque_exclusions": 0,
+            },
+            negative["notification_payload_mutations"]["counts"],
+        )
+        union_coverage = negative["review_guardian_unions"]
+        self.assertEqual(
+            10, union_coverage["assignment_derived_key_count"]
+        )
+        self.assertEqual(
+            {
+                domain: len(names)
+                for domain, names in (
+                    tool.A13_REVIEW_UNION_FAMILY_IDENTITIES.items()
+                )
+            },
+            union_coverage["family_counts"],
+        )
+        for family in union_coverage["families"].values():
+            self.assertIn(
+                family["future_discriminator_fixture_id"],
+                records_by_id,
+            )
+
+        enum_coverage = negative["open_string_enums"]
+        self.assertEqual(
+            set(tool.A13_REVIEW_OPEN_STRING_ENUMS),
+            set(enum_coverage),
+        )
+        self.assertEqual(
+            18,
+            sum(
+                len(record["known_value_fixture_ids"])
+                for record in enum_coverage.values()
+            ),
+        )
+        self.assertEqual(
+            ["Encode"],
+            enum_coverage["ReviewDelivery"]["directions_exercised"],
+        )
+        for domain, record in enum_coverage.items():
+            if domain != "ReviewDelivery":
+                self.assertEqual(
+                    ["Decode"], record["directions_exercised"]
+                )
+            self.assertIn(record["future_value_fixture_id"], records_by_id)
+            self.assertIn(record["empty_value_fixture_id"], records_by_id)
+
     def test_fixture_generator_has_no_production_decoder_inputs(self) -> None:
         source = (
             REPOSITORY_ROOT / "tools/codex/app_server_fixtures.py"
@@ -3584,9 +4595,9 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["counts"],
             {
-                "total": 4815,
-                "positive": 1881,
-                "negative": 2934,
+                "total": 5883,
+                "positive": 2268,
+                "negative": 3615,
                 "by_role": {
                     "client_request_params": 87,
                     "client_request_result": 87,
@@ -3594,43 +4605,53 @@ class AppServerFixtureToolTest(unittest.TestCase):
                     "malformed_known": 1,
                     "malformed_known_conflicting_discriminators": 2,
                     "malformed_known_empty_string": 1,
-                    "malformed_known_missing_discriminator": 100,
-                    "malformed_known_missing_required": 169,
-                    "malformed_known_wrong_discriminator_type": 100,
+                    "malformed_known_missing_discriminator": 130,
+                    "malformed_known_missing_required": 214,
+                    "malformed_known_wrong_discriminator_type": 130,
                     "malformed_known_wrong_outer_shape": 4,
-                    "malformed_known_wrong_type": 328,
+                    "malformed_known_wrong_type": 391,
                     "nested_union_failure": 4,
-                    "notification_explicit_empty_array": 2,
-                    "notification_missing_required": 324,
-                    "notification_nullable_null": 80,
-                    "notification_numeric_boundary": 1,
-                    "notification_numeric_boundary_invalid": 2,
-                    "notification_optional_omitted": 86,
-                    "notification_pinned_format_unrepresentable": 1,
-                    "notification_wrong_type": 427,
-                    "open_enum_known_value": 171,
-                    "operation_empty_aggregate": 2,
-                    "operation_explicit_empty_array": 6,
-                    "operation_explicit_empty_map": 2,
+                    "notification_explicit_empty_array": 4,
+                    "notification_missing_required": 379,
+                    "notification_nullable_null": 89,
+                    "notification_numeric_boundary": 7,
+                    "notification_numeric_boundary_invalid": 5,
+                    "notification_optional_omitted": 95,
+                    "notification_pinned_format_unrepresentable": 7,
+                    "notification_stream_alternative": 1,
+                    "notification_wrong_type": 494,
+                    "open_enum_known_value": 208,
+                    "operation_empty_aggregate": 3,
+                    "operation_explicit_empty_array": 9,
+                    "operation_explicit_empty_map": 3,
+                    "operation_explicit_ordering": 1,
                     "operation_helper_union_branch": 13,
-                    "operation_known_enum_values": 1,
-                    "operation_missing_required": 411,
-                    "operation_nullable_null": 377,
-                    "operation_numeric_boundary": 8,
-                    "operation_numeric_boundary_invalid": 8,
+                    "operation_known_enum_values": 5,
+                    "operation_minimum_request": 22,
+                    "operation_missing_required": 526,
+                    "operation_nullable_null": 437,
+                    "operation_numeric_boundary": 42,
+                    "operation_numeric_boundary_invalid": 35,
+                    "operation_opaque_json_value": 4,
                     "operation_opaque_value": 26,
-                    "operation_optional_omitted": 409,
-                    "operation_pinned_format_unrepresentable": 5,
-                    "operation_wrong_type": 885,
-                    "server_notification_identity": 31,
+                    "operation_optional_nullable_delivery": 4,
+                    "operation_optional_omitted": 479,
+                    "operation_pinned_format_unrepresentable": 29,
+                    "operation_review_thread_identity": 2,
+                    "operation_wrong_type": 1095,
+                    "server_notification_identity": 38,
                     "server_request_params": 10,
                     "server_request_response": 10,
-                    "union_branch": 127,
+                    "union_branch": 166,
                     "union_branch_supplement": 33,
-                    "union_nullable_null": 130,
-                    "union_optional_omitted": 142,
-                    "unknown_discriminator": 27,
-                    "unknown_enum_value": 137,
+                    "union_explicit_empty_array": 2,
+                    "union_nullable_null": 148,
+                    "union_numeric_boundary": 2,
+                    "union_numeric_boundary_invalid": 2,
+                    "union_optional_omitted": 160,
+                    "union_pinned_format_unrepresentable": 1,
+                    "unknown_discriminator": 35,
+                    "unknown_enum_value": 163,
                     "unknown_method": 4,
                 },
             },
@@ -3638,15 +4659,15 @@ class AppServerFixtureToolTest(unittest.TestCase):
         self.assertEqual(
             first_index["mutation_counts"],
             {
-                "selected_branch_required_locations": 19229,
-                "required_locations": 19229,
-                "required_field_removals_rejected": 19229,
-                "wrong_type_mutations_rejected": 19051,
-                "wrong_type_unconstrained_exclusions": 178,
+                "selected_branch_required_locations": 21267,
+                "required_locations": 21267,
+                "required_field_removals_rejected": 21267,
+                "wrong_type_mutations_rejected": 21083,
+                "wrong_type_unconstrained_exclusions": 184,
                 "alternative_branch_acceptances": 1,
-                "optional_present_locations": 19631,
-                "globally_optional_locations": 19631,
-                "optional_omissions_accepted": 19631,
+                "optional_present_locations": 21164,
+                "globally_optional_locations": 21164,
+                "optional_omissions_accepted": 21164,
                 "optional_cross_fragment_exclusions": 0,
             },
         )
@@ -3692,21 +4713,21 @@ class AppServerFixtureToolTest(unittest.TestCase):
         completeness = json.loads(first[completeness_path].decode("utf-8"))
         self.assertEqual(completeness["counts"]["surface_identities"], 387)
         self.assertEqual(
-            completeness["counts"]["identities_with_positive_fixtures"], 270
+            completeness["counts"]["identities_with_positive_fixtures"], 316
         )
         self.assertEqual(
             completeness["counts"]["facts_true_by_field"],
             {
-                "authoritative_root_association": 270,
-                "fixture_current": 270,
-                "independently_schema_validated": 270,
-                "nullable_semantics_exercised": 212,
-                "optional_omitted_exercised": 270,
-                "optional_present_exercised": 270,
-                "positive_fixture_coverage": 270,
-                "reachable_union_alternatives_exercised": 212,
-                "required_fields_exercised": 270,
-                "schema_properties_exercised": 212,
+                "authoritative_root_association": 316,
+                "fixture_current": 316,
+                "independently_schema_validated": 316,
+                "nullable_semantics_exercised": 280,
+                "optional_omitted_exercised": 316,
+                "optional_present_exercised": 316,
+                "positive_fixture_coverage": 316,
+                "reachable_union_alternatives_exercised": 280,
+                "required_fields_exercised": 316,
+                "schema_properties_exercised": 280,
             },
         )
         self.assertEqual(len(completeness["records"]), 387)

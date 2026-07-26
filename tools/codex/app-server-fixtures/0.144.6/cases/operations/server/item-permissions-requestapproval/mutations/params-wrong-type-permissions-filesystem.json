@@ -1,0 +1,15 @@
+{
+  "cwd": "/synthetic/project",
+  "environmentId": "synthetic-52497088b0",
+  "itemId": "synthetic-3ac1ed47a9",
+  "permissions": {
+    "fileSystem": false,
+    "network": {
+      "enabled": false
+    }
+  },
+  "reason": "synthetic approval reason",
+  "startedAtMs": 0,
+  "threadId": "synthetic-bd0d0f38fe",
+  "turnId": "synthetic-e026a1a7e9"
+}

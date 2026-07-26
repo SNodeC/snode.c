@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
+#include <string_view>
 
 namespace ai::openai::codex::detail {
     class Transport;
@@ -160,6 +161,7 @@ namespace ai::openai::codex {
         void setTypedNotificationDispatcher(NotificationHandler handler);
         void setTypedServerRequestDispatcher(ServerRequestHandler handler);
         SendResult respondOwned(const ServerRequestId& id, ServerRequestToken token, Json result);
+        SendResult respondOwned(const ServerRequestId& id, ServerRequestToken token, std::string_view expectedMethod, Json result);
         SendResult rejectOwned(const ServerRequestId& id, ServerRequestToken token, ProtocolError error);
 
         Impl* impl;

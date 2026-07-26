@@ -1,0 +1,12 @@
+{
+  "callId": "synthetic-d4dfd949e5",
+  "conversationId": null,
+  "fileChanges": {
+    "syntheticKey": {
+      "content": "synthetic patch content",
+      "type": "add"
+    }
+  },
+  "grantRoot": "/synthetic/project",
+  "reason": "synthetic approval reason"
+}

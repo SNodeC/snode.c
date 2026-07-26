@@ -10,21 +10,29 @@
 #include "ai/openai/codex/AppServerClient.h"
 #include "ai/openai/codex/Protocol.h"
 #include "ai/openai/codex/detail/AccountCodec.h"
-#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/ApprovalCodec.h"
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
+#include "ai/openai/codex/detail/CodexErrorInfoCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
 #include "ai/openai/codex/detail/EventDecoder.h"
+#include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
 #include "ai/openai/codex/detail/ProtocolSurfaceRegistry.h"
+#include "ai/openai/codex/detail/ReviewCodec.h"
 #include "ai/openai/codex/detail/ServerRequestDecoder.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 #include "ai/openai/codex/typed/Accounts.h"
-#include "ai/openai/codex/typed/Conversation.h"
+#include "ai/openai/codex/typed/Commands.h"
 #include "ai/openai/codex/typed/Configuration.h"
+#include "ai/openai/codex/typed/Conversation.h"
 #include "ai/openai/codex/typed/Events.h"
+#include "ai/openai/codex/typed/Filesystem.h"
 #include "ai/openai/codex/typed/Models.h"
+#include "ai/openai/codex/typed/PermissionProfiles.h"
 #include "ai/openai/codex/typed/Results.h"
+#include "ai/openai/codex/typed/Reviews.h"
 #include "ai/openai/codex/typed/ServerRequests.h"
 #include "ai/openai/codex/typed/Threads.h"
 #include "ai/openai/codex/typed/Turns.h"
@@ -39,6 +47,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -48,15 +57,23 @@ namespace ai::openai::codex::typed {
     class Client::Impl {
     public:
         Impl(std::unique_ptr<Accounts> accounts,
+             std::unique_ptr<Commands> commands,
+             std::unique_ptr<Filesystem> filesystem,
              std::unique_ptr<Configuration> configuration,
              std::unique_ptr<Models> models,
+             std::unique_ptr<PermissionProfiles> permissionProfiles,
+             std::unique_ptr<Reviews> reviews,
              std::unique_ptr<Threads> threads,
              std::unique_ptr<Turns> turns,
              std::unique_ptr<Events> events,
              std::unique_ptr<Requests> requests)
             : accounts(std::move(accounts))
+            , commands(std::move(commands))
+            , filesystem(std::move(filesystem))
             , configuration(std::move(configuration))
             , models(std::move(models))
+            , permissionProfiles(std::move(permissionProfiles))
+            , reviews(std::move(reviews))
             , threads(std::move(threads))
             , turns(std::move(turns))
             , events(std::move(events))
@@ -64,8 +81,12 @@ namespace ai::openai::codex::typed {
         }
 
         std::unique_ptr<Accounts> accounts;
+        std::unique_ptr<Commands> commands;
+        std::unique_ptr<Filesystem> filesystem;
         std::unique_ptr<Configuration> configuration;
         std::unique_ptr<Models> models;
+        std::unique_ptr<PermissionProfiles> permissionProfiles;
+        std::unique_ptr<Reviews> reviews;
         std::unique_ptr<Threads> threads;
         std::unique_ptr<Turns> turns;
         std::unique_ptr<Events> events;
@@ -73,19 +94,27 @@ namespace ai::openai::codex::typed {
     };
 
     Client::Client(std::unique_ptr<Accounts> accounts,
+                   std::unique_ptr<Commands> commands,
+                   std::unique_ptr<Filesystem> filesystem,
                    std::unique_ptr<Configuration> configuration,
                    std::unique_ptr<Models> models,
+                   std::unique_ptr<PermissionProfiles> permissionProfiles,
+                   std::unique_ptr<Reviews> reviews,
                    std::unique_ptr<Threads> threads,
                    std::unique_ptr<Turns> turns,
                    std::unique_ptr<Events> events,
                    std::unique_ptr<Requests> requests)
         : impl(std::make_unique<Impl>(std::move(accounts),
-                                     std::move(configuration),
-                                     std::move(models),
-                                     std::move(threads),
-                                     std::move(turns),
-                                     std::move(events),
-                                     std::move(requests))) {
+                                      std::move(commands),
+                                      std::move(filesystem),
+                                      std::move(configuration),
+                                      std::move(models),
+                                      std::move(permissionProfiles),
+                                      std::move(reviews),
+                                      std::move(threads),
+                                      std::move(turns),
+                                      std::move(events),
+                                      std::move(requests))) {
     }
 
     Client::~Client() = default;
@@ -96,6 +125,22 @@ namespace ai::openai::codex::typed {
 
     const Accounts& Client::accounts() const noexcept {
         return *impl->accounts;
+    }
+
+    Commands& Client::commands() noexcept {
+        return *impl->commands;
+    }
+
+    const Commands& Client::commands() const noexcept {
+        return *impl->commands;
+    }
+
+    Filesystem& Client::filesystem() noexcept {
+        return *impl->filesystem;
+    }
+
+    const Filesystem& Client::filesystem() const noexcept {
+        return *impl->filesystem;
     }
 
     Configuration& Client::configuration() noexcept {
@@ -112,6 +157,22 @@ namespace ai::openai::codex::typed {
 
     const Models& Client::models() const noexcept {
         return *impl->models;
+    }
+
+    PermissionProfiles& Client::permissionProfiles() noexcept {
+        return *impl->permissionProfiles;
+    }
+
+    const PermissionProfiles& Client::permissionProfiles() const noexcept {
+        return *impl->permissionProfiles;
+    }
+
+    Reviews& Client::reviews() noexcept {
+        return *impl->reviews;
+    }
+
+    const Reviews& Client::reviews() const noexcept {
+        return *impl->reviews;
     }
 
     Threads& Client::threads() noexcept {
@@ -158,6 +219,10 @@ namespace ai::openai::codex::typed {
 
         std::string registeredMethod(detail::ClientRequestTarget target) {
             return std::string(detail::entryFor(target).key.name);
+        }
+
+        std::string_view registeredMethod(detail::ServerRequestTarget target) {
+            return detail::entryFor(target).key.name;
         }
 
         template <typename T, typename Handler>
@@ -320,6 +385,87 @@ namespace ai::openai::codex::typed {
                                                                     detail::encodeSendAddCreditsNudgeEmailParams);
     }
 
+    Commands::Commands(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Commands::Submission Commands::exec(CommandExecParams params, ExecResultHandler handler) {
+        return submitTypedRequest<CommandExecResponse>(
+            protocol, detail::ClientRequestTarget::CommandExec, params, std::move(handler), detail::encodeCommandExecParams);
+    }
+
+    Commands::Submission Commands::resize(CommandExecResizeParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::CommandExecResize, params, std::move(handler), detail::encodeCommandExecResizeParams);
+    }
+
+    Commands::Submission Commands::terminate(CommandExecTerminateParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(protocol,
+                                        detail::ClientRequestTarget::CommandExecTerminate,
+                                        params,
+                                        std::move(handler),
+                                        detail::encodeCommandExecTerminateParams);
+    }
+
+    Commands::Submission Commands::write(CommandExecWriteParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::CommandExecWrite, params, std::move(handler), detail::encodeCommandExecWriteParams);
+    }
+
+    Filesystem::Filesystem(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Filesystem::Submission Filesystem::copy(FsCopyParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsCopy, params, std::move(handler), detail::encodeFsCopyParams);
+    }
+
+    Filesystem::Submission Filesystem::createDirectory(FsCreateDirectoryParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsCreateDirectory, params, std::move(handler), detail::encodeFsCreateDirectoryParams);
+    }
+
+    Filesystem::Submission Filesystem::getMetadata(FsGetMetadataParams params, GetMetadataResultHandler handler) {
+        return submitTypedRequest<FsGetMetadataResponse>(
+            protocol, detail::ClientRequestTarget::FsGetMetadata, params, std::move(handler), detail::encodeFsGetMetadataParams);
+    }
+
+    Filesystem::Submission Filesystem::readDirectory(FsReadDirectoryParams params, ReadDirectoryResultHandler handler) {
+        return submitTypedRequest<FsReadDirectoryResponse>(
+            protocol, detail::ClientRequestTarget::FsReadDirectory, params, std::move(handler), detail::encodeFsReadDirectoryParams);
+    }
+
+    Filesystem::Submission Filesystem::readFile(FsReadFileParams params, ReadFileResultHandler handler) {
+        return submitTypedRequest<FsReadFileResponse>(
+            protocol, detail::ClientRequestTarget::FsReadFile, params, std::move(handler), detail::encodeFsReadFileParams);
+    }
+
+    Filesystem::Submission Filesystem::remove(FsRemoveParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsRemove, params, std::move(handler), detail::encodeFsRemoveParams);
+    }
+
+    Filesystem::Submission Filesystem::watch(FsWatchParams params, WatchResultHandler handler) {
+        return submitTypedRequest<FsWatchResponse>(
+            protocol, detail::ClientRequestTarget::FsWatch, params, std::move(handler), detail::encodeFsWatchParams);
+    }
+
+    Filesystem::Submission Filesystem::unwatch(FsUnwatchParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsUnwatch, params, std::move(handler), detail::encodeFsUnwatchParams);
+    }
+
+    Filesystem::Submission Filesystem::writeFile(FsWriteFileParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(
+            protocol, detail::ClientRequestTarget::FsWriteFile, params, std::move(handler), detail::encodeFsWriteFileParams);
+    }
+
+    Filesystem::Submission Filesystem::fuzzyFileSearch(FuzzyFileSearchParams params, FuzzyFileSearchResultHandler handler) {
+        return submitTypedRequest<FuzzyFileSearchResponse>(
+            protocol, detail::ClientRequestTarget::FuzzyFileSearch, params, std::move(handler), detail::encodeFuzzyFileSearchParams);
+    }
+
     Accounts::Submission Accounts::readUsage(Unit params, ReadUsageResultHandler handler) {
         return submitTypedRequest<GetAccountTokenUsageResponse>(
             protocol, detail::ClientRequestTarget::AccountUsageRead, params, std::move(handler), encodeUnitParams);
@@ -411,6 +557,27 @@ namespace ai::openai::codex::typed {
                                                                          detail::encodeModelProviderCapabilitiesReadParams);
     }
 
+    PermissionProfiles::PermissionProfiles(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    PermissionProfiles::Submission PermissionProfiles::list(PermissionProfileListParams params, ListResultHandler handler) {
+        return submitTypedRequest<PermissionProfileListResponse>(protocol,
+                                                                 detail::ClientRequestTarget::PermissionProfileList,
+                                                                 params,
+                                                                 std::move(handler),
+                                                                 detail::encodePermissionProfileListParams);
+    }
+
+    Reviews::Reviews(AppServerClient::RawProtocol& protocol) noexcept
+        : protocol(&protocol) {
+    }
+
+    Reviews::Submission Reviews::start(ReviewStartParams params, ReviewStartResultHandler handler) {
+        return submitTypedRequest<ReviewStartResponse>(
+            protocol, detail::ClientRequestTarget::ReviewStart, params, std::move(handler), detail::encodeReviewStartParams);
+    }
+
     Threads::Threads(AppServerClient::RawProtocol& protocol) noexcept
         : protocol(&protocol) {
     }
@@ -461,6 +628,14 @@ namespace ai::openai::codex::typed {
             params,
             std::move(handler),
             detail::encodeThreadArchiveParams);
+    }
+
+    Threads::Submission Threads::approveGuardianDeniedAction(ThreadApproveGuardianDeniedActionParams params, UnitResultHandler handler) {
+        return submitTypedRequest<Unit>(protocol,
+                                        detail::ClientRequestTarget::ThreadApproveGuardianDeniedAction,
+                                        params,
+                                        std::move(handler),
+                                        detail::encodeThreadApproveGuardianDeniedActionParams);
     }
 
     Threads::Submission Threads::startCompaction(ThreadCompactStartParams params, UnitResultHandler handler) {
@@ -795,14 +970,80 @@ namespace ai::openai::codex::typed {
         if (decision.value.empty()) {
             return validationFailure("approval decision must not be empty");
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"decision", std::move(decision.value)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::CommandExecutionRequestApproval),
+                                      Json{{"decision", std::move(decision.value)}});
+    }
+
+    Requests::SendResult Requests::respond(const CommandApprovalRequest& request, CommandExecutionRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeCommandExecutionRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::CommandExecutionRequestApproval),
+                                      std::move(*encoded));
     }
 
     Requests::SendResult Requests::respond(const FileChangeApprovalRequest& request, ApprovalDecision decision) {
         if (decision.value.empty()) {
             return validationFailure("approval decision must not be empty");
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"decision", std::move(decision.value)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::FileChangeRequestApproval),
+                                      Json{{"decision", std::move(decision.value)}});
+    }
+
+    Requests::SendResult Requests::respond(const FileChangeApprovalRequest& request, FileChangeRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeFileChangeRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::FileChangeRequestApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const ApplyPatchApprovalRequest& request, ApplyPatchApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeApplyPatchApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ApplyPatchApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const ExecCommandApprovalRequest& request, ExecCommandApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodeExecCommandApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ExecCommandApproval),
+                                      std::move(*encoded));
+    }
+
+    Requests::SendResult Requests::respond(const PermissionsApprovalRequest& request, PermissionsRequestApprovalResponse response) {
+        std::string error;
+        std::optional<Json> encoded = detail::encodePermissionsRequestApprovalResponse(response, error);
+        if (!encoded) {
+            return validationFailure(std::move(error));
+        }
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::PermissionsRequestApproval),
+                                      std::move(*encoded));
     }
 
     Requests::SendResult Requests::respond(const UserInputRequest& request, std::vector<UserInputAnswer> answers) {
@@ -823,7 +1064,10 @@ namespace ai::openai::codex::typed {
             encodedAnswers[answer.questionId] = Json{{"answers", std::move(answer.answers)}};
         }
 
-        return protocol->respondOwned(request.requestId, request.requestToken, Json{{"answers", std::move(encodedAnswers)}});
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ToolRequestUserInput),
+                                      Json{{"answers", std::move(encodedAnswers)}});
     }
 
     Requests::SendResult Requests::respondRefresh(const ChatgptAuthTokensRefreshRequest& request,
@@ -833,7 +1077,10 @@ namespace ai::openai::codex::typed {
         if (!result) {
             return validationFailure(std::move(error));
         }
-        return protocol->respondOwned(request.requestId, request.requestToken, std::move(*result));
+        return protocol->respondOwned(request.requestId,
+                                      request.requestToken,
+                                      registeredMethod(detail::ServerRequestTarget::ChatgptAuthTokensRefresh),
+                                      std::move(*result));
     }
 
     Requests::SendResult Requests::respond(const AuthenticationRequest& request, AuthenticationResponse response) {

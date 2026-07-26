@@ -19,17 +19,20 @@ client.typed().turns().interrupt(threadId, turnId, handler);
 client.typed().accounts().read({}, accountHandler);
 client.typed().models().list({}, modelHandler);
 client.typed().configuration().read({}, configHandler);
+client.typed().commands().exec(commandParams, commandHandler);
+client.typed().filesystem().readFile(readParams, readHandler);
+client.typed().permissionProfiles().list({}, profilesHandler);
+client.typed().reviews().start(reviewParams, reviewHandler);
 ```
 
 `typed::Client` is the installed, PIMPL-backed grouped facade. Its current
-accessors return the seven existing `Accounts`, `Models`, `Configuration`,
-`Threads`, `Turns`, `Events`, and `Requests` objects owned by the
-`AppServerClient`; they do not allocate a second protocol engine. The old
-direct conversation accessors remain source-compatible deprecated forwarders,
-for example `client.threads()` forwards to `client.typed().threads()`. There
-are deliberately no direct `AppServerClient::accounts()`, `models()`, or
-`configuration()` forwarders because those facades were introduced in grouped
-form.
+accessors return the eleven `Accounts`, `Models`, `Configuration`, `Commands`,
+`Filesystem`, `PermissionProfiles`, `Reviews`, `Threads`, `Turns`, `Events`,
+and `Requests` objects owned by the `AppServerClient`; they do not allocate a
+second protocol engine. The old direct conversation accessors remain
+source-compatible deprecated forwarders, for example `client.threads()`
+forwards to `client.typed().threads()`. There are deliberately no direct
+`AppServerClient` forwarders for the newer grouped domain facades.
 
 Unsupported or newly introduced operations remain available through
 `client.raw()`.
@@ -57,12 +60,13 @@ mechanically derived completeness evidence. Registration alone still does not
 claim a typed implementation or schema completeness.
 
 The grouped API includes the conversation operations completed in A1.0 and
-A1.1 plus the stable accounts, models, and configuration slice completed in
-A1.2. Other stable operations remain raw- or opaque-preserved according to
-their registry disposition until their fixed A1.3 or A1.4 domain slice. The
-[A1.2 accounts, models, and configuration report](a1-2-accounts-models-configuration.md)
-records the frozen denominator, transitive type closure, compatibility
-boundary, and offline evidence.
+A1.1, accounts/models/configuration from A1.2, and the stable
+commands/filesystem/reviews/approvals slice completed in A1.3. Remaining
+stable operations stay raw- or opaque-preserved according to their fixed A1.4
+ownership. The
+[A1.3 commands, filesystem, reviews, and approvals report](a1-3-commands-filesystem-reviews-approvals.md)
+records the exact 68-identity denominator, transitive type closure,
+compatibility boundary, and offline evidence.
 
 The 18 A1.2 client operations are local typed-library APIs:
 
@@ -92,6 +96,33 @@ pinned stable schema. Typing these stable management operations does not type
 experimental-only protocol inventory. None of the 18 methods is a
 `BackendCommand`, Frontend Protocol command, REST/WebSocket/MQTT operation, or
 remotely callable backend feature.
+
+The 17 A1.3 client operations are also local typed-library APIs:
+
+| Facade | Stable wire method | Public method | Result |
+| --- | --- | --- | --- |
+| `commands()` | `command/exec` | `exec` | `CommandExecResponse` |
+| `commands()` | `command/exec/resize` | `resize` | `Unit` |
+| `commands()` | `command/exec/terminate` | `terminate` | `Unit` |
+| `commands()` | `command/exec/write` | `write` | `Unit` |
+| `filesystem()` | `fs/copy` | `copy` | `Unit` |
+| `filesystem()` | `fs/createDirectory` | `createDirectory` | `Unit` |
+| `filesystem()` | `fs/getMetadata` | `getMetadata` | `FsGetMetadataResponse` |
+| `filesystem()` | `fs/readDirectory` | `readDirectory` | `FsReadDirectoryResponse` |
+| `filesystem()` | `fs/readFile` | `readFile` | `FsReadFileResponse` |
+| `filesystem()` | `fs/remove` | `remove` | `Unit` |
+| `filesystem()` | `fs/unwatch` | `unwatch` | `Unit` |
+| `filesystem()` | `fs/watch` | `watch` | `FsWatchResponse` |
+| `filesystem()` | `fs/writeFile` | `writeFile` | `Unit` |
+| `filesystem()` | `fuzzyFileSearch` | `fuzzyFileSearch` | `FuzzyFileSearchResponse` |
+| `permissionProfiles()` | `permissionProfile/list` | `list` | `PermissionProfileListResponse` |
+| `reviews()` | `review/start` | `start` | `ReviewStartResponse` |
+| `threads()` | `thread/approveGuardianDeniedAction` | `approveGuardianDeniedAction` | `Unit` |
+
+These methods add no command runner, filesystem implementation, fuzzy matcher,
+approval policy, guardian service, review reducer, backend command, canonical
+backend state, or frontend operation. The one-off `command/exec` lifecycle is
+distinct from A1.1 thread-item command execution.
 
 Current outgoing turn input variants are text, remote image, local image,
 skill, and mention. The current stable schema has no generic file-input
@@ -151,8 +182,11 @@ methods currently include:
 - agent-message, reasoning, and command-output deltas;
 - file-change patch updates;
 - token-usage updates;
-- model reroutes; and
-- turn error notifications.
+- model reroutes;
+- turn error notifications;
+- one-off command output;
+- filesystem changes and fuzzy-search session updates; and
+- guardian warnings and automatic approval-review lifecycle notifications.
 
 A failed `turn/completed` payload becomes `TurnFailed`; there is no separate
 `turn/failed` wire method in the current schema.
@@ -224,8 +258,11 @@ payloads degrade to the raw-preserving compatibility path.
 
 `client.typed().requests().setOnRequest()` currently classifies:
 
+- `applyPatchApproval`;
+- `execCommandApproval`;
 - `item/commandExecution/requestApproval`;
 - `item/fileChange/requestApproval`;
+- `item/permissions/requestApproval`;
 - `item/tool/requestUserInput`; and
 - `account/chatgptAuthTokens/refresh`.
 
@@ -233,11 +270,13 @@ Every other method, and a malformed payload for a known method, becomes an
 answerable `UnknownServerRequest`. The request ID and complete raw request are
 always retained.
 
-Approval helpers encode the current scalar decisions `accept`,
-`acceptForSession`, `decline`, and `cancel`. No request is approved or
-answered automatically. Legacy approval methods use different wire decisions
-and are therefore exposed as unknown requests rather than being sent through
-the v2 helpers.
+The command-execution response preserves all six stable alternatives:
+`accept`, `acceptForSession`, `acceptWithExecpolicyAmendment`,
+`applyNetworkPolicyAmendment`, `cancel`, and `decline`. File-change approval,
+legacy review, and permission decisions retain their distinct schemas and
+types. No request is approved or answered automatically. The deprecated
+legacy methods remain typed because they are stable in the pinned protocol;
+they are not conflated with the v2 approval payloads.
 
 User-input answers are encoded as the schema-defined question-ID map of string
 arrays. The helper rejects unknown question IDs and duplicate answers. The
@@ -293,8 +332,15 @@ Public `std::variant` and aggregate layouts changed where the typed model
 required it, and this documentation does not claim binary compatibility for
 already-built consumers.
 
-SOVERSION remains unchanged through A1.2. The added facades and public
+SOVERSION remains unchanged through A1.3. The added facades and public
 aggregates are part of the documented A1 consumer-rebuild boundary.
+
+A1.3 preserves the existing alternative order and appends new `Event` and
+`TypedServerRequest` alternatives, but both public variants change
+size/layout. The schema-complete command/file approval aggregates also grow.
+Installed consumers must rebuild; unchanged symbols or SOVERSION do not imply
+binary compatibility. `typed::Client` retains its one-pointer representation,
+and `AppServerClient` retains its existing PIMPL boundary.
 
 Typed public headers are installed. Decoder headers under `detail/` remain
 private. Raw JSON on results, threads, turns, items, events, and server requests

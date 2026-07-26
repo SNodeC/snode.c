@@ -1,0 +1,7 @@
+{
+  "delivery": "detached",
+  "target": {
+    "type": "uncommittedChanges"
+  },
+  "threadId": "synthetic-thread-id"
+}

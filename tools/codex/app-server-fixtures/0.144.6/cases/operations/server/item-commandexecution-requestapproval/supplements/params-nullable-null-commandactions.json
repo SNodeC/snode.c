@@ -1,0 +1,25 @@
+{
+  "approvalId": "synthetic-35d8bd51e2",
+  "command": "synthetic command",
+  "commandActions": null,
+  "cwd": "/synthetic/project",
+  "environmentId": "synthetic-52497088b0",
+  "itemId": "synthetic-3ac1ed47a9",
+  "networkApprovalContext": {
+    "host": "synthetic-d73f3cf538",
+    "protocol": "http"
+  },
+  "proposedExecpolicyAmendment": [
+    "synthetic-39fdd09231"
+  ],
+  "proposedNetworkPolicyAmendments": [
+    {
+      "action": "allow",
+      "host": "synthetic-ec2c024fcc"
+    }
+  ],
+  "reason": "synthetic approval reason",
+  "startedAtMs": 0,
+  "threadId": "synthetic-bd0d0f38fe",
+  "turnId": "synthetic-e026a1a7e9"
+}

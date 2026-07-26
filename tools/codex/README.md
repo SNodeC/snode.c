@@ -341,6 +341,37 @@ fixture/mutation totals, and frontend/application boundary fingerprints. The
 report remains evidence-side metadata; the production registry remains the
 only runtime authority.
 
+## A1.3 commands, filesystem, reviews, and approvals audit
+
+The A1.3 audit and closure reuse the shared A1 schema catalog, definition
+walker, registry parser, operation contracts, fixture evidence, and diagnostic
+machinery:
+
+```sh
+python3 tools/codex/app_server_a1_3.py generate
+python3 tools/codex/app_server_a1_3.py check
+python3 tools/codex/app_server_a1_3_closure.py generate
+python3 tools/codex/app_server_a1_3_closure.py check
+```
+
+The checked artifacts are:
+
+- `app-server-evidence/0.144.6/a1-3-start-state.json`;
+- `app-server-evidence/0.144.6/a1-3-implementation-plan.json`;
+- `app-server-evidence/0.144.6/a1-3-type-closure.json`; and
+- `app-server-evidence/0.144.6/a1-3-api-abi-evidence.json`; and
+- `app-server-evidence/0.144.6/a1-3-closure-report.json`.
+
+The final closure requires the exact 68 identities and 17/7/5/39 taxonomy,
+8 Concrete and 9 Unit client results, five concrete reverse responses, final
+280/4/55/48 global metrics, and the exact four residual Partial identities. It
+also regenerates all descriptor families, closes every fixture root, response,
+and union alternative, validates the public/install/package surface, and
+ratchets direct `RawProtocol` response and five-request AF_UNIX lifecycle
+evidence. `serverRequest/resolved` and experimental controls remain excluded.
+BackendCommand, BackendState, Frontend Protocol v1, and reference applications
+remain outside A1.3 semantics.
+
 ## Re-running the pinned upstream generation
 
 The TypeScript trees are an independent method and discriminator cross-check;
@@ -436,6 +467,10 @@ Do not hand-edit these generated artifacts:
 - `app-server-evidence/0.144.6/a1-2-implementation-plan.json`;
 - `app-server-evidence/0.144.6/a1-2-type-closure.json`;
 - `app-server-evidence/0.144.6/a1-2-closure-report.json`;
+- `app-server-evidence/0.144.6/a1-3-implementation-plan.json`;
+- `app-server-evidence/0.144.6/a1-3-type-closure.json`;
+- `app-server-evidence/0.144.6/a1-3-api-abi-evidence.json`;
+- `app-server-evidence/0.144.6/a1-3-closure-report.json`;
 - `app-server-fixtures/0.144.6/`;
 - `ClientOperationCodecDescriptors.inc`;
 - `ConversationUnionCodecDescriptors.inc`;

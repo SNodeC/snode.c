@@ -69,11 +69,15 @@ set(
     "typed/Accounts.h"
     "typed/Client.h"
     "typed/CodexErrorInfo.h"
+    "typed/Commands.h"
     "typed/Configuration.h"
     "typed/Conversation.h"
     "typed/Events.h"
+    "typed/Filesystem.h"
     "typed/Items.h"
     "typed/Models.h"
+    "typed/PermissionProfiles.h"
+    "typed/Reviews.h"
     "typed/Results.h"
     "typed/ServerRequests.h"
     "typed/Threads.h"
@@ -203,5 +207,5 @@ endif()
 
 message(
     STATUS
-        "Codex binary packages: archives=3, public_headers=30, soversion_libraries=3"
+        "Codex binary packages: archives=3, public_headers=34, soversion_libraries=3"
 )

@@ -280,6 +280,54 @@ set_tests_properties(
         TIMEOUT 10
 )
 
+set(CODEX_PHASE_A1_3_EVIDENCE_ROOT
+    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
+)
+add_test(
+    NAME CodexA13AuditToolTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA13AuditToolTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_3.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --start-state
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-start-state.json
+        --plan
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-implementation-plan.json
+        --closure
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-type-closure.json
+)
+set_tests_properties(
+    CodexA13AuditToolTest
+    PROPERTIES
+        DEPENDS CodexA12ClosureEvidenceTest
+        LABELS "component;ai;openai;codex;phase-a1-3;schema;audit;generated"
+        TIMEOUT 60
+)
+
+add_test(
+    NAME CodexA13ClosureEvidenceTest
+    COMMAND
+        ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/CodexA13ClosureEvidenceTest.py
+        --tool
+        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_3_closure.py
+        --repo-root
+        ${PROJECT_SOURCE_DIR}
+        --report
+        ${CODEX_PHASE_A1_3_EVIDENCE_ROOT}/a1-3-closure-report.json
+)
+set_tests_properties(
+    CodexA13ClosureEvidenceTest
+    PROPERTIES
+        DEPENDS CodexA13AuditToolTest
+        LABELS
+        "component;ai;openai;codex;phase-a1-3;closure;generated;documentation"
+        TIMEOUT 30
+)
+
 add_test(
     NAME CodexA11OperationProductionCoverageGuardTest
     COMMAND
@@ -638,6 +686,226 @@ set_tests_properties(
         LABELS "component;ai;openai;codex;typed;configuration;feature;operation;wire;a1-2;b5"
         SKIP_RETURN_CODE 77
         TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA13CommandCodecTest
+    CodexA13CommandCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13CommandCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13CommandCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13CommandCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;command;codec;a1-3;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13CommandWireTest
+    CodexA13CommandWireTest.cpp
+)
+target_link_libraries(
+    CodexA13CommandWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13CommandWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13CommandWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;command;operation;wire;a1-3;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA13CommandBackendCompatibilityTest
+    CodexA13CommandBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13CommandBackendCompatibilityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA13CommandBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13CommandBackendCompatibilityTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;command;backend;compatibility;a1-3;b2"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13FilesystemCodecTest
+    CodexA13FilesystemCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13FilesystemCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13FilesystemCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;codec;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13FilesystemWireTest
+    CodexA13FilesystemWireTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13FilesystemWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13FilesystemWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;operation;wire;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA13FilesystemBackendCompatibilityTest
+    CodexA13FilesystemBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13FilesystemBackendCompatibilityTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex-backend
+)
+target_compile_features(
+    CodexA13FilesystemBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13FilesystemBackendCompatibilityTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;filesystem;fuzzy;backend;compatibility;a1-3;b3"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13ApprovalCodecTest
+    CodexA13ApprovalCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13ApprovalCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ApprovalCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;approval;permission;codec;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13ApprovalWireTest
+    CodexA13ApprovalWireTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13ApprovalWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ApprovalWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;approval;permission;server-request;wire;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 30
+)
+
+snodec_add_test(
+    CodexA13ApprovalBackendCompatibilityTest
+    CodexA13ApprovalBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13ApprovalBackendCompatibilityTest
+    PRIVATE
+        snodec-test-support
+        snodec::ai-openai-codex
+        snodec::ai-openai-codex-frontend
+)
+target_compile_features(
+    CodexA13ApprovalBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13ApprovalBackendCompatibilityTest
+    PROPERTIES
+        LABELS
+            "component;ai;openai;codex;typed;approval;permission;backend;frontend;compatibility;a1-3;b4"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13ReviewCodecTest
+    CodexA13ReviewCodecTest.cpp
+)
+target_link_libraries(
+    CodexA13ReviewCodecTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex
+)
+target_compile_features(CodexA13ReviewCodecTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ReviewCodecTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;review;guardian;codec;a1-3;b5"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
+)
+
+snodec_add_test(
+    CodexA13ReviewWireTest
+    CodexA13ReviewWireTest.cpp
+)
+target_link_libraries(
+    CodexA13ReviewWireTest
+    PRIVATE snodec-test-support snodec::ai-openai-codex snodec::core
+)
+target_compile_features(CodexA13ReviewWireTest PRIVATE cxx_std_20)
+set_tests_properties(
+    CodexA13ReviewWireTest
+    PROPERTIES
+        LABELS "component;ai;openai;codex;typed;review;guardian;operation;event;wire;a1-3;b5"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 20
+)
+
+snodec_add_test(
+    CodexA13ReviewBackendCompatibilityTest
+    CodexA13ReviewBackendCompatibilityTest.cpp
+)
+target_link_libraries(
+    CodexA13ReviewBackendCompatibilityTest
+    PRIVATE
+        snodec-test-support
+        snodec::ai-openai-codex
+        snodec::ai-openai-codex-frontend
+)
+target_compile_features(
+    CodexA13ReviewBackendCompatibilityTest PRIVATE cxx_std_20
+)
+set_tests_properties(
+    CodexA13ReviewBackendCompatibilityTest
+    PROPERTIES
+        LABELS
+            "component;ai;openai;codex;typed;review;guardian;backend;frontend;compatibility;a1-3;b5"
+        SKIP_RETURN_CODE 77
+        TIMEOUT 10
 )
 
 snodec_add_test(

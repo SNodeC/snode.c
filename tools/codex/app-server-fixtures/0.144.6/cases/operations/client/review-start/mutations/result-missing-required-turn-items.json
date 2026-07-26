@@ -1,0 +1,16 @@
+{
+  "reviewThreadId": "synthetic-dca853e2b5",
+  "turn": {
+    "completedAt": 0,
+    "durationMs": 0,
+    "error": {
+      "additionalDetails": "synthetic-e8c4a6eef9",
+      "codexErrorInfo": "contextWindowExceeded",
+      "message": "Synthetic guardian warning."
+    },
+    "id": "synthetic-48be160827",
+    "itemsView": "notLoaded",
+    "startedAt": 0,
+    "status": "completed"
+  }
+}

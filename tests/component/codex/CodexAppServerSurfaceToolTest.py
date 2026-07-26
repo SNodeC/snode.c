@@ -378,9 +378,9 @@ def test_operation_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_CLIENT_OPERATION_CODEC_DESCRIPTOR(")
     ]
-    if len(rows) != 40:
+    if len(rows) != 57:
         raise AssertionError(
-            "client-operation descriptor must contain exactly 40 rows"
+            "client-operation descriptor must contain exactly 57 rows"
         )
     method_rows = {
         match.group(1): line
@@ -425,8 +425,31 @@ def test_operation_descriptor_guards(
         "experimentalFeature/enablement/set",
         "experimentalFeature/list",
     }
+    a1_3_command_methods = {
+        "command/exec",
+        "command/exec/resize",
+        "command/exec/terminate",
+        "command/exec/write",
+    }
+    a1_3_filesystem_methods = {
+        "fs/copy",
+        "fs/createDirectory",
+        "fs/getMetadata",
+        "fs/readDirectory",
+        "fs/readFile",
+        "fs/remove",
+        "fs/unwatch",
+        "fs/watch",
+        "fs/writeFile",
+        "fuzzyFileSearch",
+    }
+    a1_3_permission_methods = {"permissionProfile/list"}
+    a1_3_review_guardian_methods = {
+        "review/start",
+        "thread/approveGuardianDeniedAction",
+    }
     if (
-        len(method_rows) != 40
+        len(method_rows) != 57
         or len(a1_1_methods) != 22
         or set(method_rows)
         != a1_1_methods
@@ -434,6 +457,10 @@ def test_operation_descriptor_guards(
         | a1_2_b3_methods
         | a1_2_b4_methods
         | a1_2_b5_methods
+        | a1_3_command_methods
+        | a1_3_filesystem_methods
+        | a1_3_permission_methods
+        | a1_3_review_guardian_methods
         or a1_1_methods & a1_2_b2_methods
         or (a1_1_methods | a1_2_b2_methods) & a1_2_b3_methods
         or (
@@ -447,11 +474,50 @@ def test_operation_descriptor_guards(
             | a1_2_b4_methods
         )
         & a1_2_b5_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+        )
+        & a1_3_command_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+            | a1_3_command_methods
+        )
+        & a1_3_filesystem_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+        )
+        & a1_3_permission_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_2_b5_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+            | a1_3_permission_methods
+        )
+        & a1_3_review_guardian_methods
     ):
         raise AssertionError(
             "client-operation descriptors lost the exact 22 A1.1 / "
             "nine A1.2 B2 / two A1.2 B3 / two A1.2 B4 / five A1.2 B5 "
-            "slice projection"
+            "/ four A1.3 command / ten A1.3 filesystem/fuzzy / one A1.3 "
+            "permission-profile / two A1.3 review/guardian projection"
         )
     targets = {
         match.group(1)
@@ -462,7 +528,7 @@ def test_operation_descriptor_guards(
             )
         )
     }
-    if len(targets) != 40:
+    if len(targets) != 57:
         raise AssertionError(
             "client-operation descriptor targets are not an exact bijection"
         )
@@ -483,13 +549,13 @@ def test_operation_descriptor_guards(
             "ClientOperationResultDecoder::Unit)" in line
             for line in rows
         )
-        != 9
+        != 18
         or sum(
             "ResultContractKind::Concrete, "
             "ClientOperationResultDecoder::" in line
             for line in rows
         )
-        != 31
+        != 39
     ):
         raise AssertionError(
             "client-operation descriptor result-kind split changed"
@@ -532,6 +598,41 @@ def test_operation_descriptor_guards(
             for method in a1_2_b5_methods
         )
         != 4
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_3_command_methods
+        )
+        != 3
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_command_methods
+        )
+        != 1
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_3_filesystem_methods
+        )
+        != 5
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_filesystem_methods
+        )
+        != 5
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_permission_methods
+        )
+        != 1
+        or sum(
+            "ResultContractKind::Unit" in method_rows[method]
+            for method in a1_3_review_guardian_methods
+        )
+        != 1
+        or sum(
+            "ResultContractKind::Concrete" in method_rows[method]
+            for method in a1_3_review_guardian_methods
+        )
+        != 1
         or any(
             expected not in method_rows[method]
             for method, expected in {
@@ -604,6 +705,124 @@ def test_operation_descriptor_guards(
                     "ClientOperationResultDecoder::"
                     "ExperimentalFeatureListResponse"
                 ),
+                "permissionProfile/list": (
+                    "ClientRequestTarget::PermissionProfileList, "
+                    '"ClientRequestTarget::PermissionProfileList", '
+                    '"PermissionProfileListParams", '
+                    '"PermissionProfileListResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::"
+                    "PermissionProfileListResponse"
+                ),
+                "command/exec": (
+                    "ClientRequestTarget::CommandExec, "
+                    '"ClientRequestTarget::CommandExec", '
+                    '"CommandExecParams", "CommandExecResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::CommandExecResponse"
+                ),
+                "command/exec/resize": (
+                    "ClientRequestTarget::CommandExecResize, "
+                    '"ClientRequestTarget::CommandExecResize", '
+                    '"CommandExecResizeParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "command/exec/terminate": (
+                    "ClientRequestTarget::CommandExecTerminate, "
+                    '"ClientRequestTarget::CommandExecTerminate", '
+                    '"CommandExecTerminateParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "command/exec/write": (
+                    "ClientRequestTarget::CommandExecWrite, "
+                    '"ClientRequestTarget::CommandExecWrite", '
+                    '"CommandExecWriteParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fs/copy": (
+                    "ClientRequestTarget::FsCopy, "
+                    '"ClientRequestTarget::FsCopy", '
+                    '"FsCopyParams", "Unit", ResultContractKind::Unit, '
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fs/createDirectory": (
+                    "ClientRequestTarget::FsCreateDirectory, "
+                    '"ClientRequestTarget::FsCreateDirectory", '
+                    '"FsCreateDirectoryParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fs/getMetadata": (
+                    "ClientRequestTarget::FsGetMetadata, "
+                    '"ClientRequestTarget::FsGetMetadata", '
+                    '"FsGetMetadataParams", "FsGetMetadataResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::FsGetMetadataResponse"
+                ),
+                "fs/readDirectory": (
+                    "ClientRequestTarget::FsReadDirectory, "
+                    '"ClientRequestTarget::FsReadDirectory", '
+                    '"FsReadDirectoryParams", "FsReadDirectoryResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::FsReadDirectoryResponse"
+                ),
+                "fs/readFile": (
+                    "ClientRequestTarget::FsReadFile, "
+                    '"ClientRequestTarget::FsReadFile", '
+                    '"FsReadFileParams", "FsReadFileResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::FsReadFileResponse"
+                ),
+                "fs/remove": (
+                    "ClientRequestTarget::FsRemove, "
+                    '"ClientRequestTarget::FsRemove", '
+                    '"FsRemoveParams", "Unit", ResultContractKind::Unit, '
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fs/unwatch": (
+                    "ClientRequestTarget::FsUnwatch, "
+                    '"ClientRequestTarget::FsUnwatch", '
+                    '"FsUnwatchParams", "Unit", ResultContractKind::Unit, '
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fs/watch": (
+                    "ClientRequestTarget::FsWatch, "
+                    '"ClientRequestTarget::FsWatch", '
+                    '"FsWatchParams", "FsWatchResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::FsWatchResponse"
+                ),
+                "fs/writeFile": (
+                    "ClientRequestTarget::FsWriteFile, "
+                    '"ClientRequestTarget::FsWriteFile", '
+                    '"FsWriteFileParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
+                "fuzzyFileSearch": (
+                    "ClientRequestTarget::FuzzyFileSearch, "
+                    '"ClientRequestTarget::FuzzyFileSearch", '
+                    '"FuzzyFileSearchParams", "FuzzyFileSearchResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::FuzzyFileSearchResponse"
+                ),
+                "review/start": (
+                    "ClientRequestTarget::ReviewStart, "
+                    '"ClientRequestTarget::ReviewStart", '
+                    '"ReviewStartParams", "ReviewStartResponse", '
+                    "ResultContractKind::Concrete, "
+                    "ClientOperationResultDecoder::ReviewStartResponse"
+                ),
+                "thread/approveGuardianDeniedAction": (
+                    "ClientRequestTarget::ThreadApproveGuardianDeniedAction, "
+                    '"ClientRequestTarget::ThreadApproveGuardianDeniedAction", '
+                    '"ThreadApproveGuardianDeniedActionParams", "Unit", '
+                    "ResultContractKind::Unit, "
+                    "ClientOperationResultDecoder::Unit"
+                ),
             }.items()
         )
     ):
@@ -644,6 +863,72 @@ def test_operation_descriptor_guards(
         "remove one exact B4 client-request assignment",
     )
 
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec",
+        )
+    )
+    assignment["module"] = "WrongCommandModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ClientOperationDescriptorAssignmentMismatch",
+        "move one exact A1.3 command request out of its reviewed module",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "fs/readFile",
+        )
+    )
+    assignment["module"] = "WrongFilesystemModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ClientOperationDescriptorAssignmentMismatch",
+        "move one A1.3 filesystem request out of its reviewed module",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "review/start",
+        )
+    )
+    assignment["slice"] = "A1.4"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ClientOperationDescriptorAssignmentMismatch",
+        "move the A1.3 review request out of its reviewed slice",
+    )
+
     wrong_contract = copy.deepcopy(evidence)
     contract = next(
         row
@@ -663,7 +948,73 @@ def test_operation_descriptor_guards(
             manifest, wrong_contract
         ),
         "WrongResultType",
-        "change one reviewed Unit result contract",
+        "change one reviewed B4 Unit result contract",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec/resize",
+        )
+    )
+    contract["result_contract_kind"] = "Concrete"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change one reviewed A1.3 command Unit result contract",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "fs/copy",
+        )
+    )
+    contract["result_contract_kind"] = "Concrete"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change one reviewed A1.3 filesystem Unit result contract",
+    )
+
+    wrong_contract = copy.deepcopy(evidence)
+    contract = next(
+        row
+        for row in wrong_contract["operation_contracts"]["contracts"]
+        if tool.surface_key(row)
+        == (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "thread/approveGuardianDeniedAction",
+        )
+    )
+    contract["result_contract_kind"] = "Concrete"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_client_operation_descriptor_data(
+            manifest, wrong_contract
+        ),
+        "WrongResultType",
+        "change the reviewed A1.3 guardian Unit result contract",
     )
 
     original_targets = dict(tool.RUNTIME_TARGETS)
@@ -681,6 +1032,32 @@ def test_operation_descriptor_guards(
             "thread/compact/start",
         )
         tool.RUNTIME_TARGETS[compact] = tool.RUNTIME_TARGETS[archive]
+        expect_surface_error_code(
+            tool,
+            lambda: tool.generate_client_operation_descriptor_data(
+                manifest, evidence
+            ),
+            "ClientOperationDescriptorAssignmentMismatch",
+            "duplicate one existing client-operation runtime target",
+        )
+        tool.RUNTIME_TARGETS.clear()
+        tool.RUNTIME_TARGETS.update(original_targets)
+
+        command_exec = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec",
+        )
+        command_resize = (
+            "client_request",
+            "ClientRequest",
+            "method",
+            "command/exec/resize",
+        )
+        tool.RUNTIME_TARGETS[command_resize] = tool.RUNTIME_TARGETS[
+            command_exec
+        ]
         expect_surface_error_code(
             tool,
             lambda: tool.generate_client_operation_descriptor_data(
@@ -770,11 +1147,22 @@ def test_notification_descriptor_guards(
         "model/verification",
     }
     a1_2_b4_methods = {"configWarning"}
+    a1_3_command_methods = {"command/exec/outputDelta"}
+    a1_3_filesystem_methods = {
+        "fs/changed",
+        "fuzzyFileSearch/sessionCompleted",
+        "fuzzyFileSearch/sessionUpdated",
+    }
+    a1_3_review_guardian_methods = {
+        "guardianWarning",
+        "item/autoApprovalReview/completed",
+        "item/autoApprovalReview/started",
+    }
     residual_methods = {"error"}
     if (
-        len(rows) != 45
-        or len(targets) != 45
-        or len(method_rows) != 45
+        len(rows) != 52
+        or len(targets) != 52
+        or len(method_rows) != 52
         or len(a1_1_methods) != 37
         or set(method_rows)
         != (
@@ -782,6 +1170,9 @@ def test_notification_descriptor_guards(
             | a1_2_b2_methods
             | a1_2_b3_methods
             | a1_2_b4_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+            | a1_3_review_guardian_methods
             | residual_methods
         )
         or (
@@ -789,6 +1180,9 @@ def test_notification_descriptor_guards(
             | a1_2_b2_methods
             | a1_2_b3_methods
             | a1_2_b4_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+            | a1_3_review_guardian_methods
         )
         & residual_methods
         or a1_1_methods & a1_2_b2_methods
@@ -797,14 +1191,38 @@ def test_notification_descriptor_guards(
             a1_1_methods | a1_2_b2_methods | a1_2_b3_methods
         )
         & a1_2_b4_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+        )
+        & a1_3_command_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_3_command_methods
+        )
+        & a1_3_filesystem_methods
+        or (
+            a1_1_methods
+            | a1_2_b2_methods
+            | a1_2_b3_methods
+            | a1_2_b4_methods
+            | a1_3_command_methods
+            | a1_3_filesystem_methods
+        )
+        & a1_3_review_guardian_methods
     ):
         raise AssertionError(
-            "server-notification descriptors are not an exact 45-row "
+            "server-notification descriptors are not an exact 52-row "
             "target bijection with the reviewed slice projection"
         )
     if (
         sum(line.endswith(", true)") for line in rows) != 37
-        or sum(line.endswith(", false)") for line in rows) != 8
+        or sum(line.endswith(", false)") for line in rows) != 15
         or any(
             not method_rows[method].endswith(", true)")
             for method in a1_1_methods
@@ -815,6 +1233,9 @@ def test_notification_descriptor_guards(
                 a1_2_b2_methods
                 | a1_2_b3_methods
                 | a1_2_b4_methods
+                | a1_3_command_methods
+                | a1_3_filesystem_methods
+                | a1_3_review_guardian_methods
                 | residual_methods
             )
         )
@@ -837,12 +1258,50 @@ def test_notification_descriptor_guards(
                     "ServerNotificationTarget::ConfigWarning, "
                     '"typed::ConfigWarningNotification", false)'
                 ),
+                "command/exec/outputDelta": (
+                    "ServerNotificationTarget::CommandExecOutputDelta, "
+                    '"typed::CommandExecOutputDeltaNotification", false)'
+                ),
+                "fs/changed": (
+                    "ServerNotificationTarget::FsChanged, "
+                    '"typed::FsChangedNotification", false)'
+                ),
+                "fuzzyFileSearch/sessionCompleted": (
+                    "ServerNotificationTarget::"
+                    "FuzzyFileSearchSessionCompleted, "
+                    '"typed::FuzzyFileSearchSessionCompletedNotification", '
+                    "false)"
+                ),
+                "fuzzyFileSearch/sessionUpdated": (
+                    "ServerNotificationTarget::"
+                    "FuzzyFileSearchSessionUpdated, "
+                    '"typed::FuzzyFileSearchSessionUpdatedNotification", '
+                    "false)"
+                ),
+                "guardianWarning": (
+                    "ServerNotificationTarget::GuardianWarning, "
+                    '"typed::GuardianWarningNotification", false)'
+                ),
+                "item/autoApprovalReview/completed": (
+                    "ServerNotificationTarget::"
+                    "ItemGuardianApprovalReviewCompleted, "
+                    '"typed::ItemGuardianApprovalReviewCompletedNotification", '
+                    "false)"
+                ),
+                "item/autoApprovalReview/started": (
+                    "ServerNotificationTarget::"
+                    "ItemGuardianApprovalReviewStarted, "
+                    '"typed::ItemGuardianApprovalReviewStartedNotification", '
+                    "false)"
+                ),
             }.items()
         )
     ):
         raise AssertionError(
             "server-notification descriptors lost the exact 37 A1.1 / "
-            "three A1.2 B2 / three A1.2 B3 / one A1.2 B4 / one residual split"
+            "three A1.2 B2 / three A1.2 B3 / one A1.2 B4 / one A1.3 "
+            "command / three A1.3 filesystem / three A1.3 review/guardian / "
+            "one residual split"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -865,6 +1324,72 @@ def test_notification_descriptor_guards(
         ),
         "ServerNotificationDescriptorSliceMismatch",
         "move one notification descriptor out of the exact A1.1 slice",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "command/exec/outputDelta",
+        )
+    )
+    assignment["module"] = "WrongCommandModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move the command notification descriptor out of its exact A1.3 module",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "fs/changed",
+        )
+    )
+    assignment["module"] = "WrongFilesystemModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move one filesystem notification out of its A1.3 module",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "guardianWarning",
+        )
+    )
+    assignment["module"] = "WrongReviewGuardianModule"
+    expect_surface_error_code(
+        tool,
+        lambda: tool.generate_server_notification_descriptor_data(
+            manifest, wrong_assignment
+        ),
+        "ServerNotificationDescriptorSliceMismatch",
+        "move one review/guardian notification out of its A1.3 module",
     )
 
     original_codecs = dict(tool.SERVER_NOTIFICATION_CODECS)
@@ -1235,16 +1760,40 @@ def test_server_request_descriptor_guards(
         for line in generated.splitlines()
         if line.startswith("CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR(")
     ]
+    expected_methods = {
+        "account/chatgptAuthTokens/refresh",
+        "applyPatchApproval",
+        "execCommandApproval",
+        "item/commandExecution/requestApproval",
+        "item/fileChange/requestApproval",
+        "item/permissions/requestApproval",
+    }
+    methods = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r'^CODEX_SERVER_REQUEST_CODEC_DESCRIPTOR\('
+                r'[^,]+, "[^"]+", "[^"]+", "([^"]+)", ',
+                line,
+            )
+        )
+    }
     if (
-        len(rows) != 1
-        or '"account/chatgptAuthTokens/refresh"' not in rows[0]
-        or "ServerRequestTarget::ChatgptAuthTokensRefresh" not in rows[0]
-        or '"ChatgptAuthTokensRefreshParams"' not in rows[0]
-        or '"ChatgptAuthTokensRefreshResponse"' not in rows[0]
-        or not rows[0].endswith("ResultContractKind::Concrete)")
+        len(rows) != 6
+        or methods != expected_methods
+        or any(
+            not row.endswith("ResultContractKind::Concrete)")
+            for row in rows
+        )
+        or sum(
+            "ServerRequestTarget::" in row for row in rows
+        )
+        != 6
     ):
         raise AssertionError(
-            "server-request descriptor lost the exact auth-refresh contract"
+            "server-request descriptors lost the exact auth-refresh plus "
+            "five A1.3 concrete contracts"
         )
 
     wrong_assignment = copy.deepcopy(evidence)
@@ -1324,6 +1873,259 @@ def test_server_request_descriptor_guards(
             ),
             "StaleGeneratedServerRequestDescriptors",
             "change the checked-in server-request descriptor artifact",
+        )
+
+
+def test_commands_filesystem_reviews_approvals_union_descriptor_guards(
+    tool: ModuleType,
+    manifest: dict[str, object],
+    schema_root: Path,
+    evidence: dict[str, object],
+    descriptor_path: Path,
+) -> None:
+    generated = (
+        tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    )
+    if generated != (
+        tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+            manifest, schema_root, evidence
+        )
+    ):
+        raise AssertionError(
+            "A1.3 approval-union descriptor generation is not deterministic"
+        )
+    if generated != descriptor_path.read_text(encoding="utf-8"):
+        raise AssertionError(
+            "private A1.3 approval-union descriptor data is stale"
+        )
+    rows = [
+        line
+        for line in generated.splitlines()
+        if line.startswith(
+            "CODEX_COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_"
+            "CODEC_DESCRIPTOR("
+        )
+    ]
+    targets = {
+        match.group(1)
+        for line in rows
+        if (
+            match := re.search(
+                r", (CommandsFilesystemReviewsApprovalsUnionTarget::"
+                r"[A-Za-z0-9_]+), ",
+                line,
+            )
+        )
+    }
+    if (
+        len(rows) != 39
+        or len(targets) != 39
+        or sum(
+            "ConversationUnionCodecShape::ScalarString" in line
+            for line in rows
+        )
+        != 9
+        or sum(
+            "ConversationUnionCodecShape::ExternallyTaggedObject" in line
+            for line in rows
+        )
+        != 4
+        or sum(
+            "ConversationUnionCodecShape::InternallyTaggedObject" in line
+            for line in rows
+        )
+        != 26
+        or sum(
+            line.endswith(
+                "ConversationUnionCodecDirection::DecodeOnly)"
+            )
+            for line in rows
+        )
+        != 6
+        or sum(
+            line.endswith(
+                "ConversationUnionCodecDirection::Bidirectional)"
+            )
+            for line in rows
+        )
+        != 33
+        or any(
+            (
+                "GuardianApprovalReviewAction" in line
+                and not line.endswith(
+                    "ConversationUnionCodecDirection::DecodeOnly)"
+                )
+            )
+            or (
+                "GuardianApprovalReviewAction" not in line
+                and not line.endswith(
+                    "ConversationUnionCodecDirection::Bidirectional)"
+                )
+            )
+            for line in rows
+        )
+    ):
+        raise AssertionError(
+            "A1.3 union descriptors lost the exact 39-row shape and "
+            "33 bidirectional / 6 guardian decode-only contract"
+        )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "tagged_union_discriminator",
+            "FileChange",
+            "type",
+            "add",
+        )
+    )
+    assignment["slice"] = "A1.4"
+    expect_surface_error_code(
+        tool,
+        lambda: (
+            tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                manifest, schema_root, wrong_assignment
+            )
+        ),
+        "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch",
+        "move one approval union alternative out of A1.3",
+    )
+
+    wrong_assignment = copy.deepcopy(evidence)
+    assignment = next(
+        row
+        for row in wrong_assignment["assignments"]["assignments"]
+        if tool.surface_key(row)
+        == (
+            "tagged_union_discriminator",
+            "GuardianApprovalReviewAction",
+            "type",
+            "networkAccess",
+        )
+    )
+    assignment["module"] = "WrongReviewGuardianModule"
+    expect_surface_error_code(
+        tool,
+        lambda: (
+            tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                manifest, schema_root, wrong_assignment
+            )
+        ),
+        "CommandsFilesystemReviewsApprovalsUnionDescriptorAssignmentMismatch",
+        "move one guardian action out of its exact A1.3 module",
+    )
+
+    original_codecs = dict(
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS
+    )
+    keys = sorted(original_codecs)
+    try:
+        first = original_codecs[keys[0]]
+        second = original_codecs[keys[1]]
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[
+            keys[1]
+        ] = (
+            first[0],
+            second[1],
+            second[2],
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            (
+                "DuplicateCommandsFilesystemReviewsApprovalsUnion"
+                "DescriptorTarget"
+            ),
+            "duplicate one A1.3 approval-union target",
+        )
+
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[
+            keys[1]
+        ] = (
+            second[0],
+            second[1],
+            "ConversationUnionCodecDirection::DecodeOnly",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            (
+                "CommandsFilesystemReviewsApprovalsUnionDescriptor"
+                "DirectionMismatch"
+            ),
+            "change one A1.3 approval-union direction",
+        )
+
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.clear()
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.update(
+            original_codecs
+        )
+        guardian_key = next(
+            key
+            for key in keys
+            if key[1] == "GuardianApprovalReviewAction"
+        )
+        guardian = original_codecs[guardian_key]
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS[
+            guardian_key
+        ] = (
+            guardian[0],
+            guardian[1],
+            "ConversationUnionCodecDirection::Bidirectional",
+        )
+        expect_surface_error_code(
+            tool,
+            lambda: (
+                tool.generate_commands_filesystem_reviews_approvals_union_descriptor_data(
+                    manifest, schema_root, evidence
+                )
+            ),
+            (
+                "CommandsFilesystemReviewsApprovalsUnionDescriptor"
+                "DirectionMismatch"
+            ),
+            "change one guardian action from decode-only to bidirectional",
+        )
+    finally:
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.clear()
+        tool.COMMANDS_FILESYSTEM_REVIEWS_APPROVALS_UNION_CODECS.update(
+            original_codecs
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="snodec-codex-a13-approval-union-descriptors-"
+    ) as raw:
+        stale = (
+            Path(raw)
+            / "CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc"
+        )
+        stale.write_text(generated + " ", encoding="utf-8")
+        expect_surface_error_code(
+            tool,
+            lambda: tool.write_or_check_generated_descriptors(
+                stale,
+                generated,
+                True,
+                "CommandsFilesystemReviewsApprovalsUnion",
+            ),
+            (
+                "StaleGeneratedCommandsFilesystemReviewsApprovalsUnion"
+                "Descriptors"
+            ),
+            "change the checked-in A1.3 approval-union descriptor artifact",
         )
 
 
@@ -1756,6 +2558,15 @@ def test_generated_artifacts(
         evidence,
         registry_path.with_name(
             "AccountsModelsConfigurationUnionCodecDescriptors.inc"
+        ),
+    )
+    test_commands_filesystem_reviews_approvals_union_descriptor_guards(
+        tool,
+        manifest,
+        schema_root,
+        evidence,
+        registry_path.with_name(
+            "CommandsFilesystemReviewsApprovalsUnionCodecDescriptors.inc"
         ),
     )
     test_server_request_descriptor_guards(

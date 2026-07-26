@@ -53,6 +53,113 @@ EXPECTED_FIXTURE_MUTATIONS = {
     "wrong_type_mutations_rejected": 19051,
     "wrong_type_unconstrained_exclusions": 178,
 }
+EXPECTED_FIXTURE_COVERAGE_COUNTS = {
+    "identities_with_positive_fixtures": 270,
+    "operation_role_actual": 194,
+    "operation_role_expected": 194,
+    "optional_omissions_accepted": 19631,
+    "optional_present_locations": 19631,
+    "positive_fixtures": 1881,
+    "required_field_removals_rejected": 19229,
+    "surface_identities": 387,
+    "wrong_type_mutations_rejected": 19051,
+    "wrong_type_unconstrained_exclusions": 178,
+}
+EXPECTED_SCHEMA_COMPLETENESS_COUNTS = {
+    "facts_true_by_field": {
+        "authoritative_root_association": 270,
+        "fixture_current": 270,
+        "independently_schema_validated": 270,
+        "nullable_semantics_exercised": 212,
+        "optional_omitted_exercised": 270,
+        "optional_present_exercised": 270,
+        "positive_fixture_coverage": 270,
+        "reachable_union_alternatives_exercised": 212,
+        "required_fields_exercised": 270,
+        "schema_properties_exercised": 212,
+    },
+    "identities_with_positive_fixtures": 270,
+    "surface_identities": 387,
+}
+EXPECTED_A1_3_SUCCESSOR_GLOBAL_STATUS = {
+    "Complete": 280,
+    "NotApplicable": 48,
+    "NotImplemented": 55,
+    "Partial": 4,
+}
+EXPECTED_A1_3_SUCCESSOR_RESIDUAL_PARTIAL_KEYS = frozenset(
+    {
+        shared.Key(
+            "client_notification",
+            "ClientNotification",
+            "method",
+            "initialized",
+        ),
+        shared.Key(
+            "client_request",
+            "ClientRequest",
+            "method",
+            "initialize",
+        ),
+        shared.Key(
+            "server_notification",
+            "ServerNotification",
+            "method",
+            "error",
+        ),
+        shared.Key(
+            "server_request",
+            "ServerRequest",
+            "method",
+            "item/tool/requestUserInput",
+        ),
+    }
+)
+EXPECTED_A1_3_SUCCESSOR_FIXTURE_TOTALS = {
+    "negative": 3615,
+    "positive": 2268,
+    "total": 5883,
+}
+EXPECTED_A1_3_SUCCESSOR_FIXTURE_MUTATIONS = {
+    "alternative_branch_acceptances": 1,
+    "globally_optional_locations": 21164,
+    "optional_cross_fragment_exclusions": 0,
+    "optional_omissions_accepted": 21164,
+    "optional_present_locations": 21164,
+    "required_field_removals_rejected": 21267,
+    "required_locations": 21267,
+    "selected_branch_required_locations": 21267,
+    "wrong_type_mutations_rejected": 21083,
+    "wrong_type_unconstrained_exclusions": 184,
+}
+EXPECTED_A1_3_SUCCESSOR_FIXTURE_COVERAGE_COUNTS = {
+    "identities_with_positive_fixtures": 316,
+    "operation_role_actual": 194,
+    "operation_role_expected": 194,
+    "optional_omissions_accepted": 21164,
+    "optional_present_locations": 21164,
+    "positive_fixtures": 2268,
+    "required_field_removals_rejected": 21267,
+    "surface_identities": 387,
+    "wrong_type_mutations_rejected": 21083,
+    "wrong_type_unconstrained_exclusions": 184,
+}
+EXPECTED_A1_3_SUCCESSOR_SCHEMA_COMPLETENESS_COUNTS = {
+    "facts_true_by_field": {
+        "authoritative_root_association": 316,
+        "fixture_current": 316,
+        "independently_schema_validated": 316,
+        "nullable_semantics_exercised": 280,
+        "optional_omitted_exercised": 316,
+        "optional_present_exercised": 316,
+        "positive_fixture_coverage": 316,
+        "reachable_union_alternatives_exercised": 280,
+        "required_fields_exercised": 316,
+        "schema_properties_exercised": 280,
+    },
+    "identities_with_positive_fixtures": 316,
+    "surface_identities": 387,
+}
 EXPECTED_TREE_FINGERPRINTS = {
     "src/ai/openai/codex/backend": {
         "file_count": 14,
@@ -75,12 +182,45 @@ EXPECTED_TREE_FINGERPRINTS = {
             "c96bb51b727fd4f6a8a31034f906476e1e10aa1357ae889b9a664f11c09ea337",
     },
 }
+EXPECTED_A1_3_SUCCESSOR_TREE_FINGERPRINTS = {
+    **EXPECTED_TREE_FINGERPRINTS,
+    "src/ai/openai/codex/backend": {
+        "file_count": 14,
+        "sha256":
+            "00fb78d5b7f2451cad7c8e81cd9716af23dca0e58c932c18d8d86b152c6c5261",
+    },
+}
 EXPECTED_FRONTEND_PROTOCOL_FINGERPRINTS = {
     "docs/ai/openai/codex/frontend-protocol-v1.md":
         "5f53a6219f8dc45a09ec7ddca05f2f1f104ce0c7fee824de98492815fc502017",
     "docs/ai/openai/codex/frontend-protocol-v1.schema.json":
         "a27721164607b79a8b268c3adb035211a6efa82cb4645632b9b9a59302734c04",
 }
+FROZEN_SOURCE_SHA256 = {
+    "fixture_coverage":
+        "958fd18a918c75a37cdf215ea25addfbd83ab7c225e8e93b1b217c9a5b770e07",
+    "fixture_index":
+        "2900b6691f8133af9730ad0e207511f5b986861c24506896f17b49a5dc793f7c",
+    "generator":
+        "354ad78630df928e2184360322e28f547510493e2ef1fd2377a2b316c05146b5",
+    "implementation_plan":
+        "ff5ab66b79cd53c614a93a8d5cd1a065c54b8a251c706adeb805c900f43f44c4",
+    "registry":
+        "b845d442def7ba672122fa9c4f0ab28703d244d92be2c41706aa614b80d01948",
+    "schema_completeness":
+        "c60fd80b369a78224f101d291f56ba26c33c3a574caf9c181fc4c27b9434b21b",
+    "type_closure":
+        "2b8bc5de1c56b1ce7b809939a744ec1027a78574adfc9e5e8c1e966a385047cb",
+}
+HISTORICALLY_MUTABLE_SOURCE_NAMES = frozenset(
+    {
+        "fixture_coverage",
+        "fixture_index",
+        "generator",
+        "registry",
+        "schema_completeness",
+    }
+)
 
 AuditDiagnostic = shared.AuditDiagnostic
 AuditError = shared.AuditError
@@ -138,13 +278,21 @@ def tree_fingerprint(repo_root: Path, relative: str) -> dict[str, Any]:
 def source_records(
     paths: Mapping[str, Path], repo_root: Path
 ) -> dict[str, dict[str, str]]:
-    return {
-        name: {
-            "path": path.resolve().relative_to(repo_root).as_posix(),
-            "sha256": shared.sha256_file(path),
-        }
-        for name, path in sorted(paths.items())
-    }
+    return shared.historical_source_records(
+        paths,
+        repo_root,
+        frozen_hashes=FROZEN_SOURCE_SHA256,
+        mutable_names=HISTORICALLY_MUTABLE_SOURCE_NAMES,
+        source_set_error=lambda: AuditError(
+            "A1.2 closure historical source set changed",
+            "ClosureSourceMismatch",
+        ),
+        immutable_source_error=lambda relative: AuditError(
+            f"immutable A1.2 closure source changed: {relative}",
+            "ClosureSourceMismatch",
+        ),
+        resolve_paths=True,
+    )
 
 
 def normalized_fixture_totals(
@@ -159,6 +307,92 @@ def normalized_fixture_totals(
     return {name: int(counts[name]) for name in ("negative", "positive", "total")}
 
 
+def validate_successor_registry(
+    registry: Mapping[Key, Mapping[str, Any]],
+) -> None:
+    """Require the exact final monotonic A1.3 successor registry boundary."""
+
+    successor = {
+        key: row
+        for key, row in registry.items()
+        if row.get("a1_slice") == a1_2.MONOTONIC_SUCCESSOR_SLICE
+    }
+    require(
+        len(successor) == 68
+        and all(
+            row.get("stability") == "stable"
+            and row.get("runtime_disposition") == "Typed"
+            and row.get("typed_status") == "Implemented"
+            and row.get("typed_schema_status") == "Complete"
+            and row.get("runtime_target") not in {"", "std::monostate{}"}
+            and isinstance(row.get("schema_completeness"), Mapping)
+            and bool(row["schema_completeness"])
+            and all(
+                value is True
+                for value in row["schema_completeness"].values()
+            )
+            for row in successor.values()
+        ),
+        "live registry is not the exact complete 68-identity A1.3 successor",
+        "ClosureSuccessorProgressMismatch",
+    )
+    live_global = status_counts(registry.values())
+    require(
+        live_global == EXPECTED_A1_3_SUCCESSOR_GLOBAL_STATUS,
+        f"A1.3 successor global schema metrics changed: {live_global}",
+        "ClosureSuccessorProgressMismatch",
+    )
+    live_residual = {
+        key
+        for key, row in registry.items()
+        if row.get("typed_schema_status") == "Partial"
+    }
+    require(
+        live_residual == EXPECTED_A1_3_SUCCESSOR_RESIDUAL_PARTIAL_KEYS,
+        "A1.3 successor residual Partial identity set changed",
+        "ClosureSuccessorProgressMismatch",
+    )
+
+
+def validate_successor_fixture_evidence(
+    fixture_index: Mapping[str, Any],
+    fixture_coverage: Mapping[str, Any],
+    schema_completeness: Mapping[str, Any],
+) -> None:
+    """Reject fixture changes outside the reviewed final A1.3 corpus."""
+
+    fixture_totals = normalized_fixture_totals(fixture_index)
+    fixture_mutations = fixture_index.get("mutation_counts")
+    coverage_counts = fixture_coverage.get("counts")
+    schema_counts = schema_completeness.get("counts")
+    require(
+        fixture_totals == EXPECTED_A1_3_SUCCESSOR_FIXTURE_TOTALS
+        and fixture_mutations == EXPECTED_A1_3_SUCCESSOR_FIXTURE_MUTATIONS
+        and coverage_counts
+        == EXPECTED_A1_3_SUCCESSOR_FIXTURE_COVERAGE_COUNTS
+        and schema_counts
+        == EXPECTED_A1_3_SUCCESSOR_SCHEMA_COMPLETENESS_COUNTS,
+        "fixture/mutation/completeness evidence is not the reviewed "
+        "A1.3 successor corpus",
+        "ClosureSuccessorFixtureMismatch",
+    )
+
+
+def validate_successor_boundaries(
+    source_trees: Mapping[str, Mapping[str, Any]],
+    frontend_protocol: Mapping[str, str],
+) -> None:
+    """Allow only the reviewed A1.3 compatibility-only backend delta."""
+
+    require(
+        source_trees == EXPECTED_A1_3_SUCCESSOR_TREE_FINGERPRINTS
+        and frontend_protocol == EXPECTED_FRONTEND_PROTOCOL_FINGERPRINTS,
+        "A1.3 successor BackendCore/frontend/application boundary "
+        "fingerprints changed",
+        "ClosureBoundaryFingerprintMismatch",
+    )
+
+
 def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
     repo_root = arguments.repo_root
     plan = shared.load_json(arguments.plan)
@@ -167,9 +401,17 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
     fixture_index = shared.load_json(arguments.fixture_index)
     schema_completeness = shared.load_json(arguments.schema_completeness)
     a1_2.validate_generated_reports(plan, closure)
+    rebuilt_plan, rebuilt_closure = a1_2.build_reports(arguments)
+    require(
+        rebuilt_plan == plan and rebuilt_closure == closure,
+        "live immutable A1.2 authorities do not reproduce the reviewed "
+        "plan/type closure",
+        "ClosureHistoricalAuthorityMismatch",
+    )
 
     registry_rows = surface.parse_registry_data(arguments.registry)
     registry = indexed(registry_rows, Key.from_row, "registry")
+    validate_successor_registry(registry)
     a1_2_registry = {
         key: row
         for key, row in registry.items()
@@ -247,18 +489,12 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         )
 
     a1_2_status = status_counts(a1_2_registry.values())
-    global_status = status_counts(registry_rows)
+    global_status = dict(a1_2.EXPECTED_FINAL_GLOBAL_STATUS)
     require(
         a1_2_status == EXPECTED_A1_2_STATUS,
         f"final A1.2 schema metrics changed: {a1_2_status}",
         "ClosureSchemaStatusMismatch",
     )
-    require(
-        global_status == a1_2.EXPECTED_FINAL_GLOBAL_STATUS,
-        f"final global schema metrics changed: {global_status}",
-        "ClosureGlobalStatusMismatch",
-    )
-
     taxonomy = dict(sorted(Counter(key.category for key in ratchet_keys).items()))
     classifications = dict(
         sorted(
@@ -482,20 +718,26 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "ClosureBatchRatchetMismatch",
     )
 
+    residual_value = plan.get("expected_final_residual_partial_identities")
+    require(
+        isinstance(residual_value, list),
+        "plan lacks its reviewed A1.2 residual Partial identity set",
+        "ClosureResidualPartialMismatch",
+    )
     residual_keys = {
-        key
-        for key, row in registry.items()
-        if row["typed_schema_status"] == "Partial"
+        key_from_object(row)
+        for row in residual_value
+        if isinstance(row, Mapping)
     }
     require(
         residual_keys == a1_2.EXPECTED_FINAL_RESIDUAL_PARTIAL_KEYS,
-        "exact final residual Partial identity set changed",
+        "reviewed A1.2 residual Partial identity set changed",
         "ClosureResidualPartialMismatch",
     )
     residual = [key.object() for key in sorted(residual_keys)]
     require(
-        residual == plan["expected_final_residual_partial_identities"],
-        "plan and canonical registry residual Partial sets differ",
+        residual == residual_value,
+        "plan residual Partial identity ordering changed",
         "ClosureResidualPartialMismatch",
     )
 
@@ -512,36 +754,17 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         "A1.2 type/path closure counts changed",
         "ClosureTypeClosureMismatch",
     )
-    fixture_totals = normalized_fixture_totals(fixture_index)
-    fixture_mutations = fixture_index.get("mutation_counts")
-    coverage_counts = fixture_coverage.get("counts")
-    schema_counts = schema_completeness.get("counts")
-    require(
-        fixture_totals == EXPECTED_FIXTURE_TOTALS
-        and fixture_mutations == EXPECTED_FIXTURE_MUTATIONS
-        and isinstance(coverage_counts, Mapping)
-        and isinstance(schema_counts, Mapping)
-        and coverage_counts.get("surface_identities") == 387
-        and schema_counts.get("surface_identities") == 387
-        and coverage_counts.get("identities_with_positive_fixtures") == 270
-        and schema_counts.get("identities_with_positive_fixtures") == 270
-        and coverage_counts.get("positive_fixtures")
-        == fixture_totals["positive"]
-        and coverage_counts.get("optional_omissions_accepted")
-        == fixture_mutations["optional_omissions_accepted"]
-        and coverage_counts.get("optional_present_locations")
-        == fixture_mutations["optional_present_locations"]
-        and coverage_counts.get("required_field_removals_rejected")
-        == fixture_mutations["required_field_removals_rejected"]
-        and coverage_counts.get("wrong_type_mutations_rejected")
-        == fixture_mutations["wrong_type_mutations_rejected"]
-        and coverage_counts.get("wrong_type_unconstrained_exclusions")
-        == fixture_mutations["wrong_type_unconstrained_exclusions"],
-        "A1.2 fixture/mutation/completeness evidence changed",
-        "ClosureFixtureCountMismatch",
+    validate_successor_fixture_evidence(
+        fixture_index,
+        fixture_coverage,
+        schema_completeness,
     )
+    fixture_totals = EXPECTED_FIXTURE_TOTALS
+    fixture_mutations = EXPECTED_FIXTURE_MUTATIONS
+    coverage_counts = EXPECTED_FIXTURE_COVERAGE_COUNTS
+    schema_counts = EXPECTED_SCHEMA_COMPLETENESS_COUNTS
 
-    source_trees = {
+    live_source_trees = {
         relative: tree_fingerprint(repo_root, relative)
         for relative in EXPECTED_TREE_FINGERPRINTS
     }
@@ -549,12 +772,11 @@ def build_report(arguments: argparse.Namespace) -> dict[str, Any]:
         relative: shared.sha256_file(repo_root / relative)
         for relative in EXPECTED_FRONTEND_PROTOCOL_FINGERPRINTS
     }
-    require(
-        source_trees == EXPECTED_TREE_FINGERPRINTS
-        and frontend_protocol == EXPECTED_FRONTEND_PROTOCOL_FINGERPRINTS,
-        "BackendCore/frontend/application boundary fingerprints changed",
-        "ClosureBoundaryFingerprintMismatch",
+    validate_successor_boundaries(
+        live_source_trees,
+        frontend_protocol,
     )
+    source_trees = EXPECTED_TREE_FINGERPRINTS
 
     source_paths = {
         "fixture_coverage": arguments.fixture_coverage,
@@ -737,6 +959,45 @@ def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("mode", choices=("generate", "check"))
     result.add_argument("--repo-root", type=Path, default=repo_root)
+    result.add_argument(
+        "--manifest",
+        type=Path,
+        default=(
+            repo_root / "tools/codex/app-server-surface/0.144.6.json"
+        ),
+    )
+    result.add_argument(
+        "--schema-root",
+        type=Path,
+        default=(
+            repo_root / "tools/codex/app-server-schema/0.144.6"
+        ),
+    )
+    result.add_argument(
+        "--assignments",
+        type=Path,
+        default=evidence / "module-slice-assignment.json",
+    )
+    result.add_argument(
+        "--reachability",
+        type=Path,
+        default=evidence / "nested-reachability.json",
+    )
+    result.add_argument(
+        "--contracts",
+        type=Path,
+        default=evidence / "operation-contracts.json",
+    )
+    result.add_argument(
+        "--draft07-validator",
+        type=Path,
+        default=repo_root / "tools/codex/draft07.py",
+    )
+    result.add_argument(
+        "--start-state",
+        type=Path,
+        default=evidence / "a1-2-start-state.json",
+    )
     result.add_argument(
         "--plan",
         type=Path,

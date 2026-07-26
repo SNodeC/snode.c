@@ -8,8 +8,12 @@
 #include "ai/openai/codex/detail/ClientOperationCodec.h"
 
 #include "ai/openai/codex/detail/AccountCodec.h"
+#include "ai/openai/codex/detail/ApprovalCodec.h"
+#include "ai/openai/codex/detail/CommandCodec.h"
 #include "ai/openai/codex/detail/ConfigurationCodec.h"
+#include "ai/openai/codex/detail/FilesystemCodec.h"
 #include "ai/openai/codex/detail/ModelCodec.h"
+#include "ai/openai/codex/detail/ReviewCodec.h"
 #include "ai/openai/codex/detail/ThreadCodec.h"
 #include "ai/openai/codex/detail/TurnCodec.h"
 
@@ -54,6 +58,14 @@ namespace ai::openai::codex::detail {
             "ThreadUnsubscribeResponse",
             "TurnStartResponse",
             "TurnSteerResponse",
+            "CommandExecResponse",
+            "FsGetMetadataResponse",
+            "FsReadDirectoryResponse",
+            "FsReadFileResponse",
+            "FsWatchResponse",
+            "FuzzyFileSearchResponse",
+            "PermissionProfileListResponse",
+            "ReviewStartResponse",
         }};
 
         std::string_view resultDecoderIdentity(ClientOperationResultDecoder decoder) noexcept {
@@ -66,29 +78,22 @@ namespace ai::openai::codex::detail {
             return {std::nullopt, {code, target, surfaceKey, "$", std::move(message)}};
         }
 
-        bool hasA12ExactDecoderPaths(ClientRequestTarget target) noexcept {
+        bool hasExactDecoderPaths(ClientRequestTarget target) noexcept {
             using enum ClientRequestTarget;
-            return target == AccountLoginCancel || target == AccountLoginStart ||
-                   target == AccountLogout ||
-                   target == AccountRateLimitResetCreditConsume ||
-                   target == AccountRateLimitsRead || target == AccountRead ||
-                   target == AccountSendAddCreditsNudgeEmail ||
-                   target == AccountUsageRead ||
-                   target == AccountWorkspaceMessagesRead ||
-                   target == ConfigBatchWrite ||
-                   target == ConfigMcpServerReload ||
-                   target == ConfigRead ||
-                   target == ConfigValueWrite ||
-                   target == ConfigRequirementsRead ||
-                   target == ExperimentalFeatureEnablementSet ||
-                   target == ExperimentalFeatureList ||
-                   target == ModelList ||
-                   target == ModelProviderCapabilitiesRead;
+            return target == AccountLoginCancel || target == AccountLoginStart || target == AccountLogout ||
+                   target == AccountRateLimitResetCreditConsume || target == AccountRateLimitsRead || target == AccountRead ||
+                   target == AccountSendAddCreditsNudgeEmail || target == AccountUsageRead || target == AccountWorkspaceMessagesRead ||
+                   target == ConfigBatchWrite || target == ConfigMcpServerReload || target == ConfigRead || target == ConfigValueWrite ||
+                   target == ConfigRequirementsRead || target == ExperimentalFeatureEnablementSet || target == ExperimentalFeatureList ||
+                   target == ModelList || target == ModelProviderCapabilitiesRead || target == CommandExec || target == FsCopy ||
+                   target == FsCreateDirectory || target == FsGetMetadata || target == FsReadDirectory || target == FsReadFile ||
+                   target == FsRemove || target == FsUnwatch || target == FsWatch || target == FsWriteFile || target == FuzzyFileSearch ||
+                   target == PermissionProfileList || target == ReviewStart || target == ThreadApproveGuardianDeniedAction;
         }
 
         std::string decoderFieldPath(ClientRequestTarget target,
                                      const std::string& error) {
-            if (!hasA12ExactDecoderPaths(target)) {
+            if (!hasExactDecoderPaths(target)) {
                 return "$";
             }
             const std::size_t begin = error.find("'$");
@@ -259,6 +264,22 @@ namespace ai::openai::codex::detail {
                     return decode(target, key, decodeTurnStartResponse(raw, *contextualThreadId, error), error);
                 case TurnSteerResponse:
                     return decode(target, key, decodeTurnSteerResponse(raw, error), error);
+                case CommandExecResponse:
+                    return decode(target, key, decodeCommandExecResponse(raw, error), error);
+                case FsGetMetadataResponse:
+                    return decode(target, key, decodeFsGetMetadataResponse(raw, error), error);
+                case FsReadDirectoryResponse:
+                    return decode(target, key, decodeFsReadDirectoryResponse(raw, error), error);
+                case FsReadFileResponse:
+                    return decode(target, key, decodeFsReadFileResponse(raw, error), error);
+                case FsWatchResponse:
+                    return decode(target, key, decodeFsWatchResponse(raw, error), error);
+                case FuzzyFileSearchResponse:
+                    return decode(target, key, decodeFuzzyFileSearchResponse(raw, error), error);
+                case PermissionProfileListResponse:
+                    return decode(target, key, decodePermissionProfileListResponse(raw, error), error);
+                case ReviewStartResponse:
+                    return decode(target, key, decodeReviewStartResponse(raw, error), error);
                 case Count:
                     break;
             }

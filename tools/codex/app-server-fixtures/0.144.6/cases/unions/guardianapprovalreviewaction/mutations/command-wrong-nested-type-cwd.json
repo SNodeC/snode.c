@@ -1,0 +1,6 @@
+{
+  "command": "synthetic command",
+  "cwd": null,
+  "source": "shell",
+  "type": "command"
+}

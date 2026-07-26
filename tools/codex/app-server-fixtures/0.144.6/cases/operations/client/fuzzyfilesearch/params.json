@@ -1,7 +1,7 @@
 {
-  "cancellationToken": "synthetic-21979f4869",
-  "query": "synthetic-6444e6b06c",
+  "cancellationToken": "synthetic-cancellation-token",
+  "query": "synthetic query",
   "roots": [
-    "synthetic-f6f739a7cd"
+    "/synthetic/project"
   ]
 }
