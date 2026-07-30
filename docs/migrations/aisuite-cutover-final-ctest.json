@@ -1,0 +1,6180 @@
+{
+  "authority": {
+    "base_commit": "d18b231a1d2ec2235fd6f204786b0a761cc24ff5",
+    "base_tree": "88a63edc985a851b2b76b0c56df19fae74ea8069",
+    "baseline_evidence_sha256": "c0c96cbacfd859c291ec6a1a1fb5f3ebf8155005ec93ba5d7434eb1261ffd90f"
+  },
+  "format_version": 1,
+  "kind": "snodec-aisuite-cutover-final-ctest",
+  "summary": {
+    "baseline_codex_owned_removed": 128,
+    "baseline_configured_tests": 300,
+    "baseline_survivors_expected": 172,
+    "baseline_survivors_present": 172,
+    "classifications": {
+      "cutover-added": 8,
+      "non-codex-preserved": 168,
+      "shared-codex-branch-removed": 4
+    },
+    "configured_tests": 180,
+    "cutover_added_names": [
+      "AISuiteCutoverBinaryPackageTest",
+      "AISuiteCutoverClosureTest",
+      "AISuiteCutoverHistoryTopologyTest",
+      "AISuiteCutoverMutationTest",
+      "AISuiteCutoverSourcePackageTest",
+      "AISuiteCutoverStartStateAuditTest",
+      "AISuiteCutoverStartStateMutationTest",
+      "AISuiteOwnershipBoundaryPolicyTest"
+    ],
+    "expected_survivor_projection_sha256": "5388c140e81b923863ca8d9e20313846a377e6184eb98a4f3a5c3d4ecf2aeabb",
+    "manifest_sha256": "13fcefab1ba52b15be13696eda81283869b1307661aaba3f6150135121d49c05",
+    "survivor_projection_sha256": "5388c140e81b923863ca8d9e20313846a377e6184eb98a4f3a5c3d4ecf2aeabb",
+    "unique_names": 180
+  },
+  "tests": [
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${CMAKE}",
+        "-DSNODEC_BUILD_DIR=${SNODEC_BUILD}",
+        "-DSNODEC_SOURCE_DIR=${SNODEC_SOURCE}",
+        "-DCMAKE_CPACK_COMMAND=${CPACK}",
+        "-DCMAKE_CXX_COMPILER=${CXX}",
+        "-P",
+        "${SNODEC_SOURCE}/tests/AISuiteCutoverBinaryPackageTest.cmake"
+      ],
+      "name": "AISuiteCutoverBinaryPackageTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "binary-package",
+            "cutover",
+            "ownership",
+            "package"
+          ]
+        },
+        {
+          "name": "RESOURCE_LOCK",
+          "value": [
+            "snodec-cpack"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tests/ownership/AISuiteCutoverClosureTest.py",
+        "--tool",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover_closure.py",
+        "--suite",
+        "closure",
+        "--repo-root",
+        "${SNODEC_SOURCE}",
+        "--build-root",
+        "${SNODEC_BUILD}"
+      ],
+      "name": "AISuiteCutoverClosureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "DEPENDS",
+          "value": [
+            "AISuiteCutoverHistoryTopologyTest",
+            "AISuiteOwnershipBoundaryPolicyTest",
+            "AISuiteCutoverMutationTest",
+            "StagedInstalledConsumerTest",
+            "AISuiteCutoverSourcePackageTest",
+            "AISuiteCutoverBinaryPackageTest"
+          ]
+        },
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 180.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tests/ownership/AISuiteCutoverClosureTest.py",
+        "--tool",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover_closure.py",
+        "--suite",
+        "topology"
+      ],
+      "name": "AISuiteCutoverHistoryTopologyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tests/ownership/AISuiteCutoverMutationTest.py",
+        "--tool",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover.py",
+        "--evidence",
+        "${SNODEC_SOURCE}/docs/migrations/aisuite-cutover-boundary.json"
+      ],
+      "name": "AISuiteCutoverMutationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 60.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${CMAKE}",
+        "-DSNODEC_BUILD_DIR=${SNODEC_BUILD}",
+        "-DSNODEC_SOURCE_DIR=${SNODEC_SOURCE}",
+        "-DCMAKE_CPACK_COMMAND=${CPACK}",
+        "-P",
+        "${SNODEC_SOURCE}/tests/AISuiteCutoverSourcePackageTest.cmake"
+      ],
+      "name": "AISuiteCutoverSourcePackageTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "cutover",
+            "ownership",
+            "package",
+            "source-package"
+          ]
+        },
+        {
+          "name": "RESOURCE_LOCK",
+          "value": [
+            "snodec-cpack"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 360.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover.py",
+        "audit-start",
+        "--repo-root",
+        "${SNODEC_SOURCE}"
+      ],
+      "name": "AISuiteCutoverStartStateAuditTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tests/ownership/AISuiteCutoverStartStateMutationTest.py",
+        "--tool",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover.py",
+        "--evidence",
+        "${SNODEC_SOURCE}/docs/migrations/aisuite-cutover-start-state.json"
+      ],
+      "name": "AISuiteCutoverStartStateMutationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 30.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "cutover-added",
+      "command": [
+        "${PYTHON}",
+        "${SNODEC_SOURCE}/tools/ownership/verify_aisuite_cutover.py",
+        "check",
+        "--repo-root",
+        "${SNODEC_SOURCE}",
+        "--build-root",
+        "${SNODEC_BUILD}"
+      ],
+      "name": "AISuiteOwnershipBoundaryPolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/ownership/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "PYTHONDONTWRITEBYTECODE=1"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "cutover",
+            "ownership",
+            "package",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/ownership"
+        }
+      ]
+    },
+    {
+      "classification": "shared-codex-branch-removed",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/CiWorkflowPathsPolicyTest"
+      ],
+      "name": "CiWorkflowPathsPolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "ci",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/utils/ConfigFormatterCommentMetadataTest"
+      ],
+      "name": "ConfigFormatterCommentMetadataTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/utils/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "config",
+            "format",
+            "unit",
+            "utils"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/utils"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/utils/ConfigRequirementStateTest"
+      ],
+      "name": "ConfigRequirementStateTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/utils/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "config",
+            "unit",
+            "utils"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/utils"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/ConnectionAttemptLifecycleTest"
+      ],
+      "name": "ConnectionAttemptLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "connection",
+            "core",
+            "lifecycle",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/DescriptorRegistrationFailureTest"
+      ],
+      "name": "DescriptorRegistrationFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "descriptor"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/EndpointLifetimeCountersTest"
+      ],
+      "name": "EndpointLifetimeCountersTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "endpoint-counter",
+            "lifecycle",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/EpollDescriptorPublisherPolicyTest"
+      ],
+      "name": "EpollDescriptorPublisherPolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "epoll",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/EventLoopSyscallDisciplinePolicyTest"
+      ],
+      "name": "EventLoopSyscallDisciplinePolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "policy",
+            "syscall"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/utils/HexDumpPresentationTest"
+      ],
+      "name": "HexDumpPresentationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/utils/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "hexdump",
+            "unit",
+            "utils"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/utils"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpMessageHeaderCasingTest"
+      ],
+      "name": "HttpMessageHeaderCasingTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "headers",
+            "http",
+            "message",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpMessageParserTest"
+      ],
+      "name": "HttpMessageParserTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "http",
+            "message",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpMessagePresentationTest"
+      ],
+      "name": "HttpMessagePresentationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "format",
+            "http",
+            "message",
+            "presentation",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpMessageTargetQueryEdgeTest"
+      ],
+      "name": "HttpMessageTargetQueryEdgeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "http",
+            "message",
+            "query",
+            "target",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpRequestFormatterRawWireTest"
+      ],
+      "name": "HttpRequestFormatterRawWireTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "format",
+            "http",
+            "message",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpResponseFormatterRawWireTest"
+      ],
+      "name": "HttpResponseFormatterRawWireTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "format",
+            "http",
+            "message",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpServerUpgradeMissingRequestTest"
+      ],
+      "name": "HttpServerUpgradeMissingRequestTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "http",
+            "lifecycle",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/http/HttpStreamingSourceFailureTest"
+      ],
+      "name": "HttpStreamingSourceFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "http",
+            "lifecycle",
+            "log",
+            "streaming",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/Inet6ExpressTransportSmokeTest"
+      ],
+      "name": "Inet6ExpressTransportSmokeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv6",
+            "legacy",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/Inet6HttpServerClientGetRoundTripTest"
+      ],
+      "name": "Inet6HttpServerClientGetRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv6",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/Inet6HttpServerClientPostBodyRoundTripTest"
+      ],
+      "name": "Inet6HttpServerClientPostBodyRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv6",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/Inet6HttpServerClientStatusVariantTest"
+      ],
+      "name": "Inet6HttpServerClientStatusVariantTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv6",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyClientConnectFailureTest"
+      ],
+      "name": "Inet6LegacyClientConnectFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "connect-failure",
+            "ipv6",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientCompositionTest"
+      ],
+      "name": "Inet6LegacyServerClientCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "ipv6",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientDisconnectLifecycleTest"
+      ],
+      "name": "Inet6LegacyServerClientDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "ipv6",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientFramedPayloadExchangeTest"
+      ],
+      "name": "Inet6LegacyServerClientFramedPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "framed-payload",
+            "ipv6",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientLargePayloadExchangeTest"
+      ],
+      "name": "Inet6LegacyServerClientLargePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv6",
+            "large-payload",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientMultiMessagePayloadExchangeTest"
+      ],
+      "name": "Inet6LegacyServerClientMultiMessagePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv6",
+            "legacy",
+            "multi-message",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerClientPayloadExchangeTest"
+      ],
+      "name": "Inet6LegacyServerClientPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv6",
+            "legacy",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerControlledCloseLifecycleTest"
+      ],
+      "name": "Inet6LegacyServerControlledCloseLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv6",
+            "legacy",
+            "net",
+            "server-close",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerMultipleClientsCompositionTest"
+      ],
+      "name": "Inet6LegacyServerMultipleClientsCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "ipv6",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerMultipleClientsDisconnectLifecycleTest"
+      ],
+      "name": "Inet6LegacyServerMultipleClientsDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "ipv6",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/Inet6LegacyServerMultipleClientsPayloadExchangeTest"
+      ],
+      "name": "Inet6LegacyServerMultipleClientsPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv6",
+            "legacy",
+            "multi-client",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/Inet6SocketAddressInvalidInputTest"
+      ],
+      "name": "Inet6SocketAddressInvalidInputTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "invalid",
+            "ipv6",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/Inet6SocketAddressNativeTest"
+      ],
+      "name": "Inet6SocketAddressNativeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "ipv6",
+            "native",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/Inet6SocketAddressTest"
+      ],
+      "name": "Inet6SocketAddressTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/Inet6WebSocketServerClientTextEchoTest"
+      ],
+      "name": "Inet6WebSocketServerClientTextEchoTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv6",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressFallbackNotFoundTest"
+      ],
+      "name": "InetExpressFallbackNotFoundTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "not-found",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressMiddlewareMountOrderTest"
+      ],
+      "name": "InetExpressMiddlewareMountOrderTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "middleware",
+            "mount-order"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressMiddlewareShortCircuitTest"
+      ],
+      "name": "InetExpressMiddlewareShortCircuitTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "middleware",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressMountedRouterBasicsTest"
+      ],
+      "name": "InetExpressMountedRouterBasicsTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "mounted-router",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressNestedRouterBasicsTest"
+      ],
+      "name": "InetExpressNestedRouterBasicsTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "nested-router",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressQueryMountInteractionTest"
+      ],
+      "name": "InetExpressQueryMountInteractionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "query",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressRouteParameterRegexTest"
+      ],
+      "name": "InetExpressRouteParameterRegexTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "parameter-regex",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressRoutingEdgeBasicsTest"
+      ],
+      "name": "InetExpressRoutingEdgeBasicsTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/InetExpressRoutingMiddlewareTest"
+      ],
+      "name": "InetExpressRoutingMiddlewareTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "ipv4",
+            "legacy",
+            "middleware",
+            "routing"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpClientConnectFailureTest"
+      ],
+      "name": "InetHttpClientConnectFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "connect-failure",
+            "http",
+            "ipv4",
+            "legacy"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpClientMalformedResponseBehaviorTest"
+      ],
+      "name": "InetHttpClientMalformedResponseBehaviorTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "malformed-response"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpClientPrematureServerCloseTest"
+      ],
+      "name": "InetHttpClientPrematureServerCloseTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientChunkedRequestTest"
+      ],
+      "name": "InetHttpServerClientChunkedRequestTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "chunked",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "request"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientChunkedResponseTest"
+      ],
+      "name": "InetHttpServerClientChunkedResponseTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "chunked",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "response"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientDisconnectLifecycleTest"
+      ],
+      "name": "InetHttpServerClientDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientGetRoundTripTest"
+      ],
+      "name": "InetHttpServerClientGetRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientHeaderHeavyRequestTest"
+      ],
+      "name": "InetHttpServerClientHeaderHeavyRequestTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "headers",
+            "http",
+            "ipv4",
+            "legacy",
+            "request"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientHeaderHeavyResponseTest"
+      ],
+      "name": "InetHttpServerClientHeaderHeavyResponseTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "headers",
+            "http",
+            "ipv4",
+            "legacy",
+            "response"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientLargeRequestBodyTest"
+      ],
+      "name": "InetHttpServerClientLargeRequestBodyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientLargeResponseBodyTest"
+      ],
+      "name": "InetHttpServerClientLargeResponseBodyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientPipeliningTest"
+      ],
+      "name": "InetHttpServerClientPipeliningTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "pipelining"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientPostBodyRoundTripTest"
+      ],
+      "name": "InetHttpServerClientPostBodyRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientRepeatedRequestTest"
+      ],
+      "name": "InetHttpServerClientRepeatedRequestTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerClientStatusVariantTest"
+      ],
+      "name": "InetHttpServerClientStatusVariantTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "server"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/InetHttpServerMalformedRequestBehaviorTest"
+      ],
+      "name": "InetHttpServerMalformedRequestBehaviorTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "http",
+            "ipv4",
+            "legacy",
+            "malformed-request"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyClientConnectFailureTest"
+      ],
+      "name": "InetLegacyClientConnectFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "connect-failure",
+            "ipv4",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientCompositionTest"
+      ],
+      "name": "InetLegacyServerClientCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "ipv4",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientDisconnectLifecycleTest"
+      ],
+      "name": "InetLegacyServerClientDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "ipv4",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientFramedPayloadExchangeTest"
+      ],
+      "name": "InetLegacyServerClientFramedPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "framed-payload",
+            "ipv4",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientLargePayloadExchangeTest"
+      ],
+      "name": "InetLegacyServerClientLargePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "large-payload",
+            "legacy",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientMultiMessagePayloadExchangeTest"
+      ],
+      "name": "InetLegacyServerClientMultiMessagePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "legacy",
+            "multi-message",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerClientPayloadExchangeTest"
+      ],
+      "name": "InetLegacyServerClientPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "legacy",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerControlledCloseLifecycleTest"
+      ],
+      "name": "InetLegacyServerControlledCloseLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "legacy",
+            "net",
+            "server-close",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerEffectiveListenAddressTest"
+      ],
+      "name": "InetLegacyServerEffectiveListenAddressTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "effective-address",
+            "ipv4",
+            "legacy",
+            "listen",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerMultipleClientsCompositionTest"
+      ],
+      "name": "InetLegacyServerMultipleClientsCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "ipv4",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerMultipleClientsDisconnectLifecycleTest"
+      ],
+      "name": "InetLegacyServerMultipleClientsDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "ipv4",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetLegacyServerMultipleClientsPayloadExchangeTest"
+      ],
+      "name": "InetLegacyServerMultipleClientsPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "legacy",
+            "multi-client",
+            "net",
+            "payload",
+            "stream"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/InetPhysicalServerEffectiveBindAddressTest"
+      ],
+      "name": "InetPhysicalServerEffectiveBindAddressTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "effective-address",
+            "ipv4",
+            "legacy",
+            "listen",
+            "net",
+            "stream"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/InetSocketAddressInvalidInputTest"
+      ],
+      "name": "InetSocketAddressInvalidInputTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "invalid",
+            "ipv4",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/InetSocketAddressNativeTest"
+      ],
+      "name": "InetSocketAddressNativeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "ipv4",
+            "native",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/InetSocketAddressTest"
+      ],
+      "name": "InetSocketAddressTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceBasicEventTest"
+      ],
+      "name": "InetSseEventSourceBasicEventTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceClientCloseAfterEventTest"
+      ],
+      "name": "InetSseEventSourceClientCloseAfterEventTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceCommentIgnoredTest"
+      ],
+      "name": "InetSseEventSourceCommentIgnoredTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceDefaultMessageEventTest"
+      ],
+      "name": "InetSseEventSourceDefaultMessageEventTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceDestructionLifecycleTest"
+      ],
+      "name": "InetSseEventSourceDestructionLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "lifecycle",
+            "log",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceMultiEventSequenceTest"
+      ],
+      "name": "InetSseEventSourceMultiEventSequenceTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceMultiLineDataTest"
+      ],
+      "name": "InetSseEventSourceMultiLineDataTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceReconnectLifecycleTest"
+      ],
+      "name": "InetSseEventSourceReconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "lifecycle",
+            "log",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/eventsource/InetSseEventSourceRetryFieldTest"
+      ],
+      "name": "InetSseEventSourceRetryFieldTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/eventsource/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "eventsource",
+            "ipv4",
+            "legacy",
+            "server",
+            "sse"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/eventsource"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketLargeBinaryMessageTest"
+      ],
+      "name": "InetWebSocketLargeBinaryMessageTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "binary",
+            "component",
+            "ipv4",
+            "large",
+            "legacy",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketLargeTextMessageTest"
+      ],
+      "name": "InetWebSocketLargeTextMessageTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "large",
+            "legacy",
+            "text",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerClientBinaryEchoTest"
+      ],
+      "name": "InetWebSocketServerClientBinaryEchoTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv4",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerClientCloseHandshakeTest"
+      ],
+      "name": "InetWebSocketServerClientCloseHandshakeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv4",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerClientMultiTextMessageTest"
+      ],
+      "name": "InetWebSocketServerClientMultiTextMessageTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv4",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerClientPingPongTest"
+      ],
+      "name": "InetWebSocketServerClientPingPongTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv4",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerClientTextEchoTest"
+      ],
+      "name": "InetWebSocketServerClientTextEchoTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "ipv4",
+            "legacy",
+            "server",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketServerInitiatedCloseTest"
+      ],
+      "name": "InetWebSocketServerInitiatedCloseTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "close",
+            "component",
+            "ipv4",
+            "legacy",
+            "server-initiated",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/InetWebSocketUnexpectedCloseLifecycleTest"
+      ],
+      "name": "InetWebSocketUnexpectedCloseLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "ipv4",
+            "legacy",
+            "lifecycle",
+            "unexpected-close",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/IntervalTimerCancelFromCallbackTest"
+      ],
+      "name": "IntervalTimerCancelFromCallbackTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "timer"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/IntervalTimerStopableTest"
+      ],
+      "name": "IntervalTimerStopableTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "timer"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/ListenerLifecycleTest"
+      ],
+      "name": "ListenerLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "listener",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/LogScopeOwnerTest"
+      ],
+      "name": "LogScopeOwnerTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "log",
+            "ownership",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "shared-codex-branch-removed",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/LoggingApiSurfacePolicyTest"
+      ],
+      "name": "LoggingApiSurfacePolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "api",
+            "architecture",
+            "log",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/mqtt/Mqtt311PacketValidationTest"
+      ],
+      "name": "Mqtt311PacketValidationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/mqtt/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "mqtt",
+            "mqtt311",
+            "unit",
+            "validation"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/mqtt"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/mqtt/MqttLifecycleTest"
+      ],
+      "name": "MqttLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/mqtt/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "lifecycle",
+            "log",
+            "mqtt",
+            "protocol",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/mqtt"
+        }
+      ]
+    },
+    {
+      "classification": "shared-codex-branch-removed",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/ParameterlessSemanticLoggerPolicyTest"
+      ],
+      "name": "ParameterlessSemanticLoggerPolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "architecture",
+            "log",
+            "policy"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/PipeBoundedQueueTest"
+      ],
+      "name": "PipeBoundedQueueTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "pipe"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/PipeImmediateCloseTest"
+      ],
+      "name": "PipeImmediateCloseTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "pipe"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/PipeOwnershipTest"
+      ],
+      "name": "PipeOwnershipTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "pipe"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/PipeSinkFairnessTest"
+      ],
+      "name": "PipeSinkFairnessTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "pipe"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/PipeTimeoutTest"
+      ],
+      "name": "PipeTimeoutTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "pipe"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/SNodeCInitFreeSmokeTest"
+      ],
+      "name": "SNodeCInitFreeSmokeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "smoke",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/SNodeCStopFromCallbackTest"
+      ],
+      "name": "SNodeCStopFromCallbackTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "lifecycle"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticCliIntegrationTest"
+      ],
+      "name": "SemanticCliIntegrationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "cli",
+            "integration",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticEndToEndOutputTest"
+      ],
+      "name": "SemanticEndToEndOutputTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "e2e",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerBackendTest"
+      ],
+      "name": "SemanticLoggerBackendTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "backend",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerCacheTest"
+      ],
+      "name": "SemanticLoggerCacheTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "cache",
+            "log",
+            "overhead",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerCompatibilityTest"
+      ],
+      "name": "SemanticLoggerCompatibilityTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "compatibility",
+            "legacy",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerDisabledPathTest"
+      ],
+      "name": "SemanticLoggerDisabledPathTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "log",
+            "overhead",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerFilteringTest"
+      ],
+      "name": "SemanticLoggerFilteringTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "filter",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerFormattingTest"
+      ],
+      "name": "SemanticLoggerFormattingTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "format",
+            "log",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticLoggerScopeTest"
+      ],
+      "name": "SemanticLoggerScopeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "api",
+            "log",
+            "scope",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/log/SemanticTerminalColorRoutingTest"
+      ],
+      "name": "SemanticTerminalColorRoutingTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/log/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "log",
+            "routing",
+            "security",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/log"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/policy/SensitiveLoggingPolicyTest"
+      ],
+      "name": "SensitiveLoggingPolicyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/policy/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "ENVIRONMENT",
+          "value": [
+            "SNODEC_SOURCE_DIR=${SNODEC_SOURCE}"
+          ]
+        },
+        {
+          "name": "LABELS",
+          "value": [
+            "log",
+            "policy",
+            "security"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/policy"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/ShutdownReceiverNotificationTest",
+        "requested"
+      ],
+      "name": "ShutdownReceiverNotification_requested",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "lifecycle",
+            "shutdown"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/ShutdownReceiverNotificationTest",
+        "signal"
+      ],
+      "name": "ShutdownReceiverNotification_signal",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "lifecycle",
+            "shutdown"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/SingleshotTimerTest"
+      ],
+      "name": "SingleshotTimerTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "timer"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/SocketAddressFormattingTest"
+      ],
+      "name": "SocketAddressFormattingTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "format",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/SocketContextLifecycleTest"
+      ],
+      "name": "SocketContextLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "shared-codex-branch-removed",
+      "command": [
+        "${CMAKE}",
+        "-DSNODEC_BUILD_DIR=${SNODEC_BUILD}",
+        "-DCMAKE_CXX_COMPILER=${CXX}",
+        "-P",
+        "${SNODEC_SOURCE}/tests/StagedInstalledConsumerTest.cmake"
+      ],
+      "name": "StagedInstalledConsumerTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "consumer",
+            "install"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 120.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "active_detach_context_visibility"
+      ],
+      "name": "StreamFrameworkShutdown_active_detach_context_visibility",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "destruction_logging_order"
+      ],
+      "name": "StreamFrameworkShutdown_destruction_logging_order",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "plain_no_observer"
+      ],
+      "name": "StreamFrameworkShutdown_plain_no_observer",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "plain_noncooperating_timeout"
+      ],
+      "name": "StreamFrameworkShutdown_plain_noncooperating_timeout",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "plain_requested_empty"
+      ],
+      "name": "StreamFrameworkShutdown_plain_requested_empty",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "plain_requested_queued"
+      ],
+      "name": "StreamFrameworkShutdown_plain_requested_queued",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "plain_signal_false_veto"
+      ],
+      "name": "StreamFrameworkShutdown_plain_signal_false_veto",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/StreamFrameworkShutdownTest",
+        "reentrant_context_cleanup"
+      ],
+      "name": "StreamFrameworkShutdown_reentrant_context_cleanup",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "active_helper_forced"
+      ],
+      "name": "TLSFrameworkShutdown_active_helper_forced",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "active_helper_no_observer"
+      ],
+      "name": "TLSFrameworkShutdown_active_helper_no_observer",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "active_helper_requested"
+      ],
+      "name": "TLSFrameworkShutdown_active_helper_requested",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "active_helper_signal"
+      ],
+      "name": "TLSFrameworkShutdown_active_helper_signal",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "outer_timeout_long"
+      ],
+      "name": "TLSFrameworkShutdown_outer_timeout_long",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "outer_timeout_multiple"
+      ],
+      "name": "TLSFrameworkShutdown_outer_timeout_multiple",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "publisher_mutation_cross_publisher"
+      ],
+      "name": "TLSFrameworkShutdown_publisher_mutation_cross_publisher",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "publisher_mutation_same_list"
+      ],
+      "name": "TLSFrameworkShutdown_publisher_mutation_same_list",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSFrameworkShutdownTest",
+        "signal_false_tls"
+      ],
+      "name": "TLSFrameworkShutdown_signal_false_tls",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "shutdown",
+            "stream",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 8.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSIoFatalPathTest"
+      ],
+      "name": "TLSIoFatalPathTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "fatal",
+            "io",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSLifecycleAbiSourceCompatibilityTest"
+      ],
+      "name": "TLSLifecycleAbiSourceCompatibilityTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "abi",
+            "core",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSLifecycleHelperOwnershipTest"
+      ],
+      "name": "TLSLifecycleHelperOwnershipTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "lifecycle",
+            "ownership",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSResultClassificationTest"
+      ],
+      "name": "TLSResultClassificationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "classification",
+            "core",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TLSTransportStateMachineTest"
+      ],
+      "name": "TLSTransportStateMachineTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "state-machine",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/core/TimerCancelBeforeFireTest"
+      ],
+      "name": "TimerCancelBeforeFireTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "core",
+            "timer"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/core/TlsOpenSslLoggingTest"
+      ],
+      "name": "TlsOpenSslLoggingTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/core/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "core",
+            "log",
+            "tls",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/core"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/express/UnixExpressTransportSmokeTest"
+      ],
+      "name": "UnixExpressTransportSmokeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/express/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "express",
+            "legacy",
+            "routing",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/express"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/UnixHttpServerClientGetRoundTripTest"
+      ],
+      "name": "UnixHttpServerClientGetRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "legacy",
+            "server",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/UnixHttpServerClientPostBodyRoundTripTest"
+      ],
+      "name": "UnixHttpServerClientPostBodyRoundTripTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "legacy",
+            "server",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/http/UnixHttpServerClientStatusVariantTest"
+      ],
+      "name": "UnixHttpServerClientStatusVariantTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/http/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "http",
+            "legacy",
+            "server",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/http"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyClientConnectFailureTest"
+      ],
+      "name": "UnixLegacyClientConnectFailureTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "connect-failure",
+            "legacy",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientCompositionTest"
+      ],
+      "name": "UnixLegacyServerClientCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "legacy",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientDisconnectLifecycleTest"
+      ],
+      "name": "UnixLegacyServerClientDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "legacy",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientFramedPayloadExchangeTest"
+      ],
+      "name": "UnixLegacyServerClientFramedPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "framed-payload",
+            "legacy",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientLargePayloadExchangeTest"
+      ],
+      "name": "UnixLegacyServerClientLargePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "large-payload",
+            "legacy",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientMultiMessagePayloadExchangeTest"
+      ],
+      "name": "UnixLegacyServerClientMultiMessagePayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "legacy",
+            "multi-message",
+            "net",
+            "payload",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerClientPayloadExchangeTest"
+      ],
+      "name": "UnixLegacyServerClientPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "legacy",
+            "net",
+            "payload",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerControlledCloseLifecycleTest"
+      ],
+      "name": "UnixLegacyServerControlledCloseLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "legacy",
+            "net",
+            "server-close",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerMultipleClientsCompositionTest"
+      ],
+      "name": "UnixLegacyServerMultipleClientsCompositionTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "composition",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerMultipleClientsDisconnectLifecycleTest"
+      ],
+      "name": "UnixLegacyServerMultipleClientsDisconnectLifecycleTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "disconnect",
+            "legacy",
+            "multi-client",
+            "net",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixLegacyServerMultipleClientsPayloadExchangeTest"
+      ],
+      "name": "UnixLegacyServerMultipleClientsPayloadExchangeTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "legacy",
+            "multi-client",
+            "net",
+            "payload",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/net/UnixPhysicalSocketPathSafetyTest"
+      ],
+      "name": "UnixPhysicalSocketPathSafetyTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "component",
+            "net",
+            "path-safety",
+            "stream",
+            "unix"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/UnixSocketAddressInitTest"
+      ],
+      "name": "UnixSocketAddressInitTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "init",
+            "net",
+            "unit",
+            "unix"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/UnixSocketAddressPathLengthTest"
+      ],
+      "name": "UnixSocketAddressPathLengthTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "net",
+            "path",
+            "unit",
+            "unix"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/net/UnixSocketAddressTest"
+      ],
+      "name": "UnixSocketAddressTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/net/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "address",
+            "net",
+            "unit"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/net"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/component/websocket/UnixWebSocketServerClientTextEchoTest"
+      ],
+      "name": "UnixWebSocketServerClientTextEchoTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/component/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "client",
+            "component",
+            "legacy",
+            "server",
+            "unix",
+            "websocket"
+          ]
+        },
+        {
+          "name": "SKIP_RETURN_CODE",
+          "value": 77
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 5.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/component/websocket"
+        }
+      ]
+    },
+    {
+      "classification": "non-codex-preserved",
+      "command": [
+        "${SNODEC_BUILD}/tests/unit/websocket/WebSocketReceiverValidationTest"
+      ],
+      "name": "WebSocketReceiverValidationTest",
+      "origins": [
+        "${SNODEC_SOURCE}/tests/cmake/AddSNodeCTest.cmake",
+        "${SNODEC_SOURCE}/tests/unit/websocket/CMakeLists.txt"
+      ],
+      "properties": [
+        {
+          "name": "LABELS",
+          "value": [
+            "unit",
+            "validation",
+            "websocket"
+          ]
+        },
+        {
+          "name": "TIMEOUT",
+          "value": 10.0
+        },
+        {
+          "name": "WORKING_DIRECTORY",
+          "value": "${SNODEC_BUILD}/tests/unit/websocket"
+        }
+      ]
+    }
+  ]
+}

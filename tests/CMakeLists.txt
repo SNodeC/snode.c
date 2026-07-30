@@ -37,7 +37,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
 cmake_minimum_required(VERSION 3.18)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -48,71 +47,45 @@ add_subdirectory(support)
 add_subdirectory(unit)
 add_subdirectory(component)
 add_subdirectory(policy)
+add_subdirectory(ownership)
 
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
-
-set(CODEX_PHASE_A1_4_EVIDENCE_ROOT
-    ${PROJECT_SOURCE_DIR}/tools/codex/app-server-evidence/0.144.6
-)
 add_test(
-    NAME CodexA14AuditToolTest
+    NAME StagedInstalledConsumerTest
     COMMAND
-        ${Python3_EXECUTABLE}
-        ${PROJECT_SOURCE_DIR}/tests/component/codex/CodexA14AuditToolTest.py
-        --tool
-        ${PROJECT_SOURCE_DIR}/tools/codex/app_server_a1_4.py
-        --repo-root
-        ${PROJECT_SOURCE_DIR}
-        --start-state
-        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-start-state.json
-        --partition
-        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-total-partition.json
-        --closure
-        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-type-closure.json
-        --plan
-        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-4-implementation-plan.json
-        --ledger
-        ${CODEX_PHASE_A1_4_EVIDENCE_ROOT}/a1-final-cross-slice-ledger.json
+        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake
 )
 set_tests_properties(
-    CodexA14AuditToolTest
-    PROPERTIES
-        DEPENDS CodexA13ClosureEvidenceTest
-        LABELS "component;ai;openai;codex;phase-a1-4;schema;audit;generated"
-        TIMEOUT 60
-)
-
-add_test(NAME StagedInstalledConsumerTest
-         COMMAND ${CMAKE_COMMAND}
-                 -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
-                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                 -P ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake)
-set_tests_properties(
-    StagedInstalledConsumerTest
-    PROPERTIES LABELS "install;consumer;codex;phase-a1-2" TIMEOUT 120
+    StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT
+                                           120
 )
 
 add_test(
-    NAME CodexSourcePackageTest
+    NAME AISuiteCutoverSourcePackageTest
     COMMAND
         ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
         -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
         -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND} -P
-        ${CMAKE_CURRENT_SOURCE_DIR}/CodexSourcePackageTest.cmake
+        ${CMAKE_CURRENT_SOURCE_DIR}/AISuiteCutoverSourcePackageTest.cmake
 )
 set_tests_properties(
-    CodexSourcePackageTest
-    PROPERTIES LABELS "package;source-package;codex;phase-a1-0" TIMEOUT 360
+    AISuiteCutoverSourcePackageTest
+    PROPERTIES LABELS "package;source-package;ownership;cutover" RESOURCE_LOCK
+               snodec-cpack TIMEOUT 360
 )
 
 add_test(
-    NAME CodexBinaryPackageTest
+    NAME AISuiteCutoverBinaryPackageTest
     COMMAND
         ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
-        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND} -P
-        ${CMAKE_CURRENT_SOURCE_DIR}/CodexBinaryPackageTest.cmake
+        -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/AISuiteCutoverBinaryPackageTest.cmake
 )
 set_tests_properties(
-    CodexBinaryPackageTest
-    PROPERTIES LABELS "package;binary-package;codex;phase-a1-1" TIMEOUT 120
+    AISuiteCutoverBinaryPackageTest
+    PROPERTIES LABELS "package;binary-package;ownership;cutover" RESOURCE_LOCK
+               snodec-cpack TIMEOUT 120
 )

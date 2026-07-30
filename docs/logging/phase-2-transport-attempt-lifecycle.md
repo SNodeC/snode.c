@@ -1,5 +1,17 @@
 # Logging lifecycle Phase 2: transport and attempt consistency
 
+> **Post-cutover scope note.** This report is a historical audit of the
+> pre-cutover SNode.C tree at
+> `d18b231a1d2ec2235fd6f204786b0a761cc24ff5` (tree
+> `88a63edc985a851b2b76b0c56df19fae74ea8069`). Its aggregate counts, Codex
+> sections, source paths, and validation results intentionally describe that
+> frozen tree and are not a current-tree inventory. The Codex implementation
+> and its corresponding logging-policy ownership now live in
+> [AISuite](https://github.com/SNodeC/AISuite); current SNode.C policy tests no
+> longer scan Codex sources. The non-Codex SNode.C transport, process, socket,
+> TLS, and logging rules documented here remain active. See the
+> [migration guide](../migrations/codex-to-aisuite.md).
+
 ## Status and relationship to earlier work
 
 This document is the reviewed production-call-site audit and implementation

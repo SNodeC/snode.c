@@ -1,5 +1,0 @@
-{
-  "type": "chatgptDeviceCode",
-  "userCode": "test-device-user-code",
-  "verificationUrl": "https://example.invalid/device"
-}

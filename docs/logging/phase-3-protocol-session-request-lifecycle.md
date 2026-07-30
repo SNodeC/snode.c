@@ -1,5 +1,20 @@
 # Logging lifecycle Phase 3: protocol, session, request, and turn consistency
 
+> **Post-cutover scope note.** This report is a historical audit of the
+> pre-cutover SNode.C tree at
+> `d18b231a1d2ec2235fd6f204786b0a761cc24ff5` (tree
+> `88a63edc985a851b2b76b0c56df19fae74ea8069`). Its aggregate counts, Codex
+> sections, source paths, compatibility observations, and test results
+> intentionally describe that frozen tree and are not current ownership
+> claims. In particular, the historical parameterless semantic-logger
+> accounting is 81 discovered and 81 allowlisted calls; after transferring the
+> four Codex reducer entries, current SNode.C accounting is 77 discovered and
+> 77 allowlisted. Codex implementation and policy ownership now live in
+> [AISuite](https://github.com/SNodeC/AISuite), while the non-Codex HTTP,
+> EventSource, WebSocket, MQTT, MariaDB, and logging rules remain active in
+> SNode.C. Current SNode.C policy tests no longer scan Codex sources. See the
+> [migration guide](../migrations/codex-to-aisuite.md).
+
 ## Scope and frozen contracts
 
 This phase audits production logging under `src/` and normalizes lifecycle records above the transport layer. It is primarily a mechanical semantic-logging normalization: existing lifecycle messages receive canonical vocabulary and severity and are emitted through existing semantic scopes at authoritative protocol transitions. It does not redesign protocol state machines. It preserves the semantic logging contract, Phase 1 framework-context ownership, Phase 2 listener/connection-attempt/transport ownership, coordinated stream shutdown, and the TLS state machine. In particular, this work does not rename, reorder, duplicate, or change the severity of `listener started/stopped`, connection-attempt outcomes, `transport connected/ready/disconnected`, or framework-context `attached/detached` records.

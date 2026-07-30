@@ -71,21 +71,22 @@ macro(load_component_with_dependencies _comp _lspace _ladd)
 endmacro()
 
 set(_supported_components @SUPPORTED_COMPONENTS@)
+set(snodec_FOUND TRUE)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
-        message(
-            WARNING
-                "Direct request for component ${_comp} not in list of supported components"
+        set(snodec_FOUND FALSE)
+        set(snodec_NOT_FOUND_MESSAGE
+            "Unsupported SNode.C component requested: ${_comp}"
         )
-        set(snodec_NOT_FOUND)
+        break()
     else(NOT _comp IN_LIST _supported_components)
         load_component_with_dependencies(${_comp} "" "  ")
         check_required_components(${_comp})
     endif(NOT _comp IN_LIST _supported_components)
 endforeach(_comp ${snodec_FIND_COMPONENTS})
 
-if(NOT snodec_NOT_FOUND)
+if(snodec_FOUND)
     set(CMAKE_SKIP_RPATH FALSE)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES

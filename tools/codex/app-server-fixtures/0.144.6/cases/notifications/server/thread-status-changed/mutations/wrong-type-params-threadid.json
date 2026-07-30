@@ -1,9 +1,0 @@
-{
-  "method": "thread/status/changed",
-  "params": {
-    "status": {
-      "type": "notLoaded"
-    },
-    "threadId": null
-  }
-}

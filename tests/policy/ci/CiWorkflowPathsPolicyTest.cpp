@@ -115,13 +115,12 @@ int main() {
     const std::filesystem::path workflowPath = root / ".github/workflows/ci.yml";
     const TriggerPaths triggerPaths = parseTriggerPaths(source_policy::readSourcePolicyFile(workflowPath));
     const std::array<std::string_view, 2> requiredEvents = {"push", "pull_request"};
-    const std::array<std::string_view, 7> requiredPaths = {
+    const std::array<std::string_view, 6> requiredPaths = {
         "CMakeLists.txt",
         "cmake/**",
         "src/**",
         "tests/**",
         "tools/**",
-        "docs/ai/openai/codex/**",
         ".github/workflows/**",
     };
 

@@ -1,0 +1,157 @@
+{
+  "bounded_history": [
+    {
+      "ordinal": 1,
+      "owns": [
+        "start-state audit tooling",
+        "deterministic baseline evidence",
+        "exact removal plan",
+        "AISuite ownership-authority verification",
+        "audit mutation tests"
+      ],
+      "production_changes_allowed": false,
+      "subject": "Freeze the SNode.C Codex cutover boundary"
+    },
+    {
+      "ordinal": 2,
+      "owns": [
+        "production source and application deletion",
+        "build/component/CPack/install detachment",
+        "CTest registration detachment",
+        "shared logging and CI policy repair",
+        "fresh installed-consumer negative assertions"
+      ],
+      "subject": "Remove Codex from the SNode.C build and package surface"
+    },
+    {
+      "ordinal": 3,
+      "owns": [
+        "remaining documentation/tool/test/evidence deletion",
+        "migration documentation",
+        "source and binary cutover package tests",
+        "permanent ownership-boundary guard"
+      ],
+      "subject": "Remove duplicated Codex residue and document AISuite ownership"
+    },
+    {
+      "functional_corrections_allowed": false,
+      "ordinal": 4,
+      "owns": [
+        "closure checker and mutation tests",
+        "baseline-versus-result evidence",
+        "deterministic package-safe closure evidence"
+      ],
+      "subject": "Close and verify the SNode.C Codex cutover"
+    }
+  ],
+  "dedicated_removal_groups": [
+    {
+      "bytes": 2039398,
+      "count": 106,
+      "kind": "prefix",
+      "manifest_sha256": "98f0fe25bd1ee03b5be98e9ffbe8d4c5205094ba3e63c3bc9e5c218c88edbc73",
+      "path": "src/ai/"
+    },
+    {
+      "bytes": 18745,
+      "count": 10,
+      "kind": "prefix",
+      "manifest_sha256": "2778e58f2aa112c4b76e978efba61ac64c1619b7ecf6f401391445e13485d45c",
+      "path": "src/apps/codex-backend/"
+    },
+    {
+      "bytes": 110820,
+      "count": 21,
+      "kind": "prefix",
+      "manifest_sha256": "4050a306507050ea2c3f082bb05ce41830117c91dc9faf90e76b659c047a9f85",
+      "path": "src/apps/codex-backend-client/"
+    },
+    {
+      "bytes": 431322,
+      "count": 19,
+      "kind": "prefix",
+      "manifest_sha256": "279c9e21bd95751ab4b2f39bccc405e649edf0b5f4c6d41f37b6a22eef099163",
+      "path": "docs/ai/openai/codex/"
+    },
+    {
+      "bytes": 49406620,
+      "count": 6537,
+      "kind": "prefix",
+      "manifest_sha256": "46be207289020cb3e6318b3381602ae4ef15eeea767ed0756d5d4edeb8cc3ea3",
+      "path": "tools/codex/"
+    },
+    {
+      "bytes": 2966010,
+      "count": 98,
+      "kind": "prefix",
+      "manifest_sha256": "33c3b74e1770eb4615713b75a818927094150fe64902aafc0f1770b53d0a6764",
+      "path": "tests/component/codex/"
+    },
+    {
+      "bytes": 55209,
+      "count": 13,
+      "kind": "prefix",
+      "manifest_sha256": "5ff03f1baa996ecfadf2f2dd983c4208a16a273fbfe257902d597c2b91d3533b",
+      "path": "tests/installed/codex/"
+    },
+    {
+      "bytes": 2459,
+      "count": 1,
+      "kind": "prefix",
+      "manifest_sha256": "721f05534862db4271bef767eaa5431788282471e8c6a8049119fa96dcdb147c",
+      "path": "tests/policy/codex/"
+    },
+    {
+      "bytes": 17981,
+      "count": 1,
+      "kind": "file",
+      "manifest_sha256": "5f4bfc67a4c05a52124806ab75baa4fadba3236cab8e7ad26f5c1c14e5afbac6",
+      "path": "tests/policy/security/CodexSyntheticSecretLeakGuardTest.py"
+    },
+    {
+      "bytes": 26454,
+      "count": 1,
+      "kind": "file",
+      "manifest_sha256": "8566f43c8e5cca8478ec485c0ddc01971d22a7af35229213003362bb23b343a8",
+      "path": "tests/CodexSourcePackageTest.cmake"
+    },
+    {
+      "bytes": 6606,
+      "count": 1,
+      "kind": "file",
+      "manifest_sha256": "2ba31fd7ef4fb7862bc09b20c9dbe0c3dbeab97648e3a8f2b8ab5589866d1370",
+      "path": "tests/CodexBinaryPackageTest.cmake"
+    }
+  ],
+  "format_version": 1,
+  "functional_shared_files_commit_2": [
+    "src/CMakeLists.txt",
+    "src/cmake/Config.cmake.in",
+    "cmake/Packing.cmake",
+    "tests/CMakeLists.txt",
+    "tests/component/CMakeLists.txt",
+    "tests/policy/CMakeLists.txt",
+    "tests/StagedInstalledConsumerTest.cmake",
+    "tests/policy/log/LoggingApiSurfacePolicyTest.cpp",
+    "tests/policy/log/ParameterlessSemanticLoggerPolicyTest.cpp",
+    "tests/policy/ci/CiWorkflowPathsPolicyTest.cpp",
+    ".github/workflows/ci.yml"
+  ],
+  "invariants": {
+    "compatibility_shim_allowed": false,
+    "dependency_direction": "AISuite -> installed SNode.C",
+    "history_and_tags_rewritten": false,
+    "snodec_depends_on_aisuite": false,
+    "soversion": "1",
+    "version": "1.0.1"
+  },
+  "kind": "snodec-aisuite-cutover-plan",
+  "residue_shared_files_commit_3": [
+    ".gitattributes",
+    "README.md",
+    "cmake/Packing.cmake",
+    "docs/logging/phase-2-transport-attempt-lifecycle.md",
+    "docs/logging/phase-3-protocol-session-request-lifecycle.md",
+    "docs/testing/test-suite-consolidation.md"
+  ]
+}

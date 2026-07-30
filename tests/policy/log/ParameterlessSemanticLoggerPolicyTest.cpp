@@ -35,7 +35,11 @@ namespace {
 
     using SourceMap = std::map<std::string, std::string>;
 
-    constexpr std::string_view kReducerPath = "src/ai/openai/codex/backend/Reducer.cpp";
+    constexpr std::size_t kBaselineParameterlessCallCount = 81;
+    constexpr std::size_t kTransferredParameterlessCallCount = 4;
+    constexpr std::size_t kExpectedParameterlessCallCount = kBaselineParameterlessCallCount - kTransferredParameterlessCallCount;
+
+    static_assert(kExpectedParameterlessCallCount == 77);
 
     bool isIdentifierCharacter(char character) {
         const unsigned char value = static_cast<unsigned char>(character);
@@ -181,11 +185,6 @@ namespace {
                 tokens[index + 3].text == "(" && tokens[index + 4].text == ")") {
                 calls.push_back({std::string(path), tokens[index + 2].text, tokens[index].position});
                 continue;
-            }
-
-            if (path == kReducerPath && tokens[index].text == "lifecycleLog" && tokens[index + 1].text == "(" &&
-                tokens[index + 2].text == ")" && tokens[index + 3].text == ".") {
-                calls.push_back({std::string(path), "lifecycleLog", tokens[index].position});
             }
         }
         return calls;
@@ -455,15 +454,7 @@ namespace {
             Entry{"src/iot/mqtt/server/broker/SubscriptionTree.cpp", "mqttBrokerLog", "SubscriptionTree::TopicLevel::log() const",
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "Subscription topic level belongs to the process-wide broker."},
 
-            // Codex reducer events and MariaDB operations have protocol/domain identity, not SocketConnection identity.
-            Entry{"src/ai/openai/codex/backend/Reducer.cpp", "lifecycleLog", "turn {}: thread={} turn={}",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Typed turn completion is owned by Codex thread and turn identifiers."},
-            Entry{"src/ai/openai/codex/backend/Reducer.cpp", "lifecycleLog", "turn failed: thread={} turn={}",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Typed turn failure is owned by Codex thread and turn identifiers."},
-            Entry{"src/ai/openai/codex/backend/Reducer.cpp", "lifecycleLog", "thread created: thread={}",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Typed thread creation is owned by the Codex thread identifier."},
-            Entry{"src/ai/openai/codex/backend/Reducer.cpp", "lifecycleLog", "turn started: thread={} turn={}",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Typed turn start is owned by Codex thread and turn identifiers."},
+            // MariaDB operations have protocol/domain identity, not SocketConnection identity.
             Entry{"src/database/mariadb/MariaDBLibrary.cpp", "mariaDbLog", "mysql_library_init failed",
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "MariaDB library initialization is a process-wide component diagnostic."},
             Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "Descriptor not registered in SNode.C eventloop",
@@ -492,7 +483,6 @@ namespace {
         for (const std::filesystem::path relativeRoot : {std::filesystem::path{"src/web/http"},
                                                          std::filesystem::path{"src/web/websocket"},
                                                          std::filesystem::path{"src/iot/mqtt"},
-                                                         std::filesystem::path{"src/ai/openai/codex"},
                                                          std::filesystem::path{"src/database/mariadb"}}) {
             for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(root / relativeRoot)) {
                 if (!entry.is_regular_file()) {
@@ -602,9 +592,9 @@ int main() {
     const SourceMap sources = readParameterlessSources(root);
     const std::vector<Call> calls = discover(sources);
     const std::vector<AllowEntry> allowlist = parameterlessAllowlist();
-    if (calls.size() != 81 || allowlist.size() != 81) {
+    if (calls.size() != kExpectedParameterlessCallCount || allowlist.size() != kExpectedParameterlessCallCount) {
         std::cerr << "Phase 3 parameterless semantic logger accounting changed: discovered=" << calls.size()
-                  << " allowlisted=" << allowlist.size() << " expected=81\n";
+                  << " allowlisted=" << allowlist.size() << " expected=" << kExpectedParameterlessCallCount << '\n';
         return 1;
     }
     return validateAllowlist(sources, calls, allowlist, true) ? 0 : 1;

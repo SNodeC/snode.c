@@ -1,7 +1,0 @@
-{
-  "method": "thread/realtime/error",
-  "params": {
-    "message": "synthetic-173e33df45",
-    "threadId": null
-  }
-}

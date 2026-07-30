@@ -1,6 +1,0 @@
-{
-  "host": "example.invalid",
-  "port": 0,
-  "target": "example.invalid:443",
-  "type": "networkAccess"
-}

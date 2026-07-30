@@ -1,0 +1,501 @@
+{
+  "aisuite_consumer": {
+    "complete": true,
+    "expected_resolution": "installed-package",
+    "legacy_or_source_build_resolution": [],
+    "requirements": {
+      "migration:aisuite-backend-target": true,
+      "migration:aisuite-core-target": true,
+      "migration:aisuite-find-package": true,
+      "migration:aisuite-frontend-target": true,
+      "migration:public-include-form": true
+    }
+  },
+  "authority": {
+    "aisuite": {
+      "owner_commit": "0c3a5838359eb283aca67840325ce6019345b462",
+      "owner_tree": "f86196b41d695f7165dca6a80ec017a8b9166de1",
+      "parents": [
+        "19de4f50be64e187761274f043091090609d27a3",
+        "d3da338eed6c11ed05163c3c8c4363702d817147"
+      ],
+      "repository": "https://github.com/SNodeC/AISuite",
+      "subject": "Merge pull request #3 from SNodeC/extraction/complete-codex-policy-ownership"
+    },
+    "snodec": {
+      "base_commit": "d18b231a1d2ec2235fd6f204786b0a761cc24ff5",
+      "base_tree": "88a63edc985a851b2b76b0c56df19fae74ea8069",
+      "repository": "https://github.com/SNodeC/snode.c"
+    }
+  },
+  "build": {
+    "forbidden_targets": [],
+    "removed_supported_components": [],
+    "supported_components": [
+      "core",
+      "core-socket-stream-legacy",
+      "core-socket-stream-tls",
+      "net",
+      "net-in-stream-legacy",
+      "net-in6-stream-legacy",
+      "net-un-stream-legacy",
+      "net-in-stream-tls",
+      "net-in6-stream-tls",
+      "net-un-stream-tls",
+      "net-rc-stream-legacy",
+      "net-rc-stream-tls",
+      "net-l2-stream-legacy",
+      "net-l2-stream-tls",
+      "net-un-dgram",
+      "db-mariadb",
+      "http",
+      "http-server",
+      "http-client",
+      "http-server-express",
+      "http-server-express-legacy-in",
+      "http-server-express-legacy-in6",
+      "http-server-express-legacy-rc",
+      "http-server-express-legacy-un",
+      "http-server-express-tls-in",
+      "http-server-express-tls-in6",
+      "http-server-express-tls-rc",
+      "http-server-express-tls-un",
+      "websocket-server",
+      "websocket-client",
+      "mqtt",
+      "mqtt-server",
+      "mqtt-client",
+      "mqtt-server-websocket",
+      "mqtt-client-websocket"
+    ],
+    "wiring_hits": []
+  },
+  "dependency_direction": {
+    "expected": "AISuite -> installed SNode.C",
+    "production_dependency_hits": [],
+    "snodec_depends_on_aisuite": false
+  },
+  "format_version": 1,
+  "identity": {
+    "expected_project_version": "1.0.1",
+    "expected_soversion": "1",
+    "project_version": "1.0.1",
+    "soversion": "1",
+    "soversion_derivation_preserved": true
+  },
+  "install": {
+    "declaration_hits": [],
+    "forbidden_content": [],
+    "forbidden_paths": [],
+    "manifest_checked": false,
+    "missing_preserved": [],
+    "unexpected_paths": []
+  },
+  "kind": "snodec-aisuite-cutover-boundary",
+  "migration": {
+    "aisuite_owner_commit": "0c3a5838359eb283aca67840325ce6019345b462",
+    "aisuite_owner_tree": "f86196b41d695f7165dca6a80ec017a8b9166de1",
+    "complete": true,
+    "document": "docs/migrations/codex-to-aisuite.md",
+    "requirements": {
+      "historical:phase-2": true,
+      "historical:phase-3": true,
+      "historical:phase-3-accounting": true,
+      "historical:test-suite-consolidation": true,
+      "migration:aisuite-backend-target": true,
+      "migration:aisuite-core-target": true,
+      "migration:aisuite-find-package": true,
+      "migration:aisuite-frontend-target": true,
+      "migration:aisuite-owner-commit": true,
+      "migration:aisuite-owner-tree": true,
+      "migration:clean-prefix-warning": true,
+      "migration:dependency-direction": true,
+      "migration:immutable-provenance": true,
+      "migration:no-shim": true,
+      "migration:no-snodec-dependency": true,
+      "migration:normal-pin-follow-up": true,
+      "migration:package-api-break": true,
+      "migration:public-include-form": true,
+      "migration:removed-backend-app": true,
+      "migration:removed-backend-component": true,
+      "migration:removed-client-app": true,
+      "migration:removed-core-component": true,
+      "migration:removed-frontend-component": true,
+      "migration:rerun-aisuite-ci": true,
+      "migration:retained-abi": true,
+      "migration:snodec-base-commit": true,
+      "migration:snodec-base-tree": true,
+      "readme:aisuite-project": true
+    }
+  },
+  "package": {
+    "apps_dependencies": null,
+    "baseline_local_generated_paths": [
+      "certs/snode.c_-_Root_CA.crt",
+      "certs/snode.c_-_client.key.encrypted.pem",
+      "certs/snode.c_-_client.pem",
+      "certs/snode.c_-_server.key.encrypted.pem",
+      "certs/snode.c_-_server.pem",
+      "docs/Doxyfile"
+    ],
+    "binary_forbidden_paths": [],
+    "binary_manifest_checked": false,
+    "binary_missing_preserved": [],
+    "binary_unexpected_paths": [],
+    "component_dependencies": null,
+    "cpack_checked": false,
+    "cpack_components": null,
+    "missing_local_generated_exclusions": [],
+    "source_forbidden_paths": [],
+    "source_manifest_checked": false,
+    "source_missing_preserved": [],
+    "source_missing_required": [],
+    "source_ownership_residue": [],
+    "source_residue": [],
+    "source_unexpected_paths": []
+  },
+  "package_safe": {
+    "aisuite_checkout_required": false,
+    "baseline_local_generated_source_paths": [
+      "certs/snode.c_-_Root_CA.crt",
+      "certs/snode.c_-_client.key.encrypted.pem",
+      "certs/snode.c_-_client.pem",
+      "certs/snode.c_-_server.key.encrypted.pem",
+      "certs/snode.c_-_server.pem",
+      "docs/Doxyfile"
+    ],
+    "baseline_preserved_source_path_count": 1407,
+    "cmake_registry_required": false,
+    "expected_cutover_source_path_count": 1419,
+    "git_required": false,
+    "network_required": false,
+    "parent_tree_required": false,
+    "required_source_paths": [
+      "docs/migrations/aisuite-cutover-baseline-ctest.json",
+      "docs/migrations/aisuite-cutover-boundary.md",
+      "docs/migrations/aisuite-cutover-boundary.json",
+      "docs/migrations/aisuite-cutover-plan.json",
+      "docs/migrations/aisuite-cutover-start-state.json",
+      "docs/migrations/codex-to-aisuite.md",
+      "tests/AISuiteCutoverBinaryPackageTest.cmake",
+      "tests/AISuiteCutoverSourcePackageTest.cmake",
+      "tests/ownership/AISuiteCutoverMutationTest.py",
+      "tests/ownership/AISuiteCutoverStartStateMutationTest.py",
+      "tests/ownership/CMakeLists.txt",
+      "tools/ownership/verify_aisuite_cutover.py"
+    ]
+  },
+  "paths": {
+    "dedicated_removal_paths": [
+      "src/ai/",
+      "src/apps/codex-backend/",
+      "src/apps/codex-backend-client/",
+      "docs/ai/openai/codex/",
+      "tools/codex/",
+      "tests/component/codex/",
+      "tests/installed/codex/",
+      "tests/policy/codex/",
+      "tests/policy/security/CodexSyntheticSecretLeakGuardTest.py",
+      "tests/CodexSourcePackageTest.cmake",
+      "tests/CodexBinaryPackageTest.cmake"
+    ],
+    "intentional_residue_removals": [
+      ".gitattributes"
+    ],
+    "ownership_residue": [],
+    "remaining": []
+  },
+  "policy": {
+    "residue": [],
+    "semantic_logger": {
+      "allowlist_entries": 77,
+      "arithmetic_present": true,
+      "baseline": 81,
+      "expected": 77,
+      "matches": true,
+      "transferred": 4
+    }
+  },
+  "preservation": {
+    "apps_dependencies_match": true,
+    "binary_preserved_match": true,
+    "component_dependencies_match": true,
+    "cpack_components_match": true,
+    "ctest_survivors_match": true,
+    "expected_apps_dependencies": [
+      "http-server-express",
+      "http-client",
+      "net-in-stream-tls",
+      "net-in6-stream-tls",
+      "net-l2-stream-tls",
+      "net-rc-stream-tls",
+      "net-un-stream-tls",
+      "net-in-stream-legacy",
+      "net-in6-stream-legacy",
+      "net-l2-stream-legacy",
+      "net-rc-stream-legacy",
+      "net-un-stream-legacy",
+      "core-socket-stream-legacy",
+      "core-socket-stream-tls",
+      "websocket-server",
+      "websocket-client",
+      "db-mariadb"
+    ],
+    "expected_component_dependencies": {
+      "apps": [
+        "http-server-express",
+        "http-client",
+        "net-in-stream-tls",
+        "net-in6-stream-tls",
+        "net-l2-stream-tls",
+        "net-rc-stream-tls",
+        "net-un-stream-tls",
+        "net-in-stream-legacy",
+        "net-in6-stream-legacy",
+        "net-l2-stream-legacy",
+        "net-rc-stream-legacy",
+        "net-un-stream-legacy",
+        "core-socket-stream-legacy",
+        "core-socket-stream-tls",
+        "websocket-server",
+        "websocket-client",
+        "db-mariadb"
+      ],
+      "core": [
+        "mux-",
+        "utils"
+      ],
+      "core-socket": [
+        "core"
+      ],
+      "core-socket-stream": [
+        "core-socket"
+      ],
+      "core-socket-stream-legacy": [
+        "core-socket-stream"
+      ],
+      "core-socket-stream-tls": [
+        "core-socket-stream"
+      ],
+      "db-mariadb": [
+        "core"
+      ],
+      "http-client": [
+        "http"
+      ],
+      "http-server": [
+        "http"
+      ],
+      "http-server-express": [
+        "http-server"
+      ],
+      "mqtt-client": [
+        "mqtt"
+      ],
+      "mqtt-server": [
+        "mqtt"
+      ],
+      "net-in": [
+        "net"
+      ],
+      "net-in-stream": [
+        "net-in"
+      ],
+      "net-in-stream-legacy": [
+        "net-in-stream",
+        "core-socket-stream-legacy"
+      ],
+      "net-in-stream-tls": [
+        "net-in-stream",
+        "core-socket-stream-tls"
+      ],
+      "net-in6": [
+        "net"
+      ],
+      "net-in6-stream": [
+        "net-in6"
+      ],
+      "net-in6-stream-legacy": [
+        "net-in6-stream",
+        "core-socket-stream-legacy"
+      ],
+      "net-in6-stream-tls": [
+        "net-in6-stream",
+        "core-socket-stream-tls"
+      ],
+      "net-l2": [
+        "net"
+      ],
+      "net-l2-stream": [
+        "net-l2"
+      ],
+      "net-l2-stream-legacy": [
+        "net-l2-stream",
+        "core-socket-stream-legacy"
+      ],
+      "net-l2-stream-tls": [
+        "net-l2-stream",
+        "core-socket-stream-tls"
+      ],
+      "net-rc": [
+        "net"
+      ],
+      "net-rc-stream": [
+        "net-rc"
+      ],
+      "net-rc-stream-legacy": [
+        "net-rc-stream",
+        "core-socket-stream-legacy"
+      ],
+      "net-rc-stream-tls": [
+        "net-rc-stream",
+        "core-socket-stream-tls"
+      ],
+      "net-un": [
+        "net"
+      ],
+      "net-un-dgram": [
+        "net-un"
+      ],
+      "net-un-stream": [
+        "net-un"
+      ],
+      "net-un-stream-legacy": [
+        "net-un-stream",
+        "core-socket-stream-legacy"
+      ],
+      "net-un-stream-tls": [
+        "net-un-stream",
+        "core-socket-stream-tls"
+      ],
+      "utils": [
+        "logger"
+      ],
+      "websocket-client": [
+        "websocket",
+        "http-client"
+      ],
+      "websocket-server": [
+        "websocket",
+        "http-server"
+      ]
+    },
+    "expected_cpack_components": [
+      "Unspecified",
+      "apps",
+      "core",
+      "core-socket",
+      "core-socket-stream",
+      "core-socket-stream-legacy",
+      "core-socket-stream-tls",
+      "db-mariadb",
+      "http",
+      "http-client",
+      "http-server",
+      "http-server-express",
+      "http-server-express-legacy-in",
+      "http-server-express-legacy-in6",
+      "http-server-express-legacy-rc",
+      "http-server-express-legacy-un",
+      "http-server-express-tls-in",
+      "http-server-express-tls-in6",
+      "http-server-express-tls-rc",
+      "http-server-express-tls-un",
+      "logger",
+      "mqtt",
+      "mqtt-client",
+      "mqtt-client-websocket",
+      "mqtt-server",
+      "mqtt-server-websocket",
+      "mux-epoll",
+      "mux-poll",
+      "mux-select",
+      "net",
+      "net-in",
+      "net-in-phy",
+      "net-in-phy-stream",
+      "net-in-stream",
+      "net-in-stream-legacy",
+      "net-in-stream-tls",
+      "net-in6",
+      "net-in6-phy",
+      "net-in6-phy-stream",
+      "net-in6-stream",
+      "net-in6-stream-legacy",
+      "net-in6-stream-tls",
+      "net-l2",
+      "net-l2-phy",
+      "net-l2-phy-stream",
+      "net-l2-stream",
+      "net-l2-stream-legacy",
+      "net-l2-stream-tls",
+      "net-rc",
+      "net-rc-phy",
+      "net-rc-phy-stream",
+      "net-rc-stream",
+      "net-rc-stream-legacy",
+      "net-rc-stream-tls",
+      "net-un",
+      "net-un-dgram",
+      "net-un-phy",
+      "net-un-phy-stream",
+      "net-un-sphy-tream",
+      "net-un-stream",
+      "net-un-stream-legacy",
+      "net-un-stream-tls",
+      "utils",
+      "websocket",
+      "websocket-client",
+      "websocket-server"
+    ],
+    "expected_supported_components": [
+      "core",
+      "core-socket-stream-legacy",
+      "core-socket-stream-tls",
+      "net",
+      "net-in-stream-legacy",
+      "net-in6-stream-legacy",
+      "net-un-stream-legacy",
+      "net-in-stream-tls",
+      "net-in6-stream-tls",
+      "net-un-stream-tls",
+      "net-rc-stream-legacy",
+      "net-rc-stream-tls",
+      "net-l2-stream-legacy",
+      "net-l2-stream-tls",
+      "net-un-dgram",
+      "db-mariadb",
+      "http",
+      "http-server",
+      "http-client",
+      "http-server-express",
+      "http-server-express-legacy-in",
+      "http-server-express-legacy-in6",
+      "http-server-express-legacy-rc",
+      "http-server-express-legacy-un",
+      "http-server-express-tls-in",
+      "http-server-express-tls-in6",
+      "http-server-express-tls-rc",
+      "http-server-express-tls-un",
+      "websocket-server",
+      "websocket-client",
+      "mqtt",
+      "mqtt-server",
+      "mqtt-client",
+      "mqtt-server-websocket",
+      "mqtt-client-websocket"
+    ],
+    "install_preserved_match": true,
+    "source_preserved_match": true,
+    "supported_components_match": true
+  },
+  "tests": {
+    "checked": false,
+    "expected_survivor_projection_sha256": "5388c140e81b923863ca8d9e20313846a377e6184eb98a4f3a5c3d4ecf2aeabb",
+    "forbidden": [],
+    "missing_survivors": [],
+    "survivor_projection_count": 172,
+    "survivor_projection_sha256": "5388c140e81b923863ca8d9e20313846a377e6184eb98a4f3a5c3d4ecf2aeabb",
+    "survivors_match": true
+  }
+}

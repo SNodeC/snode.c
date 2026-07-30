@@ -1,8 +1,0 @@
-{
-  "method": "configWarning",
-  "params": {
-    "details": "synthetic-d225348762",
-    "path": "/synthetic/config.toml",
-    "summary": "synthetic-6c09f2aa83"
-  }
-}

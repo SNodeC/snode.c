@@ -1,6 +1,0 @@
-{
-  "method": "turn/completed",
-  "params": {
-    "threadId": "synthetic-3e67894347"
-  }
-}

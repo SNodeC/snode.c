@@ -1,8 +1,0 @@
-{
-  "method": "command/exec/outputDelta",
-  "params": {
-    "deltaBase64": "c3ludGhldGljLWRhdGE=",
-    "processId": "synthetic-process-id",
-    "stream": "stdout"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "method": "item/reasoning/summaryPartAdded",
-  "params": {
-    "itemId": "synthetic-92500ef7f8",
-    "summaryIndex": null,
-    "threadId": "synthetic-9e1ea16506",
-    "turnId": "synthetic-f0318bcd2d"
-  }
-}

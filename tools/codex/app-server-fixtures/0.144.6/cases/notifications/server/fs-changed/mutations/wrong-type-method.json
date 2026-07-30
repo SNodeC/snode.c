@@ -1,9 +1,0 @@
-{
-  "method": null,
-  "params": {
-    "changedPaths": [
-      "/synthetic/project/synthetic-entry.txt"
-    ],
-    "watchId": "synthetic-watch-id"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "method": "thread/closed",
-  "params": {
-    "threadId": null
-  }
-}

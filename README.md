@@ -9,6 +9,12 @@ The development of the  framework began during the first corona lock down in Aus
 
 Main focus (but not only) of the framework is on *Machine to Machine* (M2M) communication and in particular on the field of *Internet of Things* (IoT). As such, the SNode.C reference project [MQTTSuite](https://github.com/SNodeC/mqttsuite) exists, which provides *MQTTBroker*, *MQTTIntegrator*, *MQTTBridge* and *MQTTCli* applications.
 
+AI integrations, including the OpenAI Codex libraries and applications
+formerly shipped as optional SNode.C components, are maintained separately in
+[AISuite](https://github.com/SNodeC/AISuite). AISuite consumes the installed
+SNode.C networking stack; SNode.C does not depend on AISuite. See the
+[migration guide](docs/migrations/codex-to-aisuite.md) for upgrade details.
+
 # Table of Content
 <!--ts-->
 * [Simple Node in C++ (SNode.C)](#simple-node-in-c-snodec)

@@ -1,5 +1,16 @@
 # Test-suite consolidation audit
 
+> **Post-cutover scope note.** This is a historical consolidation audit. Its
+> original baseline remains `6fb9171f08a68d79771187155873a448b47a4aee`;
+> its Codex test names, paths, classifications, counts, and results describe
+> the pre-cutover suite. The final ownership boundary was frozen at SNode.C
+> commit `d18b231a1d2ec2235fd6f204786b0a761cc24ff5` (tree
+> `88a63edc985a851b2b76b0c56df19fae74ea8069`). Those Codex tests now belong
+> to [AISuite](https://github.com/SNodeC/AISuite); current SNode.C registers no
+> Codex test, label, or dependency. The historical decisions below are
+> retained as audit evidence, not as current ownership instructions. See the
+> [migration guide](../migrations/codex-to-aisuite.md).
+
 This audit records the test suite at the start of the consolidation from
 `master` commit `6fb9171f08a68d79771187155873a448b47a4aee`.
 

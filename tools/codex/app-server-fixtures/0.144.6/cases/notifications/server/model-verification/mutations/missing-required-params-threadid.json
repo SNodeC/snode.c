@@ -1,9 +1,0 @@
-{
-  "method": "model/verification",
-  "params": {
-    "turnId": "synthetic-c65516abd9",
-    "verifications": [
-      "trustedAccessForCyber"
-    ]
-  }
-}
