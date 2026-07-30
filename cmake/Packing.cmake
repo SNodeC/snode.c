@@ -37,7 +37,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# these are cache variables, so they could be overwritten with -D,
 set(CPACK_PACKAGE_NAME
     ${PROJECT_NAME}
     CACHE STRING "The resulting package name"
@@ -50,12 +49,9 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER
 set(CPACK_PACKAGE_VENDOR "Volker Christian")
 
 set(CPACK_VERBATIM_VARIABLES YES)
-
 set(CPACK_STRIP_FILES YES)
-
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
 set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_BINARY_DIR}/_packages")
-
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -65,9 +61,6 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-# Source packages are reproducibility artifacts. Keep local build products and
-# execution-environment metadata out of those archives. CPack's default ignore
-# list does not exclude an in-tree build.
 set(
     CPACK_SOURCE_IGNORE_FILES
     "/CVS/"
@@ -97,18 +90,15 @@ set(
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
-
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-
 set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
-# CMake 3.28 omits this existing Unix-domain component from the global
-# COMPONENTS property even though its install rule is configured. Normalize
-# the published component model across supported CMake versions.
-list(APPEND CPACK_COMPONENTS_ALL net-un-sphy-tream)
+# CMake 3.28 can omit this existing Unix-domain component from the global
+# COMPONENTS property even though its install rule is configured.
+list(APPEND CPACK_COMPONENTS_ALL net-un-phy)
 list(REMOVE_DUPLICATES CPACK_COMPONENTS_ALL)
 list(SORT CPACK_COMPONENTS_ALL)
 
@@ -121,7 +111,7 @@ cpack_add_component(mux-epoll)
 cpack_add_component(mux-poll)
 cpack_add_component(mux-select)
 
-cpack_add_component(core DEPENDS mux-${IO_Multiplexer} utils)
+cpack_add_component(core DEPENDS mux-${SNODEC_IO_MULTIPLEXER} utils)
 cpack_add_component(core-socket DEPENDS core)
 cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
@@ -134,6 +124,12 @@ cpack_add_component(net-in6 DEPENDS net)
 cpack_add_component(net-l2 DEPENDS net)
 cpack_add_component(net-rc DEPENDS net)
 cpack_add_component(net-un DEPENDS net)
+
+cpack_add_component(net-in-phy DEPENDS net-in)
+cpack_add_component(net-in6-phy DEPENDS net-in6)
+cpack_add_component(net-l2-phy DEPENDS net-l2)
+cpack_add_component(net-rc-phy DEPENDS net-rc)
+cpack_add_component(net-un-phy DEPENDS net-un)
 
 cpack_add_component(net-in-stream DEPENDS net-in)
 cpack_add_component(net-in6-stream DEPENDS net-in6)
@@ -180,6 +176,39 @@ cpack_add_component(http-server DEPENDS http)
 cpack_add_component(http-client DEPENDS http)
 cpack_add_component(http-server-express DEPENDS http-server)
 
+cpack_add_component(
+    http-server-express-legacy-in
+    DEPENDS http-server-express net-in-stream-legacy
+)
+cpack_add_component(
+    http-server-express-legacy-in6
+    DEPENDS http-server-express net-in6-stream-legacy
+)
+cpack_add_component(
+    http-server-express-legacy-rc
+    DEPENDS http-server-express net-rc-stream-legacy
+)
+cpack_add_component(
+    http-server-express-legacy-un
+    DEPENDS http-server-express net-un-stream-legacy
+)
+cpack_add_component(
+    http-server-express-tls-in
+    DEPENDS http-server-express net-in-stream-tls
+)
+cpack_add_component(
+    http-server-express-tls-in6
+    DEPENDS http-server-express net-in6-stream-tls
+)
+cpack_add_component(
+    http-server-express-tls-rc
+    DEPENDS http-server-express net-rc-stream-tls
+)
+cpack_add_component(
+    http-server-express-tls-un
+    DEPENDS http-server-express net-un-stream-tls
+)
+
 cpack_add_component(websocket)
 cpack_add_component(websocket-server DEPENDS websocket http-server)
 cpack_add_component(websocket-client DEPENDS websocket http-client)
@@ -187,9 +216,14 @@ cpack_add_component(websocket-client DEPENDS websocket http-client)
 cpack_add_component(mqtt)
 cpack_add_component(mqtt-server DEPENDS mqtt)
 cpack_add_component(mqtt-client DEPENDS mqtt)
+cpack_add_component(
+    mqtt-server-websocket DEPENDS mqtt-server websocket-server
+)
+cpack_add_component(
+    mqtt-client-websocket DEPENDS mqtt-client websocket-client
+)
 
 cpack_add_component(mqtt-fast)
-
 cpack_add_component(db-mariadb DEPENDS core)
 
 cpack_add_component(
