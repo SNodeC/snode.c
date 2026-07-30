@@ -65,9 +65,9 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-# Source packages reproduce the current SNode.C tree and its ownership boundary.
-# Keep local build products and generated/ignored source-tree artifacts out of
-# those archives. CPack's default ignore list does not exclude an in-tree build.
+# Source packages are reproducibility artifacts. Keep local build products and
+# execution-environment metadata out of those archives. CPack's default ignore
+# list does not exclude an in-tree build.
 set(
     CPACK_SOURCE_IGNORE_FILES
     "/CVS/"
@@ -83,12 +83,6 @@ set(
     "/\\.vscode/"
     "/_CPack_Packages/"
     "/build[^/]*/"
-    "/certs/snode\\.c_-_Root_CA\\.crt$"
-    "/certs/snode\\.c_-_client\\.key\\.encrypted\\.pem$"
-    "/certs/snode\\.c_-_client\\.pem$"
-    "/certs/snode\\.c_-_server\\.key\\.encrypted\\.pem$"
-    "/certs/snode\\.c_-_server\\.pem$"
-    "/docs/Doxyfile$"
     "/softwipe_build/"
     "/test1-cppcheck-build-dir/"
     "/__pycache__/"

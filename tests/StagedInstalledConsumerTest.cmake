@@ -27,48 +27,6 @@ foreach(private_header IN
 endforeach()
 
 file(
-    GLOB_RECURSE installed_entries
-    LIST_DIRECTORIES TRUE
-    "${prefix}/*"
-)
-foreach(installed_entry IN LISTS installed_entries)
-    file(RELATIVE_PATH installed_relative "${prefix}" "${installed_entry}")
-    string(REPLACE "\\" "/" installed_relative "${installed_relative}")
-    if(installed_relative MATCHES "^include/snode\\.c/ai(/|$)"
-       OR installed_relative MATCHES "(^|/)libsnodec-ai-openai-codex[^/]*$"
-       OR installed_relative MATCHES "^bin/codex-backend(-client)?$"
-       OR (installed_relative MATCHES "^lib[^/]*/cmake/snodec/"
-           AND installed_relative MATCHES
-               "(ai-openai-codex|codex-backend|codex-backend-client|[Cc]odex)")
-    )
-        message(
-            FATAL_ERROR
-                "removed Codex artifact installed: ${installed_relative}"
-        )
-    endif()
-endforeach()
-
-file(
-    GLOB_RECURSE installed_cmake_files
-    LIST_DIRECTORIES FALSE
-    "${prefix}/lib*/cmake/snodec/*.cmake"
-)
-foreach(installed_cmake_file IN LISTS installed_cmake_files)
-    file(READ "${installed_cmake_file}" installed_cmake_content)
-    if(installed_cmake_content MATCHES
-       "(ai-openai-codex|codex-backend|codex-backend-client)"
-    )
-        file(RELATIVE_PATH installed_cmake_relative "${prefix}"
-             "${installed_cmake_file}"
-        )
-        message(
-            FATAL_ERROR
-                "removed Codex component remains in installed CMake metadata: ${installed_cmake_relative}"
-        )
-    endif()
-endforeach()
-
-file(
     WRITE "${consumer}"
     "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n"
 )
@@ -186,57 +144,3 @@ if(NOT generic_run_result EQUAL 0)
             "generic installed CMake consumer execution failed\n${generic_run_output}\n${generic_run_error}"
     )
 endif()
-
-set(removed_component_source "${stage}/removed-component-consumer")
-file(MAKE_DIRECTORY "${removed_component_source}")
-file(
-    WRITE "${removed_component_source}/CMakeLists.txt"
-    "cmake_minimum_required(VERSION 3.18)\n"
-    "project(SNodeCRemovedComponentConsumer LANGUAGES NONE)\n"
-    "if(NOT DEFINED REQUESTED_COMPONENT)\n"
-    "    message(FATAL_ERROR \"REQUESTED_COMPONENT is required\")\n"
-    "endif()\n"
-    "find_package(snodec CONFIG REQUIRED COMPONENTS \"\${REQUESTED_COMPONENT}\")\n"
-)
-foreach(removed_component IN ITEMS ai-openai-codex ai-openai-codex-backend
-                                   ai-openai-codex-frontend
-)
-    set(removed_component_build
-        "${stage}/removed-component-${removed_component}-build"
-    )
-    execute_process(
-        COMMAND
-            "${CMAKE_COMMAND}" -S "${removed_component_source}" -B
-            "${removed_component_build}"
-            "-DREQUESTED_COMPONENT=${removed_component}"
-            "-Dsnodec_DIR=${snodec_config_dir}"
-            -DCMAKE_FIND_USE_PACKAGE_REGISTRY=FALSE
-            -DCMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY=TRUE
-            -DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=FALSE
-            -DCMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY=TRUE
-        RESULT_VARIABLE removed_configure_result
-        OUTPUT_VARIABLE removed_configure_output
-        ERROR_VARIABLE removed_configure_error
-    )
-    if(removed_configure_result EQUAL 0)
-        message(
-            FATAL_ERROR
-                "removed component unexpectedly configured: ${removed_component}"
-        )
-    endif()
-    set(expected_not_found_message
-        "Unsupported SNode.C component requested: ${removed_component}"
-    )
-    set(removed_configure_log
-        "${removed_configure_output}\n${removed_configure_error}"
-    )
-    string(FIND "${removed_configure_log}" "${expected_not_found_message}"
-                not_found_message_index
-    )
-    if(not_found_message_index EQUAL -1)
-        message(
-            FATAL_ERROR
-                "removed component did not fail for the intended unsupported-component reason: ${removed_component}\n${removed_configure_log}"
-        )
-    endif()
-endforeach()

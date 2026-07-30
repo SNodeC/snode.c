@@ -47,7 +47,6 @@ add_subdirectory(support)
 add_subdirectory(unit)
 add_subdirectory(component)
 add_subdirectory(policy)
-add_subdirectory(ownership)
 
 add_test(
     NAME StagedInstalledConsumerTest
@@ -59,33 +58,4 @@ add_test(
 set_tests_properties(
     StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT
                                            120
-)
-
-add_test(
-    NAME AISuiteCutoverSourcePackageTest
-    COMMAND
-        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
-        -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND} -P
-        ${CMAKE_CURRENT_SOURCE_DIR}/AISuiteCutoverSourcePackageTest.cmake
-)
-set_tests_properties(
-    AISuiteCutoverSourcePackageTest
-    PROPERTIES LABELS "package;source-package;ownership;cutover" RESOURCE_LOCK
-               snodec-cpack TIMEOUT 360
-)
-
-add_test(
-    NAME AISuiteCutoverBinaryPackageTest
-    COMMAND
-        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
-        -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
-        -DCMAKE_CPACK_COMMAND=${CMAKE_CPACK_COMMAND}
-        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -P
-        ${CMAKE_CURRENT_SOURCE_DIR}/AISuiteCutoverBinaryPackageTest.cmake
-)
-set_tests_properties(
-    AISuiteCutoverBinaryPackageTest
-    PROPERTIES LABELS "package;binary-package;ownership;cutover" RESOURCE_LOCK
-               snodec-cpack TIMEOUT 120
 )

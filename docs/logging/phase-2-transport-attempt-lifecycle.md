@@ -1,17 +1,5 @@
 # Logging lifecycle Phase 2: transport and attempt consistency
 
-> **Post-cutover scope note.** This report is a historical audit of the
-> pre-cutover SNode.C tree at
-> `d18b231a1d2ec2235fd6f204786b0a761cc24ff5` (tree
-> `88a63edc985a851b2b76b0c56df19fae74ea8069`). Its aggregate counts, Codex
-> sections, source paths, and validation results intentionally describe that
-> frozen tree and are not a current-tree inventory. The Codex implementation
-> and its corresponding logging-policy ownership now live in
-> [AISuite](https://github.com/SNodeC/AISuite); current SNode.C policy tests no
-> longer scan Codex sources. The non-Codex SNode.C transport, process, socket,
-> TLS, and logging rules documented here remain active. See the
-> [migration guide](../migrations/codex-to-aisuite.md).
-
 ## Status and relationship to earlier work
 
 This document is the reviewed production-call-site audit and implementation
@@ -27,35 +15,6 @@ The Phase 1 framework-context lifecycle remains `attached` / `detached`.
 Attachment is not a transport connection, and detachment is not a transport
 disconnection.
 
-## Audit method and accounting
-
-The audit searched all production files under `src/`, first for logging calls
-and then more broadly for callbacks, state transitions, and messages containing
-`connect`, `disconnect`, `accept`, `listen`, `open`, `close`, `ready`, `retry`,
-`reconnect`, `timeout`, `cancel`, `spawn`, `child`, `exit`, `terminate`, `pipe`,
-`handshake`, and `shutdown`. The broad review produced 488 candidate source
-locations in 93 files. Every candidate was inspected in its owning state
-machine; the numbers are search-review counts, not a claim that every textual
-match is a lifecycle record.
-
-The resulting accounting is:
-
-| Disposition | Count | Meaning |
-| --- | ---: | --- |
-| Phase 2 lifecycle decisions/emissions changed or introduced | 43 | Canonical listener, attempt, transport, continuation, TLS-ready, child-process, and stdio records, including distinct terminal branches |
-| Phase 2 owner-scope records retained | 96 | Detailed socket/TLS/descriptor/process progress, diagnostics, policy decisions, and summaries in core socket/pipe/eventreceiver, network, and Codex stdio code |
-| Phase 3 or application-facing candidates deferred/retained | 237 | Protocol/session/request vocabulary and application messages selected by the broad protocol/application review |
-| Not lifecycle log records | 112 | Declarations, callbacks, exceptions, state names, comments, and non-log textual matches |
-| **Total classified** | **488** | No broad-search candidate is left unclassified |
-
-The reproducible count for the final canonical Phase 2 sites is the number of
-production matches for the exact vocabulary listed below. The 96 retained
-owner-scope records are the remaining broad logging-call matches in
-`src/core/socket`, `src/core/pipe`, `src/core/eventreceiver`, `src/net`, and
-`src/ai/openai/codex/stdio`. The larger broad search supplies the deferred and
-not-a-log classifications. Grouping related specializations in the tables
-below avoids turning this report into a generated search dump.
-
 ## Canonical vocabulary and severity
 
 | Lifecycle | Records | Level |
@@ -67,10 +26,6 @@ below avoids turning this report into a generated search dump.
 | TLS preparation completion | `transport ready` | Info |
 | Retry | `retry scheduled`, `retry dispatched`, `retry cancelled` | Debug |
 | Reconnect | `reconnect scheduled`, `reconnect dispatched`, `reconnect cancelled` | Debug |
-| Child process | `child process spawned`, `child process exited`, `child process terminated` | Info |
-| Child spawn terminal | `child process spawn failed` | Debug |
-| Codex stdio transport | `stdio transport started`, `stdio transport stopped` | Info |
-| Codex stdio startup terminal | `stdio transport start failed` | Debug |
 
 Long-lived, externally meaningful resource boundaries are visible at Info.
 Attempt and timer mechanics are Debug. Trace continues to carry syscall and
@@ -90,7 +45,6 @@ asynchronous cancellation state. They are intentionally not fabricated.
 | `SocketConnection` | Connection scope with instance, role, and connection id | Exists only after an accepted or outgoing physical transport is established and remains alive through final teardown |
 | TLS acceptor/connector callbacks | The same connection logger | Successful handshake is the point at which TLS becomes application-ready |
 | Client/server continuation context | Endpoint instance scope with client/server role | Owns retry/reconnect timer scheduling and dispatch counters |
-| Codex stdio `Session` | Existing `ai.openai.codex.stdio` connection scope | Already owns descriptors, child observation, shutdown escalation, and reaping |
 
 `SocketConnection::getConnectionName()` remains a compatibility/display value.
 It is not redefined and is not copied into the new transport message text.
@@ -128,30 +82,9 @@ behavior and creates no second ownership graph.
 | --- | --- | --- |
 | `net/in`, `net/in6`, `net/un`, `net/rc`, and `net/l2` stream specializations | `PROGRESS`, `DIAGNOSTIC`, or no local lifecycle record | The common acceptor, connector, connection, and TLS layers own canonical records; no duplicate specialization records were added |
 | Unix path locking/unlinking and address selection | `DIAGNOSTIC` / `POLICY_DECISION` | Retained as physical-address detail |
-| `core/pipe` source, sink, and pipe helper | `NOT_A_LOG_RECORD` for construction/close paths; exceptions are diagnostics | Pipe halves are temporary descriptor helpers, including inside Codex stdio, and are not independently presented as long-lived transports; no noisy pipe pair was invented |
+| `core/pipe` source, sink, and pipe helper | `NOT_A_LOG_RECORD` for construction/close paths; exceptions are diagnostics | Pipe halves are temporary descriptor helpers and are not independently presented as long-lived transports; no noisy pipe pair was invented |
 | Descriptor receivers and multiplexer admission/removal | `PROGRESS` / `DIAGNOSTIC` | Retained at low level; existing registration facts provide exactly-once ownership |
 | EventLoop start/stop/shutdown records | `SUMMARY` / `PROGRESS` outside Phase 2 | Retained; EventLoop shutdown semantics are unchanged |
-
-## Codex stdio and child-process audit
-
-| Call site | Classification | Final action and exactly-once basis |
-| --- | --- | --- |
-| Successful `posix_spawn` followed by parent ownership setup | Child `LIFECYCLE_START` | Info `child process spawned` after a real pid is owned; pid detail remains Trace |
-| `posix_spawn` error | `TERMINAL_ALTERNATIVE` plus `DIAGNOSTIC` | Debug `child process spawn failed`; existing Error carries errno/text; no child exit is possible |
-| Descriptor/pidfd/poll setup failure after spawn | Stdio startup terminal plus process cleanup | Debug `stdio transport start failed`; spawned child still gets its actual reaped process terminal record |
-| All descriptor sides successfully registered | Stdio `LIFECYCLE_START` | Info `stdio transport started` once |
-| Reaped `WIFEXITED` status | Child `LIFECYCLE_END` | Info `child process exited`; status and requested-shutdown detail remain Debug |
-| Reaped `WIFSIGNALED` status | Child terminal alternative | Info `child process terminated`; signal/requested/forced detail remains Debug |
-| First framework SIGTERM | `POLICY_DECISION` | Debug `child process termination requested` |
-| First escalation to SIGKILL | `POLICY_DECISION` / abnormal diagnostic | Warn `child process forced termination requested` |
-| Final descriptor teardown after a started transport | Stdio `LIFECYCLE_END` | Info `stdio transport stopped` once, guarded by the session's private started fact |
-| Launch rejected or setup failure | Stdio startup terminal | Debug `stdio transport start failed`; detailed Error remains separate; never emits a fictional stop |
-
-The existing `childPid = -1`, observer detachment, and reaped-state flow remain
-the single child terminal owner. Pidfd and polling fallback both feed that same
-path, so they cannot emit duplicate exits. Descriptor closure is deliberately
-not called process exit. A process is only `exited` or `terminated` after
-`waitpid` has reaped it.
 
 ## Exactly-once proof summary
 
@@ -170,9 +103,6 @@ not called process exit. A process is only `exited` or `terminated` after
   shutdown remains generic transport teardown and cannot add another end.
 - Retry/reconnect booleans are consumed by dispatch or cancellation. Existing
   counters are called only from dispatch.
-- Codex process terminals are emitted only from the reaped-status path;
-  `transportStarted` permits one stdio stop and forbids stop after startup
-  failure.
 
 ## Compatibility and behavior preservation
 
@@ -180,9 +110,9 @@ This phase changes log message vocabulary, severity, and the completeness of
 semantic role metadata. It does not change EventLoop shutdown, coordinated
 stream shutdown, callback ordering, context attach/detach ordering or lifetime,
 retry/reconnect policy, timeout values, timer or descriptor admission, TLS
-handshake/shutdown behavior, connection/process ownership, child reaping,
-public callbacks, public socket APIs, the logger backend/schema/formatters, the
-global logging policy, or SOVERSION.
+handshake/shutdown behavior, connection ownership, public callbacks, public
+socket APIs, the logger backend/schema/formatters, the global logging policy,
+or SOVERSION.
 
 There is no public or protected source API change and no callback signature
 change. The private layout of the public `SocketConnector` template changes
@@ -190,9 +120,8 @@ because its installed header now contains the attempt lifecycle state.
 Affected dependent code and template instantiations must be rebuilt; binary
 compatibility is not claimed. The internal `SocketClient` and `SocketServer`
 shared context layouts also change because of private continuation lifecycle
-state, but those contexts are not intended public ABI surfaces. The remaining
-new state is private Codex session lifecycle bookkeeping. No semantic log
-schema, backend, text/JSON format, or filtering contract changes.
+state, but those contexts are not intended public ABI surfaces. No semantic
+log schema, backend, text/JSON format, or filtering contract changes.
 
 ## Deliberate Phase 3 deferrals
 
@@ -204,9 +133,6 @@ merely transport duplicates:
 - EventSource protocol lifecycle;
 - WebSocket protocol and subprotocol lifecycle;
 - database protocol/command/session lifecycle;
-- Codex app-server protocol/session lifecycle, JSON-RPC requests and
-  notifications, threads, turns, model/session/user-message state, and
-  cancellation;
 - application-domain sessions and ordinary user-facing application messages.
 
 Reference applications may still say that they are listening or connected as
@@ -219,8 +145,7 @@ Runtime JSON capture tests cover accepted and outgoing plain transports,
 attempt success/failure without fictional disconnect, deterministic listener
 startup failure in `ListenerLifecyclePhase2Test`, the successful listener pair
 in `InetLegacyServerClientDisconnectLifecycleTest`, graceful/dual-receiver
-shutdown, retry/reconnect schedule and dispatch, and Codex
-spawn/setup/normal-exit/termination/fallback behavior.
+shutdown, and retry/reconnect schedule and dispatch.
 Narrow source-policy tests cover terminal placement that is impractical to
 force deterministically, including timeout/cancellation convergence, TLS-ready
 placement, Phase 1 vocabulary preservation, and the absence of obsolete bare
