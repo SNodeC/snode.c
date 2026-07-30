@@ -52,10 +52,21 @@ foreach(deb_package IN LISTS deb_packages)
     set("DEB_PACKAGE_FILE_${package_key}" "${deb_package}")
 endforeach()
 
+function(component_package_name component result)
+    if(DEFINED CPACK_DEBIAN_PACKAGE_NAME AND CPACK_DEBIAN_PACKAGE_NAME)
+        set(package_base_name "${CPACK_DEBIAN_PACKAGE_NAME}")
+    else()
+        set(package_base_name "${CPACK_PACKAGE_NAME}")
+    endif()
+    string(TOLOWER "${package_base_name}-${component}" package_name)
+    set(${result} "${package_name}" PARENT_SCOPE)
+endfunction()
+
 function(find_component_package component result_name result_file)
+    component_package_name("${component}" expected_package_name)
     set(matches)
     foreach(package_name IN LISTS component_package_names)
-        if(package_name MATCHES "-${component}$")
+        if(package_name STREQUAL expected_package_name)
             list(APPEND matches "${package_name}")
         endif()
     endforeach()
@@ -64,7 +75,7 @@ function(find_component_package component result_name result_file)
     if(NOT match_count EQUAL 1)
         message(
             FATAL_ERROR
-                "Expected exactly one Debian package for component '${component}', found: ${matches}"
+                "Expected exactly one Debian package '${expected_package_name}' for component '${component}', found: ${matches}"
         )
     endif()
 
@@ -75,8 +86,9 @@ function(find_component_package component result_name result_file)
 endfunction()
 
 function(assert_no_component_package component)
+    component_package_name("${component}" unexpected_package_name)
     foreach(package_name IN LISTS component_package_names)
-        if(package_name MATCHES "-${component}$")
+        if(package_name STREQUAL unexpected_package_name)
             message(
                 FATAL_ERROR
                     "Unexpected Debian package '${package_name}' for component '${component}'"
