@@ -69,25 +69,16 @@ set_target_properties(
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
-install(
-    TARGETS mqtt-client
-    EXPORT snodec_mqtt-client_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
-            COMPONENT mqtt-client
+snodec_add_component(
+    TARGET mqtt-client
+    LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_development_files(
+    COMPONENT mqtt-client
     FILES Mqtt.h
     DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/client
-    COMPONENT mqtt-client
-)
-
-install(
-    EXPORT snodec_mqtt-client_Targets
-    FILE snodec_mqtt-client_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mqtt-client
 )
 
 set(MQTT_CLIENT_WEBSOCKET_CPP SubProtocol.cpp)
@@ -119,23 +110,14 @@ set_target_properties(
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
-install(
-    TARGETS mqtt-client-websocket
-    EXPORT snodec_mqtt-client-websocket_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
-            COMPONENT mqtt-client-websocket
+snodec_add_component(
+    TARGET mqtt-client-websocket
+    LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_development_files(
+    COMPONENT mqtt-client-websocket
     FILES SubProtocol.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/client
-    COMPONENT mqtt-client-websocket
-)
-
-install(
-    EXPORT snodec_mqtt-client-websocket_Targets
-    FILE snodec_mqtt-client-websocket_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mqtt-client-websocket
 )

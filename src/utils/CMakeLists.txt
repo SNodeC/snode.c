@@ -101,26 +101,16 @@ set_target_properties(
                OUTPUT_NAME snodec-utils
 )
 
-install(
-    TARGETS utils
-    EXPORT snodec_utils_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT utils
+snodec_add_component(
+    TARGET utils
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT utils
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/utils
-    COMPONENT utils
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_utils_Targets
-    FILE snodec_utils_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT utils
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

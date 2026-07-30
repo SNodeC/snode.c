@@ -51,8 +51,9 @@ set_target_properties(
     snode.c PROPERTIES INSTALL_RPATH
                        "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS snode.c RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS snode.c
 )
 
 add_executable(express-compat-server express_compat_server.cpp)
@@ -63,8 +64,9 @@ set_target_properties(
     express-compat-server
     PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS express-compat-server
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS express-compat-server
 )
 
 add_executable(testpost testpost.cpp)
@@ -75,8 +77,9 @@ set_target_properties(
     testpost PROPERTIES INSTALL_RPATH
                         "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS testpost RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                 COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS testpost
 )
 
 if(NLOHMANN_JSON_FOUND)
@@ -88,8 +91,9 @@ if(NLOHMANN_JSON_FOUND)
         jsonserver PROPERTIES INSTALL_RPATH
                               "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
     )
-    install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                       COMPONENT apps
+    snodec_install_runtime_targets(
+        COMPONENT apps
+        TARGETS jsonserver
     )
 endif(NLOHMANN_JSON_FOUND)
 
@@ -99,8 +103,9 @@ set_target_properties(
     jsonclient PROPERTIES INSTALL_RPATH
                           "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                   COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS jsonclient
 )
 
 if(LIBMARIADB_FOUND)
@@ -113,8 +118,9 @@ if(LIBMARIADB_FOUND)
         testregex PROPERTIES INSTALL_RPATH
                              "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
     )
-    install(TARGETS testregex RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                      COMPONENT apps
+    snodec_install_runtime_targets(
+        COMPONENT apps
+        TARGETS testregex
     )
 endif(LIBMARIADB_FOUND)
 
@@ -126,20 +132,23 @@ set_target_properties(
     warema-jalousien PROPERTIES INSTALL_RPATH
                                 "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                         COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS warema-jalousien
 )
 
 add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE core)
-install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                 COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS testpipe
 )
 
 add_executable(configtest configtest.cpp)
 target_link_libraries(configtest PRIVATE core)
-install(TARGETS configtest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                   COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS configtest
 )
 
 macro(subdirlist result curdir)
@@ -164,3 +173,9 @@ subdirlist(subdirs ${CMAKE_CURRENT_SOURCE_DIR})
 foreach(subdir ${subdirs})
     add_subdirectory(${subdir})
 endforeach()
+
+snodec_register_runtime_component(
+    COMPONENT apps
+    DISPLAY_NAME "Applications"
+    DESCRIPTION "SNode.C example and utility applications"
+)

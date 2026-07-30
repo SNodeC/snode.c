@@ -95,30 +95,21 @@ else(NOT OpenSSL_FOUND)
                    OUTPUT_NAME snodec-core-socket-stream-tls
     )
 
-    install(
-        TARGETS core-socket-stream-tls
-        EXPORT snodec_core-socket-stream-tls_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT core-socket-stream-tls
+    snodec_add_component(
+        TARGET core-socket-stream-tls
+        PUBLIC_COMPONENT
     )
 
-    install(
+    snodec_install_component_headers(
+        COMPONENT core-socket-stream-tls
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/tls
-        COMPONENT core-socket-stream-tls
-        FILES_MATCHING
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "cmake" EXCLUDE
-        PATTERN "detail" EXCLUDE
-    )
-
-    install(
-        EXPORT snodec_core-socket-stream-tls_Targets
-        FILE snodec_core-socket-stream-tls_Targets.cmake
-        NAMESPACE snodec::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-        COMPONENT core-socket-stream-tls
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            detail
     )
 
 endif(NOT OpenSSL_FOUND)

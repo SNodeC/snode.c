@@ -10,14 +10,16 @@ add_executable(tlslegacyserver tlslegacyserver.cpp)
 target_link_libraries(
     tlslegacyserver PRIVATE tlslegacysocketcontext net-in-stream-tls
 )
-install(TARGETS tlslegacyserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS tlslegacyserver
 )
 
 add_executable(tlslegacyclient tlslegacyclient.cpp)
 target_link_libraries(
     tlslegacyclient PRIVATE tlslegacysocketcontext net-in-stream-tls
 )
-install(TARGETS tlslegacyclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS tlslegacyclient
 )

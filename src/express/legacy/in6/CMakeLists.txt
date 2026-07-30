@@ -75,27 +75,18 @@ set_target_properties(
                INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
 )
 
-install(
-    TARGETS http-server-express-legacy-in6
-    EXPORT snodec_http-server-express-legacy-in6_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR}
-            COMPONENT http-server-express-legacy-in6
+snodec_add_component(
+    TARGET http-server-express-legacy-in6
+    LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT http-server-express-legacy-in6
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/in6
-    COMPONENT http-server-express-legacy-in6
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_http-server-express-legacy-in6_Targets
-    FILE snodec_http-server-express-legacy-in6_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-server-express-legacy-in6
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

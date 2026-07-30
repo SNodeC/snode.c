@@ -74,26 +74,17 @@ set(NET-L2-STREAM-TLS
     CACHE INTERNAL "net-l2-stream-tls component"
 )
 
-install(
-    TARGETS net-l2-stream-tls
-    EXPORT snodec_net-l2-stream-tls_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream-tls
+snodec_add_component(
+    TARGET net-l2-stream-tls
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-l2-stream-tls
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/stream/tls
-    COMPONENT net-l2-stream-tls
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-l2-stream-tls_Targets
-    FILE snodec_net-l2-stream-tls_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-l2-stream-tls
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

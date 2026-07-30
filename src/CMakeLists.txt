@@ -67,7 +67,6 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(AppendSourceFileConfig)
-include(GetAllTargetsDependencies)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -148,52 +147,11 @@ endif()
 
 add_subdirectory(tools)
 
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES log)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES utils)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES core)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES net)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
-get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
-
-set(SUPPORTED_COMPONENTS
-    core
-    core-socket-stream-legacy
-    core-socket-stream-tls
-    net
-    net-in-stream-legacy
-    net-in6-stream-legacy
-    net-un-stream-legacy
-    net-in-stream-tls
-    net-in6-stream-tls
-    net-un-stream-tls
-    ${NET-RC-STREAM-LEGACY}
-    ${NET-RC-STREAM-TLS}
-    ${NET-L2-STREAM-LEGACY}
-    ${NET-L2-STREAM-TLS}
-    net-un-dgram
-    db-mariadb
-    http
-    http-server
-    http-client
-    http-server-express
-    http-server-express-legacy-in
-    http-server-express-legacy-in6
-    http-server-express-legacy-rc
-    http-server-express-legacy-un
-    http-server-express-tls-in
-    http-server-express-tls-in6
-    http-server-express-tls-rc
-    http-server-express-tls-un
-    websocket-server
-    websocket-client
-    mqtt
-    mqtt-server
-    mqtt-client
-    mqtt-server-websocket
-    mqtt-client-websocket
+snodec_get_component_dependency_definitions(
+    SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES
 )
+
+snodec_get_public_components(SUPPORTED_COMPONENTS)
 string(JOIN "\n    " SUPPORTED_COMPONENTS ${SUPPORTED_COMPONENTS})
 
 configure_package_config_file(
@@ -210,9 +168,10 @@ write_basic_package_version_file(
     COMPATIBILITY SameMinorVersion
 )
 
-install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake"
+snodec_install_component_development_files(
+    COMPONENT core
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT "core"
 )

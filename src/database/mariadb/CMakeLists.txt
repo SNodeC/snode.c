@@ -110,28 +110,19 @@ if(LIBMARIADB_FOUND)
                    OUTPUT_NAME snodec-db-mariadb
     )
 
-    install(
-        TARGETS db-mariadb
-        EXPORT snodec_db-mariadb_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT db-mariadb
+    snodec_add_component(
+        TARGET db-mariadb
+        PUBLIC_COMPONENT
     )
 
-    install(
-        EXPORT snodec_db-mariadb_Targets
-        FILE snodec_db-mariadb_Targets.cmake
-        NAMESPACE snodec::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    snodec_install_component_headers(
         COMPONENT db-mariadb
-    )
-
-    install(
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION include/snode.c/database/mariadb
-        COMPONENT db-mariadb
-        FILES_MATCHING
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "cmake" EXCLUDE
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
     )
 
 endif(LIBMARIADB_FOUND)

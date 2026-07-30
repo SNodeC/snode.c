@@ -60,16 +60,6 @@ set_target_properties(
 
 target_link_options(mux-poll PRIVATE LINKER:-z,undefs)
 
-install(
-    TARGETS mux-poll
-    EXPORT snodec_mux-poll_Targets
-    LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT mux-poll
-)
-
-install(
-    EXPORT snodec_mux-poll_Targets
-    FILE snodec_mux-poll_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mux-poll
+snodec_add_component(
+    TARGET mux-poll
 )

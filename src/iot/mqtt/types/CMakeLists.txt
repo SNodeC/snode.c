@@ -63,12 +63,12 @@ target_include_directories(
     mqtt-types PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT mqtt
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/types
-    COMPONENT mqtt
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

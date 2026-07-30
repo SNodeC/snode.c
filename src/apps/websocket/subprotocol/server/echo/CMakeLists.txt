@@ -79,9 +79,10 @@ set_target_properties(
                "${CMAKE_INSTALL_PREFIX}/${HTTP_UPGRADE_INSTALL_LIBDIR}"
 )
 
-install(TARGETS websocket-echo-server
-        LIBRARY DESTINATION ${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}
-                COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS websocket-echo-server
+    LIBRARY_DESTINATION ${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}
 )
 
 if(CHECK_INCLUDES)

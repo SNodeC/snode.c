@@ -54,6 +54,7 @@ include(format)
 include(doxygen)
 include(uninstall)
 include(graphwiz)
+include(SNodeCComponent)
 
 option(SNODEC_BUILD_TESTS "Build SNode.C tests" OFF)
 option(SNODEC_BUILD_APPS "Build SNode.C apps" ON)

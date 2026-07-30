@@ -58,8 +58,9 @@ set_target_properties(
     wsechoserver PROPERTIES INSTALL_RPATH
                             "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                     COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS wsechoserver
 )
 
 set(WSECHOCLIENT_CPP echoclient.cpp)
@@ -77,8 +78,9 @@ set_target_properties(
     wsechoclient PROPERTIES INSTALL_RPATH
                             "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                     COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS wsechoclient
 )
 
 add_subdirectory(subprotocol)

@@ -90,4 +90,13 @@ add_executable(
 )
 target_link_libraries(snodec-control PRIVATE snodec-control-core snodec-control-ui)
 
-install(TARGETS snodec-control RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+snodec_install_runtime_targets(
+    COMPONENT snodec-control
+    TARGETS snodec-control
+)
+
+snodec_register_runtime_component(
+    COMPONENT snodec-control
+    DISPLAY_NAME "SNode.C control utility"
+    DESCRIPTION "Runtime files for the snodec-control utility"
+)

@@ -109,44 +109,36 @@ set_target_properties(
                HTTP_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}"
 )
 
-install(
+snodec_add_component(
+    TARGET http-client
+    LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
+)
+
+snodec_install_component_headers(
+    COMPONENT http-client
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/client
-    COMPONENT http-client
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT http-client
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
     DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
-    COMPONENT http-client
-    FILES_MATCHING
-    PATTERN "Client.h"
-    PATTERN "EventSource.h"
+    PATTERNS
+        Client.h
+        EventSource.h
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT http-client
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
     DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
-    COMPONENT http-client
-    FILES_MATCHING
-    PATTERN "Client.h"
-    PATTERN "EventSource.h"
-)
-
-install(
-    TARGETS http-client
-    EXPORT snodec_http-client_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-client
-)
-
-install(
-    EXPORT snodec_http-client_Targets
-    FILE snodec_http-client_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-client
+    PATTERNS
+        Client.h
+        EventSource.h
 )

@@ -59,3 +59,29 @@ set_tests_properties(
     StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT
                                            120
 )
+
+add_test(
+    NAME ComponentPackagingTest
+    COMMAND
+        ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+        -DSNODEC_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
+        -DSNODEC_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
+        -DSNODEC_SHARED_LIBRARY_PREFIX=${CMAKE_SHARED_LIBRARY_PREFIX}
+        -DSNODEC_SHARED_LIBRARY_SUFFIX=${CMAKE_SHARED_LIBRARY_SUFFIX} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/ComponentPackagingTest.cmake
+)
+set_tests_properties(
+    ComponentPackagingTest PROPERTIES LABELS "install;packaging" TIMEOUT 120
+)
+
+add_test(
+    NAME ComponentRegistryValidationTest
+    COMMAND
+        ${CMAKE_COMMAND} -DSNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DSNODEC_TEST_BINARY_DIR=${CMAKE_BINARY_DIR} -P
+        ${CMAKE_CURRENT_SOURCE_DIR}/ComponentRegistryValidationTest.cmake
+)
+set_tests_properties(
+    ComponentRegistryValidationTest
+    PROPERTIES LABELS "cmake;packaging" TIMEOUT 120
+)

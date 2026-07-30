@@ -17,6 +17,10 @@ project(
 
 include(GNUInstallDirs)
 
+if(NOT COMMAND snodec_install_runtime_targets)
+    include("${CMAKE_CURRENT_LIST_DIR}/../../../cmake/SNodeCComponent.cmake")
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

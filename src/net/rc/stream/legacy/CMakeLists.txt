@@ -76,26 +76,17 @@ set(NET-RC-STREAM-LEGACY
     CACHE INTERNAL "net-rc-stream-legacy component"
 )
 
-install(
-    TARGETS net-rc-stream-legacy
-    EXPORT snodec_net-rc-stream-legacy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-stream-legacy
+snodec_add_component(
+    TARGET net-rc-stream-legacy
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-rc-stream-legacy
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream/legacy
-    COMPONENT net-rc-stream-legacy
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-rc-stream-legacy_Targets
-    FILE snodec_net-rc-stream-legacy_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-rc-stream-legacy
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

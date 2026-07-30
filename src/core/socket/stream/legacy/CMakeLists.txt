@@ -73,27 +73,17 @@ set_target_properties(
                OUTPUT_NAME snodec-core-socket-stream-legacy
 )
 
-install(
-    TARGETS core-socket-stream-legacy
-    EXPORT snodec_core-socket-stream-legacy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT core-socket-stream-legacy
+snodec_add_component(
+    TARGET core-socket-stream-legacy
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT core-socket-stream-legacy
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/legacy
-    COMPONENT core-socket-stream-legacy
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_core-socket-stream-legacy_Targets
-    FILE snodec_core-socket-stream-legacy_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT core-socket-stream-legacy
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

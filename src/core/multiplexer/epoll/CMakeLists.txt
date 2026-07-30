@@ -60,16 +60,6 @@ set_target_properties(
 
 target_link_options(mux-epoll PRIVATE LINKER:-z,undefs)
 
-install(
-    TARGETS mux-epoll
-    EXPORT snodec_mux-epoll_Targets
-    LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT mux-epoll
-)
-
-install(
-    EXPORT snodec_mux-epoll_Targets
-    FILE snodec_mux-epoll_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mux-epoll
+snodec_add_component(
+    TARGET mux-epoll
 )

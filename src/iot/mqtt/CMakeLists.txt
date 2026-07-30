@@ -98,33 +98,25 @@ if(NLOHMANN_JSON_FOUND)
                    OUTPUT_NAME snodec-mqtt
     )
 
-    install(
-        TARGETS mqtt
-        EXPORT snodec_mqtt_Targets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
-                COMPONENT mqtt
+    snodec_add_component(
+        TARGET mqtt
+        LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+        PUBLIC_COMPONENT
     )
 
-    install(
+    snodec_install_component_headers(
+        COMPONENT mqtt
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
         DESTINATION ${MQTT_INSTALL_INCLUDEDIR}
-        COMPONENT mqtt
-        FILES_MATCHING
-        PATTERN "*.h"
-        PATTERN "*.hpp"
-        PATTERN "cmake" EXCLUDE
-        PATTERN "server" EXCLUDE
-        PATTERN "client" EXCLUDE
-        PATTERN "types" EXCLUDE
-        PATTERN "packets" EXCLUDE
-    )
-
-    install(
-        EXPORT snodec_mqtt_Targets
-        FILE snodec_mqtt_Targets.cmake
-        NAMESPACE snodec::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-        COMPONENT mqtt
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            server
+            client
+            types
+            packets
     )
 
     add_subdirectory(server)

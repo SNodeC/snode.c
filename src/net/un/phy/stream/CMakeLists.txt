@@ -66,28 +66,19 @@ set_target_properties(
                OUTPUT_NAME snodec-net-un-phy-stream
 )
 
-install(
-    TARGETS net-un-phy-stream
-    EXPORT snodec_net-un-phy-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-phy-stream
+snodec_add_component(
+    TARGET net-un-phy-stream
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-un-phy-stream
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/phy/stream
-    COMPONENT net-un-phy-stream
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-un-phy-stream_Targets
-    FILE snodec_net-un-phy-stream_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-un-sphy-tream
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS
+        cmake
+        legacy
+        tls
 )

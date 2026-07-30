@@ -106,27 +106,18 @@ target_compile_options(
 
 target_link_libraries(websocket-client PUBLIC websocket http-client)
 
-install(
-    TARGETS websocket-client
-    EXPORT snodec_websocket-client_Targets
-    LIBRARY DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
-            COMPONENT websocket-client
+snodec_add_component(
+    TARGET websocket-client
+    LIBRARY_DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT websocket-client
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/client
-    COMPONENT websocket-client
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_websocket-client_Targets
-    FILE snodec_websocket-client_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT websocket-client
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

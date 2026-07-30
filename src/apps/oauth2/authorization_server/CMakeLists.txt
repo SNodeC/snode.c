@@ -58,6 +58,7 @@ if(SNODEC_INTREE_BUILD)
 
 endif(SNODEC_INTREE_BUILD)
 
-install(TARGETS authorization_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                             COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS authorization_server
 )

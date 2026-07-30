@@ -76,26 +76,17 @@ set(NET-L2-STREAM-LEGACY
     CACHE INTERNAL "net-l2-stream-legacy component"
 )
 
-install(
-    TARGETS net-l2-stream-legacy
-    EXPORT snodec_net-l2-stream-legacy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream-legacy
+snodec_add_component(
+    TARGET net-l2-stream-legacy
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-l2-stream-legacy
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/stream/legacy
-    COMPONENT net-l2-stream-legacy
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-l2-stream-legacy_Targets
-    FILE snodec_net-l2-stream-legacy_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-l2-stream-legacy
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS cmake
 )

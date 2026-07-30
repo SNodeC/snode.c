@@ -4,8 +4,26 @@
 with section("parse"):
 
   # Specify structure for custom cmake functions
-  additional_commands = { 'foo': { 'flags': ['BAR', 'BAZ'],
-             'kwargs': {'DEPENDS': '*', 'HEADERS': '*', 'SOURCES': '*'}}}
+  additional_commands = {
+    'snodec_install_component_development_files': {
+      'kwargs': {'COMPONENT': 1, 'DESTINATION': 1, 'FILES': '*'}},
+    'snodec_install_component_headers': {
+      'kwargs': {'COMPONENT': 1, 'DESTINATION': 1, 'DIRECTORY': 1,
+                 'EXCLUDE_PATTERNS': '*', 'FILES': '*', 'PATTERNS': '*'}},
+    'snodec_add_component': {
+      'flags': ['PUBLIC_COMPONENT'],
+      'kwargs': {'ARCHIVE_DESTINATION': 1, 'COMPONENT': 1, 'DEPENDS': '*',
+                 'DESCRIPTION': 1, 'DEVELOPMENT_DEPENDS': '*',
+                 'DISPLAY_NAME': 1, 'EXPORT_DESTINATION': 1,
+                 'LIBRARY_DESTINATION': 1, 'RUNTIME_DESTINATION': 1,
+                 'TARGET': 1}},
+    'snodec_install_runtime_targets': {
+      'kwargs': {'COMPONENT': 1, 'LIBRARY_DESTINATION': 1,
+                 'RUNTIME_DESTINATION': 1, 'TARGETS': '*'}},
+    'snodec_register_runtime_component': {
+      'kwargs': {'COMPONENT': 1, 'DEPENDS': '*', 'DESCRIPTION': 1,
+                 'DISPLAY_NAME': 1}}
+  }
 
   # Override configurations per-command where available
   override_spec = {}
@@ -238,4 +256,3 @@ with section("misc"):
   # A dictionary containing any per-command configuration overrides. Currently
   # only `command_case` is supported.
   per_command = {}
-

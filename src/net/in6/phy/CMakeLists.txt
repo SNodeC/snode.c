@@ -60,30 +60,21 @@ set_target_properties(
                OUTPUT_NAME snodec-net-in6-phy
 )
 
-install(
-    TARGETS net-in6-phy
-    EXPORT snodec_net-in6-phy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-phy
+snodec_add_component(
+    TARGET net-in6-phy
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-in6-phy
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6/phy
-    COMPONENT net-in6-phy
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "stream" EXCLUDE
-    PATTERN "dgram" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-in6-phy_Targets
-    FILE snodec_net-in6-phy_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-in6-phy
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS
+        cmake
+        stream
+        dgram
 )
 
 add_subdirectory(stream)

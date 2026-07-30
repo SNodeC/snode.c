@@ -159,38 +159,30 @@ set_target_properties(
                OUTPUT_NAME snodec-core
 )
 
-install(
-    TARGETS core
-    EXPORT snodec_core_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT core
+snodec_add_component(
+    TARGET core
+    PUBLIC_COMPONENT
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT core
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
-    COMPONENT core
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "." EXCLUDE
-    PATTERN "EventLoop.h" EXCLUDE
-    PATTERN "EventMultiplexer.h" EXCLUDE
-    PATTERN "DescriptorEventPublisher.h" EXCLUDE
-    PATTERN "TimerEventPublisher.h" EXCLUDE
-    PATTERN "timer/IntervalTimer.h" EXCLUDE
-    PATTERN "timer/IntervalTimerStopable.h" EXCLUDE
-    PATTERN "timer/SingleshoTimer.h" EXCLUDE
-    PATTERN "cmake" EXCLUDE
-    PATTERN "multiplexer" EXCLUDE
-    PATTERN "socket" EXCLUDE
-)
-
-install(
-    EXPORT snodec_core_Targets
-    FILE snodec_core_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT core
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS
+        "."
+        EventLoop.h
+        EventMultiplexer.h
+        DescriptorEventPublisher.h
+        TimerEventPublisher.h
+        timer/IntervalTimer.h
+        timer/IntervalTimerStopable.h
+        timer/SingleshoTimer.h
+        cmake
+        multiplexer
+        socket
 )
 
 add_subdirectory(socket)

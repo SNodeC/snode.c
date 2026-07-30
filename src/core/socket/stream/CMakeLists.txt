@@ -87,31 +87,22 @@ set_target_properties(
                OUTPUT_NAME snodec-core-socket-stream
 )
 
-install(
-    TARGETS core-socket-stream
-    EXPORT snodec_core-socket-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT core-socket-stream
+snodec_add_component(
+    TARGET core-socket-stream
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT core-socket-stream
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream
-    COMPONENT core-socket-stream
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "." EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
-    PATTERN "pu" EXCLUDE
-)
-
-install(
-    EXPORT snodec_core-socket-stream_Targets
-    FILE snodec_core-socket-stream_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT core-socket-stream
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS
+        "."
+        legacy
+        tls
+        pu
 )
 
 add_subdirectory(legacy)

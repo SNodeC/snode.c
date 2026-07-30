@@ -64,30 +64,21 @@ set_target_properties(
                OUTPUT_NAME snodec-net-rc-stream
 )
 
-install(
-    TARGETS net-rc-stream
-    EXPORT snodec_net-rc-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-stream
+snodec_add_component(
+    TARGET net-rc-stream
 )
 
-install(
+snodec_install_component_headers(
+    COMPONENT net-rc-stream
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream
-    COMPONENT net-rc-stream
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-rc-stream_Targets
-    FILE snodec_net-rc-stream_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-rc-stream
+    PATTERNS
+        "*.h"
+        "*.hpp"
+    EXCLUDE_PATTERNS
+        cmake
+        legacy
+        tls
 )
 
 add_subdirectory(legacy)
