@@ -161,7 +161,8 @@ foreach(
     expected_component
     IN ITEMS core core-dev net-un-phy-stream net-un-phy-stream-dev
 )
-    if(NOT expected_component IN_LIST CPACK_COMPONENTS_ALL)
+    list(FIND CPACK_COMPONENTS_ALL "${expected_component}" component_index)
+    if(component_index EQUAL -1)
         message(
             FATAL_ERROR
                 "generated CPack model misses component '${expected_component}'"
@@ -169,7 +170,8 @@ foreach(
     endif()
 endforeach()
 foreach(removed_component IN ITEMS net-un-sphy-tream mqtt-fast)
-    if(removed_component IN_LIST CPACK_COMPONENTS_ALL)
+    list(FIND CPACK_COMPONENTS_ALL "${removed_component}" component_index)
+    if(NOT component_index EQUAL -1)
         message(
             FATAL_ERROR
                 "generated CPack model contains invalid component '${removed_component}'"
@@ -196,7 +198,11 @@ list(GET selected_multiplexer_components 0 selected_multiplexer_component)
 
 set(core_development_dependencies_var "CPACK_COMPONENT_CORE-DEV_DEPENDS")
 foreach(expected_dependency IN ITEMS core utils-dev)
-    if(NOT expected_dependency IN_LIST ${core_development_dependencies_var})
+    list(
+        FIND ${core_development_dependencies_var} "${expected_dependency}"
+        dependency_index
+    )
+    if(dependency_index EQUAL -1)
         message(
             FATAL_ERROR
                 "core-dev misses dependency '${expected_dependency}': "
@@ -205,9 +211,11 @@ foreach(expected_dependency IN ITEMS core utils-dev)
     endif()
 endforeach()
 set(selected_multiplexer_development "${selected_multiplexer_component}-dev")
-if(selected_multiplexer_development IN_LIST
-   ${core_development_dependencies_var}
+list(
+    FIND ${core_development_dependencies_var}
+    "${selected_multiplexer_development}" dependency_index
 )
+if(NOT dependency_index EQUAL -1)
     message(
         FATAL_ERROR
             "core-dev exposes private multiplexer dependency "
