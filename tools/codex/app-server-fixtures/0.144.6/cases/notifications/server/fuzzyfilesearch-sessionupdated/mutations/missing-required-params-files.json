@@ -1,7 +1,0 @@
-{
-  "method": "fuzzyFileSearch/sessionUpdated",
-  "params": {
-    "query": "synthetic query",
-    "sessionId": "synthetic-session-id"
-  }
-}

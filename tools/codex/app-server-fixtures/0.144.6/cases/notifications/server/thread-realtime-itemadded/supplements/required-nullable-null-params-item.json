@@ -1,7 +1,0 @@
-{
-  "method": "thread/realtime/itemAdded",
-  "params": {
-    "item": null,
-    "threadId": "synthetic-a5363ad5e2"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "method": "thread/realtime/transcript/done",
-  "params": {
-    "role": "synthetic-3c6d22cee8",
-    "text": "synthetic-889b288421",
-    "threadId": null
-  }
-}

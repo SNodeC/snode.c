@@ -1,8 +1,0 @@
-{
-  "method": "account/login/completed",
-  "params": {
-    "error": false,
-    "loginId": "test-login-id",
-    "success": false
-  }
-}

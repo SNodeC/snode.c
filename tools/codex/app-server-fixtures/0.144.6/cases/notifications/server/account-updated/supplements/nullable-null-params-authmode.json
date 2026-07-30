@@ -1,7 +1,0 @@
-{
-  "method": "account/updated",
-  "params": {
-    "authMode": null,
-    "planType": "free"
-  }
-}

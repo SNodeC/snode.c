@@ -1,7 +1,0 @@
-{
-  "connectorId": "synthetic-connector-id",
-  "connectorName": "synthetic connector",
-  "toolName": "synthetic_tool",
-  "toolTitle": "Synthetic tool",
-  "type": "mcpToolCall"
-}

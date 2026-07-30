@@ -1,7 +1,0 @@
-{
-  "method": "thread/settings/updated",
-  "params": {
-    "threadId": "synthetic-d6f96dc54c",
-    "threadSettings": null
-  }
-}

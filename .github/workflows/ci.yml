@@ -9,7 +9,6 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'tools/**'
-      - 'docs/ai/openai/codex/**'
       - '.github/workflows/**'
   pull_request:
     paths:
@@ -18,7 +17,6 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'tools/**'
-      - 'docs/ai/openai/codex/**'
       - '.github/workflows/**'
 
 jobs:
@@ -32,7 +30,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ pkg-config libssl-dev nlohmann-json3-dev
+          sudo apt-get install -y \
+            cmake \
+            g++ \
+            libbluetooth-dev \
+            libmagic-dev \
+            libmariadb-dev \
+            libssl-dev \
+            nlohmann-json3-dev \
+            pkg-config
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON

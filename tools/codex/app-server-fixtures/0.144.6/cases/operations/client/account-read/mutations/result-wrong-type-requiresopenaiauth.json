@@ -1,6 +1,0 @@
-{
-  "account": {
-    "type": "apiKey"
-  },
-  "requiresOpenaiAuth": null
-}

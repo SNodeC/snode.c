@@ -1,8 +1,0 @@
-{
-  "applyNetworkPolicyAmendment": {
-    "network_policy_amendment": {
-      "action": "allow",
-      "host": "synthetic-ec2c024fcc"
-    }
-  }
-}

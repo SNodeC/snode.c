@@ -1,8 +1,0 @@
-{
-  "excludeSlashTmp": false,
-  "excludeTmpdirEnvVar": false,
-  "networkAccess": false,
-  "writableRoots": [
-    "synthetic-75177d933c"
-  ]
-}

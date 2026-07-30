@@ -1,6 +1,0 @@
-{
-  "excludeSlashTmp": false,
-  "excludeTmpdirEnvVar": false,
-  "networkAccess": false,
-  "type": "workspaceWrite"
-}

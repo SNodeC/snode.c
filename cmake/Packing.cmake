@@ -65,10 +65,9 @@ set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-# Source packages are reproducibility artifacts, so they retain vendored
-# protocol evidence, schemas, fixtures, generators, tests, and documentation.
-# Keep local build products and execution-environment metadata out of those
-# archives. CPack's default ignore list does not exclude an in-tree build.
+# Source packages are reproducibility artifacts. Keep local build products and
+# execution-environment metadata out of those archives. CPack's default ignore
+# list does not exclude an in-tree build.
 set(
     CPACK_SOURCE_IGNORE_FILES
     "/CVS/"
@@ -106,6 +105,12 @@ set(CPACK_DEB_COMPONENT_INSTALL YES)
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
+# CMake 3.28 omits this existing Unix-domain component from the global
+# COMPONENTS property even though its install rule is configured. Normalize
+# the published component model across supported CMake versions.
+list(APPEND CPACK_COMPONENTS_ALL net-un-sphy-tream)
+list(REMOVE_DUPLICATES CPACK_COMPONENTS_ALL)
+list(SORT CPACK_COMPONENTS_ALL)
 
 include(CPack)
 
@@ -187,10 +192,6 @@ cpack_add_component(mqtt-fast)
 
 cpack_add_component(db-mariadb DEPENDS core)
 
-cpack_add_component(ai-openai-codex DEPENDS core)
-cpack_add_component(ai-openai-codex-backend DEPENDS ai-openai-codex)
-cpack_add_component(ai-openai-codex-frontend DEPENDS ai-openai-codex-backend)
-
 cpack_add_component(
     apps
     DISPLAY_NAME "Applications"
@@ -212,5 +213,4 @@ cpack_add_component(
             websocket-server
             websocket-client
             db-mariadb
-            ai-openai-codex-frontend
 )

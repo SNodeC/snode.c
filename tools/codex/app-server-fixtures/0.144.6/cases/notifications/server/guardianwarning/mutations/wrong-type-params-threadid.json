@@ -1,7 +1,0 @@
-{
-  "method": "guardianWarning",
-  "params": {
-    "message": "Synthetic guardian warning.",
-    "threadId": null
-  }
-}

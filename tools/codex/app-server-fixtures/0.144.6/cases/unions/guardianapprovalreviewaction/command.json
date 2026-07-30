@@ -1,6 +1,0 @@
-{
-  "command": "synthetic command",
-  "cwd": "/synthetic/project",
-  "source": "shell",
-  "type": "command"
-}

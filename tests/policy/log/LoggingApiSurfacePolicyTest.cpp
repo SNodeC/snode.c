@@ -237,9 +237,6 @@ int main() {
     const std::filesystem::path clientRequestPath = root / "src/web/http/client/Request.h";
     const std::filesystem::path eventSourcePath = root / "src/web/http/client/tools/EventSource.h";
 
-    const std::filesystem::path backendEventPath = root / "src/ai/openai/codex/backend/BackendEvent.h";
-    const std::filesystem::path backendStatePath = root / "src/ai/openai/codex/backend/BackendState.h";
-
     const std::string mqttSource = source_policy::readSourcePolicyFile(mqttPath);
     const std::string mqttClientSource = source_policy::readSourcePolicyFile(mqttClientPath);
     const std::string mqttServerSource = source_policy::readSourcePolicyFile(mqttServerPath);
@@ -248,11 +245,8 @@ int main() {
     const std::string clientRequestSource = source_policy::readSourcePolicyFile(clientRequestPath);
     const std::string eventSourceSource = source_policy::readSourcePolicyFile(eventSourcePath);
 
-    const std::string backendEventSource = source_policy::readSourcePolicyFile(backendEventPath);
-    const std::string backendStateSource = source_policy::readSourcePolicyFile(backendStatePath);
-
     if (mqttSource.empty() || mqttClientSource.empty() || mqttServerSource.empty() || serverResponseSource.empty() ||
-        clientRequestSource.empty() || eventSourceSource.empty() || backendEventSource.empty() || backendStateSource.empty()) {
+        clientRequestSource.empty() || eventSourceSource.empty()) {
         std::cerr << "Unable to read one or more logging API policy inputs\n";
         return 1;
     }
@@ -349,17 +343,6 @@ int main() {
     ok &= forbidIdentifiers(tokenize(clientRequestSource), forbiddenHttpLoggingTypes, clientRequestPath);
 
     ok &= forbidIdentifiers(tokenize(eventSourceSource), forbiddenHttpLoggingTypes, eventSourcePath);
-
-    const std::vector<std::string_view> forbiddenBackendIdentifiers = {
-        "lifecycleStart",
-        "creationLogged",
-        "lifecycleStarted",
-        "lifecycleTerminalLogged",
-    };
-
-    ok &= forbidIdentifiers(tokenize(backendEventSource), forbiddenBackendIdentifiers, backendEventPath);
-
-    ok &= forbidIdentifiers(tokenize(backendStateSource), forbiddenBackendIdentifiers, backendStatePath);
 
     return ok ? 0 : 1;
 }
