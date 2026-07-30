@@ -151,21 +151,23 @@ snodec_add_component(
     TARGET http
     LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT http
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS
-        cmake
-        server
-        client
-        legacy
-        tls
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            server
+            client
+            legacy
+            tls
+
+    DEVELOPMENT_FILES
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/snodec_http_Targets_Config.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 add_subdirectory(server)
@@ -174,10 +176,4 @@ add_subdirectory(client)
 configure_file(
     cmake/snodec_http_Targets_Config.cmake.in snodec_http_Targets_Config.cmake
     @ONLY
-)
-
-snodec_install_component_development_files(
-    COMPONENT http
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/snodec_http_Targets_Config.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

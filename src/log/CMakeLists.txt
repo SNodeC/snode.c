@@ -91,14 +91,12 @@ set_target_properties(
 
 snodec_add_component(
     TARGET logger
-)
 
-snodec_install_component_headers(
-    COMPONENT logger
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/log
-    PATTERNS *.h
-    EXCLUDE_PATTERNS
-        cmake
-        detail
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION include/snode.c/log
+        PATTERNS *.h
+        EXCLUDE_PATTERNS
+            cmake
+            detail
 )

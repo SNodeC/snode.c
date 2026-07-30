@@ -79,14 +79,12 @@ set(NET-RC-STREAM-LEGACY
 snodec_add_component(
     TARGET net-rc-stream-legacy
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT net-rc-stream-legacy
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream/legacy
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream/legacy
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

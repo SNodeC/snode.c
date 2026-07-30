@@ -113,16 +113,14 @@ if(LIBMARIADB_FOUND)
     snodec_add_component(
         TARGET db-mariadb
         PUBLIC_COMPONENT
-    )
 
-    snodec_install_component_headers(
-        COMPONENT db-mariadb
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION include/snode.c/database/mariadb
-        PATTERNS
-            "*.h"
-            "*.hpp"
-        EXCLUDE_PATTERNS cmake
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+            DESTINATION include/snode.c/database/mariadb
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS cmake
     )
 
 endif(LIBMARIADB_FOUND)

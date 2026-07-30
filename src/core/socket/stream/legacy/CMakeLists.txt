@@ -76,14 +76,12 @@ set_target_properties(
 snodec_add_component(
     TARGET core-socket-stream-legacy
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT core-socket-stream-legacy
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/legacy
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/legacy
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

@@ -77,13 +77,3 @@ set_property(TARGET mqtt-server-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
     mqtt-server-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
-
-snodec_install_component_headers(
-    COMPONENT mqtt-server
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/server/packets
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
-)

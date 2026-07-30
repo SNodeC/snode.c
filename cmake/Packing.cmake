@@ -102,9 +102,9 @@ set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_COMPONENTS_GROUPING IGNORE)
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
-# Component ownership and dependency metadata are registered next to the
-# corresponding targets. This final step only validates and materializes that
-# distributed component model for CPack.
+# The package-format-neutral component registry is already finalized. This
+# adapter maps its runtime/development components and dependencies to CPack;
+# other packaging systems can consume the same registry independently.
 snodec_finalize_cpack_components()
 
 include(CPack)

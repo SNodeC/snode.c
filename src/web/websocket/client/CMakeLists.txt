@@ -110,14 +110,12 @@ snodec_add_component(
     TARGET websocket-client
     LIBRARY_DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT websocket-client
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/client
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/client
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

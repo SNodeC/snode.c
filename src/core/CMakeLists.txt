@@ -162,27 +162,25 @@ set_target_properties(
 snodec_add_component(
     TARGET core
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT core
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS
-        "."
-        EventLoop.h
-        EventMultiplexer.h
-        DescriptorEventPublisher.h
-        TimerEventPublisher.h
-        timer/IntervalTimer.h
-        timer/IntervalTimerStopable.h
-        timer/SingleshoTimer.h
-        cmake
-        multiplexer
-        socket
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            "."
+            EventLoop.h
+            EventMultiplexer.h
+            DescriptorEventPublisher.h
+            TimerEventPublisher.h
+            timer/IntervalTimer.h
+            timer/IntervalTimerStopable.h
+            timer/SingleshoTimer.h
+            cmake
+            multiplexer
+            socket
 )
 
 add_subdirectory(socket)

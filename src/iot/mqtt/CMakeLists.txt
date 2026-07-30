@@ -102,21 +102,35 @@ if(NLOHMANN_JSON_FOUND)
         TARGET mqtt
         LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
         PUBLIC_COMPONENT
-    )
 
-    snodec_install_component_headers(
-        COMPONENT mqtt
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}
-        PATTERNS
-            "*.h"
-            "*.hpp"
-        EXCLUDE_PATTERNS
-            cmake
-            server
-            client
-            types
-            packets
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+            DESTINATION ${MQTT_INSTALL_INCLUDEDIR}
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS
+                cmake
+                server
+                client
+                types
+                packets
+
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packets/
+            DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/packets
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS cmake
+
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/types/
+            DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/types
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS cmake
     )
 
     add_subdirectory(server)

@@ -97,30 +97,24 @@ snodec_add_component(
     TARGET http-server
     LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT http-server
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/server
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS
-        cmake
-        pu
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/server
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            pu
 
-snodec_install_component_headers(
-    COMPONENT http-server
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
-    PATTERNS Server.h
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
+        PATTERNS Server.h
 
-snodec_install_component_headers(
-    COMPONENT http-server
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
-    PATTERNS Server.h
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
+        PATTERNS Server.h
 )

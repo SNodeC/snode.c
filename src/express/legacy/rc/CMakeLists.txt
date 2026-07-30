@@ -81,16 +81,14 @@ if(BLUEZ_FOUND)
         TARGET http-server-express-legacy-rc
         LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
         PUBLIC_COMPONENT
-    )
 
-    snodec_install_component_headers(
-        COMPONENT http-server-express-legacy-rc
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/rc
-        PATTERNS
-            "*.h"
-            "*.hpp"
-        EXCLUDE_PATTERNS cmake
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/rc
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS cmake
     )
 
 endif(BLUEZ_FOUND)

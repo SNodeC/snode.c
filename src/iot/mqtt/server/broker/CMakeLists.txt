@@ -57,13 +57,3 @@ set_property(TARGET mqtt-broker PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
     mqtt-broker PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
-
-snodec_install_component_headers(
-    COMPONENT mqtt-server
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/server/broker
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
-)

@@ -73,12 +73,18 @@ snodec_add_component(
     TARGET mqtt-client
     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_development_files(
-    COMPONENT mqtt-client
-    FILES Mqtt.h
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/client
+    HEADERS
+        FILES Mqtt.h
+        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/client
+
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packets/
+        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/client/packets
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )
 
 set(MQTT_CLIENT_WEBSOCKET_CPP SubProtocol.cpp)
@@ -114,10 +120,8 @@ snodec_add_component(
     TARGET mqtt-client-websocket
     LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_development_files(
-    COMPONENT mqtt-client-websocket
-    FILES SubProtocol.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/client
+    HEADERS
+        FILES SubProtocol.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/client
 )

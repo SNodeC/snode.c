@@ -79,14 +79,12 @@ snodec_add_component(
     TARGET http-server-express-legacy-in
     LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT http-server-express-legacy-in
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/in
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express/legacy/in
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

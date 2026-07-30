@@ -113,32 +113,26 @@ snodec_add_component(
     TARGET http-client
     LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT http-client
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/client
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/client
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 
-snodec_install_component_headers(
-    COMPONENT http-client
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
-    PATTERNS
-        Client.h
-        EventSource.h
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
+        PATTERNS
+            Client.h
+            EventSource.h
 
-snodec_install_component_headers(
-    COMPONENT http-client
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
-    PATTERNS
-        Client.h
-        EventSource.h
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
+        PATTERNS
+            Client.h
+            EventSource.h
 )

@@ -71,20 +71,18 @@ set_target_properties(
 
 snodec_add_component(
     TARGET net-in
-)
 
-snodec_install_component_headers(
-    COMPONENT net-in
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS
-        cmake
-        stream
-        dgram
-        phy
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            stream
+            dgram
+            phy
 )
 
 add_subdirectory(phy)

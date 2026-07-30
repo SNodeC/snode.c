@@ -147,31 +147,13 @@ endif()
 
 add_subdirectory(tools)
 
-snodec_get_component_dependency_definitions(
-    SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES
-)
-
-snodec_get_public_components(SUPPORTED_COMPONENTS)
-string(JOIN "\n    " SUPPORTED_COMPONENTS ${SUPPORTED_COMPONENTS})
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    NO_SET_AND_CHECK_MACRO
-)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
-    VERSION
-        "${SNode.C_VERSION_MAJOR}.${SNode.C_VERSION_MINOR}.${SNode.C_VERSION_PATCH}"
-    COMPATIBILITY SameMinorVersion
-)
-
-snodec_install_component_development_files(
-    COMPONENT core
-    FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+snodec_finalize_components(
+    PACKAGE_CONFIG_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in
+    PACKAGE_CONFIG_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+    PACKAGE_VERSION_OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    PACKAGE_CONFIG_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    PACKAGE_CONFIG_COMPONENT core
+    PACKAGE_VERSION
+        "${SNode.C_VERSION_MAJOR}.${SNode.C_VERSION_MINOR}.${SNode.C_VERSION_PATCH}"
 )

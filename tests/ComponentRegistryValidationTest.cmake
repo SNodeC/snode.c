@@ -14,7 +14,6 @@ if(NOT DEFINED SNODEC_TEST_BINARY_DIR)
     message(FATAL_ERROR "SNODEC_TEST_BINARY_DIR is required")
 endif()
 
-
 # Production components must use the central registration API. Raw install()
 # rules in src/ would bypass the runtime/development split, and CPack metadata
 # must never be reconstructed in the global packaging policy file.
@@ -24,13 +23,25 @@ foreach(component_cmake_file IN LISTS component_cmake_files)
     if(component_cmake_source MATCHES "(^|\n)[ \t]*install[ \t]*[(]")
         message(
             FATAL_ERROR
-                "Raw install() rule found in '${component_cmake_file}'; use the SNode.C component helpers"
+                "Raw install() rule found in '${component_cmake_file}'; "
+                "use the SNode.C component helpers"
         )
     endif()
     if(component_cmake_source MATCHES "cpack_add_component[ \t]*[(]")
         message(
             FATAL_ERROR
-                "Local CPack call found in '${component_cmake_file}'; component helpers own CPack registration"
+                "Local CPack call found in '${component_cmake_file}'; "
+                "component helpers own CPack registration"
+        )
+    endif()
+    if(component_cmake_source MATCHES
+       "snodec_install_component_(headers|development_files)[ \t]*[(]"
+    )
+        message(
+            FATAL_ERROR
+                "Legacy split component declaration found in "
+                "'${component_cmake_file}'; put development content in "
+                "snodec_add_component()"
         )
     endif()
 endforeach()
@@ -38,9 +49,22 @@ file(READ "${SNODEC_SOURCE_DIR}/cmake/Packing.cmake" packing_source)
 if(packing_source MATCHES "cpack_add_component[ \t]*[(]")
     message(
         FATAL_ERROR
-            "Packing.cmake must contain policy only; components register in their own CMakeLists.txt files"
+            "Packing.cmake must contain policy only; components register "
+            "in their own CMakeLists.txt files"
     )
 endif()
+file(READ "${SNODEC_SOURCE_DIR}/cmake/SNodeCComponent.cmake" component_api_source)
+foreach(removed_command IN ITEMS
+        snodec_install_component_headers
+        snodec_install_component_development_files
+)
+    if(component_api_source MATCHES "function[ \t]*[(]${removed_command}")
+        message(
+            FATAL_ERROR
+                "Removed component API '${removed_command}' is still defined"
+        )
+    endif()
+endforeach()
 
 set(stage "${SNODEC_TEST_BINARY_DIR}/component-registry-validation")
 file(REMOVE_RECURSE "${stage}")
@@ -99,11 +123,44 @@ function(run_registry_case case_name case_body expected_result expected_message)
 endfunction()
 
 set(valid_case [=[
-add_library(a SHARED component.cpp)
-snodec_add_component(TARGET a)
-snodec_install_component_headers(
-    COMPONENT a FILES component.h DESTINATION include
+add_library(b SHARED component.cpp)
+snodec_add_component(
+    TARGET b
+    HEADERS FILES component.h DESTINATION include/b
 )
+add_library(a SHARED component.cpp)
+target_link_libraries(a PUBLIC b)
+snodec_add_component(
+    TARGET a
+    PUBLIC_COMPONENT
+    HEADERS FILES component.h DESTINATION include/a
+    HEADERS
+        DIRECTORY .
+        DESTINATION include/a/detail
+        PATTERNS component.h
+    DEVELOPMENT_FILES FILES component.cpp DESTINATION share/a
+)
+snodec_finalize_components()
+snodec_get_components(components)
+snodec_get_component_metadata(a A)
+if(NOT components STREQUAL "a;b")
+    message(FATAL_ERROR "unexpected finalized component list: ${components}")
+endif()
+if(NOT A_RUNTIME_INSTALL_COMPONENT STREQUAL "a")
+    message(FATAL_ERROR "unexpected runtime component metadata")
+endif()
+if(NOT A_DEVELOPMENT_INSTALL_COMPONENT STREQUAL "a-dev")
+    message(FATAL_ERROR "unexpected development component metadata")
+endif()
+if(NOT A_PUBLIC_COMPONENT)
+    message(FATAL_ERROR "public component metadata was not preserved")
+endif()
+if(NOT A_RUNTIME_DEPENDS STREQUAL "b")
+    message(FATAL_ERROR "unexpected runtime metadata: ${A_RUNTIME_DEPENDS}")
+endif()
+if(NOT A_DEVELOPMENT_DEPENDS STREQUAL "b")
+    message(FATAL_ERROR "unexpected development metadata: ${A_DEVELOPMENT_DEPENDS}")
+endif()
 snodec_finalize_cpack_components()
 ]=])
 run_registry_case(valid "${valid_case}" SUCCESS "")
@@ -111,9 +168,10 @@ run_registry_case(valid "${valid_case}" SUCCESS "")
 set(duplicate_case [=[
 add_library(a SHARED component.cpp)
 add_library(b SHARED component.cpp)
-snodec_add_component(TARGET a COMPONENT duplicate)
-snodec_install_component_headers(
-    COMPONENT duplicate FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET a
+    COMPONENT duplicate
+    HEADERS FILES component.h DESTINATION include
 )
 snodec_add_component(TARGET b COMPONENT duplicate)
 ]=])
@@ -126,11 +184,12 @@ run_registry_case(
 
 set(missing_case [=[
 add_library(a SHARED component.cpp)
-snodec_add_component(TARGET a DEPENDS missing)
-snodec_install_component_headers(
-    COMPONENT a FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET a
+    DEPENDS missing
+    HEADERS FILES component.h DESTINATION include
 )
-snodec_finalize_cpack_components()
+snodec_finalize_components()
 ]=])
 run_registry_case(
     missing
@@ -142,15 +201,17 @@ run_registry_case(
 set(runtime_cycle_case [=[
 add_library(a SHARED component.cpp)
 add_library(b SHARED component.cpp)
-snodec_add_component(TARGET a DEPENDS b)
-snodec_install_component_headers(
-    COMPONENT a FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET a
+    DEPENDS b
+    HEADERS FILES component.h DESTINATION include
 )
-snodec_add_component(TARGET b DEPENDS a)
-snodec_install_component_headers(
-    COMPONENT b FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET b
+    DEPENDS a
+    HEADERS FILES component.h DESTINATION include
 )
-snodec_finalize_cpack_components()
+snodec_finalize_components()
 ]=])
 run_registry_case(
     runtime-cycle
@@ -162,15 +223,17 @@ run_registry_case(
 set(development_cycle_case [=[
 add_library(a SHARED component.cpp)
 add_library(b SHARED component.cpp)
-snodec_add_component(TARGET a DEVELOPMENT_DEPENDS b)
-snodec_install_component_headers(
-    COMPONENT a FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET a
+    DEVELOPMENT_DEPENDS b
+    HEADERS FILES component.h DESTINATION include
 )
-snodec_add_component(TARGET b DEVELOPMENT_DEPENDS a)
-snodec_install_component_headers(
-    COMPONENT b FILES component.h DESTINATION include
+snodec_add_component(
+    TARGET b
+    DEVELOPMENT_DEPENDS a
+    HEADERS FILES component.h DESTINATION include
 )
-snodec_finalize_cpack_components()
+snodec_finalize_components()
 ]=])
 run_registry_case(
     development-cycle
@@ -178,7 +241,6 @@ run_registry_case(
     FAILURE
     "Cyclic SNode.C development component dependency: a -> b -> a"
 )
-
 
 set(missing_value_case [=[
 add_library(a SHARED component.cpp)

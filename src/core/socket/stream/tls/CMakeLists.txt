@@ -98,18 +98,16 @@ else(NOT OpenSSL_FOUND)
     snodec_add_component(
         TARGET core-socket-stream-tls
         PUBLIC_COMPONENT
-    )
 
-    snodec_install_component_headers(
-        COMPONENT core-socket-stream-tls
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/tls
-        PATTERNS
-            "*.h"
-            "*.hpp"
-        EXCLUDE_PATTERNS
-            cmake
-            detail
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket/stream/tls
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS
+                cmake
+                detail
     )
 
 endif(NOT OpenSSL_FOUND)

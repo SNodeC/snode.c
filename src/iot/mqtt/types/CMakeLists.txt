@@ -62,13 +62,3 @@ set_target_properties(mqtt-types PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
     mqtt-types PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
-
-snodec_install_component_headers(
-    COMPONENT mqtt
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/types
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
-)

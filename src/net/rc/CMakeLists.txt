@@ -67,20 +67,18 @@ if(BLUEZ_FOUND)
 
     snodec_add_component(
         TARGET net-rc
-    )
 
-    snodec_install_component_headers(
-        COMPONENT net-rc
-        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc
-        PATTERNS
-            "*.h"
-            "*.hpp"
-        EXCLUDE_PATTERNS
-            cmake
-            stream
-            dgram
-            phy
+        HEADERS
+            DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc
+            PATTERNS
+                "*.h"
+                "*.hpp"
+            EXCLUDE_PATTERNS
+                cmake
+                stream
+                dgram
+                phy
     )
 
     add_subdirectory(phy)

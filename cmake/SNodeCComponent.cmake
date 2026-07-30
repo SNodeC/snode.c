@@ -40,12 +40,14 @@
 include_guard(GLOBAL)
 
 include(CMakeParseArguments)
+include(CMakePackageConfigHelpers)
 include(CPackComponent)
 include(GNUInstallDirs)
 
-# Every component is declared where its target is declared. These helpers own
-# the runtime/development split, CMake exports, CPack metadata, package
-# dependencies, and the public find_package() component registry.
+# Every component is declared where its target is declared. The registry is
+# package-format neutral: generic finalization owns install/export generation
+# and resolved dependencies, while adapters such as CPack -- and a future
+# OpenWrt package generator -- consume the same finalized metadata.
 
 function(_snodec_component_key component result)
     string(MAKE_C_IDENTIFIER "${component}" component_key)
@@ -236,6 +238,9 @@ function(_snodec_register_component)
     )
     _snodec_set_component_property(
         "${ARG_COMPONENT}" RUNTIME_ONLY "${ARG_RUNTIME_ONLY}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" PUBLIC "${ARG_PUBLIC}"
     )
     _snodec_set_component_property(
         "${ARG_COMPONENT}" EXPLICIT_RUNTIME_DEPENDS ${ARG_DEPENDS}
@@ -496,7 +501,169 @@ function(_snodec_component_dependencies component dependency_kind result)
     set(${result} "${component_dependencies}" PARENT_SCOPE)
 endfunction()
 
+function(_snodec_require_not_finalized command_name)
+    get_property(
+        components_finalized GLOBAL PROPERTY SNODEC_COMPONENTS_FINALIZED
+    )
+    if(components_finalized)
+        message(
+            FATAL_ERROR
+                "${command_name} cannot modify the SNode.C component registry "
+                "after snodec_finalize_components()"
+        )
+    endif()
+endfunction()
+
+function(_snodec_require_finalized command_name)
+    get_property(
+        components_finalized GLOBAL PROPERTY SNODEC_COMPONENTS_FINALIZED
+    )
+    if(NOT components_finalized)
+        message(
+            FATAL_ERROR
+                "${command_name} requires snodec_finalize_components() first"
+        )
+    endif()
+endfunction()
+
+function(_snodec_absolute_source_path source_path result)
+    if(IS_ABSOLUTE "${source_path}")
+        set(absolute_path "${source_path}")
+    else()
+        get_filename_component(
+            absolute_path "${source_path}" ABSOLUTE
+            BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+    endif()
+    set(${result} "${absolute_path}" PARENT_SCOPE)
+endfunction()
+
+function(_snodec_record_development_set component set_kind set_index)
+    set(options)
+    set(one_value_arguments DIRECTORY DESTINATION)
+    set(multi_value_arguments FILES PATTERNS EXCLUDE_PATTERNS)
+    cmake_parse_arguments(
+        SET "${options}" "${one_value_arguments}" "${multi_value_arguments}"
+        ${ARGN}
+    )
+    _snodec_validate_arguments(SET "snodec_add_component ${set_kind}")
+
+    if(NOT SET_DESTINATION)
+        message(
+            FATAL_ERROR
+                "${set_kind} DESTINATION is required for component '${component}'"
+        )
+    endif()
+    if(SET_DIRECTORY AND SET_FILES)
+        message(
+            FATAL_ERROR
+                "${set_kind} for component '${component}' must use either DIRECTORY or FILES"
+        )
+    endif()
+    if(NOT SET_DIRECTORY AND NOT SET_FILES)
+        message(
+            FATAL_ERROR
+                "${set_kind} for component '${component}' requires DIRECTORY or FILES"
+        )
+    endif()
+    if(SET_FILES AND (SET_PATTERNS OR SET_EXCLUDE_PATTERNS))
+        message(
+            FATAL_ERROR
+                "${set_kind} PATTERNS are only valid with DIRECTORY for component '${component}'"
+        )
+    endif()
+
+    if(SET_DIRECTORY)
+        _snodec_absolute_source_path("${SET_DIRECTORY}" source_directory)
+        string(REGEX REPLACE "/+$" "" source_directory "${source_directory}")
+    endif()
+
+    set(source_files)
+    foreach(source_file IN LISTS SET_FILES)
+        _snodec_absolute_source_path("${source_file}" absolute_source_file)
+        list(APPEND source_files "${absolute_source_file}")
+    endforeach()
+
+    _snodec_set_component_property(
+        "${component}" "${set_kind}_${set_index}_DIRECTORY"
+        "${source_directory}"
+    )
+    _snodec_set_component_property(
+        "${component}" "${set_kind}_${set_index}_FILES" ${source_files}
+    )
+    _snodec_set_component_property(
+        "${component}" "${set_kind}_${set_index}_DESTINATION"
+        "${SET_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${component}" "${set_kind}_${set_index}_PATTERNS" ${SET_PATTERNS}
+    )
+    _snodec_set_component_property(
+        "${component}" "${set_kind}_${set_index}_EXCLUDE_PATTERNS"
+        ${SET_EXCLUDE_PATTERNS}
+    )
+endfunction()
+
+function(_snodec_append_development_files component destination)
+    set(source_files)
+    foreach(source_file IN LISTS ARGN)
+        _snodec_absolute_source_path("${source_file}" absolute_source_file)
+        list(APPEND source_files "${absolute_source_file}")
+    endforeach()
+
+    _snodec_component_property(
+        "${component}" DEVELOPMENT_FILES_COUNT development_files_count
+    )
+    if(NOT development_files_count)
+        set(development_files_count 0)
+    endif()
+    math(EXPR development_files_count "${development_files_count} + 1")
+    _snodec_set_component_property(
+        "${component}" DEVELOPMENT_FILES_COUNT "${development_files_count}"
+    )
+    _snodec_record_development_set(
+        "${component}" DEVELOPMENT_FILES "${development_files_count}"
+        FILES ${source_files}
+        DESTINATION "${destination}"
+    )
+endfunction()
+
+# Declare one shared-library component, including all public headers and other
+# development artifacts. HEADERS and DEVELOPMENT_FILES are repeatable sections;
+# each section accepts FILES or DIRECTORY, DESTINATION, and (for DIRECTORY)
+# PATTERNS/EXCLUDE_PATTERNS. No install rules are emitted until finalization.
 function(snodec_add_component)
+    _snodec_require_not_finalized("snodec_add_component")
+
+    # Core component metadata precedes optional repeated HEADERS and
+    # DEVELOPMENT_FILES sections. Keeping all installable development content
+    # in this declaration gives CPack, CMake package exports, and future
+    # packaging adapters (notably OpenWrt) one canonical component model.
+    set(core_arguments)
+    set(current_section CORE)
+    set(header_set_count 0)
+    set(development_files_count 0)
+    foreach(argument IN LISTS ARGN)
+        if(argument STREQUAL "HEADERS")
+            set(current_section HEADERS)
+            math(EXPR header_set_count "${header_set_count} + 1")
+        elseif(argument STREQUAL "DEVELOPMENT_FILES")
+            set(current_section DEVELOPMENT_FILES)
+            math(EXPR development_files_count "${development_files_count} + 1")
+        elseif(current_section STREQUAL "CORE")
+            list(APPEND core_arguments "${argument}")
+        elseif(current_section STREQUAL "HEADERS")
+            list(
+                APPEND header_set_${header_set_count}_arguments "${argument}"
+            )
+        else()
+            list(
+                APPEND development_files_${development_files_count}_arguments
+                "${argument}"
+            )
+        endif()
+    endforeach()
+
     set(options PUBLIC_COMPONENT)
     set(
         one_value_arguments
@@ -512,7 +679,7 @@ function(snodec_add_component)
     set(multi_value_arguments DEPENDS DEVELOPMENT_DEPENDS)
     cmake_parse_arguments(
         ARG "${options}" "${one_value_arguments}" "${multi_value_arguments}"
-        ${ARGN}
+        ${core_arguments}
     )
     _snodec_validate_arguments(ARG "snodec_add_component")
 
@@ -574,133 +741,55 @@ function(snodec_add_component)
     endif()
     _snodec_register_component(${register_arguments})
 
-    set(development_component "${ARG_COMPONENT}-dev")
-    set(export_set "snodec_${ARG_COMPONENT}_Targets")
-    _snodec_record_install_component("${ARG_COMPONENT}")
-    _snodec_record_install_component("${development_component}")
-
-    install(
-        TARGETS "${real_target}"
-        EXPORT "${export_set}"
-        RUNTIME DESTINATION "${ARG_RUNTIME_DESTINATION}"
-                COMPONENT "${ARG_COMPONENT}"
-        LIBRARY DESTINATION "${ARG_LIBRARY_DESTINATION}"
-                COMPONENT "${ARG_COMPONENT}"
-                NAMELINK_COMPONENT "${development_component}"
-        ARCHIVE DESTINATION "${ARG_ARCHIVE_DESTINATION}"
-                COMPONENT "${development_component}"
-        BUNDLE DESTINATION "${ARG_RUNTIME_DESTINATION}"
-               COMPONENT "${ARG_COMPONENT}"
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" DECLARATION_SOURCE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" RUNTIME_DESTINATION "${ARG_RUNTIME_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" LIBRARY_DESTINATION "${ARG_LIBRARY_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" ARCHIVE_DESTINATION "${ARG_ARCHIVE_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" EXPORT_DESTINATION "${ARG_EXPORT_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" EXPORT_SET "snodec_${ARG_COMPONENT}_Targets"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" HEADER_SET_COUNT "${header_set_count}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" DEVELOPMENT_FILES_COUNT
+        "${development_files_count}"
     )
 
-    install(
-        EXPORT "${export_set}"
-        FILE "${export_set}.cmake"
-        NAMESPACE snodec::
-        DESTINATION "${ARG_EXPORT_DESTINATION}"
-        COMPONENT "${development_component}"
-    )
-endfunction()
-
-function(snodec_install_component_headers)
-    set(options)
-    set(one_value_arguments COMPONENT DIRECTORY DESTINATION)
-    set(multi_value_arguments FILES PATTERNS EXCLUDE_PATTERNS)
-    cmake_parse_arguments(
-        ARG "${options}" "${one_value_arguments}" "${multi_value_arguments}"
-        ${ARGN}
-    )
-    _snodec_validate_arguments(ARG "snodec_install_component_headers")
-
-    if(NOT ARG_COMPONENT)
-        message(FATAL_ERROR "COMPONENT is required")
+    if(header_set_count GREATER 0)
+        foreach(header_set_index RANGE 1 ${header_set_count})
+            _snodec_record_development_set(
+                "${ARG_COMPONENT}" HEADERS "${header_set_index}"
+                ${header_set_${header_set_index}_arguments}
+            )
+        endforeach()
     endif()
-    if(ARG_COMPONENT MATCHES "-dev$")
-        message(
-            FATAL_ERROR
-                "Use the base component name, not '${ARG_COMPONENT}', for development files"
-        )
+    if(development_files_count GREATER 0)
+        foreach(development_files_index RANGE 1 ${development_files_count})
+            _snodec_record_development_set(
+                "${ARG_COMPONENT}" DEVELOPMENT_FILES
+                "${development_files_index}"
+                ${development_files_${development_files_index}_arguments}
+            )
+        endforeach()
     endif()
-    if(NOT ARG_DESTINATION)
-        message(
-            FATAL_ERROR
-                "DESTINATION is required for component '${ARG_COMPONENT}'"
-        )
-    endif()
-    if(ARG_DIRECTORY AND ARG_FILES)
-        message(
-            FATAL_ERROR
-                "Use either DIRECTORY or FILES for component '${ARG_COMPONENT}'"
-        )
-    endif()
-    if(NOT ARG_DIRECTORY AND NOT ARG_FILES)
-        message(
-            FATAL_ERROR
-                "DIRECTORY or FILES is required for component '${ARG_COMPONENT}'"
-        )
-    endif()
-
-    set(development_component "${ARG_COMPONENT}-dev")
-    _snodec_record_install_component("${development_component}")
-
-    if(ARG_FILES)
-        install(
-            FILES ${ARG_FILES}
-            DESTINATION "${ARG_DESTINATION}"
-            COMPONENT "${development_component}"
-        )
-        return()
-    endif()
-
-    set(source_directory "${ARG_DIRECTORY}")
-    string(REGEX REPLACE "/+$" "" source_directory "${source_directory}")
-
-    set(pattern_arguments)
-    if(ARG_PATTERNS OR ARG_EXCLUDE_PATTERNS)
-        list(APPEND pattern_arguments FILES_MATCHING)
-    endif()
-    foreach(pattern IN LISTS ARG_PATTERNS)
-        list(APPEND pattern_arguments PATTERN "${pattern}")
-    endforeach()
-    foreach(pattern IN LISTS ARG_EXCLUDE_PATTERNS)
-        list(APPEND pattern_arguments PATTERN "${pattern}" EXCLUDE)
-    endforeach()
-
-    install(
-        DIRECTORY "${source_directory}/"
-        DESTINATION "${ARG_DESTINATION}"
-        COMPONENT "${development_component}"
-        ${pattern_arguments}
-    )
-endfunction()
-
-function(snodec_install_component_development_files)
-    set(options)
-    set(one_value_arguments COMPONENT DESTINATION)
-    set(multi_value_arguments FILES)
-    cmake_parse_arguments(
-        ARG "${options}" "${one_value_arguments}" "${multi_value_arguments}"
-        ${ARGN}
-    )
-    _snodec_validate_arguments(
-        ARG "snodec_install_component_development_files"
-    )
-
-    if(NOT ARG_COMPONENT)
-        message(FATAL_ERROR "COMPONENT is required")
-    endif()
-    if(NOT ARG_FILES)
-        message(FATAL_ERROR "FILES is required")
-    endif()
-
-    snodec_install_component_headers(
-        COMPONENT "${ARG_COMPONENT}"
-        FILES ${ARG_FILES}
-        DESTINATION "${ARG_DESTINATION}"
-    )
 endfunction()
 
 function(snodec_install_runtime_targets)
+    _snodec_require_not_finalized("snodec_install_runtime_targets")
+
     set(options)
     set(one_value_arguments COMPONENT RUNTIME_DESTINATION LIBRARY_DESTINATION)
     set(multi_value_arguments TARGETS)
@@ -723,6 +812,7 @@ function(snodec_install_runtime_targets)
         set(ARG_LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     endif()
 
+    set(real_targets)
     foreach(target IN LISTS ARG_TARGETS)
         if(NOT TARGET "${target}")
             message(FATAL_ERROR "Unknown SNode.C target '${target}'")
@@ -730,24 +820,47 @@ function(snodec_install_runtime_targets)
         _snodec_real_target("${target}" real_target)
         _snodec_set_target_component("${real_target}" "${ARG_COMPONENT}")
         _snodec_record_shlibdeps_private_directory("${real_target}")
+        list(APPEND real_targets "${real_target}")
         _snodec_append_component_property(
             "${ARG_COMPONENT}" PENDING_TARGETS "${real_target}"
         )
     endforeach()
 
-    _snodec_record_install_component("${ARG_COMPONENT}")
-    install(
-        TARGETS ${ARG_TARGETS}
-        RUNTIME DESTINATION "${ARG_RUNTIME_DESTINATION}"
-                COMPONENT "${ARG_COMPONENT}"
-        LIBRARY DESTINATION "${ARG_LIBRARY_DESTINATION}"
-                COMPONENT "${ARG_COMPONENT}"
-        BUNDLE DESTINATION "${ARG_RUNTIME_DESTINATION}"
-               COMPONENT "${ARG_COMPONENT}"
+    _snodec_component_property(
+        "${ARG_COMPONENT}" RUNTIME_TARGET_SET_COUNT runtime_target_set_count
+    )
+    if(NOT runtime_target_set_count)
+        set(runtime_target_set_count 0)
+    endif()
+    math(EXPR runtime_target_set_count "${runtime_target_set_count} + 1")
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}" RUNTIME_TARGET_SET_COUNT
+        "${runtime_target_set_count}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}"
+        "RUNTIME_TARGET_SET_${runtime_target_set_count}_TARGETS"
+        ${real_targets}
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}"
+        "RUNTIME_TARGET_SET_${runtime_target_set_count}_RUNTIME_DESTINATION"
+        "${ARG_RUNTIME_DESTINATION}"
+    )
+    _snodec_set_component_property(
+        "${ARG_COMPONENT}"
+        "RUNTIME_TARGET_SET_${runtime_target_set_count}_LIBRARY_DESTINATION"
+        "${ARG_LIBRARY_DESTINATION}"
+    )
+    set_property(
+        GLOBAL APPEND PROPERTY SNODEC_PENDING_RUNTIME_COMPONENTS
+        "${ARG_COMPONENT}"
     )
 endfunction()
 
 function(snodec_register_runtime_component)
+    _snodec_require_not_finalized("snodec_register_runtime_component")
+
     set(options)
     set(one_value_arguments COMPONENT DISPLAY_NAME DESCRIPTION)
     set(multi_value_arguments DEPENDS)
@@ -767,7 +880,7 @@ function(snodec_register_runtime_component)
     if(NOT component_targets)
         message(
             FATAL_ERROR
-                "Runtime component '${ARG_COMPONENT}' has no installed targets"
+                "Runtime component '${ARG_COMPONENT}' has no registered targets"
         )
     endif()
 
@@ -789,17 +902,22 @@ function(snodec_register_runtime_component)
     _snodec_register_component(${register_arguments})
 endfunction()
 
-function(snodec_get_public_components result)
+function(_snodec_registered_components result)
+    get_property(components GLOBAL PROPERTY SNODEC_BASE_COMPONENTS)
+    list(REMOVE_DUPLICATES components)
+    list(SORT components)
+    set(${result} "${components}" PARENT_SCOPE)
+endfunction()
+
+function(_snodec_public_components result)
     get_property(public_components GLOBAL PROPERTY SNODEC_PUBLIC_COMPONENTS)
     list(REMOVE_DUPLICATES public_components)
     list(SORT public_components)
     set(${result} "${public_components}" PARENT_SCOPE)
 endfunction()
 
-function(snodec_get_component_dependency_definitions result)
-    get_property(components GLOBAL PROPERTY SNODEC_BASE_COMPONENTS)
-    list(REMOVE_DUPLICATES components)
-    list(SORT components)
+function(_snodec_component_dependency_definitions result)
+    _snodec_registered_components(components)
 
     set(dependency_definitions)
     foreach(component IN LISTS components)
@@ -810,8 +928,8 @@ function(snodec_get_component_dependency_definitions result)
             continue()
         endif()
 
-        _snodec_component_dependencies(
-            "${component}" DEVELOPMENT dependencies
+        _snodec_component_property(
+            "${component}" RESOLVED_DEVELOPMENT_DEPENDS dependencies
         )
         if(dependencies)
             string(
@@ -828,21 +946,417 @@ function(snodec_get_component_dependency_definitions result)
     set(${result} "${dependency_definitions}" PARENT_SCOPE)
 endfunction()
 
+function(_snodec_materialize_development_set component set_kind set_index)
+    _snodec_component_property(
+        "${component}" "${set_kind}_${set_index}_DIRECTORY" source_directory
+    )
+    _snodec_component_property(
+        "${component}" "${set_kind}_${set_index}_FILES" source_files
+    )
+    _snodec_component_property(
+        "${component}" "${set_kind}_${set_index}_DESTINATION" destination
+    )
+    _snodec_component_property(
+        "${component}" "${set_kind}_${set_index}_PATTERNS" patterns
+    )
+    _snodec_component_property(
+        "${component}" "${set_kind}_${set_index}_EXCLUDE_PATTERNS"
+        exclude_patterns
+    )
+
+    set(development_component "${component}-dev")
+    _snodec_record_install_component("${development_component}")
+
+    if(source_files)
+        install(
+            FILES ${source_files}
+            DESTINATION "${destination}"
+            COMPONENT "${development_component}"
+        )
+        return()
+    endif()
+
+    set(pattern_arguments)
+    if(patterns OR exclude_patterns)
+        list(APPEND pattern_arguments FILES_MATCHING)
+    endif()
+    foreach(pattern IN LISTS patterns)
+        list(APPEND pattern_arguments PATTERN "${pattern}")
+    endforeach()
+    foreach(pattern IN LISTS exclude_patterns)
+        list(APPEND pattern_arguments PATTERN "${pattern}" EXCLUDE)
+    endforeach()
+
+    install(
+        DIRECTORY "${source_directory}/"
+        DESTINATION "${destination}"
+        COMPONENT "${development_component}"
+        ${pattern_arguments}
+    )
+endfunction()
+
+function(_snodec_materialize_library_component component)
+    _snodec_component_property("${component}" TARGETS component_targets)
+    list(LENGTH component_targets component_target_count)
+    if(NOT component_target_count EQUAL 1)
+        message(
+            FATAL_ERROR
+                "Library component '${component}' must own exactly one target"
+        )
+    endif()
+    list(GET component_targets 0 component_target)
+
+    _snodec_component_property(
+        "${component}" RUNTIME_DESTINATION runtime_destination
+    )
+    _snodec_component_property(
+        "${component}" LIBRARY_DESTINATION library_destination
+    )
+    _snodec_component_property(
+        "${component}" ARCHIVE_DESTINATION archive_destination
+    )
+    _snodec_component_property(
+        "${component}" EXPORT_DESTINATION export_destination
+    )
+    _snodec_component_property("${component}" EXPORT_SET export_set)
+
+    set(development_component "${component}-dev")
+    _snodec_record_install_component("${component}")
+    _snodec_record_install_component("${development_component}")
+
+    install(
+        TARGETS "${component_target}"
+        EXPORT "${export_set}"
+        RUNTIME DESTINATION "${runtime_destination}"
+                COMPONENT "${component}"
+        LIBRARY DESTINATION "${library_destination}"
+                COMPONENT "${component}"
+                NAMELINK_COMPONENT "${development_component}"
+        ARCHIVE DESTINATION "${archive_destination}"
+                COMPONENT "${development_component}"
+        BUNDLE DESTINATION "${runtime_destination}"
+               COMPONENT "${component}"
+    )
+    install(
+        EXPORT "${export_set}"
+        FILE "${export_set}.cmake"
+        NAMESPACE snodec::
+        DESTINATION "${export_destination}"
+        COMPONENT "${development_component}"
+    )
+
+    _snodec_component_property(
+        "${component}" HEADER_SET_COUNT header_set_count
+    )
+    if(header_set_count GREATER 0)
+        foreach(header_set_index RANGE 1 ${header_set_count})
+            _snodec_materialize_development_set(
+                "${component}" HEADERS "${header_set_index}"
+            )
+        endforeach()
+    endif()
+
+    _snodec_component_property(
+        "${component}" DEVELOPMENT_FILES_COUNT development_files_count
+    )
+    if(development_files_count GREATER 0)
+        foreach(development_files_index RANGE 1 ${development_files_count})
+            _snodec_materialize_development_set(
+                "${component}" DEVELOPMENT_FILES
+                "${development_files_index}"
+            )
+        endforeach()
+    endif()
+endfunction()
+
+function(_snodec_materialize_runtime_component component)
+    _snodec_component_property(
+        "${component}" RUNTIME_TARGET_SET_COUNT runtime_target_set_count
+    )
+    if(NOT runtime_target_set_count
+       OR NOT runtime_target_set_count GREATER 0
+    )
+        message(
+            FATAL_ERROR
+                "Runtime component '${component}' has no target install sets"
+        )
+    endif()
+
+    _snodec_record_install_component("${component}")
+    foreach(runtime_target_set_index RANGE 1 ${runtime_target_set_count})
+        _snodec_component_property(
+            "${component}"
+            "RUNTIME_TARGET_SET_${runtime_target_set_index}_TARGETS"
+            targets
+        )
+        _snodec_component_property(
+            "${component}"
+            "RUNTIME_TARGET_SET_${runtime_target_set_index}_RUNTIME_DESTINATION"
+            runtime_destination
+        )
+        _snodec_component_property(
+            "${component}"
+            "RUNTIME_TARGET_SET_${runtime_target_set_index}_LIBRARY_DESTINATION"
+            library_destination
+        )
+        install(
+            TARGETS ${targets}
+            RUNTIME DESTINATION "${runtime_destination}"
+                    COMPONENT "${component}"
+            LIBRARY DESTINATION "${library_destination}"
+                    COMPONENT "${component}"
+            BUNDLE DESTINATION "${runtime_destination}"
+                   COMPONENT "${component}"
+        )
+    endforeach()
+endfunction()
+
+# Complete the package-format-neutral registry exactly once after all component
+# subdirectories have been processed. This resolves dependencies, optionally
+# generates the installed CMake package, and materializes all install rules.
+function(snodec_finalize_components)
+    _snodec_require_not_finalized("snodec_finalize_components")
+
+    set(options)
+    set(
+        one_value_arguments
+        PACKAGE_CONFIG_TEMPLATE
+        PACKAGE_CONFIG_OUTPUT
+        PACKAGE_VERSION_OUTPUT
+        PACKAGE_CONFIG_DESTINATION
+        PACKAGE_CONFIG_COMPONENT
+        PACKAGE_VERSION
+    )
+    cmake_parse_arguments(
+        ARG "${options}" "${one_value_arguments}" "" ${ARGN}
+    )
+    _snodec_validate_arguments(ARG "snodec_finalize_components")
+
+    _snodec_registered_components(components)
+    if(NOT components)
+        message(FATAL_ERROR "No SNode.C components were registered")
+    endif()
+
+    get_property(
+        pending_runtime_components GLOBAL PROPERTY SNODEC_PENDING_RUNTIME_COMPONENTS
+    )
+    list(REMOVE_DUPLICATES pending_runtime_components)
+    foreach(pending_component IN LISTS pending_runtime_components)
+        if(NOT pending_component IN_LIST components)
+            message(
+                FATAL_ERROR
+                    "Runtime targets were recorded for unregistered component '${pending_component}'"
+            )
+        endif()
+    endforeach()
+
+    _snodec_validate_component_dependency_graph(RUNTIME)
+    _snodec_validate_component_dependency_graph(DEVELOPMENT)
+
+    foreach(component IN LISTS components)
+        _snodec_component_dependencies(
+            "${component}" RUNTIME runtime_dependencies
+        )
+        _snodec_component_dependencies(
+            "${component}" DEVELOPMENT development_dependencies
+        )
+        _snodec_set_component_property(
+            "${component}" RESOLVED_RUNTIME_DEPENDS ${runtime_dependencies}
+        )
+        _snodec_set_component_property(
+            "${component}" RESOLVED_DEVELOPMENT_DEPENDS
+            ${development_dependencies}
+        )
+    endforeach()
+
+    set(package_config_arguments_present FALSE)
+    foreach(package_config_argument IN ITEMS
+            ARG_PACKAGE_CONFIG_TEMPLATE
+            ARG_PACKAGE_CONFIG_OUTPUT
+            ARG_PACKAGE_VERSION_OUTPUT
+            ARG_PACKAGE_CONFIG_DESTINATION
+            ARG_PACKAGE_CONFIG_COMPONENT
+            ARG_PACKAGE_VERSION
+    )
+        if(NOT "${${package_config_argument}}" STREQUAL "")
+            set(package_config_arguments_present TRUE)
+        endif()
+    endforeach()
+
+    if(package_config_arguments_present)
+        foreach(required_argument IN ITEMS
+                PACKAGE_CONFIG_TEMPLATE
+                PACKAGE_CONFIG_OUTPUT
+                PACKAGE_VERSION_OUTPUT
+                PACKAGE_CONFIG_DESTINATION
+                PACKAGE_CONFIG_COMPONENT
+                PACKAGE_VERSION
+        )
+            if(NOT ARG_${required_argument})
+                message(
+                    FATAL_ERROR
+                        "snodec_finalize_components requires ${required_argument} "
+                        "when generating package configuration"
+                )
+            endif()
+        endforeach()
+        if(NOT ARG_PACKAGE_CONFIG_COMPONENT IN_LIST components)
+            message(
+                FATAL_ERROR
+                    "Package configuration component "
+                    "'${ARG_PACKAGE_CONFIG_COMPONENT}' is not registered"
+            )
+        endif()
+        _snodec_component_property(
+            "${ARG_PACKAGE_CONFIG_COMPONENT}" RUNTIME_ONLY config_runtime_only
+        )
+        if(config_runtime_only)
+            message(
+                FATAL_ERROR
+                    "Package configuration cannot belong to runtime-only "
+                    "component '${ARG_PACKAGE_CONFIG_COMPONENT}'"
+            )
+        endif()
+
+        _snodec_public_components(public_components)
+        string(JOIN "\n    " SUPPORTED_COMPONENTS ${public_components})
+        _snodec_component_dependency_definitions(
+            SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES
+        )
+
+        configure_package_config_file(
+            "${ARG_PACKAGE_CONFIG_TEMPLATE}"
+            "${ARG_PACKAGE_CONFIG_OUTPUT}"
+            INSTALL_DESTINATION "${ARG_PACKAGE_CONFIG_DESTINATION}"
+            NO_SET_AND_CHECK_MACRO
+        )
+        write_basic_package_version_file(
+            "${ARG_PACKAGE_VERSION_OUTPUT}"
+            VERSION "${ARG_PACKAGE_VERSION}"
+            COMPATIBILITY SameMinorVersion
+        )
+        _snodec_append_development_files(
+            "${ARG_PACKAGE_CONFIG_COMPONENT}"
+            "${ARG_PACKAGE_CONFIG_DESTINATION}"
+            "${ARG_PACKAGE_CONFIG_OUTPUT}"
+            "${ARG_PACKAGE_VERSION_OUTPUT}"
+        )
+    endif()
+
+    foreach(component IN LISTS components)
+        _snodec_component_property(
+            "${component}" RUNTIME_ONLY runtime_only
+        )
+        if(runtime_only)
+            _snodec_materialize_runtime_component("${component}")
+        else()
+            _snodec_materialize_library_component("${component}")
+        endif()
+    endforeach()
+
+    set_property(GLOBAL PROPERTY SNODEC_FINALIZED_COMPONENTS ${components})
+    set_property(GLOBAL PROPERTY SNODEC_COMPONENTS_FINALIZED TRUE)
+endfunction()
+
+function(snodec_get_components result)
+    _snodec_require_finalized("snodec_get_components")
+    get_property(components GLOBAL PROPERTY SNODEC_FINALIZED_COMPONENTS)
+    set(${result} "${components}" PARENT_SCOPE)
+endfunction()
+
+function(snodec_get_public_components result)
+    _snodec_require_finalized("snodec_get_public_components")
+    _snodec_public_components(public_components)
+    set(${result} "${public_components}" PARENT_SCOPE)
+endfunction()
+
+function(snodec_get_component_dependency_definitions result)
+    _snodec_require_finalized(
+        "snodec_get_component_dependency_definitions"
+    )
+    _snodec_component_dependency_definitions(dependency_definitions)
+    set(${result} "${dependency_definitions}" PARENT_SCOPE)
+endfunction()
+
+# Packaging adapters can enumerate snodec_get_components() and query this
+# normalized metadata. Runtime/development install component names are stable
+# inputs for both CPack and external systems such as OpenWrt package recipes.
+function(snodec_get_component_metadata component result_prefix)
+    _snodec_require_finalized("snodec_get_component_metadata")
+
+    get_property(components GLOBAL PROPERTY SNODEC_FINALIZED_COMPONENTS)
+    if(NOT component IN_LIST components)
+        message(FATAL_ERROR "Unknown finalized SNode.C component '${component}'")
+    endif()
+
+    _snodec_component_property("${component}" DISPLAY_NAME display_name)
+    _snodec_component_property("${component}" DESCRIPTION description)
+    _snodec_component_property("${component}" TARGETS targets)
+    _snodec_component_property("${component}" PUBLIC public_component)
+    _snodec_component_property("${component}" RUNTIME_ONLY runtime_only)
+    _snodec_component_property(
+        "${component}" RESOLVED_RUNTIME_DEPENDS runtime_dependencies
+    )
+    _snodec_component_property(
+        "${component}" RESOLVED_DEVELOPMENT_DEPENDS
+        development_dependencies
+    )
+    _snodec_component_property(
+        "${component}" DECLARATION_SOURCE_DIR declaration_source_dir
+    )
+
+    set("${result_prefix}_NAME" "${component}" PARENT_SCOPE)
+    set("${result_prefix}_DISPLAY_NAME" "${display_name}" PARENT_SCOPE)
+    set("${result_prefix}_DESCRIPTION" "${description}" PARENT_SCOPE)
+    set("${result_prefix}_TARGETS" "${targets}" PARENT_SCOPE)
+    set(
+        "${result_prefix}_PUBLIC_COMPONENT" "${public_component}"
+        PARENT_SCOPE
+    )
+    set("${result_prefix}_RUNTIME_ONLY" "${runtime_only}" PARENT_SCOPE)
+    set(
+        "${result_prefix}_RUNTIME_DEPENDS" "${runtime_dependencies}"
+        PARENT_SCOPE
+    )
+    set(
+        "${result_prefix}_DEVELOPMENT_DEPENDS"
+        "${development_dependencies}"
+        PARENT_SCOPE
+    )
+    set(
+        "${result_prefix}_DECLARATION_SOURCE_DIR"
+        "${declaration_source_dir}"
+        PARENT_SCOPE
+    )
+    set(
+        "${result_prefix}_RUNTIME_INSTALL_COMPONENT" "${component}"
+        PARENT_SCOPE
+    )
+    if(runtime_only)
+        set(
+            "${result_prefix}_DEVELOPMENT_INSTALL_COMPONENT" ""
+            PARENT_SCOPE
+        )
+    else()
+        set(
+            "${result_prefix}_DEVELOPMENT_INSTALL_COMPONENT"
+            "${component}-dev"
+            PARENT_SCOPE
+        )
+    endif()
+endfunction()
+
 macro(snodec_finalize_cpack_components)
-    get_property(_snodec_base_components GLOBAL PROPERTY SNODEC_BASE_COMPONENTS)
+    _snodec_require_finalized("snodec_finalize_cpack_components")
+
+    get_property(
+        _snodec_base_components GLOBAL PROPERTY SNODEC_FINALIZED_COMPONENTS
+    )
     get_property(
         _snodec_referenced_install_components GLOBAL
         PROPERTY SNODEC_REFERENCED_INSTALL_COMPONENTS
     )
-    list(REMOVE_DUPLICATES _snodec_base_components)
     list(REMOVE_DUPLICATES _snodec_referenced_install_components)
-
-    if(NOT _snodec_base_components)
-        message(FATAL_ERROR "No SNode.C components were registered")
-    endif()
-
-    _snodec_validate_component_dependency_graph(RUNTIME)
-    _snodec_validate_component_dependency_graph(DEVELOPMENT)
 
     set(_snodec_cpack_components)
     foreach(_snodec_component IN LISTS _snodec_base_components)
@@ -855,31 +1369,16 @@ macro(snodec_finalize_cpack_components)
         _snodec_component_property(
             "${_snodec_component}" RUNTIME_ONLY _snodec_runtime_only
         )
-        _snodec_component_dependencies(
+        _snodec_component_property(
             "${_snodec_component}"
-            RUNTIME
+            RESOLVED_RUNTIME_DEPENDS
             _snodec_runtime_dependencies
         )
-        _snodec_component_dependencies(
+        _snodec_component_property(
             "${_snodec_component}"
-            DEVELOPMENT
+            RESOLVED_DEVELOPMENT_DEPENDS
             _snodec_development_dependencies
         )
-
-        set(
-            _snodec_referenced_dependencies
-            ${_snodec_runtime_dependencies}
-            ${_snodec_development_dependencies}
-        )
-        list(REMOVE_DUPLICATES _snodec_referenced_dependencies)
-        foreach(_snodec_dependency IN LISTS _snodec_referenced_dependencies)
-            if(NOT _snodec_dependency IN_LIST _snodec_base_components)
-                message(
-                    FATAL_ERROR
-                        "SNode.C component '${_snodec_component}' depends on unregistered component '${_snodec_dependency}'"
-                )
-            endif()
-        endforeach()
 
         if(NOT _snodec_component IN_LIST _snodec_referenced_install_components)
             message(
@@ -970,7 +1469,8 @@ macro(snodec_finalize_cpack_components)
         if(NOT _snodec_referenced_component IN_LIST _snodec_cpack_components)
             message(
                 FATAL_ERROR
-                    "Install rules reference unregistered SNode.C component '${_snodec_referenced_component}'"
+                    "Install rules reference unregistered SNode.C component "
+                    "'${_snodec_referenced_component}'"
             )
         endif()
     endforeach()
@@ -984,7 +1484,8 @@ macro(snodec_finalize_cpack_components)
         if(NOT _snodec_install_component IN_LIST _snodec_cpack_components)
             message(
                 FATAL_ERROR
-                    "CMake install component '${_snodec_install_component}' has no SNode.C CPack registration"
+                    "CMake install component '${_snodec_install_component}' "
+                    "has no SNode.C CPack registration"
             )
         endif()
     endforeach()

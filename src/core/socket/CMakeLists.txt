@@ -62,19 +62,17 @@ set_target_properties(
 
 snodec_add_component(
     TARGET core-socket
-)
 
-snodec_install_component_headers(
-    COMPONENT core-socket
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS
-        "."
-        stream
-        dgram
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core/socket
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            "."
+            stream
+            dgram
 )
 
 add_subdirectory(stream)

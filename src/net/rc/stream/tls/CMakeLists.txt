@@ -77,14 +77,12 @@ set(NET-RC-STREAM-TLS
 snodec_add_component(
     TARGET net-rc-stream-tls
     PUBLIC_COMPONENT
-)
 
-snodec_install_component_headers(
-    COMPONENT net-rc-stream-tls
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream/tls
-    PATTERNS
-        "*.h"
-        "*.hpp"
-    EXCLUDE_PATTERNS cmake
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/rc/stream/tls
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )
