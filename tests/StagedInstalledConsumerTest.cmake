@@ -1,6 +1,19 @@
+if(NOT SNODEC_BUILD_DIR)
+    message(FATAL_ERROR "SNODEC_BUILD_DIR is required")
+endif()
+if(NOT SNODEC_INSTALL_LIBDIR)
+    message(FATAL_ERROR "SNODEC_INSTALL_LIBDIR is required")
+endif()
+if(NOT SNODEC_INSTALL_INCLUDEDIR)
+    message(FATAL_ERROR "SNODEC_INSTALL_INCLUDEDIR is required")
+endif()
+
 set(stage "${SNODEC_BUILD_DIR}/staged-installed-consumer")
 set(prefix "${stage}/prefix")
 set(consumer "${stage}/consumer.cpp")
+set(include_directory "${prefix}/${SNODEC_INSTALL_INCLUDEDIR}/snode.c")
+set(library_directory "${prefix}/${SNODEC_INSTALL_LIBDIR}")
+set(http_library_directory "${library_directory}/snode.c/web/http")
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
 
@@ -21,7 +34,7 @@ foreach(private_header IN
         ITEMS core/EventLoop.h core/EventMultiplexer.h
               core/DescriptorEventPublisher.h core/TimerEventPublisher.h
 )
-    if(EXISTS "${prefix}/include/snode.c/${private_header}")
+    if(EXISTS "${include_directory}/${private_header}")
         message(FATAL_ERROR "private header installed: ${private_header}")
     endif()
 endforeach()
@@ -31,26 +44,41 @@ file(
     "#include <core/socket/stream/SocketServer.h>\n#include <core/socket/stream/SocketClient.h>\n#include <net/in/stream/legacy/SocketServer.h>\n#include <net/in/stream/legacy/SocketClient.h>\n#include <express/legacy/in/Server.h>\nint main() { return 0; }\n"
 )
 set(exe "${stage}/consumer")
+set(
+    consumer_compile_command
+    "${CMAKE_CXX_COMPILER}"
+    -std=c++20
+    "${consumer}"
+    "-I${include_directory}"
+    "-L${library_directory}"
+    "-L${http_library_directory}"
+    "-Wl,-rpath,${library_directory}"
+    "-Wl,-rpath,${http_library_directory}"
+    -lsnodec-core
+    -lsnodec-core-socket
+    -lsnodec-core-socket-stream
+    -lsnodec-net
+    -lsnodec-net-in
+    -lsnodec-net-in-phy
+    -lsnodec-net-in-phy-stream
+    -lsnodec-net-in-stream
+    -lsnodec-core-socket-stream-legacy
+    -lsnodec-net-in-stream-legacy
+    -lsnodec-http
+    -lsnodec-http-server
+    -lsnodec-http-server-express
+    -lsnodec-http-server-express-legacy-in
+    -o
+    "${exe}"
+)
 execute_process(
-    COMMAND
-        "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}"
-        "-I${prefix}/include/snode.c" "-L${prefix}/lib"
-        "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib"
-        "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core
-        -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net
-        -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream
-        -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy
-        -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server
-        -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o
-        "${exe}"
+    COMMAND ${consumer_compile_command}
     RESULT_VARIABLE compile_result
     OUTPUT_VARIABLE compile_output
     ERROR_VARIABLE compile_error
 )
-message(
-    STATUS
-        "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}"
-)
+string(JOIN " " consumer_compile_command_text ${consumer_compile_command})
+message(STATUS "Installed consumer compile command: ${consumer_compile_command_text}")
 if(NOT compile_result EQUAL 0)
     message(
         FATAL_ERROR
@@ -70,19 +98,16 @@ if(NOT run_result EQUAL 0)
     )
 endif()
 
-file(
-    GLOB snodec_config_files
-    LIST_DIRECTORIES FALSE
-    "${prefix}/lib*/cmake/snodec/snodecConfig.cmake"
+set(
+    snodec_config_file
+    "${library_directory}/cmake/snodec/snodecConfig.cmake"
 )
-list(LENGTH snodec_config_files snodec_config_file_count)
-if(NOT snodec_config_file_count EQUAL 1)
+if(NOT EXISTS "${snodec_config_file}")
     message(
         FATAL_ERROR
-            "expected one installed snodecConfig.cmake, found ${snodec_config_file_count}: ${snodec_config_files}"
+            "installed snodecConfig.cmake not found: ${snodec_config_file}"
     )
 endif()
-list(GET snodec_config_files 0 snodec_config_file)
 get_filename_component(snodec_config_dir "${snodec_config_file}" DIRECTORY)
 
 set(generic_consumer_source "${stage}/generic-cmake-consumer")
