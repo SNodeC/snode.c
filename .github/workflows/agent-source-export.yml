@@ -1,0 +1,26 @@
+name: Agent source export
+
+on:
+  push:
+    branches:
+      - agent/fix-cpack-component-graph
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Create source snapshot
+        run: |
+          git rev-parse 'HEAD^{tree}' > /tmp/base-tree-sha.txt
+          tar --exclude=.git -czf /tmp/snodec-source.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent-source-export
+          path: |
+            /tmp/snodec-source.tar.gz
+            /tmp/base-tree-sha.txt
+          if-no-files-found: error
+          retention-days: 1
