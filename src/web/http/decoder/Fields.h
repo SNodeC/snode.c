@@ -42,6 +42,8 @@
 #ifndef WEB_HTTP_DECODER_HEADER_H
 #define WEB_HTTP_DECODER_HEADER_H
 
+#include "web/http/ParserLimits.h"
+
 namespace core::socket::stream {
     class SocketContext;
 }
@@ -60,7 +62,9 @@ namespace web::http::decoder {
 
     class Fields {
     public:
-        explicit Fields(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected = {});
+        explicit Fields(core::socket::stream::SocketContext* socketContext,
+                        std::set<std::string> fieldsExpected = {},
+                        const web::http::ParserLimits& limits = {});
         Fields(Fields&) = delete;
         Fields(Fields&&) = delete;
 
@@ -89,6 +93,10 @@ namespace web::http::decoder {
 
         std::string line;
         std::size_t maxLineLength;
+        std::size_t maximumBytes;
+        std::size_t maximumFields;
+        std::size_t totalBytes = 0;
+        std::size_t fieldCount = 0;
 
         bool completed = false;
         int errorCode = 0;

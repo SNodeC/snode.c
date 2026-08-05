@@ -41,6 +41,10 @@
 
 #include "web/http/server/SocketContextFactory.h"
 
+#include "core/socket/stream/SocketConnection.h"
+#include "net/config/ConfigInstance.h"
+#include "web/http/server/ConfigHttpServer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -53,7 +57,8 @@ namespace web::http::server {
     }
 
     core::socket::stream::SocketContext* SocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return new web::http::server::SocketContext(socketConnection, onRequestReady);
+        const auto* config = socketConnection->getConfigInstance()->getSubCommand<ConfigHttpServer>();
+        return new web::http::server::SocketContext(socketConnection, onRequestReady, config->getParserLimits(), config->getServerPolicy());
     }
 
 } // namespace web::http::server

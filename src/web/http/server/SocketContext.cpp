@@ -57,13 +57,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace web::http {
+    struct ParserLimits;
+}
+
 namespace web::http::server {
 
     SocketContext::SocketContext(
         core::socket::stream::SocketConnection* socketConnection,
-        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady)
+        const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady,
+        const web::http::ParserLimits& parserLimits,
+        const HttpServerPolicy& serverPolicy)
         : Super(socketConnection)
         , onRequestReady(onRequestReady)
+        , serverPolicy(serverPolicy)
         , masterResponse(std::make_shared<Response>(this))
         , parser(
               this,
@@ -76,8 +83,26 @@ namespace web::http::server {
                   frameworkLog().debug() << "HTTP: Request parse success: " << request.method << " " << request.url << " HTTP/"
                                          << request.httpMajor << "." << request.httpMinor;
 
+                  const bool pipelineRejected = !this->serverPolicy.allowPipelining && !pendingRequests.empty();
+                  const bool pendingLimitReached =
+                      this->serverPolicy.maximumPendingRequests != 0 && pendingRequests.size() >= this->serverPolicy.maximumPendingRequests;
+                  if (pipelineRejected || pendingLimitReached) {
+                      frameworkLog().warn() << "HTTP: Request rejected by server resource policy";
+                      semantic::httpServerLog(*getSocketConnection()).debug() << "request failed: id=" << parsingRequestId;
+                      parsingRequest = false;
+                      shutdownRead();
+                      close();
+                      return;
+                  }
+
                   pendingRequests.push_back({std::make_shared<Request>(std::move(request)), parsingRequestId, false});
                   parsingRequest = false;
+
+                  const bool bufferedPipelinedRequest = !this->serverPolicy.allowPipelining && getTotalRead() > getTotalProcessed();
+                  if (bufferedPipelinedRequest) {
+                      closeAfterCurrentResponse = true;
+                      shutdownRead();
+                  }
 
                   if (pendingRequests.size() == 1) {
                       deliverRequest();
@@ -91,12 +116,22 @@ namespace web::http::server {
                   parsingRequest = false;
                   shutdownRead();
 
+                  const bool pipelineRejected = !this->serverPolicy.allowPipelining && !pendingRequests.empty();
+                  const bool pendingLimitReached =
+                      this->serverPolicy.maximumPendingRequests != 0 && pendingRequests.size() >= this->serverPolicy.maximumPendingRequests;
+                  if (pipelineRejected || pendingLimitReached) {
+                      close();
+                      return;
+                  }
+
                   pendingRequests.push_back({std::make_shared<Request>(Request(status, reason)), parsingRequestId, true});
 
                   if (pendingRequests.size() == 1) {
                       deliverRequest();
                   }
-              }) {
+              },
+              parserLimits,
+              serverPolicy.allowChunkedTransfer) {
     }
 
     SocketContext* SocketContext::setOnConnected(std::function<void()> onConnectEventReceiver) {
@@ -200,7 +235,7 @@ namespace web::http::server {
                                                 .append(" ")
                                                 .append(StatusCode::reason(response.statusCode));
 
-        httpClose = response.connectionState == ConnectionState::Close ||
+        httpClose = closeAfterCurrentResponse || response.connectionState == ConnectionState::Close ||
                     (response.connectionState == ConnectionState::Default &&
                      ((response.httpMajor == 0 && response.httpMinor == 9) || (response.httpMajor == 1 && response.httpMinor == 0)));
 

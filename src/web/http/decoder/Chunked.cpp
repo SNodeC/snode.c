@@ -47,8 +47,9 @@
 #include <algorithm>
 #include <cctype>
 #include <limits>
-#include <tuple>
 #include <stdexcept>
+#include <tuple>
+#include <utility>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,8 +57,9 @@
 
 namespace web::http::decoder {
 
-    Chunked::Chunked(const core::socket::stream::SocketContext* socketContext)
-        : socketContext(socketContext) {
+    Chunked::Chunked(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes)
+        : socketContext(socketContext)
+        , maximumBodyBytes(maximumBodyBytes) {
     }
 
     std::size_t Chunked::read() {
@@ -69,13 +71,16 @@ namespace web::http::decoder {
                 content.clear();
                 completed = false;
                 error = false;
+                sizeLimitExceeded = false;
 
                 state = 0;
 
                 [[fallthrough]];
             case 0:
                 do {
-                    ret = chunk.read(socketContext);
+                    const bool limited = maximumBodyBytes != 0;
+                    const std::size_t maximumChunkBytes = limited ? maximumBodyBytes - content.size() : 0;
+                    ret = chunk.read(socketContext, maximumChunkBytes, limited);
                     consumed += ret;
 
                     if (chunk.isComplete()) {
@@ -85,6 +90,7 @@ namespace web::http::decoder {
 
                     } else if (chunk.isError()) {
                         error = true;
+                        sizeLimitExceeded = chunk.isSizeLimitExceeded();
                     }
 
                     state = (completed || error) ? -1 : state;
@@ -98,7 +104,8 @@ namespace web::http::decoder {
     Chunked::Chunk::~Chunk() {
     }
 
-    inline std::size_t Chunked::Chunk::read(const core::socket::stream::SocketContext* socketContext) {
+    inline std::size_t
+    Chunked::Chunk::read(const core::socket::stream::SocketContext* socketContext, std::size_t maximumChunkBytes, bool limited) {
         std::size_t consumed = 0;
         std::size_t ret = 0;
         std::size_t pos = 0;
@@ -115,6 +122,7 @@ namespace web::http::decoder {
 
                 completed = false;
                 error = false;
+                sizeLimitExceeded = false;
 
                 state = 0;
 
@@ -175,13 +183,20 @@ namespace web::http::decoder {
                             break;
                         }
                         chunkLenTotal = static_cast<std::size_t>(parsedChunkLen);
-                        chunk.resize(chunkLenTotal);
 
                         if (chunkLenTotal == 0) {
+                            chunk.clear();
                             completed = true;
                             state = -1;
                             break;
                         }
+                        if (limited && chunkLenTotal > maximumChunkBytes) {
+                            error = true;
+                            sizeLimitExceeded = true;
+                            state = -1;
+                            break;
+                        }
+                        chunk.resize(chunkLenTotal);
                         state = 1;
                     } catch (std::invalid_argument&) {
                         error = true;
@@ -245,6 +260,10 @@ namespace web::http::decoder {
 
     inline bool Chunked::Chunk::isComplete() const {
         return completed;
+    }
+
+    inline bool Chunked::Chunk::isSizeLimitExceeded() const {
+        return sizeLimitExceeded;
     }
 
     std::vector<char>::iterator Chunked::Chunk::begin() {

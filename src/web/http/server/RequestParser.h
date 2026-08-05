@@ -45,6 +45,10 @@
 #include "web/http/Parser.h"
 #include "web/http/server/Request.h" // IWYU pragma: export
 
+namespace web::http {
+    struct ParserLimits;
+}
+
 namespace core::socket::stream {
     class SocketContext;
 } // namespace core::socket::stream
@@ -64,7 +68,9 @@ namespace web::http::server {
         RequestParser(core::socket::stream::SocketContext* socketContext,
                       const std::function<void()>& onRequestStart,
                       const std::function<void(Request&&)>& onRequestParsed,
-                      const std::function<void(int, const std::string&)>& onRequestParseError);
+                      const std::function<void(int, const std::string&)>& onRequestParseError,
+                      const web::http::ParserLimits& limits = {},
+                      bool allowChunkedTransfer = true);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -94,6 +100,8 @@ namespace web::http::server {
         std::function<void()> onRequestStart;
         std::function<void(Request&&)> onRequestParsed;
         std::function<void(int, const std::string&)> onRequestParseError;
+
+        const bool allowChunkedTransfer;
     };
 
 } // namespace web::http::server

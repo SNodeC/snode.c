@@ -45,6 +45,7 @@
 
 #include "web/http/http_utils.h"
 
+#include <cstddef>
 #include <regex>
 #include <tuple>
 #include <utility>
@@ -56,11 +57,14 @@ namespace web::http::server {
     RequestParser::RequestParser(core::socket::stream::SocketContext* socketContext,
                                  const std::function<void()>& onRequestStart,
                                  const std::function<void(Request&&)>& onRequestParsed,
-                                 const std::function<void(int, const std::string&)>& onRequestParseError)
-        : Parser(socketContext)
+                                 const std::function<void(int, const std::string&)>& onRequestParseError,
+                                 const web::http::ParserLimits& limits,
+                                 bool allowChunkedTransfer)
+        : Parser(socketContext, HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230, limits)
         , onRequestStart(onRequestStart)
         , onRequestParsed(onRequestParsed)
-        , onRequestParseError(onRequestParseError) {
+        , onRequestParseError(onRequestParseError)
+        , allowChunkedTransfer(allowChunkedTransfer) {
     }
 
     bool RequestParser::methodSupported(const std::string& method) const {
@@ -174,6 +178,11 @@ namespace web::http::server {
 
             if (chunkedCount != 1 || codings.size() != 1) {
                 parseError(400, "Invalid Transfer-Encoding");
+                return;
+            }
+
+            if (!allowChunkedTransfer) {
+                parseError(501, "Chunked request transfer encoding disabled");
                 return;
             }
 

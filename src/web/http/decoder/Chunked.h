@@ -72,10 +72,11 @@ namespace web::http::decoder {
 
             ~Chunk();
 
-            inline std::size_t read(const core::socket::stream::SocketContext* socketContext);
+            inline std::size_t read(const core::socket::stream::SocketContext* socketContext, std::size_t maximumChunkBytes, bool limited);
 
             bool isError() const;
             bool isComplete() const;
+            bool isSizeLimitExceeded() const;
 
             std::vector<char>::iterator begin();
             std::vector<char>::iterator end();
@@ -96,21 +97,23 @@ namespace web::http::decoder {
 
             bool error = false;
             bool completed = false;
+            bool sizeLimitExceeded = false;
         };
 
     public:
-        explicit Chunked(const core::socket::stream::SocketContext* socketContext);
+        explicit Chunked(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes = 0);
 
         Chunked(const Chunked&) = delete;
         Chunked(Chunked&&) noexcept = default;
 
         Chunked& operator=(const Chunked&) = delete;
-        Chunked& operator=(Chunked&&) noexcept = default;
+        Chunked& operator=(Chunked&&) noexcept = delete;
 
     private:
         std::size_t read() override;
 
         const core::socket::stream::SocketContext* socketContext;
+        const std::size_t maximumBodyBytes;
 
         Chunk chunk;
 
