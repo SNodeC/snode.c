@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
+#include "web/http/ParserLimits.h"
 #include "web/http/TransferEncoding.h" // IWYU pragma: export
 #include "web/http/decoder/Fields.h"
 
@@ -85,7 +86,8 @@ namespace web::http {
 
     public:
         explicit Parser(core::socket::stream::SocketContext* socketContext,
-                        const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
+                        const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230,
+                        const ParserLimits& limits = {});
 
         virtual ~Parser();
 
@@ -130,6 +132,8 @@ namespace web::http {
 
         core::socket::stream::SocketContext* socketContext = nullptr;
 
+        const ParserLimits limits;
+
     private:
         web::http::decoder::Fields headerDecoder;
 
@@ -144,6 +148,7 @@ namespace web::http {
     protected:
         // Used during parseing data
         std::string line;
+        std::size_t startLineBytes = 0;
         std::size_t contentLength = 0;
         std::size_t contentLengthRead = 0;
 

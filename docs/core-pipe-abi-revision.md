@@ -10,7 +10,7 @@ core C++ ABI and is covered by the same rebuild requirement.
 
 All SNode.C libraries and every consuming application or plugin must be rebuilt. Binaries built against the old and new core must not be mixed.
 
-Before any binary release, release engineering must assign a new SONAME or bump the project major version consistently for `snodec-core` and affected dependent components. The project version remains unchanged by this development correction; that must not be interpreted as a binary-compatibility claim.
+SNode.C 2.0 assigns the required new ABI epoch consistently: the project version is `2.0.0` and all SNode.C shared libraries use `SOVERSION 2`. Binaries linked against the SNode.C 1.x SONAMEs cannot be mixed with SNode.C 2.0. See [Migrating to SNode.C 2.0](migration-2.0.md) for the complete rebuild and source-migration guidance.
 
 `Pipe::isValid()` now means that the object owns at least one endpoint. Code
 that requires a newly created complete pipe must test both `hasReadFd()` and

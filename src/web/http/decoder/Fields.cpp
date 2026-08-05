@@ -52,15 +52,16 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define MAX_LINE_LENGTH 8192
-// #define MAX_LINE_LENGTH 1
-
 namespace web::http::decoder {
 
-    Fields::Fields(core::socket::stream::SocketContext* socketContext, std::set<std::string> fieldsExpected)
+    Fields::Fields(core::socket::stream::SocketContext* socketContext,
+                   std::set<std::string> fieldsExpected,
+                   const web::http::ParserLimits& limits)
         : socketContext(socketContext)
         , fieldsExpected(std::move(fieldsExpected))
-        , maxLineLength(MAX_LINE_LENGTH) {
+        , maxLineLength(limits.maximumHeaderLineBytes)
+        , maximumBytes(limits.maximumHeaderBytes)
+        , maximumFields(limits.maximumHeaderFields) {
     }
 
     void Fields::setFieldsExpected(std::set<std::string> fieldsExpected) {
@@ -75,6 +76,11 @@ namespace web::http::decoder {
             fields.clear();
             errorCode = 0;
             errorReason = "";
+            line.clear();
+            totalBytes = 0;
+            fieldCount = 0;
+            lastButOne = '\0';
+            last = '\0';
         }
 
         std::size_t ret = 0;
@@ -85,7 +91,11 @@ namespace web::http::decoder {
             consumed += ret;
 
             if (ret > 0) {
-                if (!line.empty() || ch != ' ') {
+                ++totalBytes;
+                if (maximumBytes != 0 && totalBytes > maximumBytes) {
+                    errorCode = 431;
+                    errorReason = "HTTP header section too large";
+                } else if (!line.empty() || ch != ' ') {
                     line += ch;
 
                     if (maxLineLength == 0 || line.size() <= maxLineLength) {
@@ -98,9 +108,15 @@ namespace web::http::decoder {
 
                             completed = line.empty();
                             if (!completed) {
-                                splitLine(line);
+                                ++fieldCount;
+                                if (maximumFields != 0 && fieldCount > maximumFields) {
+                                    errorCode = 431;
+                                    errorReason = "Too many HTTP header fields";
+                                } else {
+                                    splitLine(line);
+                                }
 
-                                if (!fieldsExpected.empty() && fields.size() > fieldsExpected.size()) {
+                                if (errorCode == 0 && !fieldsExpected.empty() && fields.size() > fieldsExpected.size()) {
                                     errorCode = 400;
                                     errorReason = "Too many fields";
                                 }
@@ -116,7 +132,7 @@ namespace web::http::decoder {
                         }
                     } else {
                         errorCode = 431;
-                        errorReason = "Line too long: " + line;
+                        errorReason = "HTTP header line too long";
                     }
                 } else {
                     errorCode = 400;

@@ -52,6 +52,14 @@ namespace web::http::server {
     class SocketContext;
 } // namespace web::http::server
 
+namespace core::pipe {
+    class Source;
+}
+
+namespace core::socket::stream {
+    enum class QueueResult;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "web/http/CiStringMap.h" // IWYU pragma: export
@@ -99,6 +107,9 @@ namespace web::http::server {
         void sendStatus(int statusCode);
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string&)>& status);
         void sendFile(const std::string& file, const std::function<void(int)>& onStatus);
+
+        // Attaches a Source to the response streaming lifecycle.
+        bool pipe(core::pipe::Source* source);
         void end();
 
         Response& sendHeader();
@@ -106,7 +117,10 @@ namespace web::http::server {
         Response& sendFragment(const std::string& chunk = "");
 
     private:
-        void sendCompleted();
+        void sendCompleted(bool boundedStream = false);
+        core::socket::stream::QueueResult trySendHeader();
+        core::socket::stream::QueueResult trySendFragment(const char* chunk, std::size_t chunkLen);
+        void onSourceQueueError(core::socket::stream::QueueResult queueResult);
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* chunk, std::size_t chunkLen) override;
@@ -132,6 +146,7 @@ namespace web::http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
         bool sourceFailed = false;
+        bool sourceConnectAccepted = false;
 
         web::http::server::SocketContext* socketContext = nullptr;
 

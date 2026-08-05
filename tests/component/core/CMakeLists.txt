@@ -55,6 +55,7 @@ snodec_add_test(PipeTimeoutTest PipeTimeoutTest.cpp)
 snodec_add_test(
     DescriptorRegistrationFailureTest DescriptorRegistrationFailureTest.cpp
 )
+snodec_add_test(FileReaderTest FileReaderTest.cpp)
 
 target_link_libraries(
     SingleshotTimerTest PRIVATE snodec-test-support snodec::core
@@ -91,6 +92,7 @@ target_link_libraries(PipeTimeoutTest PRIVATE snodec-test-support snodec::core)
 target_link_libraries(
     DescriptorRegistrationFailureTest PRIVATE snodec-test-support snodec::core
 )
+target_link_libraries(FileReaderTest PRIVATE snodec-test-support snodec::core)
 
 target_compile_features(SingleshotTimerTest PRIVATE cxx_std_20)
 target_compile_features(IntervalTimerStopableTest PRIVATE cxx_std_20)
@@ -104,6 +106,7 @@ target_compile_features(PipeImmediateCloseTest PRIVATE cxx_std_20)
 target_compile_features(PipeSinkFairnessTest PRIVATE cxx_std_20)
 target_compile_features(PipeTimeoutTest PRIVATE cxx_std_20)
 target_compile_features(DescriptorRegistrationFailureTest PRIVATE cxx_std_20)
+target_compile_features(FileReaderTest PRIVATE cxx_std_20)
 
 set_tests_properties(
     SingleshotTimerTest PROPERTIES LABELS "component;core;timer"
@@ -158,4 +161,8 @@ set_tests_properties(
 set_tests_properties(
     DescriptorRegistrationFailureTest
     PROPERTIES LABELS "component;core;descriptor" SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+set_tests_properties(
+    FileReaderTest PROPERTIES LABELS "component;core;file;streaming"
+                               SKIP_RETURN_CODE 77 TIMEOUT 5
 )

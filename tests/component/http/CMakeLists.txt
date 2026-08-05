@@ -3,6 +3,9 @@
 #               2020, 2021, 2022, 2023, 2024, 2025, 2026
 
 snodec_add_test(InetHttpServerClientGetRoundTripTest InetHttpServerClientGetRoundTripTest.cpp)
+snodec_add_test(InetHttpClientParserLimitTest InetHttpClientParserLimitTest.cpp)
+snodec_add_test(InetHttpServerRequestPolicyTest InetHttpServerRequestPolicyTest.cpp)
+snodec_add_test(InetHttpServerPipeliningPolicyTest InetHttpServerPipeliningPolicyTest.cpp)
 snodec_add_test(Inet6HttpServerClientGetRoundTripTest Inet6HttpServerClientGetRoundTripTest.cpp)
 snodec_add_test(UnixHttpServerClientGetRoundTripTest UnixHttpServerClientGetRoundTripTest.cpp)
 
@@ -14,6 +17,9 @@ snodec_add_test(Inet6HttpServerClientStatusVariantTest Inet6HttpServerClientStat
 snodec_add_test(UnixHttpServerClientStatusVariantTest UnixHttpServerClientStatusVariantTest.cpp)
 
 target_link_libraries(InetHttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpClientParserLimitTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerRequestPolicyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetHttpServerPipeliningPolicyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
 target_link_libraries(Inet6HttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in6-stream-legacy)
 target_link_libraries(UnixHttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-un-stream-legacy)
 
@@ -25,6 +31,9 @@ target_link_libraries(Inet6HttpServerClientStatusVariantTest PRIVATE snodec-test
 target_link_libraries(UnixHttpServerClientStatusVariantTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-un-stream-legacy)
 
 target_compile_features(InetHttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpClientParserLimitTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerRequestPolicyTest PRIVATE cxx_std_20)
+target_compile_features(InetHttpServerPipeliningPolicyTest PRIVATE cxx_std_20)
 target_compile_features(Inet6HttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
 target_compile_features(UnixHttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
 
@@ -37,6 +46,21 @@ target_compile_features(UnixHttpServerClientStatusVariantTest PRIVATE cxx_std_20
 
 set_tests_properties(InetHttpServerClientGetRoundTripTest PROPERTIES
                      LABELS "component;http;client;server;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetHttpClientParserLimitTest PROPERTIES
+                     LABELS "component;http;client;parser-limit;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetHttpServerRequestPolicyTest PROPERTIES
+                     LABELS "component;http;server;request-policy;pending;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetHttpServerPipeliningPolicyTest PROPERTIES
+                     LABELS "component;http;server;request-policy;pipelining;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 

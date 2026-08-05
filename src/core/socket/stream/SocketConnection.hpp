@@ -57,6 +57,34 @@
 
 namespace core::socket::stream {
 
+    namespace detail {
+
+        template <typename Config>
+        std::size_t maximumWriteQueueBytes(const Config& config) {
+            if constexpr (requires { config.getMaximumWriteQueueBytes(); }) {
+                return config.getMaximumWriteQueueBytes();
+            }
+            return 0;
+        }
+
+        template <typename Config>
+        std::size_t writeQueueHighWatermark(const Config& config) {
+            if constexpr (requires { config.getWriteQueueHighWatermark(); }) {
+                return config.getWriteQueueHighWatermark();
+            }
+            return 0;
+        }
+
+        template <typename Config>
+        std::size_t writeQueueLowWatermark(const Config& config) {
+            if constexpr (requires { config.getWriteQueueLowWatermark(); }) {
+                return config.getWriteQueueLowWatermark();
+            }
+            return 0;
+        }
+
+    } // namespace detail
+
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
     SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
         typename SocketAddress::SockAddr localSockAddr;
@@ -144,7 +172,10 @@ namespace core::socket::stream {
               },
               config->getWriteTimeout(),
               config->getWriteBlockSize(),
-              config->getTerminateTimeout())
+              config->getTerminateTimeout(),
+              detail::maximumWriteQueueBytes(*config),
+              detail::writeQueueHighWatermark(*config),
+              detail::writeQueueLowWatermark(*config))
         , physicalSocket(std::move(physicalSocket))
         , onDisconnect(onDisconnect)
         , localAddress(getLocalSocketAddress<SocketAddress>(this->physicalSocket, config))
@@ -219,6 +250,12 @@ namespace core::socket::stream {
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::sendToPeer(const char* chunk, std::size_t chunkLen) {
         SocketWriter::sendToPeer(chunk, chunkLen);
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    QueueResult SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::trySendToPeer(const char* chunk,
+                                                                                                     std::size_t chunkLen) {
+        return SocketWriter::trySendToPeer(chunk, chunkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>

@@ -54,6 +54,11 @@ namespace core::system {
         return ::open(pathname, flags);
     }
 
+    int openat(int directoryFd, const char* pathname, int flags) {
+        errno = 0;
+        return ::openat(directoryFd, pathname, flags);
+    }
+
     ssize_t read(int fd, void* buf, std::size_t count) {
         errno = 0;
         return ::read(fd, buf, count);

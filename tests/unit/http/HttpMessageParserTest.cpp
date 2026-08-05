@@ -9,6 +9,7 @@
 #include "core/socket/stream/SocketContext.h"
 #include "support/TestResult.h"
 #include "web/http/CiStringMap.h"
+#include "web/http/ParserLimits.h"
 #include "web/http/client/ResponseParser.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/RequestParser.h"
@@ -166,7 +167,8 @@ namespace {
         std::size_t consumed = 0;
     };
 
-    RequestParseResult parseRequestMessage(const std::string& message) {
+    RequestParseResult
+    parseRequestMessage(const std::string& message, const web::http::ParserLimits& limits = {}, bool allowChunkedTransfer = true) {
         BufferSocketConnection connection(message);
         BufferSocketContext context(&connection);
         RequestParseResult result;
@@ -183,7 +185,9 @@ namespace {
             [&result](int code, const std::string& reason) {
                 result.errorCode = code;
                 result.errorReason = reason;
-            });
+            },
+            limits,
+            allowChunkedTransfer);
 
         std::size_t consumed = 0;
         do {
@@ -194,7 +198,7 @@ namespace {
         return result;
     }
 
-    ResponseParseResult parseResponseMessage(const std::string& message) {
+    ResponseParseResult parseResponseMessage(const std::string& message, const web::http::ParserLimits& limits = {}) {
         BufferSocketConnection connection(message);
         BufferSocketContext context(&connection);
         ResponseParseResult result;
@@ -211,7 +215,8 @@ namespace {
             [&result](int code, const std::string& reason) {
                 result.errorCode = code;
                 result.errorReason = reason;
-            });
+            },
+            limits);
 
         std::size_t consumed = 0;
         do {
@@ -549,6 +554,115 @@ int main() {
         testResult.expectTrue(emptyInput.errorReason.empty(), "response parser leaves error reason empty for empty input boundary");
     }
 
+    {
+        const web::http::ParserLimits defaults;
+        testResult.expectEqual(std::size_t{0}, defaults.maximumStartLineBytes, "HTTP start-line size is unlimited by default");
+        testResult.expectEqual(std::size_t{8192}, defaults.maximumHeaderLineBytes, "HTTP header-line default remains 8192 bytes");
+        testResult.expectEqual(std::size_t{0}, defaults.maximumHeaderBytes, "HTTP header section is unlimited by default");
+        testResult.expectEqual(std::size_t{0}, defaults.maximumHeaderFields, "HTTP header field count is unlimited by default");
+        testResult.expectEqual(std::size_t{0}, defaults.maximumBodyBytes, "HTTP body size is unlimited by default");
+
+        web::http::ParserLimits limits;
+        limits.maximumStartLineBytes = 16;
+        testResult.expectTrue(parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits).parsed,
+                              "request start line at configured boundary parses");
+        limits.maximumStartLineBytes = 15;
+        const RequestParseResult oversizedRequestLine = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedRequestLine.parsed && oversizedRequestLine.errorCode == 431,
+                              "server request parser rejects an oversized start line");
+
+        limits = {};
+        limits.maximumStartLineBytes = 17;
+        testResult.expectTrue(parseResponseMessage("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n", limits).parsed,
+                              "response start line at configured boundary parses");
+        limits.maximumStartLineBytes = 16;
+        const ResponseParseResult oversizedResponseLine = parseResponseMessage("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedResponseLine.parsed && oversizedResponseLine.errorCode == 431,
+                              "client response parser uses the shared start-line limit");
+
+        limits.maximumStartLineBytes = 16;
+        const RequestParseResult embeddedCarriageReturns = parseRequestMessage("GET \r\r\r\r/ HTTP/1.1\r\nHost: x\r\n\r\n", limits);
+        testResult.expectTrue(!embeddedCarriageReturns.parsed && embeddedCarriageReturns.errorCode == 431,
+                              "start-line limit counts ignored carriage-return wire bytes");
+    }
+
+    {
+        web::http::ParserLimits limits;
+        limits.maximumHeaderLineBytes = 9;
+        testResult.expectTrue(parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits).parsed,
+                              "header line at configured byte boundary parses");
+        limits.maximumHeaderLineBytes = 8;
+        const RequestParseResult oversizedHeaderLine = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedHeaderLine.parsed && oversizedHeaderLine.errorCode == 431,
+                              "server request parser rejects an oversized header line");
+
+        limits = {};
+        limits.maximumHeaderBytes = 11;
+        testResult.expectTrue(parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits).parsed,
+                              "header section at configured byte boundary parses");
+        limits.maximumHeaderBytes = 10;
+        const RequestParseResult oversizedHeaders = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedHeaders.parsed && oversizedHeaders.errorCode == 431,
+                              "server request parser rejects an oversized header section");
+
+        limits = {};
+        limits.maximumHeaderFields = 2;
+        testResult.expectTrue(parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\nX-Test: yes\r\n\r\n", limits).parsed,
+                              "configured header-field boundary accepts the exact count");
+        limits.maximumHeaderFields = 1;
+        const RequestParseResult tooManyHeaders = parseRequestMessage("GET / HTTP/1.1\r\nHost: x\r\nX-Test: yes\r\n\r\n", limits);
+        testResult.expectTrue(!tooManyHeaders.parsed && tooManyHeaders.errorCode == 431,
+                              "configured header-field limit counts physical fields");
+
+        limits = {};
+        limits.maximumHeaderFields = 1;
+        const ResponseParseResult clientTooManyHeaders =
+            parseResponseMessage("HTTP/1.1 200 OK\r\nX-One: 1\r\nX-Two: 2\r\nContent-Length: 0\r\n\r\n", limits);
+        testResult.expectTrue(!clientTooManyHeaders.parsed && clientTooManyHeaders.errorCode == 431,
+                              "client response parser uses the shared header-field limit");
+    }
+
+    {
+        web::http::ParserLimits limits;
+        limits.maximumBodyBytes = 5;
+        testResult.expectTrue(parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\n\r\nhello", limits).parsed,
+                              "Content-Length body at configured boundary parses");
+        limits.maximumBodyBytes = 4;
+        const RequestParseResult oversizedIdentity =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\n\r\nhello", limits);
+        testResult.expectTrue(!oversizedIdentity.parsed && oversizedIdentity.errorCode == 413,
+                              "server rejects oversized Content-Length before allocating the body");
+
+        limits.maximumBodyBytes = 5;
+        testResult.expectTrue(
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", limits).parsed,
+            "chunked body at configured boundary parses");
+        limits.maximumBodyBytes = 4;
+        const RequestParseResult oversizedChunk =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n0\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedChunk.parsed && oversizedChunk.errorCode == 413,
+                              "server rejects a declared chunk larger than the remaining body allowance");
+
+        limits.maximumBodyBytes = 5;
+        const RequestParseResult oversizedFragmentedBody = parseRequestMessage(
+            "POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n3\r\nabc\r\n3\r\ndef\r\n0\r\n\r\n", limits);
+        testResult.expectTrue(!oversizedFragmentedBody.parsed && oversizedFragmentedBody.errorCode == 413,
+                              "server enforces the body limit cumulatively across chunks");
+
+        limits.maximumBodyBytes = 4;
+        const ResponseParseResult oversizedClientBody = parseResponseMessage("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nhello", limits);
+        testResult.expectTrue(!oversizedClientBody.parsed && oversizedClientBody.errorCode == 413,
+                              "client response parser uses the shared Content-Length body limit");
+
+        const ResponseParseResult oversizedCloseDelimited = parseResponseMessage("HTTP/1.0 200 OK\r\n\r\nhello", limits);
+        testResult.expectTrue(!oversizedCloseDelimited.parsed && oversizedCloseDelimited.errorCode == 413,
+                              "client bounds close-delimited response bodies incrementally");
+
+        const RequestParseResult disabledChunked =
+            parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n", {}, false);
+        testResult.expectTrue(!disabledChunked.parsed && disabledChunked.errorCode == 501,
+                              "server policy can disable chunked request transfer encoding");
+    }
 
     {
         web::http::CiStringMap<std::string> headers;

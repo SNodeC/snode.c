@@ -60,6 +60,10 @@ namespace web::http {
         return error;
     }
 
+    bool ContentDecoder::isSizeLimitExceeded() const {
+        return sizeLimitExceeded;
+    }
+
     std::vector<char>&& ContentDecoder::getContent() {
         return std::move(content);
     }

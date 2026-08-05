@@ -3,6 +3,7 @@
 #               2020, 2021, 2022, 2023, 2024, 2025, 2026
 
 snodec_add_test(InetExpressRoutingMiddlewareTest InetExpressRoutingMiddlewareTest.cpp)
+snodec_add_test(InetExpressHttpParserLimitTest InetExpressHttpParserLimitTest.cpp)
 
 snodec_add_test(Inet6ExpressTransportSmokeTest Inet6ExpressTransportSmokeTest.cpp)
 snodec_add_test(UnixExpressTransportSmokeTest UnixExpressTransportSmokeTest.cpp)
@@ -17,6 +18,7 @@ snodec_add_test(InetExpressQueryMountInteractionTest InetExpressQueryMountIntera
 snodec_add_test(InetExpressFallbackNotFoundTest InetExpressFallbackNotFoundTest.cpp)
 
 target_link_libraries(InetExpressRoutingMiddlewareTest PRIVATE snodec-test-support snodec::http-server-express snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(InetExpressHttpParserLimitTest PRIVATE snodec-test-support snodec::http-server-express snodec::net-in-stream-legacy)
 
 target_link_libraries(Inet6ExpressTransportSmokeTest PRIVATE snodec-test-support snodec::http-server-express-legacy-in6 snodec::http-client snodec::net-in6-stream-legacy)
 target_link_libraries(UnixExpressTransportSmokeTest PRIVATE snodec-test-support snodec::http-server-express-legacy-un snodec::http-client snodec::net-un-stream-legacy)
@@ -31,6 +33,7 @@ target_link_libraries(InetExpressQueryMountInteractionTest PRIVATE snodec-test-s
 target_link_libraries(InetExpressFallbackNotFoundTest PRIVATE snodec-test-support snodec::http-server-express snodec::http-client snodec::net-in-stream-legacy)
 
 target_compile_features(InetExpressRoutingMiddlewareTest PRIVATE cxx_std_20)
+target_compile_features(InetExpressHttpParserLimitTest PRIVATE cxx_std_20)
 
 target_compile_features(Inet6ExpressTransportSmokeTest PRIVATE cxx_std_20)
 target_compile_features(UnixExpressTransportSmokeTest PRIVATE cxx_std_20)
@@ -46,6 +49,11 @@ target_compile_features(InetExpressFallbackNotFoundTest PRIVATE cxx_std_20)
 
 set_tests_properties(InetExpressRoutingMiddlewareTest PROPERTIES
                      LABELS "component;express;routing;middleware;legacy;ipv4"
+                     SKIP_RETURN_CODE 77
+                     TIMEOUT 5)
+
+set_tests_properties(InetExpressHttpParserLimitTest PROPERTIES
+                     LABELS "component;express;middleware;http;parser-limit;legacy;ipv4"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
 

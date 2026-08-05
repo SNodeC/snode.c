@@ -45,6 +45,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -55,8 +56,9 @@
 
 namespace web::http::decoder {
 
-    HTTP10Response::HTTP10Response(const core::socket::stream::SocketContext* socketContext)
-        : socketContext(socketContext) {
+    HTTP10Response::HTTP10Response(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes)
+        : socketContext(socketContext)
+        , maximumBodyBytes(maximumBodyBytes) {
     }
 
     HTTP10Response::~HTTP10Response() {
@@ -68,12 +70,20 @@ namespace web::http::decoder {
         static char contentChunk[MAX_CONTENT_CHUNK_LEN];
 
         do {
-            ret = socketContext->readFromPeer(contentChunk, MAX_CONTENT_CHUNK_LEN);
+            const std::size_t remaining = maximumBodyBytes == 0 ? MAX_CONTENT_CHUNK_LEN : maximumBodyBytes - content.size();
+            const std::size_t readLength =
+                maximumBodyBytes == 0 || remaining >= MAX_CONTENT_CHUNK_LEN ? MAX_CONTENT_CHUNK_LEN : remaining + 1;
+            ret = socketContext->readFromPeer(contentChunk, readLength);
             contentLengthRead += ret;
             consumed += ret;
 
-            content.insert(content.end(), contentChunk, contentChunk + ret);
-        } while (ret > 0);
+            const std::size_t accepted = maximumBodyBytes == 0 ? ret : std::min(ret, remaining);
+            content.insert(content.end(), contentChunk, contentChunk + accepted);
+            if (accepted != ret) {
+                error = true;
+                sizeLimitExceeded = true;
+            }
+        } while (ret > 0 && !error);
 
         return consumed;
     }

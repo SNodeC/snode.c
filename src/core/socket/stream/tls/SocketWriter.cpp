@@ -75,7 +75,25 @@ namespace core::socket::stream::tls {
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
                                const utils::Timeval& terminateTimeout)
-        : Super(instanceName, onStatus, timeout, blockSize, terminateTimeout)
+        : SocketWriter(instanceName, onStatus, timeout, blockSize, terminateTimeout, 0, 0, 0) {
+    }
+
+    SocketWriter::SocketWriter(const std::string& instanceName,
+                               const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout,
+                               std::size_t blockSize,
+                               const utils::Timeval& terminateTimeout,
+                               std::size_t maximumWriteQueueBytes,
+                               std::size_t writeQueueHighWatermark,
+                               std::size_t writeQueueLowWatermark)
+        : Super(instanceName,
+                onStatus,
+                timeout,
+                blockSize,
+                terminateTimeout,
+                maximumWriteQueueBytes,
+                writeQueueHighWatermark,
+                writeQueueLowWatermark)
         , logScope(logger::LogOrigin::Framework,
                    logger::LogBoundary::Connection,
                    "core.socket.stream.tls",

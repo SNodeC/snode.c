@@ -84,6 +84,8 @@ namespace web::websocket {
     private:
         using Super = web::http::SocketContextUpgrade<RequestT, ResponseT>;
 
+        static Receiver::Limits getReceiverLimits(const core::socket::stream::SocketConnection* socketConnection);
+
     public:
         using SubProtocol = SubProtocolT;
         using Request = RequestT;

@@ -40,6 +40,8 @@
  */
 
 #include "core/socket/stream/SocketConnection.h"
+#include "net/config/ConfigInstance.h"
+#include "web/http/ConfigWebSocket.h"
 #include "web/websocket/SemanticLog.h"
 #include "web/websocket/SocketContextUpgrade.h"
 
@@ -57,12 +59,25 @@
 namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
+    Receiver::Limits SocketContextUpgrade<SubProtocol, Request, Response>::getReceiverLimits(
+        const core::socket::stream::SocketConnection* socketConnection) {
+        const net::config::ConfigInstance* configInstance = socketConnection != nullptr ? socketConnection->getConfigInstance() : nullptr;
+        const web::http::ConfigWebSocket* config =
+            configInstance != nullptr ? configInstance->getSubCommand<web::http::ConfigWebSocket>() : nullptr;
+
+        return config != nullptr ? Receiver::Limits{.maximumFrameBytes = config->getMaximumFrameBytes(),
+                                                    .maximumMessageBytes = config->getMaximumMessageBytes(),
+                                                    .maximumFragments = config->getMaximumFragments()}
+                                 : Receiver::Limits{};
+    }
+
+    template <typename SubProtocol, typename Request, typename Response>
     SocketContextUpgrade<SubProtocol, Request, Response>::SocketContextUpgrade(
         core::socket::stream::SocketConnection* socketConnection,
         web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
         Role role)
         : Super(socketConnection, socketContextUpgradeFactory)
-        , SubProtocolContext(role == Role::CLIENT) {
+        , SubProtocolContext(role == Role::CLIENT, getReceiverLimits(socketConnection)) {
     }
 
     template <typename SubProtocol, typename Request, typename Response>
@@ -226,6 +241,7 @@ namespace web::websocket {
     void SocketContextUpgrade<SubProtocol, Request, Response>::onMessageError(uint16_t errnum) {
         subProtocol->onMessageError(errnum);
         sendClose(errnum);
+        this->shutdownRead();
     }
 
     template <typename SubProtocol, typename Request, typename Response>

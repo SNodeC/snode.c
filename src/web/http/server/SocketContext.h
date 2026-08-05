@@ -43,7 +43,12 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
 #include "core/socket/stream/SocketContext.h" // IWYU pragma: export
+#include "web/http/server/ConfigHttpServer.h"
 #include "web/http/server/RequestParser.h"    // IWYU pragma: export
+
+namespace web::http {
+    struct ParserLimits;
+}
 
 namespace web::http::server {
     class Response;
@@ -74,7 +79,9 @@ namespace web::http::server {
 
     public:
         SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady);
+                      const std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>& onRequestReady,
+                      const web::http::ParserLimits& parserLimits = {},
+                      const HttpServerPolicy& serverPolicy = {});
 
         SocketContext* setOnConnected(std::function<void()> onConnectEventReceiver);
 
@@ -94,6 +101,7 @@ namespace web::http::server {
         void requestTerminal(const PendingRequest& request, const char* outcome);
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onRequestReady;
+        const HttpServerPolicy serverPolicy;
 
         void onConnected() override;
         std::size_t onReceivedFromPeer() override;
@@ -110,6 +118,7 @@ namespace web::http::server {
         RequestParser parser;
 
         bool httpClose = false;
+        bool closeAfterCurrentResponse = false;
         bool serverSentEvent = false;
         std::size_t nextRequestId = 0;
         std::size_t parsingRequestId = 0;

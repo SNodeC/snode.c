@@ -45,6 +45,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+#include <functional>
+#include <limits>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::config {
@@ -79,12 +83,54 @@ namespace net::config {
             WRITE_BLOCKSIZE,
             CLI::PositiveNumber);
 
+        maximumWriteQueueBytesOpt = addOption( //
+            "--maximum-write-queue-bytes",
+            "Maximum bytes queued for writing (0 means unlimited)",
+            "bytes",
+            MAXIMUM_WRITE_QUEUE_BYTES,
+            CLI::NonNegativeNumber);
+
+        writeQueueHighWatermarkOpt = addOption( //
+            "--write-queue-high-watermark",
+            "Suspend a pipe source at this queue size (0 selects the legacy automatic threshold)",
+            "bytes",
+            WRITE_QUEUE_HIGH_WATERMARK,
+            CLI::NonNegativeNumber);
+
+        writeQueueLowWatermarkOpt = addOption( //
+            "--write-queue-low-watermark",
+            "Resume a suspended pipe source at this queue size",
+            "bytes",
+            WRITE_QUEUE_LOW_WATERMARK,
+            CLI::NonNegativeNumber);
+
         terminateTimeoutOpt = addOption( //
             "--terminate-timeout",
             "Terminate timeout",
             "timeout",
             TERMINATE_TIMEOUT,
             CLI::PositiveNumber);
+
+        finalCallback([this]() {
+            const std::size_t maximum = getMaximumWriteQueueBytes();
+            const std::size_t high = getWriteQueueHighWatermark();
+            const std::size_t low = getWriteQueueLowWatermark();
+
+            const std::size_t blockSize = getWriteBlockSize();
+            const std::size_t legacyHigh =
+                blockSize > (std::numeric_limits<std::size_t>::max() - 1) / 5 ? std::numeric_limits<std::size_t>::max() : blockSize * 5 + 1;
+            const std::size_t effectiveHigh = high != 0 ? high : (maximum != 0 ? std::min(legacyHigh, maximum) : legacyHigh);
+
+            if (high != 0 && maximum != 0 && high > maximum) {
+                throw CLI::ValidationError("--write-queue-high-watermark", "must not exceed --maximum-write-queue-bytes");
+            }
+            if (low > effectiveHigh) {
+                throw CLI::ValidationError("--write-queue-low-watermark", "must not exceed --write-queue-high-watermark");
+            }
+            if (maximum != 0 && low > maximum) {
+                throw CLI::ValidationError("--write-queue-low-watermark", "must not exceed --maximum-write-queue-bytes");
+            }
+        });
     }
 
     ConfigConnection::~ConfigConnection() {
@@ -126,6 +172,36 @@ namespace net::config {
 
     ConfigConnection* ConfigConnection::setWriteBlockSize(std::size_t newWriteBlockSize) {
         setDefaultValue(writeBlockSizeOpt, newWriteBlockSize);
+
+        return this;
+    }
+
+    std::size_t ConfigConnection::getMaximumWriteQueueBytes() const {
+        return maximumWriteQueueBytesOpt->as<std::size_t>();
+    }
+
+    ConfigConnection* ConfigConnection::setMaximumWriteQueueBytes(std::size_t maximumWriteQueueBytes) {
+        setDefaultValue(maximumWriteQueueBytesOpt, maximumWriteQueueBytes);
+
+        return this;
+    }
+
+    std::size_t ConfigConnection::getWriteQueueHighWatermark() const {
+        return writeQueueHighWatermarkOpt->as<std::size_t>();
+    }
+
+    ConfigConnection* ConfigConnection::setWriteQueueHighWatermark(std::size_t writeQueueHighWatermark) {
+        setDefaultValue(writeQueueHighWatermarkOpt, writeQueueHighWatermark);
+
+        return this;
+    }
+
+    std::size_t ConfigConnection::getWriteQueueLowWatermark() const {
+        return writeQueueLowWatermarkOpt->as<std::size_t>();
+    }
+
+    ConfigConnection* ConfigConnection::setWriteQueueLowWatermark(std::size_t writeQueueLowWatermark) {
+        setDefaultValue(writeQueueLowWatermarkOpt, writeQueueLowWatermark);
 
         return this;
     }

@@ -64,6 +64,7 @@ namespace web::websocket {
         , protected Transmitter {
     public:
         SubProtocolContext(bool masking);
+        SubProtocolContext(bool masking, Receiver::Limits receiverLimits);
         SubProtocolContext(const SubProtocolContext&) = delete;
 
         ~SubProtocolContext() override;

@@ -70,6 +70,8 @@ namespace web::http {
 
         bool isError() const;
 
+        bool isSizeLimitExceeded() const;
+
         std::vector<char>&& getContent();
 
     protected:
@@ -77,6 +79,7 @@ namespace web::http {
 
         bool completed = false;
         bool error = false;
+        bool sizeLimitExceeded = false;
     };
 
 } // namespace web::http

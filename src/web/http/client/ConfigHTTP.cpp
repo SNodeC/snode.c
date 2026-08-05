@@ -41,6 +41,8 @@
 
 #include "ConfigHTTP.h"
 
+#include "web/http/ConfigHttpParser.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
@@ -64,6 +66,8 @@ namespace web::http::client {
             "BOOL",
             XSTR(HTTP_REQUEST_PIPELINED),
             CLI::IsMember({"true", "false"}));
+
+        newSubCommand<web::http::ConfigHttpParser>();
     }
 
     ConfigHTTP::~ConfigHTTP() {
@@ -87,6 +91,14 @@ namespace web::http::client {
 
     bool ConfigHTTP::getPipelinedRequests() const {
         return pipelinedRequestsOpt->as<bool>();
+    }
+
+    web::http::ConfigHttpParser* ConfigHTTP::getParserConfig() const {
+        return getSubCommand<web::http::ConfigHttpParser>();
+    }
+
+    web::http::ParserLimits ConfigHTTP::getParserLimits() const {
+        return getParserConfig()->getParserLimits();
     }
 
 } // namespace web::http::client

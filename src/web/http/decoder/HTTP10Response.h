@@ -58,12 +58,12 @@ namespace web::http::decoder {
 
     class HTTP10Response : public web::http::ContentDecoder {
     public:
-        explicit HTTP10Response(const core::socket::stream::SocketContext* socketContext);
+        explicit HTTP10Response(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes = 0);
         HTTP10Response(const HTTP10Response&) = delete;
         HTTP10Response(HTTP10Response&&) noexcept = default;
 
         HTTP10Response& operator=(const HTTP10Response&) = delete;
-        HTTP10Response& operator=(HTTP10Response&&) noexcept = default;
+        HTTP10Response& operator=(HTTP10Response&&) noexcept = delete;
 
         ~HTTP10Response() override;
 
@@ -71,6 +71,7 @@ namespace web::http::decoder {
         std::size_t read() override;
 
         const core::socket::stream::SocketContext* socketContext;
+        const std::size_t maximumBodyBytes;
 
         std::size_t contentLengthRead = 0;
     };

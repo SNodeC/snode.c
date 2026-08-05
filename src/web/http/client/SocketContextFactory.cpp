@@ -65,7 +65,8 @@ namespace web::http::client {
                                                     onHttpConnected,
                                                     onHttpDisconnected,
                                                     configInstance.getSubCommand<ConfigHTTP>()->getHostHeader(),
-                                                    configInstance.getSubCommand<ConfigHTTP>()->getPipelinedRequests());
+                                                    configInstance.getSubCommand<ConfigHTTP>()->getPipelinedRequests(),
+                                                    configInstance.getSubCommand<ConfigHTTP>()->getParserLimits());
     }
 
 } // namespace web::http::client

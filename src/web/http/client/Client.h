@@ -42,6 +42,7 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
+#include "web/http/ConfigWebSocket.h"
 #include "web/http/client/ConfigHTTP.h"
 #include "web/http/client/Request.h"              // IWYU pragma: export
 #include "web/http/client/SocketContextFactory.h" // IWYU pragma: export
@@ -92,6 +93,7 @@ namespace web::http::client {
                         return *Super::getConfig();
                     }) {
             Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<web::http::ConfigWebSocket>();
             Super::setOnConnect([config = Super::getConfig()->net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
                 if (config->getHostHeader().empty()) {
@@ -123,6 +125,7 @@ namespace web::http::client {
                         return *Super::getConfig();
                     }) {
             Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHTTP>();
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<web::http::ConfigWebSocket>();
             Super::setOnConnect([config = Super::getConfig()->net::config::ConfigInstance::template getSubCommand<ConfigHTTP>()](
                                     SocketConnection* socketConnection) {
                 if (config->getHostHeader().empty()) {

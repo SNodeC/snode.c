@@ -45,6 +45,10 @@
 #include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 #include "web/http/client/ResponseParser.h"   // IWYU pragma: export
 
+namespace web::http {
+    struct ParserLimits;
+}
+
 namespace core::socket::stream {
     class SocketConnection;
 }
@@ -76,7 +80,8 @@ namespace web::http::client {
                       const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
                       const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                       const std::string& hostHeader,
-                      bool pipelinedRequests);
+                      bool pipelinedRequests,
+                      const web::http::ParserLimits& parserLimits = {});
 
         ~SocketContext() override;
 

@@ -48,6 +48,9 @@
 #include "core/system/unistd.h"
 
 #include <cerrno>
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -56,6 +59,51 @@ constexpr int MF_READSIZE = 16384;
 
 namespace core::file {
 
+    namespace {
+
+        class DescriptorGuard {
+        public:
+            explicit DescriptorGuard(int fd) noexcept
+                : fd(fd) {
+            }
+
+            DescriptorGuard(const DescriptorGuard&) = delete;
+            DescriptorGuard& operator=(const DescriptorGuard&) = delete;
+
+            ~DescriptorGuard() {
+                if (fd >= 0) {
+                    core::system::close(fd);
+                }
+            }
+
+            int get() const noexcept {
+                return fd;
+            }
+
+            int release() noexcept {
+                return std::exchange(fd, -1);
+            }
+
+        private:
+            int fd;
+        };
+
+        bool requiresMode(int flags) {
+            if ((flags & O_CREAT) != 0) {
+                return true;
+            }
+
+#ifdef O_TMPFILE
+            if ((flags & O_TMPFILE) == O_TMPFILE) {
+                return true;
+            }
+#endif
+
+            return false;
+        }
+
+    } // namespace
+
     FileReader::FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno)
         : core::Descriptor(fd)
         , EventReceiver(name)
@@ -63,18 +111,76 @@ namespace core::file {
         , openErrno(openErrno) {
     }
 
+    FileReader* FileReader::create(int fd, const std::string& name) {
+        DescriptorGuard descriptor(fd);
+        std::unique_ptr<FileReader> fileReader(new FileReader(-1, name, MF_READSIZE, 0));
+
+        fileReader->core::Descriptor::operator=(descriptor.release());
+
+        return fileReader.release();
+    }
+
+    FileReader* FileReader::open(std::string_view path, int flags) {
+        return open(AT_FDCWD, path, flags);
+    }
+
     FileReader* FileReader::open(const std::string& path, const std::function<void(int)>& callback) {
+        DescriptorGuard descriptor(core::system::open(path.c_str(), O_RDONLY));
+        const int openErrno = descriptor.get() < 0 ? errno : 0;
+
+        errno = openErrno;
+        callback(descriptor.get());
+
+        if (descriptor.get() < 0) {
+            errno = openErrno;
+            return nullptr;
+        }
+
+        const std::string name = "FileReader: " + path;
+        FileReader* fileReader = create(descriptor.release(), name);
+        errno = openErrno;
+
+        return fileReader;
+    }
+
+    FileReader* FileReader::open(int directoryFd, std::string_view path, int flags) {
+        if (requiresMode(flags)) {
+            errno = EINVAL;
+            return nullptr;
+        }
+
+        const std::string pathname(path);
+        DescriptorGuard descriptor(core::system::openat(directoryFd, pathname.c_str(), flags));
+        const int openErrno = descriptor.get() < 0 ? errno : 0;
+
+        if (descriptor.get() < 0) {
+            errno = openErrno;
+            return nullptr;
+        }
+
+        const std::string name = "FileReader: " + pathname;
+        FileReader* fileReader = create(descriptor.release(), name);
+        errno = openErrno;
+
+        return fileReader;
+    }
+
+    FileReader* FileReader::adopt(int fd) {
+        if (fd < 0) {
+            errno = EBADF;
+            return nullptr;
+        }
+
+        DescriptorGuard descriptor(fd);
+        const std::string name = "FileReader: descriptor " + std::to_string(fd);
+        FileReader* fileReader = create(descriptor.release(), name);
         errno = 0;
 
-        const int fd = core::system::open(path.c_str(), O_RDONLY);
-
-        callback(fd);
-
-        return new FileReader(fd, "FileReader: " + path, MF_READSIZE, fd < 0 ? errno : 0);
+        return fileReader;
     }
 
     bool FileReader::isOpen() {
-        return getFd() >= 0;
+        return getFd() >= 0 && !stopping;
     }
 
     void FileReader::onEvent([[maybe_unused]] const utils::Timeval& currentTime) {
@@ -109,28 +215,34 @@ namespace core::file {
     void FileReader::start() {
         if (!running && isOpen()) {
             running = true;
-            span();
+
+            if (!suspended) {
+                span();
+            }
         }
     }
 
     void FileReader::suspend() {
-        if (running && isOpen()) {
+        if (isOpen()) {
             suspended = true;
         }
     }
 
     void FileReader::resume() {
-        if (running && isOpen()) {
+        if (running && suspended && isOpen()) {
             suspended = false;
             span();
         }
     }
 
     void FileReader::stop() {
-        if (running && isOpen()) {
-            this->eof();
+        if (!stopping) {
+            if (running) {
+                this->eof();
+            }
 
             running = false;
+            stopping = true;
             span();
         }
     }
