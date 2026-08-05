@@ -42,6 +42,8 @@
 #ifndef WEB_HTTP_SERVER_SERVERT_H
 #define WEB_HTTP_SERVER_SERVERT_H
 
+#include "web/http/ConfigWebSocket.h"
+#include "web/http/server/ConfigHttpServer.h"
 #include "web/http/server/SocketContextFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -78,6 +80,8 @@ namespace web::http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
             : Super(name, onConnect, onConnected, onDisconnect, std::forward<decltype(onRequestReady)>(onRequestReady)) {
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHttpServer>();
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<web::http::ConfigWebSocket>();
         }
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
@@ -90,6 +94,8 @@ namespace web::http::server {
         Server(const std::string& name,
                std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)>&& onRequestReady)
             : Super(name, std::forward<decltype(onRequestReady)>(onRequestReady)) {
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<ConfigHttpServer>();
+            Super::getConfig()->net::config::ConfigInstance::template newSubCommand<web::http::ConfigWebSocket>();
         }
 
         explicit Server(const std::function<void(const std::shared_ptr<Request>&, std::shared_ptr<Response>&)>&& onRequestReady)

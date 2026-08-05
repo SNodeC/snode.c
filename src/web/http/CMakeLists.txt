@@ -55,6 +55,8 @@ pkg_check_modules(LIBMAGIC libmagic)
 
 set(HTTP_CPP
     CiStringMap.cpp
+    ConfigHttpParser.cpp
+    ConfigWebSocket.cpp
     ContentDecoder.cpp
     MimeTypes.cpp
     Parser.cpp
@@ -68,12 +70,15 @@ set(HTTP_CPP
 
 set(HTTP_H
     CiStringMap.h
+    ConfigHttpParser.h
+    ConfigWebSocket.h
     ConnectionState.h
     ContentDecoder.h
     ContentType.h
     CookieOptions.h
     MimeTypes.h
     Parser.h
+    ParserLimits.h
     SocketContextUpgrade.h
     SocketContextUpgradeFactory.h
     SocketContextUpgradeFactory.hpp

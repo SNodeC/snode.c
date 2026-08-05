@@ -43,6 +43,11 @@
 #define WEB_HTTP_CLIENT_HTTPCONFIG_H
 
 #include "net/config/ConfigSection.h"
+#include "web/http/ParserLimits.h"
+
+namespace web::http {
+    class ConfigHttpParser;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -73,10 +78,15 @@ namespace web::http::client {
         ConfigHTTP* setPipelinedRequests(bool pipelinedRequests);
         bool getPipelinedRequests() const;
 
+        web::http::ConfigHttpParser* getParserConfig() const;
+        web::http::ParserLimits getParserLimits() const;
+
     private:
         CLI::Option* hostHeaderOpt = nullptr;
         CLI::Option* pipelinedRequestsOpt = nullptr;
     };
+
+    using ConfigHttpClient = ConfigHTTP;
 
 } // namespace web::http::client
 
