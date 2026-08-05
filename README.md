@@ -1686,6 +1686,8 @@ Other configuration items can be configured in the very same way but for most op
 
 All `SocketServer` and `SocketClient` instances share some common [configuration options](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1config.html).
 
+HTTP parser/server limits, WebSocket receiver limits, connection write-queue policy, descriptor-based streaming, and Unix peer credentials are documented in [Framework resource policies and descriptor streaming](docs/resource-policy-and-streaming.md).
+
 Network layer specific configuration options:
 
 | Network Layer       | SocketAddress                                                | Transport Layer                                              | Legacy Connection Layer                                      | TLS Connection Layer                                         |
