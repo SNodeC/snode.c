@@ -48,7 +48,11 @@
 namespace web::websocket {
 
     SubProtocolContext::SubProtocolContext(bool masking)
-        : Receiver(!masking)
+        : SubProtocolContext(masking, {}) {
+    }
+
+    SubProtocolContext::SubProtocolContext(bool masking, Receiver::Limits receiverLimits)
+        : Receiver(!masking, receiverLimits)
         , Transmitter(masking) {
     }
 

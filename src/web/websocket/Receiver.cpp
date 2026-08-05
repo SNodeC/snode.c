@@ -61,7 +61,12 @@
 namespace web::websocket {
 
     Receiver::Receiver(bool maskingExpected)
-        : maskingExpected(maskingExpected) {
+        : Receiver(maskingExpected, {}) {
+    }
+
+    Receiver::Receiver(bool maskingExpected, Limits limits)
+        : maskingExpected(maskingExpected)
+        , limits(limits) {
     }
 
     const logger::BoundaryLogger& Receiver::frameLog() const {
@@ -104,7 +109,13 @@ namespace web::websocket {
                     break;
                 case ParserState::ERROR:
                     onMessageError(errorState);
-                    reset();
+                    fragmentedMessageActive = false;
+                    resetMessageAccounting();
+                    parserState = ParserState::TERMINAL;
+                    ret = 0;
+                    break;
+                case ParserState::TERMINAL:
+                    ret = 0;
                     break;
             }
             consumed += ret;
@@ -123,6 +134,7 @@ namespace web::websocket {
 
     namespace {
         constexpr uint16_t ProtocolError = 1002;
+        constexpr uint16_t MessageTooBig = 1009;
 
         bool isControlOpCode(uint8_t opCode) {
             return opCode >= 0x08;
@@ -149,6 +161,7 @@ namespace web::websocket {
             fin = (opCodeByte & 0b10000000) != 0;
             opCode = opCodeByte & 0b00001111;
             currentFrameIsControl = isControlOpCode(opCode);
+            messageStartPending = false;
 
             if (rsvSet) {
                 parserState = ParserState::ERROR;
@@ -171,14 +184,14 @@ namespace web::websocket {
                     parserState = ParserState::LENGTH;
                 }
             } else if (currentFrameIsControl) {
-                onMessageStart(opCode);
+                messageStartPending = true;
                 parserState = ParserState::LENGTH;
             } else if (fragmentedMessageActive) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
                 frameLog().error() << "New data frame before fragmented message completed";
             } else {
-                onMessageStart(opCode);
+                messageStartPending = true;
                 if (!fin) {
                     fragmentedMessageActive = true;
                 }
@@ -217,16 +230,13 @@ namespace web::websocket {
                     }
                     parserState = ParserState::ELENGTH;
                     payloadNumBytes = payloadNumBytesLeft = 0;
-                } else {
+                } else if (validateResourceLimits()) {
                     if (masked) {
                         parserState = ParserState::MASKINGKEY;
                     } else if (payloadNumBytes > 0) {
                         parserState = ParserState::PAYLOAD;
                     } else {
-                        if (fin) {
-                            onMessageEnd();
-                        }
-                        reset();
+                        completeFrame();
                     }
                 }
             } else {
@@ -300,10 +310,8 @@ namespace web::websocket {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
                 frameLog().error() << "Payload length exceeds platform size limits";
-            } else if (masked) {
-                parserState = ParserState::MASKINGKEY;
-            } else {
-                parserState = ParserState::PAYLOAD;
+            } else if (validateResourceLimits()) {
+                parserState = masked ? ParserState::MASKINGKEY : ParserState::PAYLOAD;
             }
         }
 
@@ -325,13 +333,7 @@ namespace web::websocket {
             if (payloadNumBytes > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
-                if (opCode == 0 && fin) {
-                    fragmentedMessageActive = false;
-                }
-                if (fin) {
-                    onMessageEnd();
-                }
-                reset();
+                completeFrame();
             }
         }
 
@@ -392,14 +394,75 @@ namespace web::websocket {
                 }
             }
             if (parserState != ParserState::ERROR) {
-                if (fin) {
-                    onMessageEnd();
-                }
-                reset();
+                completeFrame();
             }
         }
 
         return ret;
+    }
+
+    bool Receiver::validateResourceLimits() {
+        if (limits.maximumFrameBytes != 0 && payloadNumBytes > limits.maximumFrameBytes) {
+            parserState = ParserState::ERROR;
+            errorState = MessageTooBig;
+            frameLog().error() << "Frame payload exceeds configured maximum";
+
+            return false;
+        }
+
+        if (!currentFrameIsControl) {
+            if (opCode != 0) {
+                resetMessageAccounting();
+            }
+
+            if (limits.maximumFragments != 0) {
+                if (currentMessageFragments >= limits.maximumFragments) {
+                    parserState = ParserState::ERROR;
+                    errorState = MessageTooBig;
+                    frameLog().error() << "Message fragment count exceeds configured maximum";
+
+                    return false;
+                }
+
+                currentMessageFragments++;
+            }
+
+            if (limits.maximumMessageBytes != 0) {
+                if (currentMessageBytes > limits.maximumMessageBytes ||
+                    payloadNumBytes > limits.maximumMessageBytes - currentMessageBytes) {
+                    parserState = ParserState::ERROR;
+                    errorState = MessageTooBig;
+                    frameLog().error() << "Message payload exceeds configured maximum";
+
+                    return false;
+                }
+
+                currentMessageBytes += static_cast<std::size_t>(payloadNumBytes);
+            }
+        }
+
+        if (messageStartPending) {
+            onMessageStart(opCode);
+            messageStartPending = false;
+        }
+
+        return true;
+    }
+
+    void Receiver::completeFrame() {
+        if (!currentFrameIsControl && fin) {
+            fragmentedMessageActive = false;
+            resetMessageAccounting();
+        }
+        if (fin) {
+            onMessageEnd();
+        }
+        reset();
+    }
+
+    void Receiver::resetMessageAccounting() {
+        currentMessageBytes = 0;
+        currentMessageFragments = 0;
     }
 
     void Receiver::reset() {
@@ -408,6 +471,7 @@ namespace web::websocket {
         fin = false;
         masked = false;
         currentFrameIsControl = false;
+        messageStartPending = false;
 
         opCode = 0;
         payloadLengthCode = 0;

@@ -10,13 +10,13 @@
 namespace {
     class BufferReceiver : public web::websocket::Receiver {
     public:
-        explicit BufferReceiver(bool maskingExpected)
-            : Receiver(maskingExpected) {
+        explicit BufferReceiver(bool maskingExpected, Limits limits = {})
+            : Receiver(maskingExpected, limits) {
         }
 
         void feed(const std::vector<uint8_t>& bytes) {
             input.insert(input.end(), bytes.begin(), bytes.end());
-            while (offset < input.size() && errors == 0) {
+            while (offset < input.size()) {
                 const std::size_t consumed = receive();
                 if (consumed == 0) {
                     break;
@@ -89,6 +89,11 @@ namespace {
         result.expectEqual(1, receiver.errors, name + " is rejected");
         result.expectEqual(1002, receiver.lastError, name + " uses protocol error status");
     }
+
+    void expectMessageTooBig(tests::support::TestResult& result, const std::string& name, BufferReceiver& receiver) {
+        result.expectEqual(1, receiver.errors, name + " is rejected");
+        result.expectEqual(1009, receiver.lastError, name + " uses message-too-big status");
+    }
 }
 
 int main() {
@@ -131,6 +136,50 @@ int main() {
     { BufferReceiver r(true); auto a = mask({0x01, 0x82}, "he"); auto b = mask({0x80, 0x83}, "llo"); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectAccepted(result, "fragmented text", r); result.expectTrue(r.data == "hello", "fragmented text is delivered once in order"); }
     { BufferReceiver r(true); auto a = mask({0x02, 0x81}, "a"); auto b = mask({0x00, 0x81}, "b"); auto c = mask({0x80, 0x81}, "c"); a.insert(a.end(), b.begin(), b.end()); a.insert(a.end(), c.begin(), c.end()); r.feed(a); expectAccepted(result, "multi-continuation binary", r); result.expectTrue(r.data == "abc", "binary fragments are delivered once in order"); }
     { BufferReceiver r(true); auto a = mask({0x01, 0x81}, "a"); auto p = mask({0x89, 0x80}); auto b = mask({0x80, 0x81}, "b"); a.insert(a.end(), p.begin(), p.end()); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectAccepted(result, "ping during fragmented message", r, 2); result.expectTrue(r.data == "ab", "fragmented message continues after ping"); }
+    {
+        BufferReceiver r(true, {.maximumMessageBytes = 4});
+        auto a = mask({0x01, 0x82}, "ab");
+        auto b = mask({0x80, 0x82}, "cd");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectAccepted(result, "fragmented message at byte limit", r);
+    }
+    {
+        BufferReceiver r(true, {.maximumMessageBytes = 4});
+        auto a = mask({0x01, 0x82}, "ab");
+        auto b = mask({0x80, 0x83}, "cde");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectMessageTooBig(result, "fragmented message over byte limit", r);
+    }
+    {
+        BufferReceiver r(true, {.maximumFragments = 2});
+        auto a = mask({0x01, 0x81}, "a");
+        auto b = mask({0x80, 0x81}, "b");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectAccepted(result, "fragmented message at fragment limit", r);
+    }
+    {
+        BufferReceiver r(true, {.maximumFragments = 2});
+        auto a = mask({0x01, 0x81}, "a");
+        auto b = mask({0x00, 0x81}, "b");
+        auto c = mask({0x80, 0x81}, "c");
+        a.insert(a.end(), b.begin(), b.end());
+        a.insert(a.end(), c.begin(), c.end());
+        r.feed(a);
+        expectMessageTooBig(result, "fragmented message over fragment limit", r);
+    }
+    {
+        BufferReceiver r(true, {.maximumMessageBytes = 2, .maximumFragments = 2});
+        auto a = mask({0x01, 0x81}, "a");
+        auto p = mask({0x89, 0x83}, "xyz");
+        auto b = mask({0x80, 0x81}, "b");
+        a.insert(a.end(), p.begin(), p.end());
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectAccepted(result, "control frame excluded from message limits", r, 2);
+    }
 
     { BufferReceiver r(true); r.feed(mask({0x81, 0x82}, "hi")); expectAccepted(result, "server accepts masked client text", r); }
     { BufferReceiver r(true); r.feed(unmasked({0x81, 0x02}, "hi")); expectProtocolError(result, "server rejects unmasked client text", r); }
@@ -142,6 +191,30 @@ int main() {
     { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7E, 0x00, 0x7E}, std::string(126, 'x'))); expectAccepted(result, "text length 126 encoded as 126", r); }
     { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E}, std::string(126, 'x'))); expectProtocolError(result, "text length 126 encoded as 127", r); }
     { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7F, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})); expectProtocolError(result, "64-bit length MSB set", r); }
+    {
+        BufferReceiver r(false, {.maximumFrameBytes = 3});
+        r.feed(unmasked({0x81, 0x03}, "abc"));
+        expectAccepted(result, "frame at configured limit", r);
+    }
+    {
+        BufferReceiver r(false, {.maximumFrameBytes = 2});
+        r.feed(unmasked({0x81, 0x03}, "abc"));
+        expectMessageTooBig(result, "short frame over configured limit", r);
+        result.expectEqual(0, r.starts, "oversized frame is rejected before application message start");
+        r.feed(unmasked({0x81, 0x01}, "z"));
+        result.expectEqual(1, r.errors, "receiver remains terminal after a size-limit error");
+        result.expectEqual(0, r.ends, "payload after a size-limit error is never delivered");
+    }
+    {
+        BufferReceiver r(false, {.maximumFrameBytes = 125});
+        r.feed(unmasked({0x81, 0x7E, 0x00, 0x7E}, std::string(126, 'x')));
+        expectMessageTooBig(result, "extended frame over configured limit", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7E, 0x01, 0x00}, std::string(256, 'x')));
+        expectAccepted(result, "unlimited default accepts larger frame", r);
+    }
 
     { BufferReceiver r(true); r.feed(mask({0x88, 0x80})); expectAccepted(result, "close length 0", r); }
     { BufferReceiver r(true); r.feed(mask({0x88, 0x81}, "x")); expectProtocolError(result, "close length 1", r); }
