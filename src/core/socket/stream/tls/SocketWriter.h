@@ -71,6 +71,15 @@ namespace core::socket::stream::tls {
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
 
+        SocketWriter(const std::string& instanceName,
+                     const std::function<void(int)>& onStatus,
+                     const utils::Timeval& timeout,
+                     std::size_t blockSize,
+                     const utils::Timeval& terminateTimeout,
+                     std::size_t maximumWriteQueueBytes,
+                     std::size_t writeQueueHighWatermark,
+                     std::size_t writeQueueLowWatermark);
+
     public:
         logger::BoundaryLogger log() const;
         logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,

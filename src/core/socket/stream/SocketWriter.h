@@ -43,6 +43,7 @@
 #define CORE_SOCKET_STREAM_SOCKETWRITER_H
 
 #include "core/eventreceiver/WriteEventReceiver.h"
+#include "core/socket/stream/QueueResult.h"
 
 namespace core::pipe {
     class Source;
@@ -61,6 +62,10 @@ namespace core::pipe {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
+    namespace detail {
+        struct SocketWriterTestAccess;
+    }
+
     namespace tls::detail {
         struct TLSLifecycleTestAccess;
     }
@@ -75,6 +80,15 @@ namespace core::socket::stream {
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
+
+        SocketWriter(const std::string& instanceName,
+                     const std::function<void(int)>& onStatus,
+                     const utils::Timeval& timeout,
+                     std::size_t blockSize,
+                     const utils::Timeval& terminateTimeout,
+                     std::size_t maximumWriteQueueBytes,
+                     std::size_t writeQueueHighWatermark,
+                     std::size_t writeQueueLowWatermark);
 
         std::size_t getTotalSent() const;
         std::size_t getTotalQueued() const;
@@ -92,6 +106,7 @@ namespace core::socket::stream {
 
         void setBlockSize(std::size_t writeBlockSize);
 
+        QueueResult trySendToPeer(const char* chunk, std::size_t chunkLen);
         void sendToPeer(const char* chunk, std::size_t chunkLen);
         bool streamToPeer(core::pipe::Source* source);
         void streamEof();
@@ -105,6 +120,10 @@ namespace core::socket::stream {
         bool markShutdown = false;
 
     private:
+        void suspendSourceAtHighWatermark();
+        void resumeSourceAtLowWatermark();
+        void updateEffectiveHighWatermark();
+
         std::function<void(int)> onStatus;
 
     protected:
@@ -120,12 +139,19 @@ namespace core::socket::stream {
 
         std::size_t blockSize = 0;
 
+        const std::size_t maximumWriteQueueBytes = 0;
+        const std::size_t configuredWriteQueueHighWatermark = 0;
+        const std::size_t writeQueueLowWatermark = 0;
+        std::size_t effectiveWriteQueueHighWatermark = 0;
+        bool sourceSuspended = false;
+
         std::size_t totalQueued = 0;
         std::size_t totalSent = 0;
 
     protected:
         utils::Timeval terminateTimeout;
 
+        friend struct detail::SocketWriterTestAccess;
         friend struct tls::detail::TLSLifecycleTestAccess;
     };
 

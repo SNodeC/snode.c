@@ -126,6 +126,14 @@ namespace core::socket::stream {
         socketConnection->sendToPeer(chunk, chunkLen);
     }
 
+    QueueResult SocketContext::trySendToPeer(const char* chunk, std::size_t chunkLen) const {
+        return socketConnection->trySendToPeer(chunk, chunkLen);
+    }
+
+    QueueResult SocketContext::trySendToPeer(const std::string& data) const {
+        return socketConnection->trySendToPeer(data);
+    }
+
     bool SocketContext::streamToPeer(pipe::Source* source) const {
         return socketConnection->streamToPeer(source);
     }
