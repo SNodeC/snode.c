@@ -43,6 +43,7 @@
 
 #include "SocketContext.h"
 #include "core/file/FileReader.h"
+#include "core/socket/stream/QueueResult.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
@@ -75,12 +76,14 @@ namespace web::http::server {
     }
 
     Response::~Response() {
-        if (isConnected() && Sink::isStreaming()) {
-            socketContext->streamEof();
-        }
+        disconnect();
     }
 
     void Response::disconnect() {
+        if (isConnected() && Sink::isStreaming()) {
+            socketContext->streamEof();
+        }
+
         stop();
         socketContext = nullptr;
     }
@@ -99,6 +102,7 @@ namespace web::http::server {
         contentLength = 0;
         contentSent = 0;
         sourceFailed = false;
+        sourceConnectAccepted = false;
         connectionState = ConnectionState::Default;
         transferEncoding = TransferEncoding::HTTP10;
     }
@@ -350,24 +354,29 @@ namespace web::http::server {
                 absolutFileName = std::filesystem::canonical(absolutFileName);
 
                 if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                    core::file::FileReader::open(absolutFileName, [this, &absolutFileName, &onStatus](int fd) {
-                        if (fd >= 0) {
-                            status(200);
-                            set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
-                            set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
-                            if (httpMajor == 1) {
-                                if (httpMinor == 1) {
-                                    set("Transfer-Encoding", "chunked");
-                                } else {
-                                    set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                    core::file::FileReader* fileReader =
+                        core::file::FileReader::open(absolutFileName, [this, &absolutFileName, &onStatus](int fd) {
+                            if (fd >= 0) {
+                                status(200);
+                                set("Content-Type", web::http::MimeTypes::contentType(absolutFileName), false);
+                                set("Last-Modified", httputils::file_mod_http_date(absolutFileName), false);
+                                if (httpMajor == 1) {
+                                    if (httpMinor == 1) {
+                                        set("Transfer-Encoding", "chunked");
+                                    } else {
+                                        set("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+                                    }
                                 }
-                            }
 
-                        } else {
-                            status(404);
-                        }
-                        onStatus(errno);
-                    })->pipe(this);
+                            } else {
+                                status(404);
+                            }
+                            onStatus(errno);
+                        });
+
+                    if (fileReader != nullptr && !pipe(fileReader)) {
+                        fileReader->stop();
+                    }
                 } else {
                     status(404);
                     errno = EEXIST;
@@ -379,6 +388,12 @@ namespace web::http::server {
                 onStatus(errno);
             }
         }
+    }
+
+    bool Response::pipe(core::pipe::Source* source) {
+        sourceConnectAccepted = false;
+
+        return source != nullptr && isConnected() && !Sink::isStreaming() && source->pipe(this) && sourceConnectAccepted;
     }
 
     void Response::end() {
@@ -448,17 +463,35 @@ namespace web::http::server {
         return sendFragment(chunk.data(), chunk.size());
     }
 
-    void Response::sendCompleted() {
+    void Response::sendCompleted(bool boundedStream) {
         if (isConnected()) {
-            if (transferEncoding == TransferEncoding::Chunked) {
-                sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
+            if (!sourceFailed && transferEncoding == TransferEncoding::Chunked) {
+                if (boundedStream) {
+                    std::string completion = "0\r\n";
 
-                if (!trailer.empty()) {
-                    for (auto& [field, value] : trailer) {
-                        socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                    if (!trailer.empty()) {
+                        for (const auto& [field, value] : trailer) {
+                            completion.append(field).append(": ").append(value).append("\r\n");
+                        }
                     }
 
-                    socketContext->sendToPeer("\r\n");
+                    completion.append("\r\n");
+
+                    const core::socket::stream::QueueResult queueResult = socketContext->trySendToPeer(completion);
+                    if (queueResult != core::socket::stream::QueueResult::Queued) {
+                        sourceFailed = true;
+                        socketContext->close();
+                    }
+                } else {
+                    sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
+
+                    if (!trailer.empty()) {
+                        for (auto& [field, value] : trailer) {
+                            socketContext->sendToPeer(std::string(field).append(":").append(value).append("\r\n"));
+                        }
+
+                        socketContext->sendToPeer("\r\n");
+                    }
                 }
             }
 
@@ -472,22 +505,152 @@ namespace web::http::server {
         }
     }
 
+    core::socket::stream::QueueResult Response::trySendHeader() {
+        using core::socket::stream::QueueResult;
+
+        if (!isConnected()) {
+            return QueueResult::Closed;
+        }
+
+        socketContext->responseStarted(*this);
+
+        std::string responseHeader = "HTTP/" + std::to_string(httpMajor)
+                                                   .append(".")
+                                                   .append(std::to_string(httpMinor))
+                                                   .append(" ")
+                                                   .append(std::to_string(statusCode))
+                                                   .append(" ")
+                                                   .append(StatusCode::reason(statusCode))
+                                                   .append("\r\n");
+        responseHeader.append("Date: ").append(httputils::to_http_date()).append("\r\n");
+
+        set("X-Powered-By", "SNode.C");
+
+        for (const auto& [field, value] : headers) {
+            responseHeader.append(field).append(": ").append(value).append("\r\n");
+        }
+
+        for (const auto& [cookie, cookieValue] : cookies) {
+            const std::string cookieString =
+                std::accumulate(cookieValue.getOptions().begin(),
+                                cookieValue.getOptions().end(),
+                                cookie + "=" + cookieValue.getValue(),
+                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
+                                });
+            responseHeader.append("Set-Cookie: ").append(cookieString).append("\r\n");
+        }
+
+        responseHeader.append("\r\n");
+
+        return socketContext->trySendToPeer(responseHeader);
+    }
+
+    core::socket::stream::QueueResult Response::trySendFragment(const char* chunk, std::size_t chunkLen) {
+        using core::socket::stream::QueueResult;
+
+        if (requestMethod == "HEAD") {
+            return QueueResult::Queued;
+        }
+
+        if (!isConnected()) {
+            return QueueResult::Closed;
+        }
+
+        const bool serverSentEvent = web::http::ciContains(headers["Content-Type"], "text/event-stream");
+        std::string fragment;
+
+        if (transferEncoding == TransferEncoding::Chunked) {
+            fragment = to_hex_str(chunkLen).append("\r\n");
+        }
+
+        if (chunkLen != 0) {
+            fragment.append(chunk, chunkLen);
+        }
+
+        if (transferEncoding == TransferEncoding::Chunked || serverSentEvent) {
+            fragment.append("\r\n");
+        }
+
+        const QueueResult queueResult = socketContext->trySendToPeer(fragment);
+        if (queueResult == QueueResult::Queued) {
+            contentSent += chunkLen;
+
+            if (transferEncoding == TransferEncoding::Chunked || serverSentEvent) {
+                contentLength += chunkLen;
+            }
+        }
+
+        return queueResult;
+    }
+
+    void Response::onSourceQueueError(core::socket::stream::QueueResult queueResult) {
+        using core::socket::stream::QueueResult;
+
+        switch (queueResult) {
+            case QueueResult::Queued:
+                return;
+            case QueueResult::WouldExceedLimit:
+                errno = ENOBUFS;
+                break;
+            case QueueResult::Closed:
+                errno = EPIPE;
+                break;
+            case QueueResult::ShutdownInProgress:
+#ifdef ESHUTDOWN
+                errno = ESHUTDOWN;
+#else
+                errno = EPIPE;
+#endif
+                break;
+        }
+
+        sourceFailed = true;
+
+        if (isConnected()) {
+            socketContext->streamEof();
+        }
+
+        stop();
+
+        if (isConnected()) {
+            socketContext->close();
+        }
+
+        sendCompleted();
+    }
+
     void Response::onSourceConnect(core::pipe::Source* source) {
         if (isConnected()) {
             if (socketContext->streamToPeer(source)) {
-                sendHeader();
+                if (requestMethod != "HEAD" && httpMajor == 1 && httpMinor == 1 && !headers.contains("Content-Length") &&
+                    !headers.contains("Transfer-Encoding")) {
+                    set("Transfer-Encoding", "chunked");
+                }
 
-                source->start();
+                const core::socket::stream::QueueResult queueResult = trySendHeader();
+                if (queueResult == core::socket::stream::QueueResult::Queued) {
+                    sourceConnectAccepted = true;
+                    source->start();
+                } else {
+                    onSourceQueueError(queueResult);
+                }
             } else {
-                source->stop();
+                stop();
             }
         } else {
-            source->stop();
+            stop();
         }
     }
 
     void Response::onSourceData(const char* chunk, std::size_t chunkLen) {
-        sendFragment(chunk, chunkLen);
+        if (requestMethod != "HEAD" && transferEncoding == TransferEncoding::Identity &&
+            (contentSent > contentLength || chunkLen > contentLength - contentSent)) {
+            onSourceError(EMSGSIZE);
+            return;
+        }
+
+        onSourceQueueError(trySendFragment(chunk, chunkLen));
     }
 
     void Response::onSourceEof() {
@@ -495,7 +658,8 @@ namespace web::http::server {
             socketContext->streamEof();
         }
 
-        sendCompleted();
+        stop();
+        sendCompleted(true);
     }
 
     void Response::onSourceError(int errnum) {
@@ -504,6 +668,11 @@ namespace web::http::server {
 
         if (isConnected()) {
             socketContext->streamEof();
+        }
+
+        stop();
+
+        if (isConnected()) {
             socketContext->close();
         }
 

@@ -64,6 +64,10 @@ namespace web::http::client {
     }
 } // namespace web::http::client
 
+namespace core::socket::stream {
+    enum class QueueResult;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -211,6 +215,12 @@ namespace web::http::client {
         void requestPrepared(const std::shared_ptr<MasterRequest>& request);
         void requestDelivered();
 
+        std::string serializeHeader();
+        core::socket::stream::QueueResult trySendHeader();
+        core::socket::stream::QueueResult trySendFragment(const char* chunk, std::size_t chunkLen);
+        bool recordQueueFailure(core::socket::stream::QueueResult queueResult);
+        void onSourceQueueError(core::socket::stream::QueueResult queueResult);
+
         void deliverResponse(const std::shared_ptr<MasterRequest>& request, const std::shared_ptr<Response>& response);
         void deliverResponseParseError(const std::shared_ptr<MasterRequest>& request, const std::string& message);
 
@@ -222,6 +232,7 @@ namespace web::http::client {
         std::list<RequestCommand*> requestCommands;
 
         std::size_t contentLengthSent = 0;
+        bool deliveryFailed = false;
 
         std::function<void(const std::shared_ptr<Request>&, const std::shared_ptr<Response>&)> onResponseReceived;
         std::function<void(const std::shared_ptr<Request>&, const std::string& message)> onResponseParseError;

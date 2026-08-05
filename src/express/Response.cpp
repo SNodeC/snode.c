@@ -182,6 +182,10 @@ namespace express {
         responseBase->sendFile(file, callback);
     }
 
+    bool Response::pipe(core::pipe::Source* source) {
+        return responseBase->pipe(source);
+    }
+
     Response& Response::sendHeader() {
         responseBase->sendHeader();
 
