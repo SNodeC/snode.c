@@ -62,10 +62,6 @@ namespace core::pipe {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-    namespace detail {
-        struct SocketWriterTestAccess;
-    }
-
     namespace tls::detail {
         struct TLSLifecycleTestAccess;
     }
@@ -151,7 +147,6 @@ namespace core::socket::stream {
     protected:
         utils::Timeval terminateTimeout;
 
-        friend struct detail::SocketWriterTestAccess;
         friend struct tls::detail::TLSLifecycleTestAccess;
     };
 

@@ -1688,6 +1688,8 @@ All `SocketServer` and `SocketClient` instances share some common [configuration
 
 HTTP parser/server limits, WebSocket receiver limits, connection write-queue policy, descriptor-based streaming, and Unix peer credentials are documented in [Framework resource policies and descriptor streaming](docs/resource-policy-and-streaming.md).
 
+SNode.C 2.0 starts a new C++ ABI epoch. Applications and plugins built against SNode.C 1.x must be rebuilt; see [Migrating to SNode.C 2.0](docs/migration-2.0.md).
+
 Network layer specific configuration options:
 
 | Network Layer       | SocketAddress                                                | Transport Layer                                              | Legacy Connection Layer                                      | TLS Connection Layer                                         |

@@ -24,20 +24,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-namespace core::socket::stream::detail {
-
-    struct SocketWriterTestAccess {
-        static void writeOnce(SocketWriter& writer) {
-            writer.doWrite();
-        }
-
-        static std::size_t queuedBytes(const SocketWriter& writer) {
-            return writer.writePuffer.size();
-        }
-    };
-
-} // namespace core::socket::stream::detail
-
 namespace {
 
     using core::socket::stream::QueueResult;
@@ -165,6 +151,10 @@ namespace {
             return getTotalQueued();
         }
 
+        std::size_t queuedBytes() const {
+            return writePuffer.size();
+        }
+
         int lastError = 0;
         bool shutdownCallback = false;
 
@@ -219,10 +209,14 @@ namespace {
         result.expectEqual(static_cast<int>(expected), static_cast<int>(actual), message);
     }
 
-    void releaseDisabledWriters() {
+    void processOneEventLoopTick() {
         sigset_t sigmask;
         sigemptyset(&sigmask);
         static_cast<void>(core::EventLoop::instance().getEventMultiplexer().tick({}, sigmask));
+    }
+
+    void releaseDisabledWriters() {
+        processOneEventLoopTick();
     }
 
 } // namespace
@@ -276,17 +270,14 @@ int main() {
         const std::size_t totalBeforeRejection = writer.totalQueued();
         expectResult(result, QueueResult::WouldExceedLimit, writer.enqueue("12345"), "chunk that would exceed maximum queue is rejected");
         result.expectTrue(writer.totalQueued() == totalBeforeRejection, "rejection does not increment total queued bytes");
-        result.expectTrue(core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer) == 6,
-                          "rejection leaves connection-local queue unchanged");
+        result.expectTrue(writer.queuedBytes() == 6, "rejection leaves connection-local queue unchanged");
 
-        core::socket::stream::detail::SocketWriterTestAccess::writeOnce(writer);
-        result.expectTrue(core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer) == 2,
-                          "one write drains one configured block");
+        processOneEventLoopTick();
+        result.expectTrue(writer.queuedBytes() == 2, "one write drains one configured block");
         result.expectEqual(1, source.resumes, "source resumes at low watermark");
 
         expectResult(result, QueueResult::Queued, writer.enqueue("12345678"), "exact queue limit is admitted");
-        result.expectTrue(core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer) == 10,
-                          "queue reaches exact configured maximum");
+        result.expectTrue(writer.queuedBytes() == 10, "queue reaches exact configured maximum");
         expectResult(result, QueueResult::WouldExceedLimit, writer.enqueue("x"), "byte beyond exact limit is rejected");
 
         writer.detachSource();
@@ -301,9 +292,7 @@ int main() {
         result.expectTrue(writer.open(pair.writerFd()), "legacy-send overflow writer is enabled");
         writer.legacyEnqueue("12345");
         result.expectEqual(ENOBUFS, writer.lastError, "legacy void send reports finite-queue overflow as a connection error");
-        result.expectEqual(std::size_t{0},
-                           core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer),
-                           "legacy overflow does not append a partial chunk");
+        result.expectEqual(std::size_t{0}, writer.queuedBytes(), "legacy overflow does not append a partial chunk");
         writer.closeWriter();
         releaseDisabledWriters();
     }
@@ -331,8 +320,8 @@ int main() {
         result.expectEqual(0, source.suspends, "legacy source remains active at five blocks");
         expectResult(result, QueueResult::Queued, writer.enqueue("b"), "default queue remains unlimited");
         result.expectEqual(1, source.suspends, "legacy source suspends above five blocks");
-        while (core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer) != 0) {
-            core::socket::stream::detail::SocketWriterTestAccess::writeOnce(writer);
+        while (writer.queuedBytes() != 0) {
+            processOneEventLoopTick();
         }
         result.expectEqual(1, source.resumes, "legacy default resumes only when queue is empty");
         writer.detachSource();
@@ -359,8 +348,8 @@ int main() {
         expectResult(result, QueueResult::Queued, writer.enqueue("123456"), "shutdown fixture reaches its high watermark");
         result.expectEqual(1, source.suspends, "shutdown fixture suspends its source");
         writer.beginShutdown();
-        while (core::socket::stream::detail::SocketWriterTestAccess::queuedBytes(writer) != 0) {
-            core::socket::stream::detail::SocketWriterTestAccess::writeOnce(writer);
+        while (writer.queuedBytes() != 0) {
+            processOneEventLoopTick();
         }
         result.expectEqual(0, source.resumes, "draining for shutdown does not resume a suspended source");
         writer.detachSource();
