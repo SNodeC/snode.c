@@ -91,6 +91,9 @@ namespace core::socket::stream {
         void startFlow(const std::function<void()>& callback);
 
     protected:
+        // Re-arm a flow only after terminateFlow() completed.
+        bool restartFlow();
+
         void reportFlowRetry();
 
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);

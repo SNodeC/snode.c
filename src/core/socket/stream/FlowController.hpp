@@ -101,6 +101,21 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
+    bool FlowController<ConcreteFlowController>::restartFlow() {
+        if (!terminated) {
+            return false;
+        }
+
+        // terminateFlow() synchronously cancels all asynchronous sub-flows
+        // before setting this controller aside. A later explicit endpoint
+        // operation may therefore reuse the same controller safely.
+        terminated = false;
+        retryEnabled = true;
+
+        return true;
+    }
+
+    template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::stopRetry() {
         retryEnabled = false;
         cancelRetryTimer();

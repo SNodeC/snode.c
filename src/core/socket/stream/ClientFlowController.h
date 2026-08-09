@@ -82,6 +82,9 @@ namespace core::socket::stream {
         ClientFlowController* setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
     private:
+        // Re-arm retry and reconnect policy for a later explicit connect().
+        bool restartFlow();
+
         void reportFlowReconnect();
 
         void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
