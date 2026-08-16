@@ -76,12 +76,12 @@ namespace core::socket::stream::tls {
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // on Connected
-                  static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().trace("SSL/TLS: Start handshake");
+                  socketConnection->log().trace("SSL/TLS: Start handshake");
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
                            onConnected,
                            socketConnection,
-                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onSuccess
+                           log = socketConnection->log()]() { // onSuccess
                               log.debug("SSL/TLS: Handshake success");
                               log.info("transport ready");
 
@@ -90,18 +90,18 @@ namespace core::socket::stream::tls {
                               socketConnection->setSocketContext(socketContextFactory);
                           },
                           [socketConnection,
-                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()]() { // onTimeout
+                           log = socketConnection->log()]() { // onTimeout
                               log.error("SSL/TLS: Handshake timed out");
 
                               socketConnection->close();
                           },
                           [socketConnection,
-                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()](int sslErr) { //
+                           log = socketConnection->log()](int sslErr) { //
                               ssl_log(log, "SSL/TLS: Handshake failed", sslErr);
 
                               socketConnection->close();
                           })) {
-                      static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log().error("SSL/TLS: Handshake failed");
+                      socketConnection->log().error("SSL/TLS: Handshake failed");
 
                       socketConnection->close();
                   }
