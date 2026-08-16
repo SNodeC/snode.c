@@ -98,8 +98,9 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           },
-                          [socketConnection](int sslErr) { // onError
-                              ssl_log(socketConnection->getConnectionName() + " SSL/TLS: Handshake failed", sslErr);
+                          [socketConnection,
+                           log = static_cast<core::socket::stream::SocketConnection*>(socketConnection)->log()](int sslErr) { // onError
+                              ssl_log(log, "SSL/TLS: Handshake failed", sslErr);
 
                               socketConnection->close();
                           })) {
