@@ -45,6 +45,10 @@
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "core/socket/stream/QueueResult.h"
 
+namespace logger {
+    struct LogScope;
+}
+
 namespace core::pipe {
     class Source;
 }
@@ -71,13 +75,8 @@ namespace core::socket::stream {
         SocketWriter() = delete;
 
     protected:
-        explicit SocketWriter(const std::string& instanceName,
-                              const std::function<void(int)>& onStatus,
-                              const utils::Timeval& timeout,
-                              std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout);
-
-        SocketWriter(const std::string& instanceName,
+        SocketWriter(const std::string& name,
+                     logger::LogScope logScope,
                      const std::function<void(int)>& onStatus,
                      const utils::Timeval& timeout,
                      std::size_t blockSize,

@@ -43,13 +43,19 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETREADER_H
 
 #include "core/socket/stream/SocketReader.h"
-#include "log/LogScopeOwner.h"
+
+namespace logger {
+    struct LogScope;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <cstdio>
 #include <functional>
 #include <openssl/types.h>
+#include <string>
 #include <sys/types.h>
 #include <vector>
 
@@ -67,16 +73,11 @@ namespace core::socket::stream::tls {
 
     protected:
         explicit SocketReader(const std::string& instanceName,
+                              logger::LogScope streamLogScope,
                               const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,
                               const utils::Timeval& terminateTimeout);
-
-    public:
-        logger::BoundaryLogger log() const;
-        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
-                                   logger::LogLevel threshold = logger::LogLevel::Trace,
-                                   logger::BoundaryLogger::Clock clock = {}) const;
 
     private:
         ssize_t read(char* chunk, std::size_t chunkLen) override;
@@ -97,8 +98,6 @@ namespace core::socket::stream::tls {
     private:
         std::vector<char> handoffBuffer;
         std::size_t handoffCursor = 0;
-
-        logger::LogScopeOwner logScope;
 
         friend struct detail::TLSLifecycleTestAccess;
     };

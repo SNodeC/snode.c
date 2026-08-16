@@ -49,6 +49,7 @@
 
 #include <cerrno>
 #include <climits>
+#include <optional>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -84,6 +85,17 @@ namespace core {
         , initialTimeout(timeout) {
     }
 
+    DescriptorEventReceiver::DescriptorEventReceiver(const std::string& name,
+                                                     DescriptorEventPublisher& descriptorEventPublisher,
+                                                     logger::LogScope logScope,
+                                                     const utils::Timeval& timeout)
+        : EventReceiver(name)
+        , descriptorEventPublisher(descriptorEventPublisher)
+        , logScope(logger::LogScopeOwner::fromScope(logScope))
+        , maxInactivity(timeout)
+        , initialTimeout(timeout) {
+    }
+
     int DescriptorEventReceiver::getRegisteredFd() const {
         return observedFd;
     }
@@ -107,20 +119,20 @@ namespace core {
 
     bool DescriptorEventReceiver::enable(int fd) {
         if (enabled) {
-            log().warn("{}: Double enable", getName());
+            log().warn("{} descriptor: Double enable", descriptorEventPublisher.getName());
             return false;
         }
 
         observedFd = fd;
         if (descriptorEventPublisher.enable(this)) {
             enabled = true;
-            log().trace("{}: Enabled", getName());
+            log().trace("{} descriptor enabled", descriptorEventPublisher.getName());
             return true;
         }
 
         const int registrationError = errno != 0 ? errno : EIO;
         observedFd = -1;
-        log().error("{}: Descriptor registration failed: fd={}", getName(), fd);
+        log().error("{} descriptor registration failed: fd={}", descriptorEventPublisher.getName(), fd);
         errno = registrationError;
         return false;
     }
@@ -129,9 +141,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            log().trace("{}: Disabled", getName());
+            log().trace("{} descriptor disabled", descriptorEventPublisher.getName());
         } else {
-            log().warn("{}: Double disable", getName());
+            log().warn("{} descriptor: Double disable", descriptorEventPublisher.getName());
         }
     }
 
@@ -141,10 +153,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                log().warn("{}: Double suspend", getName());
+                log().warn("{} descriptor: Double suspend", descriptorEventPublisher.getName());
             }
         } else {
-            log().warn("{}: Suspend while not enabled", getName());
+            log().warn("{} descriptor: Suspend while not enabled", descriptorEventPublisher.getName());
         }
     }
 
@@ -155,10 +167,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                log().warn("{}: Double resume", getName());
+                log().warn("{} descriptor: Double resume", descriptorEventPublisher.getName());
             }
         } else {
-            log().warn("{}: Resume while not enabled", getName());
+            log().warn("{} descriptor: Resume while not enabled", descriptorEventPublisher.getName());
         }
     }
 

@@ -45,6 +45,10 @@
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
 
+namespace logger {
+    struct LogScope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
@@ -86,14 +90,6 @@ namespace core::socket::stream::tls {
                                 const utils::Timeval& timeout);
 
     private:
-        static void doShutdownWithRelease(const std::string& instanceName,
-                                        SSL* ssl,
-                                        const std::function<void(void)>& onSuccess,
-                                        const std::function<void(void)>& onTimeout,
-                                        const std::function<void(int)>& onStatus,
-                                        const utils::Timeval& timeout,
-                                        const std::function<void(void)>& onReleased);
-
         enum class TypedSuccess {
             CloseNotifySent,
             FullShutdownComplete
@@ -105,6 +101,7 @@ namespace core::socket::stream::tls {
         };
 
         static void doShutdownTypedWithRelease(const std::string& instanceName,
+                                               logger::LogScope logScope,
                                                SSL* ssl,
                                                const std::function<void(TypedSuccess)>& onSuccess,
                                                const std::function<void(void)>& onTimeout,
@@ -116,6 +113,16 @@ namespace core::socket::stream::tls {
 
 
         TLSShutdown(const std::string& instanceName,
+                    SSL* ssl,
+                    const std::function<void(TypedSuccess)>& onSuccess,
+                    const std::function<void(void)>& onTimeout,
+                    const std::function<void(int)>& onStatus,
+                    const utils::Timeval& timeout,
+                    const std::function<void(void)>& onReleased,
+                    int fd,
+                    const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
+        TLSShutdown(const std::string& instanceName,
+                    logger::LogScope logScope,
                     SSL* ssl,
                     const std::function<void(TypedSuccess)>& onSuccess,
                     const std::function<void(void)>& onTimeout,

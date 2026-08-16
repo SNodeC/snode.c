@@ -44,6 +44,10 @@
 
 #include "core/DescriptorEventReceiver.h" // IWYU pragma: export
 
+namespace logger {
+    struct LogScope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -57,6 +61,7 @@ namespace core::eventreceiver {
     class WriteEventReceiver : public core::DescriptorEventReceiver {
     protected:
         WriteEventReceiver(const std::string& name, const utils::Timeval& timeout);
+        WriteEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout);
 
         virtual void writeTimeout();
 

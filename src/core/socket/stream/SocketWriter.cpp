@@ -41,7 +41,6 @@
 
 #include "core/socket/stream/SocketWriter.h"
 
-#include "SemanticLog.h"
 #include "core/pipe/Source.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -57,15 +56,8 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
-    SocketWriter::SocketWriter(const std::string& instanceName,
-                               const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout,
-                               std::size_t blockSize,
-                               const utils::Timeval& terminateTimeout)
-        : SocketWriter(instanceName, onStatus, timeout, blockSize, terminateTimeout, 0, 0, 0) {
-    }
-
-    SocketWriter::SocketWriter(const std::string& instanceName,
+    SocketWriter::SocketWriter(const std::string& name,
+                               logger::LogScope logScope,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
@@ -73,7 +65,7 @@ namespace core::socket::stream {
                                std::size_t maximumWriteQueueBytes,
                                std::size_t writeQueueHighWatermark,
                                std::size_t writeQueueLowWatermark)
-        : core::eventreceiver::WriteEventReceiver(instanceName, timeout)
+        : core::eventreceiver::WriteEventReceiver(name, logScope, timeout)
         , onStatus(onStatus)
         , blockSize(blockSize)
         , maximumWriteQueueBytes(maximumWriteQueueBytes)
@@ -143,7 +135,7 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown restart";
+                log().trace("Write shutdown restarted");
                 doWriteShutdown(onShutdown);
             } else {
                 resumeSourceAtLowWatermark();
@@ -188,15 +180,14 @@ namespace core::socket::stream {
             case QueueResult::Queued:
                 break;
             case QueueResult::WouldExceedLimit:
-                snode::semantic::coreSocketLog().warn()
-                    << getName() << ": Send would exceed maximum write queue: failing the connection for " << chunkLen << " bytes";
+                log().warn("Send would exceed maximum write queue: failing the connection for {} bytes", chunkLen);
                 onStatus(ENOBUFS);
                 break;
             case QueueResult::Closed:
-                snode::semantic::coreSocketLog().warn() << getName() << ": Send while not enabled";
+                log().warn("Send while not enabled");
                 break;
             case QueueResult::ShutdownInProgress:
-                snode::semantic::coreSocketLog().warn() << getName() << ": Send while shutdown in progress: ignoring";
+                log().warn("Send while shutdown in progress: ignoring");
                 break;
         }
     }
@@ -209,15 +200,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    snode::semantic::coreSocketLog().trace() << getName() << ": Stream started";
+                    log().trace("Stream started");
                 } else {
-                    snode::semantic::coreSocketLog().warn() << getName() << ": Stream source is nullptr";
+                    log().warn("Stream source is nullptr");
                 }
             } else {
-                snode::semantic::coreSocketLog().warn() << getName() << ": Stream while not enabled";
+                log().warn("Stream while not enabled");
             }
         } else {
-            snode::semantic::coreSocketLog().warn() << getName() << ": Stream while shutdown in progress";
+            log().warn("Stream while shutdown in progress");
         }
 
         this->source = success ? source : nullptr;
@@ -231,7 +222,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        snode::semantic::coreSocketLog().trace() << getName() << ": Stream EOF";
+        log().trace("Stream EOF");
         this->source = nullptr;
         sourceSuspended = false;
     }
@@ -285,11 +276,11 @@ namespace core::socket::stream {
 
             SocketWriter::onShutdown = onShutdown;
             if (writePuffer.empty()) {
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown start";
+                log().trace("Write shutdown started");
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown delayed due to queued data";
+                log().trace("Write shutdown delayed due to queued data");
             }
         }
     }

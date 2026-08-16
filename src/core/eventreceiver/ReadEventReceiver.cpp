@@ -43,6 +43,7 @@
 
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
+#include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -54,6 +55,14 @@ namespace core::eventreceiver {
         : core::DescriptorEventReceiver(
               name + " read",
               core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
+              timeout) {
+    }
+
+    ReadEventReceiver::ReadEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout)
+        : core::DescriptorEventReceiver(
+              name + " read",
+              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
+              logScope,
               timeout) {
     }
 

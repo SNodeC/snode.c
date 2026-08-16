@@ -43,13 +43,19 @@
 #define CORE_SOCKET_STREAM_TLS_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
-#include "log/LogScopeOwner.h"
+
+namespace logger {
+    struct LogScope;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <cstdio>
 #include <functional>
 #include <openssl/types.h>
+#include <string>
 #include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -65,13 +71,8 @@ namespace core::socket::stream::tls {
         using Super = core::socket::stream::SocketWriter;
 
     protected:
-        explicit SocketWriter(const std::string& instanceName,
-                              const std::function<void(int)>& onStatus,
-                              const utils::Timeval& timeout,
-                              std::size_t blockSize,
-                              const utils::Timeval& terminateTimeout);
-
         SocketWriter(const std::string& instanceName,
+                     logger::LogScope streamLogScope,
                      const std::function<void(int)>& onStatus,
                      const utils::Timeval& timeout,
                      std::size_t blockSize,
@@ -79,12 +80,6 @@ namespace core::socket::stream::tls {
                      std::size_t maximumWriteQueueBytes,
                      std::size_t writeQueueHighWatermark,
                      std::size_t writeQueueLowWatermark);
-
-    public:
-        logger::BoundaryLogger log() const;
-        logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
-                                   logger::LogLevel threshold = logger::LogLevel::Trace,
-                                   logger::BoundaryLogger::Clock clock = {}) const;
 
     private:
         ssize_t write(const char* chunk, std::size_t chunkLen) override;
@@ -99,8 +94,6 @@ namespace core::socket::stream::tls {
         SSL* ssl = nullptr;
 
     private:
-        logger::LogScopeOwner logScope;
-
         friend struct detail::TLSLifecycleTestAccess;
     };
 

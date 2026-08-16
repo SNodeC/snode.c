@@ -42,6 +42,7 @@
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "log/SemanticLogger.h"
 
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
@@ -52,8 +53,11 @@
 #include <algorithm>
 #include <array>
 #include <cerrno>
+#include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <optional>
+#include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -78,16 +82,6 @@ namespace core::socket::stream::tls {
                                  const std::function<void(void)>& onTimeout,
                                  const std::function<void(int)>& onStatus,
                                  const utils::Timeval& timeout) {
-        doShutdownWithRelease(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {});
-    }
-
-    void TLSShutdown::doShutdownWithRelease(const std::string& instanceName,
-                                            SSL* ssl,
-                                            const std::function<void(void)>& onSuccess,
-                                            const std::function<void(void)>& onTimeout,
-                                            const std::function<void(int)>& onStatus,
-                                            const utils::Timeval& timeout,
-                                            const std::function<void(void)>& onReleased) {
         auto* helper = new TLSShutdown(
             instanceName,
             ssl,
@@ -97,12 +91,13 @@ namespace core::socket::stream::tls {
             onTimeout,
             onStatus,
             timeout,
-            onReleased,
+            {},
             SSL_get_fd(ssl));
         helper->start();
     }
 
     void TLSShutdown::doShutdownTypedWithRelease(const std::string& instanceName,
+                                                 logger::LogScope logScope,
                                                  SSL* ssl,
                                                  const std::function<void(TypedSuccess)>& onSuccess,
                                                  const std::function<void(void)>& onTimeout,
@@ -111,9 +106,38 @@ namespace core::socket::stream::tls {
                                                  const std::function<void(void)>& onReleased,
                                                  CompletionRequirement completionRequirement,
                                                  const std::function<bool(const char*, std::size_t)>& onApplicationData) {
-        auto* helper = new TLSShutdown(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl), onApplicationData);
+        auto* helper = new TLSShutdown(
+            instanceName, logScope, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl), onApplicationData);
         helper->completionRequirement = completionRequirement;
         helper->start();
+    }
+
+    TLSShutdown::TLSShutdown(const std::string& instanceName,
+                             logger::LogScope logScope,
+                             SSL* ssl,
+                             const std::function<void(TypedSuccess)>& onSuccess,
+                             const std::function<void(void)>& onTimeout,
+                             const std::function<void(int)>& onStatus,
+                             const utils::Timeval& timeout,
+                             const std::function<void(void)>& onReleased,
+                             int fd,
+                             const std::function<bool(const char*, std::size_t)>& onApplicationData)
+        : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", logScope, timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", logScope, timeout)
+        , ssl(ssl)
+        , onSuccess(onSuccess)
+        , onTimeout(onTimeout)
+        , onStatus(onStatus)
+        , onReleased(onReleased)
+        , onApplicationData(onApplicationData)
+        , fd(fd) {
+#if defined(SNODEC_BUILD_TESTS)
+        auto& state = detail::test::shutdownState();
+        state.last = this;
+        state.counters.constructed++;
+        state.counters.active++;
+        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
+#endif
     }
 
     TLSShutdown::TLSShutdown(const std::string& instanceName,

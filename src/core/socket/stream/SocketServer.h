@@ -179,7 +179,7 @@ namespace core::socket::stream {
                   this->config,
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
                   [onConnect, log = this->log()](SocketConnection* socketConnection) { // onConnect
-                      log.debug("{}: OnConnect", socketConnection->getConnectionName());
+                      log.debug("Connection {} connecting", socketConnection->getConnectionId());
 
                       log.debug("Local: {}", socketConnection->getLocalAddress().toString());
                       log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
@@ -189,7 +189,7 @@ namespace core::socket::stream {
                       }
                   },
                   [onConnected, log = this->log()](SocketConnection* socketConnection) { // onConnected
-                      log.debug("{}: OnConnected", socketConnection->getConnectionName());
+                      log.debug("Connection {} connected", socketConnection->getConnectionId());
 
                       log.debug("Local: {}", socketConnection->getLocalAddress().toString());
                       log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
@@ -199,7 +199,7 @@ namespace core::socket::stream {
                       }
                   },
                   [onDisconnect, log = this->log()](SocketConnection* socketConnection) { // onDisconnect
-                      log.debug("{}: OnDisconnect", socketConnection->getConnectionName());
+                      log.debug("Connection {} disconnected", socketConnection->getConnectionId());
 
                       log.debug("Local: {}", socketConnection->getLocalAddress().toString());
                       log.debug("Peer: {}", socketConnection->getRemoteAddress().toString());
