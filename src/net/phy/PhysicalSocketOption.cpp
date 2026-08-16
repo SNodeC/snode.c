@@ -74,7 +74,7 @@ namespace net::phy {
     }
 
     const void* PhysicalSocketOption::getOptValue() const {
-        return static_cast<const void*>(optValue.data());
+        return optValue.data();
     }
 
     socklen_t PhysicalSocketOption::getOptLen() const {
