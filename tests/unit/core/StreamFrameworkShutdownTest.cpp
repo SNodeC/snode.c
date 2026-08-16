@@ -403,7 +403,14 @@ namespace {
     class CooperativePeer final : public core::eventreceiver::ReadEventReceiver {
     public:
         CooperativePeer(int fd, std::size_t expectedBytes, LifecycleState& state, const std::shared_ptr<PhysicalCounters>& physical)
-            : ReadEventReceiver("stream framework shutdown peer", utils::Timeval({0, 10000}))
+            : ReadEventReceiver("stream framework shutdown peer",
+                                logger::LogScope{logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::System,
+                                                 "core.eventreceiver",
+                                                 "stream framework shutdown peer read",
+                                                 logger::LogRole::Unknown,
+                                                 {}},
+                                utils::Timeval({0, 10000}))
             , fd(fd)
             , expectedBytes(expectedBytes)
             , state(state)
@@ -944,6 +951,43 @@ namespace {
                                  "core.socket.stream",
                                  std::optional<std::string>("client"),
                                  std::optional<std::string>("41"));
+        }
+
+        for (const std::string& message : {"PeerAddress (local): stream-framework-shutdown-address",
+                                           "PeerAddress (remote): stream-framework-shutdown-address",
+                                           "READ descriptor enabled",
+                                           "WRITE descriptor enabled",
+                                           "Write shutdown started"}) {
+            expectRecordIdentity(message,
+                                 "framework",
+                                 "connection",
+                                 "core.socket.stream",
+                                 std::optional<std::string>("client"),
+                                 std::optional<std::string>("41"));
+        }
+
+        for (const CapturedRecord& record : records) {
+            if (record.component == "core.socket.stream" && record.connection == std::optional<std::string>("41")) {
+                result.expectTrue(record.message.find("] stream-framework-shutdown") == std::string::npos,
+                                  "established connection message excludes legacy descriptor identity");
+                result.expectTrue(record.instance && record.instance->find('[') == std::string::npos,
+                                  "established connection instance excludes descriptor identity");
+                result.expectTrue(record.connection->find('[') == std::string::npos,
+                                  "established connection ID excludes descriptor identity");
+            }
+        }
+
+        const auto genericReceiver = std::find_if(records.begin(), records.end(), [](const CapturedRecord& record) {
+            return record.message == "READ descriptor enabled" && record.component == "core.eventreceiver";
+        });
+        result.expectTrue(genericReceiver != records.end(), "generic descriptor receiver record is available");
+        if (genericReceiver != records.end()) {
+            result.expectTrue(genericReceiver->origin == "framework", "generic descriptor receiver retains framework origin");
+            result.expectTrue(genericReceiver->boundary == "system", "generic descriptor receiver retains system boundary");
+            result.expectTrue(genericReceiver->instance == std::optional<std::string>("stream framework shutdown peer read"),
+                              "generic descriptor receiver retains receiver instance");
+            result.expectTrue(!genericReceiver->role.has_value(), "generic descriptor receiver has no connection role");
+            result.expectTrue(!genericReceiver->connection.has_value(), "generic descriptor receiver has no connection ID");
         }
 
         const auto disconnected = findRecord(records, "transport disconnected");

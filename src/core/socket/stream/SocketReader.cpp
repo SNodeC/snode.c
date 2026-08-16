@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h"
+#include "log/SemanticLogger.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -52,12 +53,13 @@
 
 namespace core::socket::stream {
 
-    SocketReader::SocketReader(const std::string& instanceName,
+    SocketReader::SocketReader(const std::string& name,
+                               logger::LogScope logScope,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
                                const utils::Timeval& terminateTimeout)
-        : core::eventreceiver::ReadEventReceiver(instanceName, timeout)
+        : core::eventreceiver::ReadEventReceiver(name, logScope, timeout)
         , onStatus(onStatus)
         , terminateTimeout(terminateTimeout) {
         setBlockSize(blockSize);

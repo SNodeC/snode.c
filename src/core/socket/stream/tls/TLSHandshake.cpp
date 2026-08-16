@@ -40,7 +40,10 @@
  */
 
 #include "core/socket/stream/tls/TLSHandshake.h"
+
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
@@ -50,8 +53,11 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <optional>
+#include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -75,22 +81,26 @@ namespace core::socket::stream::tls {
                                    const std::function<void(void)>& onTimeout,
                                    const std::function<void(int)>& onStatus,
                                    const utils::Timeval& timeout) {
-        doHandshakeWithRelease(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {});
+        const logger::LogScopeOwner logScope(
+            logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", instanceName + " SSL/TLS: Handshake");
+        auto* helper = new TLSHandshake(instanceName, logScope.scope(), ssl, onSuccess, onTimeout, onStatus, timeout, {}, SSL_get_fd(ssl));
+        helper->start();
     }
 
     void TLSHandshake::doHandshakeWithRelease(const std::string& instanceName,
+                                              logger::LogScope logScope,
                                               SSL* ssl,
                                               const std::function<void(void)>& onSuccess,
                                               const std::function<void(void)>& onTimeout,
                                               const std::function<void(int)>& onStatus,
                                               const utils::Timeval& timeout,
                                               const std::function<void(void)>& onReleased) {
-        auto* helper = new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
+        auto* helper = new TLSHandshake(instanceName, logScope, ssl, onSuccess, onTimeout, onStatus, timeout, onReleased, SSL_get_fd(ssl));
         helper->start();
     }
 
-
     TLSHandshake::TLSHandshake(const std::string& instanceName,
+                               logger::LogScope logScope,
                                SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
@@ -98,8 +108,8 @@ namespace core::socket::stream::tls {
                                const utils::Timeval& timeout,
                                const std::function<void(void)>& onReleased,
                                int fd)
-        : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
-        , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
+        : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", logScope, timeout)
+        , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", logScope, timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

@@ -43,6 +43,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
 #include <iostream>
@@ -56,7 +57,11 @@
 namespace apps::towercalculator {
 
     KeyboardReader::KeyboardReader(const std::function<void(long)>& cb)
-        : core::eventreceiver::ReadEventReceiver("KeyboardReader", 0)
+        : core::eventreceiver::ReadEventReceiver(
+              "KeyboardReader",
+              logger::LogScope{
+                  logger::LogOrigin::Application, logger::LogBoundary::Application, "app", "towercalculator", logger::LogRole::Unknown, {}},
+              0)
         , callBack(cb) {
         if (!enable(STDIN_FILENO)) {
             std::cout << "KeyboardReader not activated";

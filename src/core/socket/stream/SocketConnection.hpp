@@ -39,18 +39,16 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
 #include "core/Shutdown.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/PreserveErrno.h"
 #include "utils/system/signal.h"
 
-#include <iomanip>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -86,7 +84,7 @@ namespace core::socket::stream {
     } // namespace detail
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getLocalSocketAddress(PhysicalSocket& physicalSocket, Config& config, const logger::BoundaryLogger& log) {
         typename SocketAddress::SockAddr localSockAddr;
         typename SocketAddress::SockLen localSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -94,24 +92,20 @@ namespace core::socket::stream {
         if (physicalSocket.getSockName(localSockAddr, localSockAddrLen) == 0) {
             try {
                 localPeerAddress = config->Local::getSocketAddress(localSockAddr, localSockAddrLen);
-                snode::semantic::coreSocketLog().trace() << config->getInstanceName() << " [" << physicalSocket.getFd() << "]"
-                                                         << std::setw(25) << "  PeerAddress (local): " << localPeerAddress.toString();
+                log.trace("PeerAddress (local): {}", localPeerAddress.toString());
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                snode::semantic::coreSocketLog().warn() << config->getInstanceName() << " [" << physicalSocket.getFd() << "]"
-                                                        << std::setw(25) << "  PeerAddress (local): " << badSocketAddress.what();
+                log.warn("PeerAddress (local): {}", badSocketAddress.what());
             }
         } else {
             const int errnum = errno;
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
-                << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                << " PeerAddress (local) not retrievable";
+            log.sysError(logger::LogLevel::Warn, errnum, "PeerAddress (local) not retrievable");
         }
 
         return localPeerAddress;
     }
 
     template <typename SocketAddress, typename PhysicalSocket, typename Config>
-    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config) {
+    SocketAddress getRemoteSocketAddress(PhysicalSocket& physicalSocket, Config& config, const logger::BoundaryLogger& log) {
         typename SocketAddress::SockAddr remoteSockAddr;
         typename SocketAddress::SockLen remoteSockAddrLen = sizeof(typename SocketAddress::SockAddr);
 
@@ -119,17 +113,13 @@ namespace core::socket::stream {
         if (physicalSocket.getPeerName(remoteSockAddr, remoteSockAddrLen) == 0) {
             try {
                 remotePeerAddress = config->Remote::getSocketAddress(remoteSockAddr, remoteSockAddrLen);
-                snode::semantic::coreSocketLog().trace() << config->getInstanceName() << " [" << physicalSocket.getFd() << "]"
-                                                         << std::setw(25) << "  PeerAddress (remote): " << remotePeerAddress.toString();
+                log.trace("PeerAddress (remote): {}", remotePeerAddress.toString());
             } catch (const typename SocketAddress::BadSocketAddress& badSocketAddress) {
-                snode::semantic::coreSocketLog().warn() << config->getInstanceName() << " [" << physicalSocket.getFd() << "]"
-                                                        << std::setw(25) << "  PeerAddress (remote): " << badSocketAddress.what();
+                log.warn("PeerAddress (remote): {}", badSocketAddress.what());
             }
         } else {
             const int errnum = errno;
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
-                << config->getInstanceName() << " [" << physicalSocket.getFd() << "]" << std::setw(25)
-                << " PeerAddress (remote) not retrievble";
+            log.sysError(logger::LogLevel::Warn, errnum, "PeerAddress (remote) not retrievable");
         }
 
         return remotePeerAddress;
@@ -143,6 +133,7 @@ namespace core::socket::stream {
         : SocketConnection(physicalSocket.getFd(), connectionId, config->getInstanceName(), config.get())
         , SocketReader(
               Super::getConnectionName(),
+              Super::logScope.scope(),
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
@@ -161,6 +152,7 @@ namespace core::socket::stream {
               config->getTerminateTimeout())
         , SocketWriter(
               Super::getConnectionName(),
+              Super::logScope.scope(),
               [this](int errnum) {
                   {
                       const utils::PreserveErrno pe(errnum);
@@ -178,8 +170,8 @@ namespace core::socket::stream {
               detail::writeQueueLowWatermark(*config))
         , physicalSocket(std::move(physicalSocket))
         , onDisconnect(onDisconnect)
-        , localAddress(getLocalSocketAddress<SocketAddress>(this->physicalSocket, config))
-        , remoteAddress(getRemoteSocketAddress<SocketAddress>(this->physicalSocket, config))
+        , localAddress(getLocalSocketAddress<SocketAddress>(this->physicalSocket, config, Super::log()))
+        , remoteAddress(getRemoteSocketAddress<SocketAddress>(this->physicalSocket, config, Super::log()))
         , config(config) {
         if (!SocketReader::enable(this->physicalSocket.getFd())) {
             delete this;

@@ -45,6 +45,7 @@
 
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
@@ -57,6 +58,7 @@
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <optional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -76,6 +78,21 @@ namespace core::socket::stream::tls {
 
         logger::BoundaryLogger tlsLog() {
             return tlsLogScope().logger(logger::Logger::semanticSink());
+        }
+
+        void emitOpenSslErrors(const logger::BoundaryLogger& log, logger::LogLevel level, const std::string& message) {
+            if (!log.enabled(level)) {
+                return;
+            }
+
+            log.emit(level, message);
+            const unsigned long firstErrorCode = ERR_get_error();
+            log.emit(level, std::string("  ") + ERR_error_string(firstErrorCode, nullptr));
+
+            unsigned long errorCode = 0;
+            while ((errorCode = ERR_get_error()) != 0) {
+                log.emit(level, std::string("  ") + ERR_error_string(errorCode, nullptr));
+            }
         }
     } // namespace
 
@@ -333,76 +350,44 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log(const std::string& message, int sslErr) {
+        ssl_log(tlsLog(), message, sslErr);
+    }
+
+    void ssl_log(const logger::BoundaryLogger& log, const std::string& message, int sslErr) {
         const utils::PreserveErrno preserveErrno;
 
         switch (sslErr) {
             case SSL_ERROR_NONE:
                 [[fallthrough]];
             case SSL_ERROR_ZERO_RETURN:
-                ssl_log_info(message);
+                emitOpenSslErrors(log, logger::LogLevel::Info, message);
                 break;
             case SSL_ERROR_SYSCALL:
                 if (errno != 0) {
-                    ssl_log_error(message);
+                    emitOpenSslErrors(log, logger::LogLevel::Error, message);
                 } else {
-                    ssl_log_info(message);
+                    emitOpenSslErrors(log, logger::LogLevel::Info, message);
                 }
                 break;
             case SSL_ERROR_SSL:
-                ssl_log_error(message);
+                emitOpenSslErrors(log, logger::LogLevel::Error, message);
                 break;
             default:
-                ssl_log_warning(message);
+                emitOpenSslErrors(log, logger::LogLevel::Warn, message);
                 break;
         }
     }
 
     void ssl_log_error(const std::string& message) {
-        auto log = tlsLog();
-        if (!log.enabled(logger::LogLevel::Error)) {
-            return;
-        }
-
-        log.error("{}", message);
-        const unsigned long firstErrorCode = ERR_get_error();
-        log.error("  {}", ERR_error_string(firstErrorCode, nullptr));
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            log.error("  {}", ERR_error_string(errorCode, nullptr));
-        }
+        emitOpenSslErrors(tlsLog(), logger::LogLevel::Error, message);
     }
 
     void ssl_log_warning(const std::string& message) {
-        auto log = tlsLog();
-        if (!log.enabled(logger::LogLevel::Warn)) {
-            return;
-        }
-
-        log.warn("{}", message);
-        const unsigned long firstErrorCode = ERR_get_error();
-        log.warn("  {}", ERR_error_string(firstErrorCode, nullptr));
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            log.warn("  {}", ERR_error_string(errorCode, nullptr));
-        }
+        emitOpenSslErrors(tlsLog(), logger::LogLevel::Warn, message);
     }
 
     void ssl_log_info(const std::string& message) {
-        auto log = tlsLog();
-        if (!log.enabled(logger::LogLevel::Info)) {
-            return;
-        }
-
-        log.info("{}", message);
-        const unsigned long firstErrorCode = ERR_get_error();
-        log.info("  {}", ERR_error_string(firstErrorCode, nullptr));
-
-        unsigned long errorCode = 0;
-        while ((errorCode = ERR_get_error()) != 0) {
-            log.info("  {}", ERR_error_string(errorCode, nullptr));
-        }
+        emitOpenSslErrors(tlsLog(), logger::LogLevel::Info, message);
     }
 
     bool match(const char* first, const char* second) {

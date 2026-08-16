@@ -12,6 +12,7 @@
 #include "core/pipe/Source.h"
 #include "core/socket/stream/QueueResult.h"
 #include "core/socket/stream/SocketWriter.h"
+#include "log/SemanticLogger.h"
 #include "net/config/ConfigConnection.h"
 #include "net/config/ConfigInstance.h"
 #include "tests/support/TestResult.h"
@@ -85,11 +86,21 @@ namespace {
         int stops = 0;
     };
 
+    logger::LogScope writerLogScope() {
+        return {logger::LogOrigin::Framework,
+                logger::LogBoundary::Connection,
+                "core.socket.stream",
+                "SocketWriterResourcePolicyTest",
+                logger::LogRole::Client,
+                "1"};
+    }
+
     class TestWriter final : public core::socket::stream::SocketWriter {
     public:
         TestWriter(std::size_t blockSize, std::size_t maximum, std::size_t high, std::size_t low)
             : SocketWriter(
                   "SocketWriterResourcePolicyTest",
+                  writerLogScope(),
                   [this](int errnum) {
                       lastError = errnum;
                   },
@@ -102,13 +113,18 @@ namespace {
         }
 
         explicit TestWriter(std::size_t blockSize)
-            : SocketWriter("SocketWriterResourcePolicyTest",
-                           [this](int errnum) {
-                               lastError = errnum;
-                           },
-                           {1, 0},
-                           blockSize,
-                           {1, 0}) {
+            : SocketWriter(
+                  "SocketWriterResourcePolicyTest",
+                  writerLogScope(),
+                  [this](int errnum) {
+                      lastError = errnum;
+                  },
+                  {1, 0},
+                  blockSize,
+                  {1, 0},
+                  0,
+                  0,
+                  0) {
         }
 
         bool open(int fd) {

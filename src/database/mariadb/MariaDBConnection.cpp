@@ -42,7 +42,6 @@
 
 #include "database/mariadb/MariaDBConnection.h"
 
-#include "SemanticLog.h"
 #include "database/mariadb/MariaDBClient.h"
 #include "database/mariadb/MariaDBLibrary.h"
 #include "database/mariadb/commands/async/MariaDBConnectCommand.h"
@@ -50,10 +49,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/SNodeC.h"
-#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
 #include <mysql.h>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -63,12 +62,21 @@ namespace database::mariadb {
 
     MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient,
                                          const MariaDBConnectionDetails& connectionDetails,
-                                         const std::function<void(const MariaDBState&)>& onStateChanged)
-        : ReadEventReceiver("MariaDBConnectionRead", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
-        , WriteEventReceiver("MariaDBConnectionWrite", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
-        , ExceptionalConditionEventReceiver("MariaDBConnectionExceptional", core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+                                         const std::function<void(const MariaDBState&)>& onStateChanged,
+                                         const std::string& instanceName)
+        : MariaDBConnection(
+              mariaDBClient, connectionDetails, onStateChanged, makeLogScope(instanceName, connectionDetails.connectionName)) {
+    }
+
+    MariaDBConnection::MariaDBConnection(MariaDBClient* mariaDBClient,
+                                         const MariaDBConnectionDetails& connectionDetails,
+                                         const std::function<void(const MariaDBState&)>& onStateChanged,
+                                         logger::LogScopeOwner logScope)
+        : ReadEventReceiver("MariaDBConnectionRead", logScope.scope(), core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+        , WriteEventReceiver("MariaDBConnectionWrite", logScope.scope(), core::DescriptorEventReceiver::TIMEOUT::DISABLE)
+        , ExceptionalConditionEventReceiver(
+              "MariaDBConnectionExceptional", logScope.scope(), core::DescriptorEventReceiver::TIMEOUT::DISABLE)
         , mariaDBClient(mariaDBClient)
-        , connectionName(connectionDetails.connectionName)
         , commandStartEvent("MariaDBCommandStartEvent", this)
         , onStateChanged(onStateChanged) {
         MariaDBLibrary::ensureInitialized();
@@ -99,19 +107,19 @@ namespace database::mariadb {
                             ExceptionalConditionEventReceiver::disable();
                         }
 
-                        snode::semantic::mariaDbLog().error() << this->connectionName << ": Descriptor not registered in SNode.C eventloop";
+                        log().error() << "Descriptor not registered in SNode.C eventloop";
                     }
                 }
             },
             [this]() {
-                snode::semantic::mariaDbLog().debug() << this->connectionName << ": connect: success";
+                log().debug() << "connect: success";
                 this->sessionEstablished = true;
-                snode::semantic::mariaDbLog().info() << "database session established: connection=" << this->connectionName;
+                log().info() << "database session established";
 
                 this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
-                snode::semantic::mariaDbLog().warn() << this->connectionName << ": connect: error: " << errorString << " : " << errorNumber;
+                log().warn() << "connect: error: " << errorString << " : " << errorNumber;
 
                 this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
             }))));
@@ -119,9 +127,8 @@ namespace database::mariadb {
 
     MariaDBConnection::~MariaDBConnection() {
         if (currentCommandStarted && currentCommand != nullptr) {
-            snode::semantic::mariaDbLog().debug()
-                << "database request " << (closing || core::SNodeC::state() != core::State::RUNNING ? "cancelled" : "failed")
-                << ": connection=" << connectionName << " command=" << currentCommand->commandInfo();
+            log().debug() << "database request " << (closing || core::SNodeC::state() != core::State::RUNNING ? "cancelled" : "failed")
+                          << ": command=" << currentCommand->commandInfo();
             currentCommandStarted = false;
         }
 
@@ -145,7 +152,7 @@ namespace database::mariadb {
         }
 
         if (sessionEstablished) {
-            snode::semantic::mariaDbLog().info() << "database session ended: connection=" << connectionName;
+            log().info() << "database session ended";
             sessionEstablished = false;
         }
     }
@@ -179,8 +186,7 @@ namespace database::mariadb {
 
             currentCommandStarted = true;
             currentCommandFailed = false;
-            snode::semantic::mariaDbLog().debug()
-                << "database request started: connection=" << connectionName << " command=" << currentCommand->commandInfo();
+            log().debug() << "database request started: command=" << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -207,8 +213,8 @@ namespace database::mariadb {
 
     void MariaDBConnection::commandCompleted() {
         if (currentCommandStarted) {
-            snode::semantic::mariaDbLog().debug() << "database request " << (currentCommandFailed ? "failed" : "completed")
-                                                  << ": connection=" << connectionName << " command=" << currentCommand->commandInfo();
+            log().debug() << "database request " << (currentCommandFailed ? "failed" : "completed")
+                          << ": command=" << currentCommand->commandInfo();
             currentCommandStarted = false;
         }
         commandSequenceQueue.front().commandCompleted();
@@ -323,7 +329,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::unobservedEvent() {
         if (!closing) {
-            snode::semantic::mariaDbLog().error() << connectionName << ": Lost connection";
+            log().error() << "Lost connection";
         }
 
         if (mariaDBClient != nullptr) {
@@ -331,6 +337,19 @@ namespace database::mariadb {
         }
 
         delete this;
+    }
+
+    logger::LogScopeOwner MariaDBConnection::makeLogScope(const std::string& instanceName, const std::string& connectionName) {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "db.mariadb",
+                                     instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                     std::nullopt,
+                                     connectionName.empty() ? std::nullopt : std::optional<std::string>(connectionName));
+    }
+
+    logger::BoundaryLogger MariaDBConnection::log() const {
+        return static_cast<const core::eventreceiver::ReadEventReceiver&>(*this).log();
     }
 
     MariaDBCommandStartEvent::MariaDBCommandStartEvent(const std::string& name, MariaDBConnection* mariaDBConnection)

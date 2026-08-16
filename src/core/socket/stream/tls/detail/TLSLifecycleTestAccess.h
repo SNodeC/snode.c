@@ -7,6 +7,7 @@
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "log/LogScopeOwner.h"
 
 #include <cerrno>
 #include <deque>
@@ -113,7 +114,10 @@ namespace core::socket::stream::tls::detail {
                                        const std::function<void(int)>& onStatus,
                                        const utils::Timeval& timeout,
                                        const std::function<void()>& onReleased) {
-            auto* helper = new TLSHandshake(instanceName, nullptr, onSuccess, onTimeout, onStatus, timeout, onReleased, fd);
+            const logger::LogScopeOwner logScope(
+                logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", instanceName + " SSL/TLS: Handshake");
+            auto* helper = new TLSHandshake(
+                instanceName, logScope.scope(), nullptr, onSuccess, onTimeout, onStatus, timeout, onReleased, fd);
             helper->start();
         }
 
@@ -124,7 +128,22 @@ namespace core::socket::stream::tls::detail {
                                       const std::function<void(int)>& onStatus,
                                       const utils::Timeval& timeout,
                                       const std::function<void()>& onReleased) {
-            auto* helper = new TLSShutdown(instanceName, nullptr, [onSuccess](TLSShutdown::TypedSuccess) { onSuccess(); }, onTimeout, onStatus, timeout, onReleased, fd);
+            const logger::LogScopeOwner logScope(logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::System,
+                                                 "core.eventreceiver",
+                                                 instanceName + " SSL/TLS: Send close_notify");
+            auto* helper = new TLSShutdown(
+                instanceName,
+                logScope.scope(),
+                nullptr,
+                [onSuccess](TLSShutdown::TypedSuccess) {
+                    onSuccess();
+                },
+                onTimeout,
+                onStatus,
+                timeout,
+                onReleased,
+                fd);
             helper->start();
         }
 

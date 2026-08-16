@@ -36,10 +36,10 @@ namespace {
     using SourceMap = std::map<std::string, std::string>;
 
     constexpr std::size_t kBaselineParameterlessCallCount = 81;
-    constexpr std::size_t kTransferredParameterlessCallCount = 4;
+    constexpr std::size_t kTransferredParameterlessCallCount = 13;
     constexpr std::size_t kExpectedParameterlessCallCount = kBaselineParameterlessCallCount - kTransferredParameterlessCallCount;
 
-    static_assert(kExpectedParameterlessCallCount == 77);
+    static_assert(kExpectedParameterlessCallCount == 68);
 
     bool isIdentifierCharacter(char character) {
         const unsigned char value = static_cast<unsigned char>(character);
@@ -454,27 +454,9 @@ namespace {
             Entry{"src/iot/mqtt/server/broker/SubscriptionTree.cpp", "mqttBrokerLog", "SubscriptionTree::TopicLevel::log() const",
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "Subscription topic level belongs to the process-wide broker."},
 
-            // MariaDB operations have protocol/domain identity, not SocketConnection identity.
+            // MariaDB library initialization is process-wide.
             Entry{"src/database/mariadb/MariaDBLibrary.cpp", "mariaDbLog", "mysql_library_init failed",
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "MariaDB library initialization is a process-wide component diagnostic."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "Descriptor not registered in SNode.C eventloop",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "MariaDB connection name is the available database-domain identity."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "connect: success", "DOMAIN_OR_PROTOCOL_SCOPE",
-                  "MariaDB connection has no SocketConnection semantic scope."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "database session established:",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Database session identity is carried by the MariaDB connection name."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "connect: error:", "DOMAIN_OR_PROTOCOL_SCOPE",
-                  "MariaDB connection failure has no SocketConnection semantic scope."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "closing || core::SNodeC::state()",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Destructor request terminal belongs to the MariaDB command domain."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "database session ended:",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Database session identity is carried by the MariaDB connection name."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "database request started:",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Database request identity is the MariaDB command and connection name."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "currentCommandFailed ? \"failed\" : \"completed\"",
-                  "DOMAIN_OR_PROTOCOL_SCOPE", "Database request terminal is owned by the active MariaDB command."},
-            Entry{"src/database/mariadb/MariaDBConnection.cpp", "mariaDbLog", "Lost connection", "DOMAIN_OR_PROTOCOL_SCOPE",
-                  "MariaDB has no SocketConnection logger and retains its database connection identity."},
         };
     }
 
