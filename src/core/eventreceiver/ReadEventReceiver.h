@@ -60,7 +60,6 @@ namespace core::eventreceiver {
 
     class ReadEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        ReadEventReceiver(const std::string& name, const utils::Timeval& timeout);
         ReadEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout);
 
         virtual void readTimeout();

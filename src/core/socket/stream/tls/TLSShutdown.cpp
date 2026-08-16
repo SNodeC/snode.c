@@ -42,6 +42,7 @@
 #include "core/socket/stream/tls/TLSShutdown.h"
 
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "log/LogScopeOwner.h"
 #include "log/SemanticLogger.h"
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -82,8 +83,11 @@ namespace core::socket::stream::tls {
                                  const std::function<void(void)>& onTimeout,
                                  const std::function<void(int)>& onStatus,
                                  const utils::Timeval& timeout) {
+        const logger::LogScopeOwner logScope(
+            logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", instanceName + " SSL/TLS: Send close_notify");
         auto* helper = new TLSShutdown(
             instanceName,
+            logScope.scope(),
             ssl,
             [onSuccess](TypedSuccess) {
                 onSuccess();
@@ -124,33 +128,6 @@ namespace core::socket::stream::tls {
                              const std::function<bool(const char*, std::size_t)>& onApplicationData)
         : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", logScope, timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", logScope, timeout)
-        , ssl(ssl)
-        , onSuccess(onSuccess)
-        , onTimeout(onTimeout)
-        , onStatus(onStatus)
-        , onReleased(onReleased)
-        , onApplicationData(onApplicationData)
-        , fd(fd) {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::shutdownState();
-        state.last = this;
-        state.counters.constructed++;
-        state.counters.active++;
-        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
-#endif
-    }
-
-    TLSShutdown::TLSShutdown(const std::string& instanceName,
-                             SSL* ssl,
-                             const std::function<void(TypedSuccess)>& onSuccess,
-                             const std::function<void(void)>& onTimeout,
-                             const std::function<void(int)>& onStatus,
-                             const utils::Timeval& timeout,
-                             const std::function<void(void)>& onReleased,
-                             int fd,
-                             const std::function<bool(const char*, std::size_t)>& onApplicationData)
-        : ReadEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
-        , WriteEventReceiver(instanceName + " SSL/TLS: Send close_notify", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

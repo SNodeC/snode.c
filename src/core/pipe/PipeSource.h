@@ -44,6 +44,10 @@
 
 #include "core/eventreceiver/WriteEventReceiver.h"
 
+namespace logger {
+    struct LogScope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -89,6 +93,7 @@ namespace core::pipe {
 
     private:
         explicit PipeSource(int fd,
+                            logger::LogScope logScope,
                             std::size_t maxQueuedBytes = DEFAULT_MAX_QUEUED_BYTES,
                             const utils::Timeval& timeout = utils::Timeval({60, 0}));
         ~PipeSource() override;

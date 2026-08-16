@@ -403,7 +403,14 @@ namespace {
     class CooperativePeer final : public core::eventreceiver::ReadEventReceiver {
     public:
         CooperativePeer(int fd, std::size_t expectedBytes, LifecycleState& state, const std::shared_ptr<PhysicalCounters>& physical)
-            : ReadEventReceiver("stream framework shutdown peer", utils::Timeval({0, 10000}))
+            : ReadEventReceiver("stream framework shutdown peer",
+                                logger::LogScope{logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::System,
+                                                 "core.eventreceiver",
+                                                 "stream framework shutdown peer read",
+                                                 logger::LogRole::Unknown,
+                                                 {}},
+                                utils::Timeval({0, 10000}))
             , fd(fd)
             , expectedBytes(expectedBytes)
             , state(state)

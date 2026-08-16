@@ -51,13 +51,6 @@
 
 namespace core::eventreceiver {
 
-    WriteEventReceiver::WriteEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver(
-              name + " write",
-              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::WR),
-              timeout) {
-    }
-
     WriteEventReceiver::WriteEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
               name + " write",

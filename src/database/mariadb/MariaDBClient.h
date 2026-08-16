@@ -94,7 +94,9 @@ namespace database::mariadb {
         : public MariaDBClientASyncAPI
         , public MariaDBClientSyncAPI {
     public:
-        explicit MariaDBClient(const MariaDBConnectionDetails& details, const std::function<void(const MariaDBState&)>& onStateChanged);
+        explicit MariaDBClient(const MariaDBConnectionDetails& details,
+                               const std::function<void(const MariaDBState&)>& onStateChanged,
+                               const std::string& instanceName = {});
         ~MariaDBClient() override;
 
     private:
@@ -106,6 +108,7 @@ namespace database::mariadb {
         MariaDBConnection* mariaDBConnection = nullptr;
 
         MariaDBConnectionDetails details;
+        std::string instanceName;
 
         std::function<void(const MariaDBState&)> onStateChanged = nullptr;
 

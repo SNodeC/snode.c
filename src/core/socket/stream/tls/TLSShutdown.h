@@ -111,16 +111,6 @@ namespace core::socket::stream::tls {
                                                CompletionRequirement completionRequirement = CompletionRequirement::RequireFullShutdown,
                                                const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
 
-
-        TLSShutdown(const std::string& instanceName,
-                    SSL* ssl,
-                    const std::function<void(TypedSuccess)>& onSuccess,
-                    const std::function<void(void)>& onTimeout,
-                    const std::function<void(int)>& onStatus,
-                    const utils::Timeval& timeout,
-                    const std::function<void(void)>& onReleased,
-                    int fd,
-                    const std::function<bool(const char*, std::size_t)>& onApplicationData = {});
         TLSShutdown(const std::string& instanceName,
                     logger::LogScope logScope,
                     SSL* ssl,

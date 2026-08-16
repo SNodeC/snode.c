@@ -60,7 +60,6 @@ namespace core::eventreceiver {
 
     class WriteEventReceiver : public core::DescriptorEventReceiver {
     protected:
-        WriteEventReceiver(const std::string& name, const utils::Timeval& timeout);
         WriteEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout);
 
         virtual void writeTimeout();

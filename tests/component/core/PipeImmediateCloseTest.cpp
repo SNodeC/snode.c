@@ -10,12 +10,16 @@
 #include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSource.h"
 #include "core/timer/Timer.h"
+#include "log/SemanticLogger.h"
 #include "support/TestResult.h"
 #include "utils/Timeval.h"
 
 #include <cerrno>
 #include <fcntl.h>
+#include <string>
 #include <unistd.h>
+#include <utility>
+#include <vector>
 
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
@@ -25,7 +29,7 @@ int main(int argc, char* argv[]) {
     }
 
     core::SNodeC::init(argc, argv);
-    core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC);
+    core::pipe::Pipe pipe(O_NONBLOCK | O_CLOEXEC, "immediate-close-pipe");
     const bool completePipe = pipe.hasReadFd() && pipe.hasWriteFd();
     testResult.expectTrue(completePipe, "immediate-close test pipe is created");
     if (!completePipe) {
@@ -38,6 +42,25 @@ int main(int argc, char* argv[]) {
     if (source == nullptr) {
         core::SNodeC::free();
         return testResult.processResult();
+    }
+
+    std::vector<logger::LogRecord> scopeRecords;
+    source
+        ->log(
+            [&scopeRecords](logger::LogRecord record) {
+                scopeRecords.push_back(std::move(record));
+            },
+            logger::LogLevel::Trace)
+        .info("pipe scope probe");
+    testResult.expectEqual(static_cast<std::size_t>(1), scopeRecords.size(), "PipeSource exposes one captured semantic scope record");
+    if (!scopeRecords.empty()) {
+        const logger::LogRecord& record = scopeRecords.front();
+        testResult.expectTrue(record.origin == logger::LogOrigin::Framework && record.boundary == logger::LogBoundary::Connection,
+                              "PipeSource uses the framework connection boundary");
+        testResult.expectTrue(record.component == "core.pipe", "PipeSource uses the core.pipe component");
+        testResult.expectTrue(record.instance && *record.instance == "immediate-close-pipe",
+                              "PipeSource inherits the configured Pipe instance name");
+        testResult.expectTrue(record.connection && !record.connection->empty(), "PipeSource inherits a logical Pipe connection ID");
     }
     const int readFd = pipe.getReadFd();
     bool closed = false;

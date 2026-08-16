@@ -44,6 +44,10 @@
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 
+namespace logger {
+    struct LogScope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -80,6 +84,7 @@ namespace core::pipe {
 
     private:
         explicit PipeSink(int fd,
+                          logger::LogScope logScope,
                           std::size_t maxBytesPerEvent = DEFAULT_MAX_BYTES_PER_EVENT,
                           const utils::Timeval& timeout = utils::Timeval({60, 0}));
         ~PipeSink() override;

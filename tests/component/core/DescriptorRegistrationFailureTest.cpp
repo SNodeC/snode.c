@@ -86,7 +86,14 @@ namespace {
     class RealPublisherProbe final : public core::eventreceiver::ReadEventReceiver {
     public:
         RealPublisherProbe()
-            : ReadEventReceiver("real descriptor registration probe", TIMEOUT::DISABLE) {
+            : ReadEventReceiver("real descriptor registration probe",
+                                logger::LogScope{logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::System,
+                                                 "core.eventreceiver",
+                                                 "real descriptor registration probe read",
+                                                 logger::LogRole::Unknown,
+                                                 {}},
+                                TIMEOUT::DISABLE) {
         }
 
         ~RealPublisherProbe() override = default;

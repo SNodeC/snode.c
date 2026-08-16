@@ -42,6 +42,7 @@
 #include "core/socket/stream/tls/TLSHandshake.h"
 
 #include "core/socket/stream/tls/detail/TLSResult.h"
+#include "log/LogScopeOwner.h"
 #include "log/SemanticLogger.h"
 
 #if defined(SNODEC_BUILD_TESTS)
@@ -55,6 +56,7 @@
 #include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <optional>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -79,7 +81,9 @@ namespace core::socket::stream::tls {
                                    const std::function<void(void)>& onTimeout,
                                    const std::function<void(int)>& onStatus,
                                    const utils::Timeval& timeout) {
-        auto* helper = new TLSHandshake(instanceName, ssl, onSuccess, onTimeout, onStatus, timeout, {}, SSL_get_fd(ssl));
+        const logger::LogScopeOwner logScope(
+            logger::LogOrigin::Framework, logger::LogBoundary::System, "core.eventreceiver", instanceName + " SSL/TLS: Handshake");
+        auto* helper = new TLSHandshake(instanceName, logScope.scope(), ssl, onSuccess, onTimeout, onStatus, timeout, {}, SSL_get_fd(ssl));
         helper->start();
     }
 
@@ -106,31 +110,6 @@ namespace core::socket::stream::tls {
                                int fd)
         : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", logScope, timeout)
         , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", logScope, timeout)
-        , ssl(ssl)
-        , onSuccess(onSuccess)
-        , onTimeout(onTimeout)
-        , onStatus(onStatus)
-        , onReleased(onReleased)
-        , fd(fd) {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::handshakeState();
-        state.last = this;
-        state.counters.constructed++;
-        state.counters.active++;
-        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
-#endif
-    }
-
-    TLSHandshake::TLSHandshake(const std::string& instanceName,
-                               SSL* ssl,
-                               const std::function<void(void)>& onSuccess,
-                               const std::function<void(void)>& onTimeout,
-                               const std::function<void(int)>& onStatus,
-                               const utils::Timeval& timeout,
-                               const std::function<void(void)>& onReleased,
-                               int fd)
-        : ReadEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
-        , WriteEventReceiver(instanceName + " SSL/TLS: Handshake", timeout)
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)

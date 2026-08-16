@@ -47,9 +47,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
+#include <atomic>
 #include <cerrno>
+#include <optional>
 #include <system_error>
 #include <utility>
 
@@ -58,6 +62,11 @@
 namespace core::pipe {
 
     namespace {
+        std::uint64_t allocateConnectionId() noexcept {
+            static std::atomic<std::uint64_t> nextConnectionId{1};
+            return nextConnectionId.fetch_add(1, std::memory_order_relaxed);
+        }
+
         void closeDescriptor(int& fd) noexcept {
             const int descriptor = std::exchange(fd, -1);
             if (descriptor >= 0) {
@@ -90,11 +99,13 @@ namespace core::pipe {
         }
     } // namespace
 
-    Pipe::Pipe() noexcept
-        : Pipe(O_CLOEXEC) {
+    Pipe::Pipe(const std::string& instanceName)
+        : Pipe(O_CLOEXEC, instanceName) {
     }
 
-    Pipe::Pipe(int flags) noexcept {
+    Pipe::Pipe(int flags, const std::string& instanceName)
+        : instanceName(instanceName)
+        , connectionId(allocateConnectionId()) {
         int descriptors[2] = {-1, -1};
         if (core::system::pipe2(descriptors, flags) != 0) {
             error = errno;
@@ -106,7 +117,9 @@ namespace core::pipe {
     }
 
     Pipe::Pipe(Pipe&& pipe) noexcept
-        : readFd(std::exchange(pipe.readFd, -1))
+        : instanceName(std::move(pipe.instanceName))
+        , connectionId(pipe.connectionId)
+        , readFd(std::exchange(pipe.readFd, -1))
         , writeFd(std::exchange(pipe.writeFd, -1))
         , error(std::exchange(pipe.error, 0)) {
     }
@@ -120,6 +133,8 @@ namespace core::pipe {
         if (this != &pipe) {
             closeRead();
             closeWrite();
+            instanceName = std::move(pipe.instanceName);
+            connectionId = pipe.connectionId;
             readFd = std::exchange(pipe.readFd, -1);
             writeFd = std::exchange(pipe.writeFd, -1);
             error = std::exchange(pipe.error, 0);
@@ -127,8 +142,10 @@ namespace core::pipe {
         return *this;
     }
 
-    Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError)
-        : Pipe(O_NONBLOCK | O_CLOEXEC) {
+    Pipe::Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess,
+               const std::function<void(int)>& onError,
+               const std::string& instanceName)
+        : Pipe(O_NONBLOCK | O_CLOEXEC, instanceName) {
         if (!hasReadFd() || !hasWriteFd()) {
             onError(error);
             return;
@@ -197,6 +214,15 @@ namespace core::pipe {
         closeDescriptor(writeFd);
     }
 
+    logger::LogScopeOwner Pipe::makeLogScope() const {
+        return logger::LogScopeOwner(logger::LogOrigin::Framework,
+                                     logger::LogBoundary::Connection,
+                                     "core.pipe",
+                                     instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                                     std::nullopt,
+                                     std::to_string(connectionId));
+    }
+
     PipeSink* Pipe::releaseReadAsSink() {
         return releaseReadAsSink(PipeSink::DEFAULT_MAX_BYTES_PER_EVENT, utils::Timeval({60, 0}));
     }
@@ -209,7 +235,8 @@ namespace core::pipe {
         makeNonBlocking(readFd);
         const int descriptor = releaseReadFd();
         try {
-            return new PipeSink(descriptor, maxBytesPerEvent, timeout);
+            const logger::LogScopeOwner logScope = makeLogScope();
+            return new PipeSink(descriptor, logScope.scope(), maxBytesPerEvent, timeout);
         } catch (...) {
             readFd = descriptor;
             throw;
@@ -228,7 +255,8 @@ namespace core::pipe {
         makeNonBlocking(writeFd);
         const int descriptor = releaseWriteFd();
         try {
-            return new PipeSource(descriptor, maxQueuedBytes, timeout);
+            const logger::LogScopeOwner logScope = makeLogScope();
+            return new PipeSource(descriptor, logScope.scope(), maxQueuedBytes, timeout);
         } catch (...) {
             writeFd = descriptor;
             throw;

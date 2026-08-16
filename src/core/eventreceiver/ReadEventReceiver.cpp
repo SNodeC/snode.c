@@ -51,13 +51,6 @@
 
 namespace core::eventreceiver {
 
-    ReadEventReceiver::ReadEventReceiver(const std::string& name, const utils::Timeval& timeout)
-        : core::DescriptorEventReceiver(
-              name + " read",
-              core::EventLoop::instance().getEventMultiplexer().getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD),
-              timeout) {
-    }
-
     ReadEventReceiver::ReadEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout)
         : core::DescriptorEventReceiver(
               name + " read",
