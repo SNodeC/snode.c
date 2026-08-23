@@ -57,17 +57,17 @@ namespace net::config {
         : net::config::ConfigSection(instance, this) {
         readTimeoutOpt = addOption( //
             "--read-timeout",
-            "Read timeout in seconds",
+            "Read timeout in seconds (0 means unlimited)",
             "timeout",
             READ_TIMEOUT,
-            CLI::PositiveNumber);
+            CLI::NonNegativeNumber);
 
         writeTimeoutOpt = addOption( //
             "--write-timeout",
-            "Write timeout in seconds",
+            "Write timeout in seconds (0 means unlimited)",
             "timeout",
             WRITE_TIMEOUT,
-            CLI::PositiveNumber);
+            CLI::NonNegativeNumber);
 
         readBlockSizeOpt = addOption( //
             "--read-block-size",
@@ -137,21 +137,21 @@ namespace net::config {
     }
 
     utils::Timeval ConfigConnection::getReadTimeout() const {
-        return readTimeoutOpt->as<utils::Timeval>();
+        return utils::Timeval(readTimeoutOpt->as<double>());
     }
 
     ConfigConnection* ConfigConnection::setReadTimeout(const utils::Timeval& newReadTimeoutSet) {
-        setDefaultValue(readTimeoutOpt, newReadTimeoutSet);
+        setDefaultValue(readTimeoutOpt, newReadTimeoutSet.getMsd() / 1000.0);
 
         return this;
     }
 
     utils::Timeval ConfigConnection::getWriteTimeout() const {
-        return writeTimeoutOpt->as<utils::Timeval>();
+        return utils::Timeval(writeTimeoutOpt->as<double>());
     }
 
     ConfigConnection* ConfigConnection::setWriteTimeout(const utils::Timeval& newWriteTimeoutSet) {
-        setDefaultValue(writeTimeoutOpt, newWriteTimeoutSet);
+        setDefaultValue(writeTimeoutOpt, newWriteTimeoutSet.getMsd() / 1000.0);
 
         return this;
     }
