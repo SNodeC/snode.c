@@ -254,7 +254,7 @@ namespace utils {
         char hex_byte[3];
         hex_byte[2] = 0;
 
-        for (std::size_t i = 0, j = 0; i < string.size(); i += 2, j += 1) {
+        for (std::size_t i = 0; i < string.size(); i += 2) {
             hex_byte[0] = string.at(i);
             hex_byte[1] = string.at(i + 1);
             char* end_ptr = nullptr;
