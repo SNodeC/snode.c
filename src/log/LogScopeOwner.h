@@ -42,7 +42,7 @@
 #ifndef LOGGER_LOGSCOPEOWNER_H
 #define LOGGER_LOGSCOPEOWNER_H
 
-#include "log/SemanticLogger.h"
+#include "log/SemanticLogger.h" // IWYU pragma: export
 
 namespace logger {
 

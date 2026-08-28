@@ -44,7 +44,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/SemanticLogger.h"
+#include "log/SemanticLogger.h" // IWYU pragma: export
 
 #include <functional>
 #include <memory>
