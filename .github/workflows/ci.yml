@@ -9,6 +9,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'tools/**'
+      - 'examples/**'
       - '.github/workflows/**'
   pull_request:
     paths:
@@ -17,6 +18,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'tools/**'
+      - 'examples/**'
       - '.github/workflows/**'
 
 jobs:
@@ -48,3 +50,19 @@ jobs:
 
       - name: Tests
         run: ctest --test-dir build --output-on-failure
+
+      - name: Install SNode.C for external examples
+        run: cmake --install build --prefix "$RUNNER_TEMP/snodec-install"
+
+      - name: Configure external echo example
+        run: |
+          cmake -S examples/echo -B build-examples-echo \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/snodec-install"
+
+      - name: Build external echo example
+        run: cmake --build build-examples-echo --parallel 2
+
+      - name: External echo CTests
+        run: ctest --test-dir build-examples-echo --output-on-failure
