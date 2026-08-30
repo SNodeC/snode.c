@@ -43,8 +43,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/SemanticLogger.h"
-
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -84,21 +82,12 @@ namespace apps::echo::model {
     std::size_t EchoSocketContext::onReceivedFromPeer() {
         char chunk[4096];
 
-        const std::size_t chunklen = readFromPeer(chunk, 4096);
+        const std::size_t chunklen = readFromPeer(chunk, sizeof(chunk));
 
         if (chunklen > 0) {
             const char* roleName = role == Role::CLIENT ? "client" : "server";
-            const auto contextLog = log();
 
-            if (!firstPayloadObserved) {
-                contextLog.info("Echo {}: received {} bytes; reflecting first payload", roleName, chunklen);
-                firstPayloadObserved = true;
-            }
-
-            if (contextLog.enabled(logger::LogLevel::Trace)) {
-                contextLog.trace("Echo {}: data to reflect: {}", roleName, std::string(chunk, chunklen));
-            }
-
+            log().info("Echo {}: data to reflect: {}", roleName, std::string(chunk, chunklen));
             sendToPeer(chunk, chunklen);
         }
 

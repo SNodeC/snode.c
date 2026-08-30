@@ -42,8 +42,8 @@
 #ifndef APPS_ECHO_MODEL_ECHOSOCKETCONTEXT_H
 #define APPS_ECHO_MODEL_ECHOSOCKETCONTEXT_H
 
-#include "core/socket/stream/SocketContext.h"
-#include "core/socket/stream/SocketContextFactory.h"
+#include <core/socket/stream/SocketContext.h>
+#include <core/socket/stream/SocketContextFactory.h>
 
 namespace core::socket::stream {
     class SocketConnection;
@@ -72,7 +72,6 @@ namespace apps::echo::model {
         std::size_t onReceivedFromPeer() override;
 
         Role role;
-        bool firstPayloadObserved = false;
     };
 
     class EchoServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
