@@ -72,6 +72,7 @@ namespace apps::echo::model {
         std::size_t onReceivedFromPeer() override;
 
         Role role;
+        bool firstPayloadObserved = false;
     };
 
     class EchoServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
