@@ -65,4 +65,6 @@ jobs:
         run: cmake --build build-examples-echo --parallel 2
 
       - name: External echo CTests
-        run: ctest --test-dir build-examples-echo --output-on-failure
+        run: |
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/snodec-install/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          ctest --test-dir build-examples-echo --output-on-failure
