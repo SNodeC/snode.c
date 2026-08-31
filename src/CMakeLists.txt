@@ -157,3 +157,9 @@ snodec_finalize_components(
     PACKAGE_VERSION
         "${SNode.C_VERSION_MAJOR}.${SNode.C_VERSION_MINOR}.${SNode.C_VERSION_PATCH}"
 )
+
+install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/SemanticLog.h"
+    DESTINATION include/snode.c
+    COMPONENT "logger"
+)
