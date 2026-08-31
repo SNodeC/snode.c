@@ -132,23 +132,23 @@ int main() {
         }
     }
 
-    const auto legacyPath = tempLogPath("snodec-semantic-e2e-legacy.log");
+    const auto helperPath = tempLogPath("snodec-semantic-e2e-helper.log");
     {
-        LoggerStateGuard guard(legacyPath);
-        LOG(INFO) << "legacy info still works";
-        errno = EACCES;
-        PLOG(ERROR) << "legacy plog still works";
+        LoggerStateGuard guard(helperPath);
+        snode::semantic::appLog().info() << "semantic info works";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, EACCES)
+            << "semantic system error works";
     }
-    const auto legacyLines = readLines(legacyPath);
-    std::ostringstream legacyLog;
-    for (const auto& line : legacyLines) {
-        legacyLog << line << '\n';
+    const auto helperLines = readLines(helperPath);
+    std::ostringstream helperLog;
+    for (const auto& line : helperLines) {
+        helperLog << line << '\n';
     }
-    result.expectTrue(contains(legacyLog.str(), "INFO") && contains(legacyLog.str(), "legacy info still works"),
-                      "legacy LOG still emits through the legacy path");
-    result.expectTrue(contains(legacyLog.str(), "ERROR") && contains(legacyLog.str(), "legacy plog still works") &&
-                          contains(legacyLog.str(), "Permission denied"),
-                      "legacy PLOG still appends errno text through the legacy path");
+    result.expectTrue(contains(helperLog.str(), "INFO") && contains(helperLog.str(), "semantic info works"),
+                      "semantic application helper emits through the backend");
+    result.expectTrue(contains(helperLog.str(), "ERROR") && contains(helperLog.str(), "semantic system error works") &&
+                          contains(helperLog.str(), "Permission denied"),
+                      "semantic sysError appends explicit error text");
 
     std::vector<logger::LogRecord> identityRecords;
     auto identityLog = snode::semantic::coreSocketLog(
