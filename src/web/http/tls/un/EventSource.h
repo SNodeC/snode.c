@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -132,10 +133,10 @@ namespace web::http::tls::un {
 
                 eventSource = EventSource(scheme, net::un::SocketAddress(socketPath), httpPath + query);
             } else {
-                LOG(ERROR) << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
+                snode::semantic::appLog().error() << "UNIX socket must decode to absolute ('/..') or abstract ('@name'): " << sockToken;
             }
         } else {
-            LOG(ERROR) << "EventSource unix-domain url not accepted: " << url;
+            snode::semantic::appLog().error() << "EventSource unix-domain url not accepted: " << url;
         }
 
         return eventSource;

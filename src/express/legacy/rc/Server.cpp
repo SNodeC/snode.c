@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -70,26 +71,26 @@ namespace express::legacy::rc {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        VLOG(1) << instanceName << ": disabled";
+                        snode::semantic::appLog().trace() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::appLog().trace() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::appLog().trace() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }
         });
 
-        VLOG(1) << "Instance: " << instanceName;
+        snode::semantic::appLog().trace() << "Instance: " << instanceName;
         for (std::string& route : webApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            VLOG(1) << "  " << route;
+            snode::semantic::appLog().trace() << "  " << route;
         }
 
         return webApp;

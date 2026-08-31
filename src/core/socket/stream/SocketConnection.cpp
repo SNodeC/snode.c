@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -72,10 +73,10 @@ namespace core::socket::stream {
         SocketContext* socketContext = socketContextFactory->create(this);
 
         if (socketContext != nullptr) {
-            LOG(DEBUG) << connectionName << ": SocketContext created successful";
+            snode::semantic::appLog().debug() << connectionName << ": SocketContext created successful";
             setSocketContext(socketContext);
         } else {
-            LOG(ERROR) << connectionName << ": SocketContext failed to create";
+            snode::semantic::appLog().error() << connectionName << ": SocketContext failed to create";
             close();
         }
     }
@@ -86,7 +87,7 @@ namespace core::socket::stream {
 
             socketContext->attach();
         } else {
-            LOG(DEBUG) << connectionName << " SocketContext: switch";
+            snode::semantic::appLog().debug() << connectionName << " SocketContext: switch";
 
             newSocketContext = socketContext;
         }

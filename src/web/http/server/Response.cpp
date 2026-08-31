@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -252,7 +253,7 @@ namespace web::http::server {
             std::string socketContextUpgradeName;
 
             if (request != nullptr) {
-                LOG(DEBUG) << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
+                snode::semantic::appLog().debug() << connectionName << " HTTP: Initiating upgrade: " << request->method << " " << request->url
                            << " HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor) << "\n"
                            << httputils::toString(request->method,
                                                   request->url,
@@ -269,17 +270,17 @@ namespace web::http::server {
                     if (socketContextUpgradeFactory != nullptr) {
                         socketContextUpgradeName = socketContextUpgradeFactory->name();
 
-                        LOG(DEBUG) << connectionName
+                        snode::semantic::appLog().debug() << connectionName
                                    << " HTTP upgrade: SocketContextUpgradeFactory create success for: " << socketContextUpgradeName;
 
                         core::socket::stream::SocketContext* socketContextUpgrade =
                             socketContextUpgradeFactory->create(socketContext->getSocketConnection());
 
                         if (socketContextUpgrade != nullptr) {
-                            LOG(DEBUG) << connectionName
+                            snode::semantic::appLog().debug() << connectionName
                                        << " HTTP upgrade: SocketContextUpgrade create success for: " << socketContextUpgradeName;
 
-                            LOG(DEBUG) << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
+                            snode::semantic::appLog().debug() << connectionName << " HTTP upgrade: Response to upgrade request: " << request->method << " "
                                        << request->url << " " << "HTTP/" << request->httpMajor << "." << request->httpMinor << "\n"
                                        << httputils::toString("HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor),
                                                               std::to_string(statusCode),
@@ -290,37 +291,37 @@ namespace web::http::server {
 
                             socketContext->getSocketConnection()->setSocketContext(socketContextUpgrade);
                         } else {
-                            LOG(DEBUG) << connectionName
+                            snode::semantic::appLog().debug() << connectionName
                                        << " HTTP upgrade: SocketContextUpgrade create failed for: " << socketContextUpgradeName;
 
                             set("Connection", "close").status(404);
                         }
                     } else {
-                        LOG(DEBUG) << connectionName
+                        snode::semantic::appLog().debug() << connectionName
                                    << " SocketContextUpgradeFactory create failed for all of: " << request->get("upgrade");
 
                         set("Connection", "close").status(404);
                     }
                 } else {
-                    LOG(DEBUG) << connectionName << " HTTP upgrade: No upgrade requested";
+                    snode::semantic::appLog().debug() << connectionName << " HTTP upgrade: No upgrade requested";
 
                     set("Connection", "close").status(400);
                 }
             } else {
-                LOG(ERROR) << connectionName << " HTTP upgrade: Request has gone away";
+                snode::semantic::appLog().error() << connectionName << " HTTP upgrade: Request has gone away";
 
                 set("Connection", "close").status(500);
             }
 
-            LOG(DEBUG) << connectionName << " HTTP: Upgrade bootstrap " << (!socketContextUpgradeName.empty() ? "success" : "failed");
-            LOG(DEBUG) << "      Protocol selected: " << socketContextUpgradeName;
-            LOG(DEBUG) << "              requested: " << request->get("upgrade");
-            LOG(DEBUG) << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
-            LOG(DEBUG) << "              requested: " << request->get("Sec-WebSocket-Protocol");
+            snode::semantic::appLog().debug() << connectionName << " HTTP: Upgrade bootstrap " << (!socketContextUpgradeName.empty() ? "success" : "failed");
+            snode::semantic::appLog().debug() << "      Protocol selected: " << socketContextUpgradeName;
+            snode::semantic::appLog().debug() << "              requested: " << request->get("upgrade");
+            snode::semantic::appLog().debug() << "  Subprotocol  selected: " << header("Sec-WebSocket-Protocol");
+            snode::semantic::appLog().debug() << "              requested: " << request->get("Sec-WebSocket-Protocol");
 
             status(socketContextUpgradeName);
         } else {
-            LOG(ERROR) << "HTTP upgrade: Unexpected disconnect";
+            snode::semantic::appLog().error() << "HTTP upgrade: Unexpected disconnect";
         }
     }
 

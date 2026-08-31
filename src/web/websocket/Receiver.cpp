@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -127,7 +128,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                LOG(ERROR) << "WebSocket: Error opcode in continuation frame";
+                snode::semantic::appLog().error() << "WebSocket: Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -281,7 +282,7 @@ namespace web::websocket {
                 }
             }
 
-            LOG(TRACE) << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
+            snode::semantic::appLog().trace() << "WebSocket receive: Frame data\n" << utils::hexDump(payloadChunk, payloadChunkLen, 32, true);
 
             onMessageData(payloadChunk, payloadChunkLen);
 

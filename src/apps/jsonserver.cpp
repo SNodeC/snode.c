@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -68,16 +69,16 @@ int main(int argc, char* argv[]) {
         [instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().trace() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -88,10 +89,10 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                VLOG(1) << "Application received body: " << jsonString;
+                snode::semantic::appLog().trace() << "Application received body: " << jsonString;
             },
             [](const std::string& key) {
-                VLOG(1) << key << " attribute not found";
+                snode::semantic::appLog().trace() << key << " attribute not found";
             });
 
         res->send(jsonString);
