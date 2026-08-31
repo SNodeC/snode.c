@@ -271,6 +271,8 @@ namespace utils {
             for (const CLI::Option* option : app->get_options()) {
                 if (option->get_configurable()) {
                     std::string value;
+                    const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app);
+                    const bool sensitive = appWithPtr != nullptr && appWithPtr->sensitive(option);
 
                     switch (mode) {
                         case utils::CallForCommandline::Mode::STANDARD:
@@ -327,12 +329,16 @@ namespace utils {
                             break;
                     }
 
+                    if (sensitive && !value.empty() && value != "<REQUIRED>" && value != "\"\"") {
+                        value = "<REDACTED>";
+                    }
+
                     if (!value.empty()) {
                         if (value.starts_with(std::string{"["}) && value.ends_with("]")) {
                             value = value.substr(1, value.size() - 2);
                         }
 
-                        if (value != "<REQUIRED>" && value != "\"\"" && !value.starts_with("<[")) {
+                        if (value != "<REQUIRED>" && value != "<REDACTED>" && value != "\"\"" && !value.starts_with("<[")) {
                             value = bash_backslash_escape_no_whitespace(value);
                         }
                         out << "--" << option->get_single_name() << ((option->get_items_expected_max() == 0) ? "=" : " ") << value << " ";

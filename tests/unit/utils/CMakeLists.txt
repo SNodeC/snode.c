@@ -11,3 +11,7 @@ target_include_directories(HexDumpPresentationTest PRIVATE ${PROJECT_SOURCE_DIR}
 target_compile_features(HexDumpPresentationTest PRIVATE cxx_std_20)
 target_link_libraries(HexDumpPresentationTest PRIVATE snodec-test-support snodec::utils snodec::logger)
 set_tests_properties(HexDumpPresentationTest PROPERTIES LABELS "unit;utils;hexdump" TIMEOUT 5)
+
+snodec_add_test(SensitiveConfigOptionTest SensitiveConfigOptionTest.cpp)
+target_link_libraries(SensitiveConfigOptionTest PRIVATE snodec-test-support snodec::utils)
+set_tests_properties(SensitiveConfigOptionTest PROPERTIES LABELS "unit;utils;config;security" TIMEOUT 5)

@@ -94,6 +94,7 @@ namespace utils {
 
     struct ConfigOptionState {
         ConfigRequirementState required;
+        bool sensitive = false;
     };
 
     struct ConfigNodeState {
@@ -119,6 +120,7 @@ namespace utils {
         void setCanonicalRequired(bool required);
         void setEffectiveRequiredBase(bool required);
         void setCanonicalRequired(CLI::Option* option, bool required);
+        void setSensitive(CLI::Option* option, bool sensitive);
         void setSuppression(ConfigSuppressionReason reason, bool suppressed);
         void setSuppression(CLI::Option* option, ConfigSuppressionReason reason, bool suppressed);
         void setSuppressionRecursive(ConfigSuppressionReason reason, bool suppressed);
@@ -130,6 +132,7 @@ namespace utils {
         bool effectiveRequired() const;
         bool canonicalRequired(const CLI::Option* option) const;
         bool effectiveRequired(const CLI::Option* option) const;
+        bool sensitive(const CLI::Option* option) const;
         bool hasSuppression(ConfigSuppressionReason reason) const;
         bool hasSuppression(const CLI::Option* option, ConfigSuppressionReason reason) const;
         bool canonicalNeeds(const CLI::Option* option) const;
@@ -287,6 +290,7 @@ namespace utils {
         CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;
 
         CLI::Option* setConfigurable(CLI::Option* option, bool configurable) const;
+        CLI::Option* setSensitive(CLI::Option* option, bool sensitive = true) const;
 
     protected:
         static CLI::App* getHelpTriggerApp();
