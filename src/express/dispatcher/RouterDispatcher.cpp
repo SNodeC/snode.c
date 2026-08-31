@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -121,13 +122,13 @@ namespace express::dispatcher {
             bool pathMatches = false;
             if (absoluteMountPath.find(':') != std::string::npos) {
                 if (regex.mark_count() == 0) {
-                    LOG(TRACE) << "RouterDispatcher: precompiled regex";
+                    snode::semantic::appLog().trace() << "RouterDispatcher: precompiled regex";
                     std::tie(regex, names) = compileParamRegex(mountPath,
                                                                /*isPrefix*/ true,
                                                                controller.getStrictRouting(),
                                                                controller.getCaseInsensitiveRouting());
                 } else {
-                    LOG(TRACE) << "RouterDispatcher: using precompiled regex";
+                    snode::semantic::appLog().trace() << "RouterDispatcher: using precompiled regex";
                 }
 
                 pathMatches = matchAndFillParams(regex, names, requestPath, *controller.getRequest());
@@ -138,16 +139,16 @@ namespace express::dispatcher {
 
             const bool requestMatched = (pathMatches && queryMatches);
 
-            LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+            snode::semantic::appLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " HTTP Express: router -> " << (requestMatched ? "MATCH" : "NO MATCH");
-            LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-            LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-            LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-            LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-            LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
-            LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-            LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
-            LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
+            snode::semantic::appLog().trace() << "           RequestMethod: " << controller.getRequest()->method;
+            snode::semantic::appLog().trace() << "              RequestUrl: " << controller.getRequest()->url;
+            snode::semantic::appLog().trace() << "             RequestPath: " << controller.getRequest()->path;
+            snode::semantic::appLog().trace() << "       Mountpoint Method: " << mountPoint.method;
+            snode::semantic::appLog().trace() << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
+            snode::semantic::appLog().trace() << " Mountpoint AbsolutePath: " << absoluteMountPath;
+            snode::semantic::appLog().trace() << "           StrictRouting: " << controller.getStrictRouting();
+            snode::semantic::appLog().trace() << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
             if (requestMatched) {
                 // Compute remainder and temporarily **rewrite req.path** for subtree
@@ -189,12 +190,12 @@ namespace express::dispatcher {
                     controller.setStrictRouting(oldStrictRouting);
 
                     if (dispatched) {
-                        LOG(TRACE) << "Express: R - Dispatched";
+                        snode::semantic::appLog().trace() << "Express: R - Dispatched";
 
                         break;
                     }
                     if (controller.nextRouterCalled()) {
-                        LOG(TRACE) << "Express: R - NextRouter called - breaking dispatching";
+                        snode::semantic::appLog().trace() << "Express: R - NextRouter called - breaking dispatching";
 
                         break;
                     }

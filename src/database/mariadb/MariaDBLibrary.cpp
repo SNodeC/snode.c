@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -59,7 +60,7 @@ namespace database::mariadb {
         std::call_once(initOnce, []() {
             const int rc = mysql_library_init(0, nullptr, nullptr);
             if (rc != 0) {
-                LOG(ERROR) << "MariaDB: mysql_library_init failed (rc=" << rc << ")";
+                snode::semantic::appLog().error() << "MariaDB: mysql_library_init failed (rc=" << rc << ")";
                 // Best effort: proceed; subsequent mysql_* calls may fail.
             }
 

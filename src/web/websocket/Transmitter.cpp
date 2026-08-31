@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -139,7 +140,7 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (payloadLength > 0) {
-            LOG(TRACE) << "WebSocket send: Frame data\n" << utils::hexDump(payload, payloadLength, 32, true);
+            snode::semantic::appLog().trace() << "WebSocket send: Frame data\n" << utils::hexDump(payload, payloadLength, 32, true);
         }
 
         if (masking) {

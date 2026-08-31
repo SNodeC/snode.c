@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -84,7 +85,7 @@ namespace core {
             ++lib.refCount;
             lib.closePending = false;
 
-            LOG(TRACE) << "DynLoader: dlOpen: " << lib.fileName << ": already open (refCount=" << lib.refCount << ")";
+            snode::semantic::appLog().trace() << "DynLoader: dlOpen: " << lib.fileName << ": already open (refCount=" << lib.refCount << ")";
             handle = lib.handle;
         } else {
             // Clear possible stale error
@@ -102,9 +103,9 @@ namespace core {
                 dlOpenedLibraries.emplace(canonicalFile, lib);
                 dlOpenedLibrariesByHandle.emplace(handle, canonicalFile);
 
-                LOG(TRACE) << "DynLoader: dlOpen: " << libFile << ": success";
+                snode::semantic::appLog().trace() << "DynLoader: dlOpen: " << libFile << ": success";
             } else {
-                LOG(TRACE) << "DynLoader: dlOpen: " << libFile << ": " << DynamicLoader::dlError();
+                snode::semantic::appLog().trace() << "DynLoader: dlOpen: " << libFile << ": " << DynamicLoader::dlError();
             }
         }
 
@@ -113,15 +114,15 @@ namespace core {
 
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle == nullptr) {
-            LOG(TRACE) << "DynLoader: dlCloseDelayed: handle is nullptr";
+            snode::semantic::appLog().trace() << "DynLoader: dlCloseDelayed: handle is nullptr";
         } else {
             auto itHandle = dlOpenedLibrariesByHandle.find(handle);
             if (itHandle == dlOpenedLibrariesByHandle.end()) {
-                LOG(TRACE) << "DynLoader: dlCloseDelayed: " << handle << ": not opened using dlOpen";
+                snode::semantic::appLog().trace() << "DynLoader: dlCloseDelayed: " << handle << ": not opened using dlOpen";
             } else {
                 auto itLib = dlOpenedLibraries.find(itHandle->second);
                 if (itLib == dlOpenedLibraries.end()) {
-                    LOG(TRACE) << "DynLoader: dlCloseDelayed: internal error: handle known but library record missing";
+                    snode::semantic::appLog().trace() << "DynLoader: dlCloseDelayed: internal error: handle known but library record missing";
                 } else {
                     Library& lib = itLib->second;
 
@@ -132,9 +133,9 @@ namespace core {
                     if (lib.refCount == 0) {
                         lib.closePending = true;
                         closeQueue.push_back(lib.canonicalFileName);
-                        LOG(TRACE) << "DynLoader: dlCloseDelayed: " << lib.fileName;
+                        snode::semantic::appLog().trace() << "DynLoader: dlCloseDelayed: " << lib.fileName;
                     } else {
-                        LOG(TRACE) << "DynLoader: dlCloseDelayed: " << lib.fileName << ": still referenced (refCount=" << lib.refCount
+                        snode::semantic::appLog().trace() << "DynLoader: dlCloseDelayed: " << lib.fileName << ": still referenced (refCount=" << lib.refCount
                                    << ")";
                     }
                 }
@@ -146,15 +147,15 @@ namespace core {
         int ret = 0;
 
         if (handle == nullptr) {
-            LOG(TRACE) << "DynLoader: dlClose: handle is nullptr";
+            snode::semantic::appLog().trace() << "DynLoader: dlClose: handle is nullptr";
         } else {
             auto itHandle = dlOpenedLibrariesByHandle.find(handle);
             if (itHandle == dlOpenedLibrariesByHandle.end()) {
-                LOG(TRACE) << "DynLoader: dlClose: " << handle << ": not opened using dlOpen";
+                snode::semantic::appLog().trace() << "DynLoader: dlClose: " << handle << ": not opened using dlOpen";
             } else {
                 auto itLib = dlOpenedLibraries.find(itHandle->second);
                 if (itLib == dlOpenedLibraries.end()) {
-                    LOG(TRACE) << "DynLoader: dlClose: internal error: handle known but library record missing";
+                    snode::semantic::appLog().trace() << "DynLoader: dlClose: internal error: handle known but library record missing";
                 } else {
                     Library& lib = itLib->second;
 
@@ -163,7 +164,7 @@ namespace core {
                     }
 
                     if (lib.refCount != 0) {
-                        LOG(TRACE) << "DynLoader: dlClose: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
+                        snode::semantic::appLog().trace() << "DynLoader: dlClose: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
                     } else {
                         lib.closePending = false;
                         ret = dlClose(lib);
@@ -199,9 +200,9 @@ namespace core {
         ret = realExecDlClose(library);
 
         if (ret != 0) {
-            LOG(TRACE) << "  dlClose: " << DynamicLoader::dlError();
+            snode::semantic::appLog().trace() << "  dlClose: " << DynamicLoader::dlError();
         } else {
-            LOG(TRACE) << "  dlClose: " << library.fileName << ": success";
+            snode::semantic::appLog().trace() << "  dlClose: " << library.fileName << ": success";
         }
 
         return ret;
@@ -209,7 +210,7 @@ namespace core {
 
     void DynamicLoader::execDlCloseDeleyed() {
         if (!closeQueue.empty()) {
-            LOG(TRACE) << "DynLoader: execDlCloseDeleyed";
+            snode::semantic::appLog().trace() << "DynLoader: execDlCloseDeleyed";
 
             for (const std::string& canonicalFile : closeQueue) {
                 auto it = dlOpenedLibraries.find(canonicalFile);
@@ -230,12 +231,12 @@ namespace core {
 
             closeQueue.clear();
 
-            LOG(TRACE) << "DynLoader: execDlCloseDeleyed done";
+            snode::semantic::appLog().trace() << "DynLoader: execDlCloseDeleyed done";
         }
     }
 
     void DynamicLoader::execDlCloseAll() {
-        LOG(TRACE) << "DynLoader: execDlCloseAll";
+        snode::semantic::appLog().trace() << "DynLoader: execDlCloseAll";
 
         for (auto& [canonical, library] : dlOpenedLibraries) {
             (void) dlClose(library);
@@ -245,7 +246,7 @@ namespace core {
         dlOpenedLibrariesByHandle.clear();
         closeQueue.clear();
 
-        LOG(TRACE) << "DynLoader: execDlCloseAll done";
+        snode::semantic::appLog().trace() << "DynLoader: execDlCloseAll done";
     }
 
 } // namespace core

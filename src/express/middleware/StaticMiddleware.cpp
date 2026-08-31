@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -62,7 +63,7 @@ namespace express::middleware {
         use(
             [&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &connectionState = this->defaultConnectionState] MIDDLEWARE(
                 req, res, next) {
-                LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
+                snode::semantic::appLog().debug() << res->getSocketContext()->getSocketConnection()->getConnectionName() << " Express " << req->method;
 
                 if (req->method == "GET") {
                     if (connectionState == web::http::ConnectionState::Close) {
@@ -83,7 +84,7 @@ namespace express::middleware {
             [&index = this->index] MIDDLEWARE(req, res, next) {
                 if (req->path == "/") {
                     if (!index.empty()) {
-                        LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                        snode::semantic::appLog().info() << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                   << " Express StaticMiddleware Redirecting: " << req->url << " -> "
                                   << req->originalPath +
                                          (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/"
@@ -105,10 +106,10 @@ namespace express::middleware {
                 if (fileAllowed) {
                     res->sendFile(root + req->path, [&root, req, res](int ret) {
                         if (ret == 0) {
-                            LOG(INFO) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::semantic::appLog().info() << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                       << " Express StaticMiddleware: GET " << req->url + " -> " << root + req->path;
                         } else {
-                            PLOG(ERROR) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << res->getSocketContext()->getSocketConnection()->getConnectionName()
                                         << " Express StaticMiddleware " << req->url + " -> " << root + req->path;
 
                             res->sendStatus(404);

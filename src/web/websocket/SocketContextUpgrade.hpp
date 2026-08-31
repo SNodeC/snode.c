@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -112,7 +113,7 @@ namespace web::websocket {
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::sendClose(const char* message, std::size_t messageLength) {
         if (!closeSent) {
-            LOG(DEBUG) << this->getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+            snode::semantic::appLog().debug() << this->getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
                        << "' sending close to peer";
 
             sendMessage(8, message, messageLength);
@@ -183,12 +184,12 @@ namespace web::websocket {
             case SubProtocolContext::OpCode::CLOSE:
                 if (closeSent) { // active close
                     closeSent = false;
-                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+                    snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
                                << "' close confirmed from peer";
 
                     shutdownWrite();
                 } else { // passive close
-                    LOG(DEBUG) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
+                    snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name
                                << "' close request received - replying with close";
 
                     sendClose(pongCloseData.data(), pongCloseData.length());
@@ -216,14 +217,14 @@ namespace web::websocket {
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onConnected() {
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
+        snode::semantic::appLog().info() << getSocketConnection()->getConnectionName() << " WebSocketContext: Subprotocol '" << subProtocol->name << "' connect";
         subProtocol->attach();
     }
 
     template <typename SubProtocol, typename Request, typename Response>
     void SocketContextUpgrade<SubProtocol, Request, Response>::onDisconnected() {
         subProtocol->detach();
-        LOG(INFO) << getSocketConnection()->getConnectionName() << " WebSocketContext:  Subprotocol '" << subProtocol->name
+        snode::semantic::appLog().info() << getSocketConnection()->getConnectionName() << " WebSocketContext:  Subprotocol '" << subProtocol->name
                   << "' disconnected";
     }
 

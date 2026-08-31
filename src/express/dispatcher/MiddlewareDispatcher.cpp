@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -104,13 +105,13 @@ namespace express::dispatcher {
                     // Param mount: compile once, match once, fill params, and record matched prefix length
                     if (regex.mark_count() == 0) {
                         if (regex.mark_count() == 0) {
-                            LOG(TRACE) << "MiddlewarDispatchere: precompiled regex";
+                            snode::semantic::appLog().trace() << "MiddlewarDispatchere: precompiled regex";
                             std::tie(regex, names) = compileParamRegex(mountPath,
                                                                        /*isPrefix*/ true,
                                                                        controller.getStrictRouting(),
                                                                        controller.getCaseInsensitiveRouting());
                         } else {
-                            LOG(TRACE) << "MiddlewareDispatcher: using precompiled regex";
+                            snode::semantic::appLog().trace() << "MiddlewareDispatcher: using precompiled regex";
                         }
                     }
                     std::cmatch regexMatches;
@@ -137,16 +138,16 @@ namespace express::dispatcher {
                 const bool queryMatches = querySupersetMatches(requestQueryPairs, requiredQueryPairs);
                 requestMatched = (pathMatches && queryMatches);
 
-                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                snode::semantic::appLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                            << " HTTP Express: middleware -> " << (requestMatched ? "MATCH" : "NO MATCH");
-                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-                LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-                LOG(TRACE) << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
-                LOG(TRACE) << " Mountpoint AbsolutePath: " << absoluteMountPath;
-                LOG(TRACE) << "           StrictRouting: " << controller.getStrictRouting();
-                LOG(TRACE) << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
+                snode::semantic::appLog().trace() << "           RequestMethod: " << controller.getRequest()->method;
+                snode::semantic::appLog().trace() << "              RequestUrl: " << controller.getRequest()->url;
+                snode::semantic::appLog().trace() << "             RequestPath: " << controller.getRequest()->path;
+                snode::semantic::appLog().trace() << "       Mountpoint Method: " << mountPoint.method;
+                snode::semantic::appLog().trace() << " Mountpoint RelativePath: " << mountPoint.relativeMountPath;
+                snode::semantic::appLog().trace() << " Mountpoint AbsolutePath: " << absoluteMountPath;
+                snode::semantic::appLog().trace() << "           StrictRouting: " << controller.getStrictRouting();
+                snode::semantic::appLog().trace() << "  CaseInsensitiveRouting: " << controller.getCaseInsensitiveRouting();
 
                 if (requestMatched) {
                     // Compute remainder and temporarily **rewrite req.path**
@@ -172,7 +173,7 @@ namespace express::dispatcher {
 
                     // If next() was called synchronously continue current route-tree traversal
                     if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                        LOG(TRACE) << "Express: M - Next called - set to NO MATCH";
+                        snode::semantic::appLog().trace() << "Express: M - Next called - set to NO MATCH";
                         requestMatched = false;
                         controller = next.controller;
                     }
@@ -181,12 +182,12 @@ namespace express::dispatcher {
                     req.path = previousPathBackup;
                 }
             } else {
-                LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
+                snode::semantic::appLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName()
                            << " HTTP Express: middleware -> next(...) called";
-                LOG(TRACE) << "           RequestMethod: " << controller.getRequest()->method;
-                LOG(TRACE) << "              RequestUrl: " << controller.getRequest()->url;
-                LOG(TRACE) << "             RequestPath: " << controller.getRequest()->path;
-                LOG(TRACE) << "       AbsoluteMountPath: " << absoluteMountPath;
+                snode::semantic::appLog().trace() << "           RequestMethod: " << controller.getRequest()->method;
+                snode::semantic::appLog().trace() << "              RequestUrl: " << controller.getRequest()->url;
+                snode::semantic::appLog().trace() << "             RequestPath: " << controller.getRequest()->path;
+                snode::semantic::appLog().trace() << "       AbsoluteMountPath: " << absoluteMountPath;
             }
         }
 

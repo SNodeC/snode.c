@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -63,16 +64,16 @@ int main(int argc, char* argv[]) {
                        const core::socket::State& state) { // example.com:81 simulate connnect timeout
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
+                snode::semantic::appLog().trace() << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -106,9 +107,9 @@ int main(int argc, char* argv[]) {
     client.connect("/tmp/testme", [](int errnum) {
 #endif
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << errnum;
         } else {
-            VLOG(1) << "snode.c connected";
+            snode::semantic::appLog().trace() << "snode.c connected";
         }
 
 #ifdef NET_TYPE

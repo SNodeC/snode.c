@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -99,10 +100,10 @@ namespace apps::http::tls {
         const std::string& instanceName = webApp.getConfig().getInstanceName();
 
         webApp.setOnConnect([instanceName](SocketConnection* socketConnection) { // onConnect
-            VLOG(1) << "OnConnect " << instanceName;
+            snode::semantic::appLog().trace() << "OnConnect " << instanceName;
 
-            VLOG(1) << "  Local: " << socketConnection->getLocalAddress().toString();
-            VLOG(1) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+            snode::semantic::appLog().trace() << "  Local: " << socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().trace() << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -115,21 +116,21 @@ namespace apps::http::tls {
         });
 
         webApp.setOnConnected([instanceName](SocketConnection* socketConnection) { // onConnected
-            VLOG(1) << "OnConnected " << instanceName;
+            snode::semantic::appLog().trace() << "OnConnected " << instanceName;
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(1) << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                snode::semantic::appLog().trace() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                VLOG(1) << "\t   Subject: " + std::string(str);
+                snode::semantic::appLog().trace() << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                VLOG(1) << "\t   Issuer: " + std::string(str);
+                snode::semantic::appLog().trace() << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -139,7 +140,7 @@ namespace apps::http::tls {
 
                 int32_t altNameCount = OPENSSL_sk_num(reinterpret_cast<const OPENSSL_STACK*>(subjectAltNames));
 
-                VLOG(1) << "\t   Subject alternative name count: " << altNameCount;
+                snode::semantic::appLog().trace() << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
 
@@ -147,14 +148,14 @@ namespace apps::http::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(1) << "\t      SAN (URI): '" + subjectAltName;
+                        snode::semantic::appLog().trace() << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(1) << "\t      SAN (DNS): '" + subjectAltName;
+                        snode::semantic::appLog().trace() << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(1) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        snode::semantic::appLog().trace() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 
@@ -162,25 +163,25 @@ namespace apps::http::tls {
 
                 X509_free(server_cert);
             } else {
-                LOG(WARNING) << "\tPeer certificate: no certificate";
+                snode::semantic::appLog().warn() << "\tPeer certificate: no certificate";
             }
         });
 
         webApp.setOnDisconnect([instanceName](SocketConnection* socketConnection) { // onDisconnect
-            VLOG(1) << "OnDisconnect " << instanceName;
+            snode::semantic::appLog().trace() << "OnDisconnect " << instanceName;
 
-            VLOG(2) << "            Local: " << socketConnection->getLocalAddress().toString(false);
-            VLOG(2) << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
+            snode::semantic::appLog().trace() << "            Local: " << socketConnection->getLocalAddress().toString(false);
+            snode::semantic::appLog().trace() << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
 
-            VLOG(2) << "     Online Since: " << socketConnection->getOnlineSince();
-            VLOG(2) << "  Online Duration: " << socketConnection->getOnlineDuration();
+            snode::semantic::appLog().trace() << "     Online Since: " << socketConnection->getOnlineSince();
+            snode::semantic::appLog().trace() << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-            VLOG(2) << "     Total Queued: " << socketConnection->getTotalQueued();
-            VLOG(2) << "       Total Sent: " << socketConnection->getTotalSent();
-            VLOG(2) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-            VLOG(2) << "       Total Read: " << socketConnection->getTotalRead();
-            VLOG(2) << "  Total Processed: " << socketConnection->getTotalProcessed();
-            VLOG(2) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+            snode::semantic::appLog().trace() << "     Total Queued: " << socketConnection->getTotalQueued();
+            snode::semantic::appLog().trace() << "       Total Sent: " << socketConnection->getTotalSent();
+            snode::semantic::appLog().trace() << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+            snode::semantic::appLog().trace() << "       Total Read: " << socketConnection->getTotalRead();
+            snode::semantic::appLog().trace() << "  Total Processed: " << socketConnection->getTotalProcessed();
+            snode::semantic::appLog().trace() << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
         });
 
         return webApp;

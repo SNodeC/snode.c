@@ -297,7 +297,7 @@ Sending data to the client is done using the method `sendToPeer()`, which is als
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 //
 #include <iostream>
 #include <string>
@@ -308,15 +308,15 @@ public:
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        VLOG(1) << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     bool onSignal(int signum) override { // Called in case a signal has been received
-        VLOG(1) << "Echo disconnected due to signal=" << signum;
+        snode::semantic::appLog().trace() << "Echo disconnected due to signal=" << signum;
         return true; // Close the connection
     }
 
@@ -331,7 +331,7 @@ private:
                                                           // onReceivedFromPeer will be called again.
                                                           // No error can occure here.
         if (chunkLen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(chunk, chunkLen);
+            snode::semantic::appLog().trace() << "Data to reflect: " << std::string(chunk, chunkLen);
             sendToPeer(chunk, chunkLen); // Reflect the received data back to the client.
                                          // Out of memory is the only error which can occure here.
         }
@@ -351,7 +351,7 @@ And like in the `EchoServerContext`, `readFromPeer()` and `sendToPeer()` is used
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 //
 #include <iostream>
 #include <string>
@@ -362,18 +362,18 @@ public:
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
 
-        VLOG(1) << "Initiating data exchange";
+        snode::semantic::appLog().trace() << "Initiating data exchange";
         sendToPeer("Hello peer! It's nice talking to you\n"); // Initiate the ping-pong data exchange.
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        VLOG(1) << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     bool onSignal(int signum) override { // Called in case a signal has been received
-        VLOG(1) << "Echo disconnected due to signal=" << signum;
+        snode::semantic::appLog().trace() << "Echo disconnected due to signal=" << signum;
         return true; // Close the connection
     }
 
@@ -388,7 +388,7 @@ private:
                                                           // onReceivedFromPeer will be called again.
                                                           // No error can occure here.
         if (chunkLen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(chunk, chunkLen);
+            snode::semantic::appLog().trace() << "Data to reflect: " << std::string(chunk, chunkLen);
             sendToPeer(chunk, chunkLen); // Reflect the received data back to the server.
                                          // Out of memory is the only error which can occure here.
         }
@@ -449,16 +449,16 @@ int main(int argc, char* argv[]) {
     echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServer: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServer: disabled";
+                snode::semantic::appLog().trace() << "EchoServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -502,16 +502,16 @@ int main(int argc, char* argv[]) {
     echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoClient: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClient: disabled";
+                snode::semantic::appLog().trace() << "EchoClient: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoClient: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoClient: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -1149,13 +1149,13 @@ using SocketAddress = EchoServer::SocketAddress;
 using SocketConnection = EchoServer::SocketConnection;
 
 EchoServer echoServer([] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer estableshed";
+                          snode::semantic::appLog().trace() << "Connection to peer estableshed";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer ready to be used";
+                          snode::semantic::appLog().trace() << "Connection to peer ready to be used";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer closed";
+                          snode::semantic::appLog().trace() << "Connection to peer closed";
                       });
 
 echoServer.listen(...);
@@ -1169,13 +1169,13 @@ using SocketAddress = EchoClient::SocketAddress;
 using SocketConnection = EchoClient::SocketConnection;
 
 EchoClient echoClient([] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer estableshed";
+                          snode::semantic::appLog().trace() << "Connection to peer estableshed";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer ready to be used";
+                          snode::semantic::appLog().trace() << "Connection to peer ready to be used";
                       },
                       [] (SocketConnection* socketConnection) -> void {
-                          VLOG(1) << "Connection to peer closed";
+                          snode::semantic::appLog().trace() << "Connection to peer closed";
                       });
 
 echoClient.connect(...);
@@ -1199,15 +1199,15 @@ using SocketConnection = EchoServer::SocketConnection;
 EchoServer echoServer;
 
 echoServer.setOnConnect([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer established";
+    snode::semantic::appLog().trace() << "Connection to peer established";
 });
 
 echoServer.setOnConnected([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer ready to be used";
+    snode::semantic::appLog().trace() << "Connection to peer ready to be used";
 });
     
 echoServer.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer closed";
+    snode::semantic::appLog().trace() << "Connection to peer closed";
 });
 
 echoServer.listen(...);
@@ -1223,15 +1223,15 @@ using SocketConnection = EchoClient::SocketConnection;
 EchoClient echoClient;
 
 echoClient.setOnConnect([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer established";
+    snode::semantic::appLog().trace() << "Connection to peer established";
 });
 
 echoClient.setOnConnected([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer ready to be used";
+    snode::semantic::appLog().trace() << "Connection to peer ready to be used";
 });
     
 echoClient.setOnDisconnected([] (SocketConnection* socketConnection) -> void {
-    VLOG(1) << "Connection to peer closed";
+    snode::semantic::appLog().trace() << "Connection to peer closed";
 });
 
 echoClient.connect(...);
@@ -2436,16 +2436,16 @@ In that case the Main-Application would look like
                            const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerIn: disabled";
+                snode::semantic::appLog().trace() << "EchoServerIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2459,16 +2459,16 @@ In that case the Main-Application would look like
                            const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerUn: disabled";
+                snode::semantic::appLog().trace() << "EchoServerUn: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2487,16 +2487,16 @@ In that case the Main-Application would look like
                            const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerRc: disabled";
+                snode::semantic::appLog().trace() << "EchoServerRc: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2522,16 +2522,16 @@ int main(int argc, char* argv[]) {
                             const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClientIn: disabled";
+                snode::semantic::appLog().trace() << "EchoClientIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2546,16 +2546,16 @@ int main(int argc, char* argv[]) {
                             const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoClientUn: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoClientUn: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClientUn: disabled";
+                snode::semantic::appLog().trace() << "EchoClientUn: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2576,16 +2576,16 @@ int main(int argc, char* argv[]) {
                             const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClientRc: disabled";
+                snode::semantic::appLog().trace() << "EchoClientRc: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -2636,7 +2636,7 @@ The use of X.509 certificates for encrypted communication is demonstrated also.
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
 #include <express/middleware/StaticMiddleware.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 #include <utils/Config.h>
 
 int main(int argc, char* argv[]) {
@@ -2656,23 +2656,23 @@ int main(int argc, char* argv[]) {
     configLegacyApp.required(legacyHtmlRoot);
 
     legacyApp.setOnConnected([legacyApp, legacyHtmlRoot](SocketConnection* socketConnection) -> void { // onConnect
-        LOG(INFO) << "OnConnected " << legacyApp.getConfig().getInstanceName();
+        snode::semantic::appLog().info() << "OnConnected " << legacyApp.getConfig().getInstanceName();
         legacyApp.use(express::middleware::StaticMiddleware(legacyHtmlRoot->as<std::string>()));
     });
 
     legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "LegacyWebApp: disabled";
+                snode::semantic::appLog().trace() << "LegacyWebApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "LegacyWebApp: non critical error occurred";
+                snode::semantic::appLog().trace() << "LegacyWebApp: non critical error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "LegacyWebApp: critical error occurred";
+                snode::semantic::appLog().trace() << "LegacyWebApp: critical error occurred";
                 break;
         }
     });
@@ -2689,7 +2689,7 @@ int main(int argc, char* argv[]) {
     configTlsApp.required(tlsHtmlRoot);
 
     tlsApp.setOnConnected([tlsApp, tlsHtmlRoot](SocketConnection* socketConnection) -> void { // onConnect
-        LOG(INFO) << "OnConnected " << tlsApp.getConfig().getInstanceName();
+        snode::semantic::appLog().info() << "OnConnected " << tlsApp.getConfig().getInstanceName();
         tlsApp.use(express::middleware::StaticMiddleware(tlsHtmlRoot->as<std::string>()));
     });
 
@@ -2700,16 +2700,16 @@ int main(int argc, char* argv[]) {
     tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "TLSWebApp: disabled";
+                snode::semantic::appLog().trace() << "TLSWebApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "TLSWebApp: non critical error occurred";
+                snode::semantic::appLog().trace() << "TLSWebApp: non critical error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "TLSWebApp: critical error occurred";
+                snode::semantic::appLog().trace() << "TLSWebApp: critical error occurred";
                 break;
         }
     });
@@ -2725,7 +2725,7 @@ The high-level web API provides the methods `get()`, `post()`, `put()`, etc like
 ```cpp
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
@@ -2786,16 +2786,16 @@ int main(int argc, char* argv[]) {
     legacyApp.listen(8080, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "LegacyWebApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "LegacyWebApp: disabled";
+                snode::semantic::appLog().trace() << "LegacyWebApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "LegacyWebApp: non critical error occurred";
+                snode::semantic::appLog().trace() << "LegacyWebApp: non critical error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "LegacyWebApp: critical error occurred";
+                snode::semantic::appLog().trace() << "LegacyWebApp: critical error occurred";
                 break;
         }
     });
@@ -2814,16 +2814,16 @@ int main(int argc, char* argv[]) {
     tlsApp.listen(8088, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "TLSWebApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "TLSWebApp: disabled";
+                snode::semantic::appLog().trace() << "TLSWebApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "TLSWebApp: non critical error occurred";
+                snode::semantic::appLog().trace() << "TLSWebApp: non critical error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "TLSWebApp: critical error occurred";
+                snode::semantic::appLog().trace() << "TLSWebApp: critical error occurred";
                 break;
         }
     });

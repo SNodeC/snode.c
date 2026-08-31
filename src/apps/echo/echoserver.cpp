@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -85,16 +86,16 @@ int main(int argc, char* argv[]) {
                                                                         const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << instanceName << ": disabled";
+                snode::semantic::appLog().trace() << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -129,9 +130,9 @@ int main(int argc, char* argv[]) {
      server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #endif
         if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errno) << "listen";
         } else {
-            VLOG(1) << "snode.c listening on " << socket.getBindAddress().toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

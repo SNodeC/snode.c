@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -134,40 +135,40 @@ namespace core::socket::stream {
             , sharedContext(std::make_shared<Context>(
                   std::make_shared<SocketContextFactory>(std::forward<Args>(args)...),
                   [onConnect](SocketConnection* socketConnection) { // onConnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnect";
+                      snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnConnect";
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      snode::semantic::appLog().debug() << "  Local: " << socketConnection->getLocalAddress().toString();
+                      snode::semantic::appLog().debug() << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
                       if (onConnect) {
                           onConnect(socketConnection);
                       }
                   },
                   [onConnected](SocketConnection* socketConnection) { // onConnected
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnConnected";
+                      snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
 
-                      LOG(DEBUG) << "  Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "   Peer: " << socketConnection->getRemoteAddress().toString();
+                      snode::semantic::appLog().debug() << "  Local: " << socketConnection->getLocalAddress().toString();
+                      snode::semantic::appLog().debug() << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
                       if (onConnected) {
                           onConnected(socketConnection);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) { // onDisconnect
-                      LOG(DEBUG) << socketConnection->getConnectionName() << ": OnDisconnect";
+                      snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnDisconnect";
 
-                      LOG(DEBUG) << "            Local: " << socketConnection->getLocalAddress().toString();
-                      LOG(DEBUG) << "             Peer: " << socketConnection->getRemoteAddress().toString();
+                      snode::semantic::appLog().debug() << "            Local: " << socketConnection->getLocalAddress().toString();
+                      snode::semantic::appLog().debug() << "             Peer: " << socketConnection->getRemoteAddress().toString();
 
-                      LOG(DEBUG) << "     Online Since: " << socketConnection->getOnlineSince();
-                      LOG(DEBUG) << "  Online Duration: " << socketConnection->getOnlineDuration();
+                      snode::semantic::appLog().debug() << "     Online Since: " << socketConnection->getOnlineSince();
+                      snode::semantic::appLog().debug() << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-                      LOG(DEBUG) << "     Total Queued: " << socketConnection->getTotalQueued();
-                      LOG(DEBUG) << "       Total Sent: " << socketConnection->getTotalSent();
-                      LOG(DEBUG) << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-                      LOG(DEBUG) << "       Total Read: " << socketConnection->getTotalRead();
-                      LOG(DEBUG) << "  Total Processed: " << socketConnection->getTotalProcessed();
-                      LOG(DEBUG) << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
+                      snode::semantic::appLog().debug() << "     Total Queued: " << socketConnection->getTotalQueued();
+                      snode::semantic::appLog().debug() << "       Total Sent: " << socketConnection->getTotalSent();
+                      snode::semantic::appLog().debug() << "      Write Delta: " << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
+                      snode::semantic::appLog().debug() << "       Total Read: " << socketConnection->getTotalRead();
+                      snode::semantic::appLog().debug() << "  Total Processed: " << socketConnection->getTotalProcessed();
+                      snode::semantic::appLog().debug() << "       Read Delta: " << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
 
                       if (onDisconnect) {
                           onDisconnect(socketConnection);
@@ -194,7 +195,7 @@ namespace core::socket::stream {
         const SocketClient& realConnect(const std::function<void(const SocketAddress&, core::socket::State)>& onStatus,
                                         unsigned int tries,
                                         double retryTimeoutScale) const {
-            LOG(DEBUG) << this->config->getInstanceName() << ": Initiating connect";
+            snode::semantic::appLog().debug() << this->config->getInstanceName() << ": Initiating connect";
 
             core::EventReceiver::atNextTick(
                 [config = this->config, sharedContext = this->sharedContext, onStatus, tries, retryTimeoutScale] {
@@ -220,7 +221,7 @@ namespace core::socket::stream {
                                     core::eventLoopState() == core::State::RUNNING) {
                                     double relativeReconnectTimeout = config->getReconnectTime();
 
-                                    LOG(INFO) << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
+                                    snode::semantic::appLog().info() << config->getInstanceName() << ": Reconnect in " << relativeReconnectTimeout << " seconds";
 
                                     autoConnectControl->armReconnectTimer(
                                         relativeReconnectTimeout, [config, sharedContext, autoConnectControl, /*generation,*/ onStatus]() {
@@ -230,7 +231,7 @@ namespace core::socket::stream {
                                             if (config->getReconnect()) {
                                                 SocketClient(config, sharedContext).realConnect(onStatus, 0, config->getRetryBase());
                                             } else {
-                                                LOG(INFO) << config->getInstanceName() << ": Reconnect disabled during wait";
+                                                snode::semantic::appLog().info() << config->getInstanceName() << ": Reconnect disabled during wait";
                                             }
                                         });
                                 }
@@ -255,7 +256,7 @@ namespace core::socket::stream {
                                     relativeRetryTimeout -= utils::Random::getInRange(-config->getRetryJitter(), config->getRetryJitter()) *
                                                             relativeRetryTimeout / 100.;
 
-                                    LOG(INFO) << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
+                                    snode::semantic::appLog().info() << config->getInstanceName() << ": Retry connect in " << relativeRetryTimeout << " seconds";
 
                                     autoConnectControl->armRetryTimer(
                                         relativeRetryTimeout,
@@ -267,7 +268,7 @@ namespace core::socket::stream {
                                                 SocketClient(config, sharedContext)
                                                     .realConnect(onStatus, tries + 1, retryTimeoutScale * config->getRetryBase());
                                             } else {
-                                                LOG(INFO) << config->getInstanceName() << ": Retry connect disabled during wait";
+                                                snode::semantic::appLog().info() << config->getInstanceName() << ": Retry connect disabled during wait";
                                             }
                                         });
                                 }

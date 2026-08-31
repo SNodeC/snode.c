@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -98,17 +99,17 @@ namespace database::mariadb {
                             ExceptionalConditionEventReceiver::disable();
                         }
 
-                        LOG(ERROR) << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
+                        snode::semantic::appLog().error() << this->connectionName << " MariaDB: Descriptor not registered in SNode.C eventloop";
                     }
                 }
             },
             [this]() {
-                LOG(DEBUG) << this->connectionName << " MariaDB connect: success";
+                snode::semantic::appLog().debug() << this->connectionName << " MariaDB connect: success";
 
                 this->onStateChanged({.connected = true});
             },
             [this](const std::string& errorString, unsigned int errorNumber) {
-                LOG(WARNING) << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
+                snode::semantic::appLog().warn() << this->connectionName << " MariaDB connect: error: " << errorString << " : " << errorNumber;
 
                 this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
             }))));
@@ -162,7 +163,7 @@ namespace database::mariadb {
         if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
-            LOG(DEBUG) << connectionName << " MariaDB start: " << currentCommand->commandInfo();
+            snode::semantic::appLog().debug() << connectionName << " MariaDB start: " << currentCommand->commandInfo();
 
             currentCommand->setMariaDBConnection(this);
             checkStatus(currentCommand->commandStart(mysql, currentTime));
@@ -188,7 +189,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        LOG(DEBUG) << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
+        snode::semantic::appLog().debug() << connectionName << " MariaDB completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         const bool sequenceEmpty = commandSequenceQueue.front().empty();
@@ -299,7 +300,7 @@ namespace database::mariadb {
 
     void MariaDBConnection::unobservedEvent() {
         if (!closing) {
-            LOG(ERROR) << connectionName << " MariaDB: Lost connection";
+            snode::semantic::appLog().error() << connectionName << " MariaDB: Lost connection";
         }
 
         if (mariaDBClient != nullptr) {

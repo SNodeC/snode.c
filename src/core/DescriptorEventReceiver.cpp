@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -99,9 +100,9 @@ namespace core {
 
             enabled = true;
             descriptorEventPublisher.enable(this);
-            LOG(TRACE) << getName() << ": Enabled";
+            snode::semantic::appLog().trace() << getName() << ": Enabled";
         } else {
-            LOG(WARNING) << getName() << ": Double enable";
+            snode::semantic::appLog().warn() << getName() << ": Double enable";
         }
 
         return enabled;
@@ -111,9 +112,9 @@ namespace core {
         if (enabled) {
             enabled = false;
             descriptorEventPublisher.disable(this);
-            LOG(TRACE) << getName() << ": Disabled";
+            snode::semantic::appLog().trace() << getName() << ": Disabled";
         } else {
-            LOG(WARNING) << getName() << ": Double disable";
+            snode::semantic::appLog().warn() << getName() << ": Double disable";
         }
     }
 
@@ -123,10 +124,10 @@ namespace core {
                 suspended = true;
                 descriptorEventPublisher.suspend(this);
             } else {
-                LOG(WARNING) << getName() << ": Double suspend";
+                snode::semantic::appLog().warn() << getName() << ": Double suspend";
             }
         } else {
-            LOG(WARNING) << getName() << ": Suspend while not enabled";
+            snode::semantic::appLog().warn() << getName() << ": Suspend while not enabled";
         }
     }
 
@@ -137,10 +138,10 @@ namespace core {
                 lastTriggered = utils::Timeval::currentTime();
                 descriptorEventPublisher.resume(this);
             } else {
-                LOG(WARNING) << getName() << ": Double resume";
+                snode::semantic::appLog().warn() << getName() << ": Double resume";
             }
         } else {
-            LOG(WARNING) << getName() << ": Resume while not enabled";
+            snode::semantic::appLog().warn() << getName() << ": Resume while not enabled";
         }
     }
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 
 /*
  * SNode.C - A Slim Toolkit for Network Communication
@@ -97,19 +98,19 @@ namespace web::http {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        LOG(TRACE) << "HTTP: SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
+                        snode::semantic::appLog().trace() << "HTTP: SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
                     } else {
-                        LOG(TRACE) << "HTTP: SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
+                        snode::semantic::appLog().trace() << "HTTP: SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
                         delete socketContextUpgradeFactory;
                         socketContextUpgradeFactory = nullptr;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    LOG(ERROR) << "HTTP: SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
+                    snode::semantic::appLog().error() << "HTTP: SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                LOG(ERROR) << "HTTP: Optaining function \"" << socketContextUpgradeFactoryFunctionName
+                snode::semantic::appLog().error() << "HTTP: Optaining function \"" << socketContextUpgradeFactoryFunctionName
                            << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }

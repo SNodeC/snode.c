@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -144,7 +145,7 @@ namespace net::config {
                                removeSocketOption(optLevel, optName);
                            }
                        } catch (CLI::OptionNotFound& err) {
-                           LOG(ERROR) << err.what();
+                           snode::semantic::appLog().error() << err.what();
                        }
                    },
                    description,

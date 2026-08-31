@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -60,24 +61,24 @@ namespace apps::websocket::subprotocol::echo::client {
     }
 
     void Echo::onConnected() {
-        VLOG(1) << "Echo connected";
+        snode::semantic::appLog().trace() << "Echo connected";
 
         sendMessage("Welcome to SimpleChat");
         sendMessage("=====================");
     }
 
     void Echo::onMessageStart(int opCode) {
-        VLOG(2) << "Message Start - OpCode: " << opCode;
+        snode::semantic::appLog().trace() << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
         data += std::string(chunk, chunkLen);
 
-        VLOG(2) << "Message Fragment: " << std::string(chunk, chunkLen);
+        snode::semantic::appLog().trace() << "Message Fragment: " << std::string(chunk, chunkLen);
     }
 
     void Echo::onMessageEnd() {
-        VLOG(1) << "Message Data: " << data;
+        snode::semantic::appLog().trace() << "Message Data: " << data;
 
         // To do ping-pong
         //        sendMessage(data);
@@ -86,15 +87,15 @@ namespace apps::websocket::subprotocol::echo::client {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        VLOG(1) << "Message error: " << errnum;
+        snode::semantic::appLog().trace() << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        VLOG(1) << "Echo disconnected:";
+        snode::semantic::appLog().trace() << "Echo disconnected:";
     }
 
     bool Echo::onSignal(int sig) {
-        VLOG(1) << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
+        snode::semantic::appLog().trace() << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig
                 << ")";
 
         sendClose();

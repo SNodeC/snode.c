@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -109,16 +110,16 @@ int main(int argc, char* argv[]) {
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "legacyApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "legacyApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "legacyApp: disabled";
+                snode::semantic::appLog().trace() << "legacyApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "legacyApp: error occurred";
+                snode::semantic::appLog().trace() << "legacyApp: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "legacyApp: fatal error occurred";
+                snode::semantic::appLog().trace() << "legacyApp: fatal error occurred";
                 break;
         }
     });
@@ -139,16 +140,16 @@ int main(int argc, char* argv[]) {
     tlsApp.listen("localhost", 8088, [](const TLSSocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "tlsApp: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "tlsApp: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "tlsApp: disabled";
+                snode::semantic::appLog().trace() << "tlsApp: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "tlsApp: error occurred";
+                snode::semantic::appLog().trace() << "tlsApp: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "tlsApp: fatal error occurred";
+                snode::semantic::appLog().trace() << "tlsApp: fatal error occurred";
                 break;
         }
     });

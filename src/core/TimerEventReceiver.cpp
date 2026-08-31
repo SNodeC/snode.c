@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -85,7 +86,7 @@ namespace core {
         if (core::eventLoopState() != core::State::STOPPING) {
             timerEventPublisher.insert(this);
         } else {
-            LOG(WARNING) << "TimerEventReceiver - Enable after signal: Not enabled";
+            snode::semantic::appLog().warn() << "TimerEventReceiver - Enable after signal: Not enabled";
             delete this;
         }
     }
@@ -101,7 +102,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(TRACE) << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
+        snode::semantic::appLog().trace() << "TimerEventReceiver: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).getMsd() << " ms";
 
         dispatchEvent();
     }

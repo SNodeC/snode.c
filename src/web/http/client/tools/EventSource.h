@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -288,24 +289,24 @@ namespace web::http::client::tools {
             sharedState->path = path;
             sharedState->origin = scheme + "://" + socketAddress.toString(false);
 
-            LOG(TRACE) << "Origin: " << sharedState->origin;
-            LOG(TRACE) << "  Path: " << sharedState->path;
+            snode::semantic::appLog().trace() << "Origin: " << sharedState->origin;
+            snode::semantic::appLog().trace() << "  Path: " << sharedState->path;
 
             const std::weak_ptr<EventSourceT> eventSourceWeak = this->weak_from_this();
 
             client = std::make_shared<Client>(
                 [eventSourceWeak](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnect";
+                    snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " EventSource: OnConnect";
 
                     if (const std::shared_ptr<EventSourceT> eventStream = eventSourceWeak.lock()) {
                         eventStream->socketConnection = socketConnection;
                     }
                 },
                 [](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnConnected";
+                    snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " EventSource: OnConnected";
                 },
                 [eventSourceWeak, sharedState = this->sharedState, sharedConfig = this->sharedConfig](SocketConnection* socketConnection) {
-                    LOG(DEBUG) << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
+                    snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " EventSource: OnDisconnect";
 
                     if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
                         eventSource->socketConnection = nullptr;
@@ -338,7 +339,7 @@ namespace web::http::client::tools {
                     const std::shared_ptr<MasterRequest>& masterRequest) {
                     const std::string connectionName = masterRequest->getSocketContext()->getSocketConnection()->getConnectionName();
 
-                    LOG(DEBUG) << connectionName << " EventSource: OnRequestStart";
+                    snode::semantic::appLog().debug() << connectionName << " EventSource: OnRequestStart";
 
                     if (!sharedState->lastId.empty()) {
                         masterRequest->set("Last-Event-ID", sharedState->lastId);
@@ -360,13 +361,13 @@ namespace web::http::client::tools {
                                         masterRequest->getSocketContext()->close();
                                     }
                                 } else {
-                                    LOG(DEBUG) << connectionName << ": server-sent event: server disconnect";
+                                    snode::semantic::appLog().debug() << connectionName << ": server-sent event: server disconnect";
                                 }
 
                                 return consumed;
                             },
                             [sharedState, sharedConfig, connectionName]() {
-                                LOG(DEBUG) << connectionName << ": server-sent event stream start";
+                                snode::semantic::appLog().debug() << connectionName << ": server-sent event stream start";
 
                                 sharedState->ready = ReadyState::OPEN;
 
@@ -386,7 +387,7 @@ namespace web::http::client::tools {
                                 }
                             },
                             [sharedState, connectionName]() {
-                                LOG(DEBUG) << connectionName
+                                snode::semantic::appLog().debug() << connectionName
                                            << ": not an server-sent event endpoint: " << sharedState->origin + sharedState->path;
                             })) {
                         if (const std::shared_ptr<EventSourceT> eventSource = eventSourceWeak.lock()) {
@@ -395,7 +396,7 @@ namespace web::http::client::tools {
                     }
                 },
                 [](const std::shared_ptr<Request>& req) {
-                    LOG(DEBUG) << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventSource: OnRequestEnd";
+                    snode::semantic::appLog().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName() << " EventSource: OnRequestEnd";
                 });
 
             client->getConfig().Remote::setSocketAddress(socketAddress);
@@ -410,16 +411,16 @@ namespace web::http::client::tools {
                                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        LOG(DEBUG) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::semantic::appLog().debug() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        LOG(DEBUG) << instanceName << ": disabled";
+                        snode::semantic::appLog().debug() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::appLog().debug() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        LOG(DEBUG) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::semantic::appLog().debug() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });

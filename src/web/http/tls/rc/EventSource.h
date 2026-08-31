@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -106,7 +107,7 @@ namespace web::http::tls::rc {
 
             eventSource = EventSource(scheme, net::rc::SocketAddress(addr, chan), path + query);
         } else {
-            LOG(ERROR) << "EventSource RFCOMM url not accepted: " << url;
+            snode::semantic::appLog().error() << "EventSource RFCOMM url not accepted: " << url;
         }
 
         return eventSource;

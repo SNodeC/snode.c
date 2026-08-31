@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -121,7 +122,7 @@ namespace core {
         if (utils::Config::init(argc, argv)) {
             eventLoopState = State::INITIALIZED;
 
-            LOG(TRACE) << "SNode.C: Starting ... HELLO";
+            snode::semantic::appLog().trace() << "SNode.C: Starting ... HELLO";
         }
 
         sigaction(SIGPIPE, &oldPipeAct, nullptr);
@@ -175,7 +176,7 @@ namespace core {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
             free();
 
-            PLOG(FATAL) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errno) << "Core: not initialized: No events will be processed\nCall SNodeC::init(argc, argv) before SNodeC::tick().";
         }
 
         return tickStatus;
@@ -209,7 +210,7 @@ namespace core {
                 eventLoopState = State::RUNNING;
                 core::TickStatus tickStatus = TickStatus::SUCCESS;
 
-                LOG(TRACE) << "Core::EventLoop: started";
+                snode::semantic::appLog().trace() << "Core::EventLoop: started";
 
                 do {
                     tickStatus = EventLoop::instance()._tick(timeOut);
@@ -217,16 +218,16 @@ namespace core {
 
                 switch (tickStatus) {
                     case TickStatus::SUCCESS:
-                        LOG(TRACE) << "Core::EventLoop: Stopped";
+                        snode::semantic::appLog().trace() << "Core::EventLoop: Stopped";
                         break;
                     case TickStatus::NOOBSERVER:
-                        LOG(TRACE) << "Core::EventLoop: No Observer";
+                        snode::semantic::appLog().trace() << "Core::EventLoop: No Observer";
                         break;
                     case TickStatus::INTERRUPTED:
-                        LOG(TRACE) << "Core::EventLoop: Interrupted";
+                        snode::semantic::appLog().trace() << "Core::EventLoop: Interrupted";
                         break;
                     case TickStatus::TRACE:
-                        PLOG(FATAL) << "Core::EventLoop: _tick()";
+                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errno) << "Core::EventLoop: _tick()";
                         break;
                 }
             } else {
@@ -260,7 +261,7 @@ namespace core {
         }
 
         if (stopsig != 0) {
-            LOG(TRACE) << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
+            snode::semantic::appLog().trace() << "Core: Sending signal " << signal << " to all DescriptorEventReceivers";
 
             EventLoop::instance().eventMultiplexer.signal(stopsig);
         }
@@ -282,25 +283,25 @@ namespace core {
             timeout -= seconds.count();
         } while (timeout > 0 && (tickStatus == TickStatus::SUCCESS));
 
-        LOG(TRACE) << "Core: Terminate all stalled DescriptorEventReceivers";
+        snode::semantic::appLog().trace() << "Core: Terminate all stalled DescriptorEventReceivers";
 
         EventLoop::instance().eventMultiplexer.terminate();
 
-        LOG(TRACE) << "Core: Close all libraries opened during runtime";
+        snode::semantic::appLog().trace() << "Core: Close all libraries opened during runtime";
 
         DynamicLoader::execDlCloseAll();
 
-        LOG(TRACE) << "Core:: Clean up the filesystem";
+        snode::semantic::appLog().trace() << "Core:: Clean up the filesystem";
 
         utils::Config::terminate();
 
-        LOG(TRACE) << "Core:: All resources released";
+        snode::semantic::appLog().trace() << "Core:: All resources released";
 
-        LOG(TRACE) << "SNode.C: Ended ... BYE";
+        snode::semantic::appLog().trace() << "SNode.C: Ended ... BYE";
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(TRACE) << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
+        snode::semantic::appLog().trace() << "Core: Received signal '" << strsignal(sig) << "' (SIG" << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
         stopsig = sig;
         stop();
     }

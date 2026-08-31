@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -61,28 +62,28 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) {
             pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) {
                 const std::string string(chunk, chunkLen);
-                VLOG(1) << "Pipe Data: " << string;
+                snode::semantic::appLog().trace() << "Pipe Data: " << string;
                 pipeSource.send(chunk, chunkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() {
-                VLOG(1) << "Pipe EOF";
+                snode::semantic::appLog().trace() << "Pipe EOF";
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) {
-                VLOG(1) << "PipeSink";
+                snode::semantic::appLog().trace() << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) {
-                VLOG(1) << "PipeSource";
+                snode::semantic::appLog().trace() << "PipeSource";
             });
 
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) {
-            PLOG(ERROR) << "Pipe not created";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "Pipe not created";
         });
 
     return core::SNodeC::start();
