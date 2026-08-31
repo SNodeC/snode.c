@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * Express compatibility server for SNode.C/Express
  *
@@ -237,16 +238,16 @@ int main(int argc, char* argv[]) {
     app.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "express-compat listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "express-compat listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "express-compat disabled";
+                snode::semantic::appLog().trace() << "express-compat disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

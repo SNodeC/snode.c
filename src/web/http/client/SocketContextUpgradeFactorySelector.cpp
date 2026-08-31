@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -66,7 +67,7 @@ namespace web::http::client {
 
 #if !defined(NDEBUG)
         if (const char* httpUpgradeInstallLibdirEnv = std::getenv("HTTP_UPGRADE_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "HTTP upgrade: Overriding http upgrade library dir";
+            snode::semantic::appLog().warn() << "HTTP upgrade: Overriding http upgrade library dir";
             httpUpgradeInstallLibdir = std::string(httpUpgradeInstallLibdirEnv);
         }
 #endif
