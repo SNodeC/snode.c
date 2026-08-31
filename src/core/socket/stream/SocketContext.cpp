@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -128,7 +129,7 @@ namespace core::socket::stream {
     void SocketContext::onWriteError(int errnum) {
         errno = errnum;
 
-        PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Debug, errno) << socketConnection->getConnectionName() << " SocketContext: onWriteError";
         shutdownRead();
     }
 
@@ -136,9 +137,9 @@ namespace core::socket::stream {
         errno = errnum;
 
         if (errno == 0) {
-            LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: EOF received";
+            snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " SocketContext: EOF received";
         } else {
-            PLOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: onReadError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Debug, errno) << socketConnection->getConnectionName() << " SocketContext: onReadError";
         }
         shutdownWrite();
     }
@@ -153,11 +154,11 @@ namespace core::socket::stream {
     void SocketContext::detach() {
         onDisconnected();
 
-        LOG(DEBUG) << socketConnection->getConnectionName() << " SocketContext: detached";
-        LOG(DEBUG) << "     Online Since: " << getOnlineSince();
-        LOG(DEBUG) << "  Online Duration: " << getOnlineDuration();
-        LOG(DEBUG) << "       Total Sent: " << getTotalQueued();
-        LOG(DEBUG) << "  Total Processed: " << getTotalProcessed();
+        snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " SocketContext: detached";
+        snode::semantic::appLog().debug() << "     Online Since: " << getOnlineSince();
+        snode::semantic::appLog().debug() << "  Online Duration: " << getOnlineDuration();
+        snode::semantic::appLog().debug() << "       Total Sent: " << getTotalQueued();
+        snode::semantic::appLog().debug() << "  Total Processed: " << getTotalProcessed();
 
         delete this;
     }

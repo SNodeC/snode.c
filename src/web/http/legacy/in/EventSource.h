@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -107,10 +108,10 @@ namespace web::http::legacy::in {
             if (scheme == "http") {
                 eventSource = EventSource(scheme, net::in::SocketAddress(host, port), path + query);
             } else {
-                LOG(ERROR) << "Scheme not valid: " << scheme;
+                snode::semantic::appLog().error() << "Scheme not valid: " << scheme;
             }
         } else {
-            LOG(ERROR) << "EventSource url not accepted: " << url;
+            snode::semantic::appLog().error() << "EventSource url not accepted: " << url;
         }
 
         return eventSource;
