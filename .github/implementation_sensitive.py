@@ -34,7 +34,7 @@ replace_once(
 replace_once(
     "src/utils/SubCommand.cpp",
     "#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <vector>",
-    "#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <vector>",
+    "#include <algorithm>\n#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <vector>",
 )
 replace_once(
     "src/utils/SubCommand.cpp",
