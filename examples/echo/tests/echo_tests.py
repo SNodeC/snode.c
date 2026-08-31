@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import signal
 import socket
 import subprocess
 import tempfile
@@ -10,6 +11,11 @@ from pathlib import Path
 
 HOST = "127.0.0.1"
 GREETING = b"Hello peer! Nice to see you!!!"
+GRACEFUL_TERMINATION_CODES = (
+    0,
+    -signal.SIGTERM,
+    (-signal.SIGTERM) & 0xFF,
+)
 
 
 def test_environment():
@@ -67,7 +73,7 @@ def server_command(server, port, quiet_application_log=False):
     command = [str(server), "--monochrom=true"]
 
     if quiet_application_log:
-        command.extend(["--log-origin-level", "application=warn"])
+        command.append("--log-origin-level=application=warn")
 
     command.extend(
         [
@@ -86,7 +92,7 @@ def client_command(client, port, quiet_application_log=False):
     command = [str(client), "--monochrom=true"]
 
     if quiet_application_log:
-        command.extend(["--log-origin-level", "application=warn"])
+        command.append("--log-origin-level=application=warn")
 
     command.extend(
         [
@@ -111,7 +117,9 @@ def check_help(executable, expected, env):
         timeout=5,
         check=False,
     )
-    if result.returncode != 0:
+    # SNode.C reports an intentionally skipped bootstrap as status 2 after
+    # printing command-line help.
+    if result.returncode not in (0, 2):
         raise AssertionError(
             f"{executable.name} --help=expanded failed:\n{result.stdout}"
         )
@@ -157,7 +165,7 @@ def test_server(server):
         output = stop_process(process)
         config_root.cleanup()
 
-    if process.returncode not in (0, -15):
+    if process.returncode not in GRACEFUL_TERMINATION_CODES:
         raise AssertionError(
             f"echoserver exited with {process.returncode}:\n{output}"
         )
@@ -201,7 +209,7 @@ def test_client(client):
             output = stop_process(process)
             config_root.cleanup()
 
-    if process.returncode not in (0, -15):
+    if process.returncode not in GRACEFUL_TERMINATION_CODES:
         raise AssertionError(
             f"echoclient exited with {process.returncode}:\n{output}"
         )
