@@ -22,6 +22,21 @@ jobs:
       - name: Apply sensitive-option support
         run: python3 .github/implementation_sensitive.py
 
+      - name: Normalize config key spelling
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/utils/SubCommand.cpp')
+          text = p.read_text()
+          old = '                        names.insert(option->get_single_name());'
+          new = '''                        std::string name = option->get_single_name();
+                        name.erase(0, name.find_first_not_of('-'));
+                        names.insert(name);'''
+          if text.count(old) != 1:
+              raise SystemExit('expected sensitive name insertion not found exactly once')
+          p.write_text(text.replace(old, new, 1))
+          PY
+
       - name: Install dependencies
         run: |
           sudo apt-get update
