@@ -45,6 +45,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -54,6 +55,96 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
+
+    namespace {
+        std::string jsonEscapeSensitiveValue(const std::string& value) {
+            std::string escaped;
+            escaped.reserve(value.size());
+            for (const char ch : value) {
+                switch (ch) {
+                    case '\\':
+                        escaped += "\\\\";
+                        break;
+                    case '"':
+                        escaped += "\\\"";
+                        break;
+                    case '\n':
+                        escaped += "\\n";
+                        break;
+                    case '\r':
+                        escaped += "\\r";
+                        break;
+                    case '\t':
+                        escaped += "\\t";
+                        break;
+                    default:
+                        escaped.push_back(ch);
+                }
+            }
+            return escaped;
+        }
+
+        void addSensitiveValueVariants(std::set<std::string>& values, const std::string& value) {
+            if (value.empty() || value == "<REQUIRED>" || value == "<REDACTED>") {
+                return;
+            }
+            values.insert(value);
+            values.insert(jsonEscapeSensitiveValue(value));
+            values.insert(CLI::detail::convert_arg_for_ini(value, '"', '\'', true));
+        }
+
+        std::set<std::string> collectSensitiveOptionValues(CLI::App* app) {
+            std::set<std::string> values;
+
+            if (const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app); appWithPtr != nullptr) {
+                for (const CLI::Option* option : app->get_options()) {
+                    if (!appWithPtr->sensitive(option)) {
+                        continue;
+                    }
+
+                    addSensitiveValueVariants(values, option->get_default_str());
+                    for (const std::string& value : option->results()) {
+                        addSensitiveValueVariants(values, value);
+                    }
+                    try {
+                        for (const std::string& value : option->reduced_results()) {
+                            addSensitiveValueVariants(values, value);
+                        }
+                    } catch (const CLI::ParseError&) {
+                    }
+                }
+            }
+
+            for (CLI::App* subCommand : app->get_subcommands({})) {
+                const auto childValues = collectSensitiveOptionValues(subCommand);
+                values.insert(childValues.begin(), childValues.end());
+            }
+
+            return values;
+        }
+
+        void replaceAll(std::string& text, const std::string& needle, const std::string& replacement) {
+            if (needle.empty()) {
+                return;
+            }
+            std::size_t pos = 0;
+            while ((pos = text.find(needle, pos)) != std::string::npos) {
+                text.replace(pos, needle.size(), replacement);
+                pos += replacement.size();
+            }
+        }
+
+        std::string redactSensitiveConfig(std::string config, const std::set<std::string>& sensitiveValues) {
+            std::vector<std::string> ordered(sensitiveValues.begin(), sensitiveValues.end());
+            std::sort(ordered.begin(), ordered.end(), [](const std::string& left, const std::string& right) {
+                return left.size() > right.size();
+            });
+            for (const std::string& value : ordered) {
+                replaceAll(config, value, "<REDACTED>");
+            }
+            return config;
+        }
+    } // namespace
 
     SubCommand::SubCommand(SubCommand* parent, std::shared_ptr<utils::AppWithPtr> appWithPtr, const std::string& group, bool final)
         : subCommandApp(appWithPtr.get())
@@ -182,7 +273,7 @@ namespace utils {
     }
 
     std::string SubCommand::configToStr() const {
-        return subCommandApp->config_to_str(true, true);
+        return redactSensitiveConfig(subCommandApp->config_to_str(true, true), collectSensitiveOptionValues(subCommandApp));
     }
 
     std::string SubCommand::help(const CLI::App* helpApp, const CLI::AppFormatMode& mode) const {
@@ -442,6 +533,11 @@ namespace utils {
             ->group(subCommandApp->get_formatter()->get_label(configurable ? "Persistent Options" : "Nonpersistent Options"));
     }
 
+    CLI::Option* SubCommand::setSensitive(CLI::Option* option, bool sensitive) const {
+        subCommandApp->setSensitive(option, sensitive);
+        return option;
+    }
+
     CLI::App* SubCommand::getHelpTriggerApp() {
         return helpTriggerApp;
     }
@@ -519,6 +615,10 @@ namespace utils {
     void AppWithPtr::setCanonicalRequired(CLI::Option* option, bool required) {
         optionState(option).required.canonicalRequired = required;
         applyEffectiveState();
+    }
+
+    void AppWithPtr::setSensitive(CLI::Option* option, bool sensitive) {
+        optionState(option).sensitive = sensitive;
     }
 
     void AppWithPtr::setSuppression(ConfigSuppressionReason reason, bool suppressed) {
@@ -600,6 +700,12 @@ namespace utils {
         const ConfigOptionState* state = findOptionState(option);
 
         return state != nullptr && state->required.effectiveRequired;
+    }
+
+    bool AppWithPtr::sensitive(const CLI::Option* option) const {
+        const ConfigOptionState* state = findOptionState(option);
+
+        return state != nullptr && state->sensitive;
     }
 
     bool AppWithPtr::hasSuppression(ConfigSuppressionReason reason) const {
