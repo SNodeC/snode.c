@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -27,9 +28,9 @@ int main(int argc, char* argv[]) {
     server.listen([instanceName = server.getConfig()->getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                          const core::socket::State& state) {
         if (state == core::socket::State::OK) {
-            VLOG(1) << instanceName << ": listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << instanceName << ": listening on " << socketAddress.toString();
         } else if (state == core::socket::State::ERROR) {
-            LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+            snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
         }
     });
 

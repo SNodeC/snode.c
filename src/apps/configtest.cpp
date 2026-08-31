@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -82,7 +83,7 @@ int main(int argc, char* argv[]) {
     CLI::Option* filenameOpt = subApp->add_option("-f", filename, "A Filename");
     //    filenameOpt->default_val("Filenameeeeee");
 
-    VLOG(1) << "Filename: " << filename;
+    snode::semantic::appLog().trace() << "Filename: " << filename;
 
     //    app.needs(subApp);
     //    subApp->needs(filenameOpt);

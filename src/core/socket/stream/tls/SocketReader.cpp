@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -74,13 +75,13 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case SSL_ERROR_WANT_WRITE:
-                        LOG(TRACE) << getName() << " SSL/TLS: Start renegotiation on read";
+                        snode::semantic::appLog().trace() << getName() << " SSL/TLS: Start renegotiation on read";
                         doSSLHandshake(
                             [this]() {
-                                LOG(DEBUG) << getName() << " SSL/TLS: Renegotiation on read success";
+                                snode::semantic::appLog().debug() << getName() << " SSL/TLS: Renegotiation on read success";
                             },
                             [this]() {
-                                LOG(WARNING) << getName() << " SSL/TLS: Renegotiation on read timed out";
+                                snode::semantic::appLog().warn() << getName() << " SSL/TLS: Renegotiation on read timed out";
                             },
                             [this](int ssl_err) {
                                 ssl_log(getName() + " SSL/TLS: Renegotiation on read", ssl_err);
@@ -104,9 +105,9 @@ namespace core::socket::stream::tls {
                             const utils::PreserveErrno pe;
 
                             if (ret == 0) {
-                                PLOG(DEBUG) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
+                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Debug, errno) << getName() << " SSL/TLS: EOF detected: Connection closed by peer.";
                             } else {
-                                PLOG(WARNING) << getName() + " SSL/TLS: Syscall error on read";
+                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Warning, errno) << getName() + " SSL/TLS: Syscall error on read";
                             }
                         }
                         ret = -1;

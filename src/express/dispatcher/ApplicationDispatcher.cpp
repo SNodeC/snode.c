@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -70,16 +71,16 @@ namespace express::dispatcher {
                                          bool strictRouting,
                                          bool caseInsensitiveRouting,
                                          bool mergeParams) {
-        LOG(TRACE) << "======================= APPLICATION DISPATCH =======================";
-        LOG(TRACE) << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
-        LOG(TRACE) << "          Request Method: " << controller.getRequest()->method;
-        LOG(TRACE) << "             Request Url: " << controller.getRequest()->url;
-        LOG(TRACE) << "            Request Path: " << controller.getRequest()->path;
-        LOG(TRACE) << "       Mountpoint Method: " << mountPoint.method;
-        LOG(TRACE) << "         Mountpoint Path: " << mountPoint.relativeMountPath;
-        LOG(TRACE) << "           StrictRouting: " << strictRouting;
-        LOG(TRACE) << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
-        LOG(TRACE) << "             MergeParams: " << mergeParams;
+        snode::semantic::appLog().trace() << "======================= APPLICATION DISPATCH =======================";
+        snode::semantic::appLog().trace() << controller.getResponse()->getSocketContext()->getSocketConnection()->getConnectionName();
+        snode::semantic::appLog().trace() << "          Request Method: " << controller.getRequest()->method;
+        snode::semantic::appLog().trace() << "             Request Url: " << controller.getRequest()->url;
+        snode::semantic::appLog().trace() << "            Request Path: " << controller.getRequest()->path;
+        snode::semantic::appLog().trace() << "       Mountpoint Method: " << mountPoint.method;
+        snode::semantic::appLog().trace() << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        snode::semantic::appLog().trace() << "           StrictRouting: " << strictRouting;
+        snode::semantic::appLog().trace() << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        snode::semantic::appLog().trace() << "             MergeParams: " << mergeParams;
 
         bool dispatched = false;
 
@@ -91,7 +92,7 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                LOG(TRACE) << "----------------------- APPLICATION    MATCH -----------------------";
+                snode::semantic::appLog().trace() << "----------------------- APPLICATION    MATCH -----------------------";
 
                 dispatched = true;
 
@@ -113,10 +114,10 @@ namespace express::dispatcher {
                 }
 
             } else {
-                LOG(TRACE) << "----------------------- APPLICATION  NOMATCH -----------------------";
+                snode::semantic::appLog().trace() << "----------------------- APPLICATION  NOMATCH -----------------------";
             }
         } else {
-            LOG(TRACE) << "----------------------- APPLICATION  NOMATCH -----------------------";
+            snode::semantic::appLog().trace() << "----------------------- APPLICATION  NOMATCH -----------------------";
         }
 
         return dispatched;

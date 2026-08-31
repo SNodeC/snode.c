@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -97,16 +98,16 @@ int main(int argc, char* argv[]) {
                             const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
                             switch (state) {
                                 case core::socket::State::OK:
-                                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                                    snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                                     break;
                                 case core::socket::State::DISABLED:
-                                    VLOG(1) << instanceName << ": disabled";
+                                    snode::semantic::appLog().trace() << instanceName << ": disabled";
                                     break;
                                 case core::socket::State::ERROR:
-                                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                     break;
                                 case core::socket::State::FATAL:
-                                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                     break;
                             }
                         });
@@ -133,17 +134,17 @@ int main(int argc, char* argv[]) {
     tlsServer.listen(8088, [](const legacy::in6::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "tls: listening on '" << socketAddress.toString() << "'"
+                snode::semantic::appLog().trace() << "tls: listening on '" << socketAddress.toString() << "'"
                         << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "tls: disabled";
+                snode::semantic::appLog().trace() << "tls: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "tls: error occurred";
+                snode::semantic::appLog().trace() << "tls: error occurred";
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "tls: fatal error occurred";
+                snode::semantic::appLog().trace() << "tls: fatal error occurred";
                 break;
         }
     });
