@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -100,7 +101,7 @@ namespace core::socket::stream {
     void SocketWriter<PhysicalSocket>::doWriteShutdown(const std::function<void(int)>& onShutdown) {
         errno = 0;
 
-        LOG(TRACE) << "Do syscall shutdonw(WR)";
+        snode::semantic::appLog().trace() << "Do syscall shutdonw(WR)";
 
         PhysicalSocket::shutdown(PhysicalSocket::SHUT::WR);
 
@@ -113,7 +114,7 @@ namespace core::socket::stream {
             this->onShutdown = onShutdown;
             if (writeBuffer.empty()) {
                 shutdownInProgress = true;
-                LOG(TRACE) << "Initiating shutdown process";
+                snode::semantic::appLog().trace() << "Initiating shutdown process";
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
@@ -127,7 +128,7 @@ namespace core::socket::stream {
             setTimeout(terminateTimeout);
             shutdown([this]([[maybe_unused]] int errnum) -> void {
                 if (errnum != 0) {
-                    PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                    snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Info, errno) << "SocketWriter::doWriteShutdown";
                 }
                 disable();
             });

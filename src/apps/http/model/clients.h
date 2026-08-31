@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -60,30 +61,30 @@ namespace apps::http::legacy {
                 request.start();
             },
             []([[maybe_unused]] Request& request, Response& response) -> void {
-                VLOG(0) << "-- OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                snode::semantic::appLog().trace() << "-- OnResponse";
+                snode::semantic::appLog().trace() << "     Status:";
+                snode::semantic::appLog().trace() << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                snode::semantic::appLog().trace() << "     Headers:";
                 for (const auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    snode::semantic::appLog().trace() << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                snode::semantic::appLog().trace() << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    snode::semantic::appLog().trace() << "       " + name + " = " + cookie.getValue();
                     for (auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        snode::semantic::appLog().trace() << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                snode::semantic::appLog().trace() << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                snode::semantic::appLog().trace() << "-- OnResponseError";
+                snode::semantic::appLog().trace() << "     Status: " << status;
+                snode::semantic::appLog().trace() << "     Reason: " << reason;
             });
     }
 
@@ -109,37 +110,37 @@ namespace apps::http::tls {
                 request.start();
             },
             []([[maybe_unused]] Request& request, Response& response) -> void {
-                VLOG(0) << "-- OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                snode::semantic::appLog().trace() << "-- OnResponse";
+                snode::semantic::appLog().trace() << "     Status:";
+                snode::semantic::appLog().trace() << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                snode::semantic::appLog().trace() << "     Headers:";
                 for (const auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    snode::semantic::appLog().trace() << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                snode::semantic::appLog().trace() << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    snode::semantic::appLog().trace() << "       " + name + " = " + cookie.getValue();
                     for (auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        snode::semantic::appLog().trace() << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                snode::semantic::appLog().trace() << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                snode::semantic::appLog().trace() << "-- OnResponseError";
+                snode::semantic::appLog().trace() << "     Status: " << status;
+                snode::semantic::appLog().trace() << "     Reason: " << reason;
             });
 
         client.setOnConnect([&client](SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect " << client.getConfig().getInstanceName();
+            snode::semantic::appLog().trace() << "OnConnect " << client.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
@@ -153,20 +154,20 @@ namespace apps::http::tls {
         });
 
         client.setOnConnected([&client](SocketConnection* socketConnection) -> void { // onConnected
-            VLOG(0) << "OnConnected " << client.getConfig().getInstanceName();
+            snode::semantic::appLog().trace() << "OnConnected " << client.getConfig().getInstanceName();
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                snode::semantic::appLog().trace() << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
+                snode::semantic::appLog().trace() << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
+                snode::semantic::appLog().trace() << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -181,7 +182,7 @@ namespace apps::http::tls {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                snode::semantic::appLog().trace() << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -195,14 +196,14 @@ namespace apps::http::tls {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        snode::semantic::appLog().trace() << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        snode::semantic::appLog().trace() << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        snode::semantic::appLog().trace() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
 #ifdef __clang__
@@ -215,15 +216,15 @@ namespace apps::http::tls {
 #endif
                 X509_free(server_cert);
             } else {
-                VLOG(0) << "\tPeer certificate: no certificate";
+                snode::semantic::appLog().trace() << "\tPeer certificate: no certificate";
             }
         });
 
         client.setOnDisconnect([&client](SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect " << client.getConfig().getInstanceName();
+            snode::semantic::appLog().trace() << "OnDisconnect " << client.getConfig().getInstanceName();
 
-            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+            snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
         return client;

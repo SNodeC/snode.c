@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
@@ -37,7 +38,7 @@ namespace web::http::server {
         , parser(
               this,
               [this](void) -> void {
-                  VLOG(3) << "++ BEGIN:";
+                  snode::semantic::appLog().trace() << "++ BEGIN:";
 
                   requestContexts.emplace_back(new RequestContext(this));
               },
@@ -47,7 +48,7 @@ namespace web::http::server {
                                                          int httpMajor,
                                                          int httpMinor,
                                                          std::map<std::string, std::string>& queries) -> void {
-                  VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
+                  snode::semantic::appLog().trace() << "++ Request: " << method << " " << url << " " << httpVersion;
 
                   Request& request = requestContexts.back()->request;
 
@@ -58,9 +59,9 @@ namespace web::http::server {
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
 
-                  VLOG(3) << "++ Queries:";
+                  snode::semantic::appLog().trace() << "++ Queries:";
                   for (auto [query, value] : request.queries) {
-                      VLOG(3) << "     " << query << ": " << value;
+                      snode::semantic::appLog().trace() << "     " << query << ": " << value;
                   }
               },
               [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
@@ -69,32 +70,32 @@ namespace web::http::server {
 
                   request.headers = std::move(header);
 
-                  VLOG(3) << "++ Headers:";
+                  snode::semantic::appLog().trace() << "++ Headers:";
                   for (auto& [field, value] : request.headers) {
                       if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
                       } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
                           request.connectionState = ConnectionState::Keep;
                       }
-                      VLOG(3) << "     " << field << ": " << value;
+                      snode::semantic::appLog().trace() << "     " << field << ": " << value;
                   }
 
                   request.cookies = std::move(cookies);
 
-                  VLOG(3) << "++ Cookie";
+                  snode::semantic::appLog().trace() << "++ Cookie";
                   for (auto [cookie, value] : request.cookies) {
-                      VLOG(3) << "     " << cookie << ": " << value;
+                      snode::semantic::appLog().trace() << "     " << cookie << ": " << value;
                   }
               },
               [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
-                  VLOG(3) << "++ Content: ";
+                  snode::semantic::appLog().trace() << "++ Content: ";
 
                   Request& request = requestContexts.back()->request;
 
                   request.body = std::move(content);
               },
               [this]() -> void {
-                  VLOG(3) << "++ Parsed ++";
+                  snode::semantic::appLog().trace() << "++ Parsed ++";
 
                   RequestContext* requestContext = requestContexts.back();
 
@@ -103,7 +104,7 @@ namespace web::http::server {
                   requestParsed();
               },
               [this](int status, const std::string& reason) -> void {
-                  VLOG(3) << "++ Error: " << status << " : " << reason;
+                  snode::semantic::appLog().trace() << "++ Error: " << status << " : " << reason;
 
                   RequestContext* requestContext = requestContexts.back();
 
@@ -193,12 +194,12 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::SocketContext::onConnected() {
-        VLOG(0) << "HTTP connected";
+        snode::semantic::appLog().trace() << "HTTP connected";
     }
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        VLOG(0) << "HTTP disconnected";
+        snode::semantic::appLog().trace() << "HTTP disconnected";
     }
 
 } // namespace web::http::server

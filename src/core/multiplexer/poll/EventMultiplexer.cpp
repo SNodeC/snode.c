@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -131,7 +132,7 @@ namespace core::poll {
               new core::poll::DescriptorEventPublisher("READ", pollFdsManager, POLLIN, POLLIN | POLLHUP | POLLRDHUP | POLLERR),
               new core::poll::DescriptorEventPublisher("WRITE", pollFdsManager, POLLOUT, POLLOUT),
               new core::poll::DescriptorEventPublisher("EXCEPT", pollFdsManager, POLLPRI, POLLPRI)) {
-        LOG(TRACE) << "IO-Multiplexer: poll";
+        snode::semantic::appLog().trace() << "IO-Multiplexer: poll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut) {

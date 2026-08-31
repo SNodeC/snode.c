@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -36,7 +37,7 @@ namespace core::socket::stream {
         newSocketContext = socketContextFactory->create(this);
 
         if (newSocketContext == nullptr) {
-            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+            snode::semantic::appLog().trace() << "Switch socket context unsuccessull: new socket context not created";
         }
 
         return newSocketContext;
@@ -47,7 +48,7 @@ namespace core::socket::stream {
         socketContext = socketContextFactory->create(this);
 
         if (socketContext == nullptr) {
-            VLOG(0) << "Set socket context unsuccessull: new socket context not created";
+            snode::semantic::appLog().trace() << "Set socket context unsuccessull: new socket context not created";
         }
 
         return socketContext;

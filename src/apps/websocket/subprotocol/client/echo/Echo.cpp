@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -34,22 +35,22 @@ namespace apps::websocket::subprotocol::echo::client {
     }
 
     void Echo::onConnected() {
-        VLOG(0) << "Echo connected:";
+        snode::semantic::appLog().trace() << "Echo connected:";
     }
 
     void Echo::onMessageStart(int opCode) {
-        VLOG(0) << "Message Start - OpCode: " << opCode;
+        snode::semantic::appLog().trace() << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, junkLen);
 
-        VLOG(0) << "Message Fragment: " << std::string(junk, junkLen);
+        snode::semantic::appLog().trace() << "Message Fragment: " << std::string(junk, junkLen);
     }
 
     void Echo::onMessageEnd() {
-        VLOG(0) << "Message Full Data: " << data;
-        VLOG(0) << "Message End";
+        snode::semantic::appLog().trace() << "Message Full Data: " << data;
+        snode::semantic::appLog().trace() << "Message End";
         /*
                 forEachClient([&data = this->data](SubProtocol* client) {
                     client->sendMessage(data);
@@ -61,15 +62,15 @@ namespace apps::websocket::subprotocol::echo::client {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        VLOG(0) << "Message error: " << errnum;
+        snode::semantic::appLog().trace() << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        VLOG(0) << "Echo disconnected:";
+        snode::semantic::appLog().trace() << "Echo disconnected:";
     }
 
     void Echo::onExit() {
-        VLOG(0) << "Echo exit:";
+        snode::semantic::appLog().trace() << "Echo exit:";
 
         sendClose();
     }

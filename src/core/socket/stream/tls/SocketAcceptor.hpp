@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -57,12 +58,12 @@ namespace core::socket::stream::tls {
 
                       socketConnection->doSSLHandshake(
                           [&onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(INFO) << "SSL/TLS initial handshake success";
+                              snode::semantic::appLog().info() << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
                               socketConnection->onConnected();
                           },
                           []() -> void { // onTimeout
-                              LOG(WARNING) << "SSL/TLS initial handshake timed out";
+                              snode::semantic::appLog().warn() << "SSL/TLS initial handshake timed out";
                           },
                           [](int sslErr) -> void { // onError
                               ssl_log("SSL/TLS initial handshake failed", sslErr);
@@ -108,7 +109,7 @@ namespace core::socket::stream::tls {
                 masterSslCtxSans = ssl_get_sans(masterSslCtx);
 
                 for (const std::string& san : masterSslCtxSans) {
-                    LOG(INFO) << "SSL_CTX for (san)'" << san << "' as master installed";
+                    snode::semantic::appLog().info() << "SSL_CTX for (san)'" << san << "' as master installed";
                 }
 
                 for (const auto& [domain, sniCertConf] : config->getSniCerts()) {
@@ -122,16 +123,16 @@ namespace core::socket::stream::tls {
                                 }
                                 sniSslCtxs.insert_or_assign(domain, sniSslCtx);
 
-                                LOG(INFO) << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
+                                snode::semantic::appLog().info() << "SSL_CTX for (dom)'" << domain << "' as server name indication (sni) installed";
                             }
 
                             for (const std::string& san : ssl_get_sans(sniSslCtx)) {
                                 sniSslCtxs.insert({san, sniSslCtx});
 
-                                LOG(INFO) << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
+                                snode::semantic::appLog().info() << "SSL_CTX for (san)'" << san << "' as server name indication (sni) installed";
                             }
                         } else {
-                            LOG(INFO) << "Can not create SNI_SSL_CTX for domain '" << domain << "'";
+                            snode::semantic::appLog().info() << "Can not create SNI_SSL_CTX for domain '" << domain << "'";
                         }
                     }
                 }
@@ -153,18 +154,18 @@ namespace core::socket::stream::tls {
     SSL_CTX* SocketAcceptor<PhysicalServerSocket, Config>::getMasterSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniSslCtx = nullptr;
 
-        LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in master certificate";
+        snode::semantic::appLog().info() << "Search for sni = '" << serverNameIndication << "' in master certificate";
 
         std::set<std::string>::iterator masterSniIt =
             std::find_if(masterSslCtxSans.begin(), masterSslCtxSans.end(), [&serverNameIndication](const std::string& sni) -> bool {
-                LOG(TRACE) << "  .. " << sni.c_str();
+                snode::semantic::appLog().trace() << "  .. " << sni.c_str();
                 return match(sni.c_str(), serverNameIndication.c_str());
             });
         if (masterSniIt != masterSslCtxSans.end()) {
-            LOG(INFO) << "found: " << *masterSniIt;
+            snode::semantic::appLog().info() << "found: " << *masterSniIt;
             sniSslCtx = masterSslCtx;
         } else {
-            LOG(INFO) << "not found";
+            snode::semantic::appLog().info() << "not found";
         }
 
         return sniSslCtx;
@@ -174,19 +175,19 @@ namespace core::socket::stream::tls {
     SSL_CTX* SocketAcceptor<PhysicalServerSocket, Config>::getPoolSniCtx(const std::string& serverNameIndication) {
         SSL_CTX* sniCtx = nullptr;
 
-        LOG(INFO) << "Search for sni = '" << serverNameIndication << "' in sni certificates";
+        snode::semantic::appLog().info() << "Search for sni = '" << serverNameIndication << "' in sni certificates";
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniSslCtxs.begin(), sniSslCtxs.end(), [&serverNameIndication](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
-                LOG(TRACE) << "  .. " << sniPair.first.c_str();
+                snode::semantic::appLog().trace() << "  .. " << sniPair.first.c_str();
                 return match(sniPair.first.c_str(), serverNameIndication.c_str());
             });
 
         if (sniPairIt != sniSslCtxs.end()) {
-            LOG(INFO) << "found: " << sniPairIt->first;
+            snode::semantic::appLog().info() << "found: " << sniPairIt->first;
             sniCtx = sniPairIt->second;
         } else {
-            LOG(INFO) << "not found";
+            snode::semantic::appLog().info() << "not found";
         }
 
         return sniCtx;
@@ -214,17 +215,17 @@ namespace core::socket::stream::tls {
         if (!serverNameIndication.empty()) {
             SSL_CTX* sniSslCtx = socketAcceptor->getSniCtx(serverNameIndication);
             if (sniSslCtx != nullptr) {
-                LOG(INFO) << "Setting sni certificate for " << serverNameIndication;
+                snode::semantic::appLog().info() << "Setting sni certificate for " << serverNameIndication;
                 ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (socketAcceptor->forceSni) {
-                LOG(WARNING) << "No sni certificate found but forceSni set - terminating";
+                snode::semantic::appLog().warn() << "No sni certificate found but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(INFO) << "No sni certificate found - still using master certificate";
+                snode::semantic::appLog().info() << "No sni certificate found - still using master certificate";
             }
         } else {
-            LOG(INFO) << "No sni certificate set - the client did not request one";
+            snode::semantic::appLog().info() << "No sni certificate set - the client did not request one";
         }
 
         return ret;

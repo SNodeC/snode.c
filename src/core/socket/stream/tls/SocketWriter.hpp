@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -45,13 +46,13 @@ namespace core::socket::stream::tls {
                 case SSL_ERROR_WANT_READ: {
                     utils::PreserveErrno preserveErrno;
 
-                    LOG(INFO) << "SSL/TLS start renegotiation on write";
+                    snode::semantic::appLog().info() << "SSL/TLS start renegotiation on write";
                     doSSLHandshake(
                         []() -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on write success";
+                            snode::semantic::appLog().info() << "SSL/TLS renegotiation on write success";
                         },
                         []() -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                            snode::semantic::appLog().warn() << "SSL/TLS renegotiation on write timed out";
                         },
                         [](int ssl_err) -> void {
                             ssl_log("SSL/TLS renegotiation", ssl_err);

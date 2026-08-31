@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -50,33 +51,33 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-            VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
+            snode::semantic::appLog().trace() << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
         [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-            VLOG(0) << "++   Headers:";
+            snode::semantic::appLog().trace() << "++   Headers:";
             for (auto& [field, value] : headers) {
-                VLOG(0) << "++       " << field + " = " + value;
+                snode::semantic::appLog().trace() << "++       " << field + " = " + value;
             }
 
-            VLOG(0) << "++   Cookies:";
+            snode::semantic::appLog().trace() << "++   Cookies:";
             for (auto& [name, cookie] : cookies) {
-                VLOG(0) << "++     " + name + " = " + cookie.getValue();
+                snode::semantic::appLog().trace() << "++     " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "++       " + option + " = " + value;
+                    snode::semantic::appLog().trace() << "++       " + option + " = " + value;
                 }
             }
         },
         [](std::vector<uint8_t> content) -> void {
             content.push_back(0);
 
-            VLOG(0) << "++   OnContent: "; // << content.data();
+            snode::semantic::appLog().trace() << "++   OnContent: "; // << content.data();
         },
         [](web::http::client::ResponseParser& parser) -> void {
-            VLOG(0) << "++   OnParsed";
+            snode::semantic::appLog().trace() << "++   OnParsed";
             parser.reset();
         },
         [](int status, const std::string& reason) -> void {
-            VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
+            snode::semantic::appLog().trace() << "++   OnError: " + std::to_string(status) + " - " + reason;
         });
 
     return responseParser;
@@ -92,10 +93,10 @@ public:
     ~SimpleSocketProtocol() override;
 
     void onConnected() override {
-        VLOG(0) << "SimpleSocketProtocol connected";
+        snode::semantic::appLog().trace() << "SimpleSocketProtocol connected";
     }
     void onDisconnected() override {
-        VLOG(0) << "SimpleSocketProtocol disconnected";
+        snode::semantic::appLog().trace() << "SimpleSocketProtocol disconnected";
     }
 
     std::size_t onReceivedFromPeer() override {
@@ -103,12 +104,12 @@ public:
     }
 
     void onWriteError(int errnum) override {
-        VLOG(0) << "OnWriteError: " << errnum;
+        snode::semantic::appLog().trace() << "OnWriteError: " << errnum;
         shutdownRead();
     }
 
     void onReadError(int errnum) override {
-        VLOG(0) << "OnReadError: " << errnum;
+        snode::semantic::appLog().trace() << "OnReadError: " << errnum;
         shutdownWrite();
     }
 
@@ -143,11 +144,11 @@ namespace tls {
         SocketClient client(
             "tls",
             [](SocketConnection* socketConnection) -> void { // onConnect
-                VLOG(0) << "OnConnect";
+                snode::semantic::appLog().trace() << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
@@ -160,20 +161,20 @@ namespace tls {
                 // }
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
-                VLOG(0) << "OnConnected";
+                snode::semantic::appLog().trace() << "OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    snode::semantic::appLog().trace() << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-                    VLOG(0) << "        Subject: " + std::string(str);
+                    snode::semantic::appLog().trace() << "        Subject: " + std::string(str);
                     OPENSSL_free(str);
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-                    VLOG(0) << "        Issuer: " + std::string(str);
+                    snode::semantic::appLog().trace() << "        Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -188,7 +189,7 @@ namespace tls {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-                    VLOG(0) << "        Subject alternative name count: " << altNameCount;
+                    snode::semantic::appLog().trace() << "        Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -202,14 +203,14 @@ namespace tls {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            VLOG(0) << "           SAN (URI): '" + subjectAltName;
+                            snode::semantic::appLog().trace() << "           SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(0) << "           SAN (DNS): '" + subjectAltName;
+                            snode::semantic::appLog().trace() << "           SAN (DNS): '" + subjectAltName;
                         } else {
-                            VLOG(0) << "           SAN (Type): '" + std::to_string(generalName->type);
+                            snode::semantic::appLog().trace() << "           SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
 #ifdef __clang__
@@ -222,16 +223,16 @@ namespace tls {
 #endif
                     X509_free(server_cert);
                 } else {
-                    VLOG(0) << "     Server certificate: no certificate";
+                    snode::semantic::appLog().trace() << "     Server certificate: no certificate";
                 }
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
-                VLOG(0) << "OnDisconnect";
+                snode::semantic::appLog().trace() << "OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().trace() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().trace() << "\tClient: " + socketConnection->getLocalAddress().toString();
 
             });
 
@@ -239,9 +240,9 @@ namespace tls {
 
         client.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
             if (err) {
-                PLOG(ERROR) << "Connect: " + std::to_string(err);
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "Connect: " + std::to_string(err);
             } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "Connecting to " << socketAddress.toString();
             }
         });
 
@@ -260,24 +261,24 @@ namespace legacy {
         SocketClient legacyClient(
             "legacy",
             [](SocketConnection* socketConnection) -> void { // OnConnect
-                VLOG(0) << "OnConnect";
+                snode::semantic::appLog().trace() << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
-                VLOG(0) << "OnConnected";
+                snode::semantic::appLog().trace() << "OnConnected";
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
-                VLOG(0) << "OnDisconnect";
+                snode::semantic::appLog().trace() << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                snode::semantic::appLog().trace() << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             });
 
@@ -285,9 +286,9 @@ namespace legacy {
 
         legacyClient.connect(remoteAddress, [](const SocketAddress& socketAddress, int err) -> void {
             if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "Connect: " << std::to_string(err);
             } else {
-                VLOG(0) << "Connecting to " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "Connecting to " << socketAddress.toString();
             }
         });
 
@@ -307,11 +308,11 @@ int main(int argc, char* argv[]) {
         legacyClient.connect(legacyRemoteAddress,
                              [](const tls::SocketAddress& socketAddress, int errnum) -> void { // example.com:81 simulate connnect timeout
                                  if (errnum < 0) {
-                                     PLOG(ERROR) << "OnError";
+                                     snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
                                  } else if (errnum > 0) {
-                                     PLOG(ERROR) << "OnError: " << socketAddress.toString();
+                                     snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
                                  } else {
-                                     VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+                                     snode::semantic::appLog().trace() << "snode.c connecting to " << socketAddress.toString();
                                  }
                              });
 
@@ -321,11 +322,11 @@ int main(int argc, char* argv[]) {
 
         tlsClient.connect(tlsRemoteAddress, [](const tls::SocketAddress& socketAddress, int errnum) -> void {
             if (errnum < 0) {
-                PLOG(ERROR) << "OnError";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
             } else if (errnum > 0) {
-                PLOG(ERROR) << "OnError: " << socketAddress.toString();
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
             } else {
-                VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "snode.c connecting to " << socketAddress.toString();
             }
         });
     }

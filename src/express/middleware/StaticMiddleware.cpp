@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -45,24 +46,24 @@ namespace express::middleware {
                     }
                     next();
                 } else {
-                    LOG(DEBUG) << "Wrong method " << req.method;
+                    snode::semantic::appLog().debug() << "Wrong method " << req.method;
                     res.set("Connection", "Close");
                     res.sendStatus(400);
                 }
             },
             [] MIDDLEWARE(req, res, next) {
                 if (req.url == "/") {
-                    LOG(INFO) << "REDIRECT " + req.url + " -> " + "/index.html";
+                    snode::semantic::appLog().info() << "REDIRECT " + req.url + " -> " + "/index.html";
                     res.redirect(308, "/index.html");
                 } else {
                     next();
                 }
             },
             [&root = this->root] APPLICATION(req, res) {
-                LOG(INFO) << "GET " + req.url + " -> " + root + req.url;
+                snode::semantic::appLog().info() << "GET " + req.url + " -> " + root + req.url;
                 res.sendFile(root + req.url, [&req, &res](int ret) -> void {
                     if (ret != 0) {
-                        PLOG(ERROR) << req.url;
+                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << req.url;
                         res.status(404).end();
                     }
                 });

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -95,7 +96,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::SocketContext::onConnected() {
-        VLOG(0) << "HTTP connected";
+        snode::semantic::appLog().trace() << "HTTP connected";
 
         request.setHost(socketConnection->getRemoteAddress().toString());
 
@@ -104,7 +105,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        VLOG(0) << "HTTP disconnected";
+        snode::semantic::appLog().trace() << "HTTP disconnected";
     }
 
 } // namespace web::http::client

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023  Volker Christian <me@vchrist.at>
@@ -44,11 +45,11 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080, [](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socketAddress.toString();
         }
     });
 
@@ -58,10 +59,10 @@ int main(int argc, char* argv[]) {
         req.getAttribute<json>(
             [&jsonString](json& json) -> void {
                 jsonString = json.dump(4);
-                VLOG(0) << "Application received body: " << jsonString;
+                snode::semantic::appLog().trace() << "Application received body: " << jsonString;
             },
             [](const std::string& key) -> void {
-                VLOG(0) << key << " attribute not found";
+                snode::semantic::appLog().trace() << key << " attribute not found";
             });
 
         res.send(jsonString);

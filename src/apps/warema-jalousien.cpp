@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "express/legacy/in/WebApp.h"
@@ -28,8 +29,8 @@ int main(int argc, char* argv[]) {
     //    tls::WebApp wa;
 
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
-        VLOG(0) << "Param: " << req.param("id");
-        VLOG(0) << "Qurey: " << req.query("action");
+        snode::semantic::appLog().trace() << "Param: " << req.param("id");
+        snode::semantic::appLog().trace() << "Qurey: " << req.query("action");
 
         std::string arguments = "aircontrol -t " + jalousien[req.param("id")] + "_" + actions[req.query("action")];
 
@@ -57,11 +58,11 @@ int main(int argc, char* argv[]) {
 
     webApp.listen(8080, [](const legacy::in::WebApp::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socketAddress.toString();
         }
     });
 

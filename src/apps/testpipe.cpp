@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 #include "core/SNodeC.h"
 #include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
@@ -15,28 +16,28 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) -> void {
             pipeSink.setOnData([&pipeSource](const char* junk, std::size_t junkLen) -> void {
                 std::string string(junk, junkLen);
-                VLOG(0) << "Pipe Data: " << string;
+                snode::semantic::appLog().trace() << "Pipe Data: " << string;
                 pipeSource.send(junk, junkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() -> void {
-                VLOG(0) << "Pipe EOF";
+                snode::semantic::appLog().trace() << "Pipe EOF";
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) -> void {
-                PLOG(ERROR) << "PipeSink";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) -> void {
-                PLOG(ERROR) << "PipeSource";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "PipeSource";
             });
 
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) -> void {
-            PLOG(ERROR) << "Pipe not created";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "Pipe not created";
         });
 
     return core::SNodeC::start();

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
@@ -39,99 +40,99 @@ namespace iot::mqtt_fast {
     }
 
     void SocketContext::sendConnect(const std::string& clientId) {
-        LOG(TRACE) << "Send CONNECT";
-        LOG(TRACE) << "============";
+        snode::semantic::appLog().trace() << "Send CONNECT";
+        snode::semantic::appLog().trace() << "============";
 
         send(iot::mqtt_fast::packets::Connect(clientId));
     }
 
     void SocketContext::sendConnack(uint8_t returnCode, uint8_t flags) {
-        LOG(TRACE) << "Send CONNACK";
-        LOG(TRACE) << "============";
+        snode::semantic::appLog().trace() << "Send CONNACK";
+        snode::semantic::appLog().trace() << "============";
 
         send(iot::mqtt_fast::packets::Connack(returnCode, flags));
     }
 
     void SocketContext::sendPublish(const std::string& topic, const std::string& message, bool dup, uint8_t qoS, bool retain) {
-        LOG(TRACE) << "Send PUBLISH";
-        LOG(TRACE) << "============";
+        snode::semantic::appLog().trace() << "Send PUBLISH";
+        snode::semantic::appLog().trace() << "============";
 
         send(iot::mqtt_fast::packets::Publish(qoS == 0 ? 0 : getPacketIdentifier(), topic, message, dup, qoS, retain));
     }
 
     void SocketContext::sendPuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBACK";
-        LOG(TRACE) << "===========";
+        snode::semantic::appLog().trace() << "Send PUBACK";
+        snode::semantic::appLog().trace() << "===========";
 
         send(iot::mqtt_fast::packets::Puback(packetIdentifier));
     }
 
     void SocketContext::sendPubrec(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREC";
-        LOG(TRACE) << "===========";
+        snode::semantic::appLog().trace() << "Send PUBREC";
+        snode::semantic::appLog().trace() << "===========";
 
         send(iot::mqtt_fast::packets::Pubrec(packetIdentifier));
     }
 
     void SocketContext::sendPubrel(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBREL";
-        LOG(TRACE) << "===========";
+        snode::semantic::appLog().trace() << "Send PUBREL";
+        snode::semantic::appLog().trace() << "===========";
 
         send(iot::mqtt_fast::packets::Pubrel(packetIdentifier));
     }
 
     void SocketContext::sendPubcomp(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send PUBCOMP";
-        LOG(TRACE) << "============";
+        snode::semantic::appLog().trace() << "Send PUBCOMP";
+        snode::semantic::appLog().trace() << "============";
 
         send(iot::mqtt_fast::packets::Pubcomp(packetIdentifier));
     }
 
     void SocketContext::sendSubscribe(std::list<iot::mqtt_fast::Topic>& topics) {
-        LOG(TRACE) << "Send SUBSCRIBE";
-        LOG(TRACE) << "==============";
+        snode::semantic::appLog().trace() << "Send SUBSCRIBE";
+        snode::semantic::appLog().trace() << "==============";
 
         send(iot::mqtt_fast::packets::Subscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) {
-        LOG(TRACE) << "Send SUBACK";
-        LOG(TRACE) << "===========";
+        snode::semantic::appLog().trace() << "Send SUBACK";
+        snode::semantic::appLog().trace() << "===========";
 
         send(iot::mqtt_fast::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void SocketContext::sendUnsubscribe(std::list<std::string>& topics) {
-        LOG(TRACE) << "Send UNSUBSCRIBE";
-        LOG(TRACE) << "================";
+        snode::semantic::appLog().trace() << "Send UNSUBSCRIBE";
+        snode::semantic::appLog().trace() << "================";
 
         send(iot::mqtt_fast::packets::Unsubscribe(getPacketIdentifier(), topics));
     }
 
     void SocketContext::sendUnsuback(uint16_t packetIdentifier) {
-        LOG(TRACE) << "Send UNSUBACK";
-        LOG(TRACE) << "=============";
+        snode::semantic::appLog().trace() << "Send UNSUBACK";
+        snode::semantic::appLog().trace() << "=============";
 
         send(iot::mqtt_fast::packets::Unsuback(packetIdentifier));
     }
 
     void SocketContext::sendPingreq() {
-        LOG(TRACE) << "Send Pingreq";
-        LOG(TRACE) << "============";
+        snode::semantic::appLog().trace() << "Send Pingreq";
+        snode::semantic::appLog().trace() << "============";
 
         send(iot::mqtt_fast::packets::Pingreq());
     }
 
     void SocketContext::sendPingresp() {
-        LOG(TRACE) << "Send Pingresp";
-        LOG(TRACE) << "=============";
+        snode::semantic::appLog().trace() << "Send Pingresp";
+        snode::semantic::appLog().trace() << "=============";
 
         send(iot::mqtt_fast::packets::Pingresp());
     }
 
     void SocketContext::sendDisconnect() {
-        LOG(TRACE) << "Send Disconnect";
-        LOG(TRACE) << "===============";
+        snode::semantic::appLog().trace() << "Send Disconnect";
+        snode::semantic::appLog().trace() << "===============";
 
         send(iot::mqtt_fast::packets::Disconnect());
     }
@@ -140,13 +141,13 @@ namespace iot::mqtt_fast {
         std::size_t consumed = controlPacketFactory.construct();
 
         if (controlPacketFactory.isError()) {
-            LOG(ERROR) << "SocketContext: Error during ControlPacket construction";
+            snode::semantic::appLog().error() << "SocketContext: Error during ControlPacket construction";
             close();
         } else if (controlPacketFactory.isComplete()) {
-            LOG(TRACE) << "======================================================";
-            LOG(TRACE) << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
-            LOG(TRACE) << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
-            LOG(TRACE) << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
+            snode::semantic::appLog().trace() << "======================================================";
+            snode::semantic::appLog().trace() << "PacketType: " << static_cast<uint16_t>(controlPacketFactory.getPacketType());
+            snode::semantic::appLog().trace() << "PacketFlags: " << static_cast<uint16_t>(controlPacketFactory.getPacketFlags());
+            snode::semantic::appLog().trace() << "RemainingLength: " << static_cast<uint16_t>(controlPacketFactory.getRemainingLength());
 
             printData(controlPacketFactory.getPacket().getValue());
 
@@ -232,7 +233,7 @@ namespace iot::mqtt_fast {
                << " "; // << " | ";
         }
 
-        LOG(TRACE) << ss.str();
+        snode::semantic::appLog().trace() << ss.str();
     }
 
 } // namespace iot::mqtt_fast

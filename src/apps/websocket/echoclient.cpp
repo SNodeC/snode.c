@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -41,46 +42,46 @@ int main(int argc, char* argv[]) {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             "legacy",
             [](web::http::client::Request& request) -> void {
-                VLOG(0) << "OnRequestBegin";
+                snode::semantic::appLog().trace() << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
-                VLOG(0) << "OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                snode::semantic::appLog().trace() << "OnResponse";
+                snode::semantic::appLog().trace() << "     Status:";
+                snode::semantic::appLog().trace() << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                snode::semantic::appLog().trace() << "     Headers:";
                 for (const auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    snode::semantic::appLog().trace() << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                snode::semantic::appLog().trace() << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    snode::semantic::appLog().trace() << "       " + name + " = " + cookie.getValue();
                     for (const auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        snode::semantic::appLog().trace() << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                snode::semantic::appLog().trace() << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                snode::semantic::appLog().trace() << "OnResponseError";
+                snode::semantic::appLog().trace() << "     Status: " << status;
+                snode::semantic::appLog().trace() << "     Reason: " << reason;
             });
 
         legacyClient.connect([](const LegacySocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
             } else {
-                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "wsechoclient connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
 
@@ -89,46 +90,46 @@ int main(int argc, char* argv[]) {
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
             "tls",
             [](web::http::client::Request& request) -> void {
-                VLOG(0) << "OnRequestBegin";
+                snode::semantic::appLog().trace() << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](web::http::client::Request& request, web::http::client::Response& response) -> void {
-                VLOG(0) << "OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
+                snode::semantic::appLog().trace() << "OnResponse";
+                snode::semantic::appLog().trace() << "     Status:";
+                snode::semantic::appLog().trace() << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
-                VLOG(0) << "     Headers:";
+                snode::semantic::appLog().trace() << "     Headers:";
                 for (auto& [field, value] : response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
+                    snode::semantic::appLog().trace() << "       " << field + " = " + value;
                 }
 
-                VLOG(0) << "     Cookies:";
+                snode::semantic::appLog().trace() << "     Cookies:";
                 for (auto& [name, cookie] : response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    snode::semantic::appLog().trace() << "       " + name + " = " + cookie.getValue();
                     for (auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
+                        snode::semantic::appLog().trace() << "         " + option + " = " + value;
                     }
                 }
 
                 response.body.push_back(0); // make it a c-string
-                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
+                snode::semantic::appLog().trace() << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                snode::semantic::appLog().trace() << "OnResponseError";
+                snode::semantic::appLog().trace() << "     Status: " << status;
+                snode::semantic::appLog().trace() << "     Reason: " << reason;
             });
 
         tlsClient.connect([](const TLSSocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
             } else {
-                VLOG(0) << "wsechoclient connected to " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "wsechoclient connected to " << socketAddress.toString();
             }
         }); // Connection:keep-alive\r\n\r\n"
     }

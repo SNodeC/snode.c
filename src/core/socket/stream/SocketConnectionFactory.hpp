@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -67,7 +68,7 @@ namespace core::socket::stream {
                     socketConnection = nullptr;
                 }
             } else {
-                PLOG(ERROR) << "getsockname";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "getsockname";
             }
         }
 

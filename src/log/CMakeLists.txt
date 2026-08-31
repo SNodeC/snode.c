@@ -68,6 +68,12 @@ install(
 )
 
 install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/../SemanticLog.h"
+    DESTINATION include/snode.c
+    COMPONENT logger
+)
+
+install(
     EXPORT snodec_logger_Targets
     FILE snodec_logger_Targets.cmake
     NAMESPACE snodec::

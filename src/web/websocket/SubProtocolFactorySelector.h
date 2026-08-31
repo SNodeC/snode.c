@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -64,13 +65,13 @@ namespace web::websocket {
                     subProtocolFactory = getSubProtocolFactory();
                     if (subProtocolFactory != nullptr) {
                         subProtocolFactory->setHandle(handle);
-                        VLOG(0) << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
+                        snode::semantic::appLog().trace() << "SubProtocolFactory created successfull: " << subProtocolFactory->getName();
                     } else {
-                        VLOG(0) << "SubProtocolFactory not created: " << subProtocolName;
+                        snode::semantic::appLog().trace() << "SubProtocolFactory not created: " << subProtocolName;
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    VLOG(0) << "Optaining function \"" << subProtocolFactoryFunctionName
+                    snode::semantic::appLog().trace() << "Optaining function \"" << subProtocolFactoryFunctionName
                             << "\" in plugin failed: " << core::DynamicLoader::dlError();
                     core::DynamicLoader::dlClose(handle);
                 }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "log/Logger.h"
@@ -14,7 +15,7 @@ int main(int argc, char* argv[]) {
             res.sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
                          [&req](int ret) -> void {
                              if (ret != 0) {
-                                 PLOG(ERROR) << req.url;
+                                 snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << req.url;
                              }
                          });
             /*
@@ -26,7 +27,7 @@ int main(int argc, char* argv[]) {
             }
             tokenRequestUri += "&client_id=911a821a-ea2d-11ec-8e2e-08002771075f";
             tokenRequestUri += "&redirect_uri=http://localhost:8081/oauth2";
-            VLOG(0) << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
+            snode::semantic::appLog().trace() << "Recieving auth code from auth server: " << req.query("code") << ", requesting token from " << tokenRequestUri;
             res.redirect(tokenRequestUri);
             */
         }

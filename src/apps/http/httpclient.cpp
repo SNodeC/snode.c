@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -34,11 +35,11 @@ int main(int argc, char* argv[]) {
 
     client.connect([&client](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << client.getConfig().getInstanceName() << " connected to " << socketAddress.toString();
+            snode::semantic::appLog().trace() << client.getConfig().getInstanceName() << " connected to " << socketAddress.toString();
         }
     });
 
@@ -72,9 +73,9 @@ int main(int argc, char* argv[]) {
         client.connect("/tmp/testme", [](const SocketAddress& socketAddress, int errnum) -> void {
 #endif
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << errnum;
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << errnum;
         } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c connecting to " << socketAddress.toString();
         }
 
 #ifdef NET_TYPE

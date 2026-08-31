@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -38,7 +39,7 @@ namespace net::un {
     template <template <typename SocketAddress> typename PhysicalPeerSocket>
     PhysicalSocket<PhysicalPeerSocket>::~PhysicalSocket() {
         if (!doNotRemove && !Super::getBindAddress().address().empty() && std::remove(Super::getBindAddress().address().data()) != 0) {
-            PLOG(ERROR) << "remove: sunPath: " << Super::getBindAddress().address();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "remove: sunPath: " << Super::getBindAddress().address();
         }
     }
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -71,24 +72,24 @@ namespace iot::mqtt {
                     break;
                 }
 
-                LOG(TRACE) << "======================================================";
-                LOG(TRACE) << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                snode::semantic::appLog().trace() << "======================================================";
+                snode::semantic::appLog().trace() << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
                            << static_cast<uint16_t>(fixedHeader.getPacketType());
-                LOG(TRACE) << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+                snode::semantic::appLog().trace() << "              PacketFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                            << static_cast<uint16_t>(fixedHeader.getFlags()) << std::dec;
-                LOG(TRACE) << "              RemainingLength: " << fixedHeader.getRemainingLength();
+                snode::semantic::appLog().trace() << "              RemainingLength: " << fixedHeader.getRemainingLength();
 
                 controlPacketDeserializer = createControlPacketDeserializer(fixedHeader);
 
                 fixedHeader.reset();
 
                 if (controlPacketDeserializer == nullptr) {
-                    LOG(TRACE) << "Received packet-type is unavailable ... closing connection";
+                    snode::semantic::appLog().trace() << "Received packet-type is unavailable ... closing connection";
 
                     mqttContext->end(true);
                     break;
                 } else if (controlPacketDeserializer->isError()) {
-                    LOG(TRACE) << "Fixed header has error ... closing connection";
+                    snode::semantic::appLog().trace() << "Fixed header has error ... closing connection";
 
                     delete controlPacketDeserializer;
                     controlPacketDeserializer = nullptr;
@@ -112,7 +113,7 @@ namespace iot::mqtt {
 
                     keepAliveTimer.restart();
                 } else if (controlPacketDeserializer->isError()) {
-                    LOG(TRACE) << "Control packet has error ... closing connection";
+                    snode::semantic::appLog().trace() << "Control packet has error ... closing connection";
                     mqttContext->end(true);
 
                     delete controlPacketDeserializer;
@@ -141,15 +142,15 @@ namespace iot::mqtt {
         this->session = session;
 
         for (auto& [packetIdentifier, publish] : session->publishMap) {
-            LOG(DEBUG) << "Resend PUBLISH";
-            LOG(DEBUG) << "==============";
+            snode::semantic::appLog().debug() << "Resend PUBLISH";
+            snode::semantic::appLog().debug() << "==============";
 
             send(publish);
         }
 
         for (uint16_t packetIdentifier : session->pubrelPacketIdentifierSet) {
-            LOG(DEBUG) << "Resend PUBREL";
-            LOG(DEBUG) << "=============";
+            snode::semantic::appLog().debug() << "Resend PUBREL";
+            snode::semantic::appLog().debug() << "=============";
 
             send(iot::mqtt::packets::Pubrel(packetIdentifier));
         }
@@ -157,7 +158,7 @@ namespace iot::mqtt {
         if (keepAlive > 0) {
             keepAliveTimer = core::timer::Timer::singleshotTimer(
                 [this, keepAlive]() -> void {
-                    LOG(TRACE) << "Keep-alive timer expired. Interval was: " << keepAlive;
+                    snode::semantic::appLog().trace() << "Keep-alive timer expired. Interval was: " << keepAlive;
                     mqttContext->close();
                 },
                 keepAlive);
@@ -171,15 +172,15 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        LOG(DEBUG) << dataToHexString(data);
+        snode::semantic::appLog().debug() << dataToHexString(data);
 
         mqttContext->send(data.data(), data.size());
     }
 
     void Mqtt::sendPublish(const std::string& topic, const std::string& message, uint8_t qoS,
                            bool retain) { // Server & Client
-        LOG(DEBUG) << "Send PUBLISH";
-        LOG(DEBUG) << "============";
+        snode::semantic::appLog().debug() << "Send PUBLISH";
+        snode::semantic::appLog().debug() << "============";
 
         uint16_t pId = qoS != 0 ? getPacketIdentifier() : 0;
 
@@ -191,29 +192,29 @@ namespace iot::mqtt {
     }
 
     void Mqtt::sendPuback(uint16_t packetIdentifier) const { // Server & Client
-        LOG(DEBUG) << "Send PUBACK";
-        LOG(DEBUG) << "===========";
+        snode::semantic::appLog().debug() << "Send PUBACK";
+        snode::semantic::appLog().debug() << "===========";
 
         send(iot::mqtt::packets::Puback(packetIdentifier));
     }
 
     void Mqtt::sendPubrec(uint16_t packetIdentifier) const { // Server & Client
-        LOG(DEBUG) << "Send PUBREC";
-        LOG(DEBUG) << "===========";
+        snode::semantic::appLog().debug() << "Send PUBREC";
+        snode::semantic::appLog().debug() << "===========";
 
         send(iot::mqtt::packets::Pubrec(packetIdentifier));
     }
 
     void Mqtt::sendPubrel(uint16_t packetIdentifier) const { // Server & Client
-        LOG(DEBUG) << "Send PUBREL";
-        LOG(DEBUG) << "===========";
+        snode::semantic::appLog().debug() << "Send PUBREL";
+        snode::semantic::appLog().debug() << "===========";
 
         send(iot::mqtt::packets::Pubrel(packetIdentifier));
     }
 
     void Mqtt::sendPubcomp(uint16_t packetIdentifier) const { // Server & Client
-        LOG(DEBUG) << "Send PUBCOMP";
-        LOG(DEBUG) << "============";
+        snode::semantic::appLog().debug() << "Send PUBCOMP";
+        snode::semantic::appLog().debug() << "============";
 
         send(iot::mqtt::packets::Pubcomp(packetIdentifier));
     }
@@ -236,19 +237,19 @@ namespace iot::mqtt {
     bool Mqtt::_onPublish(const packets::Publish& publish) {
         bool deliver = true;
         printStandardHeader(publish);
-        LOG(DEBUG) << "Topic: " << publish.getTopic();
-        LOG(DEBUG) << "Message: " << publish.getMessage();
-        LOG(DEBUG) << "QoS: " << static_cast<uint16_t>(publish.getQoS());
-        LOG(DEBUG) << "PacketIdentifier: " << publish.getPacketIdentifier();
-        LOG(DEBUG) << "DUP: " << publish.getDup();
-        LOG(DEBUG) << "Retain: " << publish.getRetain();
+        snode::semantic::appLog().debug() << "Topic: " << publish.getTopic();
+        snode::semantic::appLog().debug() << "Message: " << publish.getMessage();
+        snode::semantic::appLog().debug() << "QoS: " << static_cast<uint16_t>(publish.getQoS());
+        snode::semantic::appLog().debug() << "PacketIdentifier: " << publish.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "DUP: " << publish.getDup();
+        snode::semantic::appLog().debug() << "Retain: " << publish.getRetain();
 
         if (publish.getQoS() > 2) {
-            LOG(TRACE) << "Received invalid QoS: " << publish.getQoS();
+            snode::semantic::appLog().trace() << "Received invalid QoS: " << publish.getQoS();
             mqttContext->end(true);
             deliver = false;
         } else if (publish.getPacketIdentifier() == 0 && publish.getQoS() > 0) {
-            LOG(TRACE) << "Received QoS > 0 but no PackageIdentifier present";
+            snode::semantic::appLog().trace() << "Received QoS > 0 but no PackageIdentifier present";
             mqttContext->end(true);
             deliver = false;
         } else {
@@ -273,13 +274,13 @@ namespace iot::mqtt {
         return deliver;
     }
     void Mqtt::_onPuback(const iot::mqtt::packets::Puback& puback) {
-        LOG(DEBUG) << "Received PUBACK:";
-        LOG(DEBUG) << "================";
+        snode::semantic::appLog().debug() << "Received PUBACK:";
+        snode::semantic::appLog().debug() << "================";
         printStandardHeader(puback);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << puback.getPacketIdentifier();
 
         if (puback.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         }
 
@@ -287,13 +288,13 @@ namespace iot::mqtt {
     }
 
     void Mqtt::_onPubrec(const iot::mqtt::packets::Pubrec& pubrec) {
-        LOG(DEBUG) << "Received PUBREC:";
-        LOG(DEBUG) << "================";
+        snode::semantic::appLog().debug() << "Received PUBREC:";
+        snode::semantic::appLog().debug() << "================";
         printStandardHeader(pubrec);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrec.getPacketIdentifier();
 
         if (pubrec.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             session->publishMap.erase(pubrec.getPacketIdentifier());
@@ -306,13 +307,13 @@ namespace iot::mqtt {
     }
 
     void Mqtt::_onPubrel(const iot::mqtt::packets::Pubrel& pubrel) {
-        LOG(DEBUG) << "Received PUBREL:";
-        LOG(DEBUG) << "================";
+        snode::semantic::appLog().debug() << "Received PUBREL:";
+        snode::semantic::appLog().debug() << "================";
         printStandardHeader(pubrel);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubrel.getPacketIdentifier();
 
         if (pubrel.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             session->publishPacketIdentifierSet.erase(pubrel.getPacketIdentifier());
@@ -324,13 +325,13 @@ namespace iot::mqtt {
     }
 
     void Mqtt::_onPubcomp(const iot::mqtt::packets::Pubcomp& pubcomp) {
-        LOG(DEBUG) << "Received PUBCOMP:";
-        LOG(DEBUG) << "=================";
+        snode::semantic::appLog().debug() << "Received PUBCOMP:";
+        snode::semantic::appLog().debug() << "=================";
         printStandardHeader(pubcomp);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << pubcomp.getPacketIdentifier();
 
         if (pubcomp.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             session->publishMap.erase(pubcomp.getPacketIdentifier());
@@ -341,11 +342,11 @@ namespace iot::mqtt {
     }
 
     void Mqtt::printStandardHeader(const iot::mqtt::ControlPacket& packet) {
-        LOG(DEBUG) << dataToHexString(packet.serialize());
+        snode::semantic::appLog().debug() << dataToHexString(packet.serialize());
 
-        LOG(DEBUG) << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
-        LOG(DEBUG) << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
-        LOG(DEBUG) << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
+        snode::semantic::appLog().debug() << "Type: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getType());
+        snode::semantic::appLog().debug() << "Flags: 0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(packet.getFlags());
+        snode::semantic::appLog().debug() << "RemainingLength: " << std::dec << dynamic_cast<const ControlPacketDeserializer&>(packet).getRemainingLength();
     }
 
     std::string Mqtt::dataToHexString(const std::vector<char>& data) {

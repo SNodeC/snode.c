@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -42,11 +43,11 @@ namespace web::websocket {
             pingTimer = core::timer::Timer::intervalTimer(
                 [this, maxFlyingPings](const std::function<void()>& stop) -> void {
                     if (flyingPings < maxFlyingPings) {
-                        LOG(INFO) << "Ping sent";
+                        snode::semantic::appLog().info() << "Ping sent";
                         sendPing();
                         flyingPings++;
                     } else {
-                        LOG(WARNING) << "MaxFlyingPings exceeded - closing";
+                        snode::semantic::appLog().warn() << "MaxFlyingPings exceeded - closing";
                         sendClose();
                         stop();
                     }
@@ -114,7 +115,7 @@ namespace web::websocket {
 
     template <typename SocketContextUpgradeT>
     void SubProtocol<SocketContextUpgradeT>::onPongReceived() {
-        LOG(INFO) << "Pong received";
+        snode::semantic::appLog().info() << "Pong received";
         flyingPings = 0;
     }
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -81,7 +82,7 @@ namespace iot::mqtt::server::broker {
     bool RetainTree::TopicLevel::retain(const Message& message, std::string topic, bool appeared) {
         if (appeared) {
             if (!message.getTopic().empty()) {
-                LOG(TRACE) << "Retaining: " << message.getTopic() << " - " << message.getMessage();
+                snode::semantic::appLog().trace() << "Retaining: " << message.getTopic() << " - " << message.getMessage();
                 this->message = message;
             }
         } else {
@@ -107,11 +108,11 @@ namespace iot::mqtt::server::broker {
     void RetainTree::TopicLevel::appear(const std::string& clientId, std::string topic, uint8_t qoS, bool appeared) {
         if (appeared) {
             if (!message.getMessage().empty()) {
-                LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
+                snode::semantic::appLog().trace() << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                            << static_cast<uint16_t>(message.getQoS());
-                LOG(TRACE) << "  distribute message ...";
+                snode::semantic::appLog().trace() << "  distribute message ...";
                 broker->sendPublish(clientId, message, qoS, true);
-                LOG(TRACE) << "  ... completed!";
+                snode::semantic::appLog().trace() << "  ... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -136,11 +137,11 @@ namespace iot::mqtt::server::broker {
 
     void RetainTree::TopicLevel::appear(const std::string& clientId, uint8_t clientQoS) {
         if (!message.getTopic().empty()) {
-            LOG(TRACE) << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
+            snode::semantic::appLog().trace() << "Retained message found: " << message.getTopic() << " - " << message.getMessage() << " - "
                        << static_cast<uint16_t>(message.getQoS());
-            LOG(TRACE) << "  distribute message ...";
+            snode::semantic::appLog().trace() << "  distribute message ...";
             broker->sendPublish(clientId, message, clientQoS, true);
-            LOG(TRACE) << "  ... completed!";
+            snode::semantic::appLog().trace() << "  ... completed!";
         }
 
         for (auto& [topicLevel, topicTree] : subTopicLevels) {

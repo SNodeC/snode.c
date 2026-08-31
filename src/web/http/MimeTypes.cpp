@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -225,7 +226,7 @@ namespace web::http {
         MimeTypes::magic = magic_open(MAGIC_MIME);
 
         if (magic_load(magic, nullptr) != 0) {
-            LOG(WARNING) << "cannot load magic database - " + std::string(magic_error(magic));
+            snode::semantic::appLog().warn() << "cannot load magic database - " + std::string(magic_error(magic));
             magic_close(magic);
             magic = nullptr;
         }

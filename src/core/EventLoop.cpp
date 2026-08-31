@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -94,7 +95,7 @@ namespace core {
 
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
         if (!(eventLoopState == State::INITIALIZED)) {
-            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);
         }
 
@@ -142,13 +143,13 @@ namespace core {
 
             switch (tickStatus) {
                 case TickStatus::SUCCESS:
-                    LOG(INFO) << "EventLoop terminated: Releasing resources";
+                    snode::semantic::appLog().info() << "EventLoop terminated: Releasing resources";
                     break;
                 case TickStatus::NO_OBSERVER:
-                    LOG(INFO) << "EventLoop: No Observer - exiting";
+                    snode::semantic::appLog().info() << "EventLoop: No Observer - exiting";
                     break;
                 case TickStatus::ERROR:
-                    PLOG(ERROR) << "EventPublisher::span()";
+                    snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "EventPublisher::span()";
                     break;
             }
 
@@ -201,7 +202,7 @@ namespace core {
 
         utils::Config::terminate();
 
-        LOG(INFO) << "All resources released";
+        snode::semantic::appLog().info() << "All resources released";
     }
 
     State EventLoop::state() {
@@ -209,7 +210,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        LOG(INFO) << "Received signal " << sig;
+        snode::semantic::appLog().info() << "Received signal " << sig;
         stopsig = sig;
         stop();
     }

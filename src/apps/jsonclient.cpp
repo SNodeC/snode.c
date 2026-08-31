@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023  Volker Christian <me@vchrist.at>
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
     Client jsonClient(
         "legacy",
         [](Request& request) -> void {
-            VLOG(0) << "-- OnRequest";
+            snode::semantic::appLog().trace() << "-- OnRequest";
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
@@ -51,58 +52,58 @@ int main(int argc, char* argv[]) {
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
         []([[maybe_unused]] Request& request, Response& response) -> void {
-            VLOG(0) << "-- OnResponse";
-            VLOG(0) << "     Status:";
-            VLOG(0) << "       " << response.httpVersion;
-            VLOG(0) << "       " << response.statusCode;
-            VLOG(0) << "       " << response.reason;
+            snode::semantic::appLog().trace() << "-- OnResponse";
+            snode::semantic::appLog().trace() << "     Status:";
+            snode::semantic::appLog().trace() << "       " << response.httpVersion;
+            snode::semantic::appLog().trace() << "       " << response.statusCode;
+            snode::semantic::appLog().trace() << "       " << response.reason;
 
-            VLOG(0) << "     Headers:";
+            snode::semantic::appLog().trace() << "     Headers:";
             for (auto& [field, value] : response.headers) {
-                VLOG(0) << "       " << field + " = " + value;
+                snode::semantic::appLog().trace() << "       " << field + " = " + value;
             }
 
-            VLOG(0) << "     Cookies:";
+            snode::semantic::appLog().trace() << "     Cookies:";
             for (auto& [name, cookie] : response.cookies) {
-                VLOG(0) << "       " + name + " = " + cookie.getValue();
+                snode::semantic::appLog().trace() << "       " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "         " + option + " = " + value;
+                    snode::semantic::appLog().trace() << "         " + option + " = " + value;
                 }
             }
 
             response.body.push_back(0);
-            VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data() << "\n------------ end body ------------";
+            snode::semantic::appLog().trace() << "     Body:\n----------- start body -----------" << response.body.data() << "\n------------ end body ------------";
         },
         [](int status, const std::string& reason) -> void {
-            VLOG(0) << "-- OnResponseError";
-            VLOG(0) << "     Status: " << status;
-            VLOG(0) << "     Reason: " << reason;
+            snode::semantic::appLog().trace() << "-- OnResponseError";
+            snode::semantic::appLog().trace() << "     Status: " << status;
+            snode::semantic::appLog().trace() << "     Reason: " << reason;
         });
 
     jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c connecting to " << socketAddress.toString();
         }
     });
 
     jsonClient.connect("localhost", 8080, [](const SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c connecting to " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c connecting to " << socketAddress.toString();
         }
     });
 
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
             }
         });
     */

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -101,29 +102,29 @@ namespace iot::mqtt::server::broker {
 
     void SubscribtionTree::TopicLevel::publish(Message& message, std::string topic, bool leafFound) {
         if (leafFound) {
-            LOG(TRACE) << "Found match:";
-            LOG(TRACE) << "  Topic: '" << message.getTopic() << "';";
-            LOG(TRACE) << "  Message: '" << message.getMessage() << "' ";
-            LOG(TRACE) << "Distribute Publish for match ...";
+            snode::semantic::appLog().trace() << "Found match:";
+            snode::semantic::appLog().trace() << "  Topic: '" << message.getTopic() << "';";
+            snode::semantic::appLog().trace() << "  Message: '" << message.getMessage() << "' ";
+            snode::semantic::appLog().trace() << "Distribute Publish for match ...";
 
             for (auto& [clientId, clientQoS] : subscribers) {
                 broker->sendPublish(clientId, message, clientQoS, false);
             }
 
-            LOG(TRACE) << "... completed!";
+            snode::semantic::appLog().trace() << "... completed!";
 
             auto nextHashLevel = topicLevels.find("#");
             if (nextHashLevel != topicLevels.end()) {
-                LOG(TRACE) << "Found parent match:";
-                LOG(TRACE) << "  Topic: '" << message.getTopic() << "'";
-                LOG(TRACE) << "  Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish for match ...";
+                snode::semantic::appLog().trace() << "Found parent match:";
+                snode::semantic::appLog().trace() << "  Topic: '" << message.getTopic() << "'";
+                snode::semantic::appLog().trace() << "  Message: '" << message.getMessage() << "'";
+                snode::semantic::appLog().trace() << "Distribute Publish for match ...";
 
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.subscribers) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
 
-                LOG(TRACE) << "... completed!";
+                snode::semantic::appLog().trace() << "... completed!";
             }
         } else {
             std::string::size_type slashPosition = topic.find('/');
@@ -145,13 +146,13 @@ namespace iot::mqtt::server::broker {
 
             foundNode = topicLevels.find("#");
             if (foundNode != topicLevels.end()) {
-                LOG(TRACE) << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
+                snode::semantic::appLog().trace() << "Found match for topic filter: '.../" << topicLevel << "/#', topic: '" << message.getTopic()
                            << "', Message: '" << message.getMessage() << "'";
-                LOG(TRACE) << "Distribute Publish ...";
+                snode::semantic::appLog().trace() << "Distribute Publish ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.subscribers) {
                     broker->sendPublish(clientId, message, clientQoS, false);
                 }
-                LOG(TRACE) << "... completed!";
+                snode::semantic::appLog().trace() << "... completed!";
             }
         }
     }

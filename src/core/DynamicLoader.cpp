@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -38,9 +39,9 @@ namespace core {
                 dlOpenedLibraries[handle].handle = handle;
             }
             dlOpenedLibraries[handle].refCount++;
-            LOG(TRACE) << "dlOpen file = " << libFile << ": success";
+            snode::semantic::appLog().trace() << "dlOpen file = " << libFile << ": success";
         } else {
-            LOG(WARNING) << "dlOpen " << DynamicLoader::dlError();
+            snode::semantic::appLog().warn() << "dlOpen " << DynamicLoader::dlError();
         }
 
         return handle;
@@ -50,18 +51,18 @@ namespace core {
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {
                 if (std::find(closeHandles.begin(), closeHandles.end(), handle) == closeHandles.end()) {
-                    LOG(TRACE) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
+                    snode::semantic::appLog().trace() << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName << ": registered";
 
                     closeHandles.push_back(handle);
                 } else {
-                    LOG(ERROR) << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
+                    snode::semantic::appLog().error() << "dlCloseDelayed file = " << dlOpenedLibraries[handle].fileName
                                << ": already registered for dlCloseDelayed";
                 }
             } else {
-                LOG(WARNING) << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
+                snode::semantic::appLog().warn() << "dlCloseDelayed handle = " << handle << ": not opened using dlOpen";
             }
         } else {
-            LOG(ERROR) << "dlCloseDelayed handle: nullptr";
+            snode::semantic::appLog().error() << "dlCloseDelayed handle: nullptr";
         }
     }
 
@@ -75,13 +76,13 @@ namespace core {
 
                     dlOpenedLibraries.erase(handle);
                 } else {
-                    LOG(WARNING) << "dlClose handle = " << handle << ": not opened with dlOpen";
+                    snode::semantic::appLog().warn() << "dlClose handle = " << handle << ": not opened with dlOpen";
                 }
             } else {
-                LOG(ERROR) << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
+                snode::semantic::appLog().error() << "dlClose handle = " << handle << ": already registered for dlCloseDelayed";
             }
         } else {
-            LOG(ERROR) << "dlClose handle: nullptr";
+            snode::semantic::appLog().error() << "dlClose handle: nullptr";
         }
 
         return ret;
@@ -94,9 +95,9 @@ namespace core {
             ret = execDlClose(library);
 
             if (ret != 0) {
-                LOG(WARNING) << "dlClose: " << DynamicLoader::dlError();
+                snode::semantic::appLog().warn() << "dlClose: " << DynamicLoader::dlError();
             } else {
-                LOG(TRACE) << "dlClose file = " << library.fileName << ": closed";
+                snode::semantic::appLog().trace() << "dlClose file = " << library.fileName << ": closed";
             }
         }
 
@@ -124,9 +125,9 @@ namespace core {
             Library& library = dlOpenedLibraries[handle];
 
             if (execDlClose(library) != 0) {
-                LOG(WARNING) << "execDlCloseDeleyed file = " << library.fileName << ": " << DynamicLoader::dlError();
+                snode::semantic::appLog().warn() << "execDlCloseDeleyed file = " << library.fileName << ": " << DynamicLoader::dlError();
             } else {
-                LOG(TRACE) << "execDlCloseDeleyed file = " << library.fileName << ": closed";
+                snode::semantic::appLog().trace() << "execDlCloseDeleyed file = " << library.fileName << ": closed";
             }
 
             dlOpenedLibraries.erase(handle);
@@ -142,9 +143,9 @@ namespace core {
             int ret = dlClose(library);
 
             if (ret != 0) {
-                LOG(WARNING) << "execDlCloseAll file = " << library.fileName << ": " << DynamicLoader::dlError();
+                snode::semantic::appLog().warn() << "execDlCloseAll file = " << library.fileName << ": " << DynamicLoader::dlError();
             } else {
-                LOG(TRACE) << "execDlCloseAll file = " << library.fileName << ": closed";
+                snode::semantic::appLog().trace() << "execDlCloseAll file = " << library.fileName << ": closed";
             }
         }
 

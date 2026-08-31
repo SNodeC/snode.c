@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -73,15 +74,15 @@ namespace web::http::client {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    VLOG(0) << "SocketContextUpgrade not created";
+                    snode::semantic::appLog().trace() << "SocketContextUpgrade not created";
                     socketContext->close();
                 }
             } else {
-                VLOG(0) << "SocketContextUpgradeFactory not existing";
+                snode::semantic::appLog().trace() << "SocketContextUpgradeFactory not existing";
                 socketContext->close();
             }
         } else {
-            VLOG(0) << "Response did not contain upgrade";
+            snode::semantic::appLog().trace() << "Response did not contain upgrade";
             socketContext->close();
         }
     }

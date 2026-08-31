@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -55,9 +56,9 @@ namespace iot::mqtt::server::broker {
                         << " "; // << " | ";
         }
 
-        LOG(TRACE) << "                TopicName: " << message.getTopic();
-        LOG(TRACE) << "                Message: " << messageData.str();
-        LOG(TRACE) << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
+        snode::semantic::appLog().trace() << "                TopicName: " << message.getTopic();
+        snode::semantic::appLog().trace() << "                Message: " << messageData.str();
+        snode::semantic::appLog().trace() << "                QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {
             mqtt->sendPublish(message.getTopic(), message.getMessage(), std::min(message.getQoS(), qoS), retain);
@@ -72,11 +73,11 @@ namespace iot::mqtt::server::broker {
     }
 
     void Session::publishQueued() {
-        LOG(TRACE) << "    send queued messages ...";
+        snode::semantic::appLog().trace() << "    send queued messages ...";
         for (iot::mqtt::server::broker::Message& message : messageQueue) {
             sendPublish(message, message.getQoS(), false);
         }
-        LOG(TRACE) << "    ... done";
+        snode::semantic::appLog().trace() << "    ... done";
 
         messageQueue.clear();
     }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -37,10 +38,10 @@ int main(int argc, char* argv[]) {
             req.url = "/wstest.html";
         }
 
-        VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+        snode::semantic::appLog().trace() << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
         res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
             if (ret != 0) {
-                PLOG(ERROR) << req.url;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << req.url;
             }
         });
     });
@@ -48,18 +49,18 @@ int main(int argc, char* argv[]) {
     legacyApp.get("/ws", [](Request& req, Response& res) -> void {
         std::string uri = req.originalUrl;
 
-        VLOG(1) << "OriginalUri: " << uri;
-        VLOG(1) << "Uri: " << req.url;
+        snode::semantic::appLog().trace() << "OriginalUri: " << uri;
+        snode::semantic::appLog().trace() << "Uri: " << req.url;
 
-        VLOG(1) << "Host: " << req.get("host");
-        VLOG(1) << "Connection: " << req.get("connection");
-        VLOG(1) << "Origin: " << req.get("origin");
-        VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-        VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-        VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
-        VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
-        VLOG(1) << "upgrade: " << req.get("upgrade");
-        VLOG(1) << "user-agent: " << req.get("user-agent");
+        snode::semantic::appLog().trace() << "Host: " << req.get("host");
+        snode::semantic::appLog().trace() << "Connection: " << req.get("connection");
+        snode::semantic::appLog().trace() << "Origin: " << req.get("origin");
+        snode::semantic::appLog().trace() << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+        snode::semantic::appLog().trace() << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+        snode::semantic::appLog().trace() << "sec-websocket-key: " << req.get("sec-websocket-key");
+        snode::semantic::appLog().trace() << "sec-websocket-version: " << req.get("sec-websocket-version");
+        snode::semantic::appLog().trace() << "upgrade: " << req.get("upgrade");
+        snode::semantic::appLog().trace() << "user-agent: " << req.get("user-agent");
 
         if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
             res.upgrade(req);
@@ -70,9 +71,9 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
         if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
         } else {
-            VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "wsechoserver listening on " << socketAddress.toString();
         }
     });
 
@@ -84,10 +85,10 @@ int main(int argc, char* argv[]) {
                 req.url = "/wstest.html";
             }
 
-            VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+            snode::semantic::appLog().trace() << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
             res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
-                    PLOG(ERROR) << req.url;
+                    snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << req.url;
                 }
             });
         });
@@ -95,18 +96,18 @@ int main(int argc, char* argv[]) {
         tlsApp.get("/ws", [](Request& req, Response& res) -> void {
             std::string uri = req.originalUrl;
 
-            VLOG(1) << "OriginalUri: " << uri;
-            VLOG(1) << "Uri: " << req.url;
+            snode::semantic::appLog().trace() << "OriginalUri: " << uri;
+            snode::semantic::appLog().trace() << "Uri: " << req.url;
 
-            VLOG(1) << "Connection: " << req.get("connection");
-            VLOG(1) << "Host: " << req.get("host");
-            VLOG(1) << "Origin: " << req.get("origin");
-            VLOG(1) << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
-            VLOG(1) << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
-            VLOG(1) << "sec-websocket-key: " << req.get("sec-websocket-key");
-            VLOG(1) << "sec-websocket-version: " << req.get("sec-websocket-version");
-            VLOG(1) << "upgrade: " << req.get("upgrade");
-            VLOG(1) << "user-agent: " << req.get("user-agent");
+            snode::semantic::appLog().trace() << "Connection: " << req.get("connection");
+            snode::semantic::appLog().trace() << "Host: " << req.get("host");
+            snode::semantic::appLog().trace() << "Origin: " << req.get("origin");
+            snode::semantic::appLog().trace() << "Sec-WebSocket-Protocol: " << req.get("sec-websocket-protocol");
+            snode::semantic::appLog().trace() << "sec-web-socket-extensions: " << req.get("sec-websocket-extensions");
+            snode::semantic::appLog().trace() << "sec-websocket-key: " << req.get("sec-websocket-key");
+            snode::semantic::appLog().trace() << "sec-websocket-version: " << req.get("sec-websocket-version");
+            snode::semantic::appLog().trace() << "upgrade: " << req.get("upgrade");
+            snode::semantic::appLog().trace() << "user-agent: " << req.get("user-agent");
 
             if (httputils::ci_contains(req.get("connection"), "Upgrade")) {
                 res.upgrade(req);
@@ -117,9 +118,9 @@ int main(int argc, char* argv[]) {
 
         tlsApp.listen([](const tls::in::WebApp::SocketAddress& socketAddress, int err) -> void {
             if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
             } else {
-                VLOG(0) << "wsechoserver listening on " << socketAddress.toString();
+                snode::semantic::appLog().trace() << "wsechoserver listening on " << socketAddress.toString();
             }
         });
     }

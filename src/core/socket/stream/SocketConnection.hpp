@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -122,7 +123,7 @@ namespace core::socket::stream {
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter>::shutdownWrite(bool forceClose) {
         SocketWriter::shutdown([forceClose, this](int errnum) -> void {
             if (errnum != 0) {
-                PLOG(INFO) << "SocketWriter::doWriteShutdown";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Info, errno) << "SocketWriter::doWriteShutdown";
             }
             if (forceClose) {
                 close();
@@ -173,7 +174,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             ret = SocketReader::readFromPeer(junk, junkLen);
         } else {
-            VLOG(0) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
+            snode::semantic::appLog().trace() << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
         }
 
         return ret;
@@ -188,7 +189,7 @@ namespace core::socket::stream {
         if (newSocketContext == nullptr) {
             SocketWriter::sendToPeer(junk, junkLen);
         } else {
-            VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
+            snode::semantic::appLog().trace() << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
         }
     }
 

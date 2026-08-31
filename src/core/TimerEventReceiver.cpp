@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -77,7 +78,7 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        LOG(TRACE) << "Timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).msd() << " ms";
+        snode::semantic::appLog().trace() << "Timer: Dispatch delta = " << (currentTime - getTimeoutAbsolut()).msd() << " ms";
 
         dispatchEvent();
     }

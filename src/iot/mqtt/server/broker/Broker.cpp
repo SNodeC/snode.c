@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -57,9 +58,9 @@ namespace iot::mqtt::server::broker {
                     retainTree.fromJson(sessionStoreJson["retain_tree"]);
                     subscribtionTree.fromJson(sessionStoreJson["subscribtion_tree"]);
 
-                    LOG(TRACE) << "Persistent session data loaded successfull";
+                    snode::semantic::appLog().trace() << "Persistent session data loaded successfull";
                 } catch (const nlohmann::json::exception&) {
-                    LOG(TRACE) << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
+                    snode::semantic::appLog().trace() << "Starting with empty session: Session store '" << sessionStoreFileName << "' empty or corrupted";
 
                     sessionStore.clear();
                     retainTree.clear();
@@ -69,10 +70,10 @@ namespace iot::mqtt::server::broker {
                 sessionStoreFile.close();
                 std::remove(sessionStoreFileName.data());
             } else {
-                PLOG(TRACE) << "Could not read session store '" << sessionStoreFileName << "'";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Trace, errno) << "Could not read session store '" << sessionStoreFileName << "'";
             }
         } else {
-            LOG(INFO) << "Session not reloaded: Session store filename empty";
+            snode::semantic::appLog().info() << "Session not reloaded: Session store filename empty";
         }
     }
 
@@ -105,10 +106,10 @@ namespace iot::mqtt::server::broker {
 
                 sessionStoreFile.close();
             } else {
-                PLOG(TRACE) << "Could not write session store '" << sessionStoreFileName << "'";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Trace, errno) << "Could not write session store '" << sessionStoreFileName << "'";
             }
         } else {
-            LOG(INFO) << "Session not saved: Session store filename empty";
+            snode::semantic::appLog().info() << "Session not saved: Session store filename empty";
         }
     }
 
@@ -180,10 +181,10 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::restartSession(const std::string& clientId) {
-        LOG(TRACE) << "  Retained: Send Publish: ClientId: " << clientId;
+        snode::semantic::appLog().trace() << "  Retained: Send Publish: ClientId: " << clientId;
         subscribtionTree.appear(clientId);
 
-        LOG(TRACE) << "  Queued: Send Publish: ClientId: " << clientId;
+        snode::semantic::appLog().trace() << "  Queued: Send Publish: ClientId: " << clientId;
         sessionStore[clientId].publishQueued();
     }
 
@@ -197,7 +198,7 @@ namespace iot::mqtt::server::broker {
     }
 
     void Broker::sendPublish(const std::string& clientId, Message& message, uint8_t qoS, bool retain) {
-        LOG(TRACE) << "  Send Publish: ClientId: " << clientId;
+        snode::semantic::appLog().trace() << "  Send Publish: ClientId: " << clientId;
         sessionStore[clientId].sendPublish(message, qoS, retain);
     }
 

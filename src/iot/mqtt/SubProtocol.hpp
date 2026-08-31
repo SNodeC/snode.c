@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -79,17 +80,17 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onConnected() {
-        LOG(INFO) << "Mqtt connected:";
+        snode::semantic::appLog().info() << "Mqtt connected:";
         iot::mqtt::MqttContext::onConnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageStart(int opCode) {
         if (opCode == web::websocket::SubProtocolContext::OpCode::TEXT) {
-            LOG(ERROR) << "WebSocket: Wrong Opcode: " << opCode;
+            snode::semantic::appLog().error() << "WebSocket: Wrong Opcode: " << opCode;
             this->end(true);
         } else {
-            LOG(TRACE) << "WebSocket: Message START: " << opCode;
+            snode::semantic::appLog().trace() << "WebSocket: Message START: " << opCode;
         }
     }
 
@@ -110,12 +111,12 @@ namespace iot::mqtt {
             ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<uint16_t>(static_cast<uint8_t>(ch))
                << " "; // << " | ";
         }
-        LOG(TRACE) << ss.str();
+        snode::semantic::appLog().trace() << ss.str();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageEnd() {
-        LOG(TRACE) << "WebSocket: Message END";
+        snode::semantic::appLog().trace() << "WebSocket: Message END";
 
         buffer.insert(buffer.end(), data.begin(), data.end());
         size += data.size();
@@ -128,18 +129,18 @@ namespace iot::mqtt {
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onMessageError(uint16_t errnum) {
-        LOG(ERROR) << "WebSocket: Message error: " << errnum;
+        snode::semantic::appLog().error() << "WebSocket: Message error: " << errnum;
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onDisconnected() {
-        LOG(INFO) << "MQTT disconnected:";
+        snode::semantic::appLog().info() << "MQTT disconnected:";
         iot::mqtt::MqttContext::onDisconnected();
     }
 
     template <typename WSSubProtocolRole>
     void SubProtocol<WSSubProtocolRole>::onExit() {
-        LOG(INFO) << "MQTT exit";
+        snode::semantic::appLog().info() << "MQTT exit";
         iot::mqtt::MqttContext::onExit();
         this->sendClose();
     }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -47,31 +48,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
            int httpMajor,
            int httpMinor,
            const std::map<std::string, std::string>& queries) -> void {
-            VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
+            snode::semantic::appLog().trace() << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion << " " << httpMajor << " " << httpMinor;
             for (const auto& [queryField, queryValue] : queries) {
-                VLOG(0) << "++    Query: " << queryField << " = " << queryValue;
+                snode::semantic::appLog().trace() << "++    Query: " << queryField << " = " << queryValue;
             }
         },
         [](std::map<std::string, std::string>& header, std::map<std::string, std::string>& cookies) -> void {
-            VLOG(0) << "++    Header: ";
+            snode::semantic::appLog().trace() << "++    Header: ";
             for (auto& [headerField, headerFieldValue] : header) {
-                VLOG(0) << "++      " << headerField << " = " << headerFieldValue;
+                snode::semantic::appLog().trace() << "++      " << headerField << " = " << headerFieldValue;
             }
-            VLOG(0) << "++    Cookie: ";
+            snode::semantic::appLog().trace() << "++    Cookie: ";
             for (auto& [cookieName, cookieValue] : cookies) {
-                VLOG(0) << "++      " << cookieName << " = " << cookieValue;
+                snode::semantic::appLog().trace() << "++      " << cookieName << " = " << cookieValue;
             }
         },
         [](std::vector<uint8_t>& content) -> void {
             content.push_back(0);
-            VLOG(0) << content.data();
+            snode::semantic::appLog().trace() << content.data();
         },
         []() -> void {
-            VLOG(0) << "++    OnParsed";
+            snode::semantic::appLog().trace() << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {
-            VLOG(0) << "++    OnError: " << status << " : " << reason;
+            snode::semantic::appLog().trace() << "++    OnError: " << status << " : " << reason;
         });
 
     std::string httpRequest = "GET /admin/new/index.html?hihihi=3343&query=2324#fragment HTTP/1.1\r\n"
@@ -86,16 +87,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
                               "\r\n"
                               "juhuhuhu";
 
-    VLOG(0) << "==================================";
-    VLOG(0) << httpRequest;
-    VLOG(0) << "----------------------------------";
+    snode::semantic::appLog().trace() << "==================================";
+    snode::semantic::appLog().trace() << httpRequest;
+    snode::semantic::appLog().trace() << "----------------------------------";
 
     requestParser.parse();
     requestParser.reset();
 
-    VLOG(0) << "==================================";
-    VLOG(0) << httpRequest;
-    VLOG(0) << "----------------------------------";
+    snode::semantic::appLog().trace() << "==================================";
+    snode::semantic::appLog().trace() << httpRequest;
+    snode::semantic::appLog().trace() << "----------------------------------";
 
     requestParser.parse();
     requestParser.reset();
@@ -105,32 +106,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-            VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
+            snode::semantic::appLog().trace() << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
         [](std::map<std::string, std::string>& headers, std::map<std::string, web::http::CookieOptions>& cookies) -> void {
-            VLOG(0) << "++   Headers:";
+            snode::semantic::appLog().trace() << "++   Headers:";
             for (auto& [field, value] : headers) {
-                VLOG(0) << "++       " << field + " = " + value;
+                snode::semantic::appLog().trace() << "++       " << field + " = " + value;
             }
 
-            VLOG(0) << "++   Cookies:";
+            snode::semantic::appLog().trace() << "++   Cookies:";
             for (auto& [name, cookie] : cookies) {
-                VLOG(0) << "++     " + name + " = " + cookie.getValue();
+                snode::semantic::appLog().trace() << "++     " + name + " = " + cookie.getValue();
                 for (auto& [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "++       " + option + " = " + value;
+                    snode::semantic::appLog().trace() << "++       " + option + " = " + value;
                 }
             }
         },
         [](std::vector<uint8_t>& content) -> void {
             content.push_back(0);
-            VLOG(0) << content.data();
+            snode::semantic::appLog().trace() << content.data();
         },
         [](client::ResponseParser& parser) -> void {
-            VLOG(0) << "++   OnParsed";
+            snode::semantic::appLog().trace() << "++   OnParsed";
             parser.reset();
         },
         [](int status, const std::string& reason) -> void {
-            VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
+            snode::semantic::appLog().trace() << "++   OnError: " + std::to_string(status) + " - " + reason;
         });
 
     std::string httpResponse = "HTTP/1.1 200 OK\r\n"
@@ -141,15 +142,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
                                "\r\n"
                                "juhuhuhu";
 
-    VLOG(0) << "==================================";
-    VLOG(0) << httpResponse;
-    VLOG(0) << "----------------------------------";
+    snode::semantic::appLog().trace() << "==================================";
+    snode::semantic::appLog().trace() << httpResponse;
+    snode::semantic::appLog().trace() << "----------------------------------";
     responseParser.parse();
     responseParser.reset();
 
-    VLOG(0) << "==================================";
-    VLOG(0) << httpResponse;
-    VLOG(0) << "----------------------------------";
+    snode::semantic::appLog().trace() << "==================================";
+    snode::semantic::appLog().trace() << httpResponse;
+    snode::semantic::appLog().trace() << "----------------------------------";
     responseParser.parse();
     responseParser.reset();
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -69,22 +70,22 @@ namespace core::socket::stream {
             : SocketClient(
                   name,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect " << name;
+                      snode::semantic::appLog().trace() << "OnConnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected " << name;
+                      snode::semantic::appLog().trace() << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
+                      snode::semantic::appLog().trace() << "OnDisconnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   }) {
         }
@@ -117,22 +118,22 @@ namespace core::socket::stream {
                   name,
                   socketContextFactory,
                   [name](SocketConnection* socketConnection) -> void { // onConnect
-                      VLOG(0) << "OnConnect " << name;
+                      snode::semantic::appLog().trace() << "OnConnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   },
                   [name]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
-                      VLOG(0) << "OnConnected " << name;
+                      snode::semantic::appLog().trace() << "OnConnected " << name;
                   },
                   [name](SocketConnection* socketConnection) -> void { // onDisconnect
-                      VLOG(0) << "OnDisconnect " << name;
+                      snode::semantic::appLog().trace() << "OnDisconnect " << name;
 
-                      VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                      socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                      snode::semantic::appLog().trace() << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                      socketConnection->getRemoteAddress().toString();
                   }) {
         }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -71,9 +72,9 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
 
         if (!preverify_ok) {
-            LOG(INFO) << "verify_error:num=" << err << ": " << X509_verify_cert_error_string(err) << ":depth=" << depth << ": " << buf;
+            snode::semantic::appLog().info() << "verify_error:num=" << err << ": " << X509_verify_cert_error_string(err) << ":depth=" << depth << ": " << buf;
         } else {
-            LOG(TRACE) << "depth=" << depth << ": " << buf;
+            snode::semantic::appLog().trace() << "depth=" << depth << ": " << buf;
         }
 
         /*
@@ -83,7 +84,7 @@ namespace core::socket::stream::tls {
 
         if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
             X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
-            LOG(WARNING) << "no issuer certificate for issuer= " << buf;
+            snode::semantic::appLog().warn() << "no issuer certificate for issuer= " << buf;
         }
 
         return preverify_ok;
@@ -365,29 +366,29 @@ namespace core::socket::stream::tls {
     }
 
     void ssl_log_error(const std::string& message) {
-        PLOG(ERROR) << message;
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            snode::semantic::appLog().error() << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_warning(const std::string& message) {
-        LOG(WARNING) << message;
+        snode::semantic::appLog().warn() << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            snode::semantic::appLog().warn() << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 
     void ssl_log_info(const std::string& message) {
-        PLOG(INFO) << message;
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Info, errno) << message;
 
         unsigned long errorCode = 0;
         while ((errorCode = ERR_get_error()) != 0) {
-            LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
+            snode::semantic::appLog().info() << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
     }
 

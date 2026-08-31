@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -82,7 +83,7 @@ namespace core::socket::stream {
             if (physicalClientSocket.isValid()) {
                 socketConnectionFactory.create(physicalClientSocket, config);
             } else if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-                PLOG(ERROR) << "accept";
+                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "accept";
             }
         } while (--acceptsPerTick > 0);
     }

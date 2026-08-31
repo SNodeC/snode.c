@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -138,7 +139,7 @@ namespace web::websocket {
                          << " ";
 
             if ((i + 1) % modul == 0 || i == frameLength) {
-                VLOG(0) << "Frame: " << stringStream.str();
+                snode::semantic::appLog().trace() << "Frame: " << stringStream.str();
                 stringStream.str("");
             }
         }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -66,11 +67,11 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        VLOG(0) << "Content-Type: " << req.get("Content-Type");
-        VLOG(0) << "Content-Length: " << req.get("Content-Length");
+        snode::semantic::appLog().trace() << "Content-Type: " << req.get("Content-Type");
+        snode::semantic::appLog().trace() << "Content-Length: " << req.get("Content-Length");
 
         req.body.push_back(0);
-        VLOG(0) << req.body.data();
+        snode::semantic::appLog().trace() << req.body.data();
 
         res.send("<html>"
                  "    <body>"
@@ -85,9 +86,9 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "LegacyWebApp listening on " << socketAddress.toString();
         }
     });
 
@@ -105,9 +106,9 @@ int main(int argc, char* argv[]) {
 
     tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "TLSWebApp listening on " << socketAddress.toString();
         }
     });
 

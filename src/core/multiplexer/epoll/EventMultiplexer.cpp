@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -54,7 +55,7 @@ namespace core::epoll {
         event.data.ptr = descriptorEventPublishers[core::EventMultiplexer::DISP_TYPE::EX];
         core::system::epoll_ctl(epfd, EPOLL_CTL_ADD, epfds[core::EventMultiplexer::DISP_TYPE::EX], &event);
 
-        LOG(TRACE) << "IO-Multiplexer: epoll";
+        snode::semantic::appLog().trace() << "IO-Multiplexer: epoll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeout) {

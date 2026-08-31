@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -52,7 +53,7 @@ namespace database::mariadb {
                 if (mysql_errno(mysql) == 0) {
                     int fd = mysql_get_socket(mysql);
 
-                    VLOG(0) << "Got valid descriptor: " << fd;
+                    snode::semantic::appLog().trace() << "Got valid descriptor: " << fd;
 
                     ReadEventReceiver::enable(fd);
                     WriteEventReceiver::enable(fd);
@@ -64,14 +65,14 @@ namespace database::mariadb {
 
                     connected = true;
                 } else {
-                    VLOG(0) << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
+                    snode::semantic::appLog().trace() << "Got no valid descriptor: " << mysql_error(mysql) << ", " << mysql_errno(mysql);
                 }
             },
             []() -> void {
-                VLOG(0) << "Connect success";
+                snode::semantic::appLog().trace() << "Connect success";
             },
             [](const std::string& errorString, unsigned int errorNumber) -> void {
-                VLOG(0) << "Connect error: " << errorString << " : " << errorNumber;
+                snode::semantic::appLog().trace() << "Connect error: " << errorString << " : " << errorNumber;
             }))));
     }
 
@@ -145,7 +146,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::commandCompleted() {
-        VLOG(0) << "Completed: " << currentCommand->commandInfo();
+        snode::semantic::appLog().trace() << "Completed: " << currentCommand->commandInfo();
         commandSequenceQueue.front().commandCompleted();
 
         if (commandSequenceQueue.front().empty()) {

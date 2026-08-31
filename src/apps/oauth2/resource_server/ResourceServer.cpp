@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
         std::string queryAccessToken{req.query("access_token")};
         std::string queryClientId{req.query("client_id")};
         if (queryAccessToken.empty() || queryClientId.empty()) {
-            VLOG(0) << "Missing access_token or client_id in body";
+            snode::semantic::appLog().trace() << "Missing access_token or client_id in body";
             res.sendStatus(401);
             return;
         }
@@ -30,29 +31,29 @@ int main(int argc, char* argv[]) {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
             [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
-                VLOG(0) << "OnConnect";
+                snode::semantic::appLog().trace() << "OnConnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().trace() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().trace() << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                    socketConnection) -> void {
-                VLOG(0) << "OnConnected";
+                snode::semantic::appLog().trace() << "OnConnected";
             },
             [queryAccessToken, queryClientId](web::http::client::Request& request) -> void {
-                VLOG(0) << "OnRequestBegin";
+                snode::semantic::appLog().trace() << "OnRequestBegin";
                 request.url = "/oauth2/token/validate?client_id=" + queryClientId;
                 request.method = "POST";
-                VLOG(0) << "ClientId: " << queryClientId;
-                VLOG(0) << "AcceessToken: " << queryAccessToken;
+                snode::semantic::appLog().trace() << "ClientId: " << queryClientId;
+                snode::semantic::appLog().trace() << "AcceessToken: " << queryAccessToken;
                 nlohmann::json requestJson = {{"access_token", queryAccessToken}, {"client_id", queryClientId}};
                 std::string requestJsonString{requestJson.dump(4)};
                 request.send(requestJsonString);
             },
             [&res]([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
-                VLOG(0) << "OnResponse";
+                snode::semantic::appLog().trace() << "OnResponse";
                 response.body.push_back(0);
-                VLOG(0) << "Response: " << response.body.data();
+                snode::semantic::appLog().trace() << "Response: " << response.body.data();
                 if (std::stoi(response.statusCode) != 200) {
                     nlohmann::json errorJson = {{"error", "Invalid access token"}};
                     res.status(401).send(errorJson.dump(4));
@@ -62,16 +63,16 @@ int main(int argc, char* argv[]) {
                 }
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
+                snode::semantic::appLog().trace() << "OnResponseError";
+                snode::semantic::appLog().trace() << "     Status: " << status;
+                snode::semantic::appLog().trace() << "     Reason: " << reason;
             },
             [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
-                VLOG(0) << "OnDisconnect";
+                snode::semantic::appLog().trace() << "OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::semantic::appLog().trace() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::semantic::appLog().trace() << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
         legacyClient.connect(
@@ -80,9 +81,9 @@ int main(int argc, char* argv[]) {
             [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& socketAddress,
                int err) -> void {
                 if (err != 0) {
-                    PLOG(ERROR) << "OnError: " << err;
+                    snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << err;
                 } else {
-                    VLOG(0) << "Resource server client connecting to " << socketAddress.toString();
+                    snode::semantic::appLog().trace() << "Resource server client connecting to " << socketAddress.toString();
                 }
             });
     });

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -34,7 +35,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onConnected() {
-        VLOG(0) << "Echo connected";
+        snode::semantic::appLog().trace() << "Echo connected";
 
         if (role == Role::CLIENT) {
             sendToPeer("Hello peer! Nice to see you!!!");
@@ -42,7 +43,7 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onDisconnected() {
-        VLOG(0) << "Echo disconnected";
+        snode::semantic::appLog().trace() << "Echo disconnected";
     }
 
     std::size_t EchoSocketContext::onReceivedFromPeer() {
@@ -51,7 +52,7 @@ namespace apps::echo::model {
         std::size_t junklen = readFromPeer(junk, 4096);
 
         if (junklen > 0) {
-            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
+            snode::semantic::appLog().trace() << "Data to reflect: " << std::string(junk, junklen);
             sendToPeer(junk, junklen);
         }
 

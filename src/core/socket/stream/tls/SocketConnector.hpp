@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -56,12 +57,12 @@ namespace core::socket::stream::tls {
 
                       socketConnection->doSSLHandshake(
                           [onConnected, socketConnection]() -> void { // onSuccess
-                              LOG(INFO) << "SSL/TLS initial handshake success";
+                              snode::semantic::appLog().info() << "SSL/TLS initial handshake success";
                               onConnected(socketConnection);
                               socketConnection->onConnected();
                           },
                           [onError = this->onError, config = this->config]() -> void { // onTimeout
-                              LOG(WARNING) << "SSL/TLS initial handshake timed out";
+                              snode::semantic::appLog().warn() << "SSL/TLS initial handshake timed out";
                               onError(config->Remote::getAddress(), ETIMEDOUT);
                           },
                           [onError = this->onError, config = this->config](int sslErr) -> void { // onError

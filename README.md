@@ -2063,7 +2063,7 @@ The use of X.509 certificates for encrypted communication is demonstrated also.
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
 #include <express/middleware/StaticMiddleware.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 #include <utils/Config.h>
 int main(int argc, char* argv[]) {
     utils::Config::add_string_option("--web-root", "Root directory of the web site", "[path]");
@@ -2080,11 +2080,11 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socketAddress.toString();
         }
     });
 
@@ -2102,11 +2102,11 @@ int main(int argc, char* argv[]) {
 
     tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socketAddress.toString();
         }
     });
 
@@ -2121,7 +2121,7 @@ The high-level web API provides the methods `get()`, `post()`, `put()`, etc like
 ``` cpp
 #include <express/legacy/in/WebApp.h>
 #include <express/tls/in/WebApp.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
@@ -2184,9 +2184,9 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080, [](const LegacySocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "LegacyWebApp listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "LegacyWebApp listening on " << socketAddress.toString();
         }
     });
 
@@ -2205,9 +2205,9 @@ int main(int argc, char* argv[]) {
 
     tlsApp.listen(8088, [](const TLSSocketAddress& socketAddress, int errnum) -> void {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "TLSWebApp listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "TLSWebApp listening on " << socketAddress.toString();
         }
     });
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -89,7 +90,7 @@ namespace web::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                VLOG(0) << "Error opcode in continuation frame";
+                snode::semantic::appLog().trace() << "Error opcode in continuation frame";
             }
             continuation = !fin;
         }

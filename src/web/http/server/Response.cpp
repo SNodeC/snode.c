@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -237,11 +238,11 @@ namespace web::http::server {
     }
 
     void Response::eof() {
-        LOG(INFO) << "Stream EOF";
+        snode::semantic::appLog().info() << "Stream EOF";
     }
 
     void Response::error([[maybe_unused]] int errnum) {
-        PLOG(ERROR) << "Stream error: ";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "Stream error: ";
         requestContext->close();
     }
 

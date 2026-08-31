@@ -62,7 +62,7 @@ namespace logger {
         el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
     }
 
-    // Application logging should be done with VLOG(loglevel)
+    // Application logging uses the semantic application logger.
     // Framework logging should use one of the following levels
     void Logger::setLogLevel(int level) {
         conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling

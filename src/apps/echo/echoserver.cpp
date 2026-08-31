@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -50,11 +51,11 @@ int main(int argc, char* argv[]) {
 
     server.listen([](const SocketServer::SocketAddress& socketAddress, int errnum) -> void {
         if (errnum < 0) {
-            PLOG(ERROR) << "OnError";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError";
         } else if (errnum > 0) {
-            PLOG(ERROR) << "OnError: " << socketAddress.toString();
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnError: " << socketAddress.toString();
         } else {
-            VLOG(0) << "snode.c listening on " << socketAddress.toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socketAddress.toString();
         }
     });
 
@@ -88,9 +89,9 @@ int main(int argc, char* argv[]) {
      server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
 #endif
         if (errnum != 0) {
-            PLOG(FATAL) << "listen";
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errno) << "listen";
         } else {
-            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
+            snode::semantic::appLog().trace() << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

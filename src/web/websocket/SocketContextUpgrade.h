@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -129,7 +130,7 @@ namespace web::websocket {
 
         void sendClose(const char* message, std::size_t messageLength) override {
             if (!closeSent) {
-                LOG(INFO) << "Sending close to peer";
+                snode::semantic::appLog().info() << "Sending close to peer";
 
                 sendMessage(8, message, messageLength);
                 shutdownWrite();
@@ -188,9 +189,9 @@ namespace web::websocket {
                 case SubProtocolContext::OpCode::CLOSE:
                     if (closeSent) { // active close
                         closeSent = false;
-                        LOG(INFO) << "Close confirmed from peer";
+                        snode::semantic::appLog().info() << "Close confirmed from peer";
                     } else { // passive close
-                        LOG(INFO) << "Close request received - replying with close";
+                        snode::semantic::appLog().info() << "Close request received - replying with close";
                         sendClose(pongCloseData.data(), pongCloseData.length());
                         pongCloseData.clear();
                     }
@@ -219,13 +220,13 @@ namespace web::websocket {
 
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onConnected() override {
-            VLOG(0) << "Websocket connected";
+            snode::semantic::appLog().trace() << "Websocket connected";
             subProtocol->onConnected();
         }
 
         void onDisconnected() override {
             subProtocol->onDisconnected();
-            VLOG(0) << "Websocket disconnected";
+            snode::semantic::appLog().trace() << "Websocket disconnected";
         }
 
         void onExit() override {

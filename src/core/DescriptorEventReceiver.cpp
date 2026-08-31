@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -54,7 +55,7 @@ namespace core {
             enabled = true;
             descriptorEventPublisher.enable(this);
         } else {
-            LOG(WARNING) << "Double enable: " << getName() << ": fd = " << observedFd;
+            snode::semantic::appLog().warn() << "Double enable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -73,7 +74,7 @@ namespace core {
             enabled = false;
             descriptorEventPublisher.disable(this);
         } else {
-            LOG(WARNING) << "Double disable: " << getName() << ": fd = " << observedFd;
+            snode::semantic::appLog().warn() << "Double disable: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -94,10 +95,10 @@ namespace core {
                     descriptorEventPublisher.suspend(this);
                 }
             } else {
-                LOG(WARNING) << "Double suspend: " << getName() << ": fd = " << observedFd;
+                snode::semantic::appLog().warn() << "Double suspend: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
+            snode::semantic::appLog().error() << "Suspend while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 
@@ -111,10 +112,10 @@ namespace core {
                     descriptorEventPublisher.resume(this);
                 }
             } else {
-                LOG(WARNING) << "Double resume: " << getName() << ": fd = " << observedFd;
+                snode::semantic::appLog().warn() << "Double resume: " << getName() << ": fd = " << observedFd;
             }
         } else {
-            LOG(ERROR) << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
+            snode::semantic::appLog().error() << "Resume while not enabled: " << getName() << ": fd = " << observedFd;
         }
     }
 

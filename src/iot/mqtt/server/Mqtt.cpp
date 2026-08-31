@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -121,8 +122,8 @@ namespace iot::mqtt::server {
 
     void Mqtt::initSession(const utils::Timeval& keepAlive) {
         if (broker->hasActiveSession(clientId)) {
-            LOG(TRACE) << "Existing session found for ClientId = `" << clientId << "'";
-            LOG(TRACE) << "  closing";
+            snode::semantic::appLog().trace() << "Existing session found for ClientId = `" << clientId << "'";
+            snode::semantic::appLog().trace() << "  closing";
 
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, 0);
 
@@ -132,21 +133,21 @@ namespace iot::mqtt::server {
         } else if (broker->hasRetainedSession(clientId)) {
             sendConnack(MQTT_CONNACK_ACCEPT, cleanSession ? MQTT_SESSION_NEW : MQTT_SESSION_PRESENT);
 
-            LOG(TRACE) << "Retained session found for ClientId = '" << clientId << "'";
+            snode::semantic::appLog().trace() << "Retained session found for ClientId = '" << clientId << "'";
             if (cleanSession) {
-                LOG(TRACE) << "  clean Session = " << this;
+                snode::semantic::appLog().trace() << "  clean Session = " << this;
                 broker->unsubscribe(clientId);
                 initSession(broker->newSession(clientId, this), keepAlive);
             } else {
-                LOG(TRACE) << "  renew Session = " << this;
+                snode::semantic::appLog().trace() << "  renew Session = " << this;
                 initSession(broker->renewSession(clientId, this), keepAlive);
                 broker->restartSession(clientId);
             }
         } else {
             sendConnack(MQTT_CONNACK_ACCEPT, MQTT_SESSION_NEW);
 
-            LOG(TRACE) << "No session found for ClientId = '" << clientId << "\'";
-            LOG(TRACE) << "  new Session = " << this;
+            snode::semantic::appLog().trace() << "No session found for ClientId = '" << clientId << "\'";
+            snode::semantic::appLog().trace() << "  new Session = " << this;
 
             initSession(broker->newSession(clientId, this), keepAlive);
         }
@@ -155,10 +156,10 @@ namespace iot::mqtt::server {
     void Mqtt::releaseSession() {
         if (broker->isActiveSession(clientId, this)) {
             if (cleanSession) {
-                LOG(DEBUG) << "Delete session: " << clientId;
+                snode::semantic::appLog().debug() << "Delete session: " << clientId;
                 broker->deleteSession(clientId);
             } else {
-                LOG(DEBUG) << "Retain session: " << clientId;
+                snode::semantic::appLog().debug() << "Retain session: " << clientId;
                 broker->retainSession(clientId);
             }
         }
@@ -180,40 +181,40 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onConnect(const iot::mqtt::server::packets::Connect& connect) {
-        LOG(DEBUG) << "Received CONNECT: " << clientId;
-        LOG(DEBUG) << "=================";
+        snode::semantic::appLog().debug() << "Received CONNECT: " << clientId;
+        snode::semantic::appLog().debug() << "=================";
         printStandardHeader(connect);
-        LOG(DEBUG) << "Protocol: " << connect.getProtocol();
-        LOG(DEBUG) << "Version: " << static_cast<uint16_t>(connect.getLevel());
-        LOG(DEBUG) << "ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
+        snode::semantic::appLog().debug() << "Protocol: " << connect.getProtocol();
+        snode::semantic::appLog().debug() << "Version: " << static_cast<uint16_t>(connect.getLevel());
+        snode::semantic::appLog().debug() << "ConnectFlags: 0x" << std::hex << std::setfill('0') << std::setw(2)
                    << static_cast<uint16_t>(connect.getConnectFlags()) << std::dec << std::setw(0);
-        LOG(DEBUG) << "KeepAlive: " << connect.getKeepAlive();
-        LOG(DEBUG) << "ClientID: " << connect.getClientId();
-        LOG(DEBUG) << "CleanSession: " << connect.getCleanSession();
+        snode::semantic::appLog().debug() << "KeepAlive: " << connect.getKeepAlive();
+        snode::semantic::appLog().debug() << "ClientID: " << connect.getClientId();
+        snode::semantic::appLog().debug() << "CleanSession: " << connect.getCleanSession();
 
         if (connect.getWillFlag()) {
-            LOG(DEBUG) << "WillTopic: " << connect.getWillTopic();
-            LOG(DEBUG) << "WillMessage: " << connect.getWillMessage();
-            LOG(DEBUG) << "WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
-            LOG(DEBUG) << "WillRetain: " << connect.getWillRetain();
+            snode::semantic::appLog().debug() << "WillTopic: " << connect.getWillTopic();
+            snode::semantic::appLog().debug() << "WillMessage: " << connect.getWillMessage();
+            snode::semantic::appLog().debug() << "WillQoS: " << static_cast<uint16_t>(connect.getWillQoS());
+            snode::semantic::appLog().debug() << "WillRetain: " << connect.getWillRetain();
         }
         if (connect.getUsernameFlag()) {
-            LOG(DEBUG) << "Username: " << connect.getUsername();
+            snode::semantic::appLog().debug() << "Username: " << connect.getUsername();
         }
         if (connect.getPasswordFlag()) {
-            LOG(DEBUG) << "Password: " << connect.getPassword();
+            snode::semantic::appLog().debug() << "Password: " << connect.getPassword();
         }
 
         if (connect.getProtocol() != "MQTT") {
-            LOG(TRACE) << "Wrong Protocol: " << connect.getProtocol();
+            snode::semantic::appLog().trace() << "Wrong Protocol: " << connect.getProtocol();
             mqttContext->end(true);
         } else if (connect.getLevel() != MQTT_VERSION_3_1_1) {
-            LOG(TRACE) << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
+            snode::semantic::appLog().trace() << "Wrong Protocol Level: " << MQTT_VERSION_3_1_1 << " != " << connect.getLevel();
             sendConnack(MQTT_CONNACK_UNACEPTABLEVERSION, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
         } else if (connect.isFakedClientId() && !connect.getCleanSession()) {
-            LOG(TRACE) << "Resume session but no ClientId present";
+            snode::semantic::appLog().trace() << "Resume session but no ClientId present";
             sendConnack(MQTT_CONNACK_IDENTIFIERREJECTED, MQTT_SESSION_NEW);
 
             mqttContext->end(true);
@@ -246,8 +247,8 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onPublish(const iot::mqtt::server::packets::Publish& publish) {
-        LOG(DEBUG) << "Received PUBLISH: " << clientId;
-        LOG(DEBUG) << "=================";
+        snode::semantic::appLog().debug() << "Received PUBLISH: " << clientId;
+        snode::semantic::appLog().debug() << "=================";
 
         if (Super::_onPublish(publish)) {
             broker->publish(publish.getTopic(), publish.getMessage(), publish.getQoS(), publish.getRetain());
@@ -257,17 +258,17 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onSubscribe(const iot::mqtt::server::packets::Subscribe& subscribe) {
-        LOG(DEBUG) << "Received SUBSCRIBE: " << clientId;
-        LOG(DEBUG) << "===================";
+        snode::semantic::appLog().debug() << "Received SUBSCRIBE: " << clientId;
+        snode::semantic::appLog().debug() << "===================";
         printStandardHeader(subscribe);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << subscribe.getPacketIdentifier();
 
         for (const iot::mqtt::Topic& topic : subscribe.getTopics()) {
-            LOG(DEBUG) << "  Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
+            snode::semantic::appLog().debug() << "  Topic filter: '" << topic.getName() << "', QoS: " << static_cast<uint16_t>(topic.getQoS());
         }
 
         if (subscribe.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             std::list<uint8_t> returnCodes;
@@ -283,17 +284,17 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onUnsubscribe(const iot::mqtt::server::packets::Unsubscribe& unsubscribe) {
-        LOG(DEBUG) << "Received UNSUBSCRIBE: " << clientId;
-        LOG(DEBUG) << "=====================";
+        snode::semantic::appLog().debug() << "Received UNSUBSCRIBE: " << clientId;
+        snode::semantic::appLog().debug() << "=====================";
         printStandardHeader(unsubscribe);
-        LOG(DEBUG) << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsubscribe.getPacketIdentifier();
+        snode::semantic::appLog().debug() << "PacketIdentifier: 0x" << std::hex << std::setfill('0') << std::setw(4) << unsubscribe.getPacketIdentifier();
 
         for (const std::string& topic : unsubscribe.getTopics()) {
-            LOG(DEBUG) << "  Topic: " << topic;
+            snode::semantic::appLog().debug() << "  Topic: " << topic;
         }
 
         if (unsubscribe.getPacketIdentifier() == 0) {
-            LOG(TRACE) << "PackageIdentifier missing";
+            snode::semantic::appLog().trace() << "PackageIdentifier missing";
             mqttContext->end(true);
         } else {
             for (const std::string& topic : unsubscribe.getTopics()) {
@@ -307,8 +308,8 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onPingreq(const iot::mqtt::server::packets::Pingreq& pingreq) {
-        LOG(DEBUG) << "Received PINGREQ: " << clientId;
-        LOG(DEBUG) << "=================";
+        snode::semantic::appLog().debug() << "Received PINGREQ: " << clientId;
+        snode::semantic::appLog().debug() << "=================";
         printStandardHeader(pingreq);
 
         sendPingresp();
@@ -317,8 +318,8 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::_onDisconnect(const iot::mqtt::server::packets::Disconnect& disconnect) {
-        LOG(DEBUG) << "Received DISCONNECT: " << clientId;
-        LOG(DEBUG) << "====================";
+        snode::semantic::appLog().debug() << "Received DISCONNECT: " << clientId;
+        snode::semantic::appLog().debug() << "====================";
         printStandardHeader(disconnect);
 
         willFlag = false;
@@ -331,29 +332,29 @@ namespace iot::mqtt::server {
     }
 
     void Mqtt::sendConnack(uint8_t returnCode, uint8_t flags) const { // Server
-        LOG(DEBUG) << "Send CONNACK";
-        LOG(DEBUG) << "============";
+        snode::semantic::appLog().debug() << "Send CONNACK";
+        snode::semantic::appLog().debug() << "============";
 
         send(iot::mqtt::packets::Connack(returnCode, flags));
     }
 
     void Mqtt::sendSuback(uint16_t packetIdentifier, std::list<uint8_t>& returnCodes) const { // Server
-        LOG(DEBUG) << "Send SUBACK";
-        LOG(DEBUG) << "===========";
+        snode::semantic::appLog().debug() << "Send SUBACK";
+        snode::semantic::appLog().debug() << "===========";
 
         send(iot::mqtt::packets::Suback(packetIdentifier, returnCodes));
     }
 
     void Mqtt::sendUnsuback(uint16_t packetIdentifier) const { // Server
-        LOG(DEBUG) << "Send UNSUBACK";
-        LOG(DEBUG) << "=============";
+        snode::semantic::appLog().debug() << "Send UNSUBACK";
+        snode::semantic::appLog().debug() << "=============";
 
         send(iot::mqtt::packets::Unsuback(packetIdentifier));
     }
 
     void Mqtt::sendPingresp() const { // Server
-        LOG(DEBUG) << "Send Pingresp";
-        LOG(DEBUG) << "=============";
+        snode::semantic::appLog().debug() << "Send Pingresp";
+        snode::semantic::appLog().debug() << "=============";
 
         send(iot::mqtt::packets::Pingresp());
     }

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021, 2022, 2023 Volker Christian <me@vchrist.at>
@@ -32,18 +33,18 @@ namespace core::socket {
 
     void SocketContext::onWriteError(int errnum) {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnWriteError: " << errnum;
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnWriteError: " << errnum;
         }
     }
 
     void SocketContext::onReadError(int errnum) {
         if (errnum != 0) {
-            PLOG(ERROR) << "OnReadError: " << errnum;
+            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errno) << "OnReadError: " << errnum;
         }
     }
 
     void SocketContext::onExit() {
-        LOG(INFO) << "Protocol exit";
+        snode::semantic::appLog().info() << "Protocol exit";
     }
 
 } // namespace core::socket
