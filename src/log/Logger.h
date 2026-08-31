@@ -124,6 +124,17 @@ namespace logger {
 
         std::ostringstream& stream();
 
+        template <typename Value>
+        LogMessage& operator<<(const Value& value) {
+            message << value;
+            return *this;
+        }
+
+        LogMessage& operator<<(std::ostream& (*manipulator)(std::ostream&)) {
+            message << manipulator;
+            return *this;
+        }
+
     private:
         Level level;
         int verboseLevel;
@@ -134,37 +145,5 @@ namespace logger {
     };
 
 } // namespace logger
-
-#ifdef SNODEC_DISABLE_LOGLEVEL_LOGGING
-#define LOG(level)                                                                                                                         \
-    if (true) {                                                                                                                            \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::level).stream()
-#define PLOG(level)                                                                                                                        \
-    if (true) {                                                                                                                            \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::level, -1, true).stream()
-#else
-#define LOG(level)                                                                                                                         \
-    if (!::logger::Logger::shouldLog(::logger::Level::level)) {                                                                            \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::level).stream()
-#define PLOG(level)                                                                                                                        \
-    if (!::logger::Logger::shouldLog(::logger::Level::level)) {                                                                            \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::level, -1, true).stream()
-#endif
-
-#ifdef SNODEC_DISABLE_VERBOSE_LOGGING
-#define VLOG(level)                                                                                                                        \
-    if (true) {                                                                                                                            \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
-#else
-#define VLOG(level)                                                                                                                        \
-    if (!::logger::Logger::shouldVerbose(level)) {                                                                                         \
-    } else                                                                                                                                 \
-        ::logger::LogMessage(::logger::Level::VERBOSE, level).stream()
-#endif
 
 #endif // LOGGER_LOGGER_H

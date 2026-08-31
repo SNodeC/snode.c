@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -75,19 +76,19 @@ namespace core::socket::stream::tls {
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // on Connected
-                  LOG(TRACE) << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
+                  snode::semantic::appLog().trace() << socketConnection->getConnectionName() << " SSL/TLS: Start handshake";
                   if (!socketConnection->doSSLHandshake(
                           [socketContextFactory,
                            onConnected,
                            socketConnection]() { // onSuccess
-                              LOG(DEBUG) << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
+                              snode::semantic::appLog().debug() << socketConnection->getConnectionName() << " SSL/TLS: Handshake success";
 
                               onConnected(socketConnection);
 
                               socketConnection->setSocketContext(socketContextFactory);
                           },
                           [socketConnection]() { // onTimeout
-                              LOG(ERROR) << socketConnection->getConnectionName() << "SSL/TLS: Handshake timed out";
+                              snode::semantic::appLog().error() << socketConnection->getConnectionName() << "SSL/TLS: Handshake timed out";
 
                               socketConnection->close();
                           },
@@ -96,7 +97,7 @@ namespace core::socket::stream::tls {
 
                               socketConnection->close();
                           })) {
-                      LOG(ERROR) << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
+                      snode::semantic::appLog().error() << socketConnection->getConnectionName() + " SSL/TLS: Handshake failed";
 
                       socketConnection->close();
                   }
@@ -133,17 +134,17 @@ namespace core::socket::stream::tls {
     template <typename PhysicalSocketServer, typename Config>
     void SocketAcceptor<PhysicalSocketServer, Config>::init() {
         if (core::eventLoopState() == core::State::RUNNING && !config->getDisabled()) {
-            LOG(TRACE) << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
+            snode::semantic::appLog().trace() << config->getInstanceName() << " SSL/TLS: SSL_CTX creating ...";
             SSL_CTX* sslCtx = config->getSslCtx();
 
             if (sslCtx != nullptr) {
-                LOG(DEBUG) << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
+                snode::semantic::appLog().debug() << config->getInstanceName() << " SSL/TLS: SSL_CTX created";
 
                 SSL_CTX_set_client_hello_cb(sslCtx, clientHelloCallback, nullptr);
 
                 Super::init();
             } else {
-                LOG(ERROR) << config->getInstanceName() << " SSL/TLS: SSL/TLS creation failed";
+                snode::semantic::appLog().error() << config->getInstanceName() << " SSL/TLS: SSL/TLS creation failed";
 
                 Super::onStatus(Super::config->Local::getSocketAddress(), core::socket::STATE_ERROR);
                 Super::destruct();
@@ -166,19 +167,19 @@ namespace core::socket::stream::tls {
             SSL_CTX* sniSslCtx = config->getSniCtx(serverNameIndication);
 
             if (sniSslCtx != nullptr) {
-                LOG(DEBUG) << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
+                snode::semantic::appLog().debug() << connectionName << " SSL/TLS: Setting sni certificate for '" << serverNameIndication << "'";
                 core::socket::stream::tls::ssl_set_ssl_ctx(ssl, sniSslCtx);
             } else if (config->getForceSni()) {
-                LOG(ERROR) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                snode::semantic::appLog().error() << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
                            << "' but forceSni set - terminating";
                 ret = SSL_CLIENT_HELLO_ERROR;
                 *al = SSL_AD_UNRECOGNIZED_NAME;
             } else {
-                LOG(WARNING) << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
+                snode::semantic::appLog().warn() << connectionName << " SSL/TLS: No sni certificate found for '" << serverNameIndication
                              << "'. Still using master certificate";
             }
         } else {
-            LOG(DEBUG) << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
+            snode::semantic::appLog().debug() << connectionName << " SSL/TLS: No sni certificate requested from client. Still using master certificate";
         }
 
         return ret;

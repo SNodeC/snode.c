@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -68,7 +69,7 @@ namespace core::multiplexer::select {
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::WR]),
                                  new core::multiplexer::select::DescriptorEventPublisher("EXCEPT", //
                                                                                          fdSets[core::EventMultiplexer::DISP_TYPE::EX])) {
-        LOG(DEBUG) << "Core::multiplexer: select";
+        snode::semantic::appLog().debug() << "Core::multiplexer: select";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

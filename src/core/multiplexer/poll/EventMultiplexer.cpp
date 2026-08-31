@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -163,7 +164,7 @@ namespace core::multiplexer::poll {
                                                                                        pollFdsManager,
                                                                                        POLLPRI,
                                                                                        POLLPRI)) {
-        LOG(DEBUG) << "Core::multiplexer: poll";
+        snode::semantic::appLog().debug() << "Core::multiplexer: poll";
     }
 
     int EventMultiplexer::monitorDescriptors(utils::Timeval& tickTimeOut, const sigset_t& sigMask) {

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -85,27 +86,27 @@ int main(int argc, char* argv[]) {
         webApp.getConfig()->addSniCerts(sniCerts);
 #endif
 
-        VLOG(1) << "Routes:";
+        snode::semantic::appLog().trace() << "Routes:";
         for (std::string& route : webApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
 
-            VLOG(1) << "  " << route;
+            snode::semantic::appLog().trace() << "  " << route;
         }
 
         webApp.listen([instanceName = webApp.getConfig()->getInstanceName()](const core::socket::SocketAddress& socketAddress,
                                                                              const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().trace() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().trace() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    VLOG(1) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().trace() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -138,7 +139,7 @@ state) { // titan #elif (NET_TYPE == RC) // rf
     // webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
 // titan webApp.listen("10:3D:1C:AC:BA:9C", 1, 5, [](const WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
 // titan #elif (NET_TYPE == UN) // un webApp.listen("/tmp/testme", 5, [](const WebApp::SocketAddress& socketAddress, const
-core::socket::State& state) { // titan #endif if (errnum != 0) { PLOG(FATAL) << "listen"; } else { VLOG(1) << "snode.c listening on
+core::socket::State& state) { // titan #endif if (errnum != 0) { snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errno) << "listen"; } else { snode::semantic::appLog().trace() << "snode.c listening on
 " << socketAddress.toString();
         }
 

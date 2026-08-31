@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -80,7 +81,7 @@ namespace web::websocket::client {
 
 #if !defined(NDEBUG)
         if (const char* websocketSubprotocolInstallLibdirEnv = std::getenv("WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR")) {
-            LOG(WARNING) << "WebSocket: Overriding websocket subprotocol library dir";
+            snode::semantic::appLog().warn() << "WebSocket: Overriding websocket subprotocol library dir";
             websocketSubprotocolInstallLibdir = std::string(websocketSubprotocolInstallLibdirEnv);
         }
 #endif
