@@ -1,0 +1,40 @@
+name: Materialize clean sensitive configuration commit
+
+on:
+  push:
+    branches:
+      - implementation/1.8-sensitive-config
+    paths:
+      - .github/workflows/materialize-sensitive-clean.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: implementation/1.8-sensitive-config-clean
+          fetch-depth: 0
+      - name: Copy validated implementation files
+        run: |
+          git fetch origin implementation/1.8-sensitive-config
+          for path in \
+            src/utils/SubCommand.h \
+            src/utils/SubCommand.cpp \
+            src/utils/Config.cpp \
+            tests/unit/utils/CMakeLists.txt \
+            tests/unit/utils/SensitiveConfigOptionTest.cpp; do
+            mkdir -p "$(dirname "$path")"
+            git show origin/implementation/1.8-sensitive-config:"$path" > "$path"
+          done
+          git diff --check
+      - name: Commit clean implementation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/utils/SubCommand.h src/utils/SubCommand.cpp src/utils/Config.cpp tests/unit/utils/CMakeLists.txt tests/unit/utils/SensitiveConfigOptionTest.cpp
+          git commit -m 'Add sensitive configuration option support'
+          git push origin HEAD:implementation/1.8-sensitive-config-clean
