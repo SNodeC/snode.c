@@ -74,25 +74,33 @@ set_target_properties(
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
-install(
-    TARGETS mqtt-server
-    EXPORT snodec_mqtt-server_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
-            COMPONENT mqtt-server
-)
+snodec_add_component(
+    TARGET mqtt-server
+    LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+    PUBLIC_COMPONENT
 
-install(
-    FILES Mqtt.h SharedSocketContextFactory.h SocketContextFactory.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
-    COMPONENT mqtt-server
-)
+    HEADERS
+        FILES
+            Mqtt.h
+            SharedSocketContextFactory.h
+            SocketContextFactory.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
 
-install(
-    EXPORT snodec_mqtt-server_Targets
-    FILE snodec_mqtt-server_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mqtt-server
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packets/
+        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/server/packets
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
+
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/broker/
+        DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/server/broker
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )
 
 set(MQTT_SERVER_WEBSOCKET_CPP SubProtocol.cpp)
@@ -124,23 +132,12 @@ set_target_properties(
                INSTALL_RPATH "${MQTT_RPATH};${HTTP_INSTALL_RPATH}/upgrade"
 )
 
-install(
-    TARGETS mqtt-server-websocket
-    EXPORT snodec_mqtt-server-websocket_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
-            COMPONENT mqtt-server-websocket
-)
+snodec_add_component(
+    TARGET mqtt-server-websocket
+    LIBRARY_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${MQTT_INSTALL_DIR}
+    PUBLIC_COMPONENT
 
-install(
-    FILES SubProtocol.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
-    COMPONENT mqtt-server-websocket
-)
-
-install(
-    EXPORT snodec_mqtt-server-websocket_Targets
-    FILE snodec_mqtt-server-websocket_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT mqtt-server-websocket
+    HEADERS
+        FILES SubProtocol.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${MQTT_INSTALL_DIR}/server
 )

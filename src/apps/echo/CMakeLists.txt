@@ -108,8 +108,9 @@ foreach(NET IN LISTS NETS)
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS echoclient-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+        snodec_install_runtime_targets(
+            COMPONENT apps
+            TARGETS echoclient-${STREAM}-${NET}
         )
 
         add_executable(
@@ -124,8 +125,9 @@ foreach(NET IN LISTS NETS)
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS echoserver-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+        snodec_install_runtime_targets(
+            COMPONENT apps
+            TARGETS echoserver-${STREAM}-${NET}
         )
     endforeach()
 endforeach()

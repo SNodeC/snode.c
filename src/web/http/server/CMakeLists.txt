@@ -95,43 +95,28 @@ set_target_properties(
                HTTP_UPGRADE_INSTALL_LIBDIR "${HTTP_UPGRADE_INSTALL_LIBDIR}"
 )
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/server
-    COMPONENT http-server
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "pu" EXCLUDE
-)
+snodec_add_component(
+    TARGET http-server
+    LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
-    COMPONENT http-server
-    FILES_MATCHING
-    PATTERN "Server.h"
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/server
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            pu
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
-    DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
-    COMPONENT http-server
-    FILES_MATCHING
-    PATTERN "Server.h"
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../legacy/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/legacy
+        PATTERNS Server.h
 
-install(
-    TARGETS http-server
-    EXPORT snodec_http-server_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server
-)
-
-install(
-    EXPORT snodec_http-server_Targets
-    FILE snodec_http-server_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-server
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tls/
+        DESTINATION ${HTTP_INSTALL_INCLUDEDIR}/tls
+        PATTERNS Server.h
 )

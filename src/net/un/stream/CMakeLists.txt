@@ -64,30 +64,19 @@ set_target_properties(
                OUTPUT_NAME snodec-net-un-stream
 )
 
-install(
-    TARGETS net-un-stream
-    EXPORT snodec_net-un-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-un-stream
-)
+snodec_add_component(
+    TARGET net-un-stream
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/stream
-    COMPONENT net-un-stream
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-un-stream_Targets
-    FILE snodec_net-un-stream_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-un-stream
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/un/stream
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            legacy
+            tls
 )
 
 add_subdirectory(legacy)

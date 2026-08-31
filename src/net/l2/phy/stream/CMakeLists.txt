@@ -66,28 +66,17 @@ set_target_properties(
                OUTPUT_NAME snodec-net-l2-phy-stream
 )
 
-install(
-    TARGETS net-l2-phy-stream
-    EXPORT snodec_net-l2-phy-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream
-)
+snodec_add_component(
+    TARGET net-l2-phy-stream
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/phy/stream
-    COMPONENT net-l2-phy-stream
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "legacy" EXCLUDE
-    PATTERN "tls" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-l2-phy-stream_Targets
-    FILE snodec_net-l2-phy-stream_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-l2-phy-stream
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/l2/phy/stream
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            legacy
+            tls
 )

@@ -138,28 +138,18 @@ set_target_properties(
                INSTALL_RPATH "${HTTP_INSTALL_RPATH}"
 )
 
-install(
-    TARGETS http-server-express
-    EXPORT snodec_http-server-express_Targets
-    LIBRARY DESTINATION ${HTTP_INSTALL_LIBDIR} COMPONENT http-server-express
-)
+snodec_add_component(
+    TARGET http-server-express
+    LIBRARY_DESTINATION ${HTTP_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
-    COMPONENT http-server-express
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_http-server-express_Targets
-    FILE snodec_http-server-express_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT http-server-express
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )
 
 add_subdirectory(legacy)

@@ -62,6 +62,7 @@ if(SNODEC_INTREE_BUILD)
 
 endif(SNODEC_INTREE_BUILD)
 
-install(TARGETS resource_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS resource_server
 )

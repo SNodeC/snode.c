@@ -82,13 +82,3 @@ set_property(TARGET mqtt-packets PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
     mqtt-packets PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
-
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${MQTT_INSTALL_INCLUDEDIR}/packets
-    COMPONENT mqtt
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)

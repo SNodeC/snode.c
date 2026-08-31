@@ -88,27 +88,16 @@ target_compile_options(
 
 target_link_libraries(websocket-server PUBLIC websocket http-server)
 
-install(
-    TARGETS websocket-server
-    EXPORT snodec_websocket-server_Targets
-    LIBRARY DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
-            COMPONENT websocket-server
-)
+snodec_add_component(
+    TARGET websocket-server
+    LIBRARY_DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
+    PUBLIC_COMPONENT
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/server
-    COMPONENT websocket-server
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_websocket-server_Targets
-    FILE snodec_websocket-server_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT websocket-server
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}/server
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

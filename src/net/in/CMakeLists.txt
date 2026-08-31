@@ -69,31 +69,20 @@ set_target_properties(
                OUTPUT_NAME snodec-net-in
 )
 
-install(
-    TARGETS net-in
-    EXPORT snodec_net-in_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in
-)
+snodec_add_component(
+    TARGET net-in
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in
-    COMPONENT net-in
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "stream" EXCLUDE
-    PATTERN "dgram" EXCLUDE
-    PATTERN "phy" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-in_Targets
-    FILE snodec_net-in_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-in
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            stream
+            dgram
+            phy
 )
 
 add_subdirectory(phy)

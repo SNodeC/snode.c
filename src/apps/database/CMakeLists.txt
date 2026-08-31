@@ -27,8 +27,9 @@ if(LIBMARIADB_FOUND)
                "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
-    install(TARGETS testmariadb RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT apps
+    snodec_install_runtime_targets(
+        COMPONENT apps
+        TARGETS testmariadb
     )
 
 endif(LIBMARIADB_FOUND)

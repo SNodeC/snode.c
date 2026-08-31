@@ -71,26 +71,15 @@ set_target_properties(
                OUTPUT_NAME snodec-net-in6-stream-legacy
 )
 
-install(
-    TARGETS net-in6-stream-legacy
-    EXPORT snodec_net-in6-stream-legacy_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-stream-legacy
-)
+snodec_add_component(
+    TARGET net-in6-stream-legacy
+    PUBLIC_COMPONENT
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6/stream/legacy
-    COMPONENT net-in6-stream-legacy
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
-install(
-    EXPORT snodec_net-in6-stream-legacy_Targets
-    FILE snodec_net-in6-stream-legacy_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-in6-stream-legacy
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6/stream/legacy
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS cmake
 )

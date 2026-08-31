@@ -111,8 +111,9 @@ foreach(NET IN LISTS NETS)
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS httpserver-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+        snodec_install_runtime_targets(
+            COMPONENT apps
+            TARGETS httpserver-${STREAM}-${NET}
         )
 
         add_executable(
@@ -132,8 +133,9 @@ foreach(NET IN LISTS NETS)
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS httpclient-${STREAM}-${NET}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+        snodec_install_runtime_targets(
+            COMPONENT apps
+            TARGETS httpclient-${STREAM}-${NET}
         )
     endforeach()
 endforeach()
@@ -147,8 +149,9 @@ target_link_libraries(
     httplowlevelclient PUBLIC net-in-stream-legacy net-in-stream-tls
                               http-client
 )
-install(TARGETS httplowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                           COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS httplowlevelclient
 )
 
 add_executable(verysimpleserver verysimpleserver.cpp ConfigWWW.cpp)
@@ -160,8 +163,9 @@ set_target_properties(
     verysimpleserver PROPERTIES INSTALL_RPATH
                                 "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                         COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS verysimpleserver
 )
 
 add_executable(vhostserver vhostserver.cpp ConfigWWW.cpp)
@@ -173,8 +177,9 @@ set_target_properties(
     vhostserver PROPERTIES INSTALL_RPATH
                            "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS vhostserver
 )
 
 add_executable(
@@ -188,8 +193,9 @@ set_target_properties(
     testbasicauthentication
     PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS testbasicauthentication
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS testbasicauthentication
 )
 
 add_executable(testexpressnext testexpressnext.cpp)
@@ -201,6 +207,7 @@ set_target_properties(
     testexpressnext PROPERTIES INSTALL_RPATH
                                "${CMAKE_INSTALL_RPATH};${HTTP_INSTALL_RPATH}"
 )
-install(TARGETS testexpressnext RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT apps
+snodec_install_runtime_targets(
+    COMPONENT apps
+    TARGETS testexpressnext
 )

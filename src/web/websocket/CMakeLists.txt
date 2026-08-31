@@ -92,31 +92,25 @@ set_target_properties(
                ${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}
 )
 
-install(
-    TARGETS websocket
-    EXPORT snodec_websocket_Targets
-    LIBRARY DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR} COMPONENT websocket
-)
+snodec_add_component(
+    TARGET websocket
+    LIBRARY_DESTINATION ${HTTP_UPGRADE_INSTALL_LIBDIR}
 
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}
-    COMPONENT websocket
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-    PATTERN "client" EXCLUDE
-    PATTERN "server" EXCLUDE
-    PATTERN "subprotocol" EXCLUDE
-)
+    HEADERS
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+        DESTINATION ${WEBSOCKET_INSTALL_INCLUDEDIR}
+        PATTERNS
+            "*.h"
+            "*.hpp"
+        EXCLUDE_PATTERNS
+            cmake
+            client
+            server
+            subprotocol
 
-install(
-    EXPORT snodec_websocket_Targets
-    FILE snodec_websocket_Targets.cmake
-    NAMESPACE snodec::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT websocket
+    DEVELOPMENT_FILES
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/snodec_websocket_Targets_Config.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 add_subdirectory(server)
@@ -125,10 +119,4 @@ add_subdirectory(client)
 configure_file(
     cmake/snodec_websocket_Targets_Config.cmake.in
     snodec_websocket_Targets_Config.cmake @ONLY
-)
-
-install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/snodec_websocket_Targets_Config.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT websocket
 )
