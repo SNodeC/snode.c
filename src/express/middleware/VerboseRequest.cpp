@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -57,7 +58,7 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use("/", [details] MIDDLEWARE(req, res, next) {
-            LOG(DEBUG) << res->getSocketContext()->getSocketConnection()->getConnectionName()
+            snode::semantic::appLog().debug() << res->getSocketContext()->getSocketConnection()->getConnectionName()
                        << " Express VerboseMiddleware: " << req->method << " " << req->url << " " << req->httpVersion << "\n"
                        << httputils::toString(
                               req->method,

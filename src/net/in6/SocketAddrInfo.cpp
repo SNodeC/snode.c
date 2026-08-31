@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -126,7 +127,7 @@ namespace net::in6 {
                       << "                  sin_addr:     " << hostBfr << "\n"
                       << "                  sin_port:     " << servBfr;
 
-            LOG(TRACE) << formatted.str();
+            snode::semantic::appLog().trace() << formatted.str();
         }
     }
 

@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -105,10 +106,10 @@ namespace web::http::tls::in6 {
             if (scheme == "https") {
                 eventSource = EventSource(scheme, net::in6::SocketAddress(host, port), path + query);
             } else {
-                LOG(ERROR) << "Scheme not valid: " << scheme;
+                snode::semantic::appLog().error() << "Scheme not valid: " << scheme;
             }
         } else {
-            LOG(ERROR) << "EventSource url not accepted: " << url;
+            snode::semantic::appLog().error() << "EventSource url not accepted: " << url;
         }
 
         return eventSource;

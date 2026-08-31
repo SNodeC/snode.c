@@ -1,3 +1,4 @@
+#include <SemanticLog.h>
 /*
  * SNode.C - A Slim Toolkit for Network Communication
  * Copyright (C) Volker Christian <me@vchrist.at>
@@ -116,7 +117,7 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                LOG(TRACE) << getName() << ": Shutdown restart";
+                snode::semantic::appLog().trace() << getName() << ": Shutdown restart";
                 doWriteShutdown(onShutdown);
             } else if (source != nullptr) {
                 source->resume();
@@ -142,10 +143,10 @@ namespace core::socket::stream {
                     source->suspend();
                 }
             } else {
-                LOG(WARNING) << getName() << ": Send while not enabled";
+                snode::semantic::appLog().warn() << getName() << ": Send while not enabled";
             }
         } else {
-            LOG(WARNING) << getName() << ": Send while shutdown in progress: ignoring";
+            snode::semantic::appLog().warn() << getName() << ": Send while shutdown in progress: ignoring";
         }
     }
 
@@ -157,15 +158,15 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    LOG(TRACE) << getName() << ": Stream started";
+                    snode::semantic::appLog().trace() << getName() << ": Stream started";
                 } else {
-                    LOG(WARNING) << getName() << ": Stream source is nullptr";
+                    snode::semantic::appLog().warn() << getName() << ": Stream source is nullptr";
                 }
             } else {
-                LOG(WARNING) << getName() << ": Stream while not enabled";
+                snode::semantic::appLog().warn() << getName() << ": Stream while not enabled";
             }
         } else {
-            LOG(WARNING) << getName() << ": Stream while shutdown in progress";
+            snode::semantic::appLog().warn() << getName() << ": Stream while shutdown in progress";
         }
 
         this->source = source;
@@ -174,7 +175,7 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::streamEof() {
-        LOG(TRACE) << getName() << ": Stream EOF";
+        snode::semantic::appLog().trace() << getName() << ": Stream EOF";
         this->source = nullptr;
     }
 
@@ -184,11 +185,11 @@ namespace core::socket::stream {
 
             SocketWriter::onShutdown = onShutdown;
             if (writePuffer.empty()) {
-                LOG(TRACE) << getName() << ": Shutdown start";
+                snode::semantic::appLog().trace() << getName() << ": Shutdown start";
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
-                LOG(TRACE) << getName() << ": Shutdown delayed due to queued data";
+                snode::semantic::appLog().trace() << getName() << ": Shutdown delayed due to queued data";
             }
         }
     }
