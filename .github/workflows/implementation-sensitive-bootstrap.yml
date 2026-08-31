@@ -22,29 +22,6 @@ jobs:
       - name: Apply sensitive-option support
         run: python3 .github/implementation_sensitive.py
 
-      - name: Normalize config key spelling and instrument synthetic test
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('src/utils/SubCommand.cpp')
-          text = p.read_text()
-          old = '                        names.insert(option->get_single_name());'
-          new = '''                        std::string name = option->get_single_name();
-                        name.erase(0, name.find_first_not_of('-'));
-                        names.insert(name);'''
-          if text.count(old) != 1:
-              raise SystemExit('expected sensitive name insertion not found exactly once')
-          p.write_text(text.replace(old, new, 1))
-
-          t = Path('tests/unit/utils/SensitiveConfigOptionTest.cpp')
-          text = t.read_text()
-          old = '    const std::string serialized = root.configToStr();\n'
-          new = old + '    std::cerr << "SERIALIZED=[" << serialized << "]" << std::endl;\n'
-          if text.count(old) != 1:
-              raise SystemExit('test instrumentation point missing')
-          t.write_text(text.replace(old, new, 1))
-          PY
-
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -58,3 +35,15 @@ jobs:
 
       - name: Run sensitive-option test
         run: ctest --test-dir build --output-on-failure -R '^SensitiveConfigOptionTest$'
+
+      - name: Validate patch
+        run: git diff --check
+
+      - name: Commit implementation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/implementation-sensitive-bootstrap.yml .github/implementation_sensitive.py
+          git add src/utils/SubCommand.h src/utils/SubCommand.cpp src/utils/Config.cpp tests/unit/utils/CMakeLists.txt tests/unit/utils/SensitiveConfigOptionTest.cpp
+          git commit -m 'Add sensitive configuration option support'
+          git push origin HEAD:implementation/1.8-sensitive-config
