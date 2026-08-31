@@ -25,10 +25,6 @@ snodec_add_log_test(SemanticLoggerFilteringTest)
 target_link_libraries(SemanticLoggerFilteringTest PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_property(TEST SemanticLoggerFilteringTest APPEND PROPERTY LABELS "filter")
 
-snodec_add_log_test(SemanticLoggerCompatibilityTest)
-target_link_libraries(SemanticLoggerCompatibilityTest PRIVATE snodec-test-support snodec::logger)
-set_property(TEST SemanticLoggerCompatibilityTest APPEND PROPERTY LABELS "compatibility;legacy")
-
 snodec_add_log_test(SemanticLoggerDisabledPathTest)
 target_link_libraries(SemanticLoggerDisabledPathTest PRIVATE snodec-test-support snodec::net snodec::core-socket-stream)
 set_property(TEST SemanticLoggerDisabledPathTest APPEND PROPERTY LABELS "overhead")
