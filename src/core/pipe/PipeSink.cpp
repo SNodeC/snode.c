@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "log/SemanticLogger.h"
 
 #include <algorithm>
 #include <array>
@@ -59,8 +60,8 @@
 
 namespace core::pipe {
 
-    PipeSink::PipeSink(int fd, std::size_t maxBytesPerEvent, const utils::Timeval& timeout)
-        : core::eventreceiver::ReadEventReceiver("PipeSink fd = " + std::to_string(fd), timeout)
+    PipeSink::PipeSink(int fd, logger::LogScope logScope, std::size_t maxBytesPerEvent, const utils::Timeval& timeout)
+        : core::eventreceiver::ReadEventReceiver("PipeSink", logScope, timeout)
         , maxBytesPerEvent(std::max<std::size_t>(maxBytesPerEvent, 1)) {
         if (!ReadEventReceiver::enable(fd)) {
             throw std::system_error(errno != 0 ? errno : EIO, std::generic_category(), "unable to register PipeSink descriptor");

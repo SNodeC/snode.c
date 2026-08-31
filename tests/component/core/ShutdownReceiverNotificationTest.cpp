@@ -23,7 +23,14 @@ namespace {
     class ShutdownReceiver final : public core::eventreceiver::ReadEventReceiver {
     public:
         ShutdownReceiver(int readFd, int writeFd, int& callbackCount, core::ShutdownContext& receivedContext)
-            : core::eventreceiver::ReadEventReceiver("shutdown notification test", TIMEOUT::DISABLE)
+            : core::eventreceiver::ReadEventReceiver("shutdown notification test",
+                                                     logger::LogScope{logger::LogOrigin::Framework,
+                                                                      logger::LogBoundary::System,
+                                                                      "core.eventreceiver",
+                                                                      "shutdown notification test read",
+                                                                      logger::LogRole::Unknown,
+                                                                      {}},
+                                                     TIMEOUT::DISABLE)
             , writeFd(writeFd)
             , callbackCount(callbackCount)
             , receivedContext(receivedContext) {

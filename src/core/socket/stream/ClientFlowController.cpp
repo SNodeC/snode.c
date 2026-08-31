@@ -23,6 +23,20 @@ namespace core::socket::stream {
         }) {
     }
 
+    bool ClientFlowController::restartFlow() {
+        if (!Super::restartFlow()) {
+            return false;
+        }
+
+        // The previous terminateFlow() call has already cancelled the timer
+        // and stopped every observed connect receiver. A new explicit connect
+        // therefore starts with the normal reconnect policy enabled again.
+        reconnectEnabled = true;
+        cancelReconnectTimer();
+
+        return true;
+    }
+
     void ClientFlowController::stopReconnect() {
         reconnectEnabled = false;
         cancelReconnectTimer();

@@ -81,6 +81,15 @@ namespace net::config {
         std::size_t getWriteBlockSize() const;
         ConfigConnection* setWriteBlockSize(std::size_t newWriteBlockSize);
 
+        std::size_t getMaximumWriteQueueBytes() const;
+        ConfigConnection* setMaximumWriteQueueBytes(std::size_t maximumWriteQueueBytes);
+
+        std::size_t getWriteQueueHighWatermark() const;
+        ConfigConnection* setWriteQueueHighWatermark(std::size_t writeQueueHighWatermark);
+
+        std::size_t getWriteQueueLowWatermark() const;
+        ConfigConnection* setWriteQueueLowWatermark(std::size_t writeQueueLowWatermark);
+
         utils::Timeval getTerminateTimeout() const;
         ConfigConnection* setTerminateTimeout(const utils::Timeval& newTerminateTimeout);
 
@@ -89,6 +98,9 @@ namespace net::config {
         CLI::Option* writeTimeoutOpt = nullptr;
         CLI::Option* readBlockSizeOpt = nullptr;
         CLI::Option* writeBlockSizeOpt = nullptr;
+        CLI::Option* maximumWriteQueueBytesOpt = nullptr;
+        CLI::Option* writeQueueHighWatermarkOpt = nullptr;
+        CLI::Option* writeQueueLowWatermarkOpt = nullptr;
         CLI::Option* terminateTimeoutOpt = nullptr;
     };
 

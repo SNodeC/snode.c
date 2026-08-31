@@ -50,7 +50,6 @@
 
 #include "web/http/http_utils.h"
 
-#include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -60,11 +59,14 @@ namespace web::http {
     // HTTP/1.0 and HTTP/1.1
     const std::regex Parser::httpVersionRegex("^HTTP/([1])[.]([0-1])$");
 
-    Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
+    Parser::Parser(core::socket::stream::SocketContext* socketContext,
+                   const enum Parser::HTTPCompliance& compliance,
+                   const ParserLimits& limits)
         : hTTPCompliance(compliance)
         , socketContext(socketContext)
-        , headerDecoder(socketContext)
-        , trailerDecoder(socketContext) {
+        , limits(limits)
+        , headerDecoder(socketContext, {}, limits)
+        , trailerDecoder(socketContext, {}, limits) {
     }
 
     Parser::~Parser() {
@@ -73,11 +75,13 @@ namespace web::http {
 
     void Parser::reset() {
         parserState = ParserState::BEGIN;
+        transferEncoding = TransferEncoding::HTTP10;
         headers.clear();
         content.clear();
         httpMinor = 0;
         httpMajor = 0;
         line.clear();
+        startLineBytes = 0;
         contentLength = 0;
         contentLengthRead = 0;
 
@@ -130,7 +134,10 @@ namespace web::http {
 
             if (ret > 0) {
                 consumed += ret;
-                if (ch == '\r' || ch == '\n') {
+                ++startLineBytes;
+                if (limits.maximumStartLineBytes != 0 && startLineBytes > limits.maximumStartLineBytes) {
+                    parseError(431, "HTTP start line too long");
+                } else if (ch == '\r' || ch == '\n') {
                     if (ch == '\n') {
                         parseStartLine(line);
                         line.clear();
@@ -159,11 +166,16 @@ namespace web::http {
 
     void Parser::useChunkedBodyDecoder() {
         transferEncoding = TransferEncoding::Chunked;
-        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext));
+        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext, limits.maximumBodyBytes));
         configureTrailerDecoder();
     }
 
     void Parser::useIdentityBodyDecoder(std::size_t length) {
+        if (limits.maximumBodyBytes != 0 && length > limits.maximumBodyBytes) {
+            parseError(413, "HTTP message body too large");
+            return;
+        }
+
         contentLength = length;
         transferEncoding = TransferEncoding::Identity;
         decoderQueue.emplace_back(new web::http::decoder::Identity(socketContext, contentLength));
@@ -186,28 +198,27 @@ namespace web::http {
     }
 
     void Parser::analyzeHeader() {
+        const bool chunked = headers.contains("Transfer-Encoding") && httputils::headerHasToken(headers["Transfer-Encoding"], "chunked");
         std::size_t length = 0;
         switch (httputils::parseContentLength(headers, length)) {
             case httputils::ContentLengthParseResult::Absent:
                 break;
             case httputils::ContentLengthParseResult::Valid:
-                useIdentityBodyDecoder(length);
+                if (!chunked) {
+                    useIdentityBodyDecoder(length);
+                }
                 break;
             case httputils::ContentLengthParseResult::Invalid:
                 parseError(400, "Invalid Content-Length");
                 return;
         }
 
-        if (headers.contains("Transfer-Encoding") && httputils::headerHasToken(headers["Transfer-Encoding"], "chunked")) {
-            for (const ContentDecoder* contentDecoder : decoderQueue) {
-                delete contentDecoder;
-            }
-            decoderQueue.clear();
+        if (chunked) {
             useChunkedBodyDecoder();
         }
 
-        if (decoderQueue.empty() && allowsCloseDelimitedBody()) {
-            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext));
+        if (parserState != ParserState::ERROR && decoderQueue.empty() && allowsCloseDelimitedBody()) {
+            decoderQueue.emplace_back(new web::http::decoder::HTTP10Response(socketContext, limits.maximumBodyBytes));
         }
     }
 
@@ -228,7 +239,11 @@ namespace web::http {
                 parsingFinished();
             }
         } else if (contentDecoder->isError()) {
-            parseError(501, "Wrong content encoding");
+            if (contentDecoder->isSizeLimitExceeded()) {
+                parseError(413, "HTTP message body too large");
+            } else {
+                parseError(501, "Wrong content encoding");
+            }
         }
 
         return consumed;

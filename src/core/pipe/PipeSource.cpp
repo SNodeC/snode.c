@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/unistd.h"
+#include "log/SemanticLogger.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -62,8 +63,8 @@ namespace core::pipe {
         constexpr std::size_t MAX_BYTES_PER_EVENT = 256 * 1024;
     }
 
-    PipeSource::PipeSource(int fd, std::size_t maxQueuedBytes, const utils::Timeval& timeout)
-        : core::eventreceiver::WriteEventReceiver("PipeSource fd = " + std::to_string(fd), timeout)
+    PipeSource::PipeSource(int fd, logger::LogScope logScope, std::size_t maxQueuedBytes, const utils::Timeval& timeout)
+        : core::eventreceiver::WriteEventReceiver("PipeSource", logScope, timeout)
         , maxQueuedBytes(maxQueuedBytes) {
         if (!WriteEventReceiver::enable(fd)) {
             throw std::system_error(errno != 0 ? errno : EIO, std::generic_category(), "unable to register PipeSource descriptor");

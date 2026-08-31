@@ -66,7 +66,8 @@ namespace web::http::client {
                                  const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpConnected,
                                  const std::function<void(const std::shared_ptr<MasterRequest>&)>& onHttpDisconnected,
                                  const std::string& hostHeader,
-                                 bool pipelinedRequests)
+                                 bool pipelinedRequests,
+                                 const web::http::ParserLimits& parserLimits)
         : Super(socketConnection)
         , onHttpConnected(onHttpConnected)
         , onHttpDisconnected(onHttpDisconnected)
@@ -82,7 +83,8 @@ namespace web::http::client {
               },
               [this](int status, const std::string& reason) {
                   deliverResponseParseError(status, reason);
-              }) {
+              },
+              parserLimits) {
         masterRequest->setMasterRequest(masterRequest);
     }
 

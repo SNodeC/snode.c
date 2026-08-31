@@ -57,7 +57,14 @@ namespace web::websocket {
 
     class Receiver {
     public:
+        struct Limits {
+            std::size_t maximumFrameBytes = 0;
+            std::size_t maximumMessageBytes = 0;
+            std::size_t maximumFragments = 0;
+        };
+
         Receiver(bool maskingExpected);
+        Receiver(bool maskingExpected, Limits limits);
 
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
@@ -82,6 +89,10 @@ namespace web::websocket {
         std::size_t readELength2();
         std::size_t readELength8();
 
+        bool validateResourceLimits();
+        void completeFrame();
+        void resetMessageAccounting();
+
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* chunk, uint64_t chunkLen) = 0;
         virtual void onMessageEnd() = 0;
@@ -92,14 +103,20 @@ namespace web::websocket {
         virtual std::size_t readFrameChunk(char* chunk, std::size_t chunkLen) const = 0;
 
         // Parser state
-        enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
+        enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR, TERMINAL } parserState = ParserState::BEGIN;
 
         bool fin = false;
         bool masked = false;
         bool fragmentedMessageActive = false;
         bool currentFrameIsControl = false;
+        bool messageStartPending = false;
 
         bool maskingExpected = false;
+
+        const Limits limits;
+
+        std::size_t currentMessageBytes = 0;
+        std::size_t currentMessageFragments = 0;
 
         uint8_t opCode = 0;
         uint8_t payloadLengthCode = 0;

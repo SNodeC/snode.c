@@ -60,6 +60,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+namespace logger {
+    class BoundaryLogger;
+}
+
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 using ssl_option_t = uint64_t;
 
@@ -99,6 +103,7 @@ namespace core::socket::stream::tls {
     void ssl_log_warning(const std::string& message);
     void ssl_log_info(const std::string& message);
     void ssl_log(const std::string& message, int sslErr);
+    void ssl_log(const logger::BoundaryLogger& log, const std::string& message, int sslErr);
 
     // From https://www.geeksforgeeks.org/wildcard-character-matching/
     //

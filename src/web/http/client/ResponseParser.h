@@ -45,6 +45,10 @@
 #include "web/http/Parser.h"
 #include "web/http/client/Response.h" // IWYU pragma: export
 
+namespace web::http {
+    struct ParserLimits;
+}
+
 namespace core::socket::stream {
     class SocketContext;
 } // namespace core::socket::stream
@@ -65,7 +69,8 @@ namespace web::http::client {
         ResponseParser(core::socket::stream::SocketContext* socketContext,
                        const std::function<void()>& onResponseStart,
                        const std::function<void(Response&)>& onResponseParsed,
-                       const std::function<void(int, const std::string&)>& onResponseParseError);
+                       const std::function<void(int, const std::string&)>& onResponseParseError,
+                       const web::http::ParserLimits& limits = {});
 
         ResponseParser(const ResponseParser&) = delete;
         ResponseParser& operator=(const ResponseParser&) = delete;

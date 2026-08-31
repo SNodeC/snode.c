@@ -40,6 +40,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(HTTPSERVER_CPP
+    ConfigHttpServer.cpp
     Request.cpp
     RequestParser.cpp
     Response.cpp
@@ -50,6 +51,7 @@ set(HTTPSERVER_CPP
 )
 
 set(HTTPSERVER_H
+    ConfigHttpServer.h
     Request.h
     RequestParser.h
     Response.h

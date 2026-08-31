@@ -291,7 +291,14 @@ namespace {
     class ReadSentinel final : public core::eventreceiver::ReadEventReceiver {
     public:
         ReadSentinel(int fd, const std::shared_ptr<LifecycleState>& state)
-            : ReadEventReceiver("TLS shutdown read traversal sentinel", utils::Timeval())
+            : ReadEventReceiver("TLS shutdown read traversal sentinel",
+                                logger::LogScope{logger::LogOrigin::Framework,
+                                                 logger::LogBoundary::System,
+                                                 "core.eventreceiver",
+                                                 "TLS shutdown read traversal sentinel read",
+                                                 logger::LogRole::Unknown,
+                                                 {}},
+                                utils::Timeval())
             , state(state) {
             ReadEventReceiver::enable(fd);
         }
@@ -321,7 +328,14 @@ namespace {
     class WriteSentinel final : public core::eventreceiver::WriteEventReceiver {
     public:
         WriteSentinel(int fd, const std::shared_ptr<LifecycleState>& state)
-            : WriteEventReceiver("TLS shutdown write traversal sentinel", utils::Timeval())
+            : WriteEventReceiver("TLS shutdown write traversal sentinel",
+                                 logger::LogScope{logger::LogOrigin::Framework,
+                                                  logger::LogBoundary::System,
+                                                  "core.eventreceiver",
+                                                  "TLS shutdown write traversal sentinel write",
+                                                  logger::LogRole::Unknown,
+                                                  {}},
+                                 utils::Timeval())
             , state(state) {
             WriteEventReceiver::enable(fd);
         }

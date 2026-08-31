@@ -47,6 +47,8 @@
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "database/mariadb/MariaDBCommandSequence.h" // IWYU pragma: export
+#include "log/LogScopeOwner.h"
+#include "log/SemanticLogger.h"
 
 namespace database::mariadb {
     class MariaDBCommand;
@@ -92,7 +94,8 @@ namespace database::mariadb {
     public:
         explicit MariaDBConnection(MariaDBClient* mariaDBClient,
                                    const MariaDBConnectionDetails& connectionDetails,
-                                   const std::function<void(const MariaDBState&)>& onStateChanged);
+                                   const std::function<void(const MariaDBState&)>& onStateChanged,
+                                   const std::string& instanceName = {});
         MariaDBConnection(const MariaDBConnection&) = delete;
 
         ~MariaDBConnection() override;
@@ -122,9 +125,16 @@ namespace database::mariadb {
         void unobservedEvent() override;
 
     private:
+        MariaDBConnection(MariaDBClient* mariaDBClient,
+                          const MariaDBConnectionDetails& connectionDetails,
+                          const std::function<void(const MariaDBState&)>& onStateChanged,
+                          logger::LogScopeOwner logScope);
+
+        static logger::LogScopeOwner makeLogScope(const std::string& instanceName, const std::string& connectionName);
+        logger::BoundaryLogger log() const;
+
         MariaDBClient* mariaDBClient = nullptr;
         MYSQL* mysql = nullptr;
-        const std::string connectionName;
 
         std::deque<MariaDBCommandSequence> commandSequenceQueue;
 

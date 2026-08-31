@@ -3,6 +3,7 @@
 #               2020, 2021, 2022, 2023, 2024, 2025, 2026
 
 snodec_add_test(HttpMessageParserTest HttpMessageParserTest.cpp)
+snodec_add_test(HttpPolicyConfigTest HttpPolicyConfigTest.cpp)
 snodec_add_test(HttpRequestFormatterRawWireTest HttpRequestFormatterRawWireTest.cpp)
 snodec_add_test(HttpResponseFormatterRawWireTest HttpResponseFormatterRawWireTest.cpp)
 snodec_add_test(HttpMessagePresentationTest HttpMessagePresentationTest.cpp)
@@ -10,6 +11,7 @@ snodec_add_test(HttpMessageHeaderCasingTest HttpMessageHeaderCasingTest.cpp)
 snodec_add_test(HttpMessageTargetQueryEdgeTest HttpMessageTargetQueryEdgeTest.cpp)
 
 target_link_libraries(HttpMessageParserTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
+target_link_libraries(HttpPolicyConfigTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
 target_link_libraries(HttpRequestFormatterRawWireTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
 target_link_libraries(HttpResponseFormatterRawWireTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
 target_link_libraries(HttpMessagePresentationTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
@@ -17,6 +19,7 @@ target_link_libraries(HttpMessageHeaderCasingTest PRIVATE snodec-test-support sn
 target_link_libraries(HttpMessageTargetQueryEdgeTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
 
 set_tests_properties(HttpMessageParserTest PROPERTIES LABELS "unit;http;message" TIMEOUT 5)
+set_tests_properties(HttpPolicyConfigTest PROPERTIES LABELS "unit;http;config;policy" TIMEOUT 5)
 set_tests_properties(HttpRequestFormatterRawWireTest PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5)
 set_tests_properties(HttpResponseFormatterRawWireTest PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5)
 set_tests_properties(HttpMessagePresentationTest PROPERTIES LABELS "unit;http;message;format;presentation" TIMEOUT 5)
@@ -51,8 +54,8 @@ target_include_directories(
 target_compile_features(HttpStreamingSourceFailureTest PRIVATE cxx_std_20)
 target_link_libraries(
     HttpStreamingSourceFailureTest
-    PRIVATE snodec-test-support snodec::http-server snodec::net
-            snodec::core-socket-stream snodec::logger
+    PRIVATE snodec-test-support snodec::http-server-express snodec::http-client
+            snodec::net snodec::core-socket-stream snodec::logger
 )
 set_tests_properties(
     HttpStreamingSourceFailureTest

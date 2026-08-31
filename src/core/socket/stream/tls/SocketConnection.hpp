@@ -263,6 +263,7 @@ namespace core::socket::stream::tls {
 
             TLSHandshake::doHandshakeWithRelease(
                 Super::getConnectionName(),
+                core::socket::stream::SocketConnection::logScope.scope(),
                 lifecycle->ssl,
                 [lifecycle, onSuccess]() { // onSuccess
                     auto* owner = lifecycle->owner;
@@ -499,6 +500,7 @@ namespace core::socket::stream::tls {
 
         TLSShutdown::doShutdownTypedWithRelease(
             Super::getConnectionName(),
+            core::socket::stream::SocketConnection::logScope.scope(),
             lifecycle->ssl,
             [lifecycle](TLSShutdown::TypedSuccess success) {
                 auto* owner = lifecycle->owner;
@@ -521,7 +523,7 @@ namespace core::socket::stream::tls {
                 if (owner == nullptr) {
                     return;
                 }
-                ssl_log(owner->Super::getConnectionName() + " SSL/TLS: Shutdown handshake failed", sslErr);
+                ssl_log(owner->Super::log(), "SSL/TLS: Shutdown handshake failed", sslErr);
                 owner->markTlsShutdownFailure(errno != 0 ? errno : EPROTO);
             },
             sslShutdownTimeout,

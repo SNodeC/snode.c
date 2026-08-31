@@ -44,6 +44,10 @@
 
 #include "core/eventreceiver/ReadEventReceiver.h"
 
+namespace logger {
+    struct LogScope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -66,7 +70,8 @@ namespace core::socket::stream {
         SocketReader() = delete;
 
     protected:
-        explicit SocketReader(const std::string& instanceName,
+        explicit SocketReader(const std::string& name,
+                              logger::LogScope logScope,
                               const std::function<void(int)>& onStatus,
                               const utils::Timeval& timeout,
                               std::size_t blockSize,

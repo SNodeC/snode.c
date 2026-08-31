@@ -51,6 +51,10 @@ namespace express {
     class Request;
 }
 
+namespace core::pipe {
+    class Source;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -112,6 +116,7 @@ namespace express {
         void upgrade(const std::shared_ptr<Request>& request, const std::function<void(const std::string)>& status);
         void end();
         void sendFile(const std::string& file, const std::function<void(int)>& callback);
+        bool pipe(core::pipe::Source* source);
 
         Response& sendHeader();
         Response& sendFragment(const char* chunk, std::size_t chunkLen);

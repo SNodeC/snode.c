@@ -39,12 +39,23 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-set(NET-UN_CPP SocketAddress.cpp config/ConfigAddress.cpp)
+set(NET-UN_CPP PeerCredentials.cpp SocketAddress.cpp config/ConfigAddress.cpp)
 
-set(NET-UN_H SocketAddress.h config/ConfigAddress.h)
+set(NET-UN_H PeerCredentials.h SocketAddress.h config/ConfigAddress.h)
 
 add_library(net-un SHARED ${NET-UN_CPP} ${NET-UN_H})
 add_library(snodec::net-un ALIAS net-un)
+
+include(CheckSymbolExists)
+check_symbol_exists(getpeereid "unistd.h" SNODEC_HAVE_GETPEEREID)
+
+if(SNODEC_HAVE_GETPEEREID)
+    target_compile_definitions(net-un PRIVATE SNODEC_HAVE_GETPEEREID=1)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set_source_files_properties(PeerCredentials.cpp PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
+endif()
 
 target_link_libraries(net-un PUBLIC net)
 

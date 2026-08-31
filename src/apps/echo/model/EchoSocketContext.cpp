@@ -41,11 +41,7 @@
 
 #include "EchoSocketContext.h"
 
-#include "SemanticLog.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "log/Logger.h"
 
 #include <string>
 
@@ -59,16 +55,23 @@ namespace apps::echo::model {
     }
 
     void EchoSocketContext::onConnected() {
-        log().debug("Echo: context attached");
+        const char* roleName = role == Role::CLIENT ? "client" : "server";
+        const auto contextLog = log();
+
+        contextLog.info("Echo {} context attached", roleName);
 
         if (role == Role::CLIENT) {
+            contextLog.info("Echo client: sending initial greeting: '{}'", "Hello peer! Nice to see you!!!");
             sendToPeer("Hello peer! Nice to see you!!!");
         }
     }
 
     void EchoSocketContext::onDisconnected() {
-        log().debug(
-            "Echo: context detached for {}",
+        const char* roleName = role == Role::CLIENT ? "client" : "server";
+
+        log().info(
+            "Echo {} context detached: {}",
+            roleName,
             getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
@@ -79,13 +82,12 @@ namespace apps::echo::model {
     std::size_t EchoSocketContext::onReceivedFromPeer() {
         char chunk[4096];
 
-        const std::size_t chunklen = readFromPeer(chunk, 4096);
+        const std::size_t chunklen = readFromPeer(chunk, sizeof(chunk));
 
         if (chunklen > 0) {
-            auto log = snode::semantic::appLog();
-            if (log.enabled(logger::LogLevel::Trace)) {
-                log.trace() << "Data to reflect: " << std::string(chunk, chunklen);
-            }
+            const char* roleName = role == Role::CLIENT ? "client" : "server";
+
+            log().info("Echo {}: data to reflect: {}", roleName, std::string(chunk, chunklen));
             sendToPeer(chunk, chunklen);
         }
 

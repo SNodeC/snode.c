@@ -41,28 +41,46 @@
 
 #include "core/socket/stream/SocketWriter.h"
 
-#include "SemanticLog.h"
 #include "core/pipe/Source.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/socket.h"
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 
+#include <algorithm>
 #include <cerrno>
+#include <limits>
+#include <stdexcept>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
-    SocketWriter::SocketWriter(const std::string& instanceName,
+    SocketWriter::SocketWriter(const std::string& name,
+                               logger::LogScope logScope,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
-                               const utils::Timeval& terminateTimeout)
-        : core::eventreceiver::WriteEventReceiver(instanceName, timeout)
+                               const utils::Timeval& terminateTimeout,
+                               std::size_t maximumWriteQueueBytes,
+                               std::size_t writeQueueHighWatermark,
+                               std::size_t writeQueueLowWatermark)
+        : core::eventreceiver::WriteEventReceiver(name, logScope, timeout)
         , onStatus(onStatus)
         , blockSize(blockSize)
+        , maximumWriteQueueBytes(maximumWriteQueueBytes)
+        , configuredWriteQueueHighWatermark(writeQueueHighWatermark)
+        , writeQueueLowWatermark(writeQueueLowWatermark)
         , terminateTimeout(terminateTimeout) {
+        updateEffectiveHighWatermark();
+
+        if (writeQueueLowWatermark > effectiveWriteQueueHighWatermark) {
+            throw std::invalid_argument("write queue low watermark exceeds high watermark");
+        }
+        if (maximumWriteQueueBytes != 0 && configuredWriteQueueHighWatermark != 0 &&
+            configuredWriteQueueHighWatermark > maximumWriteQueueBytes) {
+            throw std::invalid_argument("write queue high watermark exceeds maximum queue size");
+        }
     }
 
     std::size_t SocketWriter::getTotalSent() const {
@@ -103,6 +121,8 @@ namespace core::socket::stream {
                 if (!isSuspended()) {
                     suspend();
                 }
+
+                resumeSourceAtLowWatermark();
                 span();
             } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
                 resume();
@@ -115,38 +135,60 @@ namespace core::socket::stream {
             }
 
             if (markShutdown) {
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown restart";
+                log().trace("Write shutdown restarted");
                 doWriteShutdown(onShutdown);
-            } else if (source != nullptr) {
-                source->resume();
+            } else {
+                resumeSourceAtLowWatermark();
             }
         }
     }
 
     void SocketWriter::setBlockSize(std::size_t writeBlockSize) {
         blockSize = writeBlockSize;
+        updateEffectiveHighWatermark();
+    }
+
+    QueueResult SocketWriter::trySendToPeer(const char* chunk, std::size_t chunkLen) {
+        if (shutdownInProgress || markShutdown) {
+            return QueueResult::ShutdownInProgress;
+        }
+        if (!isEnabled()) {
+            return QueueResult::Closed;
+        }
+        if (maximumWriteQueueBytes != 0 && (chunkLen > maximumWriteQueueBytes || writePuffer.size() > maximumWriteQueueBytes - chunkLen)) {
+            return QueueResult::WouldExceedLimit;
+        }
+
+        const bool wasEmpty = writePuffer.empty();
+
+        if (chunkLen != 0) {
+            writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
+            totalQueued += chunkLen;
+        }
+
+        if (wasEmpty && chunkLen != 0 && !writeActivationBlocked) {
+            resume();
+        }
+
+        suspendSourceAtHighWatermark();
+
+        return QueueResult::Queued;
     }
 
     void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
-        if (!shutdownInProgress && !markShutdown) {
-            if (isEnabled()) {
-                const bool wasEmpty = writePuffer.empty();
-
-                writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
-                totalQueued += chunkLen;
-
-                if (wasEmpty && !writeActivationBlocked) {
-                    resume();
-                }
-
-                if (source != nullptr && writePuffer.size() > 5 * blockSize) {
-                    source->suspend();
-                }
-            } else {
-                snode::semantic::coreSocketLog().warn() << getName() << ": Send while not enabled";
-            }
-        } else {
-            snode::semantic::coreSocketLog().warn() << getName() << ": Send while shutdown in progress: ignoring";
+        switch (trySendToPeer(chunk, chunkLen)) {
+            case QueueResult::Queued:
+                break;
+            case QueueResult::WouldExceedLimit:
+                log().warn("Send would exceed maximum write queue: failing the connection for {} bytes", chunkLen);
+                onStatus(ENOBUFS);
+                break;
+            case QueueResult::Closed:
+                log().warn("Send while not enabled");
+                break;
+            case QueueResult::ShutdownInProgress:
+                log().warn("Send while shutdown in progress: ignoring");
+                break;
         }
     }
 
@@ -158,25 +200,55 @@ namespace core::socket::stream {
                 success = source != nullptr;
 
                 if (success) {
-                    snode::semantic::coreSocketLog().trace() << getName() << ": Stream started";
+                    log().trace("Stream started");
                 } else {
-                    snode::semantic::coreSocketLog().warn() << getName() << ": Stream source is nullptr";
+                    log().warn("Stream source is nullptr");
                 }
             } else {
-                snode::semantic::coreSocketLog().warn() << getName() << ": Stream while not enabled";
+                log().warn("Stream while not enabled");
             }
         } else {
-            snode::semantic::coreSocketLog().warn() << getName() << ": Stream while shutdown in progress";
+            log().warn("Stream while shutdown in progress");
         }
 
-        this->source = source;
+        this->source = success ? source : nullptr;
+        sourceSuspended = false;
+
+        if (success) {
+            suspendSourceAtHighWatermark();
+        }
 
         return success;
     }
 
     void SocketWriter::streamEof() {
-        snode::semantic::coreSocketLog().trace() << getName() << ": Stream EOF";
+        log().trace("Stream EOF");
         this->source = nullptr;
+        sourceSuspended = false;
+    }
+
+    void SocketWriter::suspendSourceAtHighWatermark() {
+        if (source != nullptr && !sourceSuspended && writePuffer.size() >= effectiveWriteQueueHighWatermark) {
+            source->suspend();
+            sourceSuspended = true;
+        }
+    }
+
+    void SocketWriter::resumeSourceAtLowWatermark() {
+        if (!shutdownInProgress && !markShutdown && source != nullptr && sourceSuspended && writePuffer.size() <= writeQueueLowWatermark) {
+            sourceSuspended = false;
+            source->resume();
+        }
+    }
+
+    void SocketWriter::updateEffectiveHighWatermark() {
+        const std::size_t legacyHigh =
+            blockSize > (std::numeric_limits<std::size_t>::max() - 1) / 5 ? std::numeric_limits<std::size_t>::max() : blockSize * 5 + 1;
+
+        effectiveWriteQueueHighWatermark = configuredWriteQueueHighWatermark != 0 ? configuredWriteQueueHighWatermark : legacyHigh;
+        if (maximumWriteQueueBytes != 0) {
+            effectiveWriteQueueHighWatermark = std::min(effectiveWriteQueueHighWatermark, maximumWriteQueueBytes);
+        }
     }
 
     void SocketWriter::blockWriteActivation() {
@@ -204,11 +276,11 @@ namespace core::socket::stream {
 
             SocketWriter::onShutdown = onShutdown;
             if (writePuffer.empty()) {
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown start";
+                log().trace("Write shutdown started");
                 doWriteShutdown(onShutdown);
             } else {
                 markShutdown = true;
-                snode::semantic::coreSocketLog().trace() << getName() << ": Shutdown delayed due to queued data";
+                log().trace("Write shutdown delayed due to queued data");
             }
         }
     }

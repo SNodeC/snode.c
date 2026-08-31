@@ -49,8 +49,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <fcntl.h>
 #include <functional>
 #include <string>
+#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -64,7 +66,33 @@ namespace core::file {
         FileReader(int fd, const std::string& name, std::size_t pufferSize, int openErrno);
 
     public:
+        /**
+         * Opens path relative to the current working directory. Flags which
+         * require an additional mode argument are rejected with EINVAL.
+         */
+        static FileReader* open(std::string_view path, int flags = O_RDONLY);
+
+        /**
+         * Compatibility overload which reports the open result before the
+         * returned reader assumes ownership. It returns nullptr on failure.
+         */
         static FileReader* open(const std::string& path, const std::function<void(int)>& callback);
+
+        /**
+         * Opens path with POSIX openat semantics: relative paths use
+         * directoryFd, absolute paths ignore it, and AT_FDCWD uses the current
+         * working directory. This API does not provide root confinement.
+         * Flags which require an additional mode argument are rejected with
+         * EINVAL. Returns nullptr on failure and leaves the error in errno.
+         */
+        static FileReader* open(int directoryFd, std::string_view path, int flags = O_RDONLY);
+
+        /**
+         * Transfers ownership of fd to a self-managed FileReader. Once called
+         * with a non-negative descriptor, the descriptor is closed exactly
+         * once even if reader construction throws.
+         */
+        static FileReader* adopt(int fd);
 
         bool isOpen() override;
 
@@ -74,11 +102,14 @@ namespace core::file {
         void stop() final;
 
     private:
+        static FileReader* create(int fd, const std::string& name);
+
         void onEvent(const utils::Timeval& currentTime) override;
 
         std::size_t pufferSize = 0;
 
         bool suspended = false;
+        bool stopping = false;
 
     protected:
         int openErrno = 0;

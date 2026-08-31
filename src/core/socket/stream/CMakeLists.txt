@@ -52,6 +52,7 @@ set(CORE_SOCKET_STREAM_CPP
 set(CORE_SOCKET_STREAM_H
     FlowController.h
     FlowController.hpp
+    QueueResult.h
     ClientFlowController.h
     ServerFlowController.h
     SocketAcceptor.h

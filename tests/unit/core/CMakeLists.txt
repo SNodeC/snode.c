@@ -202,6 +202,20 @@ set_tests_properties(
     SocketContextLifecycleTest PROPERTIES LABELS "unit;core;lifecycle"
 )
 
+snodec_add_test(SocketWriterResourcePolicyTest SocketWriterResourcePolicyTest.cpp)
+target_include_directories(SocketWriterResourcePolicyTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_features(SocketWriterResourcePolicyTest PRIVATE cxx_std_20)
+target_compile_definitions(SocketWriterResourcePolicyTest PRIVATE SNODEC_BUILD_TESTS)
+target_link_libraries(
+    SocketWriterResourcePolicyTest
+    PRIVATE snodec-test-support snodec::core-socket-stream snodec::core
+            snodec::net
+)
+set_tests_properties(
+    SocketWriterResourcePolicyTest
+    PROPERTIES LABELS "unit;core;stream;writer;resource-policy" TIMEOUT 5
+)
+
 snodec_add_test(ListenerLifecycleTest ListenerLifecycleTest.cpp)
 target_include_directories(ListenerLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(ListenerLifecycleTest PRIVATE cxx_std_20)

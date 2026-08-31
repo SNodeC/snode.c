@@ -120,6 +120,24 @@ namespace core::socket::stream {
         sendToPeer(data.data(), data.size());
     }
 
+    QueueResult SocketConnection::trySendToPeer(const char* chunk, std::size_t chunkLen) {
+        sendToPeer(chunk, chunkLen);
+
+        return QueueResult::Queued;
+    }
+
+    QueueResult SocketConnection::trySendToPeer(const std::string& data) {
+        return trySendToPeer(data.data(), data.size());
+    }
+
+    QueueResult SocketConnection::trySendToPeer(const std::vector<uint8_t>& data) {
+        return trySendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
+    }
+
+    QueueResult SocketConnection::trySendToPeer(const std::vector<char>& data) {
+        return trySendToPeer(data.data(), data.size());
+    }
+
     const std::string& SocketConnection::getInstanceName() const {
         return instanceName;
     }

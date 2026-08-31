@@ -58,8 +58,9 @@ namespace web::http::client {
     ResponseParser::ResponseParser(core::socket::stream::SocketContext* socketContext,
                                    const std::function<void()>& onResponseStart,
                                    const std::function<void(Response&)>& onResponseParsed,
-                                   const std::function<void(int, const std::string&)>& onResponseParseError)
-        : Parser(socketContext)
+                                   const std::function<void(int, const std::string&)>& onResponseParseError,
+                                   const web::http::ParserLimits& limits)
+        : Parser(socketContext, HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230, limits)
         , onResponseStart(onResponseStart)
         , onResponseParsed(onResponseParsed)
         , onResponseParseError(onResponseParseError) {

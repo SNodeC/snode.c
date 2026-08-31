@@ -124,6 +124,18 @@ append_source_file_config(
     config/ConfigConnection.cpp TERMINATE_TIMEOUT
     "Shutdown inactivity timeout in seconds" 1
 )
+append_source_file_config(
+    config/ConfigConnection.cpp MAXIMUM_WRITE_QUEUE_BYTES
+    "Maximum queued write bytes (0 means unlimited)" 0
+)
+append_source_file_config(
+    config/ConfigConnection.cpp WRITE_QUEUE_HIGH_WATERMARK
+    "Pipe source write-queue high watermark (0 means legacy automatic)" 0
+)
+append_source_file_config(
+    config/ConfigConnection.cpp WRITE_QUEUE_LOW_WATERMARK
+    "Pipe source write-queue low watermark" 0
+)
 
 append_source_file_config(
     config/ConfigPhysicalSocketServer.cpp ACCEPTS_PER_TICK "Accepts per tick" 1

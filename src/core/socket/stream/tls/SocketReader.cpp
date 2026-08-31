@@ -40,6 +40,7 @@
  */
 
 #include "core/socket/stream/tls/SocketReader.h"
+
 #include "core/socket/stream/tls/detail/TLSResult.h"
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
@@ -48,18 +49,19 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
+#include "log/SemanticLogger.h"
 #include "utils/PreserveErrno.h"
 
 #include <algorithm>
 #include <cerrno>
+#include <deque>
 #include <limits>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
+#include <variant>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
 
 #if defined(SNODEC_BUILD_TESTS)
 namespace core::socket::stream::tls::detail::test {
@@ -67,34 +69,19 @@ namespace core::socket::stream::tls::detail::test {
         static IoState state;
         return state;
     }
-}
+} // namespace core::socket::stream::tls::detail::test
 #endif
 
 namespace core::socket::stream::tls {
 
     SocketReader::SocketReader(const std::string& instanceName,
+                               logger::LogScope streamLogScope,
                                const std::function<void(int)>& onStatus,
                                const utils::Timeval& timeout,
                                std::size_t blockSize,
                                const utils::Timeval& terminateTimeout)
-        : Super(instanceName, onStatus, timeout, blockSize, terminateTimeout)
-        , logScope(logger::LogOrigin::Framework,
-                   logger::LogBoundary::Connection,
-                   "core.socket.stream.tls",
-                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                   std::nullopt,
-                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName)) {
+        : Super(instanceName, streamLogScope, onStatus, timeout, blockSize, terminateTimeout) {
     }
-
-    logger::BoundaryLogger SocketReader::log() const {
-        return logScope.logger(logger::Logger::semanticSink());
-    }
-
-    logger::BoundaryLogger
-    SocketReader::log(logger::BoundaryLogger::Sink sink, logger::LogLevel threshold, logger::BoundaryLogger::Clock clock) const {
-        return logScope.logger(std::move(sink), threshold, std::move(clock));
-    }
-
 
     ssize_t SocketReader::read(char* chunk, std::size_t chunkLen) {
         if (handoffCursor < handoffBuffer.size()) {
@@ -124,7 +111,8 @@ namespace core::socket::stream::tls {
                 ret = operation.returnValue;
                 errno = operation.systemError;
                 result = ret > 0 ? detail::TlsIoResult{detail::TlsIoSuccess{ret}}
-                                 : detail::TlsIoResult{detail::classifyOpenSslFailure(static_cast<int>(ret), operation.sslError, operation.systemError, operation.openSslError)};
+                                 : detail::TlsIoResult{detail::classifyOpenSslFailure(
+                                       static_cast<int>(ret), operation.sslError, operation.systemError, operation.openSslError)};
             } else
 #endif
             {
@@ -152,29 +140,29 @@ namespace core::socket::stream::tls {
                         ret = -1;
                         break;
                     case detail::TlsStatus::WantWrite:
-                        log().trace("{} SSL/TLS: Start renegotiation on read", getName());
+                        log().trace("SSL/TLS: Start renegotiation on read");
                         doSSLHandshake(
-                            [log = this->log(), name = getName()]() {
-                                log.debug("{} SSL/TLS: Renegotiation on read success", name);
+                            [log = this->log()]() {
+                                log.debug("SSL/TLS: Renegotiation on read success");
                             },
-                            [log = this->log(), name = getName()]() {
-                                log.warn("{} SSL/TLS: Renegotiation on read timed out", name);
+                            [log = this->log()]() {
+                                log.warn("SSL/TLS: Renegotiation on read timed out");
                             },
                             [this](int sslErr) {
-                                ssl_log(getName() + " SSL/TLS: Renegotiation on read", sslErr);
+                                ssl_log(log(), "SSL/TLS: Renegotiation on read", sslErr);
                             });
                         errno = EAGAIN;
                         ret = -1;
                         break;
                     case detail::TlsStatus::CleanPeerShutdown:
-                        log().debug("{} SSL/TLS: Clean peer close_notify on read", getName());
+                        log().debug("SSL/TLS: Clean peer close_notify on read");
                         onReadShutdown();
                         errno = EAGAIN;
                         ret = -1;
                         break;
                     case detail::TlsStatus::UncleanEofWithoutCloseNotify: {
                         const int errnum = EPROTO;
-                        log().error("{} SSL/TLS: Transport ended without TLS close_notify", getName());
+                        log().error("SSL/TLS: Transport ended without TLS close_notify");
                         errno = errnum;
                         onTlsFatalError(errnum);
                         errno = errnum;
@@ -184,7 +172,7 @@ namespace core::socket::stream::tls {
                     case detail::TlsStatus::SyscallError: {
                         const int errnum = detail::fatalTlsStatusToErrno(status);
                         const utils::PreserveErrno pe;
-                        log().sysError(logger::LogLevel::Warn, errnum, "{} SSL/TLS: Syscall error on read", getName());
+                        log().sysError(logger::LogLevel::Warn, errnum, "SSL/TLS: Syscall error on read");
                         errno = errnum;
                         onTlsFatalError(errnum);
                         errno = errnum;
@@ -193,7 +181,7 @@ namespace core::socket::stream::tls {
                     }
                     case detail::TlsStatus::SslProtocolError: {
                         const int errnum = EPROTO;
-                        ssl_log(getName() + " SSL/TLS: Read protocol failure", status.sslError);
+                        ssl_log(log(), "SSL/TLS: Read protocol failure", status.sslError);
                         errno = errnum;
                         onTlsFatalError(errnum);
                         errno = errnum;
@@ -202,7 +190,7 @@ namespace core::socket::stream::tls {
                     }
                     case detail::TlsStatus::UnknownError: {
                         const int errnum = detail::fatalTlsStatusToErrno(status);
-                        ssl_log(getName() + " SSL/TLS: Unknown read failure", status.sslError);
+                        ssl_log(log(), "SSL/TLS: Unknown read failure", status.sslError);
                         errno = errnum;
                         onTlsFatalError(errnum);
                         errno = errnum;

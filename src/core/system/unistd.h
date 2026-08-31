@@ -61,6 +61,7 @@ namespace core::system {
 
     // #include <sys/types.h>, #include <sys/stat.h>, #include <fcntl.h>
     int open(const char* pathname, int flags);
+    int openat(int directoryFd, const char* pathname, int flags);
 
     // #include <unistd.h>
     ssize_t read(int fd, void* buf, std::size_t count);

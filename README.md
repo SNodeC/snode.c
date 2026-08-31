@@ -133,7 +133,7 @@ Main focus (but not only) of the framework is on *Machine to Machine* (M2M) comm
    * [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: runner, at: Thu Jul  2 20:24:03 UTC 2026 -->
+<!-- Added by: runner, at: Wed Aug  5 17:45:48 UTC 2026 -->
 
 <!--te-->
 
@@ -1685,6 +1685,10 @@ Other configuration items can be configured in the very same way but for most op
 #### List of all Configuration Items
 
 All `SocketServer` and `SocketClient` instances share some common [configuration options](https://snodec.github.io/snode.c-doc/html/namespacenet_1_1config.html).
+
+HTTP parser/server limits, WebSocket receiver limits, connection write-queue policy, descriptor-based streaming, and Unix peer credentials are documented in [Framework resource policies and descriptor streaming](docs/resource-policy-and-streaming.md).
+
+SNode.C 2.0 starts a new C++ ABI epoch. Applications and plugins built against SNode.C 1.x must be rebuilt; see [Migrating to SNode.C 2.0](docs/migration-2.0.md).
 
 Network layer specific configuration options:
 

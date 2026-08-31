@@ -47,6 +47,10 @@ namespace core::pipe {
     class PipeSource;
 } // namespace core::pipe
 
+namespace logger {
+    class LogScopeOwner;
+}
+
 namespace utils {
     class Timeval;
 }
@@ -54,7 +58,9 @@ namespace utils {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -62,8 +68,8 @@ namespace core::pipe {
 
     class Pipe {
     public:
-        Pipe() noexcept;
-        explicit Pipe(int flags) noexcept;
+        explicit Pipe(const std::string& instanceName = {});
+        explicit Pipe(int flags, const std::string& instanceName = {});
 
         Pipe(const Pipe&) = delete;
         Pipe(Pipe&& pipe) noexcept;
@@ -73,7 +79,9 @@ namespace core::pipe {
         Pipe& operator=(const Pipe&) = delete;
         Pipe& operator=(Pipe&& pipe) noexcept;
 
-        Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess, const std::function<void(int)>& onError);
+        Pipe(const std::function<void(PipeSource&, PipeSink&)>& onSuccess,
+             const std::function<void(int)>& onError,
+             const std::string& instanceName = {});
 
         // True while this object still owns at least one endpoint.
         bool isValid() const noexcept;
@@ -101,6 +109,10 @@ namespace core::pipe {
         PipeSource* releaseWriteAsSource(std::size_t maxQueuedBytes, const utils::Timeval& timeout);
 
     private:
+        logger::LogScopeOwner makeLogScope() const;
+
+        std::string instanceName;
+        std::uint64_t connectionId = 0;
         int readFd = -1;
         int writeFd = -1;
         int error = 0;
