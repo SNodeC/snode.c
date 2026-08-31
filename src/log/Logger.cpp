@@ -46,7 +46,6 @@
 #include "log/SemanticLogger.h"
 #include "log/detail/SpdlogBackend.h"
 
-#include <cerrno>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -126,24 +125,6 @@ namespace logger {
     }
 
     bool Logger::disableColorLog = false;
-
-    LogMessage::LogMessage(const Level level, const int verboseLevel, const bool withErrno)
-        : level(level)
-        , verboseLevel(verboseLevel)
-        , withErrno(withErrno)
-        , enabled(true)
-        , errnoValue(errno) {
-    }
-
-    LogMessage::~LogMessage() {
-        if (enabled) {
-            backend.emitLegacy(level, message.str(), withErrno, errnoValue);
-        }
-    }
-
-    std::ostringstream& LogMessage::stream() {
-        return message;
-    }
 
 } // namespace logger
 
