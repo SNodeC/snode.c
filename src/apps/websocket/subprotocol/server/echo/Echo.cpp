@@ -41,11 +41,10 @@
 
 #include "Echo.h"
 
-#include "SemanticLog.h"
+#include "Log.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/system/signal.h"
 
 #include <cstring>
@@ -62,25 +61,25 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        snode::semantic::appLog().debug() << "Echo connected";
+        snode::log::application().debug() << "Echo connected";
     }
 
     void Echo::onMessageStart(int opCode) {
-        snode::semantic::appLog().debug() << "Message Start - OpCode: " << opCode;
+        snode::log::application().debug() << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* chunk, std::size_t chunkLen) {
         data += std::string(chunk, chunkLen);
 
-        auto log = snode::semantic::appLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        auto log = snode::log::application();
+        if (log.enabled(snode::log::Level::Trace)) {
             log.trace() << "Message Fragment: " << std::string(chunk, chunkLen);
         }
     }
 
     void Echo::onMessageEnd() {
-        auto log = snode::semantic::appLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        auto log = snode::log::application();
+        if (log.enabled(snode::log::Level::Trace)) {
             log.trace() << "Message Data: " << data;
         }
 
@@ -95,15 +94,15 @@ namespace apps::websocket::subprotocol::echo::server {
     }
 
     void Echo::onMessageError(uint16_t errnum) {
-        snode::semantic::appLog().debug() << "Message error: " << errnum;
+        snode::log::application().debug() << "Message error: " << errnum;
     }
 
     void Echo::onDisconnected() {
-        snode::semantic::appLog().debug() << "Echo disconnected:";
+        snode::log::application().debug() << "Echo disconnected:";
     }
 
     bool Echo::onSignal(int sig) {
-        snode::semantic::appLog().debug() << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG"
+        snode::log::application().debug() << "SubProtocol 'echo' exit due to '" << strsignal(sig) << "' (SIG"
                                           << utils::system::sigabbrev_np(sig) << " = " << sig << ")";
 
         sendClose();

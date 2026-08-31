@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/State.h"
 #include "core/socket/stream/SocketConnector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -110,7 +109,7 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " Connect: starting";
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " Connect: starting";
 
                 SocketAddress configuredLocalAddress = config->Local::getSocketAddress();
 
@@ -119,7 +118,7 @@ namespace core::socket::stream {
 
                     if (physicalClientSocket.open(config->getSocketOptions(), PhysicalClientSocket::Flags::NONBLOCK) < 0) {
                         const int errnum = errno;
-                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                             << config->getInstanceName() << " open " << configuredLocalAddress.toString();
 
                         switch (errnum) {
@@ -136,12 +135,12 @@ namespace core::socket::stream {
 
                         finishAttempt("connection attempt failed", configuredLocalAddress, state);
                     } else {
-                        snode::semantic::coreSocketLog().trace()
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).trace()
                             << config->getInstanceName() << " open " << configuredLocalAddress.toString() << ": success";
 
                         if (physicalClientSocket.bind(configuredLocalAddress) < 0) {
                             const int errnum = errno;
-                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                                 << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
 
                             switch (errnum) {
@@ -158,7 +157,7 @@ namespace core::socket::stream {
                             const std::string configuredLocalAddressString = configuredLocalAddress.toString();
                             const std::string effectiveBindAddressString = physicalClientSocket.getBindAddress().toString();
 
-                            snode::semantic::coreSocketLog().trace()
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection).trace()
                                 << config->getInstanceName() << " bind " << configuredLocalAddressString
                                 << (configuredLocalAddressString == effectiveBindAddressString
                                         ? ""
@@ -168,7 +167,7 @@ namespace core::socket::stream {
                             const int connectResult = physicalClientSocket.connect(remoteAddress);
                             const int errnum = errno;
                             if (connectResult < 0 && !PhysicalClientSocket::connectInProgress(errnum)) {
-                                snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                                     << config->getInstanceName() << " connect " << remoteAddress.toString();
                                 switch (errnum) {
                                     case EADDRINUSE:
@@ -188,7 +187,7 @@ namespace core::socket::stream {
                                 if (remoteAddress.useNext()) {
                                     finishAttempt("connection attempt failed", currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                                    snode::semantic::coreSocketLog().info()
+                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).info()
                                         << config->getInstanceName() << ": Using next SocketAddress: " << remoteAddress.toString();
 
                                     useNextSocketAddress();
@@ -196,15 +195,15 @@ namespace core::socket::stream {
                                     finishAttempt("connection attempt failed", currentRemoteAddress, state);
                                 }
                             } else {
-                                snode::semantic::coreSocketLog().trace()
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection).trace()
                                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
 
                                 if (PhysicalClientSocket::connectInProgress(errnum)) {
                                     if (enable(physicalClientSocket.getFd())) {
-                                        snode::semantic::coreSocketLog().debug()
+                                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                                             << config->getInstanceName() << " enable " << remoteAddress.toString(false) << ": success";
                                     } else {
-                                        snode::semantic::coreSocketLog().error()
+                                        snode::log::framework("core.socket", snode::log::Boundary::Connection).error()
                                             << config->getInstanceName() << " enable " << remoteAddress.toString()
                                             << ": failed. No valid descriptor created";
 
@@ -216,9 +215,9 @@ namespace core::socket::stream {
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                                    snode::semantic::coreSocketLog().debug()
+                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                                         << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                                    snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getLocalAddress().toString()
+                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << "  " << socketConnection->getLocalAddress().toString()
                                                                              << " -> " << socketConnection->getRemoteAddress().toString();
 
                                     finishAttempt("connection attempt succeeded", remoteAddress, state);
@@ -235,7 +234,7 @@ namespace core::socket::stream {
                     core::socket::State state =
                         core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                    snode::semantic::coreSocketLog().error() << state.what();
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).error() << state.what();
 
                     finishAttempt("connection attempt failed", {}, state);
                 }
@@ -243,12 +242,12 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                snode::semantic::coreSocketLog().error() << state.what();
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).error() << state.what();
 
                 finishAttempt("connection attempt failed", {}, state);
             }
         } else {
-            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << ": disabled";
+            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -274,9 +273,9 @@ namespace core::socket::stream {
             if (errnum == 0) {
                 SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                snode::semantic::coreSocketLog().debug()
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": success";
-                snode::semantic::coreSocketLog().debug()
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                     << "  " << socketConnection->getLocalAddress().toString() << " -> " << socketConnection->getRemoteAddress().toString();
 
                 finishAttempt("connection attempt succeeded", remoteAddress, core::socket::STATE_OK);
@@ -288,7 +287,7 @@ namespace core::socket::stream {
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errnum)) {
-                snode::semantic::coreSocketLog().debug()
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                     << config->getInstanceName() << " connect " << remoteAddress.toString() << ": in progress:";
             } else {
                 SocketAddress currentRemoteAddress = remoteAddress;
@@ -310,19 +309,19 @@ namespace core::socket::stream {
                 }
 
                 if (remoteAddress.useNext()) {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                         << config->getInstanceName() << " connect '" << remoteAddress.toString();
 
                     finishAttempt("connection attempt failed", currentRemoteAddress, state | core::socket::State::NO_RETRY);
 
-                    snode::semantic::coreSocketLog().debug()
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                         << config->getInstanceName() << " using next SocketAddress: " << config->Remote::getSocketAddress().toString();
 
                     useNextSocketAddress();
 
                     disable();
                 } else {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                         << config->getInstanceName() << " connect " << remoteAddress.toString();
 
                     finishAttempt("connection attempt failed", currentRemoteAddress, state);
@@ -332,7 +331,7 @@ namespace core::socket::stream {
             }
         } else {
             const int errnum = errno;
-            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Debug, errnum)
+            snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
                 << config->getInstanceName() << " getsockopt syscall error: '" << remoteAddress.toString() << "'";
 
             finishAttempt("connection attempt failed", remoteAddress, core::socket::STATE_FATAL);
@@ -351,17 +350,17 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        snode::semantic::coreSocketLog().trace() << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
+        snode::log::framework("core.socket", snode::log::Boundary::Connection).trace() << config->getInstanceName() << " connect timeout " << remoteAddress.toString();
 
         SocketAddress currentRemoteAddress = remoteAddress;
         if (remoteAddress.useNext()) {
             finishAttempt("connection attempt timed out");
-            snode::semantic::coreSocketLog().debug()
+            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                 << config->getInstanceName() << " using next SocketAddress: '" << config->Remote::getSocketAddress().toString() << "'";
 
             useNextSocketAddress();
         } else {
-            snode::semantic::coreSocketLog().debug()
+            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                 << config->getInstanceName() << " connect timeout '" << remoteAddress.toString() << "'";
             errno = ETIMEDOUT;
 

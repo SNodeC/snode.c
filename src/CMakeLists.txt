@@ -122,17 +122,6 @@ else()
     add_link_options(LINKER:--as-needed LINKER:--no-undefined)
 endif()
 
-option(SNODEC_DISABLE_LOGLEVEL_LOGGING "Disable LOG() and PLOG() logging")
-option(SNODEC_DISABLE_VERBOSE_LOGGING "Disable VLOG() logging")
-
-if(SNODEC_DISABLE_LOGLEVEL_LOGGING)
-    add_compile_definitions(SNODEC_DISABLE_LOGLEVEL_LOGGING)
-endif(SNODEC_DISABLE_LOGLEVEL_LOGGING)
-
-if(SNODEC_DISABLE_VERBOSE_LOGGING)
-    add_compile_definitions(SNODEC_DISABLE_VERBOSE_LOGGING)
-endif(SNODEC_DISABLE_VERBOSE_LOGGING)
-
 add_subdirectory(log)
 add_subdirectory(utils)
 add_subdirectory(core)
@@ -218,7 +207,8 @@ install(
 )
 
 install(
-    FILES "${CMAKE_CURRENT_SOURCE_DIR}/SemanticLog.h"
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/Log.h"
+          "${CMAKE_CURRENT_SOURCE_DIR}/SemanticLog.h"
     DESTINATION include/snode.c
     COMPONENT "logger"
 )

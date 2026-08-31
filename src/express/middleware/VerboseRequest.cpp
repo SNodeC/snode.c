@@ -41,14 +41,12 @@
 
 #include "express/middleware/VerboseRequest.h"
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "web/http/http_utils.h"
 
 #include <string>
@@ -59,8 +57,11 @@ namespace express::middleware {
 
     VerboseRequest::VerboseRequest(Details details) {
         use("/", [details] MIDDLEWARE(req, res, next) {
-            auto log = snode::semantic::expressLog(*res->getSocketContext()->getSocketConnection());
-            if (log.enabled(logger::LogLevel::Debug)) {
+            auto log = snode::log::forConnection(*res->getSocketContext()->getSocketConnection(),
+                                                 "express",
+                                                 snode::log::Origin::Framework,
+                                                 snode::log::Boundary::Application);
+            if (log.enabled(snode::log::Level::Debug)) {
                 const std::string prefix = "Express VerboseMiddleware: " + req->method + " " + req->url + " " + req->httpVersion + "\n";
                 const auto formatted = httputils::toStringPresentation(
                     req->method,
@@ -71,8 +72,8 @@ namespace express::middleware {
                     (details & Details::W_TRAILER) == Details::W_TRAILER ? req->trailer : web::http::CiStringMap<std::string>(),
                     (details & Details::W_COOKIES) == Details::W_COOKIES ? req->cookies : web::http::CiStringMap<std::string>(),
                     (details & Details::W_CONTENT) == Details::W_CONTENT ? req->body : std::vector<char>());
-                log.emit(logger::LogLevel::Debug,
-                         logger::PresentedMessage{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
+                log.emit(snode::log::Level::Debug,
+                         snode::log::Message{.plain = prefix + formatted.plain, .terminal = prefix + formatted.terminal});
             }
 
             next();

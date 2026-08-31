@@ -39,10 +39,9 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "log/Logger.h"
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
@@ -54,7 +53,7 @@ int main(int argc, char* argv[]) {
             res->sendFile("/home/rathalin/projects/snode.c/src/oauth2/client_app/vue-frontend-oauth2-client/dist/index.html",
                           [req](int ret) {
                               if (ret != 0) {
-                                  snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret) << req->url;
+                                  snode::log::application().systemError(snode::log::Level::Error, ret) << req->url;
                               }
                           });
         }
@@ -65,16 +64,16 @@ int main(int argc, char* argv[]) {
     app.listen(8081, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                snode::semantic::appLog().info() << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
+                snode::log::application().info() << "OAuth2Client: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                snode::semantic::appLog().info() << "OAuth2Client: disabled";
+                snode::log::application().info() << "OAuth2Client: disabled";
                 break;
             case core::socket::State::ERROR:
-                snode::semantic::appLog().warn() << "OAuth2Client: error occurred";
+                snode::log::application().warn() << "OAuth2Client: error occurred";
                 break;
             case core::socket::State::FATAL:
-                snode::semantic::appLog().error() << "OAuth2Client: fatal error occurred";
+                snode::log::application().error() << "OAuth2Client: fatal error occurred";
                 break;
         }
     });

@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
 
@@ -69,16 +68,16 @@ int main(int argc, char* argv[]) {
         [instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::log::application().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << instanceName << ": disabled";
+                    snode::log::application().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -89,13 +88,13 @@ int main(int argc, char* argv[]) {
         req->getAttribute<nlohmann::json>(
             [&jsonString](nlohmann::json& json) {
                 jsonString = json.dump(4);
-                auto log = snode::semantic::appLog();
-                if (log.enabled(logger::LogLevel::Debug)) {
+                auto log = snode::log::application();
+                if (log.enabled(snode::log::Level::Debug)) {
                     log.debug() << "Application received body: " << jsonString;
                 }
             },
             [](const std::string& key) {
-                snode::semantic::appLog().debug() << key << " attribute not found";
+                snode::log::application().debug() << key << " attribute not found";
             });
 
         res->send(jsonString);

@@ -42,8 +42,7 @@
 #ifndef APPS_ECHO_MODEL_CLIENT_H
 #define APPS_ECHO_MODEL_CLIENT_H
 
-#include "SemanticLog.h"
-#include "log/Logger.h"
+#include "Log.h"
 
 #define QUOTE_INCLUDE(a) STR(a)
 #define STR(a) #a
@@ -91,10 +90,10 @@ namespace apps::echo::model::tls {
         EchoSocketClient client("echoclient");
 
         client.setOnConnect([&client](SocketConnection* socketConnection) { // onConnect
-            snode::semantic::appLog().debug() << "OnConnect " << client.getConfig()->getInstanceName();
+            snode::log::application().debug() << "OnConnect " << client.getConfig()->getInstanceName();
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -107,26 +106,26 @@ namespace apps::echo::model::tls {
         });
 
         client.setOnConnected([&client](SocketConnection* socketConnection) { // onConnected
-            snode::semantic::appLog().debug() << "OnConnected " << client.getConfig()->getInstanceName();
+            snode::log::application().debug() << "OnConnected " << client.getConfig()->getInstanceName();
 
-            auto log = snode::semantic::appLog();
-            if (log.enabled(logger::LogLevel::Debug)) {
+            auto log = snode::log::application();
+            if (log.enabled(snode::log::Level::Debug)) {
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                    snode::log::application().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                                              std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Subject: " << str;
+                        snode::log::application().debug() << "\t   Subject: " << str;
                         OPENSSL_free(str);
                     }
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Issuer: " << str;
+                        snode::log::application().debug() << "\t   Issuer: " << str;
                         OPENSSL_free(str);
                     }
 
@@ -137,21 +136,21 @@ namespace apps::echo::model::tls {
 
                     const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                    snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
+                    snode::log::application().debug() << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                         if (generalName->type == GEN_URI) {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
+                            snode::log::application().debug() << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             const std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
+                            snode::log::application().debug() << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            snode::log::application().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
 
@@ -159,16 +158,16 @@ namespace apps::echo::model::tls {
 
                     X509_free(server_cert);
                 } else {
-                    snode::semantic::appLog().debug() << "\tPeer certificate: no certificate";
+                    snode::log::application().debug() << "\tPeer certificate: no certificate";
                 }
             }
         });
 
         client.setOnDisconnect([&client](SocketConnection* socketConnection) { // onDisconnect
-            snode::semantic::appLog().debug() << "OnDisconnect " << client.getConfig()->getInstanceName();
+            snode::log::application().debug() << "OnDisconnect " << client.getConfig()->getInstanceName();
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;

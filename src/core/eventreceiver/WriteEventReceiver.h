@@ -48,6 +48,10 @@ namespace logger {
     struct LogScope;
 }
 
+namespace snode::log {
+    struct Scope;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
@@ -61,6 +65,7 @@ namespace core::eventreceiver {
     class WriteEventReceiver : public core::DescriptorEventReceiver {
     protected:
         WriteEventReceiver(const std::string& name, logger::LogScope logScope, const utils::Timeval& timeout);
+        WriteEventReceiver(const std::string& name, const snode::log::Scope& logScope, const utils::Timeval& timeout);
 
         virtual void writeTimeout();
 

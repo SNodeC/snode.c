@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "model/servers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #if (STREAM_TYPE == TLS)
 
@@ -84,16 +83,16 @@ int main(int argc, char* argv[]) {
                                                                          const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                snode::log::application().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                snode::semantic::appLog().info() << instanceName << ": disabled";
+                snode::log::application().info() << instanceName << ": disabled";
                 break;
             case core::socket::State::ERROR:
-                snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -128,9 +127,9 @@ int main(int argc, char* argv[]) {
      server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) { // titan
 #endif
         if (errnum != 0) {
-            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Critical, errnum) << "listen";
+            snode::log::application().systemError(snode::log::Level::Critical, errnum) << "listen";
         } else {
-            snode::semantic::appLog().info() << "snode.c listening on " << socket.getBindAddress().toString();
+            snode::log::application().info() << "snode.c listening on " << socket.getBindAddress().toString();
         }
 
 #ifdef NET_TYPE

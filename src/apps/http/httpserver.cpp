@@ -40,7 +40,7 @@
  */
 
 #include "ConfigWWW.h"
-#include "SemanticLog.h"
+#include "Log.h"
 #include "apps/http/model/servers.h"
 #include "express/middleware/StaticMiddleware.h"
 
@@ -53,7 +53,6 @@
 
 #endif // (STREAM_TYPE == TLS)
 
-#include "log/Logger.h"
 
 #include <algorithm>
 #include <list>
@@ -86,8 +85,8 @@ int main(int argc, char* argv[]) {
         webApp.getConfig()->addSniCerts(sniCerts);
 #endif
 
-        auto log = snode::semantic::appLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        auto log = snode::log::application();
+        if (log.enabled(snode::log::Level::Trace)) {
             log.trace() << "Routes:";
             for (std::string route : webApp.getRoutes()) {
                 route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
@@ -100,16 +99,16 @@ int main(int argc, char* argv[]) {
                                                                              const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::log::application().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << instanceName << ": disabled";
+                    snode::log::application().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });

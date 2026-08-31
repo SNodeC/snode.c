@@ -3,10 +3,9 @@
  *
  * Intended to be used alongside the Node.js/Express reference server in this suite.
  */
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "express/legacy/in/WebApp.h"
-#include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
 
@@ -238,16 +237,16 @@ int main(int argc, char* argv[]) {
     app.listen(8080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                snode::semantic::appLog().info() << "express-compat listening on '" << socketAddress.toString() << "'";
+                snode::log::application().info() << "express-compat listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                snode::semantic::appLog().info() << "express-compat disabled";
+                snode::log::application().info() << "express-compat disabled";
                 break;
             case core::socket::State::ERROR:
-                snode::semantic::appLog().error() << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().error() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                snode::semantic::appLog().critical() << "express-compat " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().critical() << "express-compat " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

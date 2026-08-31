@@ -49,14 +49,13 @@
 #define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/NET/WebApp.h)
 // clang-format on
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include WEBAPP_INCLUDE // IWYU pragma: export
 
 #include "express/middleware/VerboseRequest.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
@@ -100,10 +99,10 @@ namespace apps::http::tls {
         const std::string& instanceName = webApp.getConfig()->getInstanceName();
 
         webApp.setOnConnect([instanceName](SocketConnection* socketConnection) { // onConnect
-            snode::semantic::appLog().debug() << "OnConnect " << instanceName;
+            snode::log::application().debug() << "OnConnect " << instanceName;
 
-            snode::semantic::appLog().debug() << "  Local: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "   Peer: " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "  Local: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "   Peer: " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -116,14 +115,14 @@ namespace apps::http::tls {
         });
 
         webApp.setOnConnected([instanceName](SocketConnection* socketConnection) { // onConnected
-            snode::semantic::appLog().debug() << "OnConnected " << instanceName;
+            snode::log::application().debug() << "OnConnected " << instanceName;
 
-            auto log = snode::semantic::appLog();
+            auto log = snode::log::application();
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert == nullptr) {
                 log.warn() << "\tPeer certificate: no certificate";
             } else {
-                if (log.enabled(logger::LogLevel::Debug)) {
+                if (log.enabled(snode::log::Level::Debug)) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                     log.debug() << "\tPeer certificate verifyErr = " << verifyErr << ": " << X509_verify_cert_error_string(verifyErr);
@@ -174,21 +173,21 @@ namespace apps::http::tls {
         });
 
         webApp.setOnDisconnect([instanceName](SocketConnection* socketConnection) { // onDisconnect
-            snode::semantic::appLog().debug() << "OnDisconnect " << instanceName;
+            snode::log::application().debug() << "OnDisconnect " << instanceName;
 
-            snode::semantic::appLog().debug() << "            Local: " << socketConnection->getLocalAddress().toString(false);
-            snode::semantic::appLog().debug() << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
+            snode::log::application().debug() << "            Local: " << socketConnection->getLocalAddress().toString(false);
+            snode::log::application().debug() << "             Peer: " << socketConnection->getRemoteAddress().toString(false);
 
-            snode::semantic::appLog().debug() << "     Online Since: " << socketConnection->getOnlineSince();
-            snode::semantic::appLog().debug() << "  Online Duration: " << socketConnection->getOnlineDuration();
+            snode::log::application().debug() << "     Online Since: " << socketConnection->getOnlineSince();
+            snode::log::application().debug() << "  Online Duration: " << socketConnection->getOnlineDuration();
 
-            snode::semantic::appLog().debug() << "     Total Queued: " << socketConnection->getTotalQueued();
-            snode::semantic::appLog().debug() << "       Total Sent: " << socketConnection->getTotalSent();
-            snode::semantic::appLog().debug() << "      Write Delta: "
+            snode::log::application().debug() << "     Total Queued: " << socketConnection->getTotalQueued();
+            snode::log::application().debug() << "       Total Sent: " << socketConnection->getTotalSent();
+            snode::log::application().debug() << "      Write Delta: "
                                               << socketConnection->getTotalQueued() - socketConnection->getTotalSent();
-            snode::semantic::appLog().debug() << "       Total Read: " << socketConnection->getTotalRead();
-            snode::semantic::appLog().debug() << "  Total Processed: " << socketConnection->getTotalProcessed();
-            snode::semantic::appLog().debug() << "       Read Delta: "
+            snode::log::application().debug() << "       Total Read: " << socketConnection->getTotalRead();
+            snode::log::application().debug() << "  Total Processed: " << socketConnection->getTotalProcessed();
+            snode::log::application().debug() << "       Read Delta: "
                                               << socketConnection->getTotalRead() - socketConnection->getTotalProcessed();
         });
 

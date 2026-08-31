@@ -65,7 +65,7 @@ FetchContent_MakeAvailable(spdlog)
 
 set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 
-set(LOGGER_CPP Logger.cpp SemanticLogger.cpp LogScopeOwner.cpp detail/SpdlogBackend.cpp)
+set(LOGGER_CPP Log.cpp Logger.cpp SemanticLogger.cpp LogScopeOwner.cpp detail/SpdlogBackend.cpp)
 
 set(LOGGER_H Logger.h SemanticLogger.h LogScopeOwner.h detail/SpdlogBackend.h)
 

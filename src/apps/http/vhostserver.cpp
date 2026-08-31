@@ -40,7 +40,7 @@
  */
 
 #include "ConfigWWW.h"
-#include "SemanticLog.h"
+#include "Log.h"
 #include "express/legacy/in6/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
@@ -48,7 +48,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/Config.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -123,16 +122,16 @@ int main(int argc, char* argv[]) {
                                                                       const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << " disabled";
+                        snode::log::application().info() << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
@@ -192,17 +191,17 @@ int main(int argc, char* argv[]) {
                                                                              const core::socket::State& state) {
                           switch (state) {
                               case core::socket::State::OK:
-                                  snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
+                                  snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                                   break;
                               case core::socket::State::DISABLED:
-                                  snode::semantic::appLog().info() << instanceName << " disabled";
+                                  snode::log::application().info() << instanceName << " disabled";
                                   break;
                               case core::socket::State::ERROR:
-                                  snode::semantic::appLog().error()
+                                  snode::log::application().error()
                                       << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                   break;
                               case core::socket::State::FATAL:
-                                  snode::semantic::appLog().critical()
+                                  snode::log::application().critical()
                                       << instanceName << " " << socketAddress.toString() << ": " << state.what();
                                   break;
                           }
