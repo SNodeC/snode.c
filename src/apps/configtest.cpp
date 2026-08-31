@@ -39,8 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
-#include "log/Logger.h"
+#include "Log.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -83,7 +82,7 @@ int main(int argc, char* argv[]) {
     CLI::Option* filenameOpt = subApp->add_option("-f", filename, "A Filename");
     //    filenameOpt->default_val("Filenameeeeee");
 
-    snode::semantic::appLog().debug() << "Filename: " << filename;
+    snode::log::application().debug() << "Filename: " << filename;
 
     //    app.needs(subApp);
     //    subApp->needs(filenameOpt);

@@ -39,11 +39,10 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "express/legacy/in/WebApp.h"
-#include "log/Logger.h"
 #include "web/http/legacy/in/Client.h"
 
 #include <cstddef>
@@ -100,7 +99,7 @@ public:
             [this](const Client::SocketAddress&, const core::socket::State& state) {
                 if (state != core::socket::State::OK) {
                     ++failures;
-                    snode::semantic::appLog().error() << "FAIL: connect failed: " << state.what();
+                    snode::log::application().error() << "FAIL: connect failed: " << state.what();
                     core::timer::Timer::singleshotTimer(
                         [] {
                             core::SNodeC::stop();
@@ -122,7 +121,7 @@ private:
 
     void dispatchNextRequest() {
         if (testCases.empty()) {
-            snode::semantic::appLog().info() << "All express next() tests executed. failures=" << failures;
+            snode::log::application().info() << "All express next() tests executed. failures=" << failures;
             if (masterRequest && masterRequest->isConnected()) {
                 masterRequest->disconnect();
             }
@@ -136,7 +135,7 @@ private:
 
         if (!masterRequest || !masterRequest->isConnected()) {
             ++failures;
-            snode::semantic::appLog().error() << "FAIL: master request not connected";
+            snode::log::application().error() << "FAIL: master request not connected";
             core::timer::Timer::singleshotTimer(
                 [] {
                     core::SNodeC::stop();
@@ -159,11 +158,11 @@ private:
                 const bool bodyOk = body.find(current.expectedBody) != std::string::npos;
 
                 if (statusOk && bodyOk) {
-                    snode::semantic::appLog().info()
+                    snode::log::application().info()
                         << "PASS: " << current.name << " status=" << res->statusCode << " body='" << body << "'";
                 } else {
                     ++failures;
-                    snode::semantic::appLog().error() << "FAIL: " << current.name << " expected status=" << current.expectedStatus
+                    snode::log::application().error() << "FAIL: " << current.name << " expected status=" << current.expectedStatus
                                                       << " expected body fragment='" << current.expectedBody << "'"
                                                       << " got status=" << res->statusCode << " body='" << body << "'";
                 }
@@ -172,7 +171,7 @@ private:
             },
             [this, current]([[maybe_unused]] const std::shared_ptr<Request>& req, const std::string& reason) {
                 ++failures;
-                snode::semantic::appLog().error() << "FAIL: " << current.name << " parse-error: " << reason;
+                snode::log::application().error() << "FAIL: " << current.name << " parse-error: " << reason;
                 dispatchNextRequest();
             });
     }
@@ -303,16 +302,16 @@ int main(int argc, char* argv[]) {
     app.listen(18080, [](const express::legacy::in::WebApp::SocketAddress& socketAddress, const core::socket::State& state) {
         switch (state) {
             case core::socket::State::OK:
-                snode::semantic::appLog().info() << "testexpressnext listening on '" << socketAddress.toString() << "'";
+                snode::log::application().info() << "testexpressnext listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                snode::semantic::appLog().info() << "testexpressnext disabled";
+                snode::log::application().info() << "testexpressnext disabled";
                 break;
             case core::socket::State::ERROR:
-                snode::semantic::appLog().error() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().error() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                snode::semantic::appLog().critical() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
+                snode::log::application().critical() << "testexpressnext " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -326,10 +325,10 @@ int main(int argc, char* argv[]) {
 
     const int rc = core::SNodeC::start();
     if (nextTester.getFailures() > 0) {
-        snode::semantic::appLog().error() << "testexpressnext finished with failures=" << nextTester.getFailures();
+        snode::log::application().error() << "testexpressnext finished with failures=" << nextTester.getFailures();
         return 1;
     }
 
-    snode::semantic::appLog().info() << "testexpressnext finished successfully";
+    snode::log::application().info() << "testexpressnext finished successfully";
     return rc;
 }

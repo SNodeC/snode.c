@@ -41,8 +41,7 @@
 
 #include "express/tls/un/Server.h"
 
-#include "SemanticLog.h"
-#include "log/Logger.h"
+#include "Log.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -71,24 +70,24 @@ namespace express::tls::un {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::expressLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        snode::log::framework("express", snode::log::Boundary::Application).info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::expressLog().info() << instanceName << ": disabled";
+                        snode::log::framework("express", snode::log::Boundary::Application).info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::expressLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::framework("express", snode::log::Boundary::Application).error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::expressLog().critical()
+                        snode::log::framework("express", snode::log::Boundary::Application).critical()
                             << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             }
         });
 
-        auto log = snode::semantic::expressLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        auto log = snode::log::framework("express", snode::log::Boundary::Application);
+        if (log.enabled(snode::log::Level::Trace)) {
             log.trace() << "Instance: " << instanceName;
             for (std::string route : webApp.getRoutes()) {
                 route.erase(std::remove(route.begin(), route.end(), '$'), route.end());

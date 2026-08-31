@@ -39,14 +39,13 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "express/legacy/in/WebApp.h"
 #include "express/middleware/VerboseRequest.h"
 #include "express/tls/in/WebApp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <algorithm>
 #include <cstring>
@@ -73,13 +72,13 @@ int main(int argc, char* argv[]) {
 
         res->upgrade(req, [req, res, connectionName](const std::string& name) {
             if (!name.empty()) {
-                snode::semantic::appLog().debug() << connectionName << ": Successful upgrade:";
-                snode::semantic::appLog().debug() << connectionName << ":   Requested: " << req->get("upgrade");
-                snode::semantic::appLog().debug() << connectionName << ":    Selected: " << name;
+                snode::log::application().debug() << connectionName << ": Successful upgrade:";
+                snode::log::application().debug() << connectionName << ":   Requested: " << req->get("upgrade");
+                snode::log::application().debug() << connectionName << ":    Selected: " << name;
 
                 res->end();
             } else {
-                snode::semantic::appLog().debug() << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+                snode::log::application().debug() << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
 
                 res->sendStatus(404);
             }
@@ -87,18 +86,18 @@ int main(int argc, char* argv[]) {
     });
 
     legacyApp.get("/", [] APPLICATION(req, res) {
-        snode::semantic::appLog().debug() << "HTTP GET on "
+        snode::log::application().debug() << "HTTP GET on "
                                           << "/";
         if (req->url == "/" || req->url == "/index.html") {
             req->url = "/wstest.html";
         }
 
-        snode::semantic::appLog().debug() << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+        snode::log::application().debug() << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
         res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
             if (errnum == 0) {
-                snode::semantic::appLog().debug() << req->url;
+                snode::log::application().debug() << req->url;
             } else {
-                snode::semantic::appLog().debug() << "HTTP response send file failed: " << std::strerror(errnum);
+                snode::log::application().debug() << "HTTP response send file failed: " << std::strerror(errnum);
                 res->sendStatus(404);
             }
         });
@@ -109,23 +108,23 @@ int main(int argc, char* argv[]) {
                                                                           const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
+                    snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << instanceName << " disabled";
+                    snode::log::application().info() << instanceName << " disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         })
         .getFlowController();
 
-    auto log = snode::semantic::appLog();
-    if (log.enabled(logger::LogLevel::Trace)) {
+    auto log = snode::log::application();
+    if (log.enabled(snode::log::Level::Trace)) {
         log.trace() << "Legacy Routes:";
         for (std::string route : legacyApp.getRoutes()) {
             route.erase(std::remove(route.begin(), route.end(), '$'), route.end());
@@ -149,13 +148,13 @@ int main(int argc, char* argv[]) {
 
             res->upgrade(req, [req, res, connectionName](const std::string& name) {
                 if (!name.empty()) {
-                    snode::semantic::appLog().debug() << connectionName << ": Upgrade success:";
-                    snode::semantic::appLog().debug() << connectionName << ":   Requested: " << req->get("upgrade");
-                    snode::semantic::appLog().debug() << connectionName << ":    Selected: " << name;
+                    snode::log::application().debug() << connectionName << ": Upgrade success:";
+                    snode::log::application().debug() << connectionName << ":   Requested: " << req->get("upgrade");
+                    snode::log::application().debug() << connectionName << ":    Selected: " << name;
 
                     res->end();
                 } else {
-                    snode::semantic::appLog().debug() << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
+                    snode::log::application().debug() << connectionName << ": Can not upgrade to any of '" << req->get("upgrade") << "'";
 
                     res->sendStatus(404);
                 }
@@ -167,12 +166,12 @@ int main(int argc, char* argv[]) {
                 req->url = "/wstest.html";
             }
 
-            snode::semantic::appLog().debug() << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
+            snode::log::application().debug() << CMAKE_CURRENT_SOURCE_DIR "/html" + req->url;
             res->sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req->url, [req, res](int errnum) {
                 if (errnum == 0) {
-                    snode::semantic::appLog().debug() << req->url;
+                    snode::log::application().debug() << req->url;
                 } else {
-                    snode::semantic::appLog().debug() << "HTTP response send file failed: " << std::strerror(errnum);
+                    snode::log::application().debug() << "HTTP response send file failed: " << std::strerror(errnum);
                     res->sendStatus(404);
                 }
             });
@@ -183,23 +182,23 @@ int main(int argc, char* argv[]) {
                                                                            const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << " disabled";
+                        snode::log::application().info() << instanceName << " disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             })
             .getFlowController();
 
-        auto log = snode::semantic::appLog();
-        if (log.enabled(logger::LogLevel::Trace)) {
+        auto log = snode::log::application();
+        if (log.enabled(snode::log::Level::Trace)) {
             log.trace() << "Tls Routes:";
             for (std::string route : legacyApp.getRoutes()) {
                 route.erase(std::remove(route.begin(), route.end(), '$'), route.end());

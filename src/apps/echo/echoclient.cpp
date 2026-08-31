@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "model/clients.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,16 +59,16 @@ int main(int argc, char* argv[]) {
         [instanceName = client.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << instanceName << ": disabled";
+                    snode::log::application().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
@@ -77,16 +76,16 @@ int main(int argc, char* argv[]) {
         client.connect([](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
+                    snode::log::application().info() << "echoclient: connected to '" << socketAddress.toString() << "'" << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << "echoclient: disabled";
+                    snode::log::application().info() << "echoclient: disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().warn() << "echoclientt: error occurred";
+                    snode::log::application().warn() << "echoclientt: error occurred";
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().error() << "echoclient: fatal error occurred";
+                    snode::log::application().error() << "echoclient: fatal error occurred";
                     break;
             }
         });
@@ -122,11 +121,11 @@ int main(int argc, char* argv[]) {
 #endif
 
     if (errnum < 0) {
-        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError";
+        snode::log::application().systemError(snode::log::Level::Error, errnum) << "OnError";
     } else if (errnum > 0) {
-        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "OnError: " << socketAddress.toString();
+        snode::log::application().systemError(snode::log::Level::Error, errnum) << "OnError: " << socketAddress.toString();
     } else {
-        snode::semantic::appLog().debug() << "snode.c connecting to " << socketAddress.toString();
+        snode::log::application().debug() << "snode.c connecting to " << socketAddress.toString();
     }
 
 #ifdef NET_TYPE

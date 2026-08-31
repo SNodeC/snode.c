@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "web/http/legacy/in/Client.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -61,7 +60,7 @@ int main(int argc, char* argv[]) {
     const Client jsonClient(
         "legacy",
         [](const std::shared_ptr<MasterRequest>& req) {
-            snode::semantic::appLog().debug() << "-- OnRequest";
+            snode::log::application().debug() << "-- OnRequest";
             req->method = "POST";
             req->url = "/index.html";
             req->type("application/json");
@@ -69,38 +68,38 @@ int main(int argc, char* argv[]) {
             req->send(
                 R"({"userId":1,"schnitzel":"good","hungry":false})",
                 []([[maybe_unused]] const std::shared_ptr<Request>& req, const std::shared_ptr<Response>& res) {
-                    snode::semantic::appLog().debug() << "-- OnResponse";
-                    snode::semantic::appLog().debug() << "     Status:";
-                    snode::semantic::appLog().debug() << "       " << res->httpVersion;
-                    snode::semantic::appLog().debug() << "       " << res->statusCode;
-                    snode::semantic::appLog().debug() << "       " << res->reason;
+                    snode::log::application().debug() << "-- OnResponse";
+                    snode::log::application().debug() << "     Status:";
+                    snode::log::application().debug() << "       " << res->httpVersion;
+                    snode::log::application().debug() << "       " << res->statusCode;
+                    snode::log::application().debug() << "       " << res->reason;
 
-                    snode::semantic::appLog().debug() << "     Headers:";
+                    snode::log::application().debug() << "     Headers:";
                     for (const auto& [field, value] : res->headers) {
-                        snode::semantic::appLog().debug() << "       " << field + " = " + value;
+                        snode::log::application().debug() << "       " << field + " = " + value;
                     }
 
-                    snode::semantic::appLog().debug() << "     Cookies:";
+                    snode::log::application().debug() << "     Cookies:";
                     for (const auto& [name, cookie] : res->cookies) {
-                        snode::semantic::appLog().debug() << "       " + name + " = " + cookie.getValue();
+                        snode::log::application().debug() << "       " + name + " = " + cookie.getValue();
                         for (const auto& [option, value] : cookie.getOptions()) {
-                            snode::semantic::appLog().debug() << "         " + option + " = " + value;
+                            snode::log::application().debug() << "         " + option + " = " + value;
                         }
                     }
 
-                    auto log = snode::semantic::appLog();
-                    if (log.enabled(logger::LogLevel::Debug)) {
+                    auto log = snode::log::application();
+                    if (log.enabled(snode::log::Level::Debug)) {
                         res->body.push_back(0);
                         log.debug() << "     Body:\n----------- start body -----------" << res->body.data()
                                     << "------------ end body ------------";
                     }
                 },
                 [](const std::shared_ptr<Request>&, const std::string& message) {
-                    snode::semantic::appLog().debug() << "legacy: Request parse error: " << message;
+                    snode::log::application().debug() << "legacy: Request parse error: " << message;
                 });
         },
         []([[maybe_unused]] const std::shared_ptr<MasterRequest>& req) {
-            snode::semantic::appLog().info() << " -- OnRequestEnd";
+            snode::log::application().info() << " -- OnRequestEnd";
         });
 
     jsonClient.connect(
@@ -111,23 +110,23 @@ int main(int argc, char* argv[]) {
                                                         const core::socket::State& state) { // example.com:81 simulate connect timeout
             switch (state) {
                 case core::socket::State::OK:
-                    snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                    snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    snode::semantic::appLog().info() << instanceName << ": disabled";
+                    snode::log::application().info() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) {
             if (err != 0) {
-                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, err) << "OnError: " << err;
+                snode::log::application().systemError(snode::log::Level::Error, err) << "OnError: " << err;
             }
         });
     */

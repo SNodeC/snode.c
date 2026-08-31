@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
@@ -47,7 +47,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <cstddef>
 #include <functional>
@@ -62,28 +61,28 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] core::pipe::PipeSource& pipeSource, [[maybe_unused]] core::pipe::PipeSink& pipeSink) {
             pipeSink.setOnData([&pipeSource](const char* chunk, std::size_t chunkLen) {
                 const std::string string(chunk, chunkLen);
-                snode::semantic::appLog().debug() << "Pipe Data: " << string;
+                snode::log::application().debug() << "Pipe Data: " << string;
                 pipeSource.send(chunk, chunkLen);
                 // pipeSink.disable();
                 // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() {
-                snode::semantic::appLog().debug() << "Pipe EOF";
+                snode::log::application().debug() << "Pipe EOF";
             });
 
             pipeSink.setOnError([]([[maybe_unused]] int errnum) {
-                snode::semantic::appLog().debug() << "PipeSink";
+                snode::log::application().debug() << "PipeSink";
             });
 
             pipeSource.setOnError([]([[maybe_unused]] int errnum) {
-                snode::semantic::appLog().debug() << "PipeSource";
+                snode::log::application().debug() << "PipeSource";
             });
 
             pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) {
-            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, errnum) << "Pipe not created";
+            snode::log::application().systemError(snode::log::Level::Error, errnum) << "Pipe not created";
         });
 
     return core::SNodeC::start();

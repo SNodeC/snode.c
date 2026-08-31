@@ -41,11 +41,10 @@
 
 #include "core/DynamicLoader.h"
 
-#include "SemanticLog.h"
+#include "Log.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <filesystem>
 #include <utility>
@@ -86,7 +85,7 @@ namespace core {
             ++lib.refCount;
             lib.closePending = false;
 
-            snode::semantic::coreSystemLog().trace()
+            snode::log::framework("core.system").trace()
                 << "DynLoader dlOpen: " << lib.fileName << ": already open (refCount=" << lib.refCount << ")";
             handle = lib.handle;
         } else {
@@ -105,9 +104,9 @@ namespace core {
                 dlOpenedLibraries.emplace(canonicalFile, lib);
                 dlOpenedLibrariesByHandle.emplace(handle, canonicalFile);
 
-                snode::semantic::coreSystemLog().trace() << "DynLoader dlOpen: " << libFile << ": success";
+                snode::log::framework("core.system").trace() << "DynLoader dlOpen: " << libFile << ": success";
             } else {
-                snode::semantic::coreSystemLog().trace() << "DynLoader dlOpen: " << libFile << ": " << DynamicLoader::dlError();
+                snode::log::framework("core.system").trace() << "DynLoader dlOpen: " << libFile << ": " << DynamicLoader::dlError();
             }
         }
 
@@ -116,15 +115,15 @@ namespace core {
 
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle == nullptr) {
-            snode::semantic::coreSystemLog().trace() << "DynLoader dlCloseDelayed: handle is nullptr";
+            snode::log::framework("core.system").trace() << "DynLoader dlCloseDelayed: handle is nullptr";
         } else {
             auto itHandle = dlOpenedLibrariesByHandle.find(handle);
             if (itHandle == dlOpenedLibrariesByHandle.end()) {
-                snode::semantic::coreSystemLog().trace() << "DynLoader dlCloseDelayed: " << handle << ": not opened using dlOpen";
+                snode::log::framework("core.system").trace() << "DynLoader dlCloseDelayed: " << handle << ": not opened using dlOpen";
             } else {
                 auto itLib = dlOpenedLibraries.find(itHandle->second);
                 if (itLib == dlOpenedLibraries.end()) {
-                    snode::semantic::coreSystemLog().trace()
+                    snode::log::framework("core.system").trace()
                         << "DynLoader: dlCloseDelayed: internal error: handle known but library record missing";
                 } else {
                     Library& lib = itLib->second;
@@ -136,9 +135,9 @@ namespace core {
                     if (lib.refCount == 0) {
                         lib.closePending = true;
                         closeQueue.push_back(lib.canonicalFileName);
-                        snode::semantic::coreSystemLog().trace() << "DynLoader dlCloseDelayed: " << lib.fileName;
+                        snode::log::framework("core.system").trace() << "DynLoader dlCloseDelayed: " << lib.fileName;
                     } else {
-                        snode::semantic::coreSystemLog().trace()
+                        snode::log::framework("core.system").trace()
                             << "DynLoader dlCloseDelayed: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
                     }
                 }
@@ -150,15 +149,15 @@ namespace core {
         int ret = 0;
 
         if (handle == nullptr) {
-            snode::semantic::coreSystemLog().trace() << "DynLoader dlClose: handle is nullptr";
+            snode::log::framework("core.system").trace() << "DynLoader dlClose: handle is nullptr";
         } else {
             auto itHandle = dlOpenedLibrariesByHandle.find(handle);
             if (itHandle == dlOpenedLibrariesByHandle.end()) {
-                snode::semantic::coreSystemLog().trace() << "DynLoader dlClose: " << handle << ": not opened using dlOpen";
+                snode::log::framework("core.system").trace() << "DynLoader dlClose: " << handle << ": not opened using dlOpen";
             } else {
                 auto itLib = dlOpenedLibraries.find(itHandle->second);
                 if (itLib == dlOpenedLibraries.end()) {
-                    snode::semantic::coreSystemLog().trace()
+                    snode::log::framework("core.system").trace()
                         << "DynLoader dlClose: internal error: handle known but library record missing";
                 } else {
                     Library& lib = itLib->second;
@@ -168,7 +167,7 @@ namespace core {
                     }
 
                     if (lib.refCount != 0) {
-                        snode::semantic::coreSystemLog().trace()
+                        snode::log::framework("core.system").trace()
                             << "DynLoader dlClose: " << lib.fileName << ": still referenced (refCount=" << lib.refCount << ")";
                     } else {
                         lib.closePending = false;
@@ -205,9 +204,9 @@ namespace core {
         ret = realExecDlClose(library);
 
         if (ret != 0) {
-            snode::semantic::coreSystemLog().trace() << "DynLoader dlClose: " << DynamicLoader::dlError();
+            snode::log::framework("core.system").trace() << "DynLoader dlClose: " << DynamicLoader::dlError();
         } else {
-            snode::semantic::coreSystemLog().trace() << "DynLoader dlClose: " << library.fileName << ": success";
+            snode::log::framework("core.system").trace() << "DynLoader dlClose: " << library.fileName << ": success";
         }
 
         return ret;

@@ -5,6 +5,10 @@ function(snodec_add_log_test test_name)
     set_tests_properties(${test_name} PROPERTIES LABELS "unit;log")
 endfunction()
 
+snodec_add_log_test(PublicLogApiTest)
+target_link_libraries(PublicLogApiTest PRIVATE snodec-test-support snodec::logger)
+set_property(TEST PublicLogApiTest APPEND PROPERTY LABELS "api;format")
+
 snodec_add_log_test(SemanticLoggerFormattingTest)
 target_link_libraries(SemanticLoggerFormattingTest PRIVATE snodec-test-support snodec::logger)
 set_property(TEST SemanticLoggerFormattingTest APPEND PROPERTY LABELS "format")

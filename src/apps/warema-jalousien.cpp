@@ -39,12 +39,11 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "express/legacy/in/WebApp.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <cstdlib>
 #include <utility>
@@ -72,8 +71,8 @@ int main(int argc, char* argv[]) {
     //    tls::WebApp wa;
 
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
-        snode::semantic::appLog().debug() << "Param: " << req->param("id");
-        snode::semantic::appLog().debug() << "Qurey: " << req->query("action");
+        snode::log::application().debug() << "Param: " << req->param("id");
+        snode::log::application().debug() << "Qurey: " << req->query("action");
 
         std::string arguments = "aircontrol -t " + jalousien[req->param("id")] + "_" + actions[req->query("action")];
 
@@ -104,16 +103,16 @@ int main(int argc, char* argv[]) {
                                                                          const core::socket::State& state) {
                       switch (state) {
                           case core::socket::State::OK:
-                              snode::semantic::appLog().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                              snode::log::application().info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                               break;
                           case core::socket::State::DISABLED:
-                              snode::semantic::appLog().info() << instanceName << ": disabled";
+                              snode::log::application().info() << instanceName << ": disabled";
                               break;
                           case core::socket::State::ERROR:
-                              snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                              snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                               break;
                           case core::socket::State::FATAL:
-                              snode::semantic::appLog().critical()
+                              snode::log::application().critical()
                                   << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                               break;
                       }

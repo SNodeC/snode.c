@@ -36,10 +36,10 @@ namespace {
     using SourceMap = std::map<std::string, std::string>;
 
     constexpr std::size_t kBaselineParameterlessCallCount = 81;
-    constexpr std::size_t kTransferredParameterlessCallCount = 13;
+    constexpr std::size_t kTransferredParameterlessCallCount = 23;
     constexpr std::size_t kExpectedParameterlessCallCount = kBaselineParameterlessCallCount - kTransferredParameterlessCallCount;
 
-    static_assert(kExpectedParameterlessCallCount == 68);
+    static_assert(kExpectedParameterlessCallCount == 58);
 
     bool isIdentifierCharacter(char character) {
         const unsigned char value = static_cast<unsigned char>(character);
@@ -304,26 +304,7 @@ namespace {
     std::vector<AllowEntry> parameterlessAllowlist() {
         using Entry = AllowEntry;
         return {
-            // Process-wide HTTP upgrade/MIME selectors.
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "SocketContextUpgradeFactory create success:",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "Dynamic HTTP upgrade factory selector has no connection owner."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "SocketContextUpgradeFactory already existing:",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "Dynamic HTTP upgrade factory cache diagnostic is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "SocketContextUpgradeFactory create failed:",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "Dynamic HTTP upgrade factory load failure is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "Optaining function",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "Dynamic HTTP upgrade symbol lookup is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "selected from dynamic cache",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "HTTP upgrade plugin selection cache is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "selected from static cache",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "HTTP upgrade linked-plugin selection is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog",
-                  "socketContextUpgradeFactory = load(socketContextUpgradeName);",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "HTTP upgrade dynamic cache mutation is process-wide."},
-            Entry{"src/web/http/SocketContextUpgradeFactorySelector.hpp", "webHttpLog", "not found",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "HTTP upgrade missing-plugin decision is process-wide."},
-            Entry{"src/web/http/MimeTypes.cpp", "webHttpLog", "Cannot load magic database",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "MIME database initialization belongs to the global HTTP component."},
+            // Process-wide HTTP upgrade selectors not yet transferred to the public API.
             Entry{"src/web/http/client/SocketContextUpgradeFactorySelector.cpp", "httpClientUpgradeLog",
                   "Overriding http upgrade library dir", "GLOBAL_COMPONENT_DIAGNOSTIC",
                   "HTTP client upgrade library configuration precedes connection selection."},
@@ -453,10 +434,6 @@ namespace {
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "Subscription root belongs to the process-wide broker."},
             Entry{"src/iot/mqtt/server/broker/SubscriptionTree.cpp", "mqttBrokerLog", "SubscriptionTree::TopicLevel::log() const",
                   "GLOBAL_COMPONENT_DIAGNOSTIC", "Subscription topic level belongs to the process-wide broker."},
-
-            // MariaDB library initialization is process-wide.
-            Entry{"src/database/mariadb/MariaDBLibrary.cpp", "mariaDbLog", "mysql_library_init failed",
-                  "GLOBAL_COMPONENT_DIAGNOSTIC", "MariaDB library initialization is a process-wide component diagnostic."},
         };
     }
 

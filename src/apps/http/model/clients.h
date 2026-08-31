@@ -52,14 +52,12 @@
 
 // clang-format on
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include CLIENT_INCLUDE      // IWYU pragma: export
 #include EVENTSOURCE_INCLUDE // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "web/http/http_utils.h"
 
 #if (STREAM_TYPE == TLS) // tls
@@ -71,8 +69,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 static void logResponse(const std::shared_ptr<web::http::client::Request>& req, const std::shared_ptr<web::http::client::Response>& res) {
-    auto log = snode::semantic::appLog();
-    if (log.enabled(logger::LogLevel::Trace)) {
+    auto log = snode::log::application();
+    if (log.enabled(snode::log::Level::Trace)) {
         const std::string prefix = req->getConnectionName() + " HTTP response: " + req->method + " " + req->url + " HTTP/" +
                                    std::to_string(req->httpMajor) + "." + std::to_string(req->httpMinor) + "\n";
         const auto requestPresentation =
@@ -86,8 +84,8 @@ static void logResponse(const std::shared_ptr<web::http::client::Request>& req, 
                                             {});
         const auto responsePresentation =
             httputils::toStringPresentation(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
-        log.emit(logger::LogLevel::Trace,
-                 logger::PresentedMessage{.plain = prefix + requestPresentation.plain + "\n" + responsePresentation.plain,
+        log.emit(snode::log::Level::Trace,
+                 snode::log::Message{.plain = prefix + requestPresentation.plain + "\n" + responsePresentation.plain,
                                           .terminal = prefix + requestPresentation.terminal + "\n" + responsePresentation.terminal});
     }
 }
@@ -106,7 +104,7 @@ namespace apps::http::legacy {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {
-                snode::semantic::appLog().debug()
+                snode::log::application().debug()
                     << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->httpMajor = 1;
@@ -131,15 +129,15 @@ namespace apps::http::legacy {
                     "/home/voc/projects/snodec/snode.c/CMakeLists.tt",
                     [req](int ret) {
                         if (ret == 0) {
-                            snode::semantic::appLog().debug()
+                            snode::log::application().debug()
                                 << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                 << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::appLog().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
+                            snode::log::application().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         } else {
-                            snode::semantic::appLog().error()
+                            snode::log::application().error()
                                 << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                 << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                            snode::log::application().systemError(snode::log::Level::Error, ret)
                                 << "  /home/voc/projects/snodec/snode.c/CMakeLists.tt";
                         }
                     },
@@ -309,25 +307,25 @@ namespace apps::http::legacy {
 
                 if (eventStream_1) {
                     eventStream_1->onOpen([]() {
-                        snode::semantic::appLog().debug() << "OnOpen 1";
+                        snode::log::application().debug() << "OnOpen 1";
                     });
 
                     eventStream_1->onError([]() {
-                        snode::semantic::appLog().debug() << "OnError 1";
+                        snode::log::application().debug() << "OnError 1";
                     });
 
                     eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug() << "OnMessage 1:1: " << message.data;
+                        snode::log::application().debug() << "OnMessage 1:1: " << message.data;
                     });
                     eventStream_1->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug() << "OnMessage 1:2: " << message.data;
+                        snode::log::application().debug() << "OnMessage 1:2: " << message.data;
                     });
                     eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug()
+                        snode::log::application().debug()
                             << "EventListener for 'myevent' 1:1: " << message.lastEventId << " : " << message.data;
                     });
                     eventStream_1->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug()
+                        snode::log::application().debug()
                             << "EventListener for 'myevent' 1:2: " << message.lastEventId << " : " << message.data;
                     });
 
@@ -342,25 +340,25 @@ namespace apps::http::legacy {
 
                 if (eventStream_2) {
                     eventStream_2->onOpen([]() {
-                        snode::semantic::appLog().debug() << "OnOpen 2";
+                        snode::log::application().debug() << "OnOpen 2";
                     });
 
                     eventStream_2->onError([]() {
-                        snode::semantic::appLog().debug() << "OnError 2";
+                        snode::log::application().debug() << "OnError 2";
                     });
 
                     eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug() << "OnMessage 2:1: " << message.data;
+                        snode::log::application().debug() << "OnMessage 2:1: " << message.data;
                     });
                     eventStream_2->onMessage([](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug() << "OnMessage 2:2: " << message.data;
+                        snode::log::application().debug() << "OnMessage 2:2: " << message.data;
                     });
                     eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug()
+                        snode::log::application().debug()
                             << "EventListener for 'myevent' 2:1: " << message.lastEventId << " : " << message.data;
                     });
                     eventStream_2->addEventListener("myevent", [](const web::http::client::tools::EventSource::MessageEvent& message) {
-                        snode::semantic::appLog().debug()
+                        snode::log::application().debug()
                             << "EventListener for 'myevent' 2:2: " << message.lastEventId << " : " << message.data;
                     });
                 }
@@ -384,13 +382,13 @@ namespace apps::http::legacy {
                 "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                 [req](int ret) {
                     if (ret == 0) {
-                        snode::semantic::appLog().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                        snode::log::application().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                 << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                        snode::semantic::appLog().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                        snode::log::application().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                     } else {
-                        snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                        snode::log::application().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                    << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                        snode::log::application().systemError(snode::log::Level::Error, ret)
                                     << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                     }
                 },
@@ -405,13 +403,13 @@ namespace apps::http::legacy {
                         "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                         [&req](int ret) {
                             if (ret == 0) {
-                                snode::semantic::appLog().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                snode::log::application().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                         << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                snode::semantic::appLog().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                                snode::log::application().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             } else {
-                                snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                                snode::log::application().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                            << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                                snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                                snode::log::application().systemError(snode::log::Level::Error, ret)
                                     << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                             }
                         },
@@ -442,13 +440,13 @@ namespace apps::http::legacy {
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                     [req](int ret) {
                         if (ret == 0) {
-                            snode::semantic::appLog().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::log::application().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::appLog().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::log::application().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
-                            snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::log::application().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                            snode::log::application().systemError(snode::log::Level::Error, ret)
                                     << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
@@ -468,13 +466,13 @@ namespace apps::http::legacy {
                     "/home/voc/projects/snodec/snode.c/CMakeLists.txt",
                     [req](int ret) {
                         if (ret == 0) {
-                            snode::semantic::appLog().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::log::application().debug() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                     << " HTTP: Request accepted: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::appLog().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
+                            snode::log::application().debug() << "  /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         } else {
-                            snode::semantic::appLog().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
+                            snode::log::application().error() << req->getSocketContext()->getSocketConnection()->getConnectionName()
                                        << " HTTP: Request failed: GET / HTTP/" << req->httpMajor << "." << req->httpMinor;
-                            snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, ret)
+                            snode::log::application().systemError(snode::log::Level::Error, ret)
                                     << "            /home/voc/projects/snodec/snode.c/CMakeLists.txt";
                         }
                     },
@@ -488,21 +486,21 @@ namespace apps::http::legacy {
 #endif
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                snode::semantic::appLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                snode::log::application().debug() << req->getConnectionName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect
-            snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnConnect";
+            snode::log::application().debug() << socketConnection->getConnectionName() << ": OnConnect";
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         client.setOnDisconnect([](SocketConnection* socketConnection) { // onDisconnect
-            snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnDisconnect";
+            snode::log::application().debug() << socketConnection->getConnectionName() << ": OnDisconnect";
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;
@@ -526,7 +524,7 @@ namespace apps::http::tls {
         Client client(
             "httpclient",
             [](const std::shared_ptr<MasterRequest>& req) {
-                snode::semantic::appLog().debug()
+                snode::log::application().debug()
                     << req->getSocketContext()->getSocketConnection()->getConnectionName() << ": OnRequestStart";
 
                 req->url = "/";
@@ -675,14 +673,14 @@ namespace apps::http::tls {
                     });
             },
             []([[maybe_unused]] const std::shared_ptr<Request>& req) {
-                snode::semantic::appLog().debug() << req->getConnectionName() << ": OnRequestEnd";
+                snode::log::application().debug() << req->getConnectionName() << ": OnRequestEnd";
             });
 
         client.setOnConnect([](SocketConnection* socketConnection) { // onConnect
-            snode::semantic::appLog().debug() << "OnConnect " << socketConnection->getConnectionName();
+            snode::log::application().debug() << "OnConnect " << socketConnection->getConnectionName();
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
 
             /* Enable automatic hostname checks */
             // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -695,25 +693,25 @@ namespace apps::http::tls {
         });
 
         client.setOnConnected([](SocketConnection* socketConnection) { // onConnected
-            snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnConnected";
-            auto log = snode::semantic::appLog();
-            if (log.enabled(logger::LogLevel::Debug)) {
+            snode::log::application().debug() << socketConnection->getConnectionName() << ": OnConnected";
+            auto log = snode::log::application();
+            if (log.enabled(snode::log::Level::Debug)) {
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    snode::semantic::appLog().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
+                    snode::log::application().debug() << "\tPeer certificate verifyErr = " + std::to_string(verifyErr) + ": " +
                                                              std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Subject: " << str;
+                        snode::log::application().debug() << "\t   Subject: " << str;
                         OPENSSL_free(str);
                     }
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
                     if (str != nullptr) {
-                        snode::semantic::appLog().debug() << "\t   Issuer: " << str;
+                        snode::log::application().debug() << "\t   Issuer: " << str;
                         OPENSSL_free(str);
                     }
 
@@ -724,21 +722,21 @@ namespace apps::http::tls {
 
                     int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                    snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
+                    snode::log::application().debug() << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                         if (generalName->type == GEN_URI) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
+                            snode::log::application().debug() << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
+                            snode::log::application().debug() << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            snode::log::application().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
 
@@ -746,16 +744,16 @@ namespace apps::http::tls {
 
                     X509_free(server_cert);
                 } else {
-                    snode::semantic::appLog().debug() << "\tPeer certificate: no certificate";
+                    snode::log::application().debug() << "\tPeer certificate: no certificate";
                 }
             }
         });
 
         client.setOnDisconnect([](SocketConnection* socketConnection) { // onDisconnect
-            snode::semantic::appLog().debug() << socketConnection->getConnectionName() << ": OnDisconnect";
+            snode::log::application().debug() << socketConnection->getConnectionName() << ": OnDisconnect";
 
-            snode::semantic::appLog().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
-            snode::semantic::appLog().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
+            snode::log::application().debug() << "\tLocal: " << socketConnection->getLocalAddress().toString();
+            snode::log::application().debug() << "\tPeer:  " << socketConnection->getRemoteAddress().toString();
         });
 
         return client;

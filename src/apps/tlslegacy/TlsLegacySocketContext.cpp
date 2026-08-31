@@ -6,9 +6,8 @@
 
 #include "TlsLegacySocketContext.h"
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
-#include "log/Logger.h"
 
 #include <functional>
 
@@ -31,7 +30,7 @@ namespace apps::tlslegacy {
 
         if (role == Role::CLIENT) {
             sendToPeer(TLS_HELLO);
-            snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName() << ": sent TLS greeting";
+            snode::log::application().debug() << getSocketConnection()->getConnectionName() << ": sent TLS greeting";
         }
     }
 
@@ -57,8 +56,8 @@ namespace apps::tlslegacy {
                 }
 
                 sendToPeer(payload);
-                auto log = snode::semantic::appLog();
-                if (log.enabled(logger::LogLevel::Trace)) {
+                auto log = snode::log::application();
+                if (log.enabled(snode::log::Level::Trace)) {
                     log.trace() << getSocketConnection()->getConnectionName() << ": trying post-TLS legacy payload: " << payload;
                 }
             },
@@ -68,14 +67,14 @@ namespace apps::tlslegacy {
     void TlsLegacySocketContext::onClientLine(const std::string& line) {
         if (line == TLS_ACK && !tlsReplySeen) {
             tlsReplySeen = true;
-            snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName()
+            snode::log::application().debug() << getSocketConnection()->getConnectionName()
                                               << ": got TLS ack, initiating TLS shutdown handshake (close_notify) " << line;
             shutdownWrite();
             startLegacyRetryTimer(LEGACY_HELLO);
         } else if (line == LEGACY_ACK && !legacyReplySeen) {
             legacyReplySeen = true;
             legacyRetryTimer.cancel();
-            snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName()
+            snode::log::application().debug() << getSocketConnection()->getConnectionName()
                                               << ": got LEGACY ack -> post-TLS plaintext path works " << line;
             shutdownWrite();
         }
@@ -85,14 +84,14 @@ namespace apps::tlslegacy {
         if (line == TLS_HELLO && !tlsReplySeen) {
             tlsReplySeen = true;
             sendToPeer(TLS_ACK);
-            snode::semantic::appLog().debug() << getSocketConnection()->getConnectionName()
+            snode::log::application().debug() << getSocketConnection()->getConnectionName()
                                               << ": TLS phase complete, waiting for peer close_notify " << line;
         } else if (line == LEGACY_HELLO && !legacyPayloadSeen) {
             legacyPayloadSeen = true;
             legacyRetryTimer.cancel();
             sendToPeer(LEGACY_ACK);
-            auto log = snode::semantic::appLog();
-            if (log.enabled(logger::LogLevel::Trace)) {
+            auto log = snode::log::application();
+            if (log.enabled(snode::log::Level::Trace)) {
                 log.trace() << getSocketConnection()->getConnectionName() << ": received LEGACY payload after TLS shutdown " << line;
             }
             shutdownWrite();

@@ -39,12 +39,11 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "net/config/stream/tls/ConfigSocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <algorithm>
 #include <list>
@@ -101,7 +100,7 @@ namespace net::config::stream::tls {
             sniCtxMap.insert(sslSans.begin(), sslSans.end());
 
             for (const auto& [sni, ctx] : sniCtxMap) {
-                snode::semantic::tlsConfigLog().trace()
+                snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
                     << getInstanceName() << " SSL/TLS: SSL_CTX (M) sni for '" << sni << "' from master certificate installed";
             }
 
@@ -139,24 +138,24 @@ namespace net::config::stream::tls {
                         sniCtxs.push_back(newCtx);
                         sniCtxMap.insert_or_assign(domain, newCtx);
 
-                        snode::semantic::tlsConfigLog().trace()
+                        snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
                             << getInstanceName() << " SSL/TLS: SSL_CTX (E) sni for '" << domain << "' explicitly installed";
 
                         for (const auto& [san, ctx] : core::socket::stream::tls::ssl_get_sans(newCtx)) {
                             sniCtxMap.insert_or_assign(san, ctx);
 
-                            snode::semantic::tlsConfigLog().trace()
+                            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
                                 << getInstanceName() << " SSL/TLS: SSL_CTX (S) sni for '" << san << "' from SAN installed";
                         }
                     } else {
-                        snode::semantic::tlsConfigLog().warn()
+                        snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).warn()
                             << getInstanceName() << " SSL/TLS: Can not create SNI_SSL_CTX for domain '" << domain << "'";
                     }
                 }
             }
-            snode::semantic::tlsConfigLog().trace() << getInstanceName() << " SSL/TLS: SNI list result:";
+            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << getInstanceName() << " SSL/TLS: SNI list result:";
             for (const auto& [sni, ctx] : sniCtxMap) {
-                snode::semantic::tlsConfigLog().trace() << "  " << sni;
+                snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << "  " << sni;
             }
         }
 
@@ -165,23 +164,23 @@ namespace net::config::stream::tls {
 
     template <typename ConfigSocketServerBase>
     SSL_CTX* ConfigSocketServer<ConfigSocketServerBase>::getSniCtx(const std::string& serverNameIndication) {
-        snode::semantic::tlsConfigLog().trace()
+        snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
             << getInstanceName() << " SSL/TLS SNI: Lookup for sni='" << serverNameIndication << "' in sni certificates";
 
         SSL_CTX* sniCtx = nullptr;
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
-                snode::semantic::tlsConfigLog().trace() << getInstanceName() << " SSL/TLS SNI:  .. " << sniPair.first.c_str();
+                snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << getInstanceName() << " SSL/TLS SNI:  .. " << sniPair.first.c_str();
                 return core::socket::stream::tls::match(sniPair.first.c_str(), serverNameIndication.c_str());
             });
 
         if (sniPairIt != sniCtxMap.end()) {
-            snode::semantic::tlsConfigLog().trace()
+            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
                 << getInstanceName() << " SSL/TLS SNI: found for " << serverNameIndication << " -> '" << sniPairIt->first << "'";
             sniCtx = sniPairIt->second;
         } else {
-            snode::semantic::tlsConfigLog().warn() << getInstanceName() << " SSL/TL SNI: not found for " << serverNameIndication;
+            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).warn() << getInstanceName() << " SSL/TL SNI: not found for " << serverNameIndication;
         }
 
         return sniCtx;

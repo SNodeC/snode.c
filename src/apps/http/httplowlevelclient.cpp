@@ -39,7 +39,7 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
@@ -49,7 +49,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 
 #include <cstddef>
 #include <openssl/ssl.h>
@@ -70,13 +69,13 @@ namespace apps::http {
         web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
             socketContext,
             []() {
-                snode::semantic::appLog().debug() << "++   OnStarted";
+                snode::log::application().debug() << "++   OnStarted";
             },
             []([[maybe_unused]] web::http::client::Response& res) {
-                snode::semantic::appLog().debug() << "++   OnParsed";
+                snode::log::application().debug() << "++   OnParsed";
             },
             [](int status, const std::string& reason) {
-                snode::semantic::appLog().debug() << "++   OnError: " + std::to_string(status) + " - " + reason;
+                snode::log::application().debug() << "++   OnError: " + std::to_string(status) + " - " + reason;
             });
 
         return responseParser;
@@ -92,10 +91,10 @@ namespace apps::http {
         ~SimpleSocketProtocol() override;
 
         void onConnected() override {
-            snode::semantic::appLog().debug() << "SimpleSocketProtocol connected";
+            snode::log::application().debug() << "SimpleSocketProtocol connected";
         }
         void onDisconnected() override {
-            snode::semantic::appLog().debug() << "SimpleSocketProtocol disconnected";
+            snode::log::application().debug() << "SimpleSocketProtocol disconnected";
         }
 
         bool onSignal([[maybe_unused]] int signum) override {
@@ -149,10 +148,10 @@ namespace tls {
         SocketClient tlsClient(
             "tls",
             [](SocketConnection* socketConnection) { // onConnect
-                snode::semantic::appLog().debug() << "OnConnect";
+                snode::log::application().debug() << "OnConnect";
 
-                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::log::application().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::log::application().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
 
                 /* Enable automatic hostname checks */
                 // X509_VERIFY_PARAM* param = SSL_get0_param(socketConnection->getSSL());
@@ -164,26 +163,26 @@ namespace tls {
                 // }
             },
             [](SocketConnection* socketConnection) { // onConnected
-                snode::semantic::appLog().debug() << "OnConnected";
+                snode::log::application().debug() << "OnConnected";
 
-                auto log = snode::semantic::appLog();
-                if (log.enabled(logger::LogLevel::Debug)) {
+                auto log = snode::log::application();
+                if (log.enabled(snode::log::Level::Debug)) {
                     X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                     if (server_cert != nullptr) {
                         const long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                        snode::semantic::appLog().debug()
+                        snode::log::application().debug()
                             << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                         char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
                         if (str != nullptr) {
-                            snode::semantic::appLog().debug() << "        Subject: " << str;
+                            snode::log::application().debug() << "        Subject: " << str;
                             OPENSSL_free(str);
                         }
 
                         str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
                         if (str != nullptr) {
-                            snode::semantic::appLog().debug() << "        Issuer: " << str;
+                            snode::log::application().debug() << "        Issuer: " << str;
                             OPENSSL_free(str);
                         }
 
@@ -194,21 +193,21 @@ namespace tls {
 
                         const int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-                        snode::semantic::appLog().debug() << "\t   Subject alternative name count: " << altNameCount;
+                        snode::log::application().debug() << "\t   Subject alternative name count: " << altNameCount;
                         for (int32_t i = 0; i < altNameCount; ++i) {
                             GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                             if (generalName->type == GEN_URI) {
                                 const std::string subjectAltName = std::string(
                                     reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                     static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                                snode::semantic::appLog().debug() << "\t      SAN (URI): '" + subjectAltName;
+                                snode::log::application().debug() << "\t      SAN (URI): '" + subjectAltName;
                             } else if (generalName->type == GEN_DNS) {
                                 const std::string subjectAltName =
                                     std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                                 static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                                snode::semantic::appLog().debug() << "\t      SAN (DNS): '" + subjectAltName;
+                                snode::log::application().debug() << "\t      SAN (DNS): '" + subjectAltName;
                             } else {
-                                snode::semantic::appLog().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                                snode::log::application().debug() << "\t      SAN (Type): '" + std::to_string(generalName->type);
                             }
                         }
 
@@ -216,17 +215,17 @@ namespace tls {
 
                         X509_free(server_cert);
                     } else {
-                        snode::semantic::appLog().debug() << "     Server certificate: no certificate";
+                        snode::log::application().debug() << "     Server certificate: no certificate";
                     }
                 }
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                snode::semantic::appLog().debug() << "OnDisconnect";
+                snode::log::application().debug() << "OnDisconnect";
 
-                snode::semantic::appLog().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                snode::semantic::appLog().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
+                snode::log::application().debug() << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                snode::log::application().debug() << "\tClient: " + socketConnection->getLocalAddress().toString();
 
             });
 
@@ -239,16 +238,16 @@ namespace tls {
                                                            const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        snode::log::application().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
@@ -267,29 +266,29 @@ namespace legacy {
         SocketClient legacyClient(
             "legacy",
             [](SocketConnection* socketConnection) { // OnConnect
-                snode::semantic::appLog().debug() << "OnConnect";
+                snode::log::application().debug() << "OnConnect";
 
-                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::log::application().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::log::application().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) { // onConnected
-                snode::semantic::appLog().debug() << "OnConnected";
+                snode::log::application().debug() << "OnConnected";
 
                 socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) { // onDisconnect
-                snode::semantic::appLog().debug() << "OnDisconnect";
+                snode::log::application().debug() << "OnDisconnect";
 
-                snode::semantic::appLog().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
-                snode::semantic::appLog().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
+                snode::log::application().debug() << "\tServer: " << socketConnection->getRemoteAddress().toString();
+                snode::log::application().debug() << "\tClient: " << socketConnection->getLocalAddress().toString();
             });
 
         SocketAddress remoteAddress("localhost", 8080);
 
         remoteAddress.init();
 
-        snode::semantic::appLog().debug() << "###############': " << remoteAddress.getCanonName();
-        snode::semantic::appLog().debug() << "###############': " << remoteAddress.toString();
+        snode::log::application().debug() << "###############': " << remoteAddress.getCanonName();
+        snode::log::application().debug() << "###############': " << remoteAddress.toString();
 
         legacyClient.connect(
             remoteAddress,
@@ -298,16 +297,16 @@ namespace legacy {
                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        snode::log::application().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
@@ -332,16 +331,16 @@ int main(int argc, char* argv[]) {
                 const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        snode::log::application().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });
@@ -357,16 +356,16 @@ int main(int argc, char* argv[]) {
                                                            const core::socket::State& state) { // example.com:81 simulate connnect timeout
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::semantic::appLog().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                        snode::log::application().info() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
-                        snode::semantic::appLog().info() << instanceName << ": disabled";
+                        snode::log::application().info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
-                        snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::application().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
             });

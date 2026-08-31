@@ -4,10 +4,9 @@
  *               2020, 2021, 2022, 2023, 2024, 2025, 2026
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "TlsLegacySocketContext.h"
 #include "core/SNodeC.h"
-#include "log/Logger.h"
 #include "net/in/stream/tls/SocketServer.h"
 
 int main(int argc, char* argv[]) {
@@ -28,9 +27,9 @@ int main(int argc, char* argv[]) {
     server.listen([instanceName = server.getConfig()->getInstanceName()](const SocketServer::SocketAddress& socketAddress,
                                                                          const core::socket::State& state) {
         if (state == core::socket::State::OK) {
-            snode::semantic::appLog().info() << instanceName << ": listening on " << socketAddress.toString();
+            snode::log::application().info() << instanceName << ": listening on " << socketAddress.toString();
         } else if (state == core::socket::State::ERROR) {
-            snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+            snode::log::application().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
         }
     });
 

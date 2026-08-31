@@ -39,13 +39,12 @@
  * THE SOFTWARE.
  */
 
-#include "SemanticLog.h"
+#include "Log.h"
 #include "core/State.h"
 #include "core/socket/stream/SocketAcceptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cstdint>
@@ -109,13 +108,13 @@ namespace core::socket::stream {
                 core::socket::State state = core::socket::STATE_OK;
                 bool bindSucceeded = false;
 
-                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " Listen: starting";
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " Listen: starting";
 
                 configuredAddress = config->Local::getSocketAddress();
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
                     const int errnum = errno;
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
                         << config->getInstanceName() << " open " << configuredAddress.toString();
 
                     switch (errnum) {
@@ -130,12 +129,12 @@ namespace core::socket::stream {
                             break;
                     }
                 } else {
-                    snode::semantic::coreSocketLog().debug()
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                         << config->getInstanceName() << " open " << configuredAddress.toString() << ": success";
 
                     if (physicalServerSocket.bind(configuredAddress) < 0) {
                         const int errnum = errno;
-                        snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
                             << config->getInstanceName() << " bind " << configuredAddress.toString();
 
                         switch (errnum) {
@@ -154,7 +153,7 @@ namespace core::socket::stream {
                         const std::string configuredAddressString = configuredAddress.toString();
                         const std::string effectiveBindAddressString = physicalServerSocket.getBindAddress().toString();
 
-                        snode::semantic::coreSocketLog().debug()
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                             << config->getInstanceName() << " bind " << configuredAddressString
                             << (configuredAddressString == effectiveBindAddressString ? ""
                                                                                       : " (effective: " + effectiveBindAddressString + ")")
@@ -162,7 +161,7 @@ namespace core::socket::stream {
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
                             const int errnum = errno;
-                            snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Error, errnum)
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
                                 << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();
 
                             switch (errnum) {
@@ -174,15 +173,15 @@ namespace core::socket::stream {
                                     break;
                             }
                         } else {
-                            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " listen "
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " listen "
                                                                      << physicalServerSocket.getBindAddress().toString() << ": success";
 
                             if (enable(physicalServerSocket.getFd())) {
-                                snode::semantic::coreSocketLog().debug() << config->getInstanceName() << " enable "
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " enable "
                                                                          << physicalServerSocket.getBindAddress().toString() << ": success";
                                 log().info("listener started");
                             } else {
-                                snode::semantic::coreSocketLog().error()
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection).error()
                                     << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString()
                                     << ": failed. No valid descriptor created";
 
@@ -200,7 +199,7 @@ namespace core::socket::stream {
                 if (configuredAddress.useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
-                    snode::semantic::coreSocketLog().info()
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).info()
                         << config->getInstanceName() << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
 
                     useNextSocketAddress();
@@ -211,13 +210,13 @@ namespace core::socket::stream {
                 core::socket::State state =
                     core::socket::STATE(badSocketAddress.getState(), badSocketAddress.getErrnum(), badSocketAddress.what());
 
-                snode::semantic::coreSocketLog().error() << state.what();
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).error() << state.what();
 
                 log().debug("listener start failed");
                 onStatus({}, state);
             }
         } else {
-            snode::semantic::coreSocketLog().debug() << config->getInstanceName() << ": disabled";
+            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << ": disabled";
 
             onStatus({}, core::socket::STATE_DISABLED);
         }
@@ -249,15 +248,15 @@ namespace core::socket::stream {
 
                     socketConnection->log().info("transport connected");
 
-                    snode::semantic::coreSocketLog().debug()
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
-                    snode::semantic::coreSocketLog().debug() << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << "  " << socketConnection->getRemoteAddress().toString() << " -> "
                                                              << socketConnection->getLocalAddress().toString();
 
                     onConnect(socketConnection);
                     onConnected(socketConnection);
                 } else if (errnum != EINTR && errnum != EAGAIN && errnum != EWOULDBLOCK) {
-                    snode::semantic::sysError(snode::semantic::coreSocketLog(), logger::LogLevel::Warn, errnum)
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Warning, errnum)
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString();
                 }
             } while (--acceptsPerTick > 0);
