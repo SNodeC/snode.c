@@ -216,3 +216,9 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT "core"
 )
+
+install(
+    FILES "${CMAKE_CURRENT_SOURCE_DIR}/SemanticLog.h"
+    DESTINATION include/snode.c
+    COMPONENT "logger"
+)
