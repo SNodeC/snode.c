@@ -1,3 +1,4 @@
+#include "SemanticLog.h"
 #include "core/socket/SocketAddress.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
@@ -166,14 +167,15 @@ int main() {
         LoggerStateGuard guard(semanticPath.string());
         logger::Logger::emitSemantic(record(logger::LogLevel::Info, "semantic info emitted"));
         logger::Logger::emitSemantic(record(logger::LogLevel::Off, "semantic off hidden"));
-        LOG(INFO) << "legacy macro emitted";
+        snode::semantic::appLog().info() << "semantic helper emitted";
     }
     const auto semanticLog = readFile(semanticPath);
     result.expectTrue(semanticLog.find("INFO") != std::string::npos, "semantic info maps to legacy INFO label");
     result.expectTrue(semanticLog.find("semantic info emitted") != std::string::npos, "semantic info emits through file backend");
     result.expectTrue(semanticLog.find("semantic off hidden") == std::string::npos, "semantic off emits nothing");
     result.expectTrue(semanticLog.find("BACKENDTICK000") != std::string::npos, "semantic emission uses legacy tick resolver pattern");
-    result.expectTrue(semanticLog.find("legacy macro emitted") != std::string::npos, "legacy LOG macro still emits through backend");
+    result.expectTrue(semanticLog.find("semantic helper emitted") != std::string::npos,
+                      "semantic application helper emits through backend");
 
     const auto filteredPath = tempLogPath("snodec-backend-filtered.log");
     {
