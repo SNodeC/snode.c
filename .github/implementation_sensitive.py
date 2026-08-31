@@ -1,5 +1,4 @@
 from pathlib import Path
-import base64
 
 
 def replace_once(path, old, new):
@@ -35,17 +34,109 @@ replace_once(
 replace_once(
     "src/utils/SubCommand.cpp",
     "#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <vector>",
-    "#include <cctype>\n#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <sstream>\n#include <vector>",
+    "#include <cstddef>\n#include <cstdint>\n#include <memory>\n#include <set>\n#include <vector>",
 )
 replace_once(
     "src/utils/SubCommand.cpp",
     "namespace utils {\n\n    SubCommand::SubCommand",
-    '''namespace utils {\n\n    namespace {\n        std::set<std::string> collectSensitiveOptionNames(CLI::App* app) {\n            std::set<std::string> names;\n\n            if (const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app); appWithPtr != nullptr) {\n                for (const CLI::Option* option : app->get_options()) {\n                    if (appWithPtr->sensitive(option)) {\n                        names.insert(option->get_single_name());\n                    }\n                }\n            }\n\n            for (CLI::App* subCommand : app->get_subcommands({})) {\n                const auto childNames = collectSensitiveOptionNames(subCommand);\n                names.insert(childNames.begin(), childNames.end());\n            }\n\n            return names;\n        }\n\n        std::string redactSensitiveConfig(std::string config, const std::set<std::string>& sensitiveNames) {\n            if (sensitiveNames.empty()) {\n                return config;\n            }\n\n            std::istringstream input(config);\n            std::ostringstream output;\n            std::string line;\n            bool firstLine = true;\n\n            while (std::getline(input, line)) {\n                std::string rendered = line;\n                const std::size_t first = line.find_first_not_of(" \\t");\n\n                if (first != std::string::npos) {\n                    for (const std::string& name : sensitiveNames) {\n                        if (line.compare(first, name.size(), name) != 0) {\n                            continue;\n                        }\n\n                        std::size_t pos = first + name.size();\n                        if (pos < line.size() && !std::isspace(static_cast<unsigned char>(line[pos])) && line[pos] != '=') {\n                            continue;\n                        }\n                        while (pos < line.size() && std::isspace(static_cast<unsigned char>(line[pos]))) {\n                            ++pos;\n                        }\n                        if (pos < line.size() && line[pos] == '=') {\n                            rendered = line.substr(0, pos + 1) + "<REDACTED>";\n                            break;\n                        }\n                    }\n                }\n\n                if (!firstLine) {\n                    output << '\\n';\n                }\n                firstLine = false;\n                output << rendered;\n            }\n\n            return output.str();\n        }\n    } // namespace\n\n    SubCommand::SubCommand''',
+    r'''namespace utils {
+
+    namespace {
+        std::string jsonEscapeSensitiveValue(const std::string& value) {
+            std::string escaped;
+            escaped.reserve(value.size());
+            for (const char ch : value) {
+                switch (ch) {
+                    case '\\':
+                        escaped += "\\\\";
+                        break;
+                    case '"':
+                        escaped += "\\\"";
+                        break;
+                    case '\n':
+                        escaped += "\\n";
+                        break;
+                    case '\r':
+                        escaped += "\\r";
+                        break;
+                    case '\t':
+                        escaped += "\\t";
+                        break;
+                    default:
+                        escaped.push_back(ch);
+                }
+            }
+            return escaped;
+        }
+
+        void addSensitiveValueVariants(std::set<std::string>& values, const std::string& value) {
+            if (value.empty() || value == "<REQUIRED>" || value == "<REDACTED>") {
+                return;
+            }
+            values.insert(value);
+            values.insert(jsonEscapeSensitiveValue(value));
+            values.insert(CLI::detail::convert_arg_for_ini(value, '"', '\'', true));
+        }
+
+        std::set<std::string> collectSensitiveOptionValues(CLI::App* app) {
+            std::set<std::string> values;
+
+            if (const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app); appWithPtr != nullptr) {
+                for (const CLI::Option* option : app->get_options()) {
+                    if (!appWithPtr->sensitive(option)) {
+                        continue;
+                    }
+
+                    addSensitiveValueVariants(values, option->get_default_str());
+                    for (const std::string& value : option->results()) {
+                        addSensitiveValueVariants(values, value);
+                    }
+                    try {
+                        for (const std::string& value : option->reduced_results()) {
+                            addSensitiveValueVariants(values, value);
+                        }
+                    } catch (const CLI::ParseError&) {
+                    }
+                }
+            }
+
+            for (CLI::App* subCommand : app->get_subcommands({})) {
+                const auto childValues = collectSensitiveOptionValues(subCommand);
+                values.insert(childValues.begin(), childValues.end());
+            }
+
+            return values;
+        }
+
+        void replaceAll(std::string& text, const std::string& needle, const std::string& replacement) {
+            if (needle.empty()) {
+                return;
+            }
+            std::size_t pos = 0;
+            while ((pos = text.find(needle, pos)) != std::string::npos) {
+                text.replace(pos, needle.size(), replacement);
+                pos += replacement.size();
+            }
+        }
+
+        std::string redactSensitiveConfig(std::string config, const std::set<std::string>& sensitiveValues) {
+            std::vector<std::string> ordered(sensitiveValues.begin(), sensitiveValues.end());
+            std::sort(ordered.begin(), ordered.end(), [](const std::string& left, const std::string& right) {
+                return left.size() > right.size();
+            });
+            for (const std::string& value : ordered) {
+                replaceAll(config, value, "<REDACTED>");
+            }
+            return config;
+        }
+    } // namespace
+
+    SubCommand::SubCommand''',
 )
 replace_once(
     "src/utils/SubCommand.cpp",
     "    std::string SubCommand::configToStr() const {\n        return subCommandApp->config_to_str(true, true);\n    }",
-    "    std::string SubCommand::configToStr() const {\n        return redactSensitiveConfig(subCommandApp->config_to_str(true, true), collectSensitiveOptionNames(subCommandApp));\n    }",
+    "    std::string SubCommand::configToStr() const {\n        return redactSensitiveConfig(subCommandApp->config_to_str(true, true), collectSensitiveOptionValues(subCommandApp));\n    }",
 )
 replace_once(
     "src/utils/SubCommand.cpp",
@@ -106,21 +197,22 @@ namespace {
 
 int main() {
     TestSubCommand root{nullptr, "root"};
+    const std::string secret = "s3cr3t-\\\"value";
 
     auto* secretOpt = root.addOption("--secret", "Sensitive value", "string", CLI::TypeValidator<std::string>());
     root.setConfigurable(secretOpt, true);
     root.setSensitive(secretOpt);
-    root.setDefaultValue(secretOpt, std::string{"s3cr3t-value"});
+    root.setDefaultValue(secretOpt, secret);
 
-    require(secretOpt->as<std::string>() == "s3cr3t-value", "sensitive option no longer returns its real configured value");
+    require(secretOpt->as<std::string>() == secret, "sensitive option no longer returns its real configured value");
 
     const std::string serialized = root.configToStr();
-    require(serialized.find("s3cr3t-value") == std::string::npos, "config serialization exposed sensitive value");
+    require(serialized.find("s3cr3t") == std::string::npos, "config serialization exposed sensitive value");
     require(serialized.find("<REDACTED>") != std::string::npos, "config serialization did not mark sensitive value as redacted");
 
     root.setSensitive(secretOpt, false);
     const std::string unredacted = root.configToStr();
-    require(unredacted.find("s3cr3t-value") != std::string::npos, "clearing sensitivity did not restore normal serialization");
+    require(unredacted.find("s3cr3t") != std::string::npos, "clearing sensitivity did not restore normal serialization");
 
     return EXIT_SUCCESS;
 }
