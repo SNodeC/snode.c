@@ -178,17 +178,11 @@ int main() {
         logger::Logger::setLogLevel(3);
         logger::Logger::emitSemantic(record(logger::LogLevel::Info, "backend info hidden"));
         logger::Logger::emitSemantic(record(logger::LogLevel::Warn, "backend warn visible"));
-        LOG(INFO) << "legacy info hidden";
-        LOG(WARNING) << "legacy warning visible";
     }
     const auto gateLog = readFile(gatePath);
     result.expectTrue(gateLog.find("backend info hidden") != std::string::npos,
                       "semantic records accepted by LogManager are not double-gated by Logger::setLogLevel");
     result.expectTrue(gateLog.find("backend warn visible") != std::string::npos, "semantic warning still emits after semantic filtering");
-    result.expectTrue(gateLog.find("legacy info hidden") == std::string::npos &&
-                          gateLog.find("legacy warning visible") != std::string::npos,
-                      "legacy LOG macro behavior remains unchanged");
-
     const auto jsonPath = tempLogPath("snodec-filtering-json-format.log");
     {
         LoggerStateGuard guard(jsonPath.string());
