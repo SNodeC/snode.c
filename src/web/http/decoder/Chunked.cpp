@@ -46,7 +46,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -177,7 +176,7 @@ namespace web::http::decoder {
 
                     try {
                         const unsigned long long parsedChunkLen = std::stoull(chunkSizeToken, &pos, 16);
-                        if (pos != chunkSizeToken.size() || parsedChunkLen > std::numeric_limits<std::size_t>::max()) {
+                        if (pos != chunkSizeToken.size() || !std::in_range<std::size_t>(parsedChunkLen)) {
                             error = true;
                             state = -1;
                             break;
