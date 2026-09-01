@@ -50,7 +50,7 @@
 
 #include <endian.h>
 #include <string>
-#include <limits>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -306,7 +306,7 @@ namespace web::websocket {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
                 frameLog().error() << "Non-minimal payload length encoding";
-            } else if (payloadNumBytes > static_cast<uint64_t>(std::numeric_limits<std::size_t>::max())) {
+            } else if (!std::in_range<std::size_t>(payloadNumBytes)) {
                 parserState = ParserState::ERROR;
                 errorState = ProtocolError;
                 frameLog().error() << "Payload length exceeds platform size limits";
@@ -384,8 +384,9 @@ namespace web::websocket {
                     errorState = ProtocolError;
                     frameLog().error() << "Close frame payload length 1 is invalid";
                 } else if (controlPayload.size() >= 2) {
-                    const uint16_t closeStatus = (static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
-                                                 static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1]));
+                    const uint16_t closeStatus = static_cast<uint16_t>(
+                        (static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
+                        static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1])));
                     if (!isValidCloseStatus(closeStatus)) {
                         parserState = ParserState::ERROR;
                         errorState = ProtocolError;
