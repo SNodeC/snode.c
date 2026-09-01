@@ -170,10 +170,11 @@ int main() {
         snode::semantic::appLog().info() << "semantic helper emitted";
     }
     const auto semanticLog = readFile(semanticPath);
-    result.expectTrue(semanticLog.find("INFO") != std::string::npos, "semantic info maps to legacy INFO label");
+    result.expectTrue(semanticLog.find(" INF ") != std::string::npos, "semantic info uses the semantic INF label");
     result.expectTrue(semanticLog.find("semantic info emitted") != std::string::npos, "semantic info emits through file backend");
     result.expectTrue(semanticLog.find("semantic off hidden") == std::string::npos, "semantic off emits nothing");
-    result.expectTrue(semanticLog.find("BACKENDTICK000") != std::string::npos, "semantic emission uses legacy tick resolver pattern");
+    result.expectTrue(semanticLog.find("BACKENDTICK000") == std::string::npos,
+                      "semantic emission is not wrapped with the legacy tick resolver pattern");
     result.expectTrue(semanticLog.find("semantic helper emitted") != std::string::npos,
                       "semantic application helper emits through backend");
 

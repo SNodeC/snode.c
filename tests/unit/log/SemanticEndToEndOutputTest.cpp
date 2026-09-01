@@ -144,9 +144,9 @@ int main() {
     for (const auto& line : helperLines) {
         helperLog << line << '\n';
     }
-    result.expectTrue(contains(helperLog.str(), "INFO") && contains(helperLog.str(), "semantic info works"),
+    result.expectTrue(contains(helperLog.str(), " INF ") && contains(helperLog.str(), "semantic info works"),
                       "semantic application helper emits through the backend");
-    result.expectTrue(contains(helperLog.str(), "ERROR") && contains(helperLog.str(), "semantic system error works") &&
+    result.expectTrue(contains(helperLog.str(), " ERR ") && contains(helperLog.str(), "semantic system error works") &&
                           contains(helperLog.str(), "Permission denied"),
                       "semantic sysError appends explicit error text");
 
