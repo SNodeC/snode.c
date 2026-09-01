@@ -48,8 +48,11 @@
 #include <cstring>
 #include <spawn.h>
 #include <sys/select.h>
-#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/wait.h> // IWYU pragma: keep
 #include <unistd.h>
+
+// IWYU pragma: no_include <stdlib.h>
 
 extern char** environ; // NOLINT
 

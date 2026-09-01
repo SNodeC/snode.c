@@ -3,11 +3,12 @@
 
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/SocketConnection.h"
-#include "core/socket/stream/tls/SocketReader.h"
-#include "core/socket/stream/tls/SocketWriter.h"
 #include "core/socket/stream/tls/TLSShutdown.h"
 #include "core/socket/stream/tls/detail/TLSResult.h"
 #include "log/LogScopeOwner.h"
+
+// IWYU pragma: no_include "core/socket/stream/tls/SocketReader.h"
+// IWYU pragma: no_include "core/socket/stream/tls/SocketWriter.h"
 
 #include <cerrno>
 #include <deque>

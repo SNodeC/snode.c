@@ -74,9 +74,6 @@ namespace core::socket::stream::tls {
         struct TlsHandshakeResult;
     }
 
-    template <typename PhysicalSocketT, typename ConfigT>
-    class SocketConnection;
-
     class TLSHandshake
         : public core::eventreceiver::ReadEventReceiver
         , public core::eventreceiver::WriteEventReceiver {

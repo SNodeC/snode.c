@@ -42,13 +42,15 @@
 #ifndef SNODECCONTROL_CONFIGMODEL_H
 #define SNODECCONTROL_CONFIGMODEL_H
 
-#include "Metadata.h"
-
 #include <cstddef>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
+
+namespace snodec::control {
+    struct ParsedMetadata;
+}
 
 namespace snodec::control {
 

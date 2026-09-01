@@ -42,11 +42,13 @@
 #ifndef WEB_HTTP_DECODER_HEADER_H
 #define WEB_HTTP_DECODER_HEADER_H
 
-#include "web/http/ParserLimits.h"
+#include "web/http/ParserLimits.h" // IWYU pragma: keep
 
 namespace core::socket::stream {
     class SocketContext;
 }
+
+// IWYU pragma: no_forward_declare web::http::ParserLimits
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

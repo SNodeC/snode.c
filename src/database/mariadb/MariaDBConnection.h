@@ -48,7 +48,6 @@
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "database/mariadb/MariaDBCommandSequence.h" // IWYU pragma: export
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 namespace database::mariadb {
     class MariaDBCommand;

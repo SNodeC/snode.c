@@ -50,6 +50,7 @@
 
 #include <array>
 #include <ctime>
+#include <optional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

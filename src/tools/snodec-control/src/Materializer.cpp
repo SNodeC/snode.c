@@ -41,9 +41,13 @@
 
 #include "Materializer.h"
 
+#include "ConfigModel.h"
+
 #include <algorithm>
 #include <cctype>
+#include <optional>
 #include <sstream>
+#include <vector>
 
 namespace snodec::control {
 

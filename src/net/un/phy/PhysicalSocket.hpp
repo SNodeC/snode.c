@@ -43,9 +43,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/socket.h"
 #include "core/system/unistd.h"
 #include "log/Logger.h"
+
+// IWYU pragma: no_include "core/system/socket.h"
 
 #include <array>
 #include <cerrno>

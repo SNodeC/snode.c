@@ -43,7 +43,9 @@
 
 #include "Json.h"
 
+#include <cstddef>
 #include <sstream>
+#include <utility>
 
 namespace snodec::control {
 

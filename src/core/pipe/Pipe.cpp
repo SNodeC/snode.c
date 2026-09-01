@@ -48,7 +48,6 @@
 
 #include "core/system/unistd.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 #include "utils/Timeval.h"
 
 #include <atomic>

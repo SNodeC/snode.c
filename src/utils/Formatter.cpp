@@ -47,11 +47,13 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <functional>
 #include <iomanip>
 #include <map>
 #include <set>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

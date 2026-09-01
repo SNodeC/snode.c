@@ -45,7 +45,6 @@
 
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>

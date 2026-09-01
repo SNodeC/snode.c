@@ -50,7 +50,9 @@
 #include "../CommandBuilder.h"
 #include "../ConfigActions.h"
 #include "../ConfigEditor.h"
+#include "../ConfigModel.h"
 #include "../Materializer.h"
+#include "../Metadata.h"
 #include "../ProcessRunner.h"
 #include "LineEditor.h"
 #include "RenderUtil.h"
@@ -59,6 +61,7 @@
 
 #include <curses.h>
 
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <filesystem>
@@ -66,9 +69,12 @@
 #include <optional>
 #include <sstream>
 #include <string>
-#include <termios.h>
+#include <termios.h> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility>
+#include <vector>
+
+// IWYU pragma: no_include <bits/termios-c_cc.h>
 
 namespace snodec::control::ui {
 

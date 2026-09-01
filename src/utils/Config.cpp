@@ -53,6 +53,7 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <fcntl.h>
 #include <filesystem>
 #include <fstream>
@@ -63,6 +64,7 @@
 #include <memory>
 #include <pwd.h>
 #include <sstream>
+#include <stdexcept>
 #include <string_view>
 #include <sys/types.h>
 #include <unistd.h>

@@ -45,7 +45,6 @@
 #include "core/socket/SocketContext.h"
 #include "core/socket/stream/QueueResult.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 namespace core::pipe {
     class Source;

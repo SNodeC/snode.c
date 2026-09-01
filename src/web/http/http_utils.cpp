@@ -56,7 +56,6 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <system_error>
-#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

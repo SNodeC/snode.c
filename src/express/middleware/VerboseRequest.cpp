@@ -49,6 +49,7 @@
 
 #include "web/http/http_utils.h"
 
+#include <optional>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

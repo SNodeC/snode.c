@@ -63,7 +63,6 @@
 
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 
 #include <cerrno>
 #include <cstdio>

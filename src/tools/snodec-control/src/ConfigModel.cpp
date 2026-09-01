@@ -41,6 +41,8 @@
 
 #include "ConfigModel.h"
 
+#include "Metadata.h"
+
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>

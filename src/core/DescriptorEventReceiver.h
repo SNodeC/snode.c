@@ -45,7 +45,6 @@
 #include "core/EventReceiver.h" // IWYU pragma: export
 #include "core/Shutdown.h"      // IWYU pragma: export
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 namespace core {
     class DescriptorEventPublisher;

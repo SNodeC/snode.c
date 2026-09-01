@@ -41,6 +41,11 @@
 
 #include "UiState.h"
 
+#include "ConfigEditor.h"
+#include "ConfigModel.h"
+#include "Metadata.h"
+#include "ui/UiTree.h"
+
 #include <algorithm>
 #include <utility>
 

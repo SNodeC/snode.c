@@ -41,6 +41,8 @@
 
 #include "RenderUtil.h"
 
+#include <cstddef>
+
 namespace snodec::control::ui {
 
     std::string fitToWidth(const std::string& text, int width) {

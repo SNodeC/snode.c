@@ -49,7 +49,8 @@
 #include "core/socket/stream/ClientFlowController.h" // IWYU pragma: export
 #include "core/timer/Timer.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
+
+// IWYU pragma: no_include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

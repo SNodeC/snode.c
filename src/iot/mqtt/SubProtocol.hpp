@@ -43,9 +43,10 @@
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/SubProtocol.h"
 #include "log/Logger.h"
-#include "log/SemanticLogger.h"
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"
+
+// IWYU pragma: no_include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

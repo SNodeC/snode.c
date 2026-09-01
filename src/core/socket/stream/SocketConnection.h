@@ -44,7 +44,6 @@
 
 #include "core/socket/stream/QueueResult.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 namespace core {
     struct ShutdownContext;

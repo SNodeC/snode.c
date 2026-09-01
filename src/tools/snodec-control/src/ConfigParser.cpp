@@ -42,7 +42,9 @@
 #include "ConfigParser.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
+#include <optional>
 #include <regex>
 #include <sstream>
 #include <utility>
