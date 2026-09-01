@@ -44,6 +44,7 @@
 
 #include "../ConfigEditor.h"
 #include "../ConfigModel.h"
+#include "../Metadata.h"
 #include "UiTree.h"
 
 #include <cstddef>

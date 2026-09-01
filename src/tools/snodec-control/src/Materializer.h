@@ -42,11 +42,11 @@
 #ifndef SNODECCONTROL_MATERIALIZER_H
 #define SNODECCONTROL_MATERIALIZER_H
 
-#include "ConfigModel.h"
-
 #include <string>
 
 namespace snodec::control {
+
+    class ConfigModel;
 
     // Renders a clean, editable, deterministic INI-style configuration file from the parsed model.
     // For every option the active value is preferred, falling back to the default value, falling back

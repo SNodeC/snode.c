@@ -8,6 +8,7 @@
 
 #include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "log/SemanticLogger.h"
 
 #include <functional>
 

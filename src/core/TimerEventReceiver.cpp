@@ -50,6 +50,7 @@
 
 #include "log/Logger.h"
 
+#include <optional>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

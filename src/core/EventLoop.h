@@ -45,7 +45,6 @@
 #include "core/State.h" // IWYU pragma: export
 #include "core/TickStatus.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 namespace core {
     class EventMultiplexer;
@@ -56,6 +55,8 @@ namespace core {
 namespace utils {
     class Timeval;
 }
+
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

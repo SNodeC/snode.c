@@ -43,7 +43,6 @@
 
 #include "core/socket/stream/tls/detail/TLSResult.h"
 #include "log/LogScopeOwner.h"
-#include "log/SemanticLogger.h"
 
 #if defined(SNODEC_BUILD_TESTS)
 #include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"

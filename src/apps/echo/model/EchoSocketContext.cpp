@@ -41,6 +41,9 @@
 
 #include "EchoSocketContext.h"
 
+#include "core/socket/stream/SocketContext.h"
+#include "log/SemanticLogger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>

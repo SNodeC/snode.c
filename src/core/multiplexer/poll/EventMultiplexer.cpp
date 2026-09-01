@@ -56,6 +56,7 @@
 #include <cstdint>
 #include <ctime>
 #include <fcntl.h>
+#include <optional>
 #include <string>
 #include <utility>
 

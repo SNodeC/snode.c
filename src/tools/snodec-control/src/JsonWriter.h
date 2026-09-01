@@ -42,11 +42,11 @@
 #ifndef SNODECCONTROL_JSONWRITER_H
 #define SNODECCONTROL_JSONWRITER_H
 
-#include "ConfigModel.h"
-
 #include <string>
 
 namespace snodec::control {
+
+    class ConfigModel;
 
     // Escapes a string for embedding as a JSON string literal (without the surrounding quotes).
     std::string jsonEscape(const std::string& value);

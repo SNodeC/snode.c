@@ -41,8 +41,12 @@
 
 #include "JsonWriter.h"
 
+#include "ConfigModel.h"
+
 #include <cstdio>
+#include <optional>
 #include <sstream>
+#include <vector>
 
 namespace snodec::control {
 

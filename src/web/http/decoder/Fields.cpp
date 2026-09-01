@@ -42,6 +42,7 @@
 #include "web/http/decoder/Fields.h"
 
 #include "core/socket/stream/SocketContext.h"
+#include "web/http/ParserLimits.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

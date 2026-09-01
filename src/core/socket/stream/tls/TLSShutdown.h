@@ -75,9 +75,6 @@ namespace core::socket::stream::tls {
         struct TlsShutdownResult;
     }
 
-    template <typename PhysicalSocketT, typename ConfigT>
-    class SocketConnection;
-
     class TLSShutdown
         : public core::eventreceiver::ReadEventReceiver
         , public core::eventreceiver::WriteEventReceiver {

@@ -42,8 +42,6 @@
 #ifndef SNODECCONTROL_CONFIGACTIONS_H
 #define SNODECCONTROL_CONFIGACTIONS_H
 
-#include "ConfigEditor.h"
-#include "ConfigModel.h"
 #include "ConfigParser.h"
 #include "Metadata.h"
 
@@ -52,6 +50,10 @@
 #include <vector>
 
 namespace snodec::control {
+
+    class ConfigModel;
+    struct ChangeRecord;
+    struct ConfigOption;
 
     // The shared, presentation-agnostic "business logic" behind every snodec-control action: running
     // discovery, formatting inspection output, and saving/resolving a run configuration through the

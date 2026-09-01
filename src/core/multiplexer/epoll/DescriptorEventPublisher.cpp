@@ -50,6 +50,7 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
+#include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

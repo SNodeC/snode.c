@@ -42,7 +42,6 @@
 #ifndef SNODECCONTROL_JSON_H
 #define SNODECCONTROL_JSON_H
 
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>

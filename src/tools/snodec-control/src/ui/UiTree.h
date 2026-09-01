@@ -42,13 +42,16 @@
 #ifndef SNODECCONTROL_UI_UITREE_H
 #define SNODECCONTROL_UI_UITREE_H
 
-#include "../ConfigModel.h"
-#include "../Metadata.h"
-
 #include <cstddef>
 #include <optional>
 #include <string>
 #include <vector>
+
+namespace snodec::control {
+    class ConfigModel;
+    struct ConfigOption;
+    struct ParsedMetadata;
+}
 
 namespace snodec::control::ui {
 

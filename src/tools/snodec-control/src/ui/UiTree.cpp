@@ -41,9 +41,13 @@
 
 #include "UiTree.h"
 
+#include "ConfigModel.h"
+#include "Metadata.h"
+
 #include <cstddef>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 namespace snodec::control::ui {
 

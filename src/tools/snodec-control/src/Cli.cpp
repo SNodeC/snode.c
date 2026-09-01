@@ -45,10 +45,10 @@
 #include "CommandBuilder.h"
 #include "ConfigActions.h"
 #include "ConfigEditor.h"
-#include "ConfigModel.h"
 #include "ConfigParser.h"
 #include "JsonWriter.h"
 #include "Materializer.h"
+#include "Metadata.h"
 #include "ProcessRunner.h"
 #include "ui/Ui.h"
 
@@ -62,6 +62,8 @@
 #include <vector>
 
 namespace snodec::control {
+
+    struct ConfigOption;
 
     namespace {
 

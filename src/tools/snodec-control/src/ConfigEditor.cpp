@@ -42,6 +42,7 @@
 #include "ConfigEditor.h"
 
 #include <cstddef>
+#include <optional>
 #include <unordered_map>
 #include <utility>
 

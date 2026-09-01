@@ -46,8 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <algorithm>
 #include <iterator>
 #include <map>
