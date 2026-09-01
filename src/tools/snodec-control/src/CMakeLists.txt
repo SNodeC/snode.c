@@ -31,6 +31,12 @@ target_include_directories(
     snodec-control-core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+set_source_files_properties(
+    ProcessRunner.cpp
+    PROPERTIES COMPILE_FLAGS
+               $<$<CXX_COMPILER_ID:Clang>:-Wno-disabled-macro-expansion>
+)
+
 # snodec-control-ui-logic: the hierarchical tree derivation and interactive session state (UiTree/
 # UiState) behind the --ui feature. Deliberately curses-free so it is unit-testable without a real
 # terminal and always builds, even when SNODEC_CONTROL_BUILD_TUI is off or Curses is missing.
