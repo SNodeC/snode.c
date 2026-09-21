@@ -72,12 +72,13 @@ namespace net::in6::stream {
 
         using Super::listen;
 
-        const Super& listen(uint16_t port, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle listen(uint16_t port,
+                                          const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Local::setPort(port);
 
             return listen(onStatus);
         }
-        const Super&
+        typename Super::FlowHandle
         listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Local::setPort(port);
             Super::getConfig()->setBacklog(backlog);
@@ -85,18 +86,18 @@ namespace net::in6::stream {
             return listen(onStatus);
         }
 
-        const Super& listen(const std::string& ipOrHostname,
-                            uint16_t port,
-                            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle listen(const std::string& ipOrHostname,
+                                          uint16_t port,
+                                          const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Local::setHost(ipOrHostname)->setPort(port);
 
             return listen(onStatus);
         }
 
-        const Super& listen(const std::string& ipOrHostname,
-                            uint16_t port,
-                            int backlog,
-                            const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle listen(const std::string& ipOrHostname,
+                                          uint16_t port,
+                                          int backlog,
+                                          const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Local::setHost(ipOrHostname)->setPort(port);
             Super::getConfig()->setBacklog(backlog);
 

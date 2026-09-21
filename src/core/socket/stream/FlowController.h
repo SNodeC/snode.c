@@ -42,6 +42,8 @@
 #ifndef CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 #define CORE_SOCKET_STREAM_FLOWCONTROLLER_H
 
+#include "log/LogScopeOwner.h"
+
 namespace core::timer {
     class Timer;
 }
@@ -60,10 +62,7 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     class FlowController {
     public:
-        using OnDestroyRegistrar = std::function<void(const std::function<void()>&)>;
-
-        FlowController(const std::string& instanceName,
-                       const OnDestroyRegistrar& onDestroyRegistrar);
+        FlowController(const std::string& instanceName, logger::LogRole role);
 
         FlowController(const FlowController&) = delete;
         FlowController& operator=(const FlowController&) = delete;
@@ -91,19 +90,17 @@ namespace core::socket::stream {
         void startFlow(const std::function<void()>& callback);
 
     protected:
-        // Re-arm a flow only after terminateFlow() completed.
-        bool restartFlow();
-
-        void reportFlowRetry();
-
+        bool dispatchRetry();
         void armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher);
+        void cancelRetryTimer();
+
+        logger::BoundaryLogger log() const;
 
         virtual void terminateAsyncSubFlow() = 0;
 
     private:
         uint64_t id{idCounter++};
         static uint64_t idCounter;
-        void cancelRetryTimer();
         void notifyFlowTerminated();
 
         std::uint64_t retryCount{0};
@@ -112,12 +109,13 @@ namespace core::socket::stream {
         bool terminated{false};
 
         std::string observedInstanceName;
-        OnDestroyRegistrar onDestroyRegistrar;
+        logger::LogScopeOwner logScope;
 
         std::unique_ptr<core::timer::Timer> retryTimer;
 
         std::function<void(ConcreteFlowController*)> onFlowRetryCallback;
         std::function<void(ConcreteFlowController*)> onFlowTerminatedCallback;
+        std::function<void(uint64_t, const std::string&)> onFlowCompletedCallback;
     };
 
 } // namespace core::socket::stream

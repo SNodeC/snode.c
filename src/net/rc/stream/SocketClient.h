@@ -72,39 +72,39 @@ namespace net::rc::stream {
 
         using Super::connect;
 
-        const Super& connect(const std::string& btAddress,
-                             uint8_t channel,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& btAddress,
+                                           uint8_t channel,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setChannel(channel);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& btAddress,
-                             uint8_t channel,
-                             const std::string& bindBtAddress,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& btAddress,
+                                           uint8_t channel,
+                                           const std::string& bindBtAddress,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setChannel(channel);
             Super::getConfig()->Local::setBtAddress(bindBtAddress);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& btAddress,
-                             uint8_t channel,
-                             uint8_t bindChannel,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& btAddress,
+                                           uint8_t channel,
+                                           uint8_t bindChannel,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setChannel(channel);
             Super::getConfig()->Local::setChannel(bindChannel);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& btAddress,
-                             uint8_t channel,
-                             const std::string& bindBtAddress,
-                             uint8_t bindChannel,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& btAddress,
+                                           uint8_t channel,
+                                           const std::string& bindBtAddress,
+                                           uint8_t bindChannel,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setBtAddress(btAddress)->setChannel(channel);
             Super::getConfig()->Local::setBtAddress(bindBtAddress)->setChannel(bindChannel);
 

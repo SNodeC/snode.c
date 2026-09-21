@@ -71,16 +71,16 @@ namespace net::un::stream {
 
         using Super::connect;
 
-        const Super& connect(const std::string& sunPath,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& sunPath,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setSunPath(sunPath);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& sunPath,
-                             const std::string& bindSunPath,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& sunPath,
+                                           const std::string& bindSunPath,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setSunPath(sunPath);
             Super::getConfig()->Local::setSunPath(bindSunPath);
 

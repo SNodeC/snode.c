@@ -42,8 +42,11 @@
 #include "core/EventReceiver.h"
 #include "core/socket/stream/FlowController.h"
 #include "core/timer/Timer.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <optional>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -53,11 +56,13 @@ namespace core::socket::stream {
     uint64_t FlowController<ConcreteFlowController>::idCounter = 0;
 
     template <typename ConcreteFlowController>
-    FlowController<ConcreteFlowController>::FlowController(const std::string& instanceName,
-                                                           const OnDestroyRegistrar& onDestroyRegistrar)
+    FlowController<ConcreteFlowController>::FlowController(const std::string& instanceName, logger::LogRole role)
         : observedInstanceName(instanceName)
-        , onDestroyRegistrar(onDestroyRegistrar ? onDestroyRegistrar
-                                                : [](const std::function<void()>&) {})
+        , logScope(logger::LogOrigin::Framework,
+                   logger::LogBoundary::Instance,
+                   "core.socket.stream",
+                   instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
+                   role)
         , onFlowRetryCallback([](FlowController*) {
         })
         , onFlowTerminatedCallback([](FlowController*) {
@@ -65,7 +70,16 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
-    FlowController<ConcreteFlowController>::~FlowController() = default;
+    FlowController<ConcreteFlowController>::~FlowController() {
+        if (onFlowCompletedCallback) {
+            onFlowCompletedCallback(id, observedInstanceName);
+        }
+    }
+
+    template <typename ConcreteFlowController>
+    logger::BoundaryLogger FlowController<ConcreteFlowController>::log() const {
+        return logScope.logger(logger::Logger::semanticSink());
+    }
 
     template <typename ConcreteFlowController>
     std::string FlowController<ConcreteFlowController>::getInstanceName() const {
@@ -101,21 +115,6 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
-    bool FlowController<ConcreteFlowController>::restartFlow() {
-        if (!terminated) {
-            return false;
-        }
-
-        // terminateFlow() synchronously cancels all asynchronous sub-flows
-        // before setting this controller aside. A later explicit endpoint
-        // operation may therefore reuse the same controller safely.
-        terminated = false;
-        retryEnabled = true;
-
-        return true;
-    }
-
-    template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::stopRetry() {
         retryEnabled = false;
         cancelRetryTimer();
@@ -146,9 +145,13 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     ConcreteFlowController*
     FlowController<ConcreteFlowController>::setOnFlowCompleted(const std::function<void(uint64_t, const std::string&)>& callback) {
-        onDestroyRegistrar([callback, id = getId(), instanceName = observedInstanceName]() {
+        const auto previous = onFlowCompletedCallback;
+        onFlowCompletedCallback = [previous, callback](uint64_t id, const std::string& instanceName) {
+            if (previous) {
+                previous(id, instanceName);
+            }
             callback(id, instanceName);
-        });
+        };
 
         return dynamic_cast<ConcreteFlowController*>(this);
     }
@@ -175,14 +178,21 @@ namespace core::socket::stream {
     }
 
     template <typename ConcreteFlowController>
-    void FlowController<ConcreteFlowController>::reportFlowRetry() {
+    bool FlowController<ConcreteFlowController>::dispatchRetry() {
+        if (!retryTimer) {
+            return false;
+        }
+        retryTimer.reset();
+        log().debug("retry dispatched");
         ++retryCount;
         onFlowRetryCallback(dynamic_cast<ConcreteFlowController*>(this));
+        return !terminated && retryEnabled;
     }
 
     template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::armRetryTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
         if (retryEnabled) {
+            log().debug("retry scheduled");
             retryTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
@@ -190,6 +200,7 @@ namespace core::socket::stream {
     template <typename ConcreteFlowController>
     void FlowController<ConcreteFlowController>::cancelRetryTimer() {
         if (retryTimer) {
+            log().debug("retry cancelled");
             retryTimer->cancel();
             retryTimer.reset();
         }

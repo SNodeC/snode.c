@@ -12,8 +12,57 @@ Default resource limits and transport behavior remain compatible after rebuildin
 - HTTP server and client connections snapshot the new shared parser configuration. The affected parser and connection class layouts changed.
 - WebSocket upgrades snapshot receiver frame, message, and fragment limits. The receiver and upgrade layouts changed.
 - Connection configuration classes contain the new write-queue options, changing their installed layouts.
+- Explicit stream `connect()` and `listen()` calls return independent flow handles;
+  endpoint-wide `getFlowController()` and controller `restartFlow()` are removed.
 
 Recompile all application objects, shared plugins, dynamically loaded HTTP/WebSocket extensions, and libraries that include or derive from these public C++ types.
+
+## Per-call stream flow handles
+
+Each explicit call creates a `std::shared_ptr<ClientFlowController>` or
+`std::shared_ptr<ServerFlowController>`. Existing retry/reconnect callbacks keep
+that controller alive and reuse it for automatic attempts. A new explicit call
+creates a new flow, even if an earlier flow terminated:
+
+```cpp
+auto first = client.connect(onStatus);
+auto second = client.connect(onStatus);
+first->terminateFlow(); // Only first's attempts/retry/reconnect stop.
+client.connect(onStatus); // Ignoring the handle does not cancel the operation.
+
+auto listener = server.listen(onListenStatus);
+server.listen(onListenStatus); // Independent listener; configure port reuse as needed.
+listener->terminateFlow(); // Stops this listener, not its sibling.
+```
+
+Store the returned handle instead of calling `endpoint.getFlowController()`.
+Chaining endpoint methods after `connect()`/`listen()` must be split into separate
+statements. Register flow callbacks on the returned handle before entering the
+event loop. `setOnFlowTerminated()` reports this flow's termination;
+`setOnFlowCompleted()` now reports final controller release, not destruction of
+the shared endpoint configuration. Retaining a handle therefore delays completion
+notification; releasing a handle does not terminate active runtime work. Avoid
+capturing a strong reference to the same controller in its own observer callback.
+
+The existing event loop, connector/acceptor ownership, timer receivers and
+per-connection `SocketContext` factories are unchanged. Runtime callbacks retain
+the flow; there is no endpoint registry. Termination cancels pending attempts and
+recovery, not already established connections: close those through the existing
+connection API. Accepted server connections do not retain the listening flow.
+
+Configuration and endpoint callbacks remain shared, as do connection-ID counters.
+This change isolates flow control, not configuration: address overloads still
+update the endpoint configuration and do not capture independent configuration
+snapshots. Use separate endpoints for independently configured destinations.
+Controllers retain the existing event-loop-thread usage contract.
+
+Use `client.setOnDestroy(callback)` or `server.setOnDestroy(callback)` when work
+must wait for the shared instance name to be unregistered. This facade forwards
+to the existing configuration destruction callback; it does not fire when a
+wrapper copy or an individual flow is destroyed. The callback takes no arguments
+and may outlive the wrapper, so capture required identifiers by value, not `this`.
+Multiple registrations are invoked in registration order. Do not retain the
+endpoint or its configuration inside its own destruction callback.
 
 ## `FileReader::open()` failure migration
 

@@ -73,39 +73,39 @@ namespace net::in6::stream {
 
         using Super::connect;
 
-        const Super& connect(const std::string& ipOrHostname,
-                             uint16_t port,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& ipOrHostname,
+                                           uint16_t port,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& ipOrHostname,
-                             uint16_t port,
-                             const std::string& bindHost,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& ipOrHostname,
+                                           uint16_t port,
+                                           const std::string& bindHost,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
             Super::getConfig()->Local::setHost(bindHost);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& ipOrHostname,
-                             uint16_t port,
-                             uint16_t bindPort,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& ipOrHostname,
+                                           uint16_t port,
+                                           uint16_t bindPort,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
             Super::getConfig()->Local::setPort(bindPort);
 
             return connect(onStatus);
         }
 
-        const Super& connect(const std::string& ipOrHostname,
-                             uint16_t port,
-                             const std::string& bindHost,
-                             uint16_t bindPort,
-                             const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
+        typename Super::FlowHandle connect(const std::string& ipOrHostname,
+                                           uint16_t port,
+                                           const std::string& bindHost,
+                                           uint16_t bindPort,
+                                           const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Remote::setHost(ipOrHostname)->setPort(port);
             Super::getConfig()->Local::setHost(bindHost)->setPort(bindPort);
 

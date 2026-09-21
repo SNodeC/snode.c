@@ -9,6 +9,7 @@
 #include "core/eventreceiver/ConnectEventReceiver.h"
 #include "core/socket/stream/FlowController.hpp"
 #include "core/timer/Timer.h"
+#include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -16,25 +17,10 @@
 
 namespace core::socket::stream {
 
-    ClientFlowController::ClientFlowController(const std::string& instanceName,
-                                               const OnDestroyRegistrar& onDestroyRegistrar)
-        : FlowController(instanceName, onDestroyRegistrar)
+    ClientFlowController::ClientFlowController(const std::string& instanceName)
+        : FlowController(instanceName, logger::LogRole::Client)
         , onFlowReconnectCallback([](ClientFlowController*) {
         }) {
-    }
-
-    bool ClientFlowController::restartFlow() {
-        if (!Super::restartFlow()) {
-            return false;
-        }
-
-        // The previous terminateFlow() call has already cancelled the timer
-        // and stopped every observed connect receiver. A new explicit connect
-        // therefore starts with the normal reconnect policy enabled again.
-        reconnectEnabled = true;
-        cancelReconnectTimer();
-
-        return true;
     }
 
     void ClientFlowController::stopReconnect() {
@@ -60,15 +46,25 @@ namespace core::socket::stream {
         return this;
     }
 
-    void ClientFlowController::reportFlowReconnect() {
+    bool ClientFlowController::dispatchReconnect() {
+        if (!reconnectTimer) {
+            return false;
+        }
+        reconnectTimer.reset();
+        log().debug("reconnect dispatched");
         ++reconnectCount;
         onFlowReconnectCallback(this);
+        return !isTerminated() && reconnectEnabled;
     }
 
     void ClientFlowController::observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver) {
         if (connectEventReceiver != nullptr) {
             if (connectEventReceiver->isEnabled()) {
-                connectEventReceivers.insert(connectEventReceiver);
+                if (isTerminated()) {
+                    connectEventReceiver->stopConnect();
+                } else {
+                    connectEventReceivers.insert(connectEventReceiver);
+                }
             } else {
                 connectEventReceivers.erase(connectEventReceiver);
             }
@@ -77,6 +73,7 @@ namespace core::socket::stream {
 
     void ClientFlowController::armReconnectTimer(double timeoutSeconds, const std::function<void()>& dispatcher) {
         if (reconnectEnabled) {
+            log().debug("reconnect scheduled");
             reconnectTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(dispatcher, timeoutSeconds));
         }
     }
@@ -96,6 +93,7 @@ namespace core::socket::stream {
 
     void ClientFlowController::cancelReconnectTimer() {
         if (reconnectTimer) {
+            log().debug("reconnect cancelled");
             reconnectTimer->cancel();
             reconnectTimer.reset();
         }

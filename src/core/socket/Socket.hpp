@@ -66,4 +66,11 @@ namespace core::socket {
         return config.get();
     }
 
+    template <typename Config>
+    void Socket<Config>::setOnDestroy(const std::function<void()>& onDestroy) const {
+        config->setOnDestroy([onDestroy](auto*) {
+            onDestroy();
+        });
+    }
+
 } // namespace core::socket
