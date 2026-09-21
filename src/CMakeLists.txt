@@ -79,10 +79,6 @@ if("${SNODEC_INTREE_BUILD}" STREQUAL "YES")
     add_compile_definitions(SNODEC_INTREE_BUILD)
 endif("${SNODEC_INTREE_BUILD}" STREQUAL "YES")
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 add_compile_options(
     -Werror
     -Wall
