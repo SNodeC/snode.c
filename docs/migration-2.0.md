@@ -96,6 +96,27 @@ The same immediate check applies to `open(directoryFd, path, flags)` and `adopt(
 
 ## Configuration migration
 
+`core::SNodeC::reconfigure()` reapplies the original command line and current
+configuration files to the registered configuration tree. Call it on the event-loop
+thread while SNode.C is running, after registering replacement/new instances.
+`express::WebApp::reconfigure()` forwards to the same operation. Both return a
+checked `bool`: expected configuration errors are diagnosed and return `false`.
+Parsing is not transactional; failure does not restore earlier instance settings.
+Do not activate replacement flows after failure; cancel any already queued flows
+or stop the application. No connection is automatically restarted or listener rebound.
+
+Bootstrap alone applies semantic logging policy, freezes it, starts daemon mode
+and opens startup log files. Reconfiguration can read different startup-option
+values, but does not repeat those process actions; shutdown checks actual PID-file
+ownership rather than the reparsed daemon option. Endpoint validators still run on
+each parse. Ordinary option callbacks (including application-defined options) retain
+their existing behavior. Initial setup remains `init()` followed by `start()`;
+reconnecting an existing configured endpoint requires no reconfiguration.
+
+The unchecked `utils::Config::parse()` entry point remains source-compatible and
+continues to propagate parse errors. It no longer repeats process bootstrap.
+Prefer the checked lifecycle API for runtime reconfiguration.
+
 The new options live in the existing SNode.C CLI11/subcommand and configuration-file hierarchy. Applications should configure them through `ConfigConnection`, `ConfigHttpParser`, `ConfigHttpServer`, `ConfigHTTP`/`ConfigHttpClient`, and `ConfigWebSocket`; there is no runtime setter or parallel configuration mechanism. Runtime connections consume immutable snapshots.
 
 See [Framework resource policies and descriptor streaming](resource-policy-and-streaming.md) for option names, configuration-file keys, defaults, and validation rules.

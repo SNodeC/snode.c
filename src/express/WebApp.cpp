@@ -61,6 +61,10 @@ namespace express {
         return core::SNodeC::start(timeOut);
     }
 
+    bool WebApp::reconfigure() {
+        return core::SNodeC::reconfigure();
+    }
+
     void WebApp::stop() {
         core::SNodeC::stop();
     }

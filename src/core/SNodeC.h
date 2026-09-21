@@ -65,6 +65,9 @@ namespace core {
 
         static void init(int argc, char* argv[]);
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
+        // Event-loop thread, RUNNING only. Reapply configuration without process startup
+        // or restarting sockets. Failure is diagnosed; partially parsed settings are not rolled back.
+        [[nodiscard]] static bool reconfigure();
         static void stop();
         static TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
