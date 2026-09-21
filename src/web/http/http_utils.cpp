@@ -330,8 +330,8 @@ namespace httputils {
 
             if (!body.empty()) {
                 prefix = "Body";
-                requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body.data(), body.size(), prefixLength, false, palette)
-                              << "\n";
+                requestStream << std::setw(prefixLength) << prefix << ":\n"
+                              << utils::hexDump(body.data(), body.size(), 0, false, palette) << "\n";
             }
 
             std::string string = requestStream.str();
@@ -397,8 +397,8 @@ namespace httputils {
 
             if (!body.empty()) {
                 prefix = "Body";
-                requestStream << std::setw(prefixLength) << prefix << utils::hexDump(body.data(), body.size(), prefixLength, false, palette)
-                              << "\n";
+                requestStream << std::setw(prefixLength) << prefix << ":\n"
+                              << utils::hexDump(body.data(), body.size(), 0, false, palette) << "\n";
             }
 
             std::string string = requestStream.str();

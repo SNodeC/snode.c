@@ -1,10 +1,12 @@
 #ifndef SNODEC_LOG_H
 #define SNODEC_LOG_H
 
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -167,6 +169,9 @@ namespace snode::log {
 
         bool enabled(Level level) const noexcept;
         void emit(Level level, Message message) const;
+        // Bytes are borrowed only for this call; disabled levels do not format them.
+        void hexDump(Level level, std::string_view label, std::span<const std::byte> bytes) const;
+        void hexDump(Level level, std::string_view label, std::string_view bytes) const;
 
         Stream trace() const;
         Stream debug() const;

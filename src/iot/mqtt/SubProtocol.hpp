@@ -50,9 +50,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "utils/hexdump.h"
-
 #include <algorithm>
+#include <string_view>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -126,14 +125,7 @@ namespace iot::mqtt {
         data.append(std::string(chunk, chunkLen));
 
         auto log = iot::mqtt::semantic::mqttWebSocketLog(*getSocketConnection());
-        if (log.enabled(logger::LogLevel::Debug)) {
-            const auto dump = utils::hexDumpPresentation(std::vector<char>(chunk, chunk + chunkLen), 32);
-            const std::string prefix = "Frame Data:\n";
-            const std::string indentation(32, ' ');
-            log.emit(
-                logger::LogLevel::Debug,
-                logger::PresentedMessage{.plain = prefix + indentation + dump.plain, .terminal = prefix + indentation + dump.terminal});
-        }
+        log.hexDump(logger::LogLevel::Debug, "Frame Data", std::string_view(chunk, chunkLen));
     }
 
     template <typename WSSubProtocolRole>

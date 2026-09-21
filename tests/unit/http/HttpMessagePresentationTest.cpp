@@ -61,7 +61,8 @@ int main() {
                            "POST", "/submit?z=last&a=1", "HTTP/1.1", queries, requestHeaders, requestTrailers, requestCookies, requestBody),
                        requestPresentation,
                        "request with body");
-    result.expectTrue(contains(requestPresentation.plain, "Body: 00000000  47 45 54 00 1b 0a 5a                             GET...Z"),
+    result.expectTrue(contains(requestPresentation.plain, "Body:\n00000000  47 45 54 00 1b 0a 5a") &&
+                          contains(requestPresentation.plain, "|GET...Z         |"),
                       "request body preserves offset, byte, ASCII, spacing, and indentation");
 
     const std::vector<char> responseBody = {'R', 'E', 'S', 'P', '\0', '\033', '\n', 'X', 'Y'};
@@ -75,7 +76,8 @@ int main() {
                        httputils::toString("HTTP/1.1", "200", "OK", responseHeaders, responseCookies, responseBody),
                        responsePresentation,
                        "response with body");
-    result.expectTrue(contains(responsePresentation.plain, "Body: 00000000  52 45 53 50 00 1b 0a 58 59                       RESP...XY"),
+    result.expectTrue(contains(responsePresentation.plain, "Body:\n00000000  52 45 53 50 00 1b 0a 58  59") &&
+                          contains(responsePresentation.plain, "|RESP...XY       |"),
                       "response partial final row preserves padding and layout");
 
     const auto emptyRequest = httputils::toStringPresentation("GET", "/", "HTTP/1.1", {}, {}, {}, {}, {});

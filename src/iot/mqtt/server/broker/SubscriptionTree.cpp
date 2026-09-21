@@ -187,9 +187,7 @@ namespace iot::mqtt::server::broker {
         if (topic.empty()) {
             log.info() << "Found match:";
             log.info() << "Topic: '" << message.getTopic() << "';";
-            if (log.enabled(logger::LogLevel::Info)) {
-                log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-            }
+            log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
 
             log.info() << "Distribute PUBLISH for match ...";
             for (auto& [clientId, clientQoS] : clientIds) {
@@ -201,9 +199,7 @@ namespace iot::mqtt::server::broker {
             if (nextHashLevel != topicLevels.end()) {
                 log.info() << "Found parent match:";
                 log.info() << "Topic: '" << message.getTopic() << "'";
-                if (log.enabled(logger::LogLevel::Info)) {
-                    log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-                }
+                log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
 
                 log.info() << "Distribute PUBLISH for match ...";
                 for (auto& [clientId, clientQoS] : nextHashLevel->second.clientIds) {
@@ -230,9 +226,7 @@ namespace iot::mqtt::server::broker {
             if (foundNode != topicLevels.end()) {
                 log.info() << "Found match:";
                 log.info() << "Topic: '" << message.getTopic() << "'";
-                if (log.enabled(logger::LogLevel::Info)) {
-                    log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-                }
+                log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
 
                 log.info() << "Distribute PUBLISH for match '" << message.getTopic() << "' ...";
                 for (auto& [clientId, clientQoS] : foundNode->second.clientIds) {

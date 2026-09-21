@@ -61,30 +61,11 @@
 #include <iomanip>
 #include <map>
 #include <set>
+#include <span>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt {
-    namespace {
-        utils::HexDumpPresentation toHexPresentation(const std::vector<char>& data) {
-            const auto dump = utils::hexDumpPresentation(data, 32);
-            if (dump.plain.empty()) {
-                return {};
-            }
-            return {std::string(32, ' ').append(dump.plain), std::string(32, ' ').append(dump.terminal)};
-        }
-
-        utils::HexDumpPresentation toHexPresentation(const std::string& data) {
-            return toHexPresentation(std::vector<char>(data.begin(), data.end()));
-        }
-
-        void emitPresentedTrace(const logger::BoundaryLogger& log, const std::string& prefix, const utils::HexDumpPresentation& dump) {
-            log.emit(logger::LogLevel::Trace,
-                     logger::PresentedMessage{.plain = prefix + dump.plain,
-                                              .terminal = prefix + dump.terminal});
-        }
-    } // namespace
-
     Mqtt::Mqtt(const std::string& connectionName)
         : connectionName(connectionName) {
     }
@@ -268,9 +249,7 @@ namespace iot::mqtt {
     }
 
     void Mqtt::send(const std::vector<char>& data) const {
-        if (log().enabled(logger::LogLevel::Trace)) {
-            emitPresentedTrace(log(), "Send data (full message):\n", toHexPresentation(data));
-        }
+        log().hexDump(logger::LogLevel::Trace, "Send data (full message)", std::as_bytes(std::span(data)));
 
         mqttContext->send(data.data(), data.size());
     }
@@ -281,9 +260,7 @@ namespace iot::mqtt {
         send(iot::mqtt::packets::Publish(packetIdentifier, topic, message, qoS, false, retain));
 
         log().debug() << "Topic: " << topic;
-        if (log().enabled(logger::LogLevel::Trace)) {
-            emitPresentedTrace(log(), "Message:\n", toHexPresentation(message));
-        }
+        log().hexDump(logger::LogLevel::Trace, "Message", message);
         log().debug() << "QoS: " << static_cast<uint16_t>(qoS);
         log().debug() << "PacketIdentifier: " << packetIdentifier;
         log().debug() << "DUP: " << false;
@@ -331,7 +308,7 @@ namespace iot::mqtt {
 
         log().debug() << "Topic: " << publish.getTopic();
         if (log().enabled(logger::LogLevel::Trace)) {
-            emitPresentedTrace(log(), "Message:\n", toHexPresentation(publish.getMessage()));
+            log().hexDump(logger::LogLevel::Trace, "Message", publish.getMessage());
         }
         log().debug() << "QoS: " << static_cast<uint16_t>(publish.getQoS());
         log().debug() << "PacketIdentifier: " << publish.getPacketIdentifier();
@@ -466,16 +443,17 @@ namespace iot::mqtt {
         log().debug() << packet.getName() << " received: client=" << clientId;
 
         if (log().enabled(logger::LogLevel::Trace)) {
-            const auto hexPresentation = toHexPresentation(packet.serializeVP());
-            if (!hexPresentation.plain.empty()) {
-                emitPresentedTrace(log(), "Received data (variable header and payload):\n", hexPresentation);
+            const auto bytes = packet.serializeVP();
+            if (!bytes.empty()) {
+                log().hexDump(logger::LogLevel::Trace, "Received data (variable header and payload)", std::as_bytes(std::span(bytes)));
             }
         }
     }
 
     void Mqtt::printFixedHeader(const FixedHeader& fixedHeader) const {
         if (log().enabled(logger::LogLevel::Trace)) {
-            emitPresentedTrace(log(), "Received data (fixed header):\n", toHexPresentation(fixedHeader.serialize()));
+            const auto bytes = fixedHeader.serialize();
+            log().hexDump(logger::LogLevel::Trace, "Received data (fixed header)", std::as_bytes(std::span(bytes)));
         }
 
         log().debug() << "Fixed Header: PacketType: 0x" << std::hex << std::setfill('0') << std::setw(2)
@@ -487,12 +465,11 @@ namespace iot::mqtt {
     }
 
     std::string Mqtt::toHexString(const std::vector<char>& data) {
-        const std::string hexDump = utils::hexDump(data, 32);
-        return !hexDump.empty() ? std::string(32, ' ').append(hexDump) : "";
+        return utils::hexDump(data);
     }
 
     std::string Mqtt::toHexString(const std::string& data) {
-        return toHexString(std::vector<char>(data.begin(), data.end()));
+        return utils::hexDump(data);
     }
 
     uint16_t Mqtt::getPacketIdentifier() const {
