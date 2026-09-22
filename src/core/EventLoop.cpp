@@ -276,6 +276,7 @@ namespace core {
         if (eventLoopState == State::INITIALIZED) {
             if (utils::Config::bootstrap()) {
                 eventLoopState = State::RUNNING;
+                logger::Logger::startAsync();
                 core::TickStatus tickStatus = TickStatus::SUCCESS;
 
                 EventLoop::instance().log().trace("Core::EventLoop: started");
@@ -300,6 +301,7 @@ namespace core {
                         break;
                 }
             } else {
+                logger::Logger::discardPending();
                 stopsig = -2;
             }
         } else {
@@ -331,6 +333,10 @@ namespace core {
     }
 
     void EventLoop::free() {
+        if (eventLoopState == State::INITIALIZED) {
+            logger::Logger::startAsync();
+        }
+
         const ShutdownReason reason = stopsig > 0                        ? ShutdownReason::Signal
                                       : eventLoopState == State::RUNNING ? ShutdownReason::NoObserver
                                                                          : ShutdownReason::Requested;

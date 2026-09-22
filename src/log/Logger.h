@@ -98,6 +98,9 @@ namespace logger {
         ~Logger() = delete;
 
         static void init();
+        static void defer();
+        static void startAsync();
+        static void discardPending();
         static void setLogLevel(int level);
         static void setVerboseLevel(int level);
         static void logToFile(const std::string& logFile);

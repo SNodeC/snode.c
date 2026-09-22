@@ -34,6 +34,9 @@ namespace logger::detail {
         SpdlogBackend& operator=(SpdlogBackend&&) = delete;
 
         void init();
+        void defer();
+        void startAsync();
+        void discardPending();
 
         void setQuiet(bool quiet);
         void setDisableColor(bool disableColor);

@@ -41,9 +41,6 @@
 
 #include "log/SemanticLogger.h"
 
-#include "log/Logger.h"
-#include "utils/hexdump.h"
-
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -699,13 +696,11 @@ namespace logger {
             return;
         std::string heading(label);
         heading += " (" + std::to_string(bytes.size()) + " bytes)";
-        if (!bytes.empty())
-            heading += '\n';
-        const auto* data = reinterpret_cast<const char*>(bytes.data());
-        PresentedMessage message{.plain = heading + utils::hexDump(data, bytes.size()), .terminal = {}};
-        if (Logger::semanticStdoutUsesColor())
-            message.terminal = heading + utils::hexDump(data, bytes.size(), 0, false, utils::terminalHexDumpPalette);
-        emit(level, std::move(message));
+        LogRecord record = materialize(viewLogScope(scope), level, std::move(heading));
+        if (!bytes.empty()) {
+            record.hexDump = std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+        }
+        sink(std::move(record));
     }
 
     void BoundaryLogger::hexDump(LogLevel level, std::string_view label, std::string_view bytes) const {

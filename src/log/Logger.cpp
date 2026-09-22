@@ -61,6 +61,18 @@ namespace logger {
         disableColorLog = backend.getDisableColor();
     }
 
+    void Logger::defer() {
+        backend.defer();
+    }
+
+    void Logger::startAsync() {
+        backend.startAsync();
+    }
+
+    void Logger::discardPending() {
+        backend.discardPending();
+    }
+
     void Logger::setTickResolver(TickResolver resolver) {
         backend.setTickResolver(std::move(resolver));
     }

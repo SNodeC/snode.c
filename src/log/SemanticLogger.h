@@ -93,6 +93,7 @@ namespace logger {
         std::optional<std::string> connection;
         std::optional<std::string> event;
         std::string message;
+        std::optional<std::string> hexDump;
         std::optional<std::string> terminalMessage;
         std::optional<LogError> error;
         std::optional<LogSource> source;
