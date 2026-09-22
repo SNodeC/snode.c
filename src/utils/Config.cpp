@@ -751,7 +751,7 @@ namespace utils {
 
         helpOpt->get_validator()->active(false);
 
-        bool proceed = parse2(argc, argv, true);
+        bool proceed = parse2(argc, argv, ParsePhase::Initial);
 
         helpOpt->get_validator()->active(true);
 
@@ -785,56 +785,12 @@ namespace utils {
         return proceed;
     }
 
-    bool ConfigRoot::bootstrap(int argc, char* argv[]) {
-        finalCallback([this]() {
-            if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
-                writeConfigOpt->count() == 0) {
-                applySemanticLoggingPolicy(
-                    logLevelOpt, logFormatOpt, logOriginLevelOpt, logBoundaryLevelOpt, logComponentLevelOpt, logInstanceLevelOpt);
-                logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
-                logger::LogManager::freeze();
-            }
-
-            if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && writeConfigOpt->count() == 0 &&
-                commandlineTriggerApp == nullptr) {
-                std::cout << "Running as daemon (double fork)" << std::endl;
-
-                utils::Daemon::startDaemon(
-                    pidDirectory + "/" + applicationName + ".pid", userNameOpt->as<std::string>(), groupNameOpt->as<std::string>());
-
-                logger::Logger::setQuiet();
-
-                const std::string logFile = logFileOpt->as<std::string>();
-                if (!logFile.empty()) {
-                    logger::Logger::logToFile(logFile);
-                }
-            } else if (enforceLogFileOpt->as<bool>()) {
-                const std::string logFile = logFileOpt->as<std::string>();
-                if (!logFile.empty()) {
-                    std::cout << "Writing logs to file " << logFile << std::endl;
-
-                    logger::Logger::logToFile(logFile);
-                }
-            }
-        });
-
-        const bool proceed = parse2(argc, argv);
-
-        return proceed;
-    }
-
     void ConfigRoot::terminate() {
-        if (daemonizeOpt->as<bool>()) {
-            std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid", std::ifstream::in);
-
-            if (pidFile.good()) {
-                pid_t pid = 0;
-                pidFile >> pid;
-
-                if (getpid() == pid) {
-                    Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
-                }
-            }
+        // A runtime parse can change --daemonize, but cannot change how this process started.
+        std::ifstream pidFile(pidDirectory + "/" + applicationName + ".pid");
+        pid_t pid = 0;
+        if (pidFile >> pid && getpid() == pid) {
+            Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
         } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
             char buf[1024];
             while (read(STDIN_FILENO, buf, 1024) > 0) {
@@ -844,7 +800,7 @@ namespace utils {
         removeSubCommand();
     }
 
-    bool ConfigRoot::parse2(int argc, char* argv[], bool parse1) {
+    bool ConfigRoot::parse2(int argc, char* argv[], ParsePhase phase) {
         bool proceed = false;
 
         try {
@@ -858,7 +814,41 @@ namespace utils {
 
                     parse(argc, argv);
 
-                    if (!parse1) {
+                    // Process startup belongs to this invocation, never to a retained parser callback.
+                    if (phase == ParsePhase::Bootstrap) {
+                        if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
+                            writeConfigOpt->count() == 0) {
+                            applySemanticLoggingPolicy(logLevelOpt,
+                                                       logFormatOpt,
+                                                       logOriginLevelOpt,
+                                                       logBoundaryLevelOpt,
+                                                       logComponentLevelOpt,
+                                                       logInstanceLevelOpt);
+                            logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
+                            logger::LogManager::freeze();
+                        }
+
+                        if (daemonizeOpt->as<bool>() && helpTriggerApp == nullptr && showConfigTriggerApp == nullptr &&
+                            writeConfigOpt->count() == 0 && commandlineTriggerApp == nullptr) {
+                            std::cout << "Running as daemon (double fork)" << std::endl;
+                            utils::Daemon::startDaemon(pidDirectory + "/" + applicationName + ".pid",
+                                                       userNameOpt->as<std::string>(),
+                                                       groupNameOpt->as<std::string>());
+                            logger::Logger::setQuiet();
+                            const std::string logFile = logFileOpt->as<std::string>();
+                            if (!logFile.empty()) {
+                                logger::Logger::logToFile(logFile);
+                            }
+                        } else if (enforceLogFileOpt->as<bool>()) {
+                            const std::string logFile = logFileOpt->as<std::string>();
+                            if (!logFile.empty()) {
+                                std::cout << "Writing logs to file " << logFile << std::endl;
+                                logger::Logger::logToFile(logFile);
+                            }
+                        }
+                    }
+
+                    if (phase != ParsePhase::Initial) {
                         if (showConfigTriggerApp != nullptr) {
                             std::cout << getConfig(showConfigTriggerApp);
                         } else if (commandlineTriggerApp != nullptr) {
@@ -872,7 +862,7 @@ namespace utils {
                         proceed = true;
                     }
                 } catch (const CLI::Success&) {
-                    if (!parse1) {
+                    if (phase != ParsePhase::Initial) {
                         throw;
                     }
 
@@ -896,7 +886,9 @@ namespace utils {
                             std::cout << getCommandLine(commandlineTriggerApp);
                         }
                     } else {
-                        logger::Logger::setQuiet();
+                        if (phase != ParsePhase::Runtime) {
+                            logger::Logger::setQuiet();
+                        }
                         throw;
                     }
                 }
@@ -1072,7 +1064,11 @@ namespace utils {
     }
 
     bool Config::bootstrap() {
-        return configRoot.bootstrap(argc, argv);
+        return configRoot.parse2(argc, argv, ConfigRoot::ParsePhase::Bootstrap);
+    }
+
+    bool Config::reconfigure() {
+        return configRoot.parse2(argc, argv, ConfigRoot::ParsePhase::Runtime);
     }
 
     void Config::parse() {

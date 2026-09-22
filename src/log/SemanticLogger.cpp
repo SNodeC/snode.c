@@ -41,6 +41,9 @@
 
 #include "log/SemanticLogger.h"
 
+#include "log/Logger.h"
+#include "utils/hexdump.h"
+
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -166,39 +169,41 @@ namespace logger {
             return true;
         }
 
-        void appendHexEscape(std::ostringstream& out, unsigned char ch) {
+        void appendHexEscape(std::string& out, unsigned char ch) {
             constexpr char digits[] = "0123456789ABCDEF";
-            out << "\\x" << digits[(ch >> 4) & 0x0F] << digits[ch & 0x0F];
+            out += "\\x";
+            out += digits[(ch >> 4) & 0x0F];
+            out += digits[ch & 0x0F];
         }
 
-        void appendEscapedByte(std::ostringstream& out, unsigned char ch, bool field) {
+        void appendEscapedByte(std::string& out, unsigned char ch, bool field) {
             switch (ch) {
                 case '\\':
-                    out << (field ? "\\\\" : "\\");
+                    out += field ? "\\\\" : "\\";
                     break;
                 case '"':
-                    out << (field ? "\\\"" : "\"");
+                    out += field ? "\\\"" : "\"";
                     break;
                 case '\n':
-                    out << "\\n";
+                    out += "\\n";
                     break;
                 case '\r':
-                    out << "\\r";
+                    out += "\\r";
                     break;
                 case '\t':
-                    out << "\\t";
+                    out += "\\t";
                     break;
                 case '\b':
-                    out << "\\b";
+                    out += "\\b";
                     break;
                 case '\f':
-                    out << "\\f";
+                    out += "\\f";
                     break;
                 default:
                     if (ch < 0x20 || ch == 0x7F) {
                         appendHexEscape(out, ch);
                     } else {
-                        out << static_cast<char>(ch);
+                        out += static_cast<char>(ch);
                     }
                     break;
             }
@@ -208,14 +213,13 @@ namespace logger {
             if (safeToken(value)) {
                 return value;
             }
-            std::ostringstream out;
-            out << '"';
+            std::string out = "\"";
             for (const char rawCh : value) {
                 const unsigned char ch = static_cast<unsigned char>(rawCh);
                 appendEscapedByte(out, ch, true);
             }
-            out << '"';
-            return out.str();
+            out += '"';
+            return out;
         }
 
         enum class SgrEffect { SetForeground, ResetForeground };
@@ -237,12 +241,11 @@ namespace logger {
             return std::nullopt;
         }
 
-        std::optional<std::string> validatedTerminalMessage(const LogRecord& record) {
+        std::optional<std::string_view> validatedTerminalMessage(const LogRecord& record) {
             if (!record.terminalMessage) {
                 return std::nullopt;
             }
-            std::string stripped;
-            stripped.reserve(record.terminalMessage->size());
+            std::size_t plainPosition = 0;
             bool foregroundColored = false;
             for (std::size_t i = 0; i < record.terminalMessage->size();) {
                 const unsigned char ch = static_cast<unsigned char>((*record.terminalMessage)[i]);
@@ -256,30 +259,36 @@ namespace logger {
                     if (foregroundColored) {
                         return std::nullopt;
                     }
-                    stripped.push_back('\r');
-                    stripped.push_back('\n');
+                    if (std::string_view(record.message).substr(plainPosition, 2) != "\r\n") {
+                        return std::nullopt;
+                    }
+                    plainPosition += 2;
                     i += 2;
                 } else if (ch == '\n') {
                     if (foregroundColored) {
                         return std::nullopt;
                     }
-                    stripped.push_back('\n');
+                    if (plainPosition == record.message.size() || record.message[plainPosition++] != '\n') {
+                        return std::nullopt;
+                    }
                     ++i;
                 } else {
-                    stripped.push_back(static_cast<char>(ch));
+                    if (plainPosition == record.message.size() || record.message[plainPosition++] != static_cast<char>(ch)) {
+                        return std::nullopt;
+                    }
                     ++i;
                 }
             }
             if (foregroundColored) {
                 return std::nullopt;
             }
-            if (stripped != record.message) {
+            if (plainPosition != record.message.size()) {
                 return std::nullopt;
             }
             return *record.terminalMessage;
         }
 
-        std::vector<std::string> sanitizeMessageLines(const std::string& message, bool preserveAllowedSgr = false) {
+        std::vector<std::string> sanitizeMessageLines(std::string_view message, bool preserveAllowedSgr = false) {
             std::vector<std::string> lines(1);
             for (std::size_t i = 0; i < message.size();) {
                 const unsigned char ch = static_cast<unsigned char>(message[i]);
@@ -297,9 +306,7 @@ namespace logger {
                     lines.emplace_back();
                     ++i;
                 } else {
-                    std::ostringstream escaped;
-                    appendEscapedByte(escaped, ch, false);
-                    lines.back() += escaped.str();
+                    appendEscapedByte(lines.back(), ch, false);
                     ++i;
                 }
             }
@@ -590,7 +597,7 @@ namespace logger {
             appendOptional(out, "src", source);
         }
         const auto terminalMessage = colorEnabled ? validatedTerminalMessage(record) : std::nullopt;
-        const std::string& message = terminalMessage ? *terminalMessage : record.message;
+        const std::string_view message = terminalMessage ? *terminalMessage : record.message;
         if (!message.empty()) {
             const auto lines = sanitizeMessageLines(message, terminalMessage.has_value());
             out << " — " << lines.front();
@@ -687,6 +694,24 @@ namespace logger {
     LogStream BoundaryLogger::critical() const {
         return {this, LogLevel::Critical};
     }
+    void BoundaryLogger::hexDump(LogLevel level, std::string_view label, std::span<const std::byte> bytes) const {
+        if (!enabled(level) || !sink)
+            return;
+        std::string heading(label);
+        heading += " (" + std::to_string(bytes.size()) + " bytes)";
+        if (!bytes.empty())
+            heading += '\n';
+        const auto* data = reinterpret_cast<const char*>(bytes.data());
+        PresentedMessage message{.plain = heading + utils::hexDump(data, bytes.size()), .terminal = {}};
+        if (Logger::semanticStdoutUsesColor())
+            message.terminal = heading + utils::hexDump(data, bytes.size(), 0, false, utils::terminalHexDumpPalette);
+        emit(level, std::move(message));
+    }
+
+    void BoundaryLogger::hexDump(LogLevel level, std::string_view label, std::string_view bytes) const {
+        hexDump(level, label, std::as_bytes(std::span(bytes.data(), bytes.size())));
+    }
+
     void BoundaryLogger::emit(LogLevel level, std::string message, LogRecordOptions options) const {
         if (!enabled(level) || !sink)
             return;

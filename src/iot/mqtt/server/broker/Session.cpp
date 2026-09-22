@@ -77,9 +77,7 @@ namespace iot::mqtt::server::broker {
     void Session::sendPublish(Message& message, uint8_t qoS, bool retain) {
         const auto& log = this->log();
         log.info() << "TopicName: " << message.getTopic();
-        if (log.enabled(logger::LogLevel::Info)) {
-            log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-        }
+        log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
         log.debug() << "QoS: " << static_cast<uint16_t>(std::min(qoS, message.getQoS()));
 
         if (isActive()) {

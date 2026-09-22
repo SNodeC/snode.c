@@ -72,9 +72,7 @@ namespace core::socket::stream {
     class ClientFlowController : public FlowController<ClientFlowController> {
     public:
         using Super = FlowController<ClientFlowController>;
-        using OnDestroyRegistrar = Super::OnDestroyRegistrar;
-
-        ClientFlowController(const std::string& instanceName, const OnDestroyRegistrar& onDestroyRegistrar);
+        explicit ClientFlowController(const std::string& instanceName);
 
         void stopReconnect();
         bool isReconnectEnabled() const;
@@ -83,10 +81,7 @@ namespace core::socket::stream {
         ClientFlowController* setOnFlowReconnect(const std::function<void(ClientFlowController*)>& callback);
 
     private:
-        // Re-arm retry and reconnect policy for a later explicit connect().
-        bool restartFlow();
-
-        void reportFlowReconnect();
+        bool dispatchReconnect();
 
         void observeConnectEventReceiver(core::eventreceiver::ConnectEventReceiver* connectEventReceiver);
 

@@ -137,9 +137,7 @@ namespace iot::mqtt::server::broker {
         if (topic.empty()) {
             log.debug() << "Retain:";
             log.debug() << "Topic: " << message.getTopic();
-            if (log.enabled(logger::LogLevel::Debug)) {
-                log.debug() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-            }
+            log.hexDump(logger::LogLevel::Debug, "Message", message.getMessage());
             log.debug() << "QoS: " << static_cast<uint16_t>(message.getQoS());
 
             this->message = message;
@@ -182,9 +180,7 @@ namespace iot::mqtt::server::broker {
             if (!message.getTopic().empty()) {
                 log.info() << "Retained Topic found:";
                 log.info() << "Topic: " << message.getTopic();
-                if (log.enabled(logger::LogLevel::Info)) {
-                    log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-                }
+                log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
                 log.debug() << "QoS: " << static_cast<uint16_t>(message.getQoS());
                 log.debug() << "Client:";
                 log.debug() << "QoS: " << static_cast<uint16_t>(qoS);
@@ -220,9 +216,7 @@ namespace iot::mqtt::server::broker {
         if (!message.getTopic().empty()) {
             log.info() << "Retained Topic found:";
             log.info() << "Topic: " << message.getTopic();
-            if (log.enabled(logger::LogLevel::Info)) {
-                log.info() << "Message:\n" << iot::mqtt::Mqtt::toHexString(message.getMessage());
-            }
+            log.hexDump(logger::LogLevel::Info, "Message", message.getMessage());
             log.debug() << "QoS: " << static_cast<uint16_t>(message.getQoS());
             log.debug() << "Client:";
             log.debug() << "QoS: " << static_cast<uint16_t>(clientQoS);

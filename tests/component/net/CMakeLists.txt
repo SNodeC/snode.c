@@ -344,3 +344,9 @@ set_tests_properties(UnixLegacyServerMultipleClientsDisconnectLifecycleTest PROP
                      LABELS "component;net;stream;legacy;unix;multi-client;disconnect"
                      SKIP_RETURN_CODE 77
                      TIMEOUT 5)
+snodec_add_test(InetPerCallFlowTest InetPerCallFlowTest.cpp)
+target_link_libraries(InetPerCallFlowTest PRIVATE snodec-test-support snodec::net-in-stream-legacy)
+target_compile_features(InetPerCallFlowTest PRIVATE cxx_std_20)
+set_tests_properties(InetPerCallFlowTest PROPERTIES
+                    LABELS "component;net;stream;legacy;ipv4;flow"
+                    SKIP_RETURN_CODE 77 TIMEOUT 5)

@@ -24,6 +24,13 @@ Messages are not quoted. CRLF is one logical newline, LF is a logical newline, a
 
 Subsequent logical lines start with `│ `, preserving blank and trailing continuation lines without alignment padding.
 
+Hex-dump rows contain an offset of at least eight hexadecimal digits, 16 bytes
+grouped into two blocks of eight, and a padded `|ASCII|` column. Non-printable
+bytes appear as dots in that column. Rows occupy 78 columns for eight-digit
+offsets (80 with the continuation marker), without the former 32-space padding.
+The public `Logger::hexDump()` operation adds a label and total byte count and
+does not inspect terminal width or truncate payloads.
+
 ## Examples
 
 ```text

@@ -106,6 +106,7 @@ namespace logger {
         static void setTickResolver(TickResolver resolver);
         static void setDisableColor(bool disableColorLog = true);
         static bool getDisableColor();
+        static bool semanticStdoutUsesColor();
 
         static bool shouldLog(Level level);
         static bool shouldVerbose(int verboseLevel);

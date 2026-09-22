@@ -50,7 +50,7 @@ int main() {
         testResult.expectTrue(contains(formatted, "Reason : Not Found"), "response formatter seam preserves non-200 reason phrases");
         testResult.expectTrue(contains(formatted, "Content-Length : 9"), "response formatter seam preserves response Content-Length");
         testResult.expectTrue(contains(formatted, "Content-Type : text/plain"), "response formatter seam preserves response Content-Type");
-        testResult.expectTrue(contains(formatted, "6e 6f 74 20 66 6f 75 6e 64"), "response formatter seam preserves the body bytes");
+        testResult.expectTrue(contains(formatted, "6e 6f 74 20 66 6f 75 6e  64"), "response formatter seam preserves the body bytes");
     }
 
     return testResult.processResult();

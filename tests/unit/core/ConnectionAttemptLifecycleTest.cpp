@@ -209,10 +209,7 @@ namespace {
     public:
         using Self = TestConnectorSocketConnection<PhysicalSocket, Config>;
 
-        TestConnectorSocketConnection(PhysicalSocket&&,
-                                      const std::function<void(Self*)>&,
-                                      std::uint64_t,
-                                      const std::shared_ptr<Config>&) {
+        TestConnectorSocketConnection(PhysicalSocket&&, const std::function<void(Self*)>&, std::uint64_t, const std::shared_ptr<Config>&) {
         }
 
         logger::BoundaryLogger log() const {
@@ -354,8 +351,7 @@ namespace {
             }
 
             onStatus(address, core::socket::State(core::socket::State::OK, __FILE__, __LINE__));
-            connections.push_back(
-                std::make_unique<SocketConnection>(11, allocateConnectionId(), config->getInstanceName()));
+            connections.push_back(std::make_unique<SocketConnection>(11, allocateConnectionId(), config->getInstanceName()));
             SocketConnection* connection = connections.back().get();
             if (onConnect) {
                 onConnect(connection);
@@ -450,8 +446,7 @@ namespace {
             const std::string message = record.value("message", "");
             if (message == "connection attempt started" || message == "connection attempt timed out") {
                 result.expectTrue(record.value("level", "") == "debug" && record.value("origin", "") == "framework" &&
-                                      record.value("boundary", "") == "instance" &&
-                                      record.value("component", "") == "core.socket.stream" &&
+                                      record.value("boundary", "") == "instance" && record.value("component", "") == "core.socket.stream" &&
                                       record.value("instance", "") == "timeout-client" && record.value("role", "") == "client" &&
                                       !record.contains("connection"),
                                   message + " carries client endpoint identity at Debug");
@@ -481,28 +476,32 @@ namespace {
             connectionIds.push_back(connection->getConnectionId());
         });
 
+        TestSocketClient::FlowHandle secondFlow;
         int failedStatuses = 0;
         std::function<void(const TestSocketAddress&, core::socket::State)> onStatus;
         onStatus = [&](const TestSocketAddress&, core::socket::State state) {
             if (state == core::socket::State::ERROR && failedStatuses++ == 0) {
-                core::EventReceiver::atNextTick([&client, &onStatus]() {
-                    client.connect(onStatus);
+                core::EventReceiver::atNextTick([&client, &onStatus, &secondFlow]() {
+                    secondFlow = client.connect(onStatus);
                 });
             }
         };
 
-        client.connect(onStatus);
+        auto firstFlow = client.connect(onStatus);
         runLoopOnce();
+        result.expectTrue(firstFlow->isTerminated(), "the old flow remains terminated");
+        result.expectTrue(secondFlow && secondFlow != firstFlow, "the explicit later call has its own flow");
 
-        result.expectEqual(2, static_cast<int>(TestLifecycleConnector::attempts()),
+        result.expectEqual(2,
+                           static_cast<int>(TestLifecycleConnector::attempts()),
                            "the same SocketClient starts a second explicit attempt after terminal failure");
         result.expectEqual(1, failedStatuses, "the first explicit attempt reports one terminal error");
         result.expectTrue(connectionIds.size() == 1 && connectionIds.front() == 1,
                           "the second explicit attempt establishes the first connection on the shared context");
-        result.expectEqual(0, static_cast<int>(client.getFlowController()->getRetryCount()),
-                           "an explicit later connect is not reported as an automatic retry");
-        result.expectEqual(0, static_cast<int>(client.getFlowController()->getReconnectCount()),
-                           "an explicit later connect is not reported as an automatic reconnect");
+        result.expectEqual(
+            0, static_cast<int>(secondFlow->getRetryCount()), "an explicit later connect is not reported as an automatic retry");
+        result.expectEqual(
+            0, static_cast<int>(secondFlow->getReconnectCount()), "an explicit later connect is not reported as an automatic reconnect");
 
         TestLifecycleConnector::cleanup();
         return result.processResult();
@@ -521,66 +520,67 @@ namespace {
             connectionIds.push_back(connection->getConnectionId());
         });
 
-        const std::function<void(const TestSocketAddress&, core::socket::State)> onStatus =
-            [](const TestSocketAddress&, core::socket::State) {};
+        const std::function<void(const TestSocketAddress&, core::socket::State)> onStatus = [](const TestSocketAddress&,
+                                                                                               core::socket::State) {
+        };
+        TestSocketClient::FlowHandle secondFlow;
         int disconnects = 0;
         client.setOnDisconnect([&](TestEndpointSocketConnection*) {
             if (disconnects++ == 0) {
-                core::EventReceiver::atNextTick([&client, &onStatus]() {
-                    client.connect(onStatus);
+                core::EventReceiver::atNextTick([&client, &onStatus, &secondFlow]() {
+                    secondFlow = client.connect(onStatus);
                 });
             }
         });
 
-        client.connect(onStatus);
+        auto firstFlow = client.connect(onStatus);
         runLoopOnce();
+        result.expectTrue(firstFlow->isTerminated(), "the old flow remains terminated");
+        result.expectTrue(secondFlow && secondFlow != firstFlow, "the explicit later call has its own flow");
 
-        result.expectEqual(2, static_cast<int>(TestLifecycleConnector::attempts()),
+        result.expectEqual(2,
+                           static_cast<int>(TestLifecycleConnector::attempts()),
                            "the same SocketClient starts a second explicit attempt after disconnect");
         result.expectEqual(1, disconnects, "the first established connection disconnects exactly once");
         result.expectTrue(connectionIds.size() == 2 && connectionIds[0] == 1 && connectionIds[1] == 2,
                           "explicit reconnect preserves the shared monotonically increasing connection sequence");
-        result.expectEqual(0, static_cast<int>(client.getFlowController()->getReconnectCount()),
+        result.expectEqual(0,
+                           static_cast<int>(secondFlow->getReconnectCount()),
                            "manual reuse of connect is distinct from configured automatic reconnect");
 
         TestLifecycleConnector::cleanup();
         return result.processResult();
     }
 
-    int runStaleConnectCallbackTest() {
+    int runCancelledConnectCallbackTest() {
         tests::support::TestResult result;
         SNodeCGuard snodeGuard;
         TestLifecycleConnector::reset({ClientAction::TerminalError, ClientAction::ConnectedStop});
 
-        TestSocketClient client("stale-connect-callback");
+        TestSocketClient client("cancelled-connect-callback");
         client.getConfig()->setRetry(false)->setReconnect(false);
-
-        int staleSuccesses = 0;
-        int restartedSuccesses = 0;
-        int terminations = 0;
-        const std::function<void(const TestSocketAddress&, core::socket::State)> staleStatus =
-            [&](const TestSocketAddress&, core::socket::State state) {
-                staleSuccesses += state == core::socket::State::OK ? 1 : 0;
-            };
-        const std::function<void(const TestSocketAddress&, core::socket::State)> restartedStatus =
-            [&](const TestSocketAddress&, core::socket::State state) {
-                restartedSuccesses += state == core::socket::State::OK ? 1 : 0;
-            };
-
-        client.getFlowController()->setOnFlowTerminated([&](core::socket::stream::ClientFlowController*) {
-            if (terminations++ == 0) {
-                client.connect(restartedStatus);
-            }
+        int cancelledCallbacks = 0;
+        int siblingErrors = 0;
+        int freshSuccesses = 0;
+        auto cancelled = client.connect([&](const TestSocketAddress&, core::socket::State) {
+            ++cancelledCallbacks;
         });
-
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
-        client.connect(staleStatus);
+        auto sibling = client.connect([&](const TestSocketAddress&, core::socket::State state) {
+            siblingErrors += state == core::socket::State::ERROR ? 1 : 0;
+        });
+        cancelled->terminateFlow();
+        auto fresh = client.connect([&](const TestSocketAddress&, core::socket::State state) {
+            freshSuccesses += state == core::socket::State::OK ? 1 : 0;
+        });
         runLoopOnce();
 
-        result.expectEqual(2, static_cast<int>(TestLifecycleConnector::attempts()),
-                           "an explicit restart invalidates an older queued connect callback");
-        result.expectEqual(0, staleSuccesses, "the stale callback cannot claim the restarted flow");
-        result.expectEqual(1, restartedSuccesses, "the explicitly restarted callback establishes the connection");
+        result.expectEqual(
+            2, static_cast<int>(TestLifecycleConnector::attempts()), "only the individually cancelled queued attempt is suppressed");
+        result.expectEqual(0, cancelledCallbacks, "cancelled queued flow cannot report a later status");
+        result.expectEqual(1, siblingErrors, "the sibling call still executes independently");
+        result.expectEqual(1, freshSuccesses, "a fresh call works after cancellation and sibling failure");
+        result.expectTrue(cancelled->isTerminated() && sibling->isTerminated() && !fresh->isTerminated(),
+                          "a fresh call never resurrects either old flow");
 
         TestLifecycleConnector::cleanup();
         return result.processResult();
@@ -598,12 +598,14 @@ namespace {
             client.setOnConnected([&](TestEndpointSocketConnection* connection) {
                 connectionIds.push_back(connection->getConnectionId());
             });
-            client.connect([](const TestSocketAddress&, core::socket::State) {});
+            client.connect([](const TestSocketAddress&, core::socket::State) {
+            });
         }
 
         runLoopOnce();
 
-        result.expectEqual(2, static_cast<int>(TestLifecycleConnector::attempts()),
+        result.expectEqual(2,
+                           static_cast<int>(TestLifecycleConnector::attempts()),
                            "the shared client flow remains alive after the SocketClient handle leaves scope");
         result.expectTrue(connectionIds.size() == 2 && connectionIds[0] == 1 && connectionIds[1] == 2,
                           "configured reconnect completes after the original SocketClient handle is destroyed");
@@ -619,7 +621,7 @@ int main(int argc, char** argv) {
             "connector-terminal",
             "explicit-after-failure",
             "explicit-after-disconnect",
-            "stale-connect-callback",
+            "cancelled-connect-callback",
             "out-of-scope-reconnect",
         };
 
@@ -641,8 +643,8 @@ int main(int argc, char** argv) {
     if (scenario == "explicit-after-disconnect") {
         return runExplicitConnectAfterDisconnectTest();
     }
-    if (scenario == "stale-connect-callback") {
-        return runStaleConnectCallbackTest();
+    if (scenario == "cancelled-connect-callback") {
+        return runCancelledConnectCallbackTest();
     }
     if (scenario == "out-of-scope-reconnect") {
         return runOutOfScopeReconnectTest();

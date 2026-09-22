@@ -46,10 +46,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/SemanticLogger.h"
-#include "utils/hexdump.h"
 
 #include <endian.h>
-#include <string>
+#include <string_view>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -150,12 +149,7 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(randomDevice)};
 
         if (payloadLength > 0) {
-            if (frameLog().enabled(logger::LogLevel::Trace)) {
-                const auto dump = utils::hexDumpPresentation(payload, payloadLength, 32, true);
-                frameLog().emit(
-                    logger::LogLevel::Trace,
-                    logger::PresentedMessage{.plain = "send: Frame data\n" + dump.plain, .terminal = "send: Frame data\n" + dump.terminal});
-            }
+            frameLog().hexDump(logger::LogLevel::Trace, "send: Frame data", std::string_view(payload, payloadLength));
         }
 
         if (masking) {

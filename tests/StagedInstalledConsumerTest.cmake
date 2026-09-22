@@ -1,5 +1,7 @@
 set(stage "${SNODEC_BUILD_DIR}/staged-installed-consumer")
 set(prefix "${stage}/prefix")
+# Execute consumers against this temporary installation, not a system copy.
+set(ENV{LD_LIBRARY_PATH} "${prefix}/lib:${prefix}/lib/snode.c/web/http")
 set(consumer "${stage}/consumer.cpp")
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")

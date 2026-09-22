@@ -318,6 +318,14 @@ namespace core {
         return -stopsig;
     }
 
+    bool EventLoop::reconfigure() {
+        if (eventLoopState != State::RUNNING) {
+            EventLoop::instance().log().error("Configuration can only be reapplied while SNode.C is running");
+            return false;
+        }
+        return utils::Config::reconfigure();
+    }
+
     void EventLoop::stop() {
         eventLoopState = State::STOPPING;
     }

@@ -44,7 +44,7 @@ namespace logger::detail {
         void setLogFile(const std::string& logFile);
         void disableLogFile();
 
-        void emitSemantic(LogLevel level, const std::string& plainRecord, const std::string& coloredRecord);
+        void emitSemantic(const LogRecord& record);
         bool semanticStdoutUsesColor() const;
 
         bool shouldLog(Level level) const;

@@ -44,6 +44,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <memory> // IWYU pragma: export
 #include <string>
 
@@ -70,6 +71,10 @@ namespace core::socket {
         virtual ~Socket();
 
         Config* getConfig() const;
+
+        // Called after the shared instance is unregistered, not when a wrapper
+        // or an individual connection flow ends. Do not capture this wrapper.
+        void setOnDestroy(const std::function<void()>& onDestroy) const;
 
     protected:
         const std::shared_ptr<Config> config;

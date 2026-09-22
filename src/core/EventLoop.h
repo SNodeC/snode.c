@@ -92,6 +92,7 @@ namespace core {
         TickStatus _tick(const utils::Timeval& timeOut);
         static TickStatus tick(const utils::Timeval& timeOut);
         static int start(const utils::Timeval& timeOut);
+        static bool reconfigure();
         static void stop();
         static void free();
 

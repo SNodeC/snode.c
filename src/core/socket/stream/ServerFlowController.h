@@ -73,9 +73,7 @@ namespace core::socket::stream {
     class ServerFlowController : public FlowController<ServerFlowController> {
     public:
         using Super = FlowController<ServerFlowController>;
-        using OnDestroyRegistrar = Super::OnDestroyRegistrar;
-
-        ServerFlowController(const std::string& instanceName, const OnDestroyRegistrar& onDestroyRegistrar);
+        explicit ServerFlowController(const std::string& instanceName);
 
     private:
         void observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver);

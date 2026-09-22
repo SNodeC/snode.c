@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 #include <system_error>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -266,14 +267,7 @@ namespace {
         double reconnectTime{1};
     };
 
-    enum class ServerAction {
-        TerminalError,
-        ErrorThenStopBeforePolicy,
-        NoRetryError,
-        RetryableError,
-        OkStop,
-        TwoAcceptedConnectionsStop
-    };
+    enum class ServerAction { TerminalError, ErrorThenStopBeforePolicy, NoRetryError, RetryableError, OkStop, TwoAcceptedConnectionsStop };
 
     enum class ClientAction {
         TerminalError,
@@ -314,7 +308,9 @@ namespace {
                 core::SNodeC::stop();
             }
 
-            core::socket::State status = action == ServerAction::OkStop ? core::socket::State(core::socket::State::OK, __FILE__, __LINE__) : core::socket::State(core::socket::State::ERROR, __FILE__, __LINE__);
+            core::socket::State status = action == ServerAction::OkStop
+                                             ? core::socket::State(core::socket::State::OK, __FILE__, __LINE__)
+                                             : core::socket::State(core::socket::State::ERROR, __FILE__, __LINE__);
             if (action == ServerAction::NoRetryError) {
                 status |= core::socket::State::NO_RETRY;
             }
@@ -408,7 +404,9 @@ namespace {
                 core::SNodeC::stop();
             }
 
-            core::socket::State status = action == ClientAction::OkStop ? core::socket::State(core::socket::State::OK, __FILE__, __LINE__) : core::socket::State(core::socket::State::ERROR, __FILE__, __LINE__);
+            core::socket::State status = action == ClientAction::OkStop
+                                             ? core::socket::State(core::socket::State::OK, __FILE__, __LINE__)
+                                             : core::socket::State(core::socket::State::ERROR, __FILE__, __LINE__);
             if (action == ClientAction::NoRetryError) {
                 status |= core::socket::State::NO_RETRY;
             }
@@ -492,10 +490,11 @@ namespace {
     }
 
     bool summaryAppearsBeforeShutdown(const std::string& log) {
-        const auto summary = log.find("Instance terminated:");
+        const auto summary = log.find("Flow terminated:");
         const auto config = log.find("Core: Shutdown config system");
         const auto bye = log.find("SNode.C: Ended ... BYE");
-        return summary != std::string::npos && (config == std::string::npos || summary < config) && (bye == std::string::npos || summary < bye);
+        return summary != std::string::npos && (config == std::string::npos || summary < config) &&
+               (bye == std::string::npos || summary < bye);
     }
 } // namespace
 
@@ -513,6 +512,9 @@ int main(int argc, char** argv) {
         "server-sequence",
         "client-sequence",
         "expired-weak-context",
+        "independent-server-retries",
+        "independent-client-retries",
+        "independent-client-reconnects",
     };
 
     if (argc == 1) {
@@ -527,24 +529,91 @@ int main(int argc, char** argv) {
     const std::string scenario = argv[1];
     tests::support::TestResult result;
 
+    if (scenario == "independent-server-retries" || scenario == "independent-client-retries") {
+        SNodeCGuard snodeGuard;
+        auto check = [&]<typename Endpoint>(Endpoint& endpoint) {
+            endpoint.getConfig()->setRetry(true)->setRetryTimeout(0)->setRetryTries(1);
+            int cancelledStatuses = 0;
+            int siblingSuccesses = 0;
+            auto start = [&](const auto& status) {
+                if constexpr (std::is_same_v<Endpoint, TestSocketServer>)
+                    return endpoint.listen(status);
+                else
+                    return endpoint.connect(status);
+            };
+            auto cancelled = start([&](const TestSocketAddress&, core::socket::State) {
+                ++cancelledStatuses;
+            });
+            auto sibling = start([&](const TestSocketAddress&, core::socket::State status) {
+                siblingSuccesses += status == core::socket::State::OK ? 1 : 0;
+            });
+            cancelled->setOnFlowRetry([](auto* flow) {
+                flow->terminateFlow();
+            });
+            runLoopOnce();
+            result.expectEqual(1, cancelledStatuses, "cancelling from retry observer suppresses only its own next attempt");
+            result.expectEqual(1, siblingSuccesses, "the sibling timer still dispatches and succeeds");
+            result.expectEqual(1, static_cast<int>(cancelled->getRetryCount()), "cancelled flow owns its dispatched retry count");
+            result.expectEqual(1, static_cast<int>(sibling->getRetryCount()), "sibling owns a separate dispatched retry count");
+            result.expectTrue(cancelled->isTerminated() && !sibling->isTerminated(), "retry cancellation is per flow");
+        };
+        if (scenario == "independent-server-retries") {
+            TestAcceptEventReceiver::reset({ServerAction::RetryableError, ServerAction::RetryableError, ServerAction::OkStop});
+            TestSocketServer server("independent-server-retries");
+            check(server);
+        } else {
+            TestConnectEventReceiver::reset({ClientAction::RetryableError, ClientAction::RetryableError, ClientAction::OkStop});
+            TestSocketClient client("independent-client-retries");
+            check(client);
+        }
+    }
+
+    if (scenario == "independent-client-reconnects") {
+        SNodeCGuard snodeGuard;
+        TestConnectEventReceiver::reset(
+            {ClientAction::ConnectedThenDisconnect, ClientAction::ConnectedThenDisconnect, ClientAction::ConnectedStop});
+        TestSocketClient client("independent-client-reconnects");
+        client.getConfig()->setReconnect(true)->setReconnectTime(0);
+        int connected = 0;
+        client.setOnConnected([&](TestSocketConnection*) {
+            ++connected;
+        });
+        auto cancelled = client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        auto sibling = client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        cancelled->setOnFlowReconnect([](auto* flow) {
+            flow->terminateFlow();
+        });
+        runLoopOnce();
+        result.expectEqual(3, connected, "two initial connections but only the uncancelled flow reconnects");
+        result.expectEqual(1, static_cast<int>(cancelled->getReconnectCount()), "cancelled flow counts its reconnect dispatch");
+        result.expectEqual(1, static_cast<int>(sibling->getReconnectCount()), "sibling reconnect is counted independently");
+        result.expectTrue(cancelled->isTerminated() && !sibling->isTerminated(), "reconnect observers cannot resurrect terminated flows");
+    }
+
     if (scenario == "server-terminal") {
         const auto logPath = tempLogPath("snodec-endpoint-server-terminal.log");
         LoggerStateGuard loggerGuard(logPath.string());
         SNodeCGuard snodeGuard;
-        TestAcceptEventReceiver::reset({ServerAction::TerminalError, ServerAction::TerminalError});
+        TestAcceptEventReceiver::reset({ServerAction::RetryableError, ServerAction::RetryableError});
         TestSocketServer server("endpoint-server-terminal");
         server.getConfig()->setRetry(false);
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
+        server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
+        server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0")),
-                           "real server terminal listen ERROR emits exactly one summary");
+        result.expectEqual(2,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0")),
+                           "real server terminal listen ERROR emits one summary per explicit call");
         result.expectTrue(hasSummaryScope(log, "server", "endpoint-server-terminal"),
                           "server summary is Info framework/instance core.socket.stream with server role and instance");
         result.expectTrue(log.find("conn=") == std::string::npos, "server instance summary has no connection field");
-        result.expectTrue(summaryAppearsBeforeShutdown(log), "server terminal summary remains before shutdown logs and is not repeated by free");
+        result.expectTrue(summaryAppearsBeforeShutdown(log),
+                          "server terminal summary remains before shutdown logs and is not repeated by free");
     }
 
     if (scenario == "server-retry") {
@@ -555,15 +624,15 @@ int main(int argc, char** argv) {
         TestSocketServer server("endpoint-server-retry");
         server.getConfig()->setRetry(true)->setRetryTimeout(0)->setRetryTries(1);
         std::uint64_t retrySeenByObserver = 0;
-        server.getFlowController()->setOnFlowRetry([&](core::socket::stream::ServerFlowController* flow) {
+        auto flow = server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
+        flow->setOnFlowRetry([&](core::socket::stream::ServerFlowController* flow) {
             retrySeenByObserver = flow->getRetryCount();
         });
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(server.getFlowController()->getRetryCount()),
-                           "real server retry dispatch increments retryCount once");
+        result.expectEqual(1, static_cast<int>(flow->getRetryCount()), "real server retry dispatch increments retryCount once");
         result.expectEqual(1, static_cast<int>(retrySeenByObserver), "server retry observer sees incremented retryCount");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry scheduled")), "server retry is scheduled once");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry dispatched")), "server retry is dispatched once");
@@ -577,11 +646,13 @@ int main(int argc, char** argv) {
         TestAcceptEventReceiver::reset({ServerAction::NoRetryError});
         TestSocketServer server("endpoint-server-no-retry");
         server.getConfig()->setRetry(false);
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
+        server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0")),
                            "server NO_RETRY address fallback emits graceful shutdown summary");
     }
 
@@ -592,17 +663,16 @@ int main(int argc, char** argv) {
         TestAcceptEventReceiver::reset({ServerAction::ErrorThenStopBeforePolicy});
         TestSocketServer server("endpoint-server-retry-cancelled");
         server.getConfig()->setRetry(true)->setRetryTimeout(30)->setRetryTries(1);
-        server.listen([](const TestSocketAddress&, core::socket::State) {
+        auto flow = server.listen([](const TestSocketAddress&, core::socket::State) {
         });
         runLoopOnce();
-        server.getFlowController()->terminateFlow();
+        flow->terminateFlow();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry scheduled")), "server retry cancellation starts scheduled");
         result.expectEqual(0, static_cast<int>(countOccurrences(log, "retry dispatched")), "cancelled server retry is never dispatched");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry cancelled")), "scheduled server retry is cancelled once");
-        result.expectEqual(
-            0, static_cast<int>(server.getFlowController()->getRetryCount()), "cancelled server retry does not increment counter");
+        result.expectEqual(0, static_cast<int>(flow->getRetryCount()), "cancelled server retry does not increment counter");
     }
 
     if (scenario == "server-shutdown") {
@@ -612,11 +682,13 @@ int main(int argc, char** argv) {
         TestAcceptEventReceiver::reset({ServerAction::ErrorThenStopBeforePolicy});
         TestSocketServer server("endpoint-server-shutdown");
         server.getConfig()->setRetry(false);
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
+        server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0")),
                            "server graceful shutdown emits exactly one summary");
         result.expectTrue(summaryAppearsBeforeShutdown(log), "server graceful summary appears before config shutdown and BYE");
     }
@@ -625,20 +697,24 @@ int main(int argc, char** argv) {
         const auto logPath = tempLogPath("snodec-endpoint-client-terminal.log");
         LoggerStateGuard loggerGuard(logPath.string());
         SNodeCGuard snodeGuard;
-        TestConnectEventReceiver::reset({ClientAction::TerminalError, ClientAction::TerminalError});
+        TestConnectEventReceiver::reset({ClientAction::RetryableError, ClientAction::RetryableError});
         TestSocketClient client("endpoint-client-terminal");
         client.getConfig()->setRetry(false);
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0 reconnects=0")),
-                           "real client terminal connect ERROR emits exactly one summary");
+        result.expectEqual(2,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0 reconnects=0")),
+                           "real client terminal connect ERROR emits one summary per explicit call");
         result.expectTrue(hasSummaryScope(log, "client", "endpoint-client-terminal"),
                           "client connect summary is Info framework/instance core.socket.stream with client role and instance");
         result.expectTrue(log.find("conn=") == std::string::npos, "client connect instance summary has no connection field");
-        result.expectTrue(summaryAppearsBeforeShutdown(log), "client terminal summary remains before shutdown logs and is not repeated by free");
+        result.expectTrue(summaryAppearsBeforeShutdown(log),
+                          "client terminal summary remains before shutdown logs and is not repeated by free");
     }
 
     if (scenario == "client-retry") {
@@ -649,15 +725,15 @@ int main(int argc, char** argv) {
         TestSocketClient client("endpoint-client-retry");
         client.getConfig()->setRetry(true)->setRetryTimeout(0)->setRetryTries(1);
         std::uint64_t retrySeenByObserver = 0;
-        client.getFlowController()->setOnFlowRetry([&](core::socket::stream::ClientFlowController* flow) {
+        auto flow = client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        flow->setOnFlowRetry([&](core::socket::stream::ClientFlowController* flow) {
             retrySeenByObserver = flow->getRetryCount();
         });
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(client.getFlowController()->getRetryCount()),
-                           "real client retry dispatch increments retryCount once");
+        result.expectEqual(1, static_cast<int>(flow->getRetryCount()), "real client retry dispatch increments retryCount once");
         result.expectEqual(1, static_cast<int>(retrySeenByObserver), "client retry observer sees incremented retryCount");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry scheduled")), "client retry is scheduled once");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry dispatched")), "client retry is dispatched once");
@@ -671,11 +747,13 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::NoRetryError});
         TestSocketClient client("endpoint-client-no-retry");
         client.getConfig()->setRetry(false);
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0 reconnects=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0 reconnects=0")),
                            "client NO_RETRY address fallback emits graceful shutdown summary");
     }
 
@@ -686,17 +764,16 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::ErrorThenStopBeforePolicy});
         TestSocketClient client("endpoint-client-retry-cancelled");
         client.getConfig()->setRetry(true)->setRetryTimeout(30)->setRetryTries(1);
-        client.connect([](const TestSocketAddress&, core::socket::State) {
+        auto flow = client.connect([](const TestSocketAddress&, core::socket::State) {
         });
         runLoopOnce();
-        client.getFlowController()->terminateFlow();
+        flow->terminateFlow();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry scheduled")), "client retry cancellation starts scheduled");
         result.expectEqual(0, static_cast<int>(countOccurrences(log, "retry dispatched")), "cancelled client retry is never dispatched");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "retry cancelled")), "scheduled client retry is cancelled once");
-        result.expectEqual(
-            0, static_cast<int>(client.getFlowController()->getRetryCount()), "cancelled client retry does not increment counter");
+        result.expectEqual(0, static_cast<int>(flow->getRetryCount()), "cancelled client retry does not increment counter");
     }
 
     if (scenario == "client-shutdown") {
@@ -706,11 +783,13 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::ErrorThenStopBeforePolicy});
         TestSocketClient client("endpoint-client-shutdown");
         client.getConfig()->setRetry(false);
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=0 retries=0 reconnects=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=0 retries=0 reconnects=0")),
                            "client graceful shutdown emits exactly one summary");
         result.expectTrue(summaryAppearsBeforeShutdown(log), "client graceful summary appears before config shutdown and BYE");
     }
@@ -722,12 +801,15 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::ConnectedThenDisconnect, ClientAction::ConnectedThenDisconnect});
         TestSocketClient client("endpoint-client-disconnect-terminal");
         client.getConfig()->setReconnect(false);
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=1 retries=0 reconnects=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=1 retries=0 reconnects=0")),
                            "real client reconnect rejection during RUNNING emits exactly one summary");
         result.expectTrue(hasSummaryScope(log, "client", "endpoint-client-disconnect-terminal"),
                           "client reconnect summary is Info framework/instance core.socket.stream with client role and instance");
@@ -742,19 +824,19 @@ int main(int argc, char** argv) {
         TestSocketClient client("endpoint-client-reconnect-accepted");
         client.getConfig()->setReconnect(true)->setReconnectTime(0);
         std::uint64_t reconnectSeenByObserver = 0;
-        client.getFlowController()->setOnFlowReconnect([&](core::socket::stream::ClientFlowController* flow) {
+        auto flow = client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
+        flow->setOnFlowReconnect([&](core::socket::stream::ClientFlowController* flow) {
             reconnectSeenByObserver = flow->getReconnectCount();
         });
         std::vector<std::uint64_t> connectionIds;
         client.setOnConnected([&](TestSocketConnection* connection) {
             connectionIds.push_back(connection->getConnectionId());
         });
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(client.getFlowController()->getReconnectCount()),
-                           "real client reconnect dispatch increments reconnectCount once");
+        result.expectEqual(1, static_cast<int>(flow->getReconnectCount()), "real client reconnect dispatch increments reconnectCount once");
         result.expectEqual(1, static_cast<int>(reconnectSeenByObserver), "reconnect observer sees incremented reconnectCount");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "reconnect scheduled")), "reconnect is scheduled once");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "reconnect dispatched")), "reconnect is dispatched once");
@@ -770,11 +852,13 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::ConnectedThenDisconnectStopping});
         TestSocketClient client("endpoint-client-disconnect-stopping");
         client.getConfig()->setReconnect(false);
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
-        result.expectEqual(1, static_cast<int>(countOccurrences(log, "Instance terminated: connections=1 retries=0 reconnects=0")),
+        result.expectEqual(1,
+                           static_cast<int>(countOccurrences(log, "Flow terminated: endpoint-connections=1 retries=0 reconnects=0")),
                            "client disconnect while STOPPING emits graceful shutdown summary");
     }
 
@@ -785,20 +869,19 @@ int main(int argc, char** argv) {
         TestConnectEventReceiver::reset({ClientAction::ConnectedThenDisconnect});
         TestSocketClient client("endpoint-client-reconnect-cancelled");
         client.getConfig()->setReconnect(true)->setReconnectTime(30);
-        client.connect([](const TestSocketAddress&, core::socket::State) {
+        auto flow = client.connect([](const TestSocketAddress&, core::socket::State) {
         });
         core::EventReceiver::atNextTick([]() {
             core::SNodeC::stop();
         });
         runLoopOnce();
-        client.getFlowController()->terminateFlow();
+        flow->terminateFlow();
         logger::Logger::disableLogToFile();
         const auto log = readFile(logPath);
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "reconnect scheduled")), "reconnect cancellation starts scheduled");
         result.expectEqual(0, static_cast<int>(countOccurrences(log, "reconnect dispatched")), "cancelled reconnect is never dispatched");
         result.expectEqual(1, static_cast<int>(countOccurrences(log, "reconnect cancelled")), "scheduled reconnect is cancelled once");
-        result.expectEqual(
-            0, static_cast<int>(client.getFlowController()->getReconnectCount()), "cancelled reconnect does not increment counter");
+        result.expectEqual(0, static_cast<int>(flow->getReconnectCount()), "cancelled reconnect does not increment counter");
     }
 
     if (scenario == "server-sequence") {
@@ -809,7 +892,8 @@ int main(int argc, char** argv) {
         server.setOnConnected([&](TestSocketConnection* connection) {
             serverConnectionIds.push_back(connection->getConnectionId());
         });
-        server.listen([](const TestSocketAddress&, core::socket::State) {});
+        server.listen([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         result.expectTrue(serverConnectionIds.size() == 2 && serverConnectionIds[0] == 1 && serverConnectionIds[1] == 2,
                           "real server acceptor allocator gives conn=1 then conn=2 despite descriptor reuse");
@@ -823,7 +907,8 @@ int main(int argc, char** argv) {
         client.setOnConnected([&](TestSocketConnection* connection) {
             clientConnectionIds.push_back(connection->getConnectionId());
         });
-        client.connect([](const TestSocketAddress&, core::socket::State) {});
+        client.connect([](const TestSocketAddress&, core::socket::State) {
+        });
         runLoopOnce();
         result.expectTrue(clientConnectionIds.size() == 1 && clientConnectionIds[0] == 1,
                           "real client connector allocator starts its independent sequence at conn=1");
@@ -839,10 +924,9 @@ int main(int argc, char** argv) {
         }
         runLoopOnce();
         logger::Logger::disableLogToFile();
-        result.expectTrue(readFile(logPath).find("Instance terminated:") == std::string::npos,
+        result.expectTrue(readFile(logPath).find("Flow terminated:") == std::string::npos,
                           "expired weak endpoint contexts are ignored safely");
     }
-
 
     TestAcceptEventReceiver::cleanup();
     TestConnectEventReceiver::cleanup();

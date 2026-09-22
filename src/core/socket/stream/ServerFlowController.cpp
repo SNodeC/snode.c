@@ -43,6 +43,7 @@
 
 #include "core/eventreceiver/AcceptEventReceiver.h"
 #include "core/socket/stream/FlowController.hpp"
+#include "log/SemanticLogger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,15 +51,18 @@
 
 namespace core::socket::stream {
 
-    ServerFlowController::ServerFlowController(const std::string& instanceName,
-                                               const OnDestroyRegistrar& onDestroyRegistrar)
-        : FlowController(instanceName, onDestroyRegistrar) {
+    ServerFlowController::ServerFlowController(const std::string& instanceName)
+        : FlowController(instanceName, logger::LogRole::Server) {
     }
 
     void ServerFlowController::observeAcceptEventReceiver(core::eventreceiver::AcceptEventReceiver* acceptEventReceiver) {
         if (acceptEventReceiver != nullptr) {
             if (acceptEventReceiver->isEnabled()) {
-                acceptEventReceivers.insert(acceptEventReceiver);
+                if (isTerminated()) {
+                    acceptEventReceiver->stopListen();
+                } else {
+                    acceptEventReceivers.insert(acceptEventReceiver);
+                }
             } else {
                 acceptEventReceivers.erase(acceptEventReceiver);
             }

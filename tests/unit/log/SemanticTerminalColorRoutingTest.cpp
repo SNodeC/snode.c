@@ -1,3 +1,4 @@
+#include "Log.h"
 #include "SemanticLog.h"
 #include "log/Logger.h"
 #include "log/SemanticLogger.h"
@@ -117,7 +118,7 @@ int main() {
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
         log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
-        result.expectTrue(contains(stdoutText, ": 00000000  41 00 1b 0a 5a"), "default redirected semantic stdout emits plain dump");
+        result.expectTrue(contains(stdoutText, "00000000  41 00 1b 0a 5a"), "default redirected semantic stdout emits plain dump");
         result.expectTrue(!contains(stdoutText, "\033["), "non-TTY redirected semantic stdout defaults to plain dump");
         result.expectTrue(!contains(stdoutText, "\\x1B["), "non-TTY redirected semantic stdout contains no literal color clutter");
     }
@@ -140,8 +141,8 @@ int main() {
         result.expectTrue(!contains(stdoutText, "\\x1B[34m") && !contains(stdoutText, "\\x1B[32m") && !contains(stdoutText, "\\x1B[33m"),
                           "colored stdout contains no literal palette clutter");
         result.expectTrue(contains(stdoutText, "│ "), "colored stdout preserves continuation markers");
-        result.expectTrue(contains(stripAnsi(stdoutText), ": 00000000  41 00 1b 0a 5a"), "colored stdout strips to readable dump");
-        result.expectTrue(contains(fileText, ": 00000000  41 00 1b 0a 5a"), "semantic text file receives plain dump");
+        result.expectTrue(contains(stripAnsi(stdoutText), "00000000  41 00 1b 0a 5a"), "colored stdout strips to readable dump");
+        result.expectTrue(contains(fileText, "00000000  41 00 1b 0a 5a"), "semantic text file receives plain dump");
         result.expectTrue(!contains(fileText, "\033[") && !contains(fileText, "\\x1B["), "semantic text file remains palette-free");
     }
 
@@ -154,7 +155,7 @@ int main() {
         auto log = snode::semantic::appLog(logger::Logger::semanticSink(), logger::LogLevel::Trace, fixedClock());
         log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
-        result.expectTrue(contains(stdoutText, ": 00000000  41 00 1b 0a 5a"), "explicit color disable emits plain dump");
+        result.expectTrue(contains(stdoutText, "00000000  41 00 1b 0a 5a"), "explicit color disable emits plain dump");
         result.expectTrue(!contains(stdoutText, "\033[") && !contains(stdoutText, "\\x1B["),
                           "explicit color disable keeps redirected semantic stdout plain");
     }
@@ -169,7 +170,7 @@ int main() {
         log.emit(logger::LogLevel::Info, dumpMessage());
         const std::string stdoutText = capture.read();
         result.expectTrue(contains(stdoutText, "\"level\":\"info\""), "semantic JSON still uses lowercase JSON level");
-        result.expectTrue(contains(stdoutText, "dump:\\n: 00000000"),
+        result.expectTrue(contains(stdoutText, "dump:\\n00000000"),
                           "semantic JSON stdout serializes the plain message with escaped newlines");
         result.expectTrue(!contains(stdoutText, "\033[") && !contains(stdoutText, "terminalMessage") &&
                               !contains(stdoutText, "\\u001b[34m"),
@@ -188,8 +189,7 @@ int main() {
         logger::Logger::disableLogToFile();
         const std::string fileText = readFile(filePath);
         result.expectTrue(contains(fileText, "\"level\":\"info\""), "semantic JSON file contains lowercase JSON level");
-        result.expectTrue(contains(fileText, "dump:\\n: 00000000"),
-                          "semantic JSON file serializes the plain message with escaped newlines");
+        result.expectTrue(contains(fileText, "dump:\\n00000000"), "semantic JSON file serializes the plain message with escaped newlines");
         result.expectTrue(!contains(fileText, "\033[") && !contains(fileText, "terminalMessage") && !contains(fileText, "\\u001b[34m"),
                           "semantic JSON file excludes terminal presentation");
     }
@@ -237,5 +237,48 @@ int main() {
     }
 
     resetLogger();
+    for (const bool color : {false, true}) {
+        for (const auto format : {logger::LogManager::Format::Text, logger::LogManager::Format::Json}) {
+            const auto stdoutPath = tempPath("snodec-hexdump-api-stdout.log");
+            const auto filePath = tempPath("snodec-hexdump-api-file.log");
+            StdoutCapture capture(stdoutPath);
+            resetLogger();
+            logger::Logger::setDisableColor(!color);
+            logger::Logger::logToFile(filePath.string());
+            logger::LogManager::setFormat(format);
+            auto log = snode::log::application("hex-api", {.instance = "peer", .role = snode::log::Role::Client, .connection = "7"});
+            const std::string payload("A\0\x1b\nZ", 5);
+            log.hexDump(snode::log::Level::Info, "Binary", std::string_view(payload));
+            log.hexDump(snode::log::Level::Info, "Bytes", std::as_bytes(std::span(payload)));
+            log.hexDump(snode::log::Level::Info, "Empty", std::string_view{});
+            const std::string output = capture.read();
+            logger::Logger::disableLogToFile();
+            const std::string file = readFile(filePath);
+            result.expectTrue(stripAnsi(output) == file, "new API sends equivalent plain and terminal content");
+            result.expectTrue(contains(file, "Binary (5 bytes)") && contains(file, "Bytes (5 bytes)") &&
+                                  contains(file, "Empty (0 bytes)") && contains(file, "41 00 1b 0a 5a"),
+                              "both public overloads preserve binary bytes and explicit empty input");
+            result.expectTrue(contains(file, "hex-api") && contains(file, "peer") && contains(file, "client"), "scope is preserved");
+            result.expectTrue(!contains(file, "\033[") && !contains(file, "\\u001b"), "files and JSON exclude palette sequences");
+            result.expectTrue(contains(output, "\033[32m") == (color && format == logger::LogManager::Format::Text),
+                              "hex colors follow existing output policy");
+        }
+    }
+    {
+        resetLogger();
+        logger::Logger::setDisableColor(true);
+        std::vector<logger::LogRecord> records;
+        auto log = logger::BoundaryLogger::createForTest(
+            {logger::LogOrigin::Application, logger::LogBoundary::Application, "hex-api", {}, logger::LogRole::Unknown, {}},
+            [&](logger::LogRecord record) {
+                records.push_back(std::move(record));
+            },
+            logger::LogLevel::Info);
+        log.hexDump(logger::LogLevel::Trace, "Suppressed", "payload");
+        result.expectTrue(records.empty(), "disabled hex dump does not emit");
+        log.hexDump(logger::LogLevel::Info, "Plain", "payload");
+        result.expectTrue(records.size() == 1 && (!records[0].terminalMessage || records[0].terminalMessage->empty()),
+                          "plain-only output does not construct a colored dump");
+    }
     return result.processResult();
 }

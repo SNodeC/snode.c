@@ -43,8 +43,10 @@
 #define LOGGER_SEMANTICLOGGER_H
 
 #include <chrono>
+#include <cstddef>
 #include <functional>
 #include <optional>
+#include <span>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -195,6 +197,8 @@ namespace logger {
         static BoundaryLogger createForTest(LogScope scope, Sink sink, LogLevel threshold = LogLevel::Trace, Clock clock = {});
 
         bool enabled(LogLevel level) const noexcept;
+        void hexDump(LogLevel level, std::string_view label, std::span<const std::byte> bytes) const;
+        void hexDump(LogLevel level, std::string_view label, std::string_view bytes) const;
 
         LogStream trace() const;
         LogStream debug() const;

@@ -120,8 +120,7 @@ int main(int argc, char* argv[]) {
                     snode::log::application().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                     break;
             }
-        })
-        .getFlowController();
+        });
 
     auto log = snode::log::application();
     if (log.enabled(snode::log::Level::Trace)) {
@@ -194,8 +193,7 @@ int main(int argc, char* argv[]) {
                         snode::log::application().critical() << instanceName << " " << socketAddress.toString() << ": " << state.what();
                         break;
                 }
-            })
-            .getFlowController();
+            });
 
         auto log = snode::log::application();
         if (log.enabled(snode::log::Level::Trace)) {

@@ -61,6 +61,10 @@ namespace core {
         return EventLoop::start(timeOut);
     }
 
+    bool SNodeC::reconfigure() {
+        return EventLoop::reconfigure();
+    }
+
     void SNodeC::stop() {
         EventLoop::stop();
     }

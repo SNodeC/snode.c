@@ -120,6 +120,15 @@ namespace snode::log {
                                                    .terminal = message.terminal ? std::move(*message.terminal) : std::string()});
     }
 
+    void Logger::hexDump(Level level, std::string_view label, std::span<const std::byte> bytes) const {
+        if (impl)
+            impl->logger.hexDump(nativeLevel(level), label, bytes);
+    }
+
+    void Logger::hexDump(Level level, std::string_view label, std::string_view bytes) const {
+        hexDump(level, label, std::as_bytes(std::span(bytes.data(), bytes.size())));
+    }
+
     Stream Logger::stream(const Level level) const {
         const bool isEnabled = enabled(level);
         auto state = std::make_unique<Stream::State>();

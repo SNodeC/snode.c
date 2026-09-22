@@ -49,7 +49,6 @@ set(UTILS_CPP
     Timeval.cpp
     Uuid.cpp
     base64.cpp
-    hexdump.cpp
     sha1.cpp
     system/signal.cpp
     system/time.cpp

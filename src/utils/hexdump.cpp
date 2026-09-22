@@ -43,10 +43,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+#include <charconv>
 #include <cstddef>
 #include <cstdint>
-#include <iomanip>
-#include <sstream>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,7 +55,6 @@ namespace utils {
     const HexDumpPalette plainHexDumpPalette{"", "", "", ""};
     const HexDumpPalette terminalHexDumpPalette{"\033[34m", "\033[32m", "\033[33m", "\033[39m"};
 
-    // From: https://gist.github.com/shreyasbharath/32a8092666303a916e24a81b18af146b
     std::string hexDump(const std::vector<char>& bytes, int prefixLength, bool prefixAtFirstLine) {
         return hexDump(bytes.data(), bytes.size(), prefixLength, prefixAtFirstLine);
     }
@@ -69,62 +68,44 @@ namespace utils {
     }
 
     std::string hexDump(const char* bytes, uint64_t length, int prefixLength, bool prefixAtFirstLine, const HexDumpPalette& palette) {
-        std::stringstream hexStream;
-
-        if (length > 0) {
-            uint8_t buff[17];
-            size_t i = 0;
-
-            hexStream << std::hex;
-
-            int currentPrefixLength = prefixAtFirstLine ? prefixLength : 0;
-
-            // Process every byte in the data.
-            for (i = 0; i < length; i++) {
-                // Multiple of 16 means new line (with line offset).
-
-                if ((i % 16) == 0) {
-                    // Just don't print ASCII for the zeroth line.
-                    if (i != 0) {
-                        hexStream << "  " << palette.ascii << buff << palette.reset << std::endl;
-                    }
-
-                    // Output the offset.
-                    hexStream << palette.offset;
-                    hexStream << std::setw(currentPrefixLength) << std::setfill(' ') << ""
-                              << ": " << std::setw(8) << std::setfill('0') << static_cast<unsigned int>(i);
-                    hexStream << palette.reset << " ";
-                }
-
-                // Now the hex code for the specific character.
-                hexStream << palette.byte;
-                hexStream << " " << std::setw(2) << std::setfill('0') << static_cast<unsigned int>(static_cast<unsigned char>(bytes[i]));
-                hexStream << palette.reset;
-
-                // And store a printable ASCII character for later.
-                if ((bytes[i] < 0x20) || (bytes[i] > 0x7e)) {
-                    buff[i % 16] = '.';
-                } else {
-                    buff[i % 16] = static_cast<uint8_t>(bytes[i]);
-                }
-                buff[(i % 16) + 1] = '\0';
-
-                currentPrefixLength = prefixLength;
+        constexpr char digits[] = "0123456789abcdef";
+        std::string output;
+        for (uint64_t offset = 0; offset < length;) {
+            if (offset != 0)
+                output += '\n';
+            if (offset != 0 || prefixAtFirstLine)
+                output.append(static_cast<std::size_t>(std::max(prefixLength, 0)), ' ');
+            char address[16];
+            const auto end = std::to_chars(address, address + sizeof(address), offset, 16).ptr;
+            const auto addressLength = static_cast<std::size_t>(end - address);
+            output += palette.offset;
+            output.append(addressLength < 8 ? 8 - addressLength : 0, '0');
+            output.append(address, addressLength);
+            output += palette.reset;
+            output += "  ";
+            output += palette.byte;
+            const auto count = std::min<uint64_t>(16, length - offset);
+            char hex[48];
+            char ascii[16];
+            std::fill_n(hex, sizeof(hex), ' ');
+            std::fill_n(ascii, sizeof(ascii), ' ');
+            for (uint64_t column = 0; column < count; ++column) {
+                const auto byte = static_cast<unsigned char>(bytes[offset + column]);
+                const auto position = column * 3 + (column >= 8 ? 1 : 0);
+                hex[position] = digits[byte >> 4];
+                hex[position + 1] = digits[byte & 0x0f];
+                ascii[column] = byte >= 0x20 && byte <= 0x7e ? static_cast<char>(byte) : '.';
             }
-
-            hexStream << std::dec;
-
-            // Pad out last line if not exactly 16 characters.
-            while ((i % 16) != 0) {
-                hexStream << "   ";
-                i++;
-            }
-
-            // And print the final ASCII bit.
-            hexStream << "  " << palette.ascii << buff << palette.reset;
+            output.append(hex, sizeof(hex));
+            output += palette.reset;
+            output += "  |";
+            output += palette.ascii;
+            output.append(ascii, sizeof(ascii));
+            output += palette.reset;
+            output += '|';
+            offset += count;
         }
-
-        return hexStream.str();
+        return output;
     }
 
     HexDumpPresentation hexDumpPresentation(const std::vector<char>& bytes, int prefixLength, bool prefixAtFirstLine) {

@@ -92,9 +92,9 @@ namespace utils {
                                    const std::string& configDirectory,
                                    const std::string& logDirectory,
                                    const std::string& pidDirectory);
+        enum class ParsePhase { Initial, Bootstrap, Runtime };
         bool parse1(int argc, char* argv[]);
-        bool bootstrap(int argc, char* argv[]);
-        bool parse2(int argc, char* argv[], bool parse1 = false);
+        bool parse2(int argc, char* argv[], ParsePhase phase);
         void terminate();
 
         std::string applicationName;
@@ -132,6 +132,8 @@ namespace utils {
 
         static bool init(int argc, char* argv[]);
         static bool bootstrap();
+        [[nodiscard]] static bool reconfigure();
+        // Legacy unchecked parsing; application lifecycle callers should use SNodeC::reconfigure().
         static void parse();
         static void terminate();
 
