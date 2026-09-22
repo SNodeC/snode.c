@@ -91,6 +91,7 @@ add_compile_options(
     -ftemplate-backtrace-limit=0
     -Wno-shadow # yes we do
     -Wno-psabi # needed for RaspberryPi
+    $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:GNU>>:-fno-gnu-unique>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-used-but-marked-unused>
     $<$<CXX_COMPILER_ID:Clang>:-Weverything>
     $<$<CXX_COMPILER_ID:Clang>:-Wno-c++98-compat-pedantic>
