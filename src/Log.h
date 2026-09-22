@@ -35,7 +35,6 @@ namespace snode::log {
         Boundary boundary = Boundary::Application;
         std::string component = "app";
         Identity identity;
-
     };
 
     struct LevelOverride {
@@ -81,11 +80,48 @@ namespace snode::log {
         }
 
         template <class... Args>
-        std::string format(std::string_view pattern, Args&&... args) {
+        std::vector<std::string> capture(Args&&... args) {
             std::vector<std::string> values;
             values.reserve(sizeof...(Args));
             (values.emplace_back(stringify(std::forward<Args>(args))), ...);
+            return values;
+        }
 
+        inline void validateFormat(std::string_view pattern, const std::size_t argumentCount) {
+            std::size_t argument = 0;
+            for (std::size_t index = 0; index < pattern.size(); ++index) {
+                if (pattern[index] == '{' && index + 1 < pattern.size()) {
+                    if (pattern[index + 1] == '{') {
+                        ++index;
+                        continue;
+                    }
+                    if (pattern[index + 1] == '}') {
+                        if (argument >= argumentCount) {
+                            throw std::invalid_argument("log format has too few arguments");
+                        }
+                        ++argument;
+                        ++index;
+                        continue;
+                    }
+                }
+                if (pattern[index] == '}') {
+                    if (index + 1 < pattern.size() && pattern[index + 1] == '}') {
+                        ++index;
+                        continue;
+                    }
+                    throw std::invalid_argument("log format contains an unmatched '}'");
+                }
+                if (pattern[index] == '{') {
+                    throw std::invalid_argument("log format contains an unmatched '{'");
+                }
+            }
+            if (argument != argumentCount) {
+                throw std::invalid_argument("log format has too many arguments");
+            }
+        }
+
+        inline std::string formatCaptured(std::string_view pattern, const std::vector<std::string>& values) {
+            validateFormat(pattern, values.size());
             std::string result;
             result.reserve(pattern.size());
             std::size_t argument = 0;
@@ -97,31 +133,24 @@ namespace snode::log {
                         continue;
                     }
                     if (pattern[index + 1] == '}') {
-                        if (argument >= values.size()) {
-                            throw std::invalid_argument("log format has too few arguments");
-                        }
                         result += values[argument++];
                         ++index;
                         continue;
                     }
                 }
-                if (pattern[index] == '}') {
-                    if (index + 1 < pattern.size() && pattern[index + 1] == '}') {
-                        result.push_back('}');
-                        ++index;
-                        continue;
-                    }
-                    throw std::invalid_argument("log format contains an unmatched '}'");
+                if (pattern[index] == '}' && index + 1 < pattern.size() && pattern[index + 1] == '}') {
+                    result.push_back('}');
+                    ++index;
+                } else {
+                    result.push_back(pattern[index]);
                 }
-                if (pattern[index] == '{') {
-                    throw std::invalid_argument("log format contains an unmatched '{'");
-                }
-                result.push_back(pattern[index]);
-            }
-            if (argument != values.size()) {
-                throw std::invalid_argument("log format has too many arguments");
             }
             return result;
+        }
+
+        template <class... Args>
+        std::string format(std::string_view pattern, Args&&... args) {
+            return formatCaptured(pattern, capture(std::forward<Args>(args)...));
         }
     } // namespace detail
 
@@ -184,61 +213,50 @@ namespace snode::log {
 
         template <class... Args>
         void trace(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Trace)) {
-                write(Level::Trace, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Trace, pattern, std::forward<Args>(args)...);
         }
         template <class... Args>
         void debug(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Debug)) {
-                write(Level::Debug, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Debug, pattern, std::forward<Args>(args)...);
         }
         template <class... Args>
         void info(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Info)) {
-                write(Level::Info, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Info, pattern, std::forward<Args>(args)...);
         }
         template <class... Args>
         void warn(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Warning)) {
-                write(Level::Warning, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Warning, pattern, std::forward<Args>(args)...);
         }
         template <class... Args>
         void error(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Error)) {
-                write(Level::Error, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Error, pattern, std::forward<Args>(args)...);
         }
         template <class... Args>
         void critical(std::string_view pattern, Args&&... args) const {
-            if (enabled(Level::Critical)) {
-                write(Level::Critical, detail::format(pattern, std::forward<Args>(args)...));
-            }
+            writeFormatted(Level::Critical, pattern, std::forward<Args>(args)...);
         }
 
         template <class... Args>
         void event(Level level, std::string eventName, std::string_view pattern, Args&&... args) const {
             if (enabled(level)) {
-                writeEvent(level, std::move(eventName), detail::format(pattern, std::forward<Args>(args)...));
+                auto arguments = detail::capture(std::forward<Args>(args)...);
+                detail::validateFormat(pattern, arguments.size());
+                writeEventDeferred(level, std::move(eventName), std::string(pattern), std::move(arguments));
             }
         }
 
         template <class... Args>
         void systemError(Level level, std::error_code error, std::string_view pattern, Args&&... args) const {
             if (enabled(level)) {
-                writeSystemError(level, std::move(error), detail::format(pattern, std::forward<Args>(args)...));
+                auto arguments = detail::capture(std::forward<Args>(args)...);
+                detail::validateFormat(pattern, arguments.size());
+                writeSystemErrorDeferred(level, std::move(error), std::string(pattern), std::move(arguments));
             }
         }
 
         template <class... Args>
         void systemError(Level level, int errorNumber, std::string_view pattern, Args&&... args) const {
-            systemError(level,
-                        std::error_code(errorNumber, std::generic_category()),
-                        pattern,
-                        std::forward<Args>(args)...);
+            systemError(level, std::error_code(errorNumber, std::generic_category()), pattern, std::forward<Args>(args)...);
         }
 
     private:
@@ -246,9 +264,18 @@ namespace snode::log {
 
         explicit Logger(std::shared_ptr<const Impl> impl);
         Stream stream(Level level) const;
+        template <class... Args>
+        void writeFormatted(Level level, std::string_view pattern, Args&&... args) const {
+            if (enabled(level)) {
+                auto arguments = detail::capture(std::forward<Args>(args)...);
+                detail::validateFormat(pattern, arguments.size());
+                writeDeferred(level, std::string(pattern), std::move(arguments));
+            }
+        }
         void write(Level level, std::string message) const;
-        void writeEvent(Level level, std::string eventName, std::string message) const;
-        void writeSystemError(Level level, std::error_code error, std::string message) const;
+        void writeDeferred(Level level, std::string pattern, std::vector<std::string> arguments) const;
+        void writeEventDeferred(Level level, std::string eventName, std::string pattern, std::vector<std::string> arguments) const;
+        void writeSystemErrorDeferred(Level level, std::error_code error, std::string pattern, std::vector<std::string> arguments) const;
 
         std::shared_ptr<const Impl> impl;
 

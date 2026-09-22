@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <mutex>
 #include <optional>
 #include <spdlog/async_logger.h>
@@ -26,6 +27,7 @@
 #include <spdlog/sinks/callback_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <type_traits>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -33,7 +35,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace {
-    constexpr std::string_view hexDumpMarker = "__SNODEC_HEX_DUMP_PAYLOAD__";
+    enum class RenderMode : std::uint8_t { Plain, Color, Json };
+
+    enum PayloadFlag : std::uint16_t {
+        HasInstance = 1U << 0U,
+        HasRole = 1U << 1U,
+        HasConnection = 1U << 2U,
+        HasEvent = 1U << 3U,
+        HasTerminalMessage = 1U << 4U,
+        HasError = 1U << 5U,
+        HasSource = 1U << 6U,
+        HasHexDump = 1U << 7U
+    };
 
     std::optional<spdlog::level::level_enum> mapSemanticLevel(const ::logger::LogLevel level) {
         switch (level) {
@@ -55,86 +68,40 @@ namespace {
         return std::nullopt;
     }
 
-    void appendSize(std::string& target, const std::size_t value) {
-        const auto size = static_cast<std::uint64_t>(value);
-        target.append(reinterpret_cast<const char*>(&size), sizeof(size));
+    template <typename Value>
+    void appendValue(std::string& target, const Value value) {
+        static_assert(std::is_trivially_copyable_v<Value>);
+        target.append(reinterpret_cast<const char*>(&value), sizeof(value));
     }
 
-    bool takeSize(std::string_view& source, std::size_t& value) {
-        if (source.size() < sizeof(std::uint64_t)) {
+    template <typename Value>
+    bool takeValue(std::string_view& source, Value& value) {
+        static_assert(std::is_trivially_copyable_v<Value>);
+        if (source.size() < sizeof(value)) {
             return false;
         }
-        std::uint64_t size = 0;
-        std::memcpy(&size, source.data(), sizeof(size));
-        source.remove_prefix(sizeof(size));
-        value = static_cast<std::size_t>(size);
-        return static_cast<std::uint64_t>(value) == size;
-    }
-
-    bool takeString(std::string_view& source, const std::size_t size, std::string_view& value) {
-        if (source.size() < size) {
-            return false;
-        }
-        value = source.substr(0, size);
-        source.remove_prefix(size);
+        std::memcpy(&value, source.data(), sizeof(value));
+        source.remove_prefix(sizeof(value));
         return true;
     }
 
-    std::pair<std::string, std::string> splitHexDumpTemplate(std::string formatted) {
-        const std::size_t marker = formatted.rfind(hexDumpMarker);
-        if (marker == std::string::npos) {
-            return {std::move(formatted), {}};
-        }
-        std::string suffix = formatted.substr(marker + hexDumpMarker.size());
-        formatted.resize(marker);
-        return {std::move(formatted), std::move(suffix)};
+    void appendString(std::string& target, const std::string_view value) {
+        appendValue(target, static_cast<std::uint64_t>(value.size()));
+        target.append(value);
     }
 
-    void appendJsonEscaped(std::string& target, const std::string_view value) {
-        constexpr char digits[] = "0123456789abcdef";
-        for (const char valueChar : value) {
-            const auto ch = static_cast<unsigned char>(valueChar);
-            switch (ch) {
-                case '"':
-                    target += "\\\"";
-                    break;
-                case '\\':
-                    target += "\\\\";
-                    break;
-                case '\n':
-                    target += "\\n";
-                    break;
-                case '\r':
-                    target += "\\r";
-                    break;
-                case '\t':
-                    target += "\\t";
-                    break;
-                default:
-                    if (ch < 0x20) {
-                        target += "\\u00";
-                        target += digits[ch >> 4];
-                        target += digits[ch & 0x0f];
-                    } else {
-                        target += static_cast<char>(ch);
-                    }
-                    break;
-            }
+    bool takeString(std::string_view& source, std::string& value) {
+        std::uint64_t encodedSize = 0;
+        if (!takeValue(source, encodedSize)) {
+            return false;
         }
-    }
-
-    void appendContinued(std::string& target, const std::string_view value, const std::string_view continuation) {
-        std::size_t begin = 0;
-        while (begin < value.size()) {
-            const std::size_t newline = value.find('\n', begin);
-            if (newline == std::string_view::npos) {
-                target.append(value.substr(begin));
-                break;
-            }
-            target.append(value.substr(begin, newline - begin + 1));
-            target.append(continuation);
-            begin = newline + 1;
+        const auto size = static_cast<std::size_t>(encodedSize);
+        if (static_cast<std::uint64_t>(size) != encodedSize || source.size() < size) {
+            return false;
         }
+        value.assign(source.data(), size);
+        source.remove_prefix(size);
+        return true;
     }
 } // namespace
 
@@ -144,10 +111,10 @@ namespace logger::detail {
     public:
         void init() {
             const std::lock_guard<std::mutex> lock(mutex);
-            threadPool.reset();
+            semanticWorkerLogger.reset();
             semanticStdoutLogger.reset();
             semanticFileLogger.reset();
-            semanticHexDumpLogger.reset();
+            threadPool.reset();
             semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             semanticStdoutLogger = makeLogger("snodec-semantic-stdout", semanticStdoutSink);
             semanticFileSink.reset();
@@ -180,13 +147,9 @@ namespace logger::detail {
             }
             pending.clear();
 
-            semanticStdoutLogger = makeAsyncLogger("snodec-semantic-stdout", semanticStdoutSink);
-            if (semanticFileSink) {
-                semanticFileLogger = makeAsyncLogger("snodec-semantic-file", semanticFileSink);
-            }
             deferred = false;
             asyncStarted = true;
-            updateHexDumpLogger();
+            updateWorkerLogger();
         }
 
         void discardPending() {
@@ -198,13 +161,12 @@ namespace logger::detail {
         void setQuiet(const bool quiet) {
             const std::lock_guard<std::mutex> lock(mutex);
             quietMode = quiet;
-            updateHexDumpLogger();
+            updateWorkerLogger();
         }
 
         void setDisableColor(const bool disableColorValue) {
             const std::lock_guard<std::mutex> lock(mutex);
             disableColor = disableColorValue;
-            updateHexDumpLogger();
         }
 
         bool getDisableColor() const {
@@ -229,19 +191,15 @@ namespace logger::detail {
             constexpr std::size_t maxSize = 2 * 1024 * 1024;
             constexpr std::size_t maxFiles = 3;
             semanticFileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logFile, maxSize, maxFiles);
-            if (asyncStarted) {
-                semanticFileLogger = makeAsyncLogger("snodec-semantic-file", semanticFileSink);
-            } else {
-                semanticFileLogger = makeLogger("snodec-semantic-file", semanticFileSink);
-            }
-            updateHexDumpLogger();
+            semanticFileLogger = makeLogger("snodec-semantic-file", semanticFileSink);
+            updateWorkerLogger();
         }
 
         void disableLogFile() {
             const std::lock_guard<std::mutex> lock(mutex);
             semanticFileLogger.reset();
             semanticFileSink.reset();
-            updateHexDumpLogger();
+            updateWorkerLogger();
         }
 
         bool shouldLog(const Level level) const {
@@ -284,10 +242,10 @@ namespace logger::detail {
                 pending.push_back(record);
                 return;
             }
-            if (record.hexDump && semanticHexDumpLogger) {
+            if (asyncStarted) {
                 const auto spdlogLevel = mapSemanticLevel(record.level);
-                if (spdlogLevel) {
-                    semanticHexDumpLogger->log(*spdlogLevel, encodeHexDump(record));
+                if (spdlogLevel && semanticWorkerLogger) {
+                    semanticWorkerLogger->log(*spdlogLevel, encodeRecord(record));
                 }
                 return;
             }
@@ -311,132 +269,233 @@ namespace logger::detail {
             return logger;
         }
 
-        std::string encodeHexDump(const LogRecord& record) const {
-            LogRecord templateRecord = record;
-            templateRecord.message += '\n';
-            templateRecord.message += hexDumpMarker;
-            templateRecord.hexDump.reset();
+        struct DecodedRecord {
+            LogRecord record;
+            RenderMode mode;
+        };
 
-            const bool json = LogManager::format() == LogManager::Format::Json;
-            std::pair<std::string, std::string> stdoutTemplate;
-            std::pair<std::string, std::string> fileTemplate;
-            if (!quietMode && semanticStdoutSink) {
-                stdoutTemplate = splitHexDumpTemplate(json ? formatJsonV1(templateRecord) : formatText(templateRecord, !disableColor));
-            }
-            if (semanticFileSink) {
-                fileTemplate = splitHexDumpTemplate(json ? formatJsonV1(templateRecord) : formatText(templateRecord));
-            }
+        struct RenderedRecord {
+            spdlog::level::level_enum level;
+            std::string plain;
+            std::string terminal;
+        };
+
+        std::string encodeRecord(const LogRecord& record) const {
+            const RenderMode mode = LogManager::format() == LogManager::Format::Json ? RenderMode::Json
+                                    : disableColor                                   ? RenderMode::Plain
+                                                                                     : RenderMode::Color;
+            std::uint16_t flags = 0;
+            if (record.instance)
+                flags |= HasInstance;
+            if (record.role)
+                flags |= HasRole;
+            if (record.connection)
+                flags |= HasConnection;
+            if (record.event)
+                flags |= HasEvent;
+            if (record.terminalMessage)
+                flags |= HasTerminalMessage;
+            if (record.error)
+                flags |= HasError;
+            if (record.source)
+                flags |= HasSource;
+            if (record.hexDump)
+                flags |= HasHexDump;
 
             std::string payload;
-            appendSize(payload, stdoutTemplate.first.size());
-            appendSize(payload, stdoutTemplate.second.size());
-            appendSize(payload, fileTemplate.first.size());
-            appendSize(payload, fileTemplate.second.size());
-            appendSize(payload, record.hexDump->size());
-            payload += json ? '\1' : disableColor ? '\0' : '\2';
-            payload += stdoutTemplate.first;
-            payload += stdoutTemplate.second;
-            payload += fileTemplate.first;
-            payload += fileTemplate.second;
-            payload += *record.hexDump;
+            appendValue(payload, std::uint8_t{1});
+            appendValue(payload, static_cast<std::int64_t>(record.v));
+            appendValue(
+                payload,
+                static_cast<std::int64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(record.ts.time_since_epoch()).count()));
+            appendValue(payload, static_cast<std::uint8_t>(record.level));
+            appendValue(payload, static_cast<std::uint8_t>(record.origin));
+            appendValue(payload, static_cast<std::uint8_t>(record.boundary));
+            appendValue(payload, static_cast<std::uint8_t>(record.messageFormat));
+            appendValue(payload, static_cast<std::uint8_t>(mode));
+            appendValue(payload, flags);
+            appendValue(payload, static_cast<std::uint8_t>(record.role.value_or(LogRole::Unknown)));
+            appendValue(payload, static_cast<std::int64_t>(record.error ? record.error->code : 0));
+            appendValue(payload, static_cast<std::int64_t>(record.source ? record.source->line : 0));
+            appendString(payload, record.component);
+            appendString(payload, record.message);
+            if (record.instance)
+                appendString(payload, *record.instance);
+            if (record.connection)
+                appendString(payload, *record.connection);
+            if (record.event)
+                appendString(payload, *record.event);
+            if (record.terminalMessage)
+                appendString(payload, *record.terminalMessage);
+            if (record.error)
+                appendString(payload, record.error->text);
+            if (record.source) {
+                appendString(payload, record.source->file);
+                appendString(payload, record.source->func);
+            }
+            if (record.hexDump)
+                appendString(payload, *record.hexDump);
+            appendValue(payload, static_cast<std::uint64_t>(record.messageArguments.size()));
+            for (const std::string& argument : record.messageArguments)
+                appendString(payload, argument);
             return payload;
         }
 
-        void updateHexDumpLogger() {
-            if (!asyncStarted || (!semanticStdoutSink && !semanticFileSink)) {
-                semanticHexDumpLogger.reset();
-                return;
+        static std::optional<DecodedRecord> decodeRecord(const spdlog::details::log_msg& message) {
+            std::string_view payload(message.payload.data(), message.payload.size());
+            std::uint8_t payloadVersion = 0;
+            std::int64_t recordVersion = 0;
+            std::int64_t timestamp = 0;
+            std::uint8_t level = 0;
+            std::uint8_t origin = 0;
+            std::uint8_t boundary = 0;
+            std::uint8_t messageFormat = 0;
+            std::uint8_t mode = 0;
+            std::uint16_t flags = 0;
+            std::uint8_t role = 0;
+            std::int64_t errorCode = 0;
+            std::int64_t sourceLine = 0;
+            if (!takeValue(payload, payloadVersion) || !takeValue(payload, recordVersion) || !takeValue(payload, timestamp) ||
+                !takeValue(payload, level) || !takeValue(payload, origin) || !takeValue(payload, boundary) ||
+                !takeValue(payload, messageFormat) || !takeValue(payload, mode) || !takeValue(payload, flags) ||
+                !takeValue(payload, role) || !takeValue(payload, errorCode) || !takeValue(payload, sourceLine) || payloadVersion != 1 ||
+                recordVersion < std::numeric_limits<int>::min() || recordVersion > std::numeric_limits<int>::max() ||
+                level > static_cast<std::uint8_t>(LogLevel::Off) || origin > static_cast<std::uint8_t>(LogOrigin::Application) ||
+                boundary > static_cast<std::uint8_t>(LogBoundary::System) ||
+                messageFormat > static_cast<std::uint8_t>(LogMessageFormat::Strict) || mode > static_cast<std::uint8_t>(RenderMode::Json) ||
+                role > static_cast<std::uint8_t>(LogRole::Client) || errorCode < std::numeric_limits<int>::min() ||
+                errorCode > std::numeric_limits<int>::max() || sourceLine < std::numeric_limits<int>::min() ||
+                sourceLine > std::numeric_limits<int>::max()) {
+                return std::nullopt;
             }
 
-            auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_mt>(
-                [stdoutSink = semanticStdoutSink, fileSink = semanticFileSink](const spdlog::details::log_msg& message) {
-                    emitHexDump(message, stdoutSink, fileSink);
-                });
-            semanticHexDumpLogger = makeAsyncLogger("snodec-semantic-hexdump", callbackSink);
+            DecodedRecord decoded;
+            LogRecord& record = decoded.record;
+            record.v = static_cast<int>(recordVersion);
+            record.ts = std::chrono::system_clock::time_point(std::chrono::nanoseconds(timestamp));
+            record.level = static_cast<LogLevel>(level);
+            record.origin = static_cast<LogOrigin>(origin);
+            record.boundary = static_cast<LogBoundary>(boundary);
+            record.messageFormat = static_cast<LogMessageFormat>(messageFormat);
+            decoded.mode = static_cast<RenderMode>(mode);
+            if (!takeString(payload, record.component) || !takeString(payload, record.message))
+                return std::nullopt;
+            if ((flags & HasInstance) != 0) {
+                record.instance.emplace();
+                if (!takeString(payload, *record.instance))
+                    return std::nullopt;
+            }
+            if ((flags & HasRole) != 0)
+                record.role = static_cast<LogRole>(role);
+            if ((flags & HasConnection) != 0) {
+                record.connection.emplace();
+                if (!takeString(payload, *record.connection))
+                    return std::nullopt;
+            }
+            if ((flags & HasEvent) != 0) {
+                record.event.emplace();
+                if (!takeString(payload, *record.event))
+                    return std::nullopt;
+            }
+            if ((flags & HasTerminalMessage) != 0) {
+                record.terminalMessage.emplace();
+                if (!takeString(payload, *record.terminalMessage))
+                    return std::nullopt;
+            }
+            if ((flags & HasError) != 0) {
+                record.error = LogError{static_cast<int>(errorCode), {}};
+                if (!takeString(payload, record.error->text))
+                    return std::nullopt;
+            }
+            if ((flags & HasSource) != 0) {
+                record.source = LogSource{{}, static_cast<int>(sourceLine), {}};
+                if (!takeString(payload, record.source->file) || !takeString(payload, record.source->func))
+                    return std::nullopt;
+            }
+            if ((flags & HasHexDump) != 0) {
+                record.hexDump.emplace();
+                if (!takeString(payload, *record.hexDump))
+                    return std::nullopt;
+            }
+            std::uint64_t argumentCount = 0;
+            if (!takeValue(payload, argumentCount) || argumentCount > payload.size() / sizeof(std::uint64_t))
+                return std::nullopt;
+            record.messageArguments.reserve(static_cast<std::size_t>(argumentCount));
+            for (std::uint64_t argument = 0; argument < argumentCount; ++argument) {
+                record.messageArguments.emplace_back();
+                if (!takeString(payload, record.messageArguments.back()))
+                    return std::nullopt;
+            }
+            if (!payload.empty())
+                return std::nullopt;
+            return decoded;
         }
 
-        static void emitHexDump(const spdlog::details::log_msg& message,
-                                const std::shared_ptr<spdlog::sinks::stdout_color_sink_mt>& stdoutSink,
-                                const std::shared_ptr<spdlog::sinks::rotating_file_sink_mt>& fileSink) {
-            std::string_view payload(message.payload.data(), message.payload.size());
-            std::size_t stdoutPrefixSize = 0;
-            std::size_t stdoutSuffixSize = 0;
-            std::size_t filePrefixSize = 0;
-            std::size_t fileSuffixSize = 0;
-            std::size_t bytesSize = 0;
-            if (!takeSize(payload, stdoutPrefixSize) || !takeSize(payload, stdoutSuffixSize) || !takeSize(payload, filePrefixSize) ||
-                !takeSize(payload, fileSuffixSize) || !takeSize(payload, bytesSize) || payload.empty()) {
+        static std::optional<RenderedRecord> renderRecord(LogRecord record, const RenderMode mode) {
+            const auto spdlogLevel = mapSemanticLevel(record.level);
+            if (!spdlogLevel)
+                return std::nullopt;
+            if (record.messageFormat != LogMessageFormat::None) {
+                record.message = formatMessage(record.message, record.messageArguments, record.messageFormat);
+                record.messageArguments.clear();
+                record.messageFormat = LogMessageFormat::None;
+            }
+            if (record.hexDump) {
+                const std::string heading = record.message;
+                record.message += '\n';
+                record.message += utils::hexDump(*record.hexDump);
+                if (mode == RenderMode::Color) {
+                    record.terminalMessage =
+                        heading + '\n' +
+                        utils::hexDump(record.hexDump->data(), record.hexDump->size(), 0, false, utils::terminalHexDumpPalette);
+                }
+            }
+            const bool json = mode == RenderMode::Json;
+            return RenderedRecord{*spdlogLevel,
+                                  json ? formatJsonV1(record) : formatText(record),
+                                  mode == RenderMode::Color ? formatText(record, true) : std::string()};
+        }
+
+        void updateWorkerLogger() {
+            const auto stdoutSink = quietMode ? nullptr : semanticStdoutSink;
+            if (!asyncStarted || (!stdoutSink && !semanticFileSink)) {
+                semanticWorkerLogger.reset();
                 return;
             }
-
-            const unsigned char mode = static_cast<unsigned char>(payload.front());
-            payload.remove_prefix(1);
-            std::string_view stdoutPrefix;
-            std::string_view stdoutSuffix;
-            std::string_view filePrefix;
-            std::string_view fileSuffix;
-            std::string_view bytes;
-            if (!takeString(payload, stdoutPrefixSize, stdoutPrefix) || !takeString(payload, stdoutSuffixSize, stdoutSuffix) ||
-                !takeString(payload, filePrefixSize, filePrefix) || !takeString(payload, fileSuffixSize, fileSuffix) ||
-                !takeString(payload, bytesSize, bytes) || !payload.empty()) {
-                return;
-            }
-
-            const std::string plainDump = utils::hexDump(bytes.data(), bytes.size());
-            if (stdoutSink && !stdoutPrefix.empty()) {
-                std::string output(stdoutPrefix);
-                if (mode == 1) {
-                    appendJsonEscaped(output, plainDump);
-                } else if (mode == 2) {
-                    appendContinued(
-                        output, utils::hexDump(bytes.data(), bytes.size(), 0, false, utils::terminalHexDumpPalette), "\033[2m│ \033[0m");
-                } else {
-                    appendContinued(output, plainDump, "│ ");
-                }
-                output += stdoutSuffix;
-                stdoutSink->log({message.time, message.source, message.logger_name, message.level, output});
-            }
-            if (fileSink && !filePrefix.empty()) {
-                std::string output(filePrefix);
-                if (mode == 1) {
-                    appendJsonEscaped(output, plainDump);
-                } else {
-                    appendContinued(output, plainDump, "│ ");
-                }
-                output += fileSuffix;
-                fileSink->log({message.time, message.source, message.logger_name, message.level, output});
-            }
+            auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_mt>(
+                [stdoutSink, fileSink = semanticFileSink](const spdlog::details::log_msg& message) {
+                    const auto decoded = decodeRecord(message);
+                    if (!decoded)
+                        return;
+                    const auto rendered = renderRecord(std::move(decoded->record), decoded->mode);
+                    if (!rendered)
+                        return;
+                    if (stdoutSink) {
+                        stdoutSink->log({message.time,
+                                         message.source,
+                                         message.logger_name,
+                                         message.level,
+                                         rendered->terminal.empty() ? rendered->plain : rendered->terminal});
+                    }
+                    if (fileSink)
+                        fileSink->log({message.time, message.source, message.logger_name, message.level, rendered->plain});
+                });
+            semanticWorkerLogger = makeAsyncLogger("snodec-semantic-worker", callbackSink);
         }
 
         void emitSemantic(const LogRecord& record,
                           const std::shared_ptr<spdlog::logger>& stdoutLogger,
                           const std::shared_ptr<spdlog::logger>& fileLogger) const {
-            LogRecord renderedRecord = record;
-            if (record.hexDump) {
-                renderedRecord.message += '\n';
-                renderedRecord.message += utils::hexDump(*record.hexDump);
-                if (!disableColor) {
-                    renderedRecord.terminalMessage =
-                        record.message + '\n' +
-                        utils::hexDump(record.hexDump->data(), record.hexDump->size(), 0, false, utils::terminalHexDumpPalette);
-                }
-            }
-
-            const auto spdlogLevel = mapSemanticLevel(renderedRecord.level);
-            if (!spdlogLevel || ((!stdoutLogger || quietMode) && !fileLogger)) {
+            const RenderMode mode = LogManager::format() == LogManager::Format::Json ? RenderMode::Json
+                                    : disableColor                                   ? RenderMode::Plain
+                                                                                     : RenderMode::Color;
+            const auto rendered = renderRecord(record, mode);
+            if (!rendered)
                 return;
-            }
-            const bool json = LogManager::format() == LogManager::Format::Json;
-            const bool color = !json && !quietMode && stdoutLogger && !disableColor;
-            const std::string plain = json                     ? formatJsonV1(renderedRecord)
-                                      : (!color || fileLogger) ? formatText(renderedRecord)
-                                                               : std::string();
-            if (!quietMode && stdoutLogger) {
-                stdoutLogger->log(*spdlogLevel, color ? formatText(renderedRecord, true) : plain);
-            }
-            if (fileLogger) {
-                fileLogger->log(*spdlogLevel, plain);
-            }
+            if (!quietMode && stdoutLogger)
+                stdoutLogger->log(rendered->level, rendered->terminal.empty() ? rendered->plain : rendered->terminal);
+            if (fileLogger)
+                fileLogger->log(rendered->level, rendered->plain);
         }
 
         std::shared_ptr<spdlog::details::thread_pool> threadPool;
@@ -444,7 +503,7 @@ namespace logger::detail {
         std::shared_ptr<spdlog::sinks::rotating_file_sink_mt> semanticFileSink;
         std::shared_ptr<spdlog::logger> semanticStdoutLogger;
         std::shared_ptr<spdlog::logger> semanticFileLogger;
-        std::shared_ptr<spdlog::logger> semanticHexDumpLogger;
+        std::shared_ptr<spdlog::logger> semanticWorkerLogger;
         std::vector<LogRecord> pending;
 
         Logger::TickResolver tickResolver;

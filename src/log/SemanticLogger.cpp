@@ -41,6 +41,9 @@
 
 #include "log/SemanticLogger.h"
 
+#include "log/Logger.h"
+#include "utils/hexdump.h"
+
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -509,6 +512,37 @@ namespace logger {
         return out.str();
     }
 
+    std::string formatMessage(const std::string_view pattern, const std::vector<std::string>& arguments, const LogMessageFormat format) {
+        if (format == LogMessageFormat::None) {
+            return std::string(pattern);
+        }
+
+        std::string result;
+        result.reserve(pattern.size());
+        std::size_t argument = 0;
+        for (std::size_t index = 0; index < pattern.size(); ++index) {
+            if (pattern[index] == '{' && index + 1 < pattern.size()) {
+                if (format == LogMessageFormat::Strict && pattern[index + 1] == '{') {
+                    result += '{';
+                    ++index;
+                    continue;
+                }
+                if (pattern[index + 1] == '}' && argument < arguments.size()) {
+                    result += arguments[argument++];
+                    ++index;
+                    continue;
+                }
+            }
+            if (format == LogMessageFormat::Strict && pattern[index] == '}' && index + 1 < pattern.size() && pattern[index + 1] == '}') {
+                result += '}';
+                ++index;
+            } else {
+                result += pattern[index];
+            }
+        }
+        return result;
+    }
+
     std::string formatJsonV1(const LogRecord& record) {
         std::ostringstream out;
         bool first = true;
@@ -696,6 +730,16 @@ namespace logger {
             return;
         std::string heading(label);
         heading += " (" + std::to_string(bytes.size()) + " bytes)";
+        if (!sink.acceptsDeferredRecords()) {
+            if (!bytes.empty())
+                heading += '\n';
+            const auto* data = reinterpret_cast<const char*>(bytes.data());
+            PresentedMessage message{.plain = heading + utils::hexDump(data, bytes.size()), .terminal = {}};
+            if (Logger::semanticStdoutUsesColor())
+                message.terminal = heading + utils::hexDump(data, bytes.size(), 0, false, utils::terminalHexDumpPalette);
+            emit(level, std::move(message));
+            return;
+        }
         LogRecord record = materialize(viewLogScope(scope), level, std::move(heading));
         if (!bytes.empty()) {
             record.hexDump = std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
@@ -724,6 +768,26 @@ namespace logger {
         }
         LogRecord record = materialize(viewLogScope(scope), level, std::move(message.plain), std::move(options));
         record.terminalMessage = std::move(message.terminal);
+        sink(std::move(record));
+    }
+
+    void BoundaryLogger::emitDeferred(LogLevel level,
+                                      std::string format,
+                                      std::vector<std::string> arguments,
+                                      LogMessageFormat messageFormat,
+                                      LogRecordOptions options) const {
+        if (!enabled(level) || !sink)
+            return;
+        if (options.ts == std::chrono::system_clock::time_point{}) {
+            options.ts = clock ? clock() : std::chrono::system_clock::now();
+        }
+        LogRecord record = materialize(viewLogScope(scope), level, std::move(format), std::move(options));
+        if (sink.acceptsDeferredRecords()) {
+            record.messageArguments = std::move(arguments);
+            record.messageFormat = messageFormat;
+        } else {
+            record.message = formatMessage(record.message, arguments, messageFormat);
+        }
         sink(std::move(record));
     }
 

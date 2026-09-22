@@ -127,9 +127,11 @@ namespace logger {
     }
 
     BoundaryLogger::Sink Logger::semanticSink() {
-        return [](LogRecord record) {
-            Logger::emitSemantic(record);
-        };
+        return BoundaryLogger::Sink(
+            [](LogRecord record) {
+                Logger::emitSemantic(record);
+            },
+            true);
     }
 
     bool Logger::disableColorLog = false;

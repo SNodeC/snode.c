@@ -51,6 +51,7 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -60,6 +61,7 @@ namespace logger {
     enum class LogOrigin { Framework, Application };
     enum class LogBoundary { Application, Configuration, Instance, Connection, Context, System };
     enum class LogRole { Unknown, Server, Client };
+    enum class LogMessageFormat { None, Lenient, Strict };
 
     struct LogScope {
         LogOrigin origin;
@@ -93,6 +95,8 @@ namespace logger {
         std::optional<std::string> connection;
         std::optional<std::string> event;
         std::string message;
+        std::vector<std::string> messageArguments;
+        LogMessageFormat messageFormat = LogMessageFormat::None;
         std::optional<std::string> hexDump;
         std::optional<std::string> terminalMessage;
         std::optional<LogError> error;
@@ -118,6 +122,7 @@ namespace logger {
     std::string toString(LogBoundary boundary);
     std::optional<std::string_view> toString(LogRole role);
     std::string formatTimestamp(std::chrono::system_clock::time_point ts);
+    std::string formatMessage(std::string_view pattern, const std::vector<std::string>& arguments, LogMessageFormat format);
     std::string formatJsonV1(const LogRecord& record);
     std::string formatText(const LogRecord& record);
     std::string formatText(const LogRecord& record, bool colorEnabled);
@@ -192,7 +197,38 @@ namespace logger {
 
     class BoundaryLogger {
     public:
-        using Sink = std::function<void(LogRecord)>;
+        class Sink {
+        public:
+            Sink() = default;
+            Sink(const Sink&) = default;
+            Sink& operator=(const Sink&) = default;
+            Sink(Sink&&) noexcept = default;
+            Sink& operator=(Sink&&) noexcept = default;
+            ~Sink() = default;
+
+            template <class Callback, std::enable_if_t<!std::is_same_v<std::decay_t<Callback>, Sink>, int> = 0>
+            Sink(Callback&& callback, bool acceptsDeferredRecords = false)
+                : callback(std::forward<Callback>(callback))
+                , deferredRecords(acceptsDeferredRecords) {
+            }
+
+            explicit operator bool() const noexcept {
+                return static_cast<bool>(callback);
+            }
+
+            void operator()(LogRecord record) const {
+                callback(std::move(record));
+            }
+
+            bool acceptsDeferredRecords() const noexcept {
+                return deferredRecords;
+            }
+
+        private:
+            std::function<void(LogRecord)> callback;
+            bool deferredRecords = false;
+        };
+
         using Clock = std::function<std::chrono::system_clock::time_point()>;
 
         static BoundaryLogger createForTest(LogScope scope, Sink sink, LogLevel threshold = LogLevel::Trace, Clock clock = {});
@@ -241,7 +277,8 @@ namespace logger {
 
             LogRecordOptions options;
             options.error = LogError{errnum, std::error_code(errnum, std::generic_category()).message()};
-            emit(level, formatMessage(format, std::forward<Args>(args)...), std::move(options));
+            emitDeferred(
+                level, std::string(format), collectArgs(std::forward<Args>(args)...), LogMessageFormat::Lenient, std::move(options));
         }
 
         template <class... Args>
@@ -252,11 +289,17 @@ namespace logger {
 
             LogRecordOptions options;
             options.error = LogError{errorCode.value(), errorCode.message()};
-            emit(level, formatMessage(format, std::forward<Args>(args)...), std::move(options));
+            emitDeferred(
+                level, std::string(format), collectArgs(std::forward<Args>(args)...), LogMessageFormat::Lenient, std::move(options));
         }
 
         void emit(LogLevel level, std::string message, LogRecordOptions options = {}) const;
         void emit(LogLevel level, PresentedMessage message, LogRecordOptions options = {}) const;
+        void emitDeferred(LogLevel level,
+                          std::string format,
+                          std::vector<std::string> arguments,
+                          LogMessageFormat messageFormat,
+                          LogRecordOptions options = {}) const;
 
     private:
         BoundaryLogger(OwnedLogScope scope, Sink sink, LogLevel threshold, Clock clock);
@@ -267,34 +310,21 @@ namespace logger {
                 return;
             }
 
-            emit(level, formatMessage(format, std::forward<Args>(args)...));
+            emitDeferred(level, std::string(format), collectArgs(std::forward<Args>(args)...), LogMessageFormat::Lenient);
         }
 
-        static std::vector<std::string> collectArgs() {
-            return {};
-        }
-        template <class T, class... Args>
-        static std::vector<std::string> collectArgs(T&& value, Args&&... args) {
+        template <class T>
+        static std::string stringify(T&& value) {
             std::ostringstream out;
             out << std::forward<T>(value);
-            auto values = collectArgs(std::forward<Args>(args)...);
-            values.insert(values.begin(), out.str());
-            return values;
+            return out.str();
         }
         template <class... Args>
-        static std::string formatMessage(std::string_view format, Args&&... args) {
-            const auto values = collectArgs(std::forward<Args>(args)...);
-            std::string result;
-            std::size_t arg = 0;
-            for (std::size_t i = 0; i < format.size(); ++i) {
-                if (format[i] == '{' && i + 1 < format.size() && format[i + 1] == '}' && arg < values.size()) {
-                    result += values[arg++];
-                    ++i;
-                } else {
-                    result += format[i];
-                }
-            }
-            return result;
+        static std::vector<std::string> collectArgs(Args&&... args) {
+            std::vector<std::string> values;
+            values.reserve(sizeof...(Args));
+            (values.emplace_back(stringify(std::forward<Args>(args))), ...);
+            return values;
         }
 
         OwnedLogScope scope;

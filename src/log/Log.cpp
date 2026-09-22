@@ -184,18 +184,32 @@ namespace snode::log {
         }
     }
 
-    void Logger::writeEvent(const Level level, std::string eventName, std::string message) const {
+    void Logger::writeDeferred(const Level level, std::string pattern, std::vector<std::string> arguments) const {
+        if (enabled(level)) {
+            impl->logger.emitDeferred(nativeLevel(level), std::move(pattern), std::move(arguments), logger::LogMessageFormat::Strict);
+        }
+    }
+
+    void
+    Logger::writeEventDeferred(const Level level, std::string eventName, std::string pattern, std::vector<std::string> arguments) const {
         if (!enabled(level)) {
             return;
         }
         logger::LogRecordOptions options;
         options.event = std::move(eventName);
-        impl->logger.emit(nativeLevel(level), std::move(message), std::move(options));
+        impl->logger.emitDeferred(
+            nativeLevel(level), std::move(pattern), std::move(arguments), logger::LogMessageFormat::Strict, std::move(options));
     }
 
-    void Logger::writeSystemError(const Level level, std::error_code error, std::string message) const {
+    void Logger::writeSystemErrorDeferred(const Level level,
+                                          std::error_code error,
+                                          std::string pattern,
+                                          std::vector<std::string> arguments) const {
         if (enabled(level)) {
-            impl->logger.sysError(nativeLevel(level), std::move(error), "{}", message);
+            logger::LogRecordOptions options;
+            options.error = logger::LogError{error.value(), error.message()};
+            impl->logger.emitDeferred(
+                nativeLevel(level), std::move(pattern), std::move(arguments), logger::LogMessageFormat::Strict, std::move(options));
         }
     }
 
@@ -216,7 +230,8 @@ namespace snode::log {
         logger::Logger::init();
         logger::LogManager::init();
         logger::LogManager::setGlobalLevel(nativeLevel(settings.level));
-        logger::LogManager::setFormat(settings.format == Format::Json ? logger::LogManager::Format::Json : logger::LogManager::Format::Text);
+        logger::LogManager::setFormat(settings.format == Format::Json ? logger::LogManager::Format::Json
+                                                                      : logger::LogManager::Format::Text);
         for (const auto& rule : settings.originLevels) {
             logger::LogManager::setOriginLevel(nativeOrigin(rule.origin), nativeLevel(rule.level));
         }
