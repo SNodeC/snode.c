@@ -47,6 +47,16 @@ set_tests_properties(
     SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke"
 )
 
+snodec_add_test(SNodeCAsyncLogDrainTest SNodeCAsyncLogDrainTest.cpp)
+
+target_link_libraries(
+    SNodeCAsyncLogDrainTest PRIVATE snodec-test-support snodec::core
+)
+
+set_tests_properties(
+    SNodeCAsyncLogDrainTest PROPERTIES LABELS "unit;core;log;lifecycle"
+)
+
 snodec_add_test(TLSResultClassificationTest TLSResultClassificationTest.cpp)
 
 target_include_directories(

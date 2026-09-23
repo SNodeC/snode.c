@@ -152,6 +152,20 @@ namespace logger::detail {
             updateWorkerLogger();
         }
 
+        void shutdown() {
+            const std::lock_guard<std::mutex> lock(mutex);
+            asyncStarted = false;
+            semanticWorkerLogger.reset();
+            threadPool.reset();
+
+            if (semanticStdoutSink) {
+                semanticStdoutSink->flush();
+            }
+            if (semanticFileSink) {
+                semanticFileSink->flush();
+            }
+        }
+
         void discardPending() {
             const std::lock_guard<std::mutex> lock(mutex);
             pending.clear();
@@ -533,6 +547,10 @@ namespace logger::detail {
 
     void SpdlogBackend::startAsync() {
         impl_->startAsync();
+    }
+
+    void SpdlogBackend::shutdown() {
+        impl_->shutdown();
     }
 
     void SpdlogBackend::discardPending() {

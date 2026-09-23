@@ -100,6 +100,7 @@ namespace logger {
         static void init();
         static void defer();
         static void startAsync();
+        static void shutdown();
         static void discardPending();
         static void setLogLevel(int level);
         static void setVerboseLevel(int level);

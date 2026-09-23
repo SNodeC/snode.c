@@ -69,6 +69,10 @@ namespace logger {
         backend.startAsync();
     }
 
+    void Logger::shutdown() {
+        backend.shutdown();
+    }
+
     void Logger::discardPending() {
         backend.discardPending();
     }

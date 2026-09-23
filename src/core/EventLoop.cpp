@@ -382,6 +382,8 @@ namespace core {
         eventLoop.log().trace("Core: All resources released");
 
         eventLoop.log().trace("SNode.C: Ended ... BYE");
+
+        logger::Logger::shutdown();
     }
 
     void EventLoop::stoponsig(int sig) {

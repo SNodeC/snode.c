@@ -36,6 +36,7 @@ namespace logger::detail {
         void init();
         void defer();
         void startAsync();
+        void shutdown();
         void discardPending();
 
         void setQuiet(bool quiet);
