@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
-#include <mutex>
 #include <optional>
 #include <spdlog/async_logger.h>
 #include <spdlog/details/thread_pool.h>
@@ -138,12 +137,11 @@ namespace logger::detail {
     class SpdlogBackend::Impl {
     public:
         void init() {
-            const std::lock_guard<std::mutex> lock(mutex);
             semanticWorkerLogger.reset();
             semanticStdoutLogger.reset();
             semanticFileLogger.reset();
             threadPool.reset();
-            semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
             semanticStdoutLogger = makeLogger("snodec-semantic-stdout", semanticStdoutSink);
             semanticFileSink.reset();
             pending.clear();
@@ -157,12 +155,10 @@ namespace logger::detail {
         }
 
         void defer() {
-            const std::lock_guard<std::mutex> lock(mutex);
             deferred = true;
         }
 
         void startAsync() {
-            const std::lock_guard<std::mutex> lock(mutex);
             if (asyncStarted || discard) {
                 return;
             }
@@ -184,7 +180,6 @@ namespace logger::detail {
         }
 
         void shutdown() {
-            const std::lock_guard<std::mutex> lock(mutex);
             asyncStarted = false;
             semanticWorkerLogger.reset();
             threadPool.reset();
@@ -198,24 +193,20 @@ namespace logger::detail {
         }
 
         void discardPending() {
-            const std::lock_guard<std::mutex> lock(mutex);
             pending.clear();
             discard = true;
         }
 
         void setQuiet(const bool quiet) {
-            const std::lock_guard<std::mutex> lock(mutex);
             quietMode = quiet;
             updateWorkerLogger();
         }
 
         void setDisableColor(const bool disableColorValue) {
-            const std::lock_guard<std::mutex> lock(mutex);
             disableColor = disableColorValue;
         }
 
         bool getDisableColor() const {
-            const std::lock_guard<std::mutex> lock(mutex);
             return disableColor;
         }
 
@@ -232,16 +223,14 @@ namespace logger::detail {
         }
 
         void setLogFile(const std::string& logFile) {
-            const std::lock_guard<std::mutex> lock(mutex);
             constexpr std::size_t maxSize = 2 * 1024 * 1024;
             constexpr std::size_t maxFiles = 3;
-            semanticFileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logFile, maxSize, maxFiles);
+            semanticFileSink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(logFile, maxSize, maxFiles);
             semanticFileLogger = makeLogger("snodec-semantic-file", semanticFileSink);
             updateWorkerLogger();
         }
 
         void disableLogFile() {
-            const std::lock_guard<std::mutex> lock(mutex);
             semanticFileLogger.reset();
             semanticFileSink.reset();
             updateWorkerLogger();
@@ -274,12 +263,10 @@ namespace logger::detail {
         }
 
         bool semanticStdoutUsesColor() const {
-            const std::lock_guard<std::mutex> lock(mutex);
             return !quietMode && semanticStdoutSink && !disableColor;
         }
 
         void emitSemantic(const LogRecord& record) {
-            const std::lock_guard<std::mutex> lock(mutex);
             if (discard) {
                 return;
             }
@@ -507,7 +494,7 @@ namespace logger::detail {
                 semanticWorkerLogger.reset();
                 return;
             }
-            auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_mt>(
+            auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_st>(
                 [stdoutSink, fileSink = semanticFileSink](const spdlog::details::log_msg& message) {
                     const auto decoded = decodeRecord(message);
                     if (!decoded)
@@ -544,15 +531,14 @@ namespace logger::detail {
         }
 
         std::shared_ptr<spdlog::details::thread_pool> threadPool;
-        std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> semanticStdoutSink;
-        std::shared_ptr<spdlog::sinks::rotating_file_sink_mt> semanticFileSink;
+        std::shared_ptr<spdlog::sinks::stdout_color_sink_st> semanticStdoutSink;
+        std::shared_ptr<spdlog::sinks::rotating_file_sink_st> semanticFileSink;
         std::shared_ptr<spdlog::logger> semanticStdoutLogger;
         std::shared_ptr<spdlog::logger> semanticFileLogger;
         std::shared_ptr<spdlog::logger> semanticWorkerLogger;
         std::vector<LogRecord> pending;
 
         Logger::TickResolver tickResolver;
-        mutable std::mutex mutex;
         int configuredLogLevel = 0;
         int configuredVerboseLevel = 0;
         bool deferred = false;
