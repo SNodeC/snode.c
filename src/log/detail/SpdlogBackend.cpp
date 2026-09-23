@@ -16,6 +16,8 @@
 #include "utils/hexdump.h"
 
 #include <algorithm>
+#include <cerrno>
+#include <csignal>
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -27,6 +29,7 @@
 #include <spdlog/sinks/callback_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <system_error>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
@@ -35,6 +38,31 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace {
+    class SignalBlockGuard {
+    public:
+        SignalBlockGuard() {
+            sigset_t blockedSignals{};
+            if (::sigfillset(&blockedSignals) != 0) {
+                throw std::system_error(errno, std::generic_category(), "sigfillset");
+            }
+
+            const int error = ::pthread_sigmask(SIG_BLOCK, &blockedSignals, &previousMask);
+            if (error != 0) {
+                throw std::system_error(error, std::generic_category(), "pthread_sigmask");
+            }
+        }
+
+        ~SignalBlockGuard() {
+            static_cast<void>(::pthread_sigmask(SIG_SETMASK, &previousMask, nullptr));
+        }
+
+        SignalBlockGuard(const SignalBlockGuard&) = delete;
+        SignalBlockGuard& operator=(const SignalBlockGuard&) = delete;
+
+    private:
+        sigset_t previousMask{};
+    };
+
     enum class RenderMode : std::uint8_t { Plain, Color, Json };
 
     enum PayloadFlag : std::uint16_t {
@@ -140,7 +168,10 @@ namespace logger::detail {
             }
 
             constexpr std::size_t queueSize = 8192;
-            threadPool = std::make_shared<spdlog::details::thread_pool>(queueSize, 1);
+            {
+                const SignalBlockGuard signalBlockGuard;
+                threadPool = std::make_shared<spdlog::details::thread_pool>(queueSize, 1);
+            }
 
             for (const LogRecord& record : pending) {
                 emitSemantic(record, semanticStdoutLogger, semanticFileLogger);

@@ -80,9 +80,10 @@ int main() {
     ok &= requireContains(eventLoop, "logSignalFailure(sigemptyset", "sigemptyset return values are checked");
     ok &= requireContains(eventLoop, "logSigaddsetFailure(sigaddset", "sigaddset return values are checked");
     ok &= requireContains(eventLoop, "logSigactionFailure(sigaction", "sigaction return values are checked");
-    ok &= requireContains(eventLoop, "logSignalFailure(sigprocmask", "sigprocmask return values are checked");
+    ok &= requireContains(eventLoop, "logPthreadSigmaskFailure(pthread_sigmask", "pthread_sigmask return values are checked");
     ok &= requireContains(eventLoop, "Core::EventLoop sigaction failed", "sigaction failures use EventLoop sysError diagnostics");
-    ok &= requireContains(eventLoop, "logSignalFailure(sigprocmask", "sigprocmask failures use checked EventLoop diagnostics");
+    ok &=
+        requireContains(eventLoop, "Core::EventLoop pthread_sigmask failed", "pthread_sigmask failures use checked EventLoop diagnostics");
     ok &= requireContains(
         eventLoop, "Core::EventLoop {} failed: phase={}", "generic signal syscall failures use EventLoop sysError diagnostics");
     ok &= requireOrdered(

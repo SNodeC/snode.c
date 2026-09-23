@@ -123,7 +123,7 @@ set_tests_properties(
     SNodeCStopFromCallbackTest PROPERTIES LABELS "component;core;lifecycle"
                                           SKIP_RETURN_CODE 77 TIMEOUT 5
 )
-foreach(scenario IN ITEMS requested signal)
+foreach(scenario IN ITEMS requested signal signal-wait)
     add_test(NAME ShutdownReceiverNotification_${scenario}
              COMMAND ShutdownReceiverNotificationTest ${scenario}
     )

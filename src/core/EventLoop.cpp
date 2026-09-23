@@ -60,7 +60,7 @@
 
 namespace core {
 
-    int EventLoop::stopsig = 0;
+    volatile std::sig_atomic_t EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
     core::State EventLoop::eventLoopState = State::LOADED;
 
@@ -103,6 +103,15 @@ namespace core {
             const int errnum = errno;
             EventLoop::instance().log().sysError(
                 logger::LogLevel::Error, errnum, "Core::EventLoop sigaddset failed: signal={} phase={}", signalName(signum), phase);
+            return false;
+        }
+
+        bool logPthreadSigmaskFailure(int error, const char* phase) {
+            if (error == 0) {
+                return true;
+            }
+
+            EventLoop::instance().log().sysError(logger::LogLevel::Error, error, "Core::EventLoop pthread_sigmask failed: phase={}", phase);
             return false;
         }
     } // namespace
@@ -210,13 +219,24 @@ namespace core {
         logSigaddsetFailure(sigaddset(&newSet, SIGHUP), SIGHUP, "tick-block-mask");
 
         sigset_t oldSet{};
-        logSignalFailure(sigprocmask(SIG_BLOCK, &newSet, &oldSet), "sigprocmask", "tick-block");
+        const bool signalMaskBlocked = logPthreadSigmaskFailure(pthread_sigmask(SIG_BLOCK, &newSet, &oldSet), "tick-block");
 
-        if (eventLoopState == State::RUNNING || eventLoopState == State::STOPPING) {
+        if ((eventLoopState == State::RUNNING && stopsig == 0) || eventLoopState == State::STOPPING) {
             tickStatus = eventMultiplexer.tick(timeOut, oldSet);
         }
 
-        logSignalFailure(sigprocmask(SIG_SETMASK, &oldSet, nullptr), "sigprocmask", "tick-restore");
+        if (stopsig > 0 && eventLoopState == State::RUNNING) {
+            const int signalNumber = stopsig;
+            EventLoop::instance().log().trace("Core: Received signal '{}' (SIG{} = {})",
+                                              utils::system::strsignal(signalNumber),
+                                              utils::system::sigabbrev_np(signalNumber),
+                                              signalNumber);
+            stop();
+        }
+
+        if (signalMaskBlocked) {
+            logPthreadSigmaskFailure(pthread_sigmask(SIG_SETMASK, &oldSet, nullptr), "tick-restore");
+        }
 
         return tickStatus;
     }
@@ -387,10 +407,7 @@ namespace core {
     }
 
     void EventLoop::stoponsig(int sig) {
-        EventLoop::instance().log().trace(
-            "Core: Received signal '{}' (SIG{} = {})", utils::system::strsignal(sig), utils::system::sigabbrev_np(sig), sig);
         stopsig = sig;
-        stop();
     }
 
 } // namespace core

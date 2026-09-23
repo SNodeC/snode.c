@@ -56,6 +56,7 @@ namespace utils {
     class Timeval;
 }
 
+#include <csignal>
 #include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -85,7 +86,6 @@ namespace core {
 
         static core::State getEventLoopState();
 
-
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static bool init(int argc, char* argv[]);
@@ -103,7 +103,7 @@ namespace core {
         mutable std::optional<logger::BoundaryLogger> cachedLog_;
         mutable unsigned long cachedLogGeneration_ = 0;
 
-        static int stopsig;
+        static volatile std::sig_atomic_t stopsig;
 
         static unsigned long tickCounter;
 
