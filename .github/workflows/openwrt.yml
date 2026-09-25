@@ -1,0 +1,28 @@
+name: OpenWrt tag changed
+on:
+  push:
+    tags: [OpenWRT]
+permissions:
+  contents: read
+jobs:
+  dispatch:
+    if: github.event.deleted == false && github.event.before != github.event.after
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app
+        with:
+          app-id: ${{ vars.OPENWRT_APP_ID }}
+          private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
+          owner: SNodeC
+          repositories: OpenWRT
+          permission-contents: write
+      - name: Request combined package build
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          jq '{event_type: "OpenWRT-tag-changed", client_payload: {
+            repository: .repository.full_name, ref: .ref,
+            before: .before, after: .after, deleted: .deleted
+          }}' "$GITHUB_EVENT_PATH" |
+            gh api --method POST repos/SNodeC/OpenWRT/dispatches --input -
