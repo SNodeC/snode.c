@@ -78,7 +78,7 @@ namespace web::websocket {
     private:
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
+        void sendFrame(bool fin, uint8_t opCode, const char* payload, std::size_t payloadLength);
 
         const logger::BoundaryLogger& frameLog() const;
 
@@ -86,7 +86,7 @@ namespace web::websocket {
         void sendFrameData(uint16_t data) const;
         void sendFrameData(uint32_t data) const;
         void sendFrameData(uint64_t data) const;
-        void sendFrameData(const char* frame, uint64_t frameLength) const;
+        void sendFrameData(const char* frame, std::size_t frameLength) const;
 
         virtual void sendFrameChunk(const char* data, std::size_t dataLength) const = 0;
 

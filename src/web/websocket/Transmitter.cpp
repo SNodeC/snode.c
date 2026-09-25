@@ -114,7 +114,7 @@ namespace web::websocket {
         payloadTotalSent += messageLength;
     }
 
-    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
+    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, std::size_t payloadLength) {
         uint64_t length = 0;
 
         if (payloadLength < 126) {
@@ -137,7 +137,7 @@ namespace web::websocket {
                 sendFrameData(static_cast<uint16_t>(payloadLength));
                 break;
             case 127:
-                sendFrameData(payloadLength);
+                sendFrameData(static_cast<uint64_t>(payloadLength));
                 break;
         }
 
@@ -156,9 +156,8 @@ namespace web::websocket {
             sendFrameData(maskingKeyAsArray.keyAsBytes, 4);
 
             std::vector<char> maskedPayload(payload, payload + payloadLength);
-            for (uint64_t i = 0; i < payloadLength; i++) {
-                maskedPayload[static_cast<std::size_t>(i)] =
-                    static_cast<char>(maskedPayload[static_cast<std::size_t>(i)] ^ maskingKeyAsArray.keyAsBytes[i % 4]);
+            for (std::size_t i = 0; i < payloadLength; i++) {
+                maskedPayload[i] = static_cast<char>(maskedPayload[i] ^ maskingKeyAsArray.keyAsBytes[i % 4]);
             }
             sendFrameData(maskedPayload.data(), payloadLength);
         } else {
@@ -193,18 +192,9 @@ namespace web::websocket {
         }
     }
 
-    void Transmitter::sendFrameData(const char* frame, uint64_t frameLength) const {
+    void Transmitter::sendFrameData(const char* frame, std::size_t frameLength) const {
         if (!closeSent) {
-            uint64_t frameOffset = 0;
-
-            do {
-                const std::size_t sendChunkLen =
-                    (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-
-                sendFrameChunk(frame + frameOffset, sendChunkLen);
-
-                frameOffset += sendChunkLen;
-            } while (frameLength - frameOffset > 0);
+            sendFrameChunk(frame, frameLength);
         }
     }
 
