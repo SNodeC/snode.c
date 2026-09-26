@@ -121,7 +121,7 @@ cpack_add_component(mux-epoll)
 cpack_add_component(mux-poll)
 cpack_add_component(mux-select)
 
-cpack_add_component(core DEPENDS mux-${IO_Multiplexer} utils)
+cpack_add_component(core DEPENDS mux-${SNODEC_IO_MULTIPLEXER} utils)
 cpack_add_component(core-socket DEPENDS core)
 cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
