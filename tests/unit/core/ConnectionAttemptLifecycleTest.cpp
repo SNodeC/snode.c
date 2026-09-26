@@ -616,21 +616,8 @@ namespace {
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc == 1) {
-        const std::vector<std::string> scenarios = {
-            "connector-terminal",
-            "explicit-after-failure",
-            "explicit-after-disconnect",
-            "cancelled-connect-callback",
-            "out-of-scope-reconnect",
-        };
-
-        tests::support::TestResult result;
-        for (const std::string& scenario : scenarios) {
-            const std::string command = std::string(argv[0]) + " " + scenario;
-            result.expectEqual(0, std::system(command.c_str()), "connection lifecycle scenario " + scenario + " passes");
-        }
-        return result.processResult();
+    if (argc != 2) {
+        return 1;
     }
 
     const std::string scenario = argv[1];

@@ -142,6 +142,10 @@ set_tests_properties(
     TLSTransportStateMachineTest
     PROPERTIES LABELS "unit;core;tls;state-machine" TIMEOUT 5
 )
+# Real RSA/TLS operations take longer under CPU emulation.
+if(CMAKE_CROSSCOMPILING_EMULATOR)
+    set_tests_properties(TLSTransportStateMachineTest PROPERTIES TIMEOUT 60)
+endif()
 
 snodec_add_test(
     TLSLifecycleAbiSourceCompatibilityTest
@@ -238,19 +242,36 @@ set_tests_properties(
     ListenerLifecycleTest PROPERTIES LABELS "unit;core;lifecycle;listener"
 )
 
-snodec_add_test(EndpointLifetimeCountersTest EndpointLifetimeCountersTest.cpp)
+add_executable(EndpointLifetimeCountersTest EndpointLifetimeCountersTest.cpp)
 target_include_directories(EndpointLifetimeCountersTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(EndpointLifetimeCountersTest PRIVATE cxx_std_20)
 target_link_libraries(
     EndpointLifetimeCountersTest
     PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
 )
-set_tests_properties(
-    EndpointLifetimeCountersTest
-    PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter"
+foreach(
+    scenario IN ITEMS
+        server-terminal
+        server-retry
+        server-retry-cancelled
+        client-terminal
+        client-retry
+        client-retry-cancelled
+        client-disconnect-terminal
+        client-reconnect-accepted
+        client-reconnect-cancelled
+        server-sequence
+        client-sequence
+        expired-weak-context
+        independent-server-retries
+        independent-client-retries
+        independent-client-reconnects
 )
+    add_test(NAME EndpointLifetimeCountersTest-${scenario} COMMAND EndpointLifetimeCountersTest ${scenario})
+    set_tests_properties(EndpointLifetimeCountersTest-${scenario} PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter" TIMEOUT 10)
+endforeach()
 
-snodec_add_test(
+add_executable(
     ConnectionAttemptLifecycleTest ConnectionAttemptLifecycleTest.cpp
 )
 target_include_directories(
@@ -264,10 +285,17 @@ target_link_libraries(
     ConnectionAttemptLifecycleTest
     PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
 )
-set_tests_properties(
-    ConnectionAttemptLifecycleTest
-    PROPERTIES LABELS "unit;core;lifecycle;connection"
+foreach(
+    scenario IN ITEMS
+        connector-terminal
+        explicit-after-failure
+        explicit-after-disconnect
+        cancelled-connect-callback
+        out-of-scope-reconnect
 )
+    add_test(NAME ConnectionAttemptLifecycleTest-${scenario} COMMAND ConnectionAttemptLifecycleTest ${scenario})
+    set_tests_properties(ConnectionAttemptLifecycleTest-${scenario} PROPERTIES LABELS "unit;core;lifecycle;connection" TIMEOUT 10)
+endforeach()
 
 snodec_add_test(TlsOpenSslLoggingTest TlsOpenSslLoggingTest.cpp)
 target_include_directories(TlsOpenSslLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})

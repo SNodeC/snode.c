@@ -3,6 +3,8 @@ set(prefix "${stage}/prefix")
 set(libdir "${prefix}/${SNODEC_INSTALL_LIBDIR}")
 # Execute consumers against this temporary installation, not a system copy.
 set(ENV{LD_LIBRARY_PATH} "${libdir}:${libdir}/snode.c/web/http")
+separate_arguments(compiler_flags NATIVE_COMMAND "${SNODEC_CXX_FLAGS}")
+separate_arguments(linker_flags NATIVE_COMMAND "${SNODEC_LINKER_FLAGS}")
 set(consumer "${stage}/consumer.cpp")
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
@@ -36,9 +38,9 @@ file(
 set(exe "${stage}/consumer")
 execute_process(
     COMMAND
-        "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}"
+        "${CMAKE_CXX_COMPILER}" ${compiler_flags} ${linker_flags} -std=c++20 "${consumer}"
         "-I${prefix}/include/snode.c" "-L${libdir}"
-        "-L${libdir}/snode.c/web/http" "-Wl,-rpath,${libdir}"
+        "-L${libdir}/snode.c/web/http" "-Wl,-rpath-link,${libdir}:${libdir}/snode.c/web/http" "-Wl,-rpath,${libdir}"
         "-Wl,-rpath,${libdir}/snode.c/web/http" -lsnodec-core
         -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net
         -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream
@@ -50,10 +52,6 @@ execute_process(
     OUTPUT_VARIABLE compile_output
     ERROR_VARIABLE compile_error
 )
-message(
-    STATUS
-        "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${libdir} -L${libdir}/snode.c/web/http -Wl,-rpath,${libdir} -Wl,-rpath,${libdir}/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}"
-)
 if(NOT compile_result EQUAL 0)
     message(
         FATAL_ERROR
@@ -61,7 +59,7 @@ if(NOT compile_result EQUAL 0)
     )
 endif()
 execute_process(
-    COMMAND "${exe}"
+    COMMAND ${SNODEC_EMULATOR} "${exe}"
     RESULT_VARIABLE run_result
     OUTPUT_VARIABLE run_output
     ERROR_VARIABLE run_error
@@ -109,6 +107,9 @@ execute_process(
         "${CMAKE_COMMAND}" -S "${generic_consumer_source}" -B
         "${generic_consumer_build}" "-Dsnodec_DIR=${snodec_config_dir}"
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+        "-DCMAKE_CXX_FLAGS=${SNODEC_CXX_FLAGS}"
+        "-DCMAKE_EXE_LINKER_FLAGS=${SNODEC_LINKER_FLAGS}"
+        "-DCMAKE_FIND_ROOT_PATH=${SNODEC_FIND_ROOT_PATH}"
         -DCMAKE_FIND_USE_PACKAGE_REGISTRY=FALSE
         -DCMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY=TRUE
         -DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=FALSE
@@ -136,7 +137,7 @@ if(NOT generic_build_result EQUAL 0)
     )
 endif()
 execute_process(
-    COMMAND "${generic_consumer_build}/generic-consumer"
+    COMMAND ${SNODEC_EMULATOR} "${generic_consumer_build}/generic-consumer"
     RESULT_VARIABLE generic_run_result
     OUTPUT_VARIABLE generic_run_output
     ERROR_VARIABLE generic_run_error

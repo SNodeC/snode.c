@@ -499,31 +499,8 @@ namespace {
 } // namespace
 
 int main(int argc, char** argv) {
-    const std::vector<std::string> scenarios = {
-        "server-terminal",
-        "server-retry",
-        "server-retry-cancelled",
-        "client-terminal",
-        "client-retry",
-        "client-retry-cancelled",
-        "client-disconnect-terminal",
-        "client-reconnect-accepted",
-        "client-reconnect-cancelled",
-        "server-sequence",
-        "client-sequence",
-        "expired-weak-context",
-        "independent-server-retries",
-        "independent-client-retries",
-        "independent-client-reconnects",
-    };
-
-    if (argc == 1) {
-        tests::support::TestResult parentResult;
-        for (const std::string& scenario : scenarios) {
-            const std::string command = std::string(argv[0]) + " " + scenario;
-            parentResult.expectEqual(0, std::system(command.c_str()), "endpoint lifetime scenario " + scenario + " passes");
-        }
-        return parentResult.processResult();
+    if (argc != 2) {
+        return 1;
     }
 
     const std::string scenario = argv[1];
