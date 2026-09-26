@@ -61,31 +61,31 @@ int main() {
     const net::in6::SocketAddress defaultSocketAddress;
     testResult.expectTrue(defaultSocketAddress.getHost() == defaultHost, "default IPv6 host is ::");
     testResult.expectEqual(0, defaultSocketAddress.getPort(), "default IPv6 port is 0");
-    testResult.expectTrue(defaultSocketAddress.toString() == ":::0", "default IPv6 address string includes host and port");
-    testResult.expectTrue(defaultSocketAddress.toString(false) == ":::0", "compact default IPv6 address string includes host and port");
+    testResult.expectTrue(defaultSocketAddress.toString() == "[::]:0", "default IPv6 address string includes host and port");
+    testResult.expectTrue(defaultSocketAddress.toString(false) == "[::]:0", "compact default IPv6 address string includes host and port");
 
     const net::in6::SocketAddress hostSocketAddress(host);
     testResult.expectTrue(hostSocketAddress.getHost() == host, "IPv6 host constructor stores host");
     testResult.expectEqual(0, hostSocketAddress.getPort(), "IPv6 host constructor leaves port at 0");
-    testResult.expectTrue(hostSocketAddress.toString() == "::1:0", "IPv6 host constructor string includes host and port");
+    testResult.expectTrue(hostSocketAddress.toString() == "[::1]:0", "IPv6 host constructor string includes host and port");
 
     const net::in6::SocketAddress portSocketAddress(port);
     testResult.expectTrue(portSocketAddress.getHost() == defaultHost, "IPv6 port constructor leaves default host");
     testResult.expectEqual(port, portSocketAddress.getPort(), "IPv6 port constructor stores port");
-    testResult.expectTrue(portSocketAddress.toString() == ":::8080", "IPv6 port constructor string includes host and port");
+    testResult.expectTrue(portSocketAddress.toString() == "[::]:8080", "IPv6 port constructor string includes host and port");
 
     net::in6::SocketAddress hostPortSocketAddress(host, port);
     testResult.expectTrue(hostPortSocketAddress.getHost() == host, "IPv6 host and port constructor stores host");
     testResult.expectEqual(port, hostPortSocketAddress.getPort(), "IPv6 host and port constructor stores port");
-    testResult.expectTrue(hostPortSocketAddress.toString() == "::1:8080", "IPv6 host and port constructor string includes host and port");
+    testResult.expectTrue(hostPortSocketAddress.toString() == "[::1]:8080", "IPv6 host and port constructor string includes host and port");
 
     hostPortSocketAddress.setHost(alternateHost);
     testResult.expectTrue(hostPortSocketAddress.getHost() == alternateHost, "IPv6 setHost updates host");
-    testResult.expectTrue(hostPortSocketAddress.toString() == ":::8080", "IPv6 string reflects updated host");
+    testResult.expectTrue(hostPortSocketAddress.toString() == "[::]:8080", "IPv6 string reflects updated host");
 
     hostPortSocketAddress.setPort(alternatePort);
     testResult.expectEqual(alternatePort, hostPortSocketAddress.getPort(), "IPv6 setPort updates port");
-    testResult.expectTrue(hostPortSocketAddress.toString() == ":::12345", "IPv6 string reflects updated port");
+    testResult.expectTrue(hostPortSocketAddress.toString() == "[::]:12345", "IPv6 string reflects updated port");
 
     const int result = testResult.processResult();
 

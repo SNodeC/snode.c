@@ -67,15 +67,15 @@ namespace core::socket::stream::tls {
         const std::function<std::uint64_t()>& allocateConnectionId,
         const std::shared_ptr<Config>& config)
         : Super(
-              [onConnect, this](SocketConnection* socketConnection) { // onConnect
+              [onConnect, config](SocketConnection* socketConnection) { // onConnect
                   onConnect(socketConnection);
 
-                  SSL* ssl = socketConnection->startSSL(socketConnection->getFd(), Super::config->getSslCtx());
+                  SSL* ssl = socketConnection->startSSL(socketConnection->getFd(), config->getSslCtx());
                   if (ssl != nullptr) {
                       SSL_set_connect_state(ssl);
-                      SSL_set_ex_data(ssl, 1, Super::config.get());
+                      SSL_set_ex_data(ssl, 1, config.get());
 
-                      ssl_set_sni(ssl, Super::config->getSni());
+                      ssl_set_sni(ssl, config->getSni());
                   }
               },
               [socketContextFactory, onConnected](SocketConnection* socketConnection) { // onConnected

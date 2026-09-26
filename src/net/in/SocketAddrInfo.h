@@ -48,6 +48,7 @@ struct sockaddr_in;
 
 #include "core/system/netdb.h" // IWYU pragma: export
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -57,7 +58,7 @@ namespace net::in {
     class SocketAddrInfo {
     public:
         SocketAddrInfo() = default;
-        ~SocketAddrInfo();
+        ~SocketAddrInfo() = default;
 
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 
@@ -69,7 +70,7 @@ namespace net::in {
         void logAddressInfo();
 
     private:
-        struct addrinfo* addrInfo = nullptr;
+        std::shared_ptr<addrinfo> addrInfo;
         struct addrinfo* currentAddrInfo = nullptr;
     };
 

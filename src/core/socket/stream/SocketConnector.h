@@ -110,6 +110,8 @@ namespace core::socket::stream {
         virtual void useNextSocketAddress() = 0;
 
     private:
+        static core::socket::State connectErrorState(int errnum);
+
         void startAttempt();
         void finishAttempt(const char* outcome);
         void finishAttempt(const char* outcome, const SocketAddress& socketAddress, core::socket::State state);
@@ -124,7 +126,7 @@ namespace core::socket::stream {
 
     private:
         PhysicalClientSocket physicalClientSocket;
-        SocketAddress remoteAddress;
+        std::optional<SocketAddress> remoteAddress;
 
     protected:
         std::function<void(SocketConnection*)> onConnect;

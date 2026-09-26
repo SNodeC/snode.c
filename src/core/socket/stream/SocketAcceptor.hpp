@@ -83,6 +83,7 @@ namespace core::socket::stream {
               template <typename ConfigT, typename PhysicalSocketServerT> typename SocketConnection>
     SocketAcceptor<PhysicalSocketServer, Config, SocketConnection>::SocketAcceptor(const SocketAcceptor& socketAcceptor)
         : core::eventreceiver::AcceptEventReceiver(socketAcceptor.config->getInstanceName() + " SocketAcceptor", 0)
+        , configuredAddress(socketAcceptor.configuredAddress)
         , onConnect(socketAcceptor.onConnect)
         , onConnected(socketAcceptor.onConnected)
         , onDisconnect(socketAcceptor.onDisconnect)
@@ -110,12 +111,14 @@ namespace core::socket::stream {
 
                 snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " Listen: starting";
 
-                configuredAddress = config->Local::getSocketAddress();
+                if (!configuredAddress) {
+                    configuredAddress = config->Local::getSocketAddress();
+                }
 
                 if (physicalServerSocket.open(config->getSocketOptions(), PhysicalServerSocket::Flags::NONBLOCK) < 0) {
                     const int errnum = errno;
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
-                        << config->getInstanceName() << " open " << configuredAddress.toString();
+                        << config->getInstanceName() << " open " << configuredAddress->toString();
 
                     switch (errnum) {
                         case EMFILE:
@@ -130,12 +133,12 @@ namespace core::socket::stream {
                     }
                 } else {
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                        << config->getInstanceName() << " open " << configuredAddress.toString() << ": success";
+                        << config->getInstanceName() << " open " << configuredAddress->toString() << ": success";
 
-                    if (physicalServerSocket.bind(configuredAddress) < 0) {
+                    if (physicalServerSocket.bind(*configuredAddress) < 0) {
                         const int errnum = errno;
                         snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
-                            << config->getInstanceName() << " bind " << configuredAddress.toString();
+                            << config->getInstanceName() << " bind " << configuredAddress->toString();
 
                         switch (errnum) {
                             case EADDRINUSE:
@@ -150,7 +153,7 @@ namespace core::socket::stream {
                     } else {
                         bindSucceeded = true;
 
-                        const std::string configuredAddressString = configuredAddress.toString();
+                        const std::string configuredAddressString = configuredAddress->toString();
                         const std::string effectiveBindAddressString = physicalServerSocket.getBindAddress().toString();
 
                         snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
@@ -195,8 +198,8 @@ namespace core::socket::stream {
                     log().debug("listener start failed");
                 }
 
-                SocketAddress currentLocalAddress = bindSucceeded ? physicalServerSocket.getBindAddress() : configuredAddress;
-                if (configuredAddress.useNext()) {
+                SocketAddress currentLocalAddress = bindSucceeded ? physicalServerSocket.getBindAddress() : *configuredAddress;
+                if (configuredAddress->useNext()) {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).info()

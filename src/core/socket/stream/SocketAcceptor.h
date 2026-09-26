@@ -124,7 +124,7 @@ namespace core::socket::stream {
 
     private:
         PhysicalServerSocket physicalServerSocket;
-        SocketAddress configuredAddress;
+        std::optional<SocketAddress> configuredAddress;
 
     protected:
         std::function<void(SocketConnection*)> onConnect;

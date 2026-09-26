@@ -350,3 +350,11 @@ target_compile_features(InetPerCallFlowTest PRIVATE cxx_std_20)
 set_tests_properties(InetPerCallFlowTest PROPERTIES
                     LABELS "component;net;stream;legacy;ipv4;flow"
                     SKIP_RETURN_CODE 77 TIMEOUT 5)
+
+snodec_add_test(AddressResolutionPolicyTest AddressResolutionPolicyTest.cpp)
+target_link_libraries(AddressResolutionPolicyTest PRIVATE snodec-test-support snodec::net-in-stream-legacy snodec::net-in6-stream-legacy snodec::net-in-stream-tls ${CMAKE_DL_LIBS})
+target_link_options(AddressResolutionPolicyTest PRIVATE -Wl,--export-dynamic)
+foreach(scenario client client6 client-tls server retry mapped host timeout async-host async-timeout timer permanent)
+    add_test(NAME AddressResolutionPolicy-${scenario} COMMAND AddressResolutionPolicyTest ${scenario})
+    set_tests_properties(AddressResolutionPolicy-${scenario} PROPERTIES TIMEOUT 5 LABELS "component;net;resolution;retry")
+endforeach()

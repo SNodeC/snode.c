@@ -43,7 +43,6 @@
 
 #include "core/socket/State.h"
 #include "net/SocketAddress.hpp"
-#include "net/in6/SocketAddrInfo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,8 +54,7 @@
 namespace net::in6 {
 
     SocketAddress::SocketAddress()
-        : Super(AF_INET6)
-        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        : Super(AF_INET6) {
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)
@@ -76,8 +74,7 @@ namespace net::in6 {
     }
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric)
-        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
-        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
         char hostC[NI_MAXHOST];
         char servC[NI_MAXSERV];
         std::memset(hostC, 0, NI_MAXHOST);
@@ -114,15 +111,15 @@ namespace net::in6 {
         addrinfo addrInfoHints{};
 
         addrInfoHints.ai_family = Super::getAddressFamily();
-        addrInfoHints.ai_flags = hints.aiFlags | AI_ADDRCONFIG |
-                                 AI_CANONNAME /*| AI_CANONIDN*/ /*| AI_ALL*/; // AI_CANONIDN produces a still reachable memory leak
+        // Explicit-family resolution must also work with loopback-only interfaces.
+        addrInfoHints.ai_flags = hints.aiFlags | AI_CANONNAME;
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 
-        const int aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints);
+        const int aiErrCode = socketAddrInfo.resolve(host, std::to_string(port), addrInfoHints);
         if (aiErrCode == 0) {
-            sockAddr = socketAddrInfo->getSockAddr();
-            canonName = socketAddrInfo->getCanonName();
+            sockAddr = socketAddrInfo.getSockAddr();
+            canonName = socketAddrInfo.getCanonName();
         } else {
             core::socket::State state = core::socket::STATE_OK;
 
@@ -137,7 +134,7 @@ namespace net::in6 {
             }
 
             throw core::socket::SocketAddress::BadSocketAddress(state,
-                                                                host + ":" + std::to_string(port) + ": " +
+                                                                toString(false) + ": " +
                                                                     (aiErrCode == EAI_SYSTEM ? strerror(errno) : gai_strerror(aiErrCode)),
                                                                 (aiErrCode == EAI_SYSTEM ? errno : aiErrCode));
         }
@@ -168,16 +165,15 @@ namespace net::in6 {
     }
 
     std::string SocketAddress::toString(bool expanded) const {
-        return std::string(host).append(std::string(":")
-                                            .append(std::to_string(port))
-                                            .append(expanded && !canonName.empty() ? std::string(" (").append(canonName).append(")") : ""));
+        return (host.find(':') != std::string::npos ? "[" + host + "]" : host) + ":" + std::to_string(port) +
+               (expanded && !canonName.empty() ? " (" + canonName + ")" : "");
     }
 
     bool SocketAddress::useNext() {
-        const bool useNext = socketAddrInfo->useNext();
+        const bool useNext = socketAddrInfo.useNext();
 
         if (useNext) {
-            sockAddr = socketAddrInfo->getSockAddr();
+            sockAddr = socketAddrInfo.getSockAddr();
         }
 
         return useNext;

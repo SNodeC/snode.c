@@ -59,8 +59,8 @@ int main() {
     const net::in6::SocketAddress loopbackSocketAddress(loopbackSockAddr, sizeof(loopbackSockAddr), true);
     testResult.expectTrue(loopbackSocketAddress.getHost() == "::1", "native IPv6 loopback host is ::1");
     testResult.expectEqual(8080, loopbackSocketAddress.getPort(), "native IPv6 loopback port is 8080");
-    testResult.expectTrue(loopbackSocketAddress.toString() == "::1:8080", "native IPv6 loopback address string includes host and port");
-    testResult.expectTrue(loopbackSocketAddress.toString(false) == "::1:8080",
+    testResult.expectTrue(loopbackSocketAddress.toString() == "[::1]:8080", "native IPv6 loopback address string includes host and port");
+    testResult.expectTrue(loopbackSocketAddress.toString(false) == "[::1]:8080",
                           "compact native IPv6 loopback address string includes host and port");
     testResult.expectEqual(AF_INET6, loopbackSocketAddress.getAddressFamily(), "native IPv6 loopback address family is AF_INET6");
     testResult.expectEqual(
@@ -74,8 +74,8 @@ int main() {
     const net::in6::SocketAddress anySocketAddress(anySockAddr, sizeof(anySockAddr), true);
     testResult.expectTrue(anySocketAddress.getHost() == "::", "native IPv6 any host is ::");
     testResult.expectEqual(0, anySocketAddress.getPort(), "native IPv6 any port is 0");
-    testResult.expectTrue(anySocketAddress.toString() == ":::0", "native IPv6 any address string includes host and port");
-    testResult.expectTrue(anySocketAddress.toString(false) == ":::0", "compact native IPv6 any address string includes host and port");
+    testResult.expectTrue(anySocketAddress.toString() == "[::]:0", "native IPv6 any address string includes host and port");
+    testResult.expectTrue(anySocketAddress.toString(false) == "[::]:0", "compact native IPv6 any address string includes host and port");
     testResult.expectEqual(AF_INET6, anySocketAddress.getAddressFamily(), "native IPv6 any address family is AF_INET6");
     testResult.expectEqual(sizeof(sockaddr_in6), anySocketAddress.getSockAddrLen(), "native IPv6 any sockaddr length is sockaddr_in6 size");
 

@@ -43,7 +43,6 @@
 
 #include "core/socket/State.h"
 #include "net/SocketAddress.hpp"
-#include "net/in/SocketAddrInfo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,8 +54,7 @@
 namespace net::in {
 
     SocketAddress::SocketAddress()
-        : Super(AF_INET)
-        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        : Super(AF_INET) {
     }
 
     SocketAddress::SocketAddress(const std::string& ipOrHostname)
@@ -76,8 +74,7 @@ namespace net::in {
     }
 
     SocketAddress::SocketAddress(const SockAddr& sockAddr, SockLen sockAddrLen, bool numeric)
-        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen)
-        , socketAddrInfo(std::make_shared<SocketAddrInfo>()) {
+        : net::SocketAddress<SockAddr>(sockAddr, sockAddrLen) {
         char hostC[NI_MAXHOST];
         char servC[NI_MAXSERV];
         std::memset(hostC, 0, NI_MAXHOST);
@@ -114,15 +111,15 @@ namespace net::in {
         addrinfo addrInfoHints{};
 
         addrInfoHints.ai_family = Super::getAddressFamily();
-        addrInfoHints.ai_flags =
-            hints.aiFlags | AI_ADDRCONFIG | AI_CANONNAME /*| AI_CANONIDN*/; // AI_CANONIDN produces a still reachable memory leak
+        // Explicit-family resolution must also work with loopback-only interfaces.
+        addrInfoHints.ai_flags = hints.aiFlags | AI_CANONNAME;
         addrInfoHints.ai_socktype = hints.aiSockType;
         addrInfoHints.ai_protocol = hints.aiProtocol;
 
-        const int aiErrCode = socketAddrInfo->resolve(host, std::to_string(port), addrInfoHints);
+        const int aiErrCode = socketAddrInfo.resolve(host, std::to_string(port), addrInfoHints);
         if (aiErrCode == 0) {
-            sockAddr = socketAddrInfo->getSockAddr();
-            canonName = socketAddrInfo->getCanonName();
+            sockAddr = socketAddrInfo.getSockAddr();
+            canonName = socketAddrInfo.getCanonName();
         } else {
             core::socket::State state = core::socket::STATE_OK;
 
@@ -174,10 +171,10 @@ namespace net::in {
     }
 
     bool SocketAddress::useNext() {
-        const bool useNext = socketAddrInfo->useNext();
+        const bool useNext = socketAddrInfo.useNext();
 
         if (useNext) {
-            sockAddr = socketAddrInfo->getSockAddr();
+            sockAddr = socketAddrInfo.getSockAddr();
         }
 
         return useNext;

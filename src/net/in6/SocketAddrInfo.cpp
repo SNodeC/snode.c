@@ -54,22 +54,14 @@
 
 namespace net::in6 {
 
-    SocketAddrInfo::~SocketAddrInfo() {
-        if (addrInfo != nullptr) {
-            freeaddrinfo(addrInfo);
-        }
-    }
-
     int SocketAddrInfo::resolve(const std::string& node, const std::string& service, const addrinfo& hints) {
-        if (addrInfo != nullptr) {
-            freeaddrinfo(addrInfo);
-            addrInfo = nullptr;
-        }
-
-        int aiErrCode = 0;
-
-        if ((aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &addrInfo)) == 0) {
-            currentAddrInfo = addrInfo;
+        addrInfo.reset();
+        currentAddrInfo = nullptr;
+        struct addrinfo* resolved = nullptr;
+        const int aiErrCode = core::system::getaddrinfo(node.c_str(), service.c_str(), &hints, &resolved);
+        if (aiErrCode == 0) {
+            addrInfo.reset(resolved, freeaddrinfo);
+            currentAddrInfo = resolved;
         }
 
         return aiErrCode;

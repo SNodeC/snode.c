@@ -43,17 +43,13 @@
 #define NET_IN_SOCKETADDRESS_H
 
 #include "net/SocketAddress.h" // IWYU pragma: export
-
-namespace net::in {
-    class SocketAddrInfo;
-} // namespace net::in
+#include "net/in/SocketAddrInfo.h"
 
 // IWYU pragma: no_include "net/SocketAddress.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <memory>
 #include <netinet/in.h>
 #include <string>
 
@@ -98,7 +94,7 @@ namespace net::in {
 
         std::string canonName;
 
-        std::shared_ptr<SocketAddrInfo> socketAddrInfo;
+        SocketAddrInfo socketAddrInfo;
     };
 
 } // namespace net::in

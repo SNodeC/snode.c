@@ -40,8 +40,12 @@ int main() {
     testResult.expectTrue(ipv4SocketAddress.toString(false) == "127.0.0.1:8080", "compact IPv4 address formats as host:port");
 
     const net::in6::SocketAddress ipv6SocketAddress("::1", 8080);
-    testResult.expectTrue(ipv6SocketAddress.toString() == "::1:8080", "IPv6 address formats as host:port");
-    testResult.expectTrue(ipv6SocketAddress.toString(false) == "::1:8080", "compact IPv6 address formats as host:port");
+    testResult.expectTrue(ipv6SocketAddress.toString() == "[::1]:8080", "IPv6 address formats as host:port");
+    testResult.expectTrue(ipv6SocketAddress.toString(false) == "[::1]:8080", "compact IPv6 address formats as host:port");
+
+    const net::in6::SocketAddress namedIpv6Address("example.test", 8080);
+    testResult.expectTrue(namedIpv6Address.toString(false) == "example.test:8080", "hostname is not bracketed");
+    testResult.expectTrue(ipv6SocketAddress.getHost() == "::1", "formatting leaves resolver host unbracketed");
 
     net::un::SocketAddress unixSocketAddress("/tmp/snodec-format-test.sock");
     unixSocketAddress.init();

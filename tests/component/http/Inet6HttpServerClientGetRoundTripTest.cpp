@@ -12,13 +12,15 @@ int main(int argc, char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("Inet6HttpServerClientGetRoundTripTest");
     } else {
         tests::component::http::RoundTripState state;
+        std::string expectedHost;
 
         core::SNodeC::init(argc, argv);
 
         using Server = web::http::legacy::in6::Server;
         using Client = web::http::legacy::in6::Client;
 
-        const Server server("ipv6-http-round-trip-server", [&state](const auto& request, const auto& response) {
+        const Server server("ipv6-http-round-trip-server", [&state, &testResult, &expectedHost](const auto& request, const auto& response) {
+            testResult.expectTrue(request->get("Host") == expectedHost, "IPv6 HTTP Host header brackets the literal address");
             tests::component::http::handleRequest(request, response, state);
         });
         Client client(
@@ -33,12 +35,13 @@ int main(int argc, char* argv[]) {
         tests::component::http::configureHttpRoundTrip(server, client, state);
 
         server.listen(net::in6::SocketAddress("::1", 0),
-                      [&client, &state](const net::in6::SocketAddress& socketAddress, core::socket::State listenState) {
+                      [&client, &state, &expectedHost](const net::in6::SocketAddress& socketAddress, core::socket::State listenState) {
                           if (listenState == core::socket::State::OK) {
                               ++state.listenOkCount;
                               const std::uint16_t effectivePort = socketAddress.getPort();
                               if (effectivePort != 0) {
                                   ++state.effectiveListenEndpointOkCount;
+                                  expectedHost = "[::1]:" + std::to_string(effectivePort);
                                   client.connect(net::in6::SocketAddress("::1", effectivePort),
                                                  [&state](const net::in6::SocketAddress&, core::socket::State connectState) {
                                                      if (connectState == core::socket::State::OK) {
