@@ -6,6 +6,7 @@
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/legacy/SocketServer.h"
 #include "net/in/stream/tls/SocketClient.h"
+#include "net/in/stream/tls/SocketServer.h"
 #include "net/in6/stream/legacy/SocketClient.h"
 #include "support/TestResult.h"
 
@@ -16,6 +17,9 @@
 #include <cstring>
 #include <dlfcn.h>
 #include <netdb.h>
+#include <openssl/ec.h>
+#include <openssl/ssl.h>
+#include <openssl/x509.h>
 #include <string>
 #include <unistd.h>
 #include <vector>
@@ -180,6 +184,77 @@ namespace {
         result.expectTrue(numericHost(&original.getSockAddr()) != first, "original advances to distinct second candidate");
     }
 
+    void tlsServerFallback(tests::support::TestResult& result) {
+        const int blocker = socket(AF_INET, SOCK_STREAM, 0);
+        sockaddr_in occupied{};
+        occupied.sin_family = AF_INET;
+        inet_pton(AF_INET, "127.0.0.2", &occupied.sin_addr);
+        result.expectEqual(0, bind(blocker, reinterpret_cast<sockaddr*>(&occupied), sizeof(occupied)), "first address is occupied");
+        result.expectEqual(0, listen(blocker, 1), "first address cannot be reused by the TLS listener");
+        socklen_t length = sizeof(occupied);
+        getsockname(blocker, reinterpret_cast<sockaddr*>(&occupied), &length);
+        testPort = ntohs(occupied.sin_port);
+
+        net::in::stream::tls::SocketServer<Factory> server("policy-server");
+        net::in::stream::tls::SocketClient<Factory> client("policy-client");
+        server.getConfig()->Instance::forceUnrequired();
+        client.getConfig()->Instance::forceUnrequired();
+        client.getConfig()->setCaCertAcceptUnknown();
+        SSL_CTX* context = server.getConfig()->getSslCtx();
+        EVP_PKEY_CTX* keyContext = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
+        EVP_PKEY* key = nullptr;
+        const bool keyReady = keyContext && EVP_PKEY_keygen_init(keyContext) == 1 &&
+                              EVP_PKEY_CTX_set_ec_paramgen_curve_nid(keyContext, NID_X9_62_prime256v1) == 1 &&
+                              EVP_PKEY_keygen(keyContext, &key) == 1;
+        EVP_PKEY_CTX_free(keyContext);
+        X509* certificate = X509_new();
+        bool ready = context && keyReady && certificate;
+        if (ready) {
+            X509_set_version(certificate, 2);
+            ASN1_INTEGER_set(X509_get_serialNumber(certificate), 1);
+            X509_gmtime_adj(X509_get_notBefore(certificate), -60);
+            X509_gmtime_adj(X509_get_notAfter(certificate), 3600);
+            X509_set_pubkey(certificate, key);
+            X509_NAME* name = X509_get_subject_name(certificate);
+            X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, reinterpret_cast<const unsigned char*>("localhost"), -1, -1, 0);
+            X509_set_issuer_name(certificate, name);
+            ready = X509_sign(certificate, key, EVP_sha256()) > 0 && SSL_CTX_use_certificate(context, certificate) == 1 &&
+                    SSL_CTX_use_PrivateKey(context, key) == 1;
+        }
+        X509_free(certificate);
+        EVP_PKEY_free(key);
+        result.expectTrue(ready, "in-memory TLS certificate is installed");
+        if (ready) {
+            int handshakes = 0;
+            int failedListeners = 0;
+            server.setOnConnected([&](auto* connection) {
+                result.expectTrue(SSL_get_SSL_CTX(connection->getSSL()) == context, "fallback listener uses its shared TLS context");
+                result.expectTrue(SSL_get_ex_data(connection->getSSL(), 1) == server.getConfig(), "SNI uses the retained configuration");
+                if (++handshakes == 2)
+                    core::SNodeC::stop();
+            });
+            client.setOnConnected([&](auto*) {
+                if (++handshakes == 2)
+                    core::SNodeC::stop();
+            });
+            server.listen(net::in::SocketAddress("multi.test", testPort), [&](const auto& address, core::socket::State state) {
+                if (state == core::socket::State::ERROR) {
+                    ++failedListeners;
+                } else if (state == core::socket::State::OK) {
+                    auto copy = address;
+                    result.expectTrue(numericHost(&copy.getSockAddr()) == "127.0.0.1", "second address supplies the listener");
+                    client.connect(net::in::SocketAddress("127.0.0.1", testPort), [](const auto&, auto) {});
+                } else {
+                    core::SNodeC::stop();
+                }
+            });
+            core::SNodeC::start();
+            result.expectEqual(1, failedListeners, "first acceptor fails before fallback accepts a connection");
+            result.expectEqual(2, handshakes, "client and fallback server complete TLS handshakes");
+        }
+        close(blocker);
+    }
+
     template <typename Client, typename Address>
     void clientTest(tests::support::TestResult& result, int count) {
         const int listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -234,8 +309,10 @@ int main(int argc, char* argv[]) {
     char socketSection[] = "socket";
     char timeoutOption[] = "--connect-timeout=0.03";
     char* arguments[] = {argv[0], clientName, socketSection, timeoutOption};
-    core::SNodeC::init(mode == "server" || mode == "mapped" ? 1 : 4, arguments);
-    if (mode == "server") {
+    core::SNodeC::init(mode == "server" || mode == "server-tls" || mode == "mapped" ? 1 : 4, arguments);
+    if (mode == "server-tls") {
+        tlsServerFallback(result);
+    } else if (mode == "server") {
         net::in::stream::legacy::SocketServer<Factory> server("policy-server");
         server.getConfig()->Instance::forceUnrequired();
         std::vector<std::string> bound;
