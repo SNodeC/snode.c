@@ -83,7 +83,7 @@ namespace snodec::control {
         std::string command = shellEscape(executable);
 
         for (const std::string& argument : arguments) {
-            command += " " + shellEscape(argument);
+            command.append(1, ' ').append(shellEscape(argument));
         }
 
         return command;
