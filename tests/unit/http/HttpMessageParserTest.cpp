@@ -295,7 +295,8 @@ int main() {
 
         const RequestParseResult badChunkSize = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5xyz\r\nhello\r\n0\r\n\r\n");
         testResult.expectTrue(!badChunkSize.parsed, "chunked decoder rejects chunk-size trailing garbage");
-        testResult.expectEqual(501, badChunkSize.errorCode, "invalid chunk syntax is reported as content decoding error");
+        testResult.expectEqual(400, badChunkSize.errorCode, "invalid chunk syntax is reported as content decoding error");
+        testResult.expectTrue(badChunkSize.errorReason == "Invalid chunked transfer encoding", "chunk error identifies transfer encoding");
     }
 
     {
@@ -319,17 +320,17 @@ int main() {
             const std::string line = "5;foo=" + std::string(56, 'x'); // 64 bytes including CRLF.
             check(line.substr(0, line.size() - 1) + "\r\nhello\r\n0\r\n\r\n", limits, true, 0, "chunk line below limit");
             check(line + "\r\nhello\r\n0;done=yes\r\n\r\n", limits, true, 0, "chunk line at limit");
-            check(line + "x\r\nhello\r\n0\r\n\r\n", limits, false, 501, "chunk line above limit");
-            check(line + "xxx", limits, false, 501, "unterminated oversized chunk line");
-            check("5\r\nhello\r\n0;end=" + std::string(57, 'x') + "\r\n\r\n", limits, false, 501, "oversized final chunk line");
+            check(line + "x\r\nhello\r\n0\r\n\r\n", limits, false, 400, "chunk line above limit");
+            check(line + "xxx", limits, false, 400, "unterminated oversized chunk line");
+            check("5\r\nhello\r\n0;end=" + std::string(57, 'x') + "\r\n\r\n", limits, false, 400, "oversized final chunk line");
             limits.maximumHeaderLineBytes = 0;
             check("5;foo=" + std::string(9000, 'x') + "\r\nhello\r\n0\r\n\r\n", limits, true, 0, "explicit unlimited line");
             limits = {};
-            check("5;foo=" + std::string(8192, 'x') + "\r\nhello\r\n0\r\n\r\n", limits, false, 501, "default line limit");
+            check("5;foo=" + std::string(8192, 'x') + "\r\nhello\r\n0\r\n\r\n", limits, false, 400, "default line limit");
             for (const std::string token : {"", "xyz", "-1", "+1", "0x5", "5xyz"}) {
-                check(token + ";foo=bar\r\n", limits, false, 501, "invalid size " + token);
+                check(token + ";foo=bar\r\n", limits, false, 400, "invalid size " + token);
             }
-            check("1" + std::string(sizeof(std::size_t) * 2, '0') + ";foo=bar\r\n", limits, false, 501, "size overflow");
+            check("1" + std::string(sizeof(std::size_t) * 2, '0') + ";foo=bar\r\n", limits, false, 400, "size overflow");
             limits.maximumBodyBytes = 4;
             check(std::string(sizeof(std::size_t) * 2, 'f') + ";foo=bar\r\n", limits, false, 413, "maximum representable chunk size");
             check("5;foo=bar\r\nhello\r\n0\r\n\r\n", limits, false, 413, "body limit with extension");

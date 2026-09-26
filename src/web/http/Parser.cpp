@@ -242,7 +242,7 @@ namespace web::http {
             if (contentDecoder->isSizeLimitExceeded()) {
                 parseError(413, "HTTP message body too large");
             } else {
-                parseError(501, "Wrong content encoding");
+                parseError(400, "Invalid chunked transfer encoding");
             }
         }
 
