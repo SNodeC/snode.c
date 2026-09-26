@@ -368,7 +368,7 @@ namespace web::http::client {
             response->httpVersion = "HTTP/1.1";
             response->httpMajor = 1;
             response->httpMinor = 1;
-            response->statusCode = "0";
+            response->statusCode = '0';
             response->reason = "Connection loss";
 
             request->deliverResponse(request, response);
