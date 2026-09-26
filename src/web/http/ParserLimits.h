@@ -24,7 +24,7 @@ namespace web::http {
         static constexpr std::size_t DEFAULT_MAXIMUM_BODY_BYTES = 0;
 
         std::size_t maximumStartLineBytes = DEFAULT_MAXIMUM_START_LINE_BYTES;
-        std::size_t maximumHeaderLineBytes = DEFAULT_MAXIMUM_HEADER_LINE_BYTES;
+        std::size_t maximumHeaderLineBytes = DEFAULT_MAXIMUM_HEADER_LINE_BYTES; // Header, trailer and chunk-size lines, including CRLF.
         std::size_t maximumHeaderBytes = DEFAULT_MAXIMUM_HEADER_BYTES;
         std::size_t maximumHeaderFields = DEFAULT_MAXIMUM_HEADER_FIELDS;
         std::size_t maximumBodyBytes = DEFAULT_MAXIMUM_BODY_BYTES;

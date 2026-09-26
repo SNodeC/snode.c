@@ -25,7 +25,7 @@ namespace web::http {
             CLI::NonNegativeNumber);
         maximumHeaderLineBytesOpt = addOption( //
             "--maximum-header-line-bytes",
-            "Maximum HTTP header-line size in bytes (0 = unlimited)",
+            "Maximum HTTP header, trailer and chunk-size line bytes including CRLF (0 = unlimited)",
             "bytes",
             ParserLimits::DEFAULT_MAXIMUM_HEADER_LINE_BYTES,
             CLI::NonNegativeNumber);

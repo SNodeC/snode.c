@@ -56,9 +56,9 @@
 
 namespace web::http::decoder {
 
-    Chunked::Chunked(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes)
+    Chunked::Chunked(const core::socket::stream::SocketContext* socketContext, const ParserLimits& limits)
         : socketContext(socketContext)
-        , maximumBodyBytes(maximumBodyBytes) {
+        , limits(limits) {
     }
 
     std::size_t Chunked::read() {
@@ -77,9 +77,8 @@ namespace web::http::decoder {
                 [[fallthrough]];
             case 0:
                 do {
-                    const bool limited = maximumBodyBytes != 0;
-                    const std::size_t maximumChunkBytes = limited ? maximumBodyBytes - content.size() : 0;
-                    ret = chunk.read(socketContext, maximumChunkBytes, limited);
+                    const std::size_t maximumChunkBytes = limits.maximumBodyBytes != 0 ? limits.maximumBodyBytes - content.size() : 0;
+                    ret = chunk.read(socketContext, maximumChunkBytes, limits);
                     consumed += ret;
 
                     if (chunk.isComplete()) {
@@ -103,13 +102,11 @@ namespace web::http::decoder {
     Chunked::Chunk::~Chunk() {
     }
 
-    inline std::size_t
-    Chunked::Chunk::read(const core::socket::stream::SocketContext* socketContext, std::size_t maximumChunkBytes, bool limited) {
+    inline std::size_t Chunked::Chunk::read(const core::socket::stream::SocketContext* socketContext,
+                                            std::size_t maximumChunkBytes,
+                                            const ParserLimits& limits) {
         std::size_t consumed = 0;
         std::size_t ret = 0;
-        std::size_t pos = 0;
-
-        const static int maxChunkLenTotalS = sizeof(std::size_t) * 2;
 
         switch (state) {
             case -1: // Re-init
@@ -145,12 +142,11 @@ namespace web::http::decoder {
                         } else {
                             chunkLenTotalS += ch;
                         }
+                        error = error || (limits.maximumHeaderLineBytes != 0 && chunkLenTotalS.size() + CR + LF > limits.maximumHeaderLineBytes);
                     }
-                } while (!error && ret > 0 && !(CR && LF) && chunkLenTotalS.size() <= maxChunkLenTotalS);
+                } while (!error && ret > 0 && !(CR && LF));
 
-                if (!(CR && LF)) {
-                    error = !error ? chunkLenTotalS.size() > maxChunkLenTotalS : error;
-
+                if (error || !(CR && LF)) {
                     if (error) {
                         state = -1;
                     }
@@ -168,15 +164,15 @@ namespace web::http::decoder {
                     if (chunkSizeToken.empty() || !std::all_of(chunkSizeToken.begin(), chunkSizeToken.end(), [](unsigned char c) {
                             return std::isxdigit(c) != 0;
                         }) ||
-                        chunkSizeToken.size() > maxChunkLenTotalS) {
+                        chunkSizeToken.size() > sizeof(std::size_t) * 2) {
                         error = true;
                         state = -1;
                         break;
                     }
 
                     try {
-                        const unsigned long long parsedChunkLen = std::stoull(chunkSizeToken, &pos, 16);
-                        if (pos != chunkSizeToken.size() || !std::in_range<std::size_t>(parsedChunkLen)) {
+                        const unsigned long long parsedChunkLen = std::stoull(chunkSizeToken, nullptr, 16);
+                        if (!std::in_range<std::size_t>(parsedChunkLen)) {
                             error = true;
                             state = -1;
                             break;
@@ -189,7 +185,7 @@ namespace web::http::decoder {
                             state = -1;
                             break;
                         }
-                        if (limited && chunkLenTotal > maximumChunkBytes) {
+                        if (limits.maximumBodyBytes != 0 && chunkLenTotal > maximumChunkBytes) {
                             error = true;
                             sizeLimitExceeded = true;
                             state = -1;

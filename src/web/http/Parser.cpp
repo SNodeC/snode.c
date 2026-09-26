@@ -166,7 +166,7 @@ namespace web::http {
 
     void Parser::useChunkedBodyDecoder() {
         transferEncoding = TransferEncoding::Chunked;
-        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext, limits.maximumBodyBytes));
+        decoderQueue.emplace_back(new web::http::decoder::Chunked(socketContext, limits));
         configureTrailerDecoder();
     }
 

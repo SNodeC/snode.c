@@ -40,9 +40,11 @@ namespace {
 
     class BufferSocketConnection : public core::socket::stream::SocketConnection {
     public:
-        explicit BufferSocketConnection(std::string input)
+        explicit BufferSocketConnection(std::string input, std::size_t fragmentBytes = 0)
             : SocketConnection(-1, 1, "HttpMessageParserTest", nullptr)
-            , input(std::move(input)) {
+            , input(std::move(input))
+            , fragmentBytes(fragmentBytes)
+            , released(fragmentBytes == 0 ? this->input.size() : std::min(fragmentBytes, this->input.size())) {
         }
 
         int getFd() const override {
@@ -60,7 +62,7 @@ namespace {
         }
 
         std::size_t readFromPeer(char* chunk, std::size_t chunkLen) override {
-            const std::size_t available = input.size() - offset;
+            const std::size_t available = released - offset;
             const std::size_t toRead = std::min(chunkLen, available);
 
             if (toRead > 0) {
@@ -69,6 +71,14 @@ namespace {
             }
 
             return toRead;
+        }
+
+        bool releaseNextFragment() {
+            if (released == input.size()) {
+                return false;
+            }
+            released += std::min(fragmentBytes, input.size() - released);
+            return true;
         }
 
         void shutdownRead() override {
@@ -119,6 +129,8 @@ namespace {
 
     private:
         std::string input;
+        std::size_t fragmentBytes;
+        std::size_t released;
         std::size_t offset = 0;
         DummySocketAddress address;
     };
@@ -163,13 +175,13 @@ namespace {
         bool parsed = false;
         int errorCode = 0;
         std::string errorReason;
-        web::http::client::Response* response = nullptr;
+        std::vector<char> body;
         std::size_t consumed = 0;
     };
 
     RequestParseResult
-    parseRequestMessage(const std::string& message, const web::http::ParserLimits& limits = {}, bool allowChunkedTransfer = true) {
-        BufferSocketConnection connection(message);
+    parseRequestMessage(const std::string& message, const web::http::ParserLimits& limits = {}, bool allowChunkedTransfer = true, std::size_t fragmentBytes = 0) {
+        BufferSocketConnection connection(message, fragmentBytes);
         BufferSocketContext context(&connection);
         RequestParseResult result;
 
@@ -193,13 +205,13 @@ namespace {
         do {
             consumed = parser.parse();
             result.consumed += consumed;
-        } while (consumed > 0 && !result.parsed && result.errorCode == 0);
+        } while (!result.parsed && result.errorCode == 0 && (consumed > 0 || connection.releaseNextFragment()));
 
         return result;
     }
 
-    ResponseParseResult parseResponseMessage(const std::string& message, const web::http::ParserLimits& limits = {}) {
-        BufferSocketConnection connection(message);
+    ResponseParseResult parseResponseMessage(const std::string& message, const web::http::ParserLimits& limits = {}, std::size_t fragmentBytes = 0) {
+        BufferSocketConnection connection(message, fragmentBytes);
         BufferSocketContext context(&connection);
         ResponseParseResult result;
 
@@ -210,7 +222,7 @@ namespace {
             },
             [&result](web::http::client::Response& response) {
                 result.parsed = true;
-                result.response = &response;
+                result.body = response.body;
             },
             [&result](int code, const std::string& reason) {
                 result.errorCode = code;
@@ -222,7 +234,7 @@ namespace {
         do {
             consumed = parser.parse();
             result.consumed += consumed;
-        } while (consumed > 0 && !result.parsed && result.errorCode == 0);
+        } while (!result.parsed && result.errorCode == 0 && (consumed > 0 || connection.releaseNextFragment()));
 
         return result;
     }
@@ -284,6 +296,45 @@ int main() {
         const RequestParseResult badChunkSize = parseRequestMessage("POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n5xyz\r\nhello\r\n0\r\n\r\n");
         testResult.expectTrue(!badChunkSize.parsed, "chunked decoder rejects chunk-size trailing garbage");
         testResult.expectEqual(501, badChunkSize.errorCode, "invalid chunk syntax is reported as content decoding error");
+    }
+
+    {
+        // Exercise both public parsers, including pauses at every byte boundary.
+        for (const std::size_t fragmentBytes : {std::size_t{0}, std::size_t{1}, std::size_t{7}}) {
+            const auto check = [&](const std::string& chunks, const web::http::ParserLimits& limits,
+                                   bool accepted, int errorCode, const std::string& label) {
+                const auto request = parseRequestMessage(
+                    "POST / HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n" + chunks, limits, true, fragmentBytes);
+                const auto response = parseResponseMessage(
+                    "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" + chunks, limits, fragmentBytes);
+                testResult.expectTrue(request.parsed == accepted && response.parsed == accepted, label + " acceptance");
+                testResult.expectTrue(request.errorCode == errorCode && response.errorCode == errorCode, label + " error");
+                if (accepted) {
+                    testResult.expectTrue(request.request && bodyToString(request.request->body) == "hello", label + " request body");
+                    testResult.expectTrue(bodyToString(response.body) == "hello", label + " response body");
+                }
+            };
+            web::http::ParserLimits limits;
+            limits.maximumHeaderLineBytes = 64;
+            const std::string line = "5;foo=" + std::string(56, 'x'); // 64 bytes including CRLF.
+            check(line.substr(0, line.size() - 1) + "\r\nhello\r\n0\r\n\r\n", limits, true, 0, "chunk line below limit");
+            check(line + "\r\nhello\r\n0;done=yes\r\n\r\n", limits, true, 0, "chunk line at limit");
+            check(line + "x\r\nhello\r\n0\r\n\r\n", limits, false, 501, "chunk line above limit");
+            check(line + "xxx", limits, false, 501, "unterminated oversized chunk line");
+            check("5\r\nhello\r\n0;end=" + std::string(57, 'x') + "\r\n\r\n", limits, false, 501, "oversized final chunk line");
+            limits.maximumHeaderLineBytes = 0;
+            check("5;foo=" + std::string(9000, 'x') + "\r\nhello\r\n0\r\n\r\n", limits, true, 0, "explicit unlimited line");
+            limits = {};
+            check("5;foo=" + std::string(8192, 'x') + "\r\nhello\r\n0\r\n\r\n", limits, false, 501, "default line limit");
+            for (const std::string token : {"", "xyz", "-1", "+1", "0x5", "5xyz"}) {
+                check(token + ";foo=bar\r\n", limits, false, 501, "invalid size " + token);
+            }
+            check("1" + std::string(sizeof(std::size_t) * 2, '0') + ";foo=bar\r\n", limits, false, 501, "size overflow");
+            limits.maximumBodyBytes = 4;
+            check(std::string(sizeof(std::size_t) * 2, 'f') + ";foo=bar\r\n", limits, false, 413, "maximum representable chunk size");
+            check("5;foo=bar\r\nhello\r\n0\r\n\r\n", limits, false, 413, "body limit with extension");
+            check("3;foo=bar\r\nhel\r\n2;foo=bar\r\nlo\r\n0\r\n\r\n", limits, false, 413, "cumulative body limit with extensions");
+        }
     }
 
     {

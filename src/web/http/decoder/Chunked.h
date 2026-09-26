@@ -43,6 +43,7 @@
 #define WEB_HTTP_DECODER_CHUNK_H
 
 #include "web/http/ContentDecoder.h" // IWYU pragma: export
+#include "web/http/ParserLimits.h"
 
 namespace core::socket::stream {
     class SocketContext;
@@ -72,7 +73,9 @@ namespace web::http::decoder {
 
             ~Chunk();
 
-            inline std::size_t read(const core::socket::stream::SocketContext* socketContext, std::size_t maximumChunkBytes, bool limited);
+            inline std::size_t read(const core::socket::stream::SocketContext* socketContext,
+                                    std::size_t maximumChunkBytes,
+                                    const ParserLimits& limits);
 
             bool isError() const;
             bool isComplete() const;
@@ -101,7 +104,7 @@ namespace web::http::decoder {
         };
 
     public:
-        explicit Chunked(const core::socket::stream::SocketContext* socketContext, std::size_t maximumBodyBytes = 0);
+        explicit Chunked(const core::socket::stream::SocketContext* socketContext, const ParserLimits& limits = {});
 
         Chunked(const Chunked&) = delete;
         Chunked(Chunked&&) noexcept = default;
@@ -113,7 +116,7 @@ namespace web::http::decoder {
         std::size_t read() override;
 
         const core::socket::stream::SocketContext* socketContext;
-        const std::size_t maximumBodyBytes;
+        const ParserLimits limits;
 
         Chunk chunk;
 
