@@ -151,7 +151,7 @@ install(
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
+    REGEX "/(cmake|legacy|tls)(/|$)" EXCLUDE
 )
 
 install(
