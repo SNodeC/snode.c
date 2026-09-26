@@ -562,6 +562,29 @@ namespace {
         {
             TestFixture f;
             TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
+            int callbacks = 0;
+            TLSLifecycleTestAccess::doSSLHandshake(
+                *f.connection, [&] { ++callbacks; }, [&] { ++callbacks; }, [&](int) { ++callbacks; });
+            TLSHandshake* helper = TLSLifecycleTestAccess::lastHandshake();
+            result.expectTrue(helper != nullptr, "pending handshake has a helper before cancellation");
+            if (helper != nullptr) {
+                core::EventLoop::instance()
+                    .getEventMultiplexer()
+                    .getDescriptorEventPublisher(core::EventMultiplexer::DISP_TYPE::RD)
+                    .disable();
+                releaseDisabledEvents();
+            }
+            result.expectTrue(!TLSLifecycleTestAccess::handshakeGuardActive(*f.connection), "cancelled handshake helper is released");
+            TLSLifecycleTestAccess::stopSSL(*f.connection);
+            result.expectEqual(6, TLSLifecycleTestAccess::transportState(*f.connection), "cancelled handshake closes instead of becoming plaintext");
+            result.expectTrue(!TLSLifecycleTestAccess::lifecycleHasSSL(*f.connection), "cancelled handshake releases SSL");
+            result.expectEqual(0, callbacks, "cancellation does not report handshake success or failure");
+        }
+
+        resetTlsTestState();
+        {
+            TestFixture f;
+            TLSLifecycleTestAccess::enqueueHandshakeResult(-1, SSL_ERROR_WANT_READ);
             int success = 0, timeout = 0, status = 0;
             result.expectTrue(TLSLifecycleTestAccess::doSSLHandshake(
                                   *f.connection,

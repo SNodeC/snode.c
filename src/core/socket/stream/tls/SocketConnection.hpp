@@ -236,7 +236,7 @@ namespace core::socket::stream::tls {
         releaseSSLNow();
         if (tlsTransportState != TlsTransportState::Closed && tlsTransportState != TlsTransportState::Fatal &&
             tlsTransportState != TlsTransportState::Closing) {
-            transitionTo(TlsTransportState::Plaintext);
+            transitionTo(tlsTransportState == TlsTransportState::Handshaking ? TlsTransportState::Closing : TlsTransportState::Plaintext);
         }
     }
 
