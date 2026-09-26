@@ -1,7 +1,8 @@
 set(stage "${SNODEC_BUILD_DIR}/staged-installed-consumer")
 set(prefix "${stage}/prefix")
+set(libdir "${prefix}/${SNODEC_INSTALL_LIBDIR}")
 # Execute consumers against this temporary installation, not a system copy.
-set(ENV{LD_LIBRARY_PATH} "${prefix}/lib:${prefix}/lib/snode.c/web/http")
+set(ENV{LD_LIBRARY_PATH} "${libdir}:${libdir}/snode.c/web/http")
 set(consumer "${stage}/consumer.cpp")
 file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
@@ -36,9 +37,9 @@ set(exe "${stage}/consumer")
 execute_process(
     COMMAND
         "${CMAKE_CXX_COMPILER}" -std=c++20 "${consumer}"
-        "-I${prefix}/include/snode.c" "-L${prefix}/lib"
-        "-L${prefix}/lib/snode.c/web/http" "-Wl,-rpath,${prefix}/lib"
-        "-Wl,-rpath,${prefix}/lib/snode.c/web/http" -lsnodec-core
+        "-I${prefix}/include/snode.c" "-L${libdir}"
+        "-L${libdir}/snode.c/web/http" "-Wl,-rpath,${libdir}"
+        "-Wl,-rpath,${libdir}/snode.c/web/http" -lsnodec-core
         -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net
         -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream
         -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy
@@ -51,7 +52,7 @@ execute_process(
 )
 message(
     STATUS
-        "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${prefix}/lib -L${prefix}/lib/snode.c/web/http -Wl,-rpath,${prefix}/lib -Wl,-rpath,${prefix}/lib/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}"
+        "Installed consumer compile command: ${CMAKE_CXX_COMPILER} -std=c++20 ${consumer} -I${prefix}/include/snode.c -L${libdir} -L${libdir}/snode.c/web/http -Wl,-rpath,${libdir} -Wl,-rpath,${libdir}/snode.c/web/http -lsnodec-core -lsnodec-core-socket -lsnodec-core-socket-stream -lsnodec-net -lsnodec-net-in -lsnodec-net-in-phy -lsnodec-net-in-phy-stream -lsnodec-net-in-stream -lsnodec-core-socket-stream-legacy -lsnodec-net-in-stream-legacy -lsnodec-http -lsnodec-http-server -lsnodec-http-server-express -lsnodec-http-server-express-legacy-in -o ${exe}"
 )
 if(NOT compile_result EQUAL 0)
     message(

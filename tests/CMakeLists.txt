@@ -52,6 +52,7 @@ add_test(
     NAME StagedInstalledConsumerTest
     COMMAND
         ${CMAKE_COMMAND} -DSNODEC_BUILD_DIR=${CMAKE_BINARY_DIR}
+        -DSNODEC_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -P
         ${CMAKE_CURRENT_SOURCE_DIR}/StagedInstalledConsumerTest.cmake
 )
