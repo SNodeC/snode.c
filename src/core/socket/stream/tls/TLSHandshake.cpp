@@ -49,6 +49,7 @@
 #include <cerrno>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <optional>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

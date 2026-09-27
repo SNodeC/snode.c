@@ -41,7 +41,6 @@
 
 #include "iot/mqtt/server/broker/RetainTree.h"
 
-#include "iot/mqtt/Mqtt.h"
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/server/broker/Broker.h"
 

@@ -41,7 +41,6 @@
 
 #include "iot/mqtt/server/broker/SubscriptionTree.h"
 
-#include "iot/mqtt/Mqtt.h"
 #include "iot/mqtt/SemanticLog.h"
 #include "iot/mqtt/server/broker/Broker.h"
 
@@ -51,6 +50,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

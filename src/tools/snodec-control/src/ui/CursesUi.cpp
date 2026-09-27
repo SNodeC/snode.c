@@ -69,6 +69,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <sys/types.h>
 #include <termios.h> // IWYU pragma: keep
 #include <unistd.h>
 #include <utility>
