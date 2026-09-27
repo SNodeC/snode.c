@@ -63,6 +63,7 @@ option(SNODEC_BUILD_TESTS "Build SNode.C tests" OFF)
 option(SNODEC_BUILD_APPS "Build SNode.C apps" ON)
 
 if(SNODEC_BUILD_TESTS)
+    configure_file(cmake/CTestCustom.cmake CTestCustom.cmake COPYONLY)
     include(CTest)
     enable_testing()
 endif()

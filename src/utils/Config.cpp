@@ -963,17 +963,29 @@ namespace utils {
             logDirectory = "/var/log/snode.c";
             pidDirectory = "/var/run/snode.c";
         } else {
-            const char* homedir = nullptr;
-            if ((homedir = std::getenv("XDG_CONFIG_HOME")) == nullptr) {
-                if ((homedir = std::getenv("HOME")) == nullptr) {
-                    homedir = pw->pw_dir;
-                }
+            const char* homedir = std::getenv("HOME");
+            if (homedir == nullptr || *homedir != '/') {
+                homedir = pw->pw_dir;
             }
 
-            if (homedir != nullptr) {
-                configDirectory = std::string(homedir) + "/.config/snode.c";
-                logDirectory = std::string(homedir) + "/.local/log/snode.c";
-                pidDirectory = std::string(homedir) + "/.local/run/snode.c";
+            const char* xdgConfigHome = std::getenv("XDG_CONFIG_HOME");
+            configDirectory = xdgConfigHome != nullptr && *xdgConfigHome == '/' ? xdgConfigHome
+                              : homedir != nullptr && *homedir == '/'           ? std::string(homedir) + "/.config"
+                                                                                : "";
+
+            const char* xdgStateHome = std::getenv("XDG_STATE_HOME");
+            logDirectory = xdgStateHome != nullptr && *xdgStateHome == '/' ? xdgStateHome
+                           : homedir != nullptr && *homedir == '/'         ? std::string(homedir) + "/.local/state"
+                                                                           : "";
+
+            const char* xdgRuntimeHome = std::getenv("XDG_RUNTIME_DIR");
+            pidDirectory = xdgRuntimeHome != nullptr && *xdgRuntimeHome == '/' ? xdgRuntimeHome
+                           : homedir != nullptr && *homedir == '/'             ? std::string(homedir) + "/.local/run"
+                                                                               : "";
+            if (!configDirectory.empty() && !logDirectory.empty() && !pidDirectory.empty()) {
+                configDirectory += "/snode.c";
+                logDirectory += "/snode.c";
+                pidDirectory += "/snode.c";
             } else {
                 proceed = false;
             }
@@ -1020,7 +1032,7 @@ namespace utils {
                     } else {
                         std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup" << std::endl;
                         std::cout << "       and add the current user to this group." << std::endl;
-                        std::filesystem::remove(configDirectory);
+                        std::filesystem::remove(logDirectory);
                         proceed = false;
                     }
                 }
@@ -1033,8 +1045,8 @@ namespace utils {
         if (proceed && !std::filesystem::exists(pidDirectory)) {
             if (std::filesystem::create_directories(pidDirectory)) {
                 std::filesystem::permissions(pidDirectory,
-                                             (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
-                                                 ~std::filesystem::perms::others_all);
+                                             geteuid() == 0 ? std::filesystem::perms::owner_all | std::filesystem::perms::group_all
+                                                            : std::filesystem::perms::owner_all);
                 if (geteuid() == 0) {
                     const struct group* gr = nullptr;
                     if ((gr = getgrnam(XSTR(GROUP_NAME))) != nullptr) {
@@ -1045,7 +1057,7 @@ namespace utils {
                     } else {
                         std::cout << "Error: Can not find group 'snodec'. Add it using groupadd or addgroup." << std::endl;
                         std::cout << "       and add the current user to this group." << std::endl;
-                        std::filesystem::remove(configDirectory);
+                        std::filesystem::remove(pidDirectory);
                         proceed = false;
                     }
                 }

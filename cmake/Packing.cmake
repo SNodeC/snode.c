@@ -104,6 +104,7 @@ set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
 # The full-install package is a regular component, owned by this project.
+include(GNUInstallDirs)
 install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/${CPACK_PACKAGE_NAME}" COMPONENT full)
 set(CPACK_DEBIAN_FULL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
