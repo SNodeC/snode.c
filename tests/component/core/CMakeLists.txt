@@ -158,3 +158,18 @@ set_tests_properties(
     FileReaderTest PROPERTIES LABELS "component;core;file;streaming"
                                SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+snodec_add_test(
+    DescriptorRegistrationFailureTest DescriptorRegistrationFailureTest.cpp
+)
+
+target_link_libraries(
+    DescriptorRegistrationFailureTest PRIVATE snodec-test-support snodec::core
+)
+
+target_compile_features(DescriptorRegistrationFailureTest PRIVATE cxx_std_20)
+
+set_tests_properties(
+    DescriptorRegistrationFailureTest
+    PROPERTIES LABELS "component;core;descriptor" SKIP_RETURN_CODE 77 TIMEOUT 5
+)

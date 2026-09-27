@@ -44,3 +44,8 @@ set_tests_properties(
     HttpServerUpgradeMissingRequestTest
     PROPERTIES LABELS "unit;http;lifecycle;log" TIMEOUT 5
 )
+
+snodec_add_test(HttpStreamingSourceFailureTest HttpStreamingSourceFailureTest.cpp)
+target_include_directories(HttpStreamingSourceFailureTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(HttpStreamingSourceFailureTest PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
+set_tests_properties(HttpStreamingSourceFailureTest PROPERTIES TIMEOUT 20)
