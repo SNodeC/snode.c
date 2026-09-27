@@ -53,10 +53,6 @@ namespace core::pipe {
 namespace core::socket::stream {
     class SocketConnection;
 
-    namespace detail {
-        struct ContextLifecycleTestAccess;
-    }
-
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -154,7 +150,6 @@ namespace core::socket::stream {
         template <typename PhysicalSocketT, class SocketReaderT, class SocketWriterT, typename ConfigT>
         friend class SocketConnectionT;
         friend class SocketConnection;
-        friend struct detail::ContextLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream

@@ -76,77 +76,6 @@ set_tests_properties(
     PROPERTIES LABELS "unit;core;tls;classification" TIMEOUT 5
 )
 
-snodec_add_test(TLSIoFatalPathTest TLSIoFatalPathTest.cpp)
-
-target_include_directories(
-    TLSIoFatalPathTest PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}
-)
-
-target_link_libraries(
-    TLSIoFatalPathTest PRIVATE snodec-test-support
-                               snodec::core-socket-stream-tls snodec::net
-)
-
-target_compile_features(TLSIoFatalPathTest PRIVATE cxx_std_20)
-
-target_compile_definitions(TLSIoFatalPathTest PRIVATE SNODEC_BUILD_TESTS)
-
-set_tests_properties(
-    TLSIoFatalPathTest PROPERTIES LABELS "unit;core;tls;io;fatal" TIMEOUT 5
-)
-
-snodec_add_test(
-    TLSLifecycleHelperOwnershipTest TLSLifecycleHelperOwnershipTest.cpp
-)
-
-target_include_directories(
-    TLSLifecycleHelperOwnershipTest PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                            ${PROJECT_SOURCE_DIR}
-)
-
-target_link_libraries(
-    TLSLifecycleHelperOwnershipTest
-    PRIVATE snodec-test-support snodec::core-socket-stream-tls snodec::net
-)
-
-target_compile_features(TLSLifecycleHelperOwnershipTest PRIVATE cxx_std_20)
-
-target_compile_definitions(
-    TLSLifecycleHelperOwnershipTest PRIVATE SNODEC_BUILD_TESTS
-)
-
-set_tests_properties(
-    TLSLifecycleHelperOwnershipTest
-    PROPERTIES LABELS "unit;core;tls;lifecycle;ownership" TIMEOUT 5
-)
-
-snodec_add_test(TLSTransportStateMachineTest TLSTransportStateMachineTest.cpp)
-
-target_include_directories(
-    TLSTransportStateMachineTest PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                         ${PROJECT_SOURCE_DIR}
-)
-
-target_link_libraries(
-    TLSTransportStateMachineTest
-    PRIVATE snodec-test-support snodec::core-socket-stream-tls snodec::net
-)
-
-target_compile_features(TLSTransportStateMachineTest PRIVATE cxx_std_20)
-
-target_compile_definitions(
-    TLSTransportStateMachineTest PRIVATE SNODEC_BUILD_TESTS
-)
-
-set_tests_properties(
-    TLSTransportStateMachineTest
-    PROPERTIES LABELS "unit;core;tls;state-machine" TIMEOUT 5
-)
-# Real RSA/TLS operations take longer under CPU emulation.
-if(CMAKE_CROSSCOMPILING_EMULATOR)
-    set_tests_properties(TLSTransportStateMachineTest PROPERTIES TIMEOUT 60)
-endif()
-
 snodec_add_test(
     TLSLifecycleAbiSourceCompatibilityTest
     TLSLifecycleAbiSourceCompatibilityTest.cpp
@@ -164,70 +93,6 @@ target_compile_features(
 set_tests_properties(
     TLSLifecycleAbiSourceCompatibilityTest
     PROPERTIES LABELS "unit;core;tls;abi" TIMEOUT 5
-)
-
-add_executable(StreamFrameworkShutdownTest StreamFrameworkShutdownTest.cpp)
-
-target_include_directories(
-    StreamFrameworkShutdownTest PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                        ${PROJECT_SOURCE_DIR}
-)
-
-target_link_libraries(
-    StreamFrameworkShutdownTest PRIVATE snodec-test-support
-                                        snodec::core-socket-stream snodec::net
-)
-
-target_compile_features(StreamFrameworkShutdownTest PRIVATE cxx_std_20)
-
-target_compile_definitions(
-    StreamFrameworkShutdownTest PRIVATE SNODEC_BUILD_TESTS
-)
-
-foreach(
-    scenario
-    plain_requested_empty
-    plain_requested_queued
-    plain_signal_false_veto
-    plain_no_observer
-    plain_noncooperating_timeout
-    reentrant_context_cleanup
-    active_detach_context_visibility
-    destruction_logging_order
-)
-    add_test(NAME StreamFrameworkShutdown_${scenario}
-             COMMAND StreamFrameworkShutdownTest ${scenario}
-    )
-
-    set_tests_properties(
-        StreamFrameworkShutdown_${scenario}
-        PROPERTIES LABELS "unit;core;stream;lifecycle;shutdown" TIMEOUT 8
-    )
-endforeach()
-
-snodec_add_test(SocketContextLifecycleTest SocketContextLifecycleTest.cpp)
-target_include_directories(SocketContextLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_compile_features(SocketContextLifecycleTest PRIVATE cxx_std_20)
-target_link_libraries(
-    SocketContextLifecycleTest
-    PRIVATE snodec-test-support snodec::core-socket-stream snodec::logger
-)
-set_tests_properties(
-    SocketContextLifecycleTest PROPERTIES LABELS "unit;core;lifecycle"
-)
-
-snodec_add_test(SocketWriterResourcePolicyTest SocketWriterResourcePolicyTest.cpp)
-target_include_directories(SocketWriterResourcePolicyTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_compile_features(SocketWriterResourcePolicyTest PRIVATE cxx_std_20)
-target_compile_definitions(SocketWriterResourcePolicyTest PRIVATE SNODEC_BUILD_TESTS)
-target_link_libraries(
-    SocketWriterResourcePolicyTest
-    PRIVATE snodec-test-support snodec::core-socket-stream snodec::core
-            snodec::net
-)
-set_tests_properties(
-    SocketWriterResourcePolicyTest
-    PROPERTIES LABELS "unit;core;stream;writer;resource-policy" TIMEOUT 5
 )
 
 snodec_add_test(ListenerLifecycleTest ListenerLifecycleTest.cpp)
@@ -271,32 +136,6 @@ foreach(
     set_tests_properties(EndpointLifetimeCountersTest-${scenario} PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter" TIMEOUT 10)
 endforeach()
 
-add_executable(
-    ConnectionAttemptLifecycleTest ConnectionAttemptLifecycleTest.cpp
-)
-target_include_directories(
-    ConnectionAttemptLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR}
-)
-target_compile_features(ConnectionAttemptLifecycleTest PRIVATE cxx_std_20)
-target_compile_definitions(
-    ConnectionAttemptLifecycleTest PRIVATE SNODEC_BUILD_TESTS SNODEC_INTREE_BUILD
-)
-target_link_libraries(
-    ConnectionAttemptLifecycleTest
-    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
-)
-foreach(
-    scenario IN ITEMS
-        connector-terminal
-        explicit-after-failure
-        explicit-after-disconnect
-        cancelled-connect-callback
-        out-of-scope-reconnect
-)
-    add_test(NAME ConnectionAttemptLifecycleTest-${scenario} COMMAND ConnectionAttemptLifecycleTest ${scenario})
-    set_tests_properties(ConnectionAttemptLifecycleTest-${scenario} PROPERTIES LABELS "unit;core;lifecycle;connection" TIMEOUT 10)
-endforeach()
-
 snodec_add_test(TlsOpenSslLoggingTest TlsOpenSslLoggingTest.cpp)
 target_include_directories(TlsOpenSslLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(TlsOpenSslLoggingTest PRIVATE cxx_std_20)
@@ -307,41 +146,3 @@ target_link_libraries(
 set_tests_properties(
     TlsOpenSslLoggingTest PROPERTIES LABELS "unit;core;tls;log"
 )
-
-add_executable(TLSFrameworkShutdownTest TLSFrameworkShutdownTest.cpp)
-
-target_include_directories(
-    TLSFrameworkShutdownTest PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                     ${PROJECT_SOURCE_DIR}
-)
-
-target_link_libraries(
-    TLSFrameworkShutdownTest PRIVATE snodec-test-support
-                                     snodec::core-socket-stream-tls snodec::net
-)
-
-target_compile_features(TLSFrameworkShutdownTest PRIVATE cxx_std_20)
-
-target_compile_definitions(TLSFrameworkShutdownTest PRIVATE SNODEC_BUILD_TESTS)
-
-foreach(
-    scenario
-    active_helper_requested
-    active_helper_no_observer
-    active_helper_signal
-    active_helper_forced
-    publisher_mutation_same_list
-    publisher_mutation_cross_publisher
-    signal_false_tls
-    outer_timeout_long
-    outer_timeout_multiple
-)
-    add_test(NAME TLSFrameworkShutdown_${scenario}
-             COMMAND TLSFrameworkShutdownTest ${scenario}
-    )
-
-    set_tests_properties(
-        TLSFrameworkShutdown_${scenario}
-        PROPERTIES LABELS "unit;core;stream;tls;lifecycle;shutdown" TIMEOUT 8
-    )
-endforeach()

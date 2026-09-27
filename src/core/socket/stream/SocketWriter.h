@@ -66,9 +66,6 @@ namespace core::pipe {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::socket::stream {
-    namespace tls::detail {
-        struct TLSLifecycleTestAccess;
-    }
 
     class SocketWriter : public core::eventreceiver::WriteEventReceiver {
     public:
@@ -145,8 +142,6 @@ namespace core::socket::stream {
 
     protected:
         utils::Timeval terminateTimeout;
-
-        friend struct tls::detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream

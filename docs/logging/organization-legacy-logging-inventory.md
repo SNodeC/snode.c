@@ -241,7 +241,6 @@ snode.c : src/log/Logger.h : 164
 snode.c : src/log/Logger.h : 169
 snode.c : tests/unit/log/SemanticEndToEndOutputTest.cpp : 138
 snode.c : tests/unit/log/SemanticEndToEndOutputTest.cpp : 140
-snode.c : tests/unit/log/SemanticLoggerBackendTest.cpp : 169
 snode.c : tests/unit/log/SemanticLoggerCompatibilityTest.cpp : 70
 snode.c : tests/unit/log/SemanticLoggerCompatibilityTest.cpp : 72
 snode.c : tests/unit/log/SemanticLoggerCompatibilityTest.cpp : 75

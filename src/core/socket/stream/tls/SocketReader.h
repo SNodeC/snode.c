@@ -63,10 +63,6 @@ namespace logger {
 
 namespace core::socket::stream::tls {
 
-    namespace detail {
-        struct TLSLifecycleTestAccess;
-    }
-
     class SocketReader : public core::socket::stream::SocketReader {
     private:
         using Super = core::socket::stream::SocketReader;
@@ -98,8 +94,6 @@ namespace core::socket::stream::tls {
     private:
         std::vector<char> handoffBuffer;
         std::size_t handoffCursor = 0;
-
-        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

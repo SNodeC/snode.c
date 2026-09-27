@@ -695,9 +695,6 @@ namespace logger {
                         scope.connection ? std::string_view(*scope.connection) : std::string_view()};
     }
 
-    BoundaryLogger BoundaryLogger::createForTest(LogScope scope, Sink sink, LogLevel threshold, Clock clock) {
-        return BoundaryLogger(copyLogScope(scope), std::move(sink), threshold, std::move(clock));
-    }
     BoundaryLogger::BoundaryLogger(OwnedLogScope scope, Sink sink, LogLevel threshold, Clock clock)
         : scope(std::move(scope))
         , sink(std::move(sink))

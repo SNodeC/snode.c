@@ -44,33 +44,14 @@
 #include "core/socket/stream/tls/detail/TLSResult.h"
 #include "log/LogScopeOwner.h"
 
-#if defined(SNODEC_BUILD_TESTS)
-#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
-#endif
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
 #include <cerrno>
-#include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <optional>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#if defined(SNODEC_BUILD_TESTS)
-namespace core::socket::stream::tls::detail::test {
-
-    HandshakeState& handshakeState() {
-        static HandshakeState state;
-        return state;
-    }
-
-} // namespace core::socket::stream::tls::detail::test
-
-#endif
 
 namespace core::socket::stream::tls {
 
@@ -115,24 +96,9 @@ namespace core::socket::stream::tls {
         , onStatus(onStatus)
         , onReleased(onReleased)
         , fd(fd) {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::handshakeState();
-        state.last = this;
-        state.counters.constructed++;
-        state.counters.active++;
-        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
-#endif
     }
 
     TLSHandshake::~TLSHandshake() {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::handshakeState();
-        state.counters.destroyed++;
-        state.counters.active--;
-        if (state.last == this) {
-            state.last = nullptr;
-        }
-#endif
     }
 
     void TLSHandshake::start() {
@@ -170,20 +136,6 @@ namespace core::socket::stream::tls {
             return detail::TlsHandshakeResult{detail::TlsHandshakeSuccess{}};
         }
 
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::handshakeState();
-        state.counters.operationCalls++;
-        if (!state.operations.empty()) {
-            const detail::test::OperationResult result = state.operations.front();
-            state.operations.pop_front();
-            errno = result.systemError;
-            if (result.sslError == SSL_ERROR_NONE) {
-                return detail::TlsHandshakeResult{detail::TlsHandshakeSuccess{}};
-            }
-            return detail::TlsHandshakeResult{detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
-        }
-#endif
-
         ERR_clear_error();
         errno = 0;
         const int ret = SSL_do_handshake(ssl);
@@ -206,15 +158,6 @@ namespace core::socket::stream::tls {
             WriteEventReceiver::suspend();
         }
         if (!readRegistered) {
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::handshakeState();
-            if (state.failNextReadEnable != 0) {
-                const int registrationErrno = state.failNextReadEnable;
-                state.failNextReadEnable = 0;
-                finishError(SSL_ERROR_SYSCALL, registrationErrno);
-                return;
-            }
-#endif
             if (!ReadEventReceiver::enable(fd)) {
                 const int registrationErrno = errno;
                 finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
@@ -236,15 +179,6 @@ namespace core::socket::stream::tls {
             ReadEventReceiver::suspend();
         }
         if (!writeRegistered) {
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::handshakeState();
-            if (state.failNextWriteEnable != 0) {
-                const int registrationErrno = state.failNextWriteEnable;
-                state.failNextWriteEnable = 0;
-                finishError(SSL_ERROR_SYSCALL, registrationErrno);
-                return;
-            }
-#endif
             if (!WriteEventReceiver::enable(fd)) {
                 const int registrationErrno = errno;
                 finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
@@ -278,9 +212,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        detail::test::handshakeState().counters.successes++;
-#endif
         const auto callback = onSuccess;
         disableRegisteredReceivers();
         callback();
@@ -296,9 +227,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        detail::test::handshakeState().counters.timeouts++;
-#endif
         const auto callback = onTimeout;
         disableRegisteredReceivers();
         callback();
@@ -314,12 +242,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::handshakeState();
-        state.counters.errors++;
-        state.counters.lastStatus = sslErr;
-        state.counters.lastErrno = systemErr;
-#endif
         const auto callback = onStatus;
         disableRegisteredReceivers();
         if (systemErr != 0) {
@@ -358,10 +280,6 @@ namespace core::socket::stream::tls {
     void TLSHandshake::notifyReleased() {
         if (!releaseNotified) {
             releaseNotified = true;
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::handshakeState();
-            state.counters.releases++;
-#endif
             if (onReleased) {
                 onReleased();
             }

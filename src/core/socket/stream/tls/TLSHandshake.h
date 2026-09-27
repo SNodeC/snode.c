@@ -70,7 +70,6 @@ namespace utils {
 namespace core::socket::stream::tls {
 
     namespace detail {
-        struct TLSLifecycleTestAccess;
         struct TlsHandshakeResult;
     }
 
@@ -142,7 +141,6 @@ namespace core::socket::stream::tls {
 
         template <typename PhysicalSocketT, typename ConfigT>
         friend class SocketConnection;
-        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

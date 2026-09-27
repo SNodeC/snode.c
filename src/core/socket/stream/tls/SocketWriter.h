@@ -62,10 +62,6 @@ namespace logger {
 
 namespace core::socket::stream::tls {
 
-    namespace detail {
-        struct TLSLifecycleTestAccess;
-    }
-
     class SocketWriter : public core::socket::stream::SocketWriter {
     private:
         using Super = core::socket::stream::SocketWriter;
@@ -92,9 +88,6 @@ namespace core::socket::stream::tls {
         virtual void onTlsFatalError(int errnum) = 0;
 
         SSL* ssl = nullptr;
-
-    private:
-        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

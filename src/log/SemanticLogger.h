@@ -231,8 +231,6 @@ namespace logger {
 
         using Clock = std::function<std::chrono::system_clock::time_point()>;
 
-        static BoundaryLogger createForTest(LogScope scope, Sink sink, LogLevel threshold = LogLevel::Trace, Clock clock = {});
-
         bool enabled(LogLevel level) const noexcept;
         void hexDump(LogLevel level, std::string_view label, std::span<const std::byte> bytes) const;
         void hexDump(LogLevel level, std::string_view label, std::string_view bytes) const;

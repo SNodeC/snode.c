@@ -39,37 +39,6 @@ The virtual callback names `onConnected()` and `onDisconnected()` remain unchang
 
 `SocketContext::DetachReason` moved from private to protected visibility, and `getDetachReason() const noexcept` is now a protected accessor. `SocketContext::detach()` stores the reason before invoking `onDisconnected()`, allowing derived contexts to inspect whether the detach is for `ContextSwitch` or `ConnectionClose` while the callback executes. The stored value only needs to remain meaningful for that callback because the context is deleted after detach completes.
 
-## Narrow runtime test seam
-
-`SocketContext::attach()` and `SocketContext::detach()` remain private production lifecycle operations. A test subclass of `SocketConnection` cannot call them because friendship is not inherited, and widening them to public or protected would expose lifecycle controls that are not part of the runtime API.
-
-Phase 1 keeps only a forward declaration and friend declaration for `core::socket::stream::detail::ContextLifecycleTestAccess` in `SocketContext.h`. The helper definition exists only inside `ContextLifecyclePhase1Test.cpp`, modeled on the established `core::socket::stream::tls::detail::TLSLifecycleTestAccess` precedent, so no test-access header is installed or exported. The local helper has pointer-based signatures because `detach()` ends with `delete this`:
-
-- `attach(SocketContext*)`
-- `detachForContextSwitch(SocketContext*)`
-- `detachForConnectionClose(SocketContext*)`
-
-The test-local helper only invokes the real private production methods and does not expose arbitrary internals. Private `attach()` and `detach()` remain private, and production runtime behavior is unchanged. Test contexts passed to detach are heap-allocated, are never dereferenced after detach returns, and write callback observations into externally owned state before self-deletion.
-
-## Runtime lifecycle test
-
-`ContextLifecyclePhase1Test` is a non-skipping unit test. It runs without network access, privileged ports, or the `snodec` group. It uses a complete fake `SocketConnection` fixture with stable instance and connection identities, no-op I/O operations, deterministic counters, and concrete in-memory `SocketAddress` objects returned by reference.
-
-The test captures production no-argument `log()` and `frameworkLog()` output through the existing logger backend configured for temporary JSON output. It executes the real private lifecycle operations through `ContextLifecycleTestAccess` and proves at runtime:
-
-- generic-before-derived attach ordering for the initial context;
-- derived-before-generic detach ordering for context switch;
-- generic-before-derived attach ordering for the replacement context;
-- derived-before-generic detach ordering for final connection close;
-- callback-time detach reason observation for both `ContextSwitch` and `ConnectionClose`;
-- exact lifecycle record counts, including no duplicate generic attach/detach records;
-- matching Debug severity for generic and derived lifecycle records;
-- application-origin context identity for records emitted through inherited `SocketContext::log()`;
-- framework-origin context identity for generic records emitted through `frameworkLog()`;
-- absence of obsolete runtime wording such as `HTTP: Connected`, `HTTP: Received disconnect`, `SocketContext: detached`, and old Echo/TLS phrases.
-
-This unit test intentionally does not instantiate `SocketConnectionT`, spin the EventLoop, or prove transport disconnect callback counts. Transport teardown verification and role-aware transport lifecycle logging remain outside this Phase 1 unit test and belong to existing socket component coverage and Phase 2.
-
 ## Phase 1 wording and severity
 
 All context attach/detach records introduced or changed in this phase use matching Debug severity.

@@ -41,6 +41,10 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snode.c-code)
 
+include(CheckPIESupported)
+check_pie_supported()
+option(CMAKE_POSITION_INDEPENDENT_CODE "Build position-independent code" ON)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12.2)
         message(STATUS "GNU compiler version " ${CMAKE_CXX_COMPILER_VERSION}

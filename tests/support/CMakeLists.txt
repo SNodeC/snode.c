@@ -38,7 +38,7 @@
 # THE SOFTWARE.
 
 add_library(
-    snodec-test-support STATIC DescriptorRegistrationFailure.h TestResult.cpp
+    snodec-test-support STATIC TestResult.cpp
                                TestResult.h SemanticLogCapture.h
 )
 

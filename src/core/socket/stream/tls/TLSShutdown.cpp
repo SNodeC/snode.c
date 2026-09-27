@@ -44,35 +44,15 @@
 #include "core/socket/stream/tls/detail/TLSResult.h"
 #include "log/LogScopeOwner.h"
 
-#if defined(SNODEC_BUILD_TESTS)
-#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
-#endif
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
 #include <array>
 #include <cerrno>
-#include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <optional>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#if defined(SNODEC_BUILD_TESTS)
-namespace core::socket::stream::tls::detail::test {
-
-    ShutdownState& shutdownState() {
-        static ShutdownState state;
-        return state;
-    }
-
-
-} // namespace core::socket::stream::tls::detail::test
-
-#endif
 
 namespace core::socket::stream::tls {
 
@@ -134,24 +114,9 @@ namespace core::socket::stream::tls {
         , onReleased(onReleased)
         , onApplicationData(onApplicationData)
         , fd(fd) {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::shutdownState();
-        state.last = this;
-        state.counters.constructed++;
-        state.counters.active++;
-        state.counters.maxConcurrent = std::max(state.counters.maxConcurrent, state.counters.active);
-#endif
     }
 
     TLSShutdown::~TLSShutdown() {
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::shutdownState();
-        state.counters.destroyed++;
-        state.counters.active--;
-        if (state.last == this) {
-            state.last = nullptr;
-        }
-#endif
     }
 
     void TLSShutdown::start() {
@@ -165,9 +130,6 @@ namespace core::socket::stream::tls {
             switch (std::get<detail::TlsShutdownSuccess>(result.value)) {
                 case detail::TlsShutdownSuccess::CloseNotifySent:
                     lastSuccess = TypedSuccess::CloseNotifySent;
-#if defined(SNODEC_BUILD_TESTS)
-                    detail::test::shutdownState().lastSuccess = detail::TlsShutdownSuccess::CloseNotifySent;
-#endif
                     if (completionRequirement == CompletionRequirement::RequireFullShutdown) {
                         shutdownPhase = ShutdownPhase::ReadPeerApplicationDataUntilCloseNotify;
                         awaitRead();
@@ -177,9 +139,6 @@ namespace core::socket::stream::tls {
                     break;
                 case detail::TlsShutdownSuccess::FullShutdownComplete:
                     lastSuccess = TypedSuccess::FullShutdownComplete;
-#if defined(SNODEC_BUILD_TESTS)
-                    detail::test::shutdownState().lastSuccess = detail::TlsShutdownSuccess::FullShutdownComplete;
-#endif
                     finishSuccess();
                     break;
             }
@@ -218,22 +177,6 @@ namespace core::socket::stream::tls {
         if (completed) {
             return detail::TlsShutdownResult{detail::TlsShutdownSuccess::FullShutdownComplete};
         }
-
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::shutdownState();
-        state.counters.operationCalls++;
-        if (!state.operations.empty()) {
-            const detail::test::OperationResult result = state.operations.front();
-            state.operations.pop_front();
-            errno = result.systemError;
-            if (result.sslError == SSL_ERROR_NONE) {
-                return detail::TlsShutdownResult{result.returnValue == 0 ? detail::TlsShutdownSuccess::CloseNotifySent
-                                                                         : detail::TlsShutdownSuccess::FullShutdownComplete};
-            }
-            return detail::TlsShutdownResult{
-                detail::classifyOpenSslFailure(result.returnValue, result.sslError, result.systemError, result.openSslError)};
-        }
-#endif
 
         if (completionRequirement == CompletionRequirement::CloseNotifySentIsEnough || shutdownPhase == ShutdownPhase::SendLocalCloseNotify ||
             shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
@@ -301,15 +244,6 @@ namespace core::socket::stream::tls {
             WriteEventReceiver::suspend();
         }
         if (!readRegistered) {
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::shutdownState();
-            if (state.failNextReadEnable != 0) {
-                const int registrationErrno = state.failNextReadEnable;
-                state.failNextReadEnable = 0;
-                finishError(SSL_ERROR_SYSCALL, registrationErrno);
-                return;
-            }
-#endif
             if (!ReadEventReceiver::enable(fd)) {
                 const int registrationErrno = errno;
                 finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
@@ -331,15 +265,6 @@ namespace core::socket::stream::tls {
             ReadEventReceiver::suspend();
         }
         if (!writeRegistered) {
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::shutdownState();
-            if (state.failNextWriteEnable != 0) {
-                const int registrationErrno = state.failNextWriteEnable;
-                state.failNextWriteEnable = 0;
-                finishError(SSL_ERROR_SYSCALL, registrationErrno);
-                return;
-            }
-#endif
             if (!WriteEventReceiver::enable(fd)) {
                 const int registrationErrno = errno;
                 finishError(SSL_ERROR_SYSCALL, registrationErrno == 0 ? EIO : registrationErrno);
@@ -373,9 +298,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        detail::test::shutdownState().counters.successes++;
-#endif
         const auto callback = onSuccess;
         const auto success = lastSuccess;
         disableRegisteredReceivers();
@@ -392,9 +314,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        detail::test::shutdownState().counters.timeouts++;
-#endif
         const auto callback = onTimeout;
         disableRegisteredReceivers();
         callback();
@@ -410,12 +329,6 @@ namespace core::socket::stream::tls {
         }
         completed = true;
         const bool destroyImmediately = !everObserved;
-#if defined(SNODEC_BUILD_TESTS)
-        auto& state = detail::test::shutdownState();
-        state.counters.errors++;
-        state.counters.lastStatus = sslErr;
-        state.counters.lastErrno = systemErr;
-#endif
         const auto callback = onStatus;
         disableRegisteredReceivers();
         if (systemErr != 0) {
@@ -454,10 +367,6 @@ namespace core::socket::stream::tls {
     void TLSShutdown::notifyReleased() {
         if (!releaseNotified) {
             releaseNotified = true;
-#if defined(SNODEC_BUILD_TESTS)
-            auto& state = detail::test::shutdownState();
-            state.counters.releases++;
-#endif
             if (onReleased) {
                 onReleased();
             }

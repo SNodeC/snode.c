@@ -39,6 +39,10 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+include(CheckPIESupported)
+check_pie_supported()
+option(CMAKE_POSITION_INDEPENDENT_CODE "Build position-independent code" ON)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(AddSNodeCTest)

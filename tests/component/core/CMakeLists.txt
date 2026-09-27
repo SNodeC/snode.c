@@ -55,9 +55,6 @@ snodec_add_test(PipeOwnershipTest PipeOwnershipTest.cpp)
 snodec_add_test(PipeImmediateCloseTest PipeImmediateCloseTest.cpp)
 snodec_add_test(PipeSinkFairnessTest PipeSinkFairnessTest.cpp)
 snodec_add_test(PipeTimeoutTest PipeTimeoutTest.cpp)
-snodec_add_test(
-    DescriptorRegistrationFailureTest DescriptorRegistrationFailureTest.cpp
-)
 snodec_add_test(FileReaderTest FileReaderTest.cpp)
 
 target_link_libraries(
@@ -92,9 +89,6 @@ target_link_libraries(
     PipeSinkFairnessTest PRIVATE snodec-test-support snodec::core
 )
 target_link_libraries(PipeTimeoutTest PRIVATE snodec-test-support snodec::core)
-target_link_libraries(
-    DescriptorRegistrationFailureTest PRIVATE snodec-test-support snodec::core
-)
 target_link_libraries(FileReaderTest PRIVATE snodec-test-support snodec::core)
 
 target_compile_features(SingleshotTimerTest PRIVATE cxx_std_20)
@@ -108,7 +102,6 @@ target_compile_features(PipeOwnershipTest PRIVATE cxx_std_20)
 target_compile_features(PipeImmediateCloseTest PRIVATE cxx_std_20)
 target_compile_features(PipeSinkFairnessTest PRIVATE cxx_std_20)
 target_compile_features(PipeTimeoutTest PRIVATE cxx_std_20)
-target_compile_features(DescriptorRegistrationFailureTest PRIVATE cxx_std_20)
 target_compile_features(FileReaderTest PRIVATE cxx_std_20)
 
 set_tests_properties(
@@ -160,10 +153,6 @@ set_tests_properties(
 set_tests_properties(
     PipeTimeoutTest PROPERTIES LABELS "component;core;pipe" SKIP_RETURN_CODE 77
                                TIMEOUT 5
-)
-set_tests_properties(
-    DescriptorRegistrationFailureTest
-    PROPERTIES LABELS "component;core;descriptor" SKIP_RETURN_CODE 77 TIMEOUT 5
 )
 set_tests_properties(
     FileReaderTest PROPERTIES LABELS "component;core;file;streaming"

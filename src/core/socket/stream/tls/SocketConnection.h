@@ -59,10 +59,6 @@
 
 namespace core::socket::stream::tls {
 
-    namespace detail {
-        struct TLSLifecycleTestAccess;
-    }
-
     template <typename PhysicalSocketT, typename ConfigT>
     class SocketConnection final
         : public core::socket::stream::SocketConnectionT<PhysicalSocketT,
@@ -169,14 +165,11 @@ namespace core::socket::stream::tls {
         std::shared_ptr<bool> sslHandshakeInProgress;
         std::shared_ptr<bool> sslShutdownInProgress;
 
-
         template <typename PhysicalSocket, typename Config>
         friend class SocketAcceptor;
 
         template <typename PhysicalSocket, typename Config>
         friend class SocketConnector;
-
-        friend struct detail::TLSLifecycleTestAccess;
     };
 
 } // namespace core::socket::stream::tls

@@ -51,44 +51,12 @@
 #include <cerrno>
 #include <cstddef>
 #include <iterator>
-#include <optional>
 #include <tuple>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    namespace {
-        std::optional<std::size_t> descriptorRegistrationFailureCountdown;
-
-        bool injectDescriptorRegistrationFailure() {
-            if (!descriptorRegistrationFailureCountdown) {
-                return false;
-            }
-            if (*descriptorRegistrationFailureCountdown > 0) {
-                --*descriptorRegistrationFailureCountdown;
-                return false;
-            }
-
-            descriptorRegistrationFailureCountdown.reset();
-            errno = EIO;
-            return true;
-        }
-    } // namespace
-
-    namespace test {
-        void failDescriptorRegistrationAfter(std::size_t successfulRegistrations);
-        void clearDescriptorRegistrationFailure();
-
-        void failDescriptorRegistrationAfter(std::size_t successfulRegistrations) {
-            descriptorRegistrationFailureCountdown = successfulRegistrations;
-        }
-
-        void clearDescriptorRegistrationFailure() {
-            descriptorRegistrationFailureCountdown.reset();
-        }
-    } // namespace test
 
     DescriptorEventPublisher::DescriptorEventPublisher(std::string name)
         : name(std::move(name)) {
@@ -98,10 +66,6 @@ namespace core {
     }
 
     bool DescriptorEventPublisher::enable(DescriptorEventReceiver* descriptorEventReceiver) {
-        if (injectDescriptorRegistrationFailure()) {
-            return false;
-        }
-
         const int fd = descriptorEventReceiver->getRegisteredFd();
 
         decltype(observedEventReceiverLists)::iterator eventReceivers = observedEventReceiverLists.end();

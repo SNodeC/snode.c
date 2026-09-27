@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.18)
 
 project(snodec-echo LANGUAGES CXX)
 
+include(CheckPIESupported)
+check_pie_supported()
+option(CMAKE_POSITION_INDEPENDENT_CODE "Build position-independent code" ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

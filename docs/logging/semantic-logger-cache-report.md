@@ -20,7 +20,7 @@ PR #175 intentionally did not store resolved `BoundaryLogger` values on hot obje
 
 ## BoundaryLogger value/copy safety verification
 
-- `BoundaryLogger::createForTest()` and `LogScopeOwner::logger(...)` construct a `BoundaryLogger` from `copyLogScope(...)` or from a `LogScopeOwner`'s owned scope.
+- `LogScopeOwner::logger(...)` constructs a `BoundaryLogger` from the owner's scope.
 - `OwnedLogScope` stores strings and optionals rather than borrowing temporary `std::string_view` data.
 - `BoundaryLogger` has value members only (`OwnedLogScope`, `std::function` sink, threshold, and clock) and uses compiler-generated copy/move operations safely for the cached-by-value pattern.
 - This PR does not return references to temporary `BoundaryLogger` objects. The MQTT cache is a class member and guarded calls use it directly.

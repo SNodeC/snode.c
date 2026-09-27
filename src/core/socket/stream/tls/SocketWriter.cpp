@@ -42,9 +42,6 @@
 #include "core/socket/stream/tls/SocketWriter.h"
 
 #include "core/socket/stream/tls/detail/TLSResult.h"
-#if defined(SNODEC_BUILD_TESTS)
-#include "core/socket/stream/tls/detail/TLSLifecycleTestAccess.h"
-#endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -53,22 +50,12 @@
 #include "utils/PreserveErrno.h"
 
 #include <cerrno>
-#include <deque>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <string>
 #include <variant>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#if defined(SNODEC_BUILD_TESTS)
-namespace core::socket::stream::tls::detail::test {
-    IoState& writerState() {
-        static IoState state;
-        return state;
-    }
-} // namespace core::socket::stream::tls::detail::test
-#endif
 
 namespace core::socket::stream::tls {
 
@@ -99,32 +86,17 @@ namespace core::socket::stream::tls {
             ret = Super::write(chunk, chunkLen);
         } else {
             detail::TlsIoResult result;
-#if defined(SNODEC_BUILD_TESTS)
-            auto& testState = detail::test::writerState();
-            testState.counters.operationCalls++;
-            if (!testState.operations.empty()) {
-                const detail::test::OperationResult operation = testState.operations.front();
-                testState.operations.pop_front();
-                ret = operation.returnValue;
-                errno = operation.systemError;
-                result = ret > 0 ? detail::TlsIoResult{detail::TlsIoSuccess{ret}}
-                                 : detail::TlsIoResult{detail::classifyOpenSslFailure(
-                                       static_cast<int>(ret), operation.sslError, operation.systemError, operation.openSslError)};
-            } else
-#endif
-            {
-                ERR_clear_error();
-                errno = 0;
-                ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
-                const int savedErrno = errno;
+            ERR_clear_error();
+            errno = 0;
+            ret = SSL_write(ssl, chunk, static_cast<int>(chunkLen));
+            const int savedErrno = errno;
 
-                if (ret > 0) {
-                    result = detail::TlsIoResult{detail::TlsIoSuccess{ret}};
-                } else {
-                    const int sslErr = SSL_get_error(ssl, static_cast<int>(ret));
-                    const unsigned long openSslError = ERR_peek_last_error();
-                    result = detail::TlsIoResult{detail::classifyOpenSslFailure(static_cast<int>(ret), sslErr, savedErrno, openSslError)};
-                }
+            if (ret > 0) {
+                result = detail::TlsIoResult{detail::TlsIoSuccess{ret}};
+            } else {
+                const int sslErr = SSL_get_error(ssl, static_cast<int>(ret));
+                const unsigned long openSslError = ERR_peek_last_error();
+                result = detail::TlsIoResult{detail::classifyOpenSslFailure(static_cast<int>(ret), sslErr, savedErrno, openSslError)};
             }
 
             if (const auto* success = std::get_if<detail::TlsIoSuccess>(&result.value)) {

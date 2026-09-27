@@ -15,6 +15,10 @@ project(
     LANGUAGES CXX
 )
 
+include(CheckPIESupported)
+check_pie_supported()
+option(CMAKE_POSITION_INDEPENDENT_CODE "Build position-independent code" ON)
+
 include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 20)

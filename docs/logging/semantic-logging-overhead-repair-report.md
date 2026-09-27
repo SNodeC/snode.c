@@ -100,7 +100,7 @@ rg -n "\b(LOG|PLOG|VLOG)\s*\(" src -g '*.h' -g '*.hpp' -g '*.cpp'
 
 Remaining repeated-helper guard matches are MQTT broker/session `Info`/`Debug` bookkeeping guards, not obvious expensive payload dump construction. They are left unchanged to keep this PR focused.
 
-Remaining `LogLevel::Trace` defaults are explicit sink/test/custom capture overloads, `BoundaryLogger::createForTest`, semantic policy defaults, and intentional trace-level methods/guards. Production no-argument root helpers no longer default to unconditional `Trace`.
+Remaining `LogLevel::Trace` defaults are explicit sink/test/custom capture overloads, semantic policy defaults, and intentional trace-level methods/guards. Production no-argument root helpers no longer default to unconditional `Trace`.
 
 The macro search found existing compatibility definitions in `src/log/Logger.h` and non-compiled express compatibility-suite macro uses already documented for the final macro-removal/source-gate work. No new macro guard API was introduced.
 

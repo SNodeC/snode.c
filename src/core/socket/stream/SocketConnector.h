@@ -149,10 +149,6 @@ namespace core::socket::stream {
         logger::LogScopeOwner logScope;
         std::shared_ptr<Config> config = nullptr;
         bool attemptActive{false};
-
-#ifdef SNODEC_BUILD_TESTS
-        friend struct SocketConnectorLifecycleTestAccess;
-#endif
     };
 
 } // namespace core::socket::stream
