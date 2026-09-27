@@ -39,7 +39,7 @@
 
 # these are cache variables, so they could be overwritten with -D,
 set(CPACK_PACKAGE_NAME
-    ${PROJECT_NAME}
+    snodec
     CACHE STRING "The resulting package name"
 )
 
@@ -103,6 +103,21 @@ set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
+# The full-install package is a regular component, owned by this project.
+install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/${CPACK_PACKAGE_NAME}" COMPONENT full)
+set(CPACK_DEBIAN_FULL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
+set(CPACK_RPM_FULL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
+set(CPACK_RPM_COMPONENT_INSTALL ON)
+set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
+set(CPACK_RPM_PACKAGE_RELEASE 1)
+set(CPACK_RPM_PACKAGE_RELEASE_DIST OFF)
+set(CPACK_RPM_PACKAGE_RELOCATABLE OFF)
+set(CPACK_RPM_INSTALL_WITH_EXEC ON)
+file(STRINGS "${CMAKE_SOURCE_DIR}/LICENSE" license REGEX "^SPDX-License-Identifier: " LIMIT_COUNT 1)
+string(REPLACE "SPDX-License-Identifier: " "" CPACK_RPM_PACKAGE_LICENSE "${license}")
+set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/PackageConfig.cmake")
+
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
 # CMake 3.28 omits this existing Unix-domain component from the global
@@ -112,7 +127,26 @@ list(APPEND CPACK_COMPONENTS_ALL net-un-sphy-tream)
 list(REMOVE_DUPLICATES CPACK_COMPONENTS_ALL)
 list(SORT CPACK_COMPONENTS_ALL)
 
+# Resolve built libraries without requiring an existing SNode.C installation.
+foreach(component IN LISTS CPACK_COMPONENTS_ALL)
+    if(TARGET ${component})
+        get_target_property(component_libdir ${component} LIBRARY_OUTPUT_DIRECTORY)
+        if(NOT component_libdir)
+            get_target_property(component_libdir ${component} BINARY_DIR)
+        endif()
+        list(APPEND CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS "${component_libdir}")
+    endif()
+endforeach()
+list(REMOVE_DUPLICATES CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS)
+
+set(full_dependencies ${CPACK_COMPONENTS_ALL})
+list(REMOVE_ITEM full_dependencies full)
+set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS adduser)
+set(CPACK_DEBIAN_CORE_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/debian/postinst")
+set(CPACK_RPM_CORE_PACKAGE_REQUIRES_POST "shadow-utils, glibc")
+set(CPACK_RPM_CORE_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst")
 include(CPack)
+cpack_add_component(full DEPENDS ${full_dependencies})
 
 cpack_add_component(logger)
 cpack_add_component(utils DEPENDS logger)
@@ -127,66 +161,49 @@ cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
 
-cpack_add_component(net)
+cpack_add_component(net DEPENDS core-socket)
 
-cpack_add_component(net-in DEPENDS net)
-cpack_add_component(net-in6 DEPENDS net)
-cpack_add_component(net-l2 DEPENDS net)
-cpack_add_component(net-rc DEPENDS net)
-cpack_add_component(net-un DEPENDS net)
+foreach(family IN ITEMS in in6 l2 rc un)
+    cpack_add_component(net-${family} DEPENDS net)
+    cpack_add_component(net-${family}-phy DEPENDS net-${family})
+    cpack_add_component(net-${family}-phy-stream DEPENDS net-${family}-phy)
+    cpack_add_component(net-${family}-stream DEPENDS net-${family}-phy-stream)
+    cpack_add_component(
+        net-${family}-stream-legacy DEPENDS net-${family}-stream
+                                            core-socket-stream-legacy
+    )
+    cpack_add_component(
+        net-${family}-stream-tls DEPENDS net-${family}-stream
+                                         core-socket-stream-tls
+    )
+endforeach()
 
-cpack_add_component(net-in-stream DEPENDS net-in)
-cpack_add_component(net-in6-stream DEPENDS net-in6)
-cpack_add_component(net-l2-stream DEPENDS net-l2)
-cpack_add_component(net-rc-stream DEPENDS net-rc)
-cpack_add_component(net-un-stream DEPENDS net-un)
+cpack_add_component(net-un-dgram DEPENDS net-un-phy)
 
-cpack_add_component(
-    net-in-stream-legacy DEPENDS net-in-stream core-socket-stream-legacy
-)
-cpack_add_component(
-    net-in6-stream-legacy DEPENDS net-in6-stream core-socket-stream-legacy
-)
-cpack_add_component(
-    net-l2-stream-legacy DEPENDS net-l2-stream core-socket-stream-legacy
-)
-cpack_add_component(
-    net-rc-stream-legacy DEPENDS net-rc-stream core-socket-stream-legacy
-)
-cpack_add_component(
-    net-un-stream-legacy DEPENDS net-un-stream core-socket-stream-legacy
-)
-
-cpack_add_component(
-    net-in-stream-tls DEPENDS net-in-stream core-socket-stream-tls
-)
-cpack_add_component(
-    net-in6-stream-tls DEPENDS net-in6-stream core-socket-stream-tls
-)
-cpack_add_component(
-    net-l2-stream-tls DEPENDS net-l2-stream core-socket-stream-tls
-)
-cpack_add_component(
-    net-rc-stream-tls DEPENDS net-rc-stream core-socket-stream-tls
-)
-cpack_add_component(
-    net-un-stream-tls DEPENDS net-un-stream core-socket-stream-tls
-)
-
-cpack_add_component(net-un-dgram DEPENDS net-un)
-
-cpack_add_component(http)
+cpack_add_component(http DEPENDS core-socket-stream)
 cpack_add_component(http-server DEPENDS http)
 cpack_add_component(http-client DEPENDS http)
 cpack_add_component(http-server-express DEPENDS http-server)
 
-cpack_add_component(websocket)
+foreach(family IN ITEMS in in6 rc un)
+    foreach(transport IN ITEMS legacy tls)
+        cpack_add_component(
+            http-server-express-${transport}-${family}
+            DEPENDS http-server-express net-${family}-stream-${transport}
+        )
+    endforeach()
+endforeach()
+
+cpack_add_component(websocket DEPENDS utils)
 cpack_add_component(websocket-server DEPENDS websocket http-server)
 cpack_add_component(websocket-client DEPENDS websocket http-client)
 
-cpack_add_component(mqtt)
+cpack_add_component(mqtt DEPENDS core-socket-stream)
 cpack_add_component(mqtt-server DEPENDS mqtt)
 cpack_add_component(mqtt-client DEPENDS mqtt)
+
+cpack_add_component(mqtt-server-websocket DEPENDS mqtt-server websocket-server)
+cpack_add_component(mqtt-client-websocket DEPENDS mqtt-client websocket-client)
 
 cpack_add_component(mqtt-fast)
 

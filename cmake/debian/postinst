@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+if [ "$1" = configure ]; then
+    getent group snodec >/dev/null || addgroup --system snodec
+    ldconfig
+fi

@@ -52,12 +52,14 @@ namespace {
 int main() {
     tests::support::TestResult result;
 
+    char expectedError[256]{};
     const auto emittedPath = tempLogPath("snodec-openssl-log-emitted.log");
     {
         LoggerStateGuard guard(emittedPath.string());
         logger::LogManager::setGlobalLevel(logger::LogLevel::Trace);
         logger::LogManager::freeze();
         queueOpenSslError();
+        ERR_error_string_n(ERR_peek_error(), expectedError, sizeof(expectedError));
 
         core::socket::stream::tls::ssl_log_error("SSL/TLS: OpenSSL helper failed");
 
@@ -66,7 +68,7 @@ int main() {
     }
     const std::string emittedLog = readFile(emittedPath);
     result.expectTrue(emittedLog.find("SSL/TLS: OpenSSL helper failed") != std::string::npos &&
-                          emittedLog.find("SSL routines") != std::string::npos,
+                          emittedLog.find(expectedError) != std::string::npos,
                       "an emitted OpenSSL diagnostic includes the queued OpenSSL error");
 
     const auto expectSuppressedHelperKeepsQueue = [&](const std::string& label, const auto& helper) {

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+getent group snodec >/dev/null || groupadd --system snodec
+ldconfig
