@@ -60,7 +60,8 @@ extern "C" int getaddrinfo(const char* node, const char* service, const addrinfo
     if (error)
         return error;
     addrinfo* next = nullptr;
-    const int nextError = real(second, service, hints, &next);
+    // The TLS fallback must obtain a free port independently of the blocked first address.
+    const int nextError = real(second, mode == "server-tls" ? "0" : service, hints, &next);
     if (nextError) {
         freeaddrinfo(*output);
         *output = nullptr;
@@ -243,7 +244,7 @@ namespace {
                 } else if (state == core::socket::State::OK) {
                     auto copy = address;
                     result.expectTrue(numericHost(&copy.getSockAddr()) == "127.0.0.1", "second address supplies the listener");
-                    client.connect(net::in::SocketAddress("127.0.0.1", testPort), [](const auto&, auto) {});
+                    client.connect(net::in::SocketAddress("127.0.0.1", address.getPort()), [](const auto&, auto) {});
                 } else {
                     core::SNodeC::stop();
                 }

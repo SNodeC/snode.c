@@ -166,7 +166,7 @@ namespace net::in6 {
 
     std::string SocketAddress::toString(bool expanded) const {
         return (host.find(':') != std::string::npos ? "[" + host + "]" : host) + ":" + std::to_string(port) +
-               (expanded && !canonName.empty() ? " (" + canonName + ")" : "");
+               (expanded && !canonName.empty() ? " (" + SocketAddress(sockAddr, sockAddrLen).toString(false) + ")" : "");
     }
 
     bool SocketAddress::useNext() {

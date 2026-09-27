@@ -165,9 +165,8 @@ namespace net::in {
     }
 
     std::string SocketAddress::toString(bool expanded) const {
-        return std::string(host).append(std::string(":")
-                                            .append(std::to_string(port))
-                                            .append(expanded && !canonName.empty() ? std::string(" (").append(canonName).append(")") : ""));
+        return host + ":" + std::to_string(port) +
+               (expanded && !canonName.empty() ? " (" + SocketAddress(sockAddr, sockAddrLen).toString(false) + ")" : "");
     }
 
     bool SocketAddress::useNext() {

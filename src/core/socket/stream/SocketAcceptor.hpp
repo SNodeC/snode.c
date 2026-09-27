@@ -203,7 +203,7 @@ namespace core::socket::stream {
                     onStatus(currentLocalAddress, (state | core::socket::State::NO_RETRY));
 
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).info()
-                        << config->getInstanceName() << ": Using next SocketAddress: " << config->Local::getSocketAddress().toString();
+                        << config->getInstanceName() << ": Using next SocketAddress: " << configuredAddress->toString();
 
                     useNextSocketAddress();
                 } else {
