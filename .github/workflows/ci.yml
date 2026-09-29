@@ -2,27 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [master]
-    paths:
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'src/**'
-      - 'tests/**'
-      - 'tools/**'
-      - 'examples/**'
-      - '.github/workflows/**'
-  pull_request:
-    paths:
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'src/**'
-      - 'tests/**'
-      - 'tools/**'
-      - 'examples/**'
-      - '.github/workflows/**'
+    tags: ['v[0-9]*.[0-9]*.[0-9]*']
 
 jobs:
   gcc-debug:
+    if: github.event.deleted == false
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
