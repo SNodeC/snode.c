@@ -1,3 +1,5 @@
+name: Update README table of contents
+
 on:
   push:
     branches: [master]
