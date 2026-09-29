@@ -1,6 +1,5 @@
 #include "tests/policy/SourcePolicyTestRoot.h"
 
-#include <array>
 #include <cctype>
 #include <filesystem>
 #include <iostream>
@@ -19,7 +18,6 @@ namespace {
         while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back())) != 0) {
             value.remove_suffix(1);
         }
-
         return std::string(value);
     }
 
@@ -27,81 +25,74 @@ namespace {
         if (value.size() >= 2 && ((value.front() == '\'' && value.back() == '\'') || (value.front() == '"' && value.back() == '"'))) {
             return value.substr(1, value.size() - 2);
         }
-
         return value;
     }
 
-    struct TriggerPaths {
-        std::map<std::string, std::set<std::string>> byEvent;
-        std::set<std::string> duplicateEvents;
-        std::set<std::string> eventsWithPaths;
-        std::set<std::string> duplicatePathMappings;
-        bool foundOn = false;
-        bool duplicateOn = false;
-    };
+    using Filters = std::map<std::string, std::set<std::string>>;
+    using Triggers = std::map<std::string, Filters>;
 
-    TriggerPaths parseTriggerPaths(std::string_view source) {
-        TriggerPaths result;
+    // Read trigger mappings with inline or block lists; ignore the workflow jobs.
+    bool matchesTriggers(std::string_view source, const Triggers& expected) {
+        Triggers events;
         std::istringstream lines{std::string(source)};
         std::string line;
         std::string event;
+        std::string filter;
         bool inOn = false;
-        bool inPaths = false;
+        bool foundOn = false;
 
         while (std::getline(lines, line)) {
-            if (!line.empty() && line.back() == '\r') {
-                line.pop_back();
-            }
-
             const std::size_t indent = line.find_first_not_of(' ');
-            if (indent == std::string::npos || line[indent] == '#') {
+            if (indent == std::string::npos || trim(line).empty() || line[indent] == '#') {
                 continue;
             }
-            if (line.find('\t', 0) != std::string::npos) {
-                std::cerr << "CI workflow trigger policy requires space indentation\n";
-                return {};
-            }
-
             const std::string content = trim(std::string_view(line).substr(indent));
             if (indent == 0) {
-                inOn = content == "on:";
-                result.duplicateOn = result.duplicateOn || (inOn && result.foundOn);
-                inPaths = false;
+                inOn = content == "on:" || content == "'on':" || content == "\"on\":";
+                if (inOn && foundOn) {
+                    return false;
+                }
+                foundOn = foundOn || inOn;
                 event.clear();
-                result.foundOn = result.foundOn || inOn;
+                filter.clear();
                 continue;
             }
             if (!inOn) {
                 continue;
             }
             if (indent == 2 && content.ends_with(':')) {
-                event = content.substr(0, content.size() - 1);
-                if (result.byEvent.contains(event)) {
-                    result.duplicateEvents.insert(event);
-                } else {
-                    result.byEvent.emplace(event, std::set<std::string>{});
+                event = unquote(content.substr(0, content.size() - 1));
+                if (!events.emplace(event, Filters{}).second) {
+                    return false;
                 }
-                inPaths = false;
-                continue;
-            }
-            if (event.empty()) {
-                continue;
-            }
-            if (indent == 4) {
-                inPaths = content == "paths:";
-                if (inPaths && !result.eventsWithPaths.insert(event).second) {
-                    result.duplicatePathMappings.insert(event);
+                filter.clear();
+            } else if (indent == 4 && !event.empty()) {
+                const auto colon = content.find(':');
+                if (colon == std::string::npos) {
+                    return false;
                 }
-                continue;
-            }
-            if (inPaths && indent == 6 && content.starts_with("- ")) {
-                result.byEvent[event].insert(unquote(trim(std::string_view(content).substr(2))));
-            } else if (indent <= 6) {
-                inPaths = false;
+                filter = unquote(trim(std::string_view(content).substr(0, colon)));
+                if (!events[event].emplace(filter, std::set<std::string>{}).second) {
+                    return false;
+                }
+                const std::string values = trim(std::string_view(content).substr(colon + 1));
+                if (!values.empty()) {
+                    if (values.front() != '[' || values.back() != ']') {
+                        return false;
+                    }
+                    std::istringstream items(values.substr(1, values.size() - 2));
+                    std::string item;
+                    while (std::getline(items, item, ',')) {
+                        events[event][filter].insert(unquote(trim(item)));
+                    }
+                }
+            } else if (indent == 6 && !filter.empty() && content.starts_with("- ")) {
+                events[event][filter].insert(unquote(trim(std::string_view(content).substr(2))));
+            } else {
+                return false;
             }
         }
-
-        return result;
+        return foundOn && events == expected;
     }
 
 } // namespace
@@ -111,50 +102,24 @@ int main() {
     if (root.empty()) {
         return 1;
     }
-
-    const std::filesystem::path workflowPath = root / ".github/workflows/ci.yml";
-    const TriggerPaths triggerPaths = parseTriggerPaths(source_policy::readSourcePolicyFile(workflowPath));
-    const std::array<std::string_view, 2> requiredEvents = {"push", "pull_request"};
-    const std::array<std::string_view, 6> requiredPaths = {
-        "CMakeLists.txt",
-        "cmake/**",
-        "src/**",
-        "tests/**",
-        "tools/**",
-        ".github/workflows/**",
+    const std::map<std::string, Triggers> workflows = {
+        {"main.yml", {{"push", {{"branches", {"master"}}, {"paths", {"README.md"}}}}}},
+        {"openwrt.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}}}},
     };
-
-    bool ok = triggerPaths.foundOn;
-    if (!triggerPaths.foundOn) {
-        std::cerr << "CI workflow has no top-level on trigger mapping: " << workflowPath << '\n';
-    }
-    if (triggerPaths.duplicateOn) {
-        std::cerr << "CI workflow has duplicate top-level on trigger mappings: " << workflowPath << '\n';
-        ok = false;
-    }
-
-    for (const std::string_view event : requiredEvents) {
-        const auto eventPaths = triggerPaths.byEvent.find(std::string(event));
-        if (eventPaths == triggerPaths.byEvent.end()) {
-            std::cerr << "CI workflow has no " << event << " trigger mapping\n";
-            ok = false;
-            continue;
-        }
-        if (triggerPaths.duplicateEvents.contains(std::string(event))) {
-            std::cerr << "CI workflow has duplicate " << event << " trigger mappings\n";
+    bool ok = true;
+    for (const auto& [name, triggers] : workflows) {
+        const auto path = root / ".github/workflows" / name;
+        if (!matchesTriggers(source_policy::readSourcePolicyFile(path), triggers)) {
+            std::cerr << "Unexpected CI triggers in " << path << ": only README TOC updates and version-tag notifications are allowed\n";
             ok = false;
         }
-        if (triggerPaths.duplicatePathMappings.contains(std::string(event))) {
-            std::cerr << "CI workflow has duplicate " << event << " paths mappings\n";
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(root / ".github/workflows")) {
+        if ((entry.path().extension() == ".yml" || entry.path().extension() == ".yaml") &&
+            !workflows.contains(entry.path().filename().string())) {
+            std::cerr << "Unexpected additional CI workflow: " << entry.path() << '\n';
             ok = false;
         }
-        for (const std::string_view requiredPath : requiredPaths) {
-            if (!eventPaths->second.contains(std::string(requiredPath))) {
-                std::cerr << "CI workflow " << event << " paths omit required path family: " << requiredPath << '\n';
-                ok = false;
-            }
-        }
     }
-
     return ok ? 0 : 1;
 }
