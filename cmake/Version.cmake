@@ -8,6 +8,25 @@ endif()
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../.git")
     find_package(Git QUIET)
     if(GIT_FOUND)
+        # Track both ref contents and additions/removals, including packed refs.
+        # Git resolves shared refs correctly for linked worktrees.
+        execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse
+                        --git-path HEAD --git-path "refs/heads/*" --git-path "refs/tags/*"
+                        --git-path packed-refs --git-path shallow
+                        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/.."
+                        OUTPUT_VARIABLE git_ref_paths OUTPUT_STRIP_TRAILING_WHITESPACE
+                        RESULT_VARIABLE version_result)
+        if(NOT version_result EQUAL 0)
+            message(FATAL_ERROR "Cannot locate Git version inputs")
+        endif()
+        string(REPLACE "\n" ";" git_ref_paths "${git_ref_paths}")
+        set(git_ref_patterns "")
+        foreach(path IN LISTS git_ref_paths)
+            get_filename_component(path "${path}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
+            list(APPEND git_ref_patterns "${path}")
+        endforeach()
+        file(GLOB_RECURSE git_ref_files LIST_DIRECTORIES FALSE CONFIGURE_DEPENDS ${git_ref_patterns})
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${git_ref_files})
         execute_process(COMMAND "${GIT_EXECUTABLE}" tag --merged HEAD --sort=-version:refname
                         WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/.."
                         OUTPUT_VARIABLE release_tags OUTPUT_STRIP_TRAILING_WHITESPACE
