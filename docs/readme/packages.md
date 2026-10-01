@@ -1,10 +1,10 @@
-# Binary packages
+# SNode.C binary packages
 
 [← Install SNode.C](install.md)
 
 The **SNode.C package feed** supplies signed binaries for the distribution families below. Use the distribution guide and published package status to select the right source for your system.
 
-## Choose the installed distribution, release and architecture
+## Choose distribution, release and architecture
 
 Catalog snapshot: **1 October 2026**. Check the [live per-target status][status] for available versions and publication results.
 
@@ -19,11 +19,13 @@ Catalog snapshot: **1 October 2026**. Check the [live per-target status][status]
 
 Match the installed distribution and release as well as the architecture. Raspberry Pi OS Bookworm does not imply a Debian Bookworm feed. Debian Sid may need explicit suite selection, and Rocky Linux requires the documented CRB/EPEL prerequisites.
 
-## Install with the system package manager
+## Prepare the signed feed
 
 First follow the distribution guide above to configure its signed source. The feed installer’s **`--prepare`** mode registers the source and refreshes indexes without installing both complete project sets. Review the installer before running it with administrative privileges, or use the guide’s manual configuration procedure. Keep official distribution repositories enabled for dependencies.
 
-Then install the framework:
+## Install with the system package manager
+
+Install the framework after preparing the feed:
 
 ```sh
 # Debian, Ubuntu or Raspberry Pi OS

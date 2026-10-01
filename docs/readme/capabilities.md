@@ -52,7 +52,7 @@ Client and server implementations handle HTTP upgrade, WebSocket framing and app
 
 Plain WebSockets and TLS-protected WebSockets use the corresponding HTTP connection. A WebSocket connection is bidirectional; SSE is not a substitute when both sides must send application messages over the same stream.
 
-The [complete WebSocket example](examples.md#a-websocket-echo-page) includes the HTTP upgrade route, browser client, build file and run instructions.
+The [complete WebSocket example](../../README.md#talk-both-ways-with-a-websocket) includes the HTTP upgrade route, browser client, build file and run instructions.
 
 ## Server-Sent Events
 

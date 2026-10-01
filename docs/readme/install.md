@@ -6,12 +6,23 @@
 
 | Goal | Route |
 | --- | --- |
-| Use the framework without compiling it | [Signed distribution packages](packages.md). |
-| Develop against current source or customize a build | [Build from source](#build-from-source). |
-| Cross-compile for a router | [OpenWrt packages and SDK route](packages.md#openwrt). |
-| Build your first application | [Factory/Context example and its CMake project](../../README.md#your-first-program-a-factory-and-a-context). |
+| Binary packages | [Signed distribution packages](packages.md). |
+| OpenWrt | [Packages and SDK route](packages.md#openwrt). |
+| Build from source | [Develop against current source or customize a build](#build-from-source). |
+
+## Install binary packages
+
+Follow the [package guide](packages.md) to prepare the signed feed for your distribution, release and architecture. On Debian/Ubuntu and Raspberry Pi OS, install the framework with:
+
+```sh
+sudo apt-get install snodec
+```
+
+The package guide also covers RPM-based systems, OpenWrt and component selections.
 
 ## Build from source
+
+### Requirements
 
 SNode.C requires a C++20 compiler and CMake 3.18 or newer. Its configure checks require GCC 12.2+ or Clang 13+. Optional development libraries enable Bluetooth, file-type detection, MariaDB and the configuration tool’s terminal UI.
 
@@ -25,6 +36,8 @@ sudo apt-get install git cmake ninja-build g++ pkg-config \
 ```
 
 The JSON-dependent modules require `nlohmann_json` 3.11 or newer. Package names and available versions differ on other distributions; use their development equivalents or choose the [binary package route](packages.md).
+
+### Build and install
 
 ```sh
 git clone https://github.com/SNodeC/snode.c.git
@@ -52,7 +65,7 @@ To install under a non-system prefix, change `CMAKE_INSTALL_PREFIX`, omit `sudo`
 
 The OpenWrt feed additionally offers package-specific component selections. Do not assume feed configuration symbols are upstream CMake options.
 
-## Development checks
+For a development build with tests enabled:
 
 ```sh
 cmake -S . -B build-check -G Ninja \
@@ -63,7 +76,23 @@ ctest --test-dir build-check --output-on-failure --parallel
 
 Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](https://github.com/SNodeC/snode.c/blob/master/tests/component/net/README.md).
 
-## Link an application
+## Verify the installation
+
+For a development installation with the plain IPv4 stream component, save this as `CMakeLists.txt` in an empty directory:
+
+```cmake
+cmake_minimum_required(VERSION 3.18)
+project(check_snodec LANGUAGES CXX)
+find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
+```
+
+```sh
+cmake -S . -B build
+```
+
+A successful configure confirms that CMake can find that installed development component. A runtime-only package selection does not include a consumer development environment; verify it through the application that uses it instead.
+
+## Next step
 
 Use the installed package’s component targets instead of manually assembling library filenames:
 
@@ -72,4 +101,4 @@ find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 target_link_libraries(my-service PRIVATE snodec::net-in-stream-legacy)
 ```
 
-[Complete runnable example →](examples.md)
+[Build the native client and server →](../../README.md#your-first-program-a-factory-and-a-context)

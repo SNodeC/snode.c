@@ -2,7 +2,7 @@
 
 [← SNode.C](../../README.md)
 
-The landing page contains complete [Factory/Context](../../README.md#your-first-program-a-factory-and-a-context), [HTTP](../../README.md#a-small-web-service) and [SSE](../../README.md#receive-a-server-sent-event) examples, including their build files and run commands. These two self-contained examples add message framing and a bidirectional WebSocket channel. Use a separate directory for each project.
+The landing page contains complete [Factory/Context](../../README.md#your-first-program-a-factory-and-a-context), [HTTP](../../README.md#a-small-web-service), [SSE](../../README.md#receive-a-server-sent-event) and [WebSocket](../../README.md#talk-both-ways-with-a-websocket) examples, including their build files and run commands. This guide adds message framing and explains composing roles. Use a separate directory for each project.
 
 ## A line-oriented protocol
 
@@ -106,82 +106,6 @@ PY
 **Boundaries:** an overlong line closes the connection, and an unfinished line is discarded on disconnect. This example uses LF delimiters and unencrypted loopback TCP. Applications should also configure idle and write-queue limits.
 
 **Go further:** [resource and deployment policy](deployment.md).
-
-## A WebSocket echo page
-
-HTTP serves a small page, then upgrades `/ws` to a bidirectional WebSocket connection. The installed `echo` subprotocol supplies the message handling; the route handles HTTP upgrade rather than implementing another frame parser.
-
-**You need:** the `http-server-express-legacy-in` development component, the framework's installed HTTP/WebSocket upgrade and **server-side echo subprotocol plugins** (included with its example applications), C++20, CMake and a browser. Port **18082** must be free. Keep plugins and libraries from the same installation.
-
-**Code — `main.cpp`:**
-
-```cpp
-#include <core/socket/State.h>
-#include <express/legacy/in/WebApp.h>
-#include <iostream>
-#include <memory>
-#include <string>
-
-int main(int argc, char* argv[]) {
-    using WebApp = express::legacy::in::WebApp;
-    WebApp::init(argc, argv);
-    const WebApp app("websocket");
-    app.get("/", [](const std::shared_ptr<WebApp::Request>&,
-                    const std::shared_ptr<WebApp::Response>& res) {
-        res->set("Content-Type", "text/html; charset=utf-8").send(R"HTML(
-<!doctype html>
-<html lang="en"><meta charset="utf-8"><title>SNode.C WebSocket echo</title>
-<h1>WebSocket echo</h1><pre id="output">Connecting...</pre>
-<script>
-const output = document.getElementById('output');
-const peer = new WebSocket('ws://' + location.host + '/ws', 'echo');
-peer.onopen = () => { output.textContent = 'Connected'; peer.send('Hello, WebSocket!'); };
-peer.onmessage = event => { output.textContent += '\n' + event.data; peer.close(); };
-peer.onerror = () => { output.textContent += '\nConnection failed'; };
-</script></html>
-)HTML");
-    });
-    app.get("/ws", [](const std::shared_ptr<WebApp::Request>& req,
-                      const std::shared_ptr<WebApp::Response>& res) {
-        res->upgrade(req, [res](const std::string& selected) {
-            if (selected.empty()) res->sendStatus(400);
-            else res->end();
-        });
-    });
-    app.listen("127.0.0.1", 18082,
-               [](const WebApp::SocketAddress&, const core::socket::State& state) {
-        if (state != core::socket::State::OK) std::cerr << state.what() << '\n';
-    });
-    return WebApp::start();
-}
-```
-
-**Build — `CMakeLists.txt`:**
-
-```cmake
-cmake_minimum_required(VERSION 3.18)
-project(snodec_websocket LANGUAGES CXX)
-find_package(snodec REQUIRED COMPONENTS http-server-express-legacy-in)
-add_executable(websocket main.cpp)
-target_compile_features(websocket PRIVATE cxx_std_20)
-target_link_libraries(websocket PRIVATE snodec::http-server-express-legacy-in)
-```
-
-**Run:**
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-./build/websocket --config-file /dev/null
-```
-
-Open **http://127.0.0.1:18082/** in a browser.
-
-**Expected result:** the page displays `Connected` and then `Hello, WebSocket!`. The browser sends a text frame, receives the echo and closes its connection. Stop the server with Ctrl+C.
-
-**Boundaries:** the `echo` demonstration plugin broadcasts received text to its connected clients; this page opens one client. Missing plugins make the upgrade fail. For deployment, use TLS/WSS, authenticate access and configure message limits. SSE is simpler when data only needs to flow from server to client.
-
-**Go further:** [WebSocket capabilities](capabilities.md#websockets) and the [framework's subprotocol implementation](https://github.com/SNodeC/snode.c/tree/master/src/apps/websocket/subprotocol).
 
 ## Compose roles in one application
 

@@ -67,4 +67,4 @@ Install only the required framework/application packages from the [matching feed
 
 ## Upgrade deliberately
 
-Keep executables, shared libraries and dynamically loaded protocol plugins compatible. Back up configuration and application state; verify the new build on a separate instance before replacing a running service. Major framework releases can change ABI even when application source needs little adjustment; consult the [2.0 migration guide](https://github.com/SNodeC/snode.c/blob/master/docs/migration-2.0.md) when upgrading from the previous API.
+Keep executables, shared libraries and dynamically loaded protocol plugins compatible. Back up configuration and application state; verify the new build on a separate instance before replacing a running service. Major framework releases can change ABI even when application source needs little adjustment. When upgrading from SNode.C 1.x to 2.0, rebuild consuming applications, libraries and plugins against the updated headers and libraries; do not mix 1.x and 2.0 C++ binaries in one process.

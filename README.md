@@ -1,6 +1,6 @@
 <picture>
   <source media="(max-width: 600px)" srcset="docs/readme/media/hero-mobile.svg">
-  <img src="docs/readme/media/hero.svg" alt="SNode.C — event-driven networking in C++. A smooth white S in a blue connected-node logo on a dark-blue banner.">
+  <img src="docs/readme/media/hero.svg" alt="SNode.C — Your own protocols, HTTP, WebSocket, SSE and MQTT. A smooth white S in a blue connected-node logo on a dark-blue banner.">
 </picture>
 
 # SNode.C
@@ -15,57 +15,108 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
 
 ## Your first program: a factory and a context
 
-This echo server sends received bytes back to their sender. Each peer gets its own `EchoContext`; the factory connects your protocol implementation to the framework's connection lifecycle.
+This native server and client share one `EchoContext` implementation. The `Role` selects its behavior: the server reflects received bytes; the client sends one line, prints the reply and closes. Each connection gets its own context and receive state.
 
-**You need:** installed SNode.C development libraries with the `net-in-stream-legacy` component, a C++20 compiler, CMake 3.18+, Python 3 for the client, and a free loopback port **18001**. Create an empty example directory.
+**You need:** installed SNode.C development libraries with the `net-in-stream-legacy` component, a C++20 compiler, CMake 3.18+, and a free loopback port **18001**. Python 3 is needed only for the additional interoperability check. Create an empty example directory.
 
-**Code — `main.cpp`:**
+**Code — `echo.h`, shared by both executables:**
 
 ```cpp
-#include <core/SNodeC.h>
-#include <core/socket/State.h>
+#pragma once
 #include <core/socket/stream/SocketContext.h>
 #include <core/socket/stream/SocketContextFactory.h>
-#include <net/in/stream/legacy/SocketServer.h>
 #include <cstddef>
 #include <iostream>
+#include <string>
+
+enum class Role { SERVER, CLIENT };
 
 class EchoContext final : public core::socket::stream::SocketContext {
 public:
-    explicit EchoContext(core::socket::stream::SocketConnection* connection)
-        : SocketContext(connection) {}
+    EchoContext(core::socket::stream::SocketConnection* connection, Role role)
+        : SocketContext(connection), role(role) {}
 
 private:
-    void onConnected() override {}
+    void onConnected() override {
+        if (role == Role::CLIENT) sendToPeer(std::string("Hello, context!\n"));
+    }
     void onDisconnected() override {}
     bool onSignal(int) override { return true; }
 
     std::size_t onReceivedFromPeer() override {
         char bytes[4096];
         const std::size_t count = readFromPeer(bytes, sizeof(bytes));
-        if (count != 0) sendToPeer(bytes, count);
+        if (role == Role::SERVER) {
+            if (count != 0) sendToPeer(bytes, count);
+        } else {
+            for (std::size_t i = 0; i < count; ++i) {
+                if (reply.size() == 4096) {
+                    close();
+                    return count;
+                }
+                reply += bytes[i];
+                if (bytes[i] == '\n') {
+                    std::cout << reply << std::flush;
+                    close();
+                    return count;
+                }
+            }
+        }
         return count;
     }
+
+    Role role;
+    std::string reply;
 };
 
+template <Role role>
 class EchoFactory final : public core::socket::stream::SocketContextFactory {
 private:
     core::socket::stream::SocketContext*
     create(core::socket::stream::SocketConnection* connection) override {
-        return new EchoContext(connection);
+        return new EchoContext(connection, role);
     }
 };
+```
+
+**Code — `echo-server.cpp`:**
+
+```cpp
+#include "echo.h"
+#include <core/SNodeC.h>
+#include <core/socket/State.h>
+#include <net/in/stream/legacy/SocketServer.h>
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
-    using Server = net::in::stream::legacy::SocketServer<EchoFactory>;
+    using Server = net::in::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>;
     const Server server("echo");
     server.listen("127.0.0.1", 18001,
                   [](const Server::SocketAddress& address, core::socket::State state) {
         if (state == core::socket::State::OK)
-            std::cout << "Listening on " << address.toString() << '\n';
+            std::cout << "Listening on " << address.toString() << std::endl;
         else
             std::cerr << state.what() << '\n';
+    });
+    return core::SNodeC::start();
+}
+```
+
+**Code — `echo-client.cpp`:**
+
+```cpp
+#include "echo.h"
+#include <core/SNodeC.h>
+#include <core/socket/State.h>
+#include <net/in/stream/legacy/SocketClient.h>
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+    using Client = net::in::stream::legacy::SocketClient<EchoFactory<Role::CLIENT>>;
+    const Client client("request");
+    client.connect("127.0.0.1", 18001,
+                   [](const Client::SocketAddress&, core::socket::State state) {
+        if (state != core::socket::State::OK) std::cerr << state.what() << '\n';
     });
     return core::SNodeC::start();
 }
@@ -77,9 +128,12 @@ int main(int argc, char* argv[]) {
 cmake_minimum_required(VERSION 3.18)
 project(snodec_echo LANGUAGES CXX)
 find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
-add_executable(echo-server main.cpp)
-target_compile_features(echo-server PRIVATE cxx_std_20)
-target_link_libraries(echo-server PRIVATE snodec::net-in-stream-legacy)
+add_executable(echo-server echo-server.cpp)
+add_executable(echo-client echo-client.cpp)
+foreach(target echo-server echo-client)
+    target_compile_features(${target} PRIVATE cxx_std_20)
+    target_link_libraries(${target} PRIVATE snodec::net-in-stream-legacy)
+endforeach()
 ```
 
 **Run — terminal 1:**
@@ -93,6 +147,12 @@ cmake --build build --parallel
 **Run — terminal 2:**
 
 ```sh
+./build/echo-client --config-file /dev/null request socket --reconnect=false
+```
+
+**Interoperability check with Python — terminal 2:**
+
+```sh
 python3 - <<'PY'
 import socket
 with socket.create_connection(('127.0.0.1', 18001)) as peer:
@@ -102,11 +162,11 @@ with socket.create_connection(('127.0.0.1', 18001)) as peer:
 PY
 ```
 
-**Expected result:** terminal 2 prints `Hello, context!`. Stop the server with Ctrl+C.
+**Expected result:** both the native client and the Python check print `Hello, context!` once. The native client closes its connection and exits after the reply; framework lifecycle logs may also appear. Stop the server with Ctrl+C.
 
-**Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration into the example.
+**Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-**Go further:** [complete line-framing and WebSocket examples](docs/readme/examples.md).
+**Go further:** [line framing and composing roles](docs/readme/examples.md).
 
 ### What happens to a connection
 
@@ -118,10 +178,10 @@ PY
 
 <picture>
   <source media="(max-width: 600px)" srcset="docs/readme/media/context-lifecycle-mobile.svg">
-  <img src="docs/readme/media/context-lifecycle.svg" alt="Each peer has its own factory-created context: connect, receive callbacks, disconnect, then framework-owned deletion.">
+  <img src="docs/readme/media/context-lifecycle.svg" alt="One factory per server or client instance creates a separate context for each peer: attachment, receive callbacks, detachment, then framework-owned deletion.">
 </picture>
 
-The string `"echo"` names the server's **configuration instance**. For example, `./build/echo-server echo local --port 18002` selects that instance's local endpoint; `./build/echo-server echo --help=expanded` lists its options. The executable name and instance name are separate concepts.
+The strings `"echo"` and `"request"` name the server's and client's **configuration instances**. For example, `./build/echo-server --config-file /dev/null echo local --port 18002` selects the server instance's local endpoint; `./build/echo-server --config-file /dev/null echo --help=expanded` lists its options. The executable name and instance name are separate concepts.
 
 ### Same context, another transport
 
@@ -130,11 +190,11 @@ The factory is independent of the socket address and encryption layer. These are
 ```text
 IPv4 TLS — component: net-in-stream-tls
   <net/in/stream/tls/SocketServer.h>
-  net::in::stream::tls::SocketServer<EchoFactory>
+  net::in::stream::tls::SocketServer<EchoFactory<Role::SERVER>>
 
 Unix socket — component: net-un-stream-legacy
   <net/un/stream/legacy/SocketServer.h>
-  net::un::stream::legacy::SocketServer<EchoFactory>
+  net::un::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>
 ```
 
 A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md).
@@ -286,7 +346,7 @@ target_compile_features(events PRIVATE cxx_std_20)
 target_link_libraries(events PRIVATE snodec::http-client snodec::net-in-stream-legacy)
 ```
 
-**Run:**
+**Run — terminal 2:**
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -300,6 +360,82 @@ cmake --build build --parallel
 
 **Go further:** [SSE and WebSocket capabilities](docs/readme/capabilities.md#server-sent-events).
 
+## Talk both ways with a WebSocket
+
+HTTP serves a small page, then upgrades `/ws` to a bidirectional WebSocket connection. The installed `echo` subprotocol supplies the message handling; the route handles HTTP upgrade rather than implementing another frame parser.
+
+**You need:** the `http-server-express-legacy-in` development component, the framework's installed HTTP/WebSocket upgrade and **server-side echo subprotocol plugins** (included with its example applications), C++20, CMake and a browser. Port **18082** must be free. Keep plugins and libraries from the same installation.
+
+**Code — `main.cpp`:**
+
+```cpp
+#include <core/socket/State.h>
+#include <express/legacy/in/WebApp.h>
+#include <iostream>
+#include <memory>
+#include <string>
+
+int main(int argc, char* argv[]) {
+    using WebApp = express::legacy::in::WebApp;
+    WebApp::init(argc, argv);
+    const WebApp app("websocket");
+    app.get("/", [](const std::shared_ptr<WebApp::Request>&,
+                    const std::shared_ptr<WebApp::Response>& res) {
+        res->set("Content-Type", "text/html; charset=utf-8").send(R"HTML(
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>SNode.C WebSocket echo</title>
+<h1>WebSocket echo</h1><pre id="output">Connecting...</pre>
+<script>
+const output = document.getElementById('output');
+const peer = new WebSocket('ws://' + location.host + '/ws', 'echo');
+peer.onopen = () => { output.textContent = 'Connected'; peer.send('Hello, WebSocket!'); };
+peer.onmessage = event => { output.textContent += '\n' + event.data; peer.close(); };
+peer.onerror = () => { output.textContent += '\nConnection failed'; };
+</script></html>
+)HTML");
+    });
+    app.get("/ws", [](const std::shared_ptr<WebApp::Request>& req,
+                      const std::shared_ptr<WebApp::Response>& res) {
+        res->upgrade(req, [res](const std::string& selected) {
+            if (selected.empty()) res->sendStatus(400);
+            else res->end();
+        });
+    });
+    app.listen("127.0.0.1", 18082,
+               [](const WebApp::SocketAddress&, const core::socket::State& state) {
+        if (state != core::socket::State::OK) std::cerr << state.what() << '\n';
+    });
+    return WebApp::start();
+}
+```
+
+**Build — `CMakeLists.txt`:**
+
+```cmake
+cmake_minimum_required(VERSION 3.18)
+project(snodec_websocket LANGUAGES CXX)
+find_package(snodec REQUIRED COMPONENTS http-server-express-legacy-in)
+add_executable(websocket main.cpp)
+target_compile_features(websocket PRIVATE cxx_std_20)
+target_link_libraries(websocket PRIVATE snodec::http-server-express-legacy-in)
+```
+
+**Run — terminal 1:**
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+./build/websocket --config-file /dev/null
+```
+
+Open **http://127.0.0.1:18082/** in a browser.
+
+**Expected result:** the page displays `Connected` and then `Hello, WebSocket!`. The browser sends a text frame, receives the echo and closes its connection. Stop the server with Ctrl+C.
+
+**Boundaries:** the `echo` demonstration plugin broadcasts received text to its connected clients; this page opens one client. Missing plugins make the upgrade fail. For deployment, use TLS/WSS, authenticate access and configure message limits. SSE is simpler when data only needs to flow from server to client.
+
+**Go further:** [WebSocket capabilities](docs/readme/capabilities.md#websockets). Reference: the [framework's subprotocol implementation](https://github.com/SNodeC/snode.c/tree/master/src/apps/websocket/subprotocol).
+
 ## Designed to live inside your application
 
 - **One event loop, many instances.** Compose clients, listeners, timers and protocol handlers in the same process. Keep callbacks non-blocking; a long computation on the event-loop thread delays other work.
@@ -311,11 +447,11 @@ cmake --build build --parallel
 
 The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md) separates implementation coverage from deployment requirements.
 
-## Install on a workstation, server or router
+## Install
+
+[Choose your route →](docs/readme/install.md#choose-your-route) · [Binary packages](docs/readme/packages.md) · [Build from source](docs/readme/install.md#build-from-source) · [Deploy](docs/readme/deployment.md)
 
 Prebuilt packages are available through the project’s package feed for **Debian, Ubuntu, Raspberry Pi OS, Rocky Linux, Fedora and OpenWrt**. Choose the guide matching your distribution, release and package architecture—not just the CPU family.
-
-[Choose a binary package →](docs/readme/packages.md) · [Build from source →](docs/readme/install.md#build-from-source) · [Deploy an application →](docs/readme/deployment.md)
 
 The [package guide](docs/readme/packages.md) lists the published release/architecture combinations and links to the feed’s installation instructions and signing information.
 
@@ -323,7 +459,7 @@ The [package guide](docs/readme/packages.md) lists the published release/archite
 
 | Your next step | Where to go |
 | --- | --- |
-| Understand stream framing and WebSocket upgrades | [Complete worked examples](docs/readme/examples.md). |
+| Understand stream framing and WebSocket upgrades | [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [inline WebSocket example](#talk-both-ways-with-a-websocket). |
 | Explore the framework's own example applications | [Standalone echo source](https://github.com/SNodeC/snode.c/tree/master/examples/echo) and [application inventory](https://github.com/SNodeC/snode.c/blob/master/src/apps/README.md). |
 | Add HTTP, SSE, WebSockets or MQTT | [Protocol and transport inventory](docs/readme/capabilities.md). |
 | Configure, secure and supervise a service | [Deployment guide](docs/readme/deployment.md). |
@@ -332,8 +468,8 @@ The [package guide](docs/readme/packages.md) lists the published release/archite
 
 SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
 
-## Contribute and license
+## Learn more, contribute and license
 
-[Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/readme/install.md#development-checks).
+[Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/readme/install.md#select-build-features).
 
 Copyright © Volker Christian and contributors. SNode.C is dual-licensed under **[MIT](https://github.com/SNodeC/snode.c/blob/master/LICENSE-MIT) OR [LGPL-3.0-or-later](https://github.com/SNodeC/snode.c/blob/master/LICENSE-LGPL-3.0-or-later)**. Choose either license; bundled dependencies retain their own terms.

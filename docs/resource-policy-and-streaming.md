@@ -201,4 +201,4 @@ No configuration change is needed to retain the previous runtime limits and pipe
 
 SNode.C 2.0 changes installed class layouts and the `SocketConnection` virtual interface to carry immutable policy snapshots and queue results. It therefore uses project version `2.0.0` and shared-library `SOVERSION 2`. Rebuild applications and plugins against the updated headers and libraries; binary objects built against SNode.C 1.x are not ABI-compatible.
 
-The legacy callback-based `FileReader::open(path, callback)` now returns `nullptr` after a failed open, so callers must test the result before piping it. See [Migrating to SNode.C 2.0](migration-2.0.md) for affected APIs and before/after examples.
+The legacy callback-based `FileReader::open(path, callback)` now returns `nullptr` after a failed open, so callers must test the returned pointer before dereferencing or piping it, even when the callback reports the failure. The same immediate check applies to `open(directoryFd, path, flags)` and `adopt(fd)`; later streaming errors continue through the existing asynchronous source/sink error callbacks.
