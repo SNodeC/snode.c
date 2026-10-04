@@ -15,7 +15,7 @@ jobs:
           app-id: ${{ vars.OPENWRT_APP_ID }}
           private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
           owner: SNodeC
-          repositories: OpenWRT
+          repositories: DistributionPackages
           permission-contents: write
       - name: Request release package build
         env:
@@ -26,4 +26,4 @@ jobs:
             repository: .repository.full_name, ref: .ref,
             before: .before, after: .after, deleted: .deleted
           }}' "$GITHUB_EVENT_PATH" |
-            gh api --method POST repos/SNodeC/OpenWRT/dispatches --input -
+            gh api --method POST repos/SNodeC/DistributionPackages/dispatches --input -
