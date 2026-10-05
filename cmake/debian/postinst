@@ -2,5 +2,6 @@
 set -eu
 if [ "$1" = configure ]; then
     getent group snodec >/dev/null || addgroup --system snodec
+    getent passwd snodec >/dev/null || adduser --system --ingroup snodec --no-create-home --home /var/run/snodec --shell /bin/false snodec
     ldconfig
 fi

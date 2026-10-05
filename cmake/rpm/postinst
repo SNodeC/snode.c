@@ -1,4 +1,5 @@
 #!/bin/sh
 set -eu
 getent group snodec >/dev/null || groupadd --system snodec
+getent passwd snodec >/dev/null || useradd --system --gid snodec --no-create-home --home-dir /var/run/snodec --shell /bin/false snodec
 ldconfig

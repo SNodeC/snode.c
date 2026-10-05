@@ -119,13 +119,9 @@ file(STRINGS "${CMAKE_SOURCE_DIR}/LICENSE" license REGEX "^SPDX-License-Identifi
 string(REPLACE "SPDX-License-Identifier: " "" CPACK_RPM_PACKAGE_LICENSE "${license}")
 set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/PackageConfig.cmake")
 
+install(DIRECTORY DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/snode.c" COMPONENT common)
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
-# CMake 3.28 omits this existing Unix-domain component from the global
-# COMPONENTS property even though its install rule is configured. Normalize
-# the published component model across supported CMake versions.
-list(APPEND CPACK_COMPONENTS_ALL net-un-sphy-tream)
-list(REMOVE_DUPLICATES CPACK_COMPONENTS_ALL)
 list(SORT CPACK_COMPONENTS_ALL)
 
 # Resolve built libraries without requiring an existing SNode.C installation.
@@ -142,14 +138,18 @@ list(REMOVE_DUPLICATES CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS)
 
 set(full_dependencies ${CPACK_COMPONENTS_ALL})
 list(REMOVE_ITEM full_dependencies full)
-set(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS adduser)
-set(CPACK_DEBIAN_CORE_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/debian/postinst")
-set(CPACK_RPM_CORE_PACKAGE_REQUIRES_POST "shadow-utils, glibc")
-set(CPACK_RPM_CORE_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst")
+set(CPACK_DEBIAN_COMMON_PACKAGE_DEPENDS adduser)
+set(CPACK_DEBIAN_COMMON_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/debian/postinst")
+set(CPACK_RPM_LOGGER_PACKAGE_REQUIRES "snodec-common")
+set(CPACK_RPM_CONTROL_PACKAGE_REQUIRES "snodec-common")
+set(CPACK_RPM_COMMON_PACKAGE_REQUIRES_POST "shadow-utils, glibc")
+set(CPACK_RPM_COMMON_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst")
 include(CPack)
 cpack_add_component(full DEPENDS ${full_dependencies})
 
-cpack_add_component(logger)
+cpack_add_component(common)
+cpack_add_component(control DEPENDS common)
+cpack_add_component(logger DEPENDS common)
 cpack_add_component(utils DEPENDS logger)
 
 cpack_add_component(mux-epoll)

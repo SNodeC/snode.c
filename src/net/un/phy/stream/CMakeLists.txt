@@ -89,5 +89,5 @@ install(
     FILE snodec_net-un-phy-stream_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    COMPONENT net-un-sphy-tream
+    COMPONENT net-un-phy-stream
 )
