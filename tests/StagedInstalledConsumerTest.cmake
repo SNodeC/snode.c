@@ -9,8 +9,8 @@ file(REMOVE_RECURSE "${stage}")
 file(MAKE_DIRECTORY "${stage}")
 
 execute_process(
-    COMMAND "${CMAKE_COMMAND}" --install "${SNODEC_BUILD_DIR}" --prefix
-            "${prefix}"
+    COMMAND "${CMAKE_COMMAND}" -E env "DESTDIR=${stage}" "${CMAKE_COMMAND}"
+            --install "${SNODEC_BUILD_DIR}" --prefix /prefix
     RESULT_VARIABLE install_result
     OUTPUT_VARIABLE install_output
     ERROR_VARIABLE install_error
@@ -30,29 +30,20 @@ foreach(private_header IN
     endif()
 endforeach()
 
-file(
-    GLOB snodec_config_files
-    LIST_DIRECTORIES FALSE
-    "${prefix}/lib*/cmake/snodec/snodecConfig.cmake"
-)
-list(LENGTH snodec_config_files snodec_config_file_count)
-if(NOT snodec_config_file_count EQUAL 1)
+set(snodec_config_dir "${libdir}/cmake/snodec")
+if(NOT EXISTS "${snodec_config_dir}/snodecConfig.cmake")
     message(
         FATAL_ERROR
-            "expected one installed snodecConfig.cmake, found ${snodec_config_file_count}: ${snodec_config_files}"
+            "installed snodecConfig.cmake missing in ${snodec_config_dir}"
     )
 endif()
-list(GET snodec_config_files 0 snodec_config_file)
-get_filename_component(snodec_config_dir "${snodec_config_file}" DIRECTORY)
 
 set(consumer_build "${stage}/consumer-build")
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}"
-        -S "${CMAKE_CURRENT_LIST_DIR}/installed-consumer"
-        -B "${consumer_build}"
-        "-Dsnodec_DIR=${snodec_config_dir}"
+        "${CMAKE_COMMAND}" -S "${CMAKE_CURRENT_LIST_DIR}/installed-consumer" -B
+        "${consumer_build}" "-Dsnodec_DIR=${snodec_config_dir}"
         "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
         "-DCMAKE_CXX_FLAGS=${SNODEC_CXX_FLAGS}"
         "-DCMAKE_EXE_LINKER_FLAGS=${SNODEC_LINKER_FLAGS}"
