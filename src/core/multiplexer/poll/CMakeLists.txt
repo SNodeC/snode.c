@@ -43,32 +43,32 @@ set(MUX_POLL_CPP DescriptorEventPublisher.cpp EventMultiplexer.cpp)
 
 set(MUX_POLL_H DescriptorEventPublisher.h EventMultiplexer.h)
 
-add_library(mux-poll SHARED ${MUX_POLL_CPP} ${MUX_POLL_H})
-add_library(snodec::mux-poll ALIAS mux-poll)
+add_library(core-mux-poll SHARED ${MUX_POLL_CPP} ${MUX_POLL_H})
+add_library(snodec::core-mux-poll ALIAS core-mux-poll)
 
 target_include_directories(
-    mux-poll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    core-mux-poll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                     "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    mux-poll
+    core-mux-poll
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-core-mux-poll
 )
 
-target_link_options(mux-poll PRIVATE LINKER:-z,undefs)
+target_link_options(core-mux-poll PRIVATE LINKER:-z,undefs)
 
 install(
-    TARGETS mux-poll
-    EXPORT snodec_mux-poll_Targets
+    TARGETS core-mux-poll
+    EXPORT snodec_core-mux-poll_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT core-mux-poll
 )
 
 install(
-    EXPORT snodec_mux-poll_Targets
-    FILE snodec_mux-poll_Targets.cmake
+    EXPORT snodec_core-mux-poll_Targets
+    FILE snodec_core-mux-poll_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT core-mux-poll

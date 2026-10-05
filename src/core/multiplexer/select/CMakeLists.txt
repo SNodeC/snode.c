@@ -43,32 +43,32 @@ set(MUX_SELECT_CPP DescriptorEventPublisher.cpp EventMultiplexer.cpp)
 
 set(MUX_SELECT_H DescriptorEventPublisher.h EventMultiplexer.h)
 
-add_library(mux-select SHARED ${MUX_SELECT_CPP} ${MUX_SELECT_H})
-add_library(snodec::mux-select ALIAS mux-select)
+add_library(core-mux-select SHARED ${MUX_SELECT_CPP} ${MUX_SELECT_H})
+add_library(snodec::core-mux-select ALIAS core-mux-select)
 
 target_include_directories(
-    mux-select PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    core-mux-select PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                       "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    mux-select
+    core-mux-select
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-core-mux-select
 )
 
-target_link_options(mux-select PRIVATE LINKER:-z,undefs)
+target_link_options(core-mux-select PRIVATE LINKER:-z,undefs)
 
 install(
-    TARGETS mux-select
-    EXPORT snodec_mux-select_Targets
+    TARGETS core-mux-select
+    EXPORT snodec_core-mux-select_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT core-mux-select
 )
 
 install(
-    EXPORT snodec_mux-select_Targets
-    FILE snodec_mux-select_Targets.cmake
+    EXPORT snodec_core-mux-select_Targets
+    FILE snodec_core-mux-select_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT core-mux-select

@@ -69,7 +69,7 @@ set_target_properties(
 install(
     TARGETS net-l2-phy-stream
     EXPORT snodec_net-l2-phy-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-stream
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-l2-phy-stream
 )
 
 install(

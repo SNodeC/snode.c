@@ -148,7 +148,7 @@ target_include_directories(
 
 target_link_libraries(
     core
-    PRIVATE mux-${SNODEC_IO_MULTIPLEXER}
+    PRIVATE core-mux-${SNODEC_IO_MULTIPLEXER}
     PUBLIC utils ${CMAKE_DL_LIBS}
 )
 

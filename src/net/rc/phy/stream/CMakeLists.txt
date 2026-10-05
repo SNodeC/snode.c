@@ -69,7 +69,7 @@ set_target_properties(
 install(
     TARGETS net-rc-phy-stream
     EXPORT snodec_net-rc-phy-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-stream
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-rc-phy-stream
 )
 
 install(

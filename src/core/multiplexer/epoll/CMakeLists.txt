@@ -43,32 +43,32 @@ set(MUX_EPOLL_CPP DescriptorEventPublisher.cpp EventMultiplexer.cpp)
 
 set(MUX_EPOLL_H DescriptorEventPublisher.h EventMultiplexer.h)
 
-add_library(mux-epoll SHARED ${MUX_EPOLL_CPP} ${MUX_EPOLL_H})
-add_library(snodec::mux-epoll ALIAS mux-epoll)
+add_library(core-mux-epoll SHARED ${MUX_EPOLL_CPP} ${MUX_EPOLL_H})
+add_library(snodec::core-mux-epoll ALIAS core-mux-epoll)
 
 target_include_directories(
-    mux-epoll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+    core-mux-epoll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                      "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    mux-epoll
+    core-mux-epoll
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_SOVERSION}
                OUTPUT_NAME snodec-core-mux-epoll
 )
 
-target_link_options(mux-epoll PRIVATE LINKER:-z,undefs)
+target_link_options(core-mux-epoll PRIVATE LINKER:-z,undefs)
 
 install(
-    TARGETS mux-epoll
-    EXPORT snodec_mux-epoll_Targets
+    TARGETS core-mux-epoll
+    EXPORT snodec_core-mux-epoll_Targets
     LIBRARY DESTINATION ${CMAKE_INISTALL_LIBDIR} COMPONENT core-mux-epoll
 )
 
 install(
-    EXPORT snodec_mux-epoll_Targets
-    FILE snodec_mux-epoll_Targets.cmake
+    EXPORT snodec_core-mux-epoll_Targets
+    FILE snodec_core-mux-epoll_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT core-mux-epoll

@@ -69,7 +69,7 @@ set_target_properties(
 install(
     TARGETS net-in6-phy-stream
     EXPORT snodec_net-in6-phy-stream_Targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-stream
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT net-in6-phy-stream
 )
 
 install(
