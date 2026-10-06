@@ -282,17 +282,16 @@ namespace snodec::control {
             return "";
         }
 
-        const std::string path(buffer.data());
         const ssize_t written = ::write(fd, content.data(), content.size());
         ::close(fd);
 
         if (written < 0 || static_cast<std::size_t>(written) != content.size()) {
             error = "short write while creating temporary file";
-            ::unlink(path.c_str());
+            ::unlink(buffer.data());
             return "";
         }
 
-        return path;
+        return std::string(buffer.data());
     }
 
     RunConfigResolution resolveRunConfigPath(const std::optional<std::string>& runConfigPath,
