@@ -58,7 +58,6 @@ namespace net::in6 {
     class SocketAddrInfo {
     public:
         SocketAddrInfo() = default;
-        ~SocketAddrInfo() = default;
 
         int resolve(const std::string& node, const std::string& service, const addrinfo& hints);
 

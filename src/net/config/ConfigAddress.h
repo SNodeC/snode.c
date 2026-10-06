@@ -74,6 +74,9 @@ namespace net::config {
         virtual void configurable(bool configurable) = 0;
 
     public:
+        ConfigAddress(const ConfigAddress&) = delete;
+        ConfigAddress& operator=(const ConfigAddress&) = delete;
+
         using Super::getSocketAddress;
         SocketAddress& getSocketAddress();
         void renew();
