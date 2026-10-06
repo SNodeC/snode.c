@@ -48,7 +48,7 @@ add_library(snodec::core-mux-select ALIAS core-mux-select)
 
 target_include_directories(
     core-mux-select PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                      "$<INSTALL_INTERFACE:include/snode.c>"
+                           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

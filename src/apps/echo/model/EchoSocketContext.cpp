@@ -72,10 +72,9 @@ namespace apps::echo::model {
     void EchoSocketContext::onDisconnected() {
         const char* roleName = role == Role::CLIENT ? "client" : "server";
 
-        log().info(
-            "Echo {} context detached: {}",
-            roleName,
-            getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
+        log().info("Echo {} context detached: {}",
+                   roleName,
+                   getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {

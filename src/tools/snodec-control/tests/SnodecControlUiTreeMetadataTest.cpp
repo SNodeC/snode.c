@@ -49,9 +49,9 @@
 #include <string>
 
 using snodec::control::ConfigModel;
+using snodec::control::ParsedMetadata;
 using snodec::control::parseMetaBlocks;
 using snodec::control::parseShowConfigOutput;
-using snodec::control::ParsedMetadata;
 using snodec::control::ui::buildUiTree;
 using snodec::control::ui::flattenVisibleNodes;
 using snodec::control::ui::UiNode;
@@ -86,7 +86,9 @@ namespace {
     void testMetadataTreeHasSingleApplicationRoot(snodec::control::test::TestResult& testResult) {
         Fixture fixture = buildFromRealCapture();
 
-        testResult.expectEqual(1, static_cast<int>(fixture.tree.topLevel.size()), "metadata tree: exactly one top-level node (the application root) when every option matches metadata");
+        testResult.expectEqual(1,
+                               static_cast<int>(fixture.tree.topLevel.size()),
+                               "metadata tree: exactly one top-level node (the application root) when every option matches metadata");
         if (!fixture.tree.topLevel.empty()) {
             testResult.expectTrue(fixture.tree.topLevel[0].type == UiNodeType::Node, "metadata tree: root is a Node");
             testResult.expectEqual(std::string("application"), fixture.tree.topLevel[0].kind, "metadata tree: root kind is application");
@@ -105,7 +107,8 @@ namespace {
         testResult.expectTrue(tool != nullptr, "top-level tool: 'tool' node exists as a direct child of the root");
         if (tool != nullptr) {
             testResult.expectTrue(tool->type == UiNodeType::Node, "top-level tool: node type is Node");
-            testResult.expectEqual(std::string("category"), tool->kind, "top-level tool: kind is category (named subcommand, non-Instances/Sections group)");
+            testResult.expectEqual(
+                std::string("category"), tool->kind, "top-level tool: kind is category (named subcommand, non-Instances/Sections group)");
         }
     }
 
@@ -145,8 +148,9 @@ namespace {
         testResult.expectTrue(findChild(inner->children, "Options (persistent)") == nullptr,
                               "nested subcommands: 'inner' has no redundant 'Options (persistent)' group node");
         const UiNode* depthOption = findChild(inner->children, "depth-value");
-        testResult.expectTrue(depthOption != nullptr && depthOption->option != nullptr,
-                              "nested subcommands: the deeply nested option is a direct child of 'inner' and resolves to a live ConfigOption");
+        testResult.expectTrue(
+            depthOption != nullptr && depthOption->option != nullptr,
+            "nested subcommands: the deeply nested option is a direct child of 'inner' and resolves to a live ConfigOption");
     }
 
     void testDisabledNodeIsSurfaced(snodec::control::test::TestResult& testResult) {
@@ -179,15 +183,18 @@ namespace {
         testResult.expectTrue(persistentGroup == nullptr, "group flattening: root has no visible 'Options (persistent)' group node");
 
         const UiNode* logLevel = findChild(fixture.tree.topLevel[0].children, "log-level");
-        testResult.expectTrue(logLevel != nullptr && logLevel->option != nullptr,
-                              "group flattening: log-level is instead a direct child of the root and still resolves to a live ConfigOption");
+        testResult.expectTrue(
+            logLevel != nullptr && logLevel->option != nullptr,
+            "group flattening: log-level is instead a direct child of the root and still resolves to a live ConfigOption");
     }
 
     void testNoUnmatchedOptionsForWellFormedRealCapture(snodec::control::test::TestResult& testResult) {
         Fixture fixture = buildFromRealCapture();
 
         const UiNode* unmatched = findChild(fixture.tree.topLevel, "Unmatched Options");
-        testResult.expectTrue(unmatched == nullptr, "unmatched fallback: every option in a well-formed real capture is matched, so the fallback bucket never appears");
+        testResult.expectTrue(
+            unmatched == nullptr,
+            "unmatched fallback: every option in a well-formed real capture is matched, so the fallback bucket never appears");
     }
 
     void testFlattenVisitsMetadataTreeConsistently(snodec::control::test::TestResult& testResult) {
@@ -214,7 +221,8 @@ namespace {
         for (const auto& row : rows) {
             if (row.node->type == UiNodeType::Option && row.node->label == "depth-value") {
                 sawDeepOption = true;
-                testResult.expectTrue(row.depth >= 4, "flatten: the three-levels-deep option is reported at a correspondingly large depth, not clamped");
+                testResult.expectTrue(row.depth >= 4,
+                                      "flatten: the three-levels-deep option is reported at a correspondingly large depth, not clamped");
             }
         }
         testResult.expectTrue(sawDeepOption, "flatten: fully expanding the metadata tree reaches the deeply nested option");

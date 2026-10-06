@@ -46,7 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <cstddef>
 #include <iostream>
 #include <mysql.h>

@@ -51,9 +51,9 @@ using snodec::control::JsonValue;
 using snodec::control::MetaGroup;
 using snodec::control::MetaNode;
 using snodec::control::MetaOption;
+using snodec::control::ParsedMetadata;
 using snodec::control::parseJson;
 using snodec::control::parseMetaBlocks;
-using snodec::control::ParsedMetadata;
 
 namespace {
 
@@ -120,9 +120,11 @@ namespace {
 
         testResult.expectTrue(metadata.document.has_value(), "metadata: document block decoded");
         if (metadata.document.has_value()) {
-            testResult.expectEqual(std::string("snodec.config.comment-meta"), metadata.document->schema, "metadata: document schema decoded correctly");
+            testResult.expectEqual(
+                std::string("snodec.config.comment-meta"), metadata.document->schema, "metadata: document schema decoded correctly");
             testResult.expectEqual(1, metadata.document->version, "metadata: document version decoded correctly");
-            testResult.expectEqual(std::string("configurable-options-only"), metadata.document->scope, "metadata: document scope decoded correctly");
+            testResult.expectEqual(
+                std::string("configurable-options-only"), metadata.document->scope, "metadata: document scope decoded correctly");
         }
 
         const MetaNode* root = findNode(metadata, {});
@@ -163,14 +165,17 @@ namespace {
         const MetaOption* deepOption = findOption(metadata, "echoserver.outer.inner.depth-value");
         testResult.expectTrue(deepOption != nullptr, "metadata: deeply nested option decoded");
         if (deepOption != nullptr) {
-            testResult.expectEqual(3, static_cast<int>(deepOption->nodePath.size()), "metadata: deeply nested option's nodePath has expected length");
+            testResult.expectEqual(
+                3, static_cast<int>(deepOption->nodePath.size()), "metadata: deeply nested option's nodePath has expected length");
             testResult.expectEqual(std::string("echoserver.outer.inner"),
                                    deepOption->nodePath.size() == 3
                                        ? deepOption->nodePath[0] + "." + deepOption->nodePath[1] + "." + deepOption->nodePath[2]
                                        : std::string("<wrong length>"),
                                    "metadata: deeply nested option's nodePath decodes correctly");
-            testResult.expectEqual(std::string("Options (persistent)"), deepOption->group, "metadata: deeply nested option's group decodes correctly");
-            testResult.expectTrue(deepOption->value.cppDefault.has_value() && *deepOption->value.cppDefault == "deep", "metadata: deeply nested option's cppDefault decodes correctly");
+            testResult.expectEqual(
+                std::string("Options (persistent)"), deepOption->group, "metadata: deeply nested option's group decodes correctly");
+            testResult.expectTrue(deepOption->value.cppDefault.has_value() && *deepOption->value.cppDefault == "deep",
+                                  "metadata: deeply nested option's cppDefault decodes correctly");
         }
 
         const MetaGroup* persistentGroup = nullptr;
@@ -182,7 +187,8 @@ namespace {
         }
         testResult.expectTrue(persistentGroup != nullptr, "metadata: root's persistent group decoded");
         if (persistentGroup != nullptr) {
-            testResult.expectEqual(std::string("persistent"), persistentGroup->kind, "metadata: root's persistent group kind decoded correctly");
+            testResult.expectEqual(
+                std::string("persistent"), persistentGroup->kind, "metadata: root's persistent group kind decoded correctly");
         }
     }
 
@@ -238,7 +244,8 @@ namespace {
 
         testResult.expectTrue(metadata.schemaRecognized, "metadata: one malformed option block does not clear schemaRecognized");
         testResult.expectTrue(metadata.usable(), "metadata: one malformed option block does not make the whole result unusable");
-        testResult.expectEqual(1, static_cast<int>(metadata.options.size()), "metadata: the well-formed option after a malformed one is still decoded");
+        testResult.expectEqual(
+            1, static_cast<int>(metadata.options.size()), "metadata: the well-formed option after a malformed one is still decoded");
         testResult.expectTrue(!metadata.warnings.empty(), "metadata: the malformed option block produces a warning");
     }
 

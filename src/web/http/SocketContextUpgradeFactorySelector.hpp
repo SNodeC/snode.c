@@ -97,7 +97,8 @@ namespace web::http {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        snode::log::framework("web.http", snode::log::Boundary::Connection).trace() << "SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
+                        snode::log::framework("web.http", snode::log::Boundary::Connection).trace()
+                            << "SocketContextUpgradeFactory create success: " << socketContextUpgradeName;
                     } else {
                         snode::log::framework("web.http", snode::log::Boundary::Connection).trace()
                             << "SocketContextUpgradeFactory already existing: " << socketContextUpgradeName;
@@ -106,12 +107,14 @@ namespace web::http {
                         core::DynamicLoader::dlClose(handle);
                     }
                 } else {
-                    snode::log::framework("web.http", snode::log::Boundary::Connection).error() << "SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
+                    snode::log::framework("web.http", snode::log::Boundary::Connection).error()
+                        << "SocketContextUpgradeFactory create failed: " << socketContextUpgradeName;
                     core::DynamicLoader::dlClose(handle);
                 }
             } else {
-                snode::log::framework("web.http", snode::log::Boundary::Connection).error() << "Optaining function \"" << socketContextUpgradeFactoryFunctionName
-                                                      << "\" in plugin failed: " << core::DynamicLoader::dlError();
+                snode::log::framework("web.http", snode::log::Boundary::Connection).error()
+                    << "Optaining function \"" << socketContextUpgradeFactoryFunctionName
+                    << "\" in plugin failed: " << core::DynamicLoader::dlError();
                 core::DynamicLoader::dlClose(handle);
             }
         }
@@ -127,18 +130,21 @@ namespace web::http {
         if (socketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = socketContextUpgradePlugins[socketContextUpgradeName].socketContextUpgradeFactory;
 
-            snode::log::framework("web.http", snode::log::Boundary::Connection).debug() << "upgrade plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
+            snode::log::framework("web.http", snode::log::Boundary::Connection).debug()
+                << "upgrade plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
         } else if (linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[socketContextUpgradeName]();
 
-            snode::log::framework("web.http", snode::log::Boundary::Connection).debug() << "upgrade plugin '" << socketContextUpgradeName << "' selected from static cache";
+            snode::log::framework("web.http", snode::log::Boundary::Connection).debug()
+                << "upgrade plugin '" << socketContextUpgradeName << "' selected from static cache";
         } else if (!onlyLinked) {
             socketContextUpgradeFactory = load(socketContextUpgradeName);
 
             snode::log::framework("web.http", snode::log::Boundary::Connection).debug()
                 << "upgrade plugin '" << socketContextUpgradeName << "' loaded and added to dynamic cache";
         } else {
-            snode::log::framework("web.http", snode::log::Boundary::Connection).warn() << "upgrade plugin '" << socketContextUpgradeName << "' not found";
+            snode::log::framework("web.http", snode::log::Boundary::Connection).warn()
+                << "upgrade plugin '" << socketContextUpgradeName << "' not found";
         }
 
         return socketContextUpgradeFactory;

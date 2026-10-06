@@ -629,8 +629,8 @@ namespace utils {
     }
 
     void AppWithPtr::applyEffectiveState() {
-        configState.required.effectiveRequired =
-            configState.required.canonicalRequired && configState.required.effectiveRequiredBase && configState.required.suppressions.empty();
+        configState.required.effectiveRequired = configState.required.canonicalRequired && configState.required.effectiveRequiredBase &&
+                                                 configState.required.suppressions.empty();
         required(configState.required.effectiveRequired);
 
         for (auto& [option, state] : optionConfigStates) {
@@ -666,7 +666,6 @@ namespace utils {
                 }
             }
         }
-
     }
 
     std::map<std::string, std::string> SubCommand::aliases;

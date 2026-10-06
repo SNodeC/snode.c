@@ -379,9 +379,9 @@ namespace web::websocket {
                     errorState = ProtocolError;
                     frameLog().error() << "Close frame payload length 1 is invalid";
                 } else if (controlPayload.size() >= 2) {
-                    const uint16_t closeStatus = static_cast<uint16_t>(
-                        (static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
-                        static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1])));
+                    const uint16_t closeStatus =
+                        static_cast<uint16_t>((static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[0])) << 8) |
+                                              static_cast<uint16_t>(static_cast<unsigned char>(controlPayload[1])));
                     if (!isValidCloseStatus(closeStatus)) {
                         parserState = ParserState::ERROR;
                         errorState = ProtocolError;

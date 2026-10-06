@@ -53,7 +53,6 @@
 
 #endif // (STREAM_TYPE == TLS)
 
-
 #include <algorithm>
 #include <list>
 

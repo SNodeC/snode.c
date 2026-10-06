@@ -110,7 +110,8 @@ namespace core::socket::stream {
             try {
                 core::socket::State state = core::socket::STATE_OK;
 
-                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " Connect: starting";
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                    << config->getInstanceName() << " Connect: starting";
 
                 SocketAddress configuredLocalAddress = config->Local::getSocketAddress();
 
@@ -143,7 +144,8 @@ namespace core::socket::stream {
 
                         if (physicalClientSocket.bind(configuredLocalAddress) < 0) {
                             const int errnum = errno;
-                            snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection)
+                                    .systemError(snode::log::Level::Debug, errnum)
                                 << config->getInstanceName() << " bind " << configuredLocalAddress.toString();
 
                             switch (errnum) {
@@ -170,7 +172,8 @@ namespace core::socket::stream {
                             const int connectResult = physicalClientSocket.connect(*remoteAddress);
                             const int errnum = errno;
                             if (connectResult < 0 && !PhysicalClientSocket::connectInProgress(errnum)) {
-                                snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Debug, errnum)
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection)
+                                        .systemError(snode::log::Level::Debug, errnum)
                                     << config->getInstanceName() << " connect " << remoteAddress->toString();
                                 state = connectErrorState(errnum);
 
@@ -208,8 +211,9 @@ namespace core::socket::stream {
 
                                     snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                                         << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
-                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << "  " << socketConnection->getLocalAddress().toString()
-                                                                             << " -> " << socketConnection->getRemoteAddress().toString();
+                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                                        << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                                        << socketConnection->getRemoteAddress().toString();
 
                                     finishAttempt("connection attempt succeeded", *remoteAddress, state);
 
@@ -262,7 +266,8 @@ namespace core::socket::stream {
             const int errnum = cErrno;
 
             if (errnum == 0) {
-                SocketConnection* socketConnection = new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
+                SocketConnection* socketConnection =
+                    new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
                 snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                     << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
@@ -327,7 +332,8 @@ namespace core::socket::stream {
               typename Config,
               template <typename ConfigT, typename PhysicalSocketClientT> typename SocketConnection>
     void SocketConnector<PhysicalSocketClient, Config, SocketConnection>::connectTimeout() {
-        snode::log::framework("core.socket", snode::log::Boundary::Connection).trace() << config->getInstanceName() << " connect timeout " << remoteAddress->toString();
+        snode::log::framework("core.socket", snode::log::Boundary::Connection).trace()
+            << config->getInstanceName() << " connect timeout " << remoteAddress->toString();
 
         SocketAddress currentRemoteAddress = *remoteAddress;
         if (remoteAddress->useNext()) {

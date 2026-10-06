@@ -127,7 +127,8 @@ namespace core::socket::stream::tls {
             case detail::TlsStatus::SyscallError:
             case detail::TlsStatus::SslProtocolError:
             case detail::TlsStatus::UnknownError:
-                finishError(status.sslError, status.status == detail::TlsStatus::CleanPeerShutdown ? EPROTO : detail::fatalTlsStatusToErrno(status));
+                finishError(status.sslError,
+                            status.status == detail::TlsStatus::CleanPeerShutdown ? EPROTO : detail::fatalTlsStatusToErrno(status));
                 break;
         }
     }

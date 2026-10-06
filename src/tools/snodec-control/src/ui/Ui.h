@@ -79,7 +79,7 @@ namespace snodec::control::ui {
     };
 
     struct UiResult {
-        bool ok = true;     // false only if the UI could not run at all; see `message`
+        bool ok = true;      // false only if the UI could not run at all; see `message`
         std::string message; // ready-to-print diagnostic: set when !ok, or for informational notes on exit
 
         // Net changes made while inside the UI (already excludes anything the user discarded on quit).

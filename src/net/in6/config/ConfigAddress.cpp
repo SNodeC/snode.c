@@ -151,9 +151,8 @@ namespace net::in6::config {
         SocketAddress* socketAddress = new SocketAddress(hostOpt->as<std::string>(), portOpt->as<uint16_t>());
 
         try {
-            socketAddress->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) |
-                                              (numericOpt->as<bool>() ? AI_NUMERICHOST : 0) |
-                                              (getIpv4Mapped() ? AI_V4MAPPED : 0),
+            socketAddress->init({.aiFlags = (aiFlags & ~AI_NUMERICHOST) | (numericOpt->as<bool>() ? AI_NUMERICHOST : 0) |
+                                            (getIpv4Mapped() ? AI_V4MAPPED : 0),
                                  .aiSockType = aiSockType,
                                  .aiProtocol = aiProtocol});
         } catch (const core::socket::SocketAddress::BadSocketAddress&) {

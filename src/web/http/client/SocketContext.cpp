@@ -383,7 +383,7 @@ namespace web::http::client {
         onHttpDisconnected(masterRequest);
 
         frameworkLog().debug() << (getDetachReason() == DetachReason::ContextSwitch ? "HTTP: context detached for context switch"
-                                                                                     : "HTTP: context detached for connection close");
+                                                                                    : "HTTP: context detached for connection close");
     }
 
     bool SocketContext::onSignal([[maybe_unused]] int signum) {

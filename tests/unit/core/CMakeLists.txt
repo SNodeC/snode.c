@@ -100,48 +100,55 @@ target_include_directories(ListenerLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(ListenerLifecycleTest PRIVATE cxx_std_20)
 target_compile_definitions(ListenerLifecycleTest PRIVATE SNODEC_INTREE_BUILD)
 target_link_libraries(
-    ListenerLifecycleTest
-    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
+    ListenerLifecycleTest PRIVATE snodec-test-support snodec::net
+                                  snodec::core-socket-stream
 )
 set_tests_properties(
     ListenerLifecycleTest PROPERTIES LABELS "unit;core;lifecycle;listener"
 )
 
 add_executable(EndpointLifetimeCountersTest EndpointLifetimeCountersTest.cpp)
-target_include_directories(EndpointLifetimeCountersTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_include_directories(
+    EndpointLifetimeCountersTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
 target_compile_features(EndpointLifetimeCountersTest PRIVATE cxx_std_20)
 target_link_libraries(
-    EndpointLifetimeCountersTest
-    PRIVATE snodec-test-support snodec::net snodec::core-socket-stream
+    EndpointLifetimeCountersTest PRIVATE snodec-test-support snodec::net
+                                         snodec::core-socket-stream
 )
 foreach(
-    scenario IN ITEMS
-        server-terminal
-        server-retry
-        server-retry-cancelled
-        client-terminal
-        client-retry
-        client-retry-cancelled
-        client-disconnect-terminal
-        client-reconnect-accepted
-        client-reconnect-cancelled
-        server-sequence
-        client-sequence
-        expired-weak-context
-        independent-server-retries
-        independent-client-retries
-        independent-client-reconnects
+    scenario IN
+    ITEMS server-terminal
+          server-retry
+          server-retry-cancelled
+          client-terminal
+          client-retry
+          client-retry-cancelled
+          client-disconnect-terminal
+          client-reconnect-accepted
+          client-reconnect-cancelled
+          server-sequence
+          client-sequence
+          expired-weak-context
+          independent-server-retries
+          independent-client-retries
+          independent-client-reconnects
 )
-    add_test(NAME EndpointLifetimeCountersTest-${scenario} COMMAND EndpointLifetimeCountersTest ${scenario})
-    set_tests_properties(EndpointLifetimeCountersTest-${scenario} PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter" TIMEOUT 10)
+    add_test(NAME EndpointLifetimeCountersTest-${scenario}
+             COMMAND EndpointLifetimeCountersTest ${scenario}
+    )
+    set_tests_properties(
+        EndpointLifetimeCountersTest-${scenario}
+        PROPERTIES LABELS "unit;core;lifecycle;endpoint-counter" TIMEOUT 10
+    )
 endforeach()
 
 snodec_add_test(TlsOpenSslLoggingTest TlsOpenSslLoggingTest.cpp)
 target_include_directories(TlsOpenSslLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_features(TlsOpenSslLoggingTest PRIVATE cxx_std_20)
 target_link_libraries(
-    TlsOpenSslLoggingTest
-    PRIVATE snodec-test-support snodec::core-socket-stream-tls
+    TlsOpenSslLoggingTest PRIVATE snodec-test-support
+                                  snodec::core-socket-stream-tls
 )
 set_tests_properties(
     TlsOpenSslLoggingTest PROPERTIES LABELS "unit;core;tls;log"
@@ -160,7 +167,6 @@ target_link_libraries(
 )
 
 target_compile_features(StreamFrameworkShutdownTest PRIVATE cxx_std_20)
-
 
 foreach(
     scenario
@@ -183,9 +189,12 @@ foreach(
     )
 endforeach()
 
-
-snodec_add_test(SocketWriterResourcePolicyTest SocketWriterResourcePolicyTest.cpp)
-target_include_directories(SocketWriterResourcePolicyTest PRIVATE ${PROJECT_SOURCE_DIR})
+snodec_add_test(
+    SocketWriterResourcePolicyTest SocketWriterResourcePolicyTest.cpp
+)
+target_include_directories(
+    SocketWriterResourcePolicyTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
 target_compile_features(SocketWriterResourcePolicyTest PRIVATE cxx_std_20)
 target_link_libraries(
     SocketWriterResourcePolicyTest
@@ -197,39 +206,71 @@ set_tests_properties(
     PROPERTIES LABELS "unit;core;stream;writer;resource-policy" TIMEOUT 5
 )
 
-
 foreach(test IN ITEMS TLSIoFatalPathTest SocketContextLifecycleTest)
     add_executable(${test} ${test}.cpp)
     target_include_directories(${test} PRIVATE ${PROJECT_SOURCE_DIR})
-    target_link_libraries(${test} PRIVATE snodec-test-support snodec::net-in-stream-tls snodec::net-in-stream-legacy)
+    target_link_libraries(
+        ${test} PRIVATE snodec-test-support snodec::net-in-stream-tls
+                        snodec::net-in-stream-legacy
+    )
 endforeach()
 add_test(NAME TLSIoFatalPathTest-eof COMMAND TLSIoFatalPathTest eof)
 add_test(NAME TLSIoFatalPathTest-reset COMMAND TLSIoFatalPathTest reset)
 add_test(NAME SocketContextLifecycleTest COMMAND SocketContextLifecycleTest)
-set_tests_properties(TLSIoFatalPathTest-eof TLSIoFatalPathTest-reset SocketContextLifecycleTest PROPERTIES TIMEOUT 20)
+set_tests_properties(
+    TLSIoFatalPathTest-eof TLSIoFatalPathTest-reset SocketContextLifecycleTest
+    PROPERTIES TIMEOUT 20
+)
 
-foreach(test IN ITEMS TLSLifecycleHelperOwnershipTest TLSTransportStateMachineTest TLSFrameworkShutdownTest)
+foreach(test IN ITEMS TLSLifecycleHelperOwnershipTest
+                      TLSTransportStateMachineTest TLSFrameworkShutdownTest
+)
     add_executable(${test} ${test}.cpp)
     target_include_directories(${test} PRIVATE ${PROJECT_SOURCE_DIR})
-    target_link_libraries(${test} PRIVATE snodec-test-support snodec::net-in-stream-tls)
+    target_link_libraries(
+        ${test} PRIVATE snodec-test-support snodec::net-in-stream-tls
+    )
 endforeach()
 foreach(scenario IN ITEMS success timeout invalid shutdown)
-    add_test(NAME TLSLifecycleHelperOwnershipTest-${scenario} COMMAND TLSLifecycleHelperOwnershipTest ${scenario})
-    set_tests_properties(TLSLifecycleHelperOwnershipTest-${scenario} PROPERTIES TIMEOUT 20)
+    add_test(NAME TLSLifecycleHelperOwnershipTest-${scenario}
+             COMMAND TLSLifecycleHelperOwnershipTest ${scenario}
+    )
+    set_tests_properties(
+        TLSLifecycleHelperOwnershipTest-${scenario} PROPERTIES TIMEOUT 20
+    )
 endforeach()
 foreach(scenario IN ITEMS close plaintext)
-    add_test(NAME TLSTransportStateMachineTest-${scenario} COMMAND TLSTransportStateMachineTest ${scenario})
-    set_tests_properties(TLSTransportStateMachineTest-${scenario} PROPERTIES TIMEOUT 20)
+    add_test(NAME TLSTransportStateMachineTest-${scenario}
+             COMMAND TLSTransportStateMachineTest ${scenario}
+    )
+    set_tests_properties(
+        TLSTransportStateMachineTest-${scenario} PROPERTIES TIMEOUT 20
+    )
 endforeach()
 foreach(scenario IN ITEMS cooperate stall)
-    add_test(NAME TLSFrameworkShutdownTest-${scenario} COMMAND TLSFrameworkShutdownTest ${scenario})
-    set_tests_properties(TLSFrameworkShutdownTest-${scenario} PROPERTIES TIMEOUT 20)
+    add_test(NAME TLSFrameworkShutdownTest-${scenario}
+             COMMAND TLSFrameworkShutdownTest ${scenario}
+    )
+    set_tests_properties(
+        TLSFrameworkShutdownTest-${scenario} PROPERTIES TIMEOUT 20
+    )
 endforeach()
 
-add_executable(ConnectionAttemptLifecycleTest ConnectionAttemptLifecycleTest.cpp)
-target_include_directories(ConnectionAttemptLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(ConnectionAttemptLifecycleTest PRIVATE OpenSSL::SSL snodec-test-support snodec::net-in-stream-legacy)
+add_executable(
+    ConnectionAttemptLifecycleTest ConnectionAttemptLifecycleTest.cpp
+)
+target_include_directories(
+    ConnectionAttemptLifecycleTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    ConnectionAttemptLifecycleTest PRIVATE OpenSSL::SSL snodec-test-support
+                                           snodec::net-in-stream-legacy
+)
 foreach(scenario IN ITEMS retry cancel)
-    add_test(NAME ConnectionAttemptLifecycleTest-${scenario} COMMAND ConnectionAttemptLifecycleTest ${scenario})
-    set_tests_properties(ConnectionAttemptLifecycleTest-${scenario} PROPERTIES TIMEOUT 20)
+    add_test(NAME ConnectionAttemptLifecycleTest-${scenario}
+             COMMAND ConnectionAttemptLifecycleTest ${scenario}
+    )
+    set_tests_properties(
+        ConnectionAttemptLifecycleTest-${scenario} PROPERTIES TIMEOUT 20
+    )
 endforeach()

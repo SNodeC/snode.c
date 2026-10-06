@@ -88,7 +88,7 @@ namespace snodec::control {
         bool asBool(bool fallback = false) const;
         long long asNumber(long long fallback = 0) const;
         std::optional<std::string> asOptionalString() const; // nullopt for JSON null, else asString("")
-        std::vector<std::string> asStringArray() const;       // {} if not an array of strings
+        std::vector<std::string> asStringArray() const;      // {} if not an array of strings
         const std::vector<JsonValue>& items() const;
         const std::vector<std::pair<std::string, JsonValue>>& members() const;
 

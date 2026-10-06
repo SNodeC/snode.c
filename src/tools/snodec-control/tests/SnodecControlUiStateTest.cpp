@@ -62,45 +62,44 @@ using snodec::control::ui::UiState;
 namespace {
 
     ConfigModel sampleModel() {
-        const std::string input =
-            "# Log level\n"
-            "#log-level=4\n"
-            "log-level=4\n"
-            "\n"
-            // Boolean, default false, currently unset: effective value is "false" purely via fallback.
-            // This is exactly the scenario the bug report described ("default is false, no active
-            // value... pressing Space visually changes nothing"): cycling must still flip it to "true".
-            "# Bool, default false, unset\n"
-            "#feature.boolDefaultFalseUnset=false\n"
-            "\n"
-            "# Bool, default true, unset\n"
-            "#feature.boolDefaultTrueUnset=true\n"
-            "\n"
-            "# Bool, explicit active false\n"
-            "#feature.boolActiveFalse=false\n"
-            "feature.boolActiveFalse=false\n"
-            "\n"
-            "# Bool, explicit active true, no default at all\n"
-            "feature.boolActiveTrueNoDefault=true\n"
-            "\n"
-            // Tristate: default is literally the string "default" (SNode.C's own tristate marker).
-            "# Tristate, explicit active false\n"
-            "#feature.tristateActiveFalse=default\n"
-            "feature.tristateActiveFalse=false\n"
-            "\n"
-            "# Tristate, explicit active literally \"default\"\n"
-            "#feature.tristateActiveDefault=default\n"
-            "feature.tristateActiveDefault=default\n"
-            "\n"
-            "# Tristate, currently unset (effective value is \"default\" via fallback)\n"
-            "#feature.tristateUnset=default\n"
-            "\n"
-            "# Non-boolean string option\n"
-            "#echoserver.local.host=0.0.0.0\n"
-            "echoserver.local.host=0.0.0.0\n"
-            "\n"
-            "# Local port (required)\n"
-            "#echoserver.local.port=\"<REQUIRED>\"\n";
+        const std::string input = "# Log level\n"
+                                  "#log-level=4\n"
+                                  "log-level=4\n"
+                                  "\n"
+                                  // Boolean, default false, currently unset: effective value is "false" purely via fallback.
+                                  // This is exactly the scenario the bug report described ("default is false, no active
+                                  // value... pressing Space visually changes nothing"): cycling must still flip it to "true".
+                                  "# Bool, default false, unset\n"
+                                  "#feature.boolDefaultFalseUnset=false\n"
+                                  "\n"
+                                  "# Bool, default true, unset\n"
+                                  "#feature.boolDefaultTrueUnset=true\n"
+                                  "\n"
+                                  "# Bool, explicit active false\n"
+                                  "#feature.boolActiveFalse=false\n"
+                                  "feature.boolActiveFalse=false\n"
+                                  "\n"
+                                  "# Bool, explicit active true, no default at all\n"
+                                  "feature.boolActiveTrueNoDefault=true\n"
+                                  "\n"
+                                  // Tristate: default is literally the string "default" (SNode.C's own tristate marker).
+                                  "# Tristate, explicit active false\n"
+                                  "#feature.tristateActiveFalse=default\n"
+                                  "feature.tristateActiveFalse=false\n"
+                                  "\n"
+                                  "# Tristate, explicit active literally \"default\"\n"
+                                  "#feature.tristateActiveDefault=default\n"
+                                  "feature.tristateActiveDefault=default\n"
+                                  "\n"
+                                  "# Tristate, currently unset (effective value is \"default\" via fallback)\n"
+                                  "#feature.tristateUnset=default\n"
+                                  "\n"
+                                  "# Non-boolean string option\n"
+                                  "#echoserver.local.host=0.0.0.0\n"
+                                  "echoserver.local.host=0.0.0.0\n"
+                                  "\n"
+                                  "# Local port (required)\n"
+                                  "#echoserver.local.port=\"<REQUIRED>\"\n";
 
         return parseShowConfigOutput(input).model;
     }
@@ -216,8 +215,8 @@ namespace {
         testResult.expectTrue(!isTristateLikeOption(*option), "bool default-false-unset: not tristate");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "bool default-false-unset: Space succeeds");
-        testResult.expectTrue(
-            option->hasActiveValue && *option->activeValue == "true", "bool default-false-unset: Space -> explicit active true");
+        testResult.expectTrue(option->hasActiveValue && *option->activeValue == "true",
+                              "bool default-false-unset: Space -> explicit active true");
     }
 
     void testBooleanDefaultTrueUnsetCyclesToFalse(snodec::control::test::TestResult& testResult) {
@@ -231,8 +230,8 @@ namespace {
         testResult.expectTrue(isBooleanLikeOption(*option), "bool default-true-unset: recognized as boolean-like");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "bool default-true-unset: Space succeeds");
-        testResult.expectTrue(
-            option->hasActiveValue && *option->activeValue == "false", "bool default-true-unset: Space -> explicit active false");
+        testResult.expectTrue(option->hasActiveValue && *option->activeValue == "false",
+                              "bool default-true-unset: Space -> explicit active false");
     }
 
     void testBooleanActiveFalseCyclesToTrue(snodec::control::test::TestResult& testResult) {
@@ -250,8 +249,7 @@ namespace {
         ConfigModel model = sampleModel();
         UiState state(model);
 
-        testResult.expectTrue(
-            selectOptionByLabel(state, "boolActiveTrueNoDefault"), "bool active-true-no-default: option is reachable");
+        testResult.expectTrue(selectOptionByLabel(state, "boolActiveTrueNoDefault"), "bool active-true-no-default: option is reachable");
         const ConfigOption* option = state.selected()->node->option;
 
         testResult.expectTrue(!option->defaultValue.has_value(), "bool active-true-no-default: fixture truly has no default");
@@ -261,8 +259,8 @@ namespace {
         testResult.expectTrue(option->hasActiveValue && *option->activeValue == "false", "bool active-true-no-default: Space -> false");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "bool active-true-no-default: second Space succeeds");
-        testResult.expectTrue(
-            option->hasActiveValue && *option->activeValue == "true", "bool active-true-no-default: second Space -> true again");
+        testResult.expectTrue(option->hasActiveValue && *option->activeValue == "true",
+                              "bool active-true-no-default: second Space -> true again");
     }
 
     // The documented tristate cycle "false -> true -> default -> false", starting from an explicit
@@ -274,15 +272,16 @@ namespace {
         testResult.expectTrue(selectOptionByLabel(state, "tristateActiveFalse"), "tristate from false: option is reachable");
         const ConfigOption* option = state.selected()->node->option;
 
-        testResult.expectTrue(isTristateLikeOption(*option), "tristate from false: recognized as tristate (default is literally 'default')");
+        testResult.expectTrue(isTristateLikeOption(*option),
+                              "tristate from false: recognized as tristate (default is literally 'default')");
         testResult.expectTrue(!isBooleanLikeOption(*option), "tristate from false: tristate takes precedence over boolean-like");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "tristate from false: 1st cycle succeeds");
         testResult.expectTrue(option->hasActiveValue && *option->activeValue == "true", "tristate: false -> true");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "tristate from false: 2nd cycle succeeds");
-        testResult.expectTrue(
-            option->hasActiveValue && *option->activeValue == "default", "tristate: true -> default (explicit, not merely unset)");
+        testResult.expectTrue(option->hasActiveValue && *option->activeValue == "default",
+                              "tristate: true -> default (explicit, not merely unset)");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "tristate from false: 3rd cycle succeeds");
         testResult.expectTrue(option->hasActiveValue && *option->activeValue == "false", "tristate: default -> false (wraps around)");
@@ -296,8 +295,8 @@ namespace {
 
         testResult.expectTrue(selectOptionByLabel(state, "tristateActiveDefault"), "tristate from explicit default: option is reachable");
         const ConfigOption* option = state.selected()->node->option;
-        testResult.expectTrue(
-            option->hasActiveValue && *option->activeValue == "default", "tristate from explicit default: fixture starts at 'default'");
+        testResult.expectTrue(option->hasActiveValue && *option->activeValue == "default",
+                              "tristate from explicit default: fixture starts at 'default'");
 
         testResult.expectTrue(state.cycleSelectedBoolean(), "tristate from explicit default: cycle succeeds");
         testResult.expectTrue(option->hasActiveValue && *option->activeValue == "false", "tristate: default -> false");
@@ -386,7 +385,8 @@ namespace {
 
         state.acknowledgeSaved();
 
-        testResult.expectTrue(!state.isDirty(), "save-ack: acknowledgeSaved() clears the dirty flag (Modified disappears, Q would not prompt)");
+        testResult.expectTrue(!state.isDirty(),
+                              "save-ack: acknowledgeSaved() clears the dirty flag (Modified disappears, Q would not prompt)");
         testResult.expectEqual(
             1, static_cast<int>(state.changes().size()), "save-ack: changes() still reflects the edit for the eventual --diff");
 
@@ -401,8 +401,9 @@ namespace {
         // regardless of any saves acknowledged in between.
         state.discard();
         testResult.expectTrue(selectOptionByLabel(state, "log-level"), "save-ack: 'log-level' reachable after discard");
-        testResult.expectEqual(
-            std::string("4"), *state.selected()->node->option->activeValue, "save-ack: discard reverts past the acknowledged save, to session start");
+        testResult.expectEqual(std::string("4"),
+                               *state.selected()->node->option->activeValue,
+                               "save-ack: discard reverts past the acknowledged save, to session start");
     }
 
     void testNonOptionRowsRejectValueEdits(snodec::control::test::TestResult& testResult) {
@@ -433,16 +434,14 @@ namespace {
         // Application Options starts expanded with its one child (log-level): moveToFirstChild() moves
         // onto that child directly, without needing a prior expand step.
         testResult.expectTrue(state.moveToFirstChild(), "nav: moveToFirstChild() succeeds on an expanded container with children");
-        testResult.expectTrue(
-            state.selected() != nullptr && state.selected()->node->type == UiNodeType::Option &&
-                state.selected()->node->label == "log-level",
-            "nav: moveToFirstChild() from Application Options lands on log-level");
+        testResult.expectTrue(state.selected() != nullptr && state.selected()->node->type == UiNodeType::Option &&
+                                  state.selected()->node->label == "log-level",
+                              "nav: moveToFirstChild() from Application Options lands on log-level");
 
         // Left on a leaf moves to its parent section/container (here: Application Options).
         testResult.expectTrue(state.moveToParent(), "nav: moveToParent() from a leaf option succeeds");
-        testResult.expectTrue(
-            state.selected() != nullptr && state.selected()->node->type == UiNodeType::ApplicationOptions,
-            "nav: moveToParent() from log-level lands back on Application Options");
+        testResult.expectTrue(state.selected() != nullptr && state.selected()->node->type == UiNodeType::ApplicationOptions,
+                              "nav: moveToParent() from log-level lands back on Application Options");
 
         // Move to the "echoserver" instance (an Instance node, collapsed by default: it has children in
         // the tree, but none are visible/reachable via moveToFirstChild() until it is expanded). Use a
@@ -462,21 +461,21 @@ namespace {
         }
         testResult.expectTrue(foundInstance, "nav: the collapsed 'echoserver' Instance row is reachable");
         testResult.expectTrue(!freshState.selected()->node->expanded, "nav: 'echoserver' starts collapsed");
-        testResult.expectTrue(
-            !freshState.moveToFirstChild(), "nav: moveToFirstChild() fails on a collapsed container (Right must expand it first)");
+        testResult.expectTrue(!freshState.moveToFirstChild(),
+                              "nav: moveToFirstChild() fails on a collapsed container (Right must expand it first)");
 
         // Right expands a collapsed instance (this is exactly what CursesUi.cpp's KEY_RIGHT does first).
         const std::size_t instanceIndex = freshState.selectedIndex();
         freshState.toggleExpandSelected();
         testResult.expectTrue(freshState.selected()->node->expanded, "nav: toggleExpandSelected() expands 'echoserver'");
-        testResult.expectEqual(
-            static_cast<int>(instanceIndex), static_cast<int>(freshState.selectedIndex()),
-            "nav: selection stays on the same node across an expand (selection remains valid)");
+        testResult.expectEqual(static_cast<int>(instanceIndex),
+                               static_cast<int>(freshState.selectedIndex()),
+                               "nav: selection stays on the same node across an expand (selection remains valid)");
 
         // Right on the now-expanded instance moves to its first child (the "Sections" root).
         testResult.expectTrue(freshState.moveToFirstChild(), "nav: moveToFirstChild() succeeds once 'echoserver' is expanded");
-        testResult.expectTrue(
-            freshState.selected()->node->type == UiNodeType::SectionsRoot, "nav: first child of 'echoserver' is its Sections root");
+        testResult.expectTrue(freshState.selected()->node->type == UiNodeType::SectionsRoot,
+                              "nav: first child of 'echoserver' is its Sections root");
 
         // The Sections root is expanded by default; its first child is the "local" Section, itself
         // collapsed by default.
@@ -500,11 +499,11 @@ namespace {
 
         freshState.toggleExpandSelected(); // Left: collapse "local" again (selection unchanged)
         testResult.expectTrue(!freshState.selected()->node->expanded, "nav: 'local' collapses back");
-        testResult.expectEqual(
-            static_cast<int>(sectionIndex), static_cast<int>(freshState.selectedIndex()),
-            "nav: selection remains on 'local' itself after collapsing it (selection remains valid)");
-        testResult.expectTrue(
-            freshState.visibleRows().size() < rowsWhileExpanded, "nav: collapsing 'local' actually hides its two child options again");
+        testResult.expectEqual(static_cast<int>(sectionIndex),
+                               static_cast<int>(freshState.selectedIndex()),
+                               "nav: selection remains on 'local' itself after collapsing it (selection remains valid)");
+        testResult.expectTrue(freshState.visibleRows().size() < rowsWhileExpanded,
+                              "nav: collapsing 'local' actually hides its two child options again");
     }
 
 } // namespace

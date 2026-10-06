@@ -42,8 +42,8 @@
 #ifndef NET_CONFIG_CONFIGINSTANCE_H
 #define NET_CONFIG_CONFIGINSTANCE_H
 
-#include "utils/SubCommand.h" // IWYU pragma: export
 #include "log/LogScopeOwner.h"
+#include "utils/SubCommand.h" // IWYU pragma: export
 
 namespace net::config {
     class ConfigSection;

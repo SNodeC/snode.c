@@ -54,7 +54,9 @@ if(SNODEC_HAVE_GETPEEREID)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set_source_files_properties(PeerCredentials.cpp PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
+    set_source_files_properties(
+        PeerCredentials.cpp PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE
+    )
 endif()
 
 target_link_libraries(net-un PUBLIC net)

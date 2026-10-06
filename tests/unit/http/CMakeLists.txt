@@ -4,27 +4,73 @@
 
 snodec_add_test(HttpMessageParserTest HttpMessageParserTest.cpp)
 snodec_add_test(HttpPolicyConfigTest HttpPolicyConfigTest.cpp)
-snodec_add_test(HttpRequestFormatterRawWireTest HttpRequestFormatterRawWireTest.cpp)
-snodec_add_test(HttpResponseFormatterRawWireTest HttpResponseFormatterRawWireTest.cpp)
+snodec_add_test(
+    HttpRequestFormatterRawWireTest HttpRequestFormatterRawWireTest.cpp
+)
+snodec_add_test(
+    HttpResponseFormatterRawWireTest HttpResponseFormatterRawWireTest.cpp
+)
 snodec_add_test(HttpMessagePresentationTest HttpMessagePresentationTest.cpp)
 snodec_add_test(HttpMessageHeaderCasingTest HttpMessageHeaderCasingTest.cpp)
-snodec_add_test(HttpMessageTargetQueryEdgeTest HttpMessageTargetQueryEdgeTest.cpp)
+snodec_add_test(
+    HttpMessageTargetQueryEdgeTest HttpMessageTargetQueryEdgeTest.cpp
+)
 
-target_link_libraries(HttpMessageParserTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpPolicyConfigTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpRequestFormatterRawWireTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpResponseFormatterRawWireTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpMessagePresentationTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpMessageHeaderCasingTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
-target_link_libraries(HttpMessageTargetQueryEdgeTest PRIVATE snodec-test-support snodec::http-server snodec::http-client)
+target_link_libraries(
+    HttpMessageParserTest PRIVATE snodec-test-support snodec::http-server
+                                  snodec::http-client
+)
+target_link_libraries(
+    HttpPolicyConfigTest PRIVATE snodec-test-support snodec::http-server
+                                 snodec::http-client
+)
+target_link_libraries(
+    HttpRequestFormatterRawWireTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+)
+target_link_libraries(
+    HttpResponseFormatterRawWireTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+)
+target_link_libraries(
+    HttpMessagePresentationTest PRIVATE snodec-test-support snodec::http-server
+                                        snodec::http-client
+)
+target_link_libraries(
+    HttpMessageHeaderCasingTest PRIVATE snodec-test-support snodec::http-server
+                                        snodec::http-client
+)
+target_link_libraries(
+    HttpMessageTargetQueryEdgeTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+)
 
-set_tests_properties(HttpMessageParserTest PROPERTIES LABELS "unit;http;message" TIMEOUT 5)
-set_tests_properties(HttpPolicyConfigTest PROPERTIES LABELS "unit;http;config;policy" TIMEOUT 5)
-set_tests_properties(HttpRequestFormatterRawWireTest PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5)
-set_tests_properties(HttpResponseFormatterRawWireTest PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5)
-set_tests_properties(HttpMessagePresentationTest PROPERTIES LABELS "unit;http;message;format;presentation" TIMEOUT 5)
-set_tests_properties(HttpMessageHeaderCasingTest PROPERTIES LABELS "unit;http;message;headers" TIMEOUT 5)
-set_tests_properties(HttpMessageTargetQueryEdgeTest PROPERTIES LABELS "unit;http;message;target;query" TIMEOUT 5)
+set_tests_properties(
+    HttpMessageParserTest PROPERTIES LABELS "unit;http;message" TIMEOUT 5
+)
+set_tests_properties(
+    HttpPolicyConfigTest PROPERTIES LABELS "unit;http;config;policy" TIMEOUT 5
+)
+set_tests_properties(
+    HttpRequestFormatterRawWireTest
+    PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5
+)
+set_tests_properties(
+    HttpResponseFormatterRawWireTest
+    PROPERTIES LABELS "unit;http;message;format" TIMEOUT 5
+)
+set_tests_properties(
+    HttpMessagePresentationTest
+    PROPERTIES LABELS "unit;http;message;format;presentation" TIMEOUT 5
+)
+set_tests_properties(
+    HttpMessageHeaderCasingTest PROPERTIES LABELS "unit;http;message;headers"
+                                           TIMEOUT 5
+)
+set_tests_properties(
+    HttpMessageTargetQueryEdgeTest
+    PROPERTIES LABELS "unit;http;message;target;query" TIMEOUT 5
+)
 
 snodec_add_test(
     HttpServerUpgradeMissingRequestTest HttpServerUpgradeMissingRequestTest.cpp
@@ -32,9 +78,7 @@ snodec_add_test(
 target_include_directories(
     HttpServerUpgradeMissingRequestTest PRIVATE ${PROJECT_SOURCE_DIR}
 )
-target_compile_features(
-    HttpServerUpgradeMissingRequestTest PRIVATE cxx_std_20
-)
+target_compile_features(HttpServerUpgradeMissingRequestTest PRIVATE cxx_std_20)
 target_link_libraries(
     HttpServerUpgradeMissingRequestTest
     PRIVATE snodec-test-support snodec::http-server snodec::net
@@ -45,7 +89,15 @@ set_tests_properties(
     PROPERTIES LABELS "unit;http;lifecycle;log" TIMEOUT 5
 )
 
-snodec_add_test(HttpStreamingSourceFailureTest HttpStreamingSourceFailureTest.cpp)
-target_include_directories(HttpStreamingSourceFailureTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(HttpStreamingSourceFailureTest PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
+snodec_add_test(
+    HttpStreamingSourceFailureTest HttpStreamingSourceFailureTest.cpp
+)
+target_include_directories(
+    HttpStreamingSourceFailureTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    HttpStreamingSourceFailureTest
+    PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
 set_tests_properties(HttpStreamingSourceFailureTest PROPERTIES TIMEOUT 20)

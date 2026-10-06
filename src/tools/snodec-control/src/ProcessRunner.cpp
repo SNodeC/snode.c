@@ -156,7 +156,7 @@ namespace snodec::control {
         // these signals to the child's process group only, never to snodec-control's, regardless of its
         // disposition; ignoring here is purely a safety net for the brief window around the handover.
         void ignoreJobControlSignals(std::array<struct sigaction, 5>& previous) {
-            struct sigaction ignoreAction {};
+            struct sigaction ignoreAction{};
             ignoreAction.sa_handler = SIG_IGN;
             sigemptyset(&ignoreAction.sa_mask);
 

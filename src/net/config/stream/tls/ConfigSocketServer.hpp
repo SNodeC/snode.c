@@ -44,7 +44,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <algorithm>
 #include <list>
 #include <openssl/ssl.h>
@@ -153,7 +152,8 @@ namespace net::config::stream::tls {
                     }
                 }
             }
-            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << getInstanceName() << " SSL/TLS: SNI list result:";
+            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
+                << getInstanceName() << " SSL/TLS: SNI list result:";
             for (const auto& [sni, ctx] : sniCtxMap) {
                 snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << "  " << sni;
             }
@@ -171,7 +171,8 @@ namespace net::config::stream::tls {
 
         std::map<std::string, SSL_CTX*>::iterator sniPairIt = std::find_if(
             sniCtxMap.begin(), sniCtxMap.end(), [&serverNameIndication, this](const std::pair<std::string, SSL_CTX*>& sniPair) -> bool {
-                snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace() << getInstanceName() << " SSL/TLS SNI:  .. " << sniPair.first.c_str();
+                snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).trace()
+                    << getInstanceName() << " SSL/TLS SNI:  .. " << sniPair.first.c_str();
                 return core::socket::stream::tls::match(sniPair.first.c_str(), serverNameIndication.c_str());
             });
 
@@ -180,7 +181,8 @@ namespace net::config::stream::tls {
                 << getInstanceName() << " SSL/TLS SNI: found for " << serverNameIndication << " -> '" << sniPairIt->first << "'";
             sniCtx = sniPairIt->second;
         } else {
-            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).warn() << getInstanceName() << " SSL/TL SNI: not found for " << serverNameIndication;
+            snode::log::framework("net.config.tls", snode::log::Boundary::Configuration).warn()
+                << getInstanceName() << " SSL/TL SNI: not found for " << serverNameIndication;
         }
 
         return sniCtx;

@@ -86,7 +86,7 @@ static void logResponse(const std::shared_ptr<web::http::client::Request>& req, 
             httputils::toStringPresentation(res->httpVersion, res->statusCode, res->reason, res->headers, res->cookies, res->body);
         log.emit(snode::log::Level::Trace,
                  snode::log::Message{.plain = prefix + requestPresentation.plain + "\n" + responsePresentation.plain,
-                                          .terminal = prefix + requestPresentation.terminal + "\n" + responsePresentation.terminal});
+                                     .terminal = prefix + requestPresentation.terminal + "\n" + responsePresentation.terminal});
     }
 }
 

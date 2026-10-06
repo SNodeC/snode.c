@@ -70,13 +70,15 @@ namespace express::legacy::in6 {
             } else {
                 switch (state) {
                     case core::socket::State::OK:
-                        snode::log::framework("express", snode::log::Boundary::Application).info() << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                        snode::log::framework("express", snode::log::Boundary::Application).info()
+                            << instanceName << ": listening on '" << socketAddress.toString() << "'";
                         break;
                     case core::socket::State::DISABLED:
                         snode::log::framework("express", snode::log::Boundary::Application).info() << instanceName << ": disabled";
                         break;
                     case core::socket::State::ERROR:
-                        snode::log::framework("express", snode::log::Boundary::Application).error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                        snode::log::framework("express", snode::log::Boundary::Application).error()
+                            << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                         break;
                     case core::socket::State::FATAL:
                         snode::log::framework("express", snode::log::Boundary::Application).critical()

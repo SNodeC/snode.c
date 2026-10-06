@@ -109,10 +109,7 @@ namespace core::socket::stream::tls {
             Closed
         };
 
-        enum class TlsShutdownIntent {
-            ContinuePlaintext,
-            CloseTransport
-        };
+        enum class TlsShutdownIntent { ContinuePlaintext, CloseTransport };
 
         struct TlsLifecycleControl {
             SocketConnection* owner = nullptr;

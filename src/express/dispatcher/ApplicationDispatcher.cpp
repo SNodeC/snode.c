@@ -52,7 +52,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <list>
 #include <unordered_map>
 
@@ -70,20 +69,26 @@ namespace express::dispatcher {
                                          bool strictRouting,
                                          bool caseInsensitiveRouting,
                                          bool mergeParams) {
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "======================= APPLICATION DISPATCH =======================";
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "======================= APPLICATION DISPATCH =======================";
         snode::log::forConnection(*controller.getResponse()->getSocketContext()->getSocketConnection(),
                                   "express",
                                   snode::log::Origin::Framework,
                                   snode::log::Boundary::Application)
-            .trace()
+                .trace()
             << "Application dispatch";
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "          Request Method: " << controller.getRequest()->method;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "             Request Url: " << controller.getRequest()->url;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "            Request Path: " << controller.getRequest()->path;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "          Request Method: " << controller.getRequest()->method;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "             Request Url: " << controller.getRequest()->url;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "            Request Path: " << controller.getRequest()->path;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "       Mountpoint Method: " << mountPoint.method;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "         Mountpoint Path: " << mountPoint.relativeMountPath;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "           StrictRouting: " << strictRouting;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "             MergeParams: " << mergeParams;
 
         bool dispatched = false;
@@ -96,7 +101,8 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- APPLICATION    MATCH -----------------------";
+                snode::log::framework("express", snode::log::Boundary::Application).trace()
+                    << "----------------------- APPLICATION    MATCH -----------------------";
 
                 dispatched = true;
 
@@ -118,10 +124,12 @@ namespace express::dispatcher {
                 }
 
             } else {
-                snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- APPLICATION  NOMATCH -----------------------";
+                snode::log::framework("express", snode::log::Boundary::Application).trace()
+                    << "----------------------- APPLICATION  NOMATCH -----------------------";
             }
         } else {
-            snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- APPLICATION  NOMATCH -----------------------";
+            snode::log::framework("express", snode::log::Boundary::Application).trace()
+                << "----------------------- APPLICATION  NOMATCH -----------------------";
         }
 
         return dispatched;

@@ -4,35 +4,29 @@ function(snodec_add_policy_test test_name source labels)
     target_compile_features(${test_name} PRIVATE cxx_std_20)
     set_tests_properties(
         ${test_name}
-        PROPERTIES LABELS "policy;${labels}"
-                   ENVIRONMENT "SNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}"
-                   TIMEOUT 10
+        PROPERTIES LABELS "policy;${labels}" ENVIRONMENT
+                   "SNODEC_SOURCE_DIR=${CMAKE_SOURCE_DIR}" TIMEOUT 10
     )
 endfunction()
 
 snodec_add_policy_test(
     ParameterlessSemanticLoggerPolicyTest
-    log/ParameterlessSemanticLoggerPolicyTest.cpp
-    "log;architecture"
+    log/ParameterlessSemanticLoggerPolicyTest.cpp "log;architecture"
 )
 snodec_add_policy_test(
-    LoggingApiSurfacePolicyTest
-    log/LoggingApiSurfacePolicyTest.cpp
+    LoggingApiSurfacePolicyTest log/LoggingApiSurfacePolicyTest.cpp
     "log;architecture;api"
 )
 snodec_add_policy_test(
     EpollDescriptorPublisherPolicyTest
-    core/EpollDescriptorPublisherPolicyTest.cpp
-    "core;epoll"
+    core/EpollDescriptorPublisherPolicyTest.cpp "core;epoll"
 )
 snodec_add_policy_test(
     EventLoopSyscallDisciplinePolicyTest
-    core/EventLoopSyscallDisciplinePolicyTest.cpp
-    "core;syscall"
+    core/EventLoopSyscallDisciplinePolicyTest.cpp "core;syscall"
 )
 snodec_add_policy_test(
-    SensitiveLoggingPolicyTest
-    security/SensitiveLoggingPolicyTest.cpp
+    SensitiveLoggingPolicyTest security/SensitiveLoggingPolicyTest.cpp
     "security;log"
 )
 snodec_add_policy_test(

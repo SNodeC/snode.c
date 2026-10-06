@@ -45,7 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <nlohmann/json.hpp>
 
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>

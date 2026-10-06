@@ -64,11 +64,11 @@ namespace snodec::control {
 
     struct DiscoveryOutcome {
         bool ok = false;
-        std::string fatalError;   // set only when ok == false; ready to print as-is
-        std::string diagnostics;  // informational notes/warnings to print regardless of ok (may be empty)
-        std::string rawStdOut;    // the target's raw '-s' stdout, for --write-template
-        ParseResult parseResult;  // valid when ok == true
-        ParsedMetadata metadata;  // valid when ok == true; metadata.usable() decides metadata-native vs legacy hierarchy
+        std::string fatalError;  // set only when ok == false; ready to print as-is
+        std::string diagnostics; // informational notes/warnings to print regardless of ok (may be empty)
+        std::string rawStdOut;   // the target's raw '-s' stdout, for --write-template
+        ParseResult parseResult; // valid when ok == true
+        ParsedMetadata metadata; // valid when ok == true; metadata.usable() decides metadata-native vs legacy hierarchy
     };
 
     // Runs `<targetPath> <targetArgTokens...> -s`, capturing and parsing its output. `diagnostics`
@@ -104,12 +104,12 @@ namespace snodec::control {
     // then no config file at all. Under `dryRun`, no temporary file is actually created; a placeholder
     // path is returned purely for display purposes.
     RunConfigResolution resolveRunConfigPath(const std::optional<std::string>& runConfigPath,
-                                              const std::optional<std::string>& saveConfigPath,
-                                              const std::optional<std::string>& savedConfigPathForRun,
-                                              bool haveEdits,
-                                              bool dryRun,
-                                              const ConfigModel& model,
-                                              const std::string& targetPath);
+                                             const std::optional<std::string>& saveConfigPath,
+                                             const std::optional<std::string>& savedConfigPathForRun,
+                                             bool haveEdits,
+                                             bool dryRun,
+                                             const ConfigModel& model,
+                                             const std::string& targetPath);
 
     struct SaveOutcome {
         bool succeeded = false;

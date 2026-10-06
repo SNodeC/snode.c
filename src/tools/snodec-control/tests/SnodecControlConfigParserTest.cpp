@@ -204,8 +204,9 @@ namespace {
         const ConfigOption* deepOption = findOption(parseResult.model, "echoserver.outer.inner", "depth-value");
         testResult.expectTrue(deepOption != nullptr, "metadata comments: deeply nested option is still discovered");
         if (deepOption != nullptr) {
-            testResult.expectEqual(
-                std::string("A deeply nested option"), deepOption->description, "metadata comments: deeply nested option's description is clean, not polluted with JSON");
+            testResult.expectEqual(std::string("A deeply nested option"),
+                                   deepOption->description,
+                                   "metadata comments: deeply nested option's description is clean, not polluted with JSON");
         }
 
         const ConfigOption* outerOption = findOption(parseResult.model, "echoserver.outer", "outer-value");
@@ -218,7 +219,9 @@ namespace {
         const ConfigOption* toolOption = findOption(parseResult.model, "tool", "tool-value");
         testResult.expectTrue(toolOption != nullptr, "metadata comments: top-level custom subcommand option is still discovered");
         if (toolOption != nullptr) {
-            testResult.expectEqual(std::string("A top-level tool option"), toolOption->description, "metadata comments: top-level tool option's description is clean");
+            testResult.expectEqual(std::string("A top-level tool option"),
+                                   toolOption->description,
+                                   "metadata comments: top-level tool option's description is clean");
         }
 
         for (const ConfigSection& section : parseResult.model.sections) {

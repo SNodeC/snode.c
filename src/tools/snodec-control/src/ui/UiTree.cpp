@@ -290,15 +290,15 @@ namespace snodec::control::ui {
             if (const auto it = childPathKeysByParent.find(pathKey); it != childPathKeysByParent.end()) {
                 for (const std::string& childKey : it->second) {
                     node.children.push_back(assembleMetadataNode(childKey,
-                                                                  false,
-                                                                  nodeIndexByPath,
-                                                                  nodes,
-                                                                  childPathKeysByParent,
-                                                                  groupsByNodePath,
-                                                                  defaultOptionsByNodePath,
-                                                                  groupOptionsByKey,
-                                                                  modelByKey,
-                                                                  matchedOptions));
+                                                                 false,
+                                                                 nodeIndexByPath,
+                                                                 nodes,
+                                                                 childPathKeysByParent,
+                                                                 groupsByNodePath,
+                                                                 defaultOptionsByNodePath,
+                                                                 groupOptionsByKey,
+                                                                 modelByKey,
+                                                                 matchedOptions));
                 }
             }
 
@@ -379,15 +379,15 @@ namespace snodec::control::ui {
         UiTree tree;
         std::unordered_set<ConfigOption*> matchedOptions;
         tree.topLevel.push_back(assembleMetadataNode(rootKey,
-                                                      true,
-                                                      nodeIndexByPath,
-                                                      metadata.nodes,
-                                                      childPathKeysByParent,
-                                                      groupsByNodePath,
-                                                      defaultOptionsByNodePath,
-                                                      groupOptionsByKey,
-                                                      modelByKey,
-                                                      matchedOptions));
+                                                     true,
+                                                     nodeIndexByPath,
+                                                     metadata.nodes,
+                                                     childPathKeysByParent,
+                                                     groupsByNodePath,
+                                                     defaultOptionsByNodePath,
+                                                     groupOptionsByKey,
+                                                     modelByKey,
+                                                     matchedOptions));
 
         UiNode unmatched;
         unmatched.type = UiNodeType::Node;
@@ -411,8 +411,7 @@ namespace snodec::control::ui {
 
     namespace {
 
-        void flattenRecursive(
-            std::vector<UiNode>& nodes, int depth, std::optional<std::size_t> parentIndex, std::vector<FlatNode>& out) {
+        void flattenRecursive(std::vector<UiNode>& nodes, int depth, std::optional<std::size_t> parentIndex, std::vector<FlatNode>& out) {
             for (UiNode& node : nodes) {
                 const std::size_t myIndex = out.size();
                 out.push_back(FlatNode{&node, depth, parentIndex});

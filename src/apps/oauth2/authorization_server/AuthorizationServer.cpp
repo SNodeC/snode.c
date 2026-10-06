@@ -102,16 +102,16 @@ int main(int argc, char* argv[]) {
         .socket = "/run/mysqld/mysqld.sock",
         .flags = 0,
     };
-    database::mariadb::MariaDBClient db{details, [](const database::mariadb::MariaDBState& state) {
-                                            if (state.error != 0) {
-                                                snode::log::application().debug()
-                                                    << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
-                                            } else if (state.connected) {
-                                                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).info() << "MySQL connected";
-                                            } else {
-                                                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).info() << "MySQL disconnected";
-                                            }
-                                        }};
+    database::mariadb::MariaDBClient db{
+        details, [](const database::mariadb::MariaDBState& state) {
+            if (state.error != 0) {
+                snode::log::application().debug() << "MySQL error: " << state.errorMessage << " [" << state.error << "]";
+            } else if (state.connected) {
+                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).info() << "MySQL connected";
+            } else {
+                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).info() << "MySQL disconnected";
+            }
+        }};
 
     app.use(express::middleware::JsonMiddleware());
 

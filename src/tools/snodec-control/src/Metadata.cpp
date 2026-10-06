@@ -417,8 +417,8 @@ namespace snodec::control {
             const std::string schema = schemaField != nullptr ? schemaField->asString() : std::string{};
             const int version = versionField != nullptr ? static_cast<int>(versionField->asNumber(0)) : 0;
             if (schema != expectedSchema || version != expectedVersion) {
-                result.warnings.push_back("Line " + std::to_string(block.beginLine) + ": unrecognized metadata schema/version ('" +
-                                          schema + "' v" + std::to_string(version) + "'); falling back to legacy parsing");
+                result.warnings.push_back("Line " + std::to_string(block.beginLine) + ": unrecognized metadata schema/version ('" + schema +
+                                          "' v" + std::to_string(version) + "'); falling back to legacy parsing");
                 result.schemaRecognized = false;
                 continue;
             }

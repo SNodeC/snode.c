@@ -47,7 +47,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <cstddef>
 #include <functional>
 #include <string>

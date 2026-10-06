@@ -80,10 +80,7 @@
 namespace utils {
     class SubCommand;
 
-    enum class ConfigSuppressionReason {
-        Disabled,
-        ForceUnrequired
-    };
+    enum class ConfigSuppressionReason { Disabled, ForceUnrequired };
 
     struct ConfigRequirementState {
         bool canonicalRequired = false;

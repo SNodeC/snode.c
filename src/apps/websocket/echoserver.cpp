@@ -46,7 +46,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <algorithm>
 #include <cstring>
 #include <list>
@@ -103,9 +102,8 @@ int main(int argc, char* argv[]) {
         });
     });
 
-    legacyApp
-        .listen([instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
-                                                                          const core::socket::State& state) {
+    legacyApp.listen(
+        [instanceName = legacyApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
             switch (state) {
                 case core::socket::State::OK:
                     snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";
@@ -176,9 +174,8 @@ int main(int argc, char* argv[]) {
             });
         });
 
-        tlsApp
-            .listen([instanceName = tlsApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress,
-                                                                           const core::socket::State& state) {
+        tlsApp.listen(
+            [instanceName = tlsApp.getConfig()->getInstanceName()](const SocketAddress& socketAddress, const core::socket::State& state) {
                 switch (state) {
                     case core::socket::State::OK:
                         snode::log::application().info() << instanceName << " listening on '" << socketAddress.toString() << "'";

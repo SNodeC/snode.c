@@ -2,204 +2,430 @@
 # Copyright (C) Volker Christian <me@vchrist.at>
 #               2020, 2021, 2022, 2023, 2024, 2025, 2026
 
-snodec_add_test(InetHttpServerClientGetRoundTripTest InetHttpServerClientGetRoundTripTest.cpp)
+snodec_add_test(
+    InetHttpServerClientGetRoundTripTest
+    InetHttpServerClientGetRoundTripTest.cpp
+)
 snodec_add_test(InetHttpClientParserLimitTest InetHttpClientParserLimitTest.cpp)
-snodec_add_test(InetHttpServerRequestPolicyTest InetHttpServerRequestPolicyTest.cpp)
-snodec_add_test(InetHttpServerPipeliningPolicyTest InetHttpServerPipeliningPolicyTest.cpp)
-snodec_add_test(Inet6HttpServerClientGetRoundTripTest Inet6HttpServerClientGetRoundTripTest.cpp)
-snodec_add_test(UnixHttpServerClientGetRoundTripTest UnixHttpServerClientGetRoundTripTest.cpp)
+snodec_add_test(
+    InetHttpServerRequestPolicyTest InetHttpServerRequestPolicyTest.cpp
+)
+snodec_add_test(
+    InetHttpServerPipeliningPolicyTest InetHttpServerPipeliningPolicyTest.cpp
+)
+snodec_add_test(
+    Inet6HttpServerClientGetRoundTripTest
+    Inet6HttpServerClientGetRoundTripTest.cpp
+)
+snodec_add_test(
+    UnixHttpServerClientGetRoundTripTest
+    UnixHttpServerClientGetRoundTripTest.cpp
+)
 
-snodec_add_test(InetHttpServerClientPostBodyRoundTripTest InetHttpServerClientPostBodyRoundTripTest.cpp)
-snodec_add_test(Inet6HttpServerClientPostBodyRoundTripTest Inet6HttpServerClientPostBodyRoundTripTest.cpp)
-snodec_add_test(UnixHttpServerClientPostBodyRoundTripTest UnixHttpServerClientPostBodyRoundTripTest.cpp)
-snodec_add_test(InetHttpServerClientStatusVariantTest InetHttpServerClientStatusVariantTest.cpp)
-snodec_add_test(Inet6HttpServerClientStatusVariantTest Inet6HttpServerClientStatusVariantTest.cpp)
-snodec_add_test(UnixHttpServerClientStatusVariantTest UnixHttpServerClientStatusVariantTest.cpp)
+snodec_add_test(
+    InetHttpServerClientPostBodyRoundTripTest
+    InetHttpServerClientPostBodyRoundTripTest.cpp
+)
+snodec_add_test(
+    Inet6HttpServerClientPostBodyRoundTripTest
+    Inet6HttpServerClientPostBodyRoundTripTest.cpp
+)
+snodec_add_test(
+    UnixHttpServerClientPostBodyRoundTripTest
+    UnixHttpServerClientPostBodyRoundTripTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientStatusVariantTest
+    InetHttpServerClientStatusVariantTest.cpp
+)
+snodec_add_test(
+    Inet6HttpServerClientStatusVariantTest
+    Inet6HttpServerClientStatusVariantTest.cpp
+)
+snodec_add_test(
+    UnixHttpServerClientStatusVariantTest
+    UnixHttpServerClientStatusVariantTest.cpp
+)
 
-target_link_libraries(InetHttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpClientParserLimitTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerRequestPolicyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerPipeliningPolicyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(Inet6HttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in6-stream-legacy)
-target_link_libraries(UnixHttpServerClientGetRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-un-stream-legacy)
+target_link_libraries(
+    InetHttpServerClientGetRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpClientParserLimitTest
+    PRIVATE snodec-test-support snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerRequestPolicyTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerPipeliningPolicyTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    Inet6HttpServerClientGetRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in6-stream-legacy
+)
+target_link_libraries(
+    UnixHttpServerClientGetRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-un-stream-legacy
+)
 
-target_link_libraries(InetHttpServerClientPostBodyRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(Inet6HttpServerClientPostBodyRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in6-stream-legacy)
-target_link_libraries(UnixHttpServerClientPostBodyRoundTripTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-un-stream-legacy)
-target_link_libraries(InetHttpServerClientStatusVariantTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(Inet6HttpServerClientStatusVariantTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in6-stream-legacy)
-target_link_libraries(UnixHttpServerClientStatusVariantTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-un-stream-legacy)
+target_link_libraries(
+    InetHttpServerClientPostBodyRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    Inet6HttpServerClientPostBodyRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in6-stream-legacy
+)
+target_link_libraries(
+    UnixHttpServerClientPostBodyRoundTripTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-un-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientStatusVariantTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    Inet6HttpServerClientStatusVariantTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in6-stream-legacy
+)
+target_link_libraries(
+    UnixHttpServerClientStatusVariantTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-un-stream-legacy
+)
 
 target_compile_features(InetHttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
 target_compile_features(InetHttpClientParserLimitTest PRIVATE cxx_std_20)
 target_compile_features(InetHttpServerRequestPolicyTest PRIVATE cxx_std_20)
 target_compile_features(InetHttpServerPipeliningPolicyTest PRIVATE cxx_std_20)
-target_compile_features(Inet6HttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
+target_compile_features(
+    Inet6HttpServerClientGetRoundTripTest PRIVATE cxx_std_20
+)
 target_compile_features(UnixHttpServerClientGetRoundTripTest PRIVATE cxx_std_20)
 
-target_compile_features(InetHttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20)
-target_compile_features(Inet6HttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20)
-target_compile_features(UnixHttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientStatusVariantTest PRIVATE cxx_std_20)
-target_compile_features(Inet6HttpServerClientStatusVariantTest PRIVATE cxx_std_20)
-target_compile_features(UnixHttpServerClientStatusVariantTest PRIVATE cxx_std_20)
+target_compile_features(
+    InetHttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    Inet6HttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    UnixHttpServerClientPostBodyRoundTripTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientStatusVariantTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    Inet6HttpServerClientStatusVariantTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    UnixHttpServerClientStatusVariantTest PRIVATE cxx_std_20
+)
 
-set_tests_properties(InetHttpServerClientGetRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerClientGetRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpClientParserLimitTest PROPERTIES
-                     LABELS "component;http;client;parser-limit;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpClientParserLimitTest
+    PROPERTIES LABELS "component;http;client;parser-limit;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpServerRequestPolicyTest PROPERTIES
-                     LABELS "component;http;server;request-policy;pending;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerRequestPolicyTest
+    PROPERTIES LABELS
+               "component;http;server;request-policy;pending;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpServerPipeliningPolicyTest PROPERTIES
-                     LABELS "component;http;server;request-policy;pipelining;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerPipeliningPolicyTest
+    PROPERTIES LABELS
+               "component;http;server;request-policy;pipelining;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(Inet6HttpServerClientGetRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv6"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    Inet6HttpServerClientGetRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv6"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(UnixHttpServerClientGetRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;unix"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    UnixHttpServerClientGetRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;unix"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
+set_tests_properties(
+    InetHttpServerClientPostBodyRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpServerClientPostBodyRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    Inet6HttpServerClientPostBodyRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv6"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(Inet6HttpServerClientPostBodyRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv6"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    UnixHttpServerClientPostBodyRoundTripTest
+    PROPERTIES LABELS "component;http;client;server;legacy;unix"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(UnixHttpServerClientPostBodyRoundTripTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;unix"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerClientStatusVariantTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpServerClientStatusVariantTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    Inet6HttpServerClientStatusVariantTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv6"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(Inet6HttpServerClientStatusVariantTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv6"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    UnixHttpServerClientStatusVariantTest
+    PROPERTIES LABELS "component;http;client;server;legacy;unix"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(UnixHttpServerClientStatusVariantTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;unix"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+snodec_add_test(
+    InetHttpServerClientRepeatedRequestTest
+    InetHttpServerClientRepeatedRequestTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientDisconnectLifecycleTest
+    InetHttpServerClientDisconnectLifecycleTest.cpp
+)
+snodec_add_test(
+    InetHttpClientPrematureServerCloseTest
+    InetHttpClientPrematureServerCloseTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientLargeResponseBodyTest
+    InetHttpServerClientLargeResponseBodyTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientLargeRequestBodyTest
+    InetHttpServerClientLargeRequestBodyTest.cpp
+)
 
-snodec_add_test(InetHttpServerClientRepeatedRequestTest InetHttpServerClientRepeatedRequestTest.cpp)
-snodec_add_test(InetHttpServerClientDisconnectLifecycleTest InetHttpServerClientDisconnectLifecycleTest.cpp)
-snodec_add_test(InetHttpClientPrematureServerCloseTest InetHttpClientPrematureServerCloseTest.cpp)
-snodec_add_test(InetHttpServerClientLargeResponseBodyTest InetHttpServerClientLargeResponseBodyTest.cpp)
-snodec_add_test(InetHttpServerClientLargeRequestBodyTest InetHttpServerClientLargeRequestBodyTest.cpp)
+target_link_libraries(
+    InetHttpServerClientRepeatedRequestTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientDisconnectLifecycleTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpClientPrematureServerCloseTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientLargeResponseBodyTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientLargeRequestBodyTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
 
-target_link_libraries(InetHttpServerClientRepeatedRequestTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerClientDisconnectLifecycleTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpClientPrematureServerCloseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerClientLargeResponseBodyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerClientLargeRequestBodyTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_compile_features(
+    InetHttpServerClientRepeatedRequestTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientDisconnectLifecycleTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpClientPrematureServerCloseTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientLargeResponseBodyTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientLargeRequestBodyTest PRIVATE cxx_std_20
+)
 
-target_compile_features(InetHttpServerClientRepeatedRequestTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientDisconnectLifecycleTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpClientPrematureServerCloseTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientLargeResponseBodyTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientLargeRequestBodyTest PRIVATE cxx_std_20)
+set_tests_properties(
+    InetHttpServerClientRepeatedRequestTest
+    InetHttpServerClientDisconnectLifecycleTest
+    InetHttpClientPrematureServerCloseTest
+    InetHttpServerClientLargeResponseBodyTest
+    InetHttpServerClientLargeRequestBodyTest
+    PROPERTIES LABELS "component;http;client;server;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-set_tests_properties(InetHttpServerClientRepeatedRequestTest
-                     InetHttpServerClientDisconnectLifecycleTest
-                     InetHttpClientPrematureServerCloseTest
-                     InetHttpServerClientLargeResponseBodyTest
-                     InetHttpServerClientLargeRequestBodyTest PROPERTIES
-                     LABELS "component;http;client;server;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+snodec_add_test(
+    InetHttpServerClientHeaderHeavyRequestTest
+    InetHttpServerClientHeaderHeavyRequestTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientHeaderHeavyResponseTest
+    InetHttpServerClientHeaderHeavyResponseTest.cpp
+)
+snodec_add_test(
+    InetHttpClientConnectFailureTest InetHttpClientConnectFailureTest.cpp
+)
 
-snodec_add_test(InetHttpServerClientHeaderHeavyRequestTest InetHttpServerClientHeaderHeavyRequestTest.cpp)
-snodec_add_test(InetHttpServerClientHeaderHeavyResponseTest InetHttpServerClientHeaderHeavyResponseTest.cpp)
-snodec_add_test(InetHttpClientConnectFailureTest InetHttpClientConnectFailureTest.cpp)
+target_link_libraries(
+    InetHttpServerClientHeaderHeavyRequestTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientHeaderHeavyResponseTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpClientConnectFailureTest
+    PRIVATE snodec-test-support snodec::http-client
+            snodec::net-in-stream-legacy
+)
 
-target_link_libraries(InetHttpServerClientHeaderHeavyRequestTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerClientHeaderHeavyResponseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpClientConnectFailureTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
-
-target_compile_features(InetHttpServerClientHeaderHeavyRequestTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientHeaderHeavyResponseTest PRIVATE cxx_std_20)
+target_compile_features(
+    InetHttpServerClientHeaderHeavyRequestTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientHeaderHeavyResponseTest PRIVATE cxx_std_20
+)
 target_compile_features(InetHttpClientConnectFailureTest PRIVATE cxx_std_20)
 
-set_tests_properties(InetHttpServerClientHeaderHeavyRequestTest PROPERTIES
-                     LABELS "component;http;headers;request;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
-set_tests_properties(InetHttpServerClientHeaderHeavyResponseTest PROPERTIES
-                     LABELS "component;http;headers;response;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
-set_tests_properties(InetHttpClientConnectFailureTest PROPERTIES
-                     LABELS "component;http;connect-failure;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerClientHeaderHeavyRequestTest
+    PROPERTIES LABELS "component;http;headers;request;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+set_tests_properties(
+    InetHttpServerClientHeaderHeavyResponseTest
+    PROPERTIES LABELS "component;http;headers;response;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+set_tests_properties(
+    InetHttpClientConnectFailureTest
+    PROPERTIES LABELS "component;http;connect-failure;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-snodec_add_test(InetHttpServerClientChunkedResponseTest InetHttpServerClientChunkedResponseTest.cpp)
+snodec_add_test(
+    InetHttpServerClientChunkedResponseTest
+    InetHttpServerClientChunkedResponseTest.cpp
+)
 
-target_link_libraries(InetHttpServerClientChunkedResponseTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(
+    InetHttpServerClientChunkedResponseTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
 
-target_compile_features(InetHttpServerClientChunkedResponseTest PRIVATE cxx_std_20)
+target_compile_features(
+    InetHttpServerClientChunkedResponseTest PRIVATE cxx_std_20
+)
 
-set_tests_properties(InetHttpServerClientChunkedResponseTest PROPERTIES
-                     LABELS "component;http;chunked;response;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerClientChunkedResponseTest
+    PROPERTIES LABELS "component;http;chunked;response;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 
-snodec_add_test(InetHttpServerClientPipeliningTest InetHttpServerClientPipeliningTest.cpp)
+snodec_add_test(
+    InetHttpServerClientPipeliningTest InetHttpServerClientPipeliningTest.cpp
+)
 
-target_link_libraries(InetHttpServerClientPipeliningTest PRIVATE snodec-test-support snodec::http-server snodec::http-client snodec::net-in-stream-legacy)
+target_link_libraries(
+    InetHttpServerClientPipeliningTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
 
 target_compile_features(InetHttpServerClientPipeliningTest PRIVATE cxx_std_20)
 
-set_tests_properties(InetHttpServerClientPipeliningTest PROPERTIES
-                     LABELS "component;http;pipelining;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerClientPipeliningTest
+    PROPERTIES LABELS "component;http;pipelining;legacy;ipv4" SKIP_RETURN_CODE
+               77 TIMEOUT 5
+)
 
-snodec_add_test(InetHttpServerMalformedRequestBehaviorTest InetHttpServerMalformedRequestBehaviorTest.cpp)
-snodec_add_test(InetHttpClientMalformedResponseBehaviorTest InetHttpClientMalformedResponseBehaviorTest.cpp)
-snodec_add_test(InetHttpServerClientChunkedRequestTest InetHttpServerClientChunkedRequestTest.cpp)
+snodec_add_test(
+    InetHttpServerMalformedRequestBehaviorTest
+    InetHttpServerMalformedRequestBehaviorTest.cpp
+)
+snodec_add_test(
+    InetHttpClientMalformedResponseBehaviorTest
+    InetHttpClientMalformedResponseBehaviorTest.cpp
+)
+snodec_add_test(
+    InetHttpServerClientChunkedRequestTest
+    InetHttpServerClientChunkedRequestTest.cpp
+)
 
-target_link_libraries(InetHttpServerMalformedRequestBehaviorTest PRIVATE snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpClientMalformedResponseBehaviorTest PRIVATE snodec-test-support snodec::http-client snodec::net-in-stream-legacy)
-target_link_libraries(InetHttpServerClientChunkedRequestTest PRIVATE snodec-test-support snodec::http-server snodec::net-in-stream-legacy)
+target_link_libraries(
+    InetHttpServerMalformedRequestBehaviorTest
+    PRIVATE snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpClientMalformedResponseBehaviorTest
+    PRIVATE snodec-test-support snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_link_libraries(
+    InetHttpServerClientChunkedRequestTest
+    PRIVATE snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
 
-target_compile_features(InetHttpServerMalformedRequestBehaviorTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpClientMalformedResponseBehaviorTest PRIVATE cxx_std_20)
-target_compile_features(InetHttpServerClientChunkedRequestTest PRIVATE cxx_std_20)
+target_compile_features(
+    InetHttpServerMalformedRequestBehaviorTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpClientMalformedResponseBehaviorTest PRIVATE cxx_std_20
+)
+target_compile_features(
+    InetHttpServerClientChunkedRequestTest PRIVATE cxx_std_20
+)
 
-set_tests_properties(InetHttpServerMalformedRequestBehaviorTest PROPERTIES
-                     LABELS "component;http;malformed-request;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
-set_tests_properties(InetHttpClientMalformedResponseBehaviorTest PROPERTIES
-                     LABELS "component;http;malformed-response;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
-set_tests_properties(InetHttpServerClientChunkedRequestTest PROPERTIES
-                     LABELS "component;http;chunked;request;legacy;ipv4"
-                     SKIP_RETURN_CODE 77
-                     TIMEOUT 5)
+set_tests_properties(
+    InetHttpServerMalformedRequestBehaviorTest
+    PROPERTIES LABELS "component;http;malformed-request;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+set_tests_properties(
+    InetHttpClientMalformedResponseBehaviorTest
+    PROPERTIES LABELS "component;http;malformed-response;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)
+set_tests_properties(
+    InetHttpServerClientChunkedRequestTest
+    PROPERTIES LABELS "component;http;chunked;request;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)

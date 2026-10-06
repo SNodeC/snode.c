@@ -49,7 +49,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <cstddef>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>

@@ -34,10 +34,7 @@ namespace core::socket::stream::tls::detail {
         ssize_t bytesTransferred = 0;
     };
 
-    enum class TlsShutdownSuccess {
-        CloseNotifySent,
-        FullShutdownComplete
-    };
+    enum class TlsShutdownSuccess { CloseNotifySent, FullShutdownComplete };
 
     struct TlsHandshakeResult {
         std::variant<TlsHandshakeSuccess, TlsStatusInfo> value;

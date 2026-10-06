@@ -37,9 +37,8 @@ namespace apps::tlslegacy {
 
     void TlsLegacySocketContext::onDisconnected() {
         legacyRetryTimer.cancel();
-        log().debug(
-            "TLS legacy: context detached for {}",
-            getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
+        log().debug("TLS legacy: context detached for {}",
+                    getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     bool TlsLegacySocketContext::onSignal([[maybe_unused]] int signum) {

@@ -48,7 +48,7 @@ add_library(snodec::core-mux-poll ALIAS core-mux-poll)
 
 target_include_directories(
     core-mux-poll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                    "$<INSTALL_INTERFACE:include/snode.c>"
+                         "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

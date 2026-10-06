@@ -68,8 +68,7 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 # Source packages are reproducibility artifacts. Keep local build products and
 # execution-environment metadata out of those archives. CPack's default ignore
 # list does not exclude an in-tree build.
-set(
-    CPACK_SOURCE_IGNORE_FILES
+set(CPACK_SOURCE_IGNORE_FILES
     "/CVS/"
     "/\\.svn/"
     "/\\.bzr/"
@@ -105,8 +104,11 @@ set(CPACK_DEB_COMPONENT_INSTALL YES)
 
 # The full-install package is a regular component, owned by this project.
 include(GNUInstallDirs)
-install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/${CPACK_PACKAGE_NAME}" COMPONENT full)
+install(
+    FILES "${CMAKE_SOURCE_DIR}/LICENSE"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/${CPACK_PACKAGE_NAME}"
+    COMPONENT full
+)
 set(CPACK_DEBIAN_FULL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
 set(CPACK_RPM_FULL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
 set(CPACK_RPM_COMPONENT_INSTALL ON)
@@ -115,28 +117,49 @@ set(CPACK_RPM_PACKAGE_RELEASE 1)
 set(CPACK_RPM_PACKAGE_RELEASE_DIST OFF)
 set(CPACK_RPM_PACKAGE_RELOCATABLE OFF)
 set(CPACK_RPM_INSTALL_WITH_EXEC ON)
-file(STRINGS "${CMAKE_SOURCE_DIR}/LICENSE" license REGEX "^SPDX-License-Identifier: " LIMIT_COUNT 1)
-string(REPLACE "SPDX-License-Identifier: " "" CPACK_RPM_PACKAGE_LICENSE "${license}")
+file(
+    STRINGS "${CMAKE_SOURCE_DIR}/LICENSE" license
+    REGEX "^SPDX-License-Identifier: "
+    LIMIT_COUNT 1
+)
+string(REPLACE "SPDX-License-Identifier: " "" CPACK_RPM_PACKAGE_LICENSE
+               "${license}"
+)
 set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/PackageConfig.cmake")
 
-install(DIRECTORY DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/snode.c" COMPONENT common)
+install(
+    DIRECTORY
+    DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/snode.c"
+    COMPONENT common
+)
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 list(REMOVE_ITEM CPACK_COMPONENTS_ALL notneeded)
 list(SORT CPACK_COMPONENTS_ALL)
 
-# Resolve built libraries from actual targets, independently of package components.
+# Resolve built libraries from actual targets, independently of package
+# components.
 set(package_directories "${PROJECT_SOURCE_DIR}/src")
 while(package_directories)
     list(POP_BACK package_directories package_directory)
-    get_property(subdirectories DIRECTORY "${package_directory}" PROPERTY SUBDIRECTORIES)
+    get_property(
+        subdirectories
+        DIRECTORY "${package_directory}"
+        PROPERTY SUBDIRECTORIES
+    )
     list(APPEND package_directories ${subdirectories})
-    get_property(targets DIRECTORY "${package_directory}" PROPERTY BUILDSYSTEM_TARGETS)
+    get_property(
+        targets
+        DIRECTORY "${package_directory}"
+        PROPERTY BUILDSYSTEM_TARGETS
+    )
     foreach(target IN LISTS targets)
         get_target_property(target_libdir ${target} LIBRARY_OUTPUT_DIRECTORY)
         if(NOT target_libdir)
             get_target_property(target_libdir ${target} BINARY_DIR)
         endif()
-        list(APPEND CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS "${target_libdir}")
+        list(APPEND CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS
+             "${target_libdir}"
+        )
     endforeach()
 endwhile()
 list(REMOVE_DUPLICATES CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS)
@@ -144,11 +167,15 @@ list(REMOVE_DUPLICATES CPACK_DEBIAN_PACKAGE_SHLIBDEPS_PRIVATE_DIRS)
 set(full_dependencies ${CPACK_COMPONENTS_ALL})
 list(REMOVE_ITEM full_dependencies full)
 set(CPACK_DEBIAN_COMMON_PACKAGE_DEPENDS adduser)
-set(CPACK_DEBIAN_COMMON_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_LIST_DIR}/debian/postinst")
+set(CPACK_DEBIAN_COMMON_PACKAGE_CONTROL_EXTRA
+    "${CMAKE_CURRENT_LIST_DIR}/debian/postinst"
+)
 set(CPACK_RPM_LOGGER_PACKAGE_REQUIRES "snodec-common")
 set(CPACK_RPM_CONTROL_PACKAGE_REQUIRES "snodec-common")
 set(CPACK_RPM_COMMON_PACKAGE_REQUIRES_POST "shadow-utils, glibc")
-set(CPACK_RPM_COMMON_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst")
+set(CPACK_RPM_COMMON_POST_INSTALL_SCRIPT_FILE
+    "${CMAKE_CURRENT_LIST_DIR}/rpm/postinst"
+)
 include(CPack)
 cpack_add_component(full DEPENDS ${full_dependencies})
 

@@ -60,9 +60,7 @@ namespace core::eventreceiver {
               timeout) {
     }
 
-    ReadEventReceiver::ReadEventReceiver(const std::string& name,
-                                         const snode::log::Scope& logScope,
-                                         const utils::Timeval& timeout)
+    ReadEventReceiver::ReadEventReceiver(const std::string& name, const snode::log::Scope& logScope, const utils::Timeval& timeout)
         : ReadEventReceiver(name, snode::log::detail::nativeScope(logScope), timeout) {
     }
 

@@ -70,12 +70,12 @@ namespace snodec::control {
         // every field above already has a value from the plain-INI parse alone - these only add
         // structure/typing/relations information the INI lines never carried.
         std::optional<std::string> typeKind;       // e.g. "boolean"/"integer"/"number"/"string"
-        std::optional<std::string> typeKindSource;  // provenance, e.g. "heuristic-name" in schema v1; not a certainty
-        std::optional<std::string> typeItems;       // "single" | "list"
-        std::vector<std::string> needs;             // option names this option's metadata says it needs
-        std::vector<std::string> excludes;          // option names this option's metadata says it excludes
-        std::optional<bool> requiredEffective;       // metadata's "required.effective" (current CLI11 state only)
-        std::optional<std::string> requiredSource;   // e.g. "cli11-current-state"
+        std::optional<std::string> typeKindSource; // provenance, e.g. "heuristic-name" in schema v1; not a certainty
+        std::optional<std::string> typeItems;      // "single" | "list"
+        std::vector<std::string> needs;            // option names this option's metadata says it needs
+        std::vector<std::string> excludes;         // option names this option's metadata says it excludes
+        std::optional<bool> requiredEffective;     // metadata's "required.effective" (current CLI11 state only)
+        std::optional<std::string> requiredSource; // e.g. "cli11-current-state"
         std::optional<bool> configFileWritable;
         std::optional<std::string> configFileSection; // always nullopt in schema v1 (see docs/config-comment-metadata.md)
 
@@ -86,7 +86,7 @@ namespace snodec::control {
         // commented default. An option is set (never cleared) as each kind of line is encountered for
         // its key, so both flags can end up true for one option (e.g. a commented default later
         // overridden by an active line).
-        bool fromActiveLine = false;          // discovered via an uncommented "key=value" line
+        bool fromActiveLine = false;           // discovered via an uncommented "key=value" line
         bool fromCommentedDefaultLine = false; // discovered via a commented "#key=value" (or "#key=<REQUIRED>") line
     };
 

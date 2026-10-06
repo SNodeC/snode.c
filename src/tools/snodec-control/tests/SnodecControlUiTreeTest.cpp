@@ -123,9 +123,11 @@ namespace {
         const UiNode& instancesRoot = tree.topLevel[1];
         testResult.expectTrue(instancesRoot.type == UiNodeType::InstancesRoot, "tree: second top-level node is InstancesRoot");
         testResult.expectEqual(std::string("Instances"), instancesRoot.label, "tree: InstancesRoot label");
-        testResult.expectEqual(2, static_cast<int>(instancesRoot.children.size()), "tree: two instances discovered (echoserver, mqttbridge)");
+        testResult.expectEqual(
+            2, static_cast<int>(instancesRoot.children.size()), "tree: two instances discovered (echoserver, mqttbridge)");
         if (instancesRoot.children.size() == 2) {
-            testResult.expectEqual(std::string("echoserver"), instancesRoot.children[0].label, "tree: echoserver is the first instance (discovery order)");
+            testResult.expectEqual(
+                std::string("echoserver"), instancesRoot.children[0].label, "tree: echoserver is the first instance (discovery order)");
             testResult.expectEqual(std::string("mqttbridge"), instancesRoot.children[1].label, "tree: mqttbridge is the second instance");
         }
     }
@@ -173,7 +175,9 @@ namespace {
         const UiNode* port = findChild(local->children, "port");
         testResult.expectTrue(port != nullptr && port->option != nullptr, "echoserver.local.port: leaf resolves to a ConfigOption");
         if (port != nullptr && port->option != nullptr) {
-            testResult.expectEqual(std::string("echoserver.local"), port->option->section, "echoserver.local.port: full key is preserved via the cached ConfigOption");
+            testResult.expectEqual(std::string("echoserver.local"),
+                                   port->option->section,
+                                   "echoserver.local.port: full key is preserved via the cached ConfigOption");
             testResult.expectEqual(std::string("port"), port->option->key, "echoserver.local.port: leaf key is preserved");
         }
     }

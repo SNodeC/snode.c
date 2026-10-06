@@ -52,9 +52,9 @@
 using snodec::control::applyMetadataToModel;
 using snodec::control::ConfigModel;
 using snodec::control::ConfigOption;
+using snodec::control::ParsedMetadata;
 using snodec::control::parseMetaBlocks;
 using snodec::control::parseShowConfigOutput;
-using snodec::control::ParsedMetadata;
 
 namespace {
 
@@ -124,9 +124,11 @@ namespace {
         option.activeValue = "true false";
         option.typeItems = "list";
 
-        testResult.expectTrue(!snodec::control::ui::isTristateLikeOption(option), "list guard: a list-type option is never tristate-like, even with default == \"default\"");
+        testResult.expectTrue(!snodec::control::ui::isTristateLikeOption(option),
+                              "list guard: a list-type option is never tristate-like, even with default == \"default\"");
         testResult.expectTrue(!snodec::control::ui::isBooleanLikeOption(option), "list guard: a list-type option is never boolean-like");
-        testResult.expectTrue(!snodec::control::ui::nextCycledValue(option).has_value(), "list guard: Space produces no cycled value for a list-type option");
+        testResult.expectTrue(!snodec::control::ui::nextCycledValue(option).has_value(),
+                              "list guard: Space produces no cycled value for a list-type option");
     }
 
     void testScalarBooleanOptionIsUnaffectedByListGuard(snodec::control::test::TestResult& testResult) {
@@ -135,7 +137,8 @@ namespace {
         option.defaultValue = "false";
         option.typeItems = "single";
 
-        testResult.expectTrue(snodec::control::ui::isBooleanLikeOption(option), "list guard: a single-item option is unaffected and still boolean-like");
+        testResult.expectTrue(snodec::control::ui::isBooleanLikeOption(option),
+                              "list guard: a single-item option is unaffected and still boolean-like");
     }
 
 } // namespace

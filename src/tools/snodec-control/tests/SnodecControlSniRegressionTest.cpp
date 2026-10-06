@@ -64,9 +64,9 @@ using snodec::control::applyMetadataToModel;
 using snodec::control::ConfigModel;
 using snodec::control::ConfigOption;
 using snodec::control::ConfigSection;
+using snodec::control::ParsedMetadata;
 using snodec::control::parseMetaBlocks;
 using snodec::control::parseShowConfigOutput;
-using snodec::control::ParsedMetadata;
 using snodec::control::ui::buildUiTree;
 using snodec::control::ui::UiNode;
 using snodec::control::ui::UiNodeType;
@@ -229,8 +229,9 @@ namespace {
         const ConfigOption* sniCert = findOption(model, "sni-cert");
         testResult.expectTrue(sniCert != nullptr, "sni regression: the real 'sni-cert' option still exists");
         if (sniCert != nullptr) {
-            testResult.expectTrue(sniCert->description.find("sni = SNI of the virtual server") != std::string::npos,
-                                  "sni regression: sni-cert's own description still legitimately contains the 'sni = ...' explanatory line");
+            testResult.expectTrue(
+                sniCert->description.find("sni = SNI of the virtual server") != std::string::npos,
+                "sni regression: sni-cert's own description still legitimately contains the 'sni = ...' explanatory line");
         }
 
         const UiTree tree = buildUiTree(model, metadata);
@@ -253,7 +254,8 @@ namespace {
         applyMetadataToModel(model, metadata);
 
         const ConfigOption* unknownActive = findOption(model, "unknown-active");
-        testResult.expectTrue(unknownActive != nullptr, "unmatched active: a real uncommented config line with no metadata match survives reconciliation");
+        testResult.expectTrue(unknownActive != nullptr,
+                              "unmatched active: a real uncommented config line with no metadata match survives reconciliation");
         if (unknownActive != nullptr) {
             testResult.expectTrue(unknownActive->hasActiveValue && unknownActive->fromActiveLine,
                                   "unmatched active: it is correctly tracked as coming from an active line");

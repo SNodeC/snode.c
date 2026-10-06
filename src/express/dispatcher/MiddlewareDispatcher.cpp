@@ -52,7 +52,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <list>
 #include <unordered_map>
 
@@ -70,20 +69,26 @@ namespace express::dispatcher {
                                         bool strictRouting,
                                         bool caseInsensitiveRouting,
                                         bool mergeParams) {
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "======================= MIDDLEWARE  DISPATCH =======================";
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "======================= MIDDLEWARE  DISPATCH =======================";
         snode::log::forConnection(*controller.getResponse()->getSocketContext()->getSocketConnection(),
                                   "express",
                                   snode::log::Origin::Framework,
                                   snode::log::Boundary::Application)
-            .trace()
+                .trace()
             << "Middleware dispatch";
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "          Request Method: " << controller.getRequest()->method;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "             Request Url: " << controller.getRequest()->url;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "            Request Path: " << controller.getRequest()->path;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "          Request Method: " << controller.getRequest()->method;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "             Request Url: " << controller.getRequest()->url;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "            Request Path: " << controller.getRequest()->path;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "       Mountpoint Method: " << mountPoint.method;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "         Mountpoint Path: " << mountPoint.relativeMountPath;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "         Mountpoint Path: " << mountPoint.relativeMountPath;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "           StrictRouting: " << strictRouting;
-        snode::log::framework("express", snode::log::Boundary::Application).trace() << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
+        snode::log::framework("express", snode::log::Boundary::Application).trace()
+            << "  CaseInsensitiveRouting: " << caseInsensitiveRouting;
         snode::log::framework("express", snode::log::Boundary::Application).trace() << "             MergeParams: " << mergeParams;
 
         bool dispatched = false;
@@ -96,7 +101,8 @@ namespace express::dispatcher {
                 matchMountPoint(controller, mountPoint.relativeMountPath, mountPoint, regex, names, strictRouting, caseInsensitiveRouting);
 
             if (match.requestMatched) {
-                snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- MIDDLEWARE     MATCH -----------------------";
+                snode::log::framework("express", snode::log::Boundary::Application).trace()
+                    << "----------------------- MIDDLEWARE     MATCH -----------------------";
 
                 dispatched = true;
 
@@ -114,7 +120,8 @@ namespace express::dispatcher {
 
                         // If next() was called synchronously continue current route-tree traversal
                         if ((next.controller.getFlags() & express::Controller::NEXT) != 0) {
-                            snode::log::framework("express", snode::log::Boundary::Application).trace() << "Express: M - Next called - set to NO MATCH";
+                            snode::log::framework("express", snode::log::Boundary::Application).trace()
+                                << "Express: M - Next called - set to NO MATCH";
                             dispatched = false;
                             controller = next.controller;
                         }
@@ -126,10 +133,12 @@ namespace express::dispatcher {
                 }
 
             } else {
-                snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+                snode::log::framework("express", snode::log::Boundary::Application).trace()
+                    << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
             }
         } else {
-            snode::log::framework("express", snode::log::Boundary::Application).trace() << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
+            snode::log::framework("express", snode::log::Boundary::Application).trace()
+                << "----------------------- MIDDLEWARE   NOMATCH -----------------------";
         }
 
         return dispatched;

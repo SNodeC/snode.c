@@ -45,8 +45,6 @@
 // functions the plain CLI uses, so behavior is defined once. This file owns only rendering, input, and
 // prompting.
 
-#include "Ui.h"
-
 #include "../CommandBuilder.h"
 #include "../ConfigActions.h"
 #include "../ConfigEditor.h"
@@ -56,14 +54,14 @@
 #include "../ProcessRunner.h"
 #include "LineEditor.h"
 #include "RenderUtil.h"
+#include "Ui.h"
 #include "UiState.h"
 #include "UiTree.h"
-
-#include <curses.h>
 
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <curses.h>
 #include <filesystem>
 #include <iostream>
 #include <optional>
@@ -331,8 +329,8 @@ namespace snodec::control::ui {
                 return "Save canceled.";
             }
 
-            const SaveOutcome outcome =
-                performSaveConfig(state.model(), uiOptions.targetPath, uiOptions.targetArgTokens, *path, uiOptions.dryRun, uiOptions.keepTemp);
+            const SaveOutcome outcome = performSaveConfig(
+                state.model(), uiOptions.targetPath, uiOptions.targetArgTokens, *path, uiOptions.dryRun, uiOptions.keepTemp);
             showMessageBox(outcome.message.empty() ? "Done.\n" : outcome.message);
             if (outcome.succeeded) {
                 savedConfigPathForRun = *path;
@@ -348,7 +346,7 @@ namespace snodec::control::ui {
         // then resumes Curses. snodec-control itself stays alive throughout: the target is never exec()'d
         // in its place.
         void waitForAnyKeyInRawTerminalMode() {
-            struct termios oldTermios {};
+            struct termios oldTermios{};
             if (::tcgetattr(STDIN_FILENO, &oldTermios) != 0) {
                 // No controlling terminal to reconfigure (unusual); fall back to a plain blocking read.
                 char discard = 0;
@@ -387,9 +385,10 @@ namespace snodec::control::ui {
                 getmaxyx(stdscr, maxY, maxX);
                 static_cast<void>(maxY);
                 mvprintw(0, 0, "%s", fitToWidth("No saved config file yet to run with.", maxX).c_str());
-                mvprintw(
-                    1, 0, "%s",
-                    fitToWidth("(S) Save now and run   (T) Run with a temporary materialized config   (C) Cancel", maxX).c_str());
+                mvprintw(1,
+                         0,
+                         "%s",
+                         fitToWidth("(S) Save now and run   (T) Run with a temporary materialized config   (C) Cancel", maxX).c_str());
                 refresh();
 
                 int choice = 0;
@@ -441,7 +440,7 @@ namespace snodec::control::ui {
 
             if (!runArgsOpt) {
                 showMessageBox("Error: --target-args already specifies a config file; refusing to also append run arguments "
-                                "(conflict).\n");
+                               "(conflict).\n");
                 status = "Run canceled: config-file conflict.";
             } else if (uiOptions.dryRun) {
                 showMessageBox("[dry-run] Would run: " + formatCommandForDisplay(uiOptions.targetPath, *runArgsOpt) + "\n");
@@ -453,8 +452,7 @@ namespace snodec::control::ui {
                 def_prog_mode();
                 endwin();
 
-                std::cout << "\n--- Handing the terminal to: " << formatCommandForDisplay(uiOptions.targetPath, *runArgsOpt)
-                          << " ---\n";
+                std::cout << "\n--- Handing the terminal to: " << formatCommandForDisplay(uiOptions.targetPath, *runArgsOpt) << " ---\n";
                 std::cout.flush();
 
                 // Unlike the plain CLI's --run (runProcessAttached()), the target here is placed in its
@@ -524,21 +522,20 @@ namespace snodec::control::ui {
         }
 
         void showHelp() {
-            showMessageBox(
-                "snodec-control interactive UI - key bindings\n"
-                "\n"
-                "  Up/Down, PageUp/PageDown, Home/End   Move selection\n"
-                "  Left                                 Collapse the selected container, or move to its parent\n"
-                "  Right                                Expand the selected container, or move to its first child\n"
-                "  Enter                                On a container: expand/collapse. On an option: edit its value\n"
-                "  Space                                Cycle a true/false/default option only (does nothing else)\n"
-                "  S                                    Save configuration through the target\n"
-                "  R                                    Run the target, handing it the terminal until it exits\n"
-                "  D                                    Show the diff of all changes so far\n"
-                "  C                                    Check required options\n"
-                "  M                                    Materialize the edited config to a file\n"
-                "  H, F1                                This help screen\n"
-                "  Q                                    Quit (prompts to keep/discard if there are unsaved changes)\n");
+            showMessageBox("snodec-control interactive UI - key bindings\n"
+                           "\n"
+                           "  Up/Down, PageUp/PageDown, Home/End   Move selection\n"
+                           "  Left                                 Collapse the selected container, or move to its parent\n"
+                           "  Right                                Expand the selected container, or move to its first child\n"
+                           "  Enter                                On a container: expand/collapse. On an option: edit its value\n"
+                           "  Space                                Cycle a true/false/default option only (does nothing else)\n"
+                           "  S                                    Save configuration through the target\n"
+                           "  R                                    Run the target, handing it the terminal until it exits\n"
+                           "  D                                    Show the diff of all changes so far\n"
+                           "  C                                    Check required options\n"
+                           "  M                                    Materialize the edited config to a file\n"
+                           "  H, F1                                This help screen\n"
+                           "  Q                                    Quit (prompts to keep/discard if there are unsaved changes)\n");
         }
 
         void render(UiState& state, const UiOptions& uiOptions, const std::string& statusMessage, std::size_t& scrollOffset) {
@@ -584,7 +581,8 @@ namespace snodec::control::ui {
                 text += nodeLineLabel(node);
 
                 const bool isSelected = index == selected;
-                const bool missingRequired = node.type == UiNodeType::Option && node.option != nullptr && isOptionMissingRequired(*node.option);
+                const bool missingRequired =
+                    node.type == UiNodeType::Option && node.option != nullptr && isOptionMissingRequired(*node.option);
 
                 if (isSelected) {
                     attron(A_REVERSE);
@@ -606,16 +604,16 @@ namespace snodec::control::ui {
 
             if (selected < rows.size()) {
                 const UiNode& node = *rows[selected].node;
-                const std::string detail = node.type == UiNodeType::Option && node.option != nullptr ? formatOptionBlock(*node.option)
-                                                                                                       : describeContainer(node);
+                const std::string detail =
+                    node.type == UiNodeType::Option && node.option != nullptr ? formatOptionBlock(*node.option) : describeContainer(node);
                 printLines(detail, detailTop + 1, maxY, maxX);
             }
 
             attron(A_REVERSE);
             const std::string status = statusMessage.empty()
-                                            ? "Up/Down Move  Left Parent  Right Child  Enter Edit  Space Bool  S Save  R Run  D Diff  "
-                                              "C Check  M Materialize  H Help  Q Quit"
-                                            : statusMessage;
+                                           ? "Up/Down Move  Left Parent  Right Child  Enter Edit  Space Bool  S Save  R Run  D Diff  "
+                                             "C Check  M Materialize  H Help  Q Quit"
+                                           : statusMessage;
             mvprintw(maxY - 1, 0, "%s", fitToWidth(status, maxX).c_str());
             attroff(A_REVERSE);
 
@@ -748,7 +746,10 @@ namespace snodec::control::ui {
                     getmaxyx(stdscr, maxY, maxX);
                     printLines(formatDiff(state.changes()), 0, maxY, maxX);
                     attron(A_REVERSE);
-                    mvprintw(maxY - 1, 0, "%s", fitToWidth("(K) Keep changes and quit   (D) Discard changes and quit   (C) Cancel", maxX).c_str());
+                    mvprintw(maxY - 1,
+                             0,
+                             "%s",
+                             fitToWidth("(K) Keep changes and quit   (D) Discard changes and quit   (C) Cancel", maxX).c_str());
                     attroff(A_REVERSE);
                     refresh();
 

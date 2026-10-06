@@ -7,9 +7,13 @@ foreach(component IN LISTS CPACK_COMPONENTS_ALL)
     endif()
     string(TOLOWER "${CPACK_PACKAGE_NAME}-${component}" name)
     string(APPEND names "${name}\n")
-    list(APPEND full_requires "${name} = ${CPACK_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}")
+    list(APPEND full_requires
+         "${name} = ${CPACK_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}"
+    )
 endforeach()
 list(JOIN full_requires ", " CPACK_RPM_FULL_PACKAGE_REQUIRES)
 # Publication inventory comes from the same component model as the packages.
 file(MAKE_DIRECTORY "${CPACK_OUTPUT_FILE_PREFIX}")
-file(WRITE "${CPACK_OUTPUT_FILE_PREFIX}/${CPACK_PACKAGE_NAME}.packages" "${names}")
+file(WRITE "${CPACK_OUTPUT_FILE_PREFIX}/${CPACK_PACKAGE_NAME}.packages"
+     "${names}"
+)

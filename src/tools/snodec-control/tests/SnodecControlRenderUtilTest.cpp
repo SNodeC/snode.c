@@ -67,7 +67,8 @@ namespace {
 
     void testZeroOrNegativeWidth(snodec::control::test::TestResult& testResult) {
         testResult.expectEqual(std::string(""), fitToWidth("anything", 0), "zero width: always returns an empty string");
-        testResult.expectEqual(std::string(""), fitToWidth("anything", -5), "negative width: always returns an empty string, never crashes");
+        testResult.expectEqual(
+            std::string(""), fitToWidth("anything", -5), "negative width: always returns an empty string, never crashes");
     }
 
     void testEmptyInput(snodec::control::test::TestResult& testResult) {

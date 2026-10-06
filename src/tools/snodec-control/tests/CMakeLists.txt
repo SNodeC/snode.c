@@ -53,11 +53,11 @@ snodec_control_add_test(
     SnodecControlProcessRunnerTest SnodecControlProcessRunnerTest.cpp
 )
 
-# Only this test needs the actual Ui.h entry point (isUiAvailable()/runInteractiveUi()), to verify
-# whichever of CursesUi.cpp/UiUnavailable.cpp this build picked behaves per its documented contract.
+# Only this test needs the actual Ui.h entry point
+# (isUiAvailable()/runInteractiveUi()), to verify whichever of
+# CursesUi.cpp/UiUnavailable.cpp this build picked behaves per its documented
+# contract.
 snodec_control_add_test(
     SnodecControlUiAvailabilityTest SnodecControlUiAvailabilityTest.cpp
 )
-target_link_libraries(
-    SnodecControlUiAvailabilityTest PRIVATE snodec-control-ui
-)
+target_link_libraries(SnodecControlUiAvailabilityTest PRIVATE snodec-control-ui)

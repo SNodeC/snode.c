@@ -258,7 +258,8 @@ namespace web::websocket {
         semantic::webSocketSubProtocolLog(*getSocketConnection()).info() << "websocket ended: subprotocol=" << subProtocol->name;
         semantic::webSocketSubProtocolLog(*getSocketConnection()).debug()
             << "WebSocket: context detached with subprotocol '" << subProtocol->name << "' for "
-            << (this->getDetachReason() == core::socket::stream::SocketContext::DetachReason::ContextSwitch ? "context switch" : "connection close");
+            << (this->getDetachReason() == core::socket::stream::SocketContext::DetachReason::ContextSwitch ? "context switch"
+                                                                                                            : "connection close");
     }
 
     template <typename SubProtocol, typename Request, typename Response>

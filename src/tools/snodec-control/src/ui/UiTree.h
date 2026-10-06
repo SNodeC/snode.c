@@ -51,7 +51,7 @@ namespace snodec::control {
     class ConfigModel;
     struct ConfigOption;
     struct ParsedMetadata;
-}
+} // namespace snodec::control
 
 namespace snodec::control::ui {
 

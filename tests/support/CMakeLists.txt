@@ -38,8 +38,7 @@
 # THE SOFTWARE.
 
 add_library(
-    snodec-test-support STATIC TestResult.cpp
-                               TestResult.h SemanticLogCapture.h
+    snodec-test-support STATIC TestResult.cpp TestResult.h SemanticLogCapture.h
 )
 
 target_include_directories(

@@ -60,9 +60,7 @@ namespace core::eventreceiver {
               timeout) {
     }
 
-    WriteEventReceiver::WriteEventReceiver(const std::string& name,
-                                           const snode::log::Scope& logScope,
-                                           const utils::Timeval& timeout)
+    WriteEventReceiver::WriteEventReceiver(const std::string& name, const snode::log::Scope& logScope, const utils::Timeval& timeout)
         : WriteEventReceiver(name, snode::log::detail::nativeScope(logScope), timeout) {
     }
 

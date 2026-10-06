@@ -47,9 +47,6 @@
 #include "Materializer.h"
 #include "ProcessRunner.h"
 
-#include <sys/types.h>
-#include <unistd.h>
-
 #include <cerrno>
 #include <chrono>
 #include <cstdlib>
@@ -57,7 +54,9 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <sys/types.h>
 #include <system_error>
+#include <unistd.h>
 
 namespace snodec::control {
 
@@ -297,12 +296,12 @@ namespace snodec::control {
     }
 
     RunConfigResolution resolveRunConfigPath(const std::optional<std::string>& runConfigPath,
-                                              const std::optional<std::string>& saveConfigPath,
-                                              const std::optional<std::string>& savedConfigPathForRun,
-                                              bool haveEdits,
-                                              bool dryRun,
-                                              const ConfigModel& model,
-                                              const std::string& targetPath) {
+                                             const std::optional<std::string>& saveConfigPath,
+                                             const std::optional<std::string>& savedConfigPathForRun,
+                                             bool haveEdits,
+                                             bool dryRun,
+                                             const ConfigModel& model,
+                                             const std::string& targetPath) {
         RunConfigResolution resolution;
 
         if (runConfigPath.has_value()) {
@@ -363,7 +362,7 @@ namespace snodec::control {
             if (!saveArgsOpt) {
                 outcome.isError = true;
                 outcome.message = "Error: --target-args already specifies a config file; refusing to also append "
-                                   "save arguments (conflict).\n";
+                                  "save arguments (conflict).\n";
                 return outcome;
             }
             outcome.message =
@@ -383,7 +382,7 @@ namespace snodec::control {
         if (!saveArgsOpt) {
             outcome.isError = true;
             outcome.message = "Error: --target-args already specifies a config file; refusing to also append "
-                               "save arguments (conflict).\n";
+                              "save arguments (conflict).\n";
             if (keepTemp) {
                 outcome.message += "Kept temporary materialized config at " + tempPath + "\n";
             } else {
@@ -411,8 +410,8 @@ namespace snodec::control {
 
         if (!saveResult.spawned) {
             outcome.isError = true;
-            outcome.message = "Error: failed to execute target '" + targetPath + "' to save config: " + saveResult.spawnError + "\n" +
-                               tempNote.str();
+            outcome.message =
+                "Error: failed to execute target '" + targetPath + "' to save config: " + saveResult.spawnError + "\n" + tempNote.str();
             return outcome;
         }
 

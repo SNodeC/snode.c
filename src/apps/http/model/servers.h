@@ -56,7 +56,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>
 #include <openssl/ssl.h>

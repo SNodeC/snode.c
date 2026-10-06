@@ -179,8 +179,8 @@ namespace core::socket::stream::tls {
             return detail::TlsShutdownResult{detail::TlsShutdownSuccess::FullShutdownComplete};
         }
 
-        if (completionRequirement == CompletionRequirement::CloseNotifySentIsEnough || shutdownPhase == ShutdownPhase::SendLocalCloseNotify ||
-            shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
+        if (completionRequirement == CompletionRequirement::CloseNotifySentIsEnough ||
+            shutdownPhase == ShutdownPhase::SendLocalCloseNotify || shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
             return performShutdownOperation();
         }
         return readPeerApplicationData();
@@ -193,7 +193,8 @@ namespace core::socket::stream::tls {
         const int savedErrno = errno;
         if (ret == 0) {
             errno = savedErrno;
-            if (completionRequirement == CompletionRequirement::RequireFullShutdown && shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
+            if (completionRequirement == CompletionRequirement::RequireFullShutdown &&
+                shutdownPhase == ShutdownPhase::FinalizeFullShutdown) {
                 shutdownPhase = ShutdownPhase::ReadPeerApplicationDataUntilCloseNotify;
             }
             return detail::TlsShutdownResult{detail::TlsShutdownSuccess::CloseNotifySent};

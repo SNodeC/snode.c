@@ -48,7 +48,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -70,7 +69,7 @@ namespace express::middleware {
                                           "express",
                                           snode::log::Origin::Framework,
                                           snode::log::Boundary::Application)
-                    .debug()
+                        .debug()
                     << "Express " << req->method;
 
                 if (req->method != "GET") {
@@ -103,7 +102,7 @@ namespace express::middleware {
                                                   "express",
                                                   snode::log::Origin::Framework,
                                                   snode::log::Boundary::Application)
-                            .info()
+                                .info()
                             << "Express StaticMiddleware Redirecting: " << req->url << " -> "
                             << req->originalPath +
                                    (!req->originalPath.empty() && req->originalPath.back() != '/' && index.front() != '/' ? "/" : "") +
@@ -125,14 +124,14 @@ namespace express::middleware {
                                                   "express",
                                                   snode::log::Origin::Framework,
                                                   snode::log::Boundary::Application)
-                            .info()
+                                .info()
                             << "Express StaticMiddleware: GET " << req->url + " -> " << root + decodedPath;
                     } else {
                         snode::log::forConnection(*res->getSocketContext()->getSocketConnection(),
                                                   "express",
                                                   snode::log::Origin::Framework,
                                                   snode::log::Boundary::Application)
-                            .systemError(snode::log::Level::Error, ret)
+                                .systemError(snode::log::Level::Error, ret)
                             << "Express StaticMiddleware " << req->url + " -> " << root + decodedPath;
 
                         if (fallThrough) {

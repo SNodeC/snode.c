@@ -454,9 +454,13 @@ namespace snodec::control {
 
         if (options.run || options.printRunCommand) {
             const bool haveEdits = !options.editOps.empty() || !effectiveChanges.empty();
-            const RunConfigResolution resolution = resolveRunConfigPath(
-                options.runConfigPath, options.saveConfigPath, savedConfigPathForRun, haveEdits, options.dryRun, parseResult.model,
-                targetPath);
+            const RunConfigResolution resolution = resolveRunConfigPath(options.runConfigPath,
+                                                                        options.saveConfigPath,
+                                                                        savedConfigPathForRun,
+                                                                        haveEdits,
+                                                                        options.dryRun,
+                                                                        parseResult.model,
+                                                                        targetPath);
 
             if (!resolution.ok) {
                 std::cerr << "Error: " << resolution.error << "\n";

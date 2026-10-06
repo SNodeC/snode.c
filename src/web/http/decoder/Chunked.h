@@ -73,9 +73,8 @@ namespace web::http::decoder {
 
             ~Chunk();
 
-            inline std::size_t read(const core::socket::stream::SocketContext* socketContext,
-                                    std::size_t maximumChunkBytes,
-                                    const ParserLimits& limits);
+            inline std::size_t
+            read(const core::socket::stream::SocketContext* socketContext, std::size_t maximumChunkBytes, const ParserLimits& limits);
 
             bool isError() const;
             bool isComplete() const;

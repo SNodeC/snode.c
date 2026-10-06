@@ -45,7 +45,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
 #include <filesystem>
 #include <utility>
 
@@ -247,7 +246,8 @@ namespace web::http {
         MimeTypes::magic = magic_open(MAGIC_MIME);
 
         if (magic_load(magic, nullptr) != 0) {
-            snode::log::framework("web.http", snode::log::Boundary::Connection).debug() << "Cannot load magic database - " + std::string(magic_error(magic));
+            snode::log::framework("web.http", snode::log::Boundary::Connection).debug()
+                << "Cannot load magic database - " + std::string(magic_error(magic));
             magic_close(magic);
             magic = nullptr;
         }

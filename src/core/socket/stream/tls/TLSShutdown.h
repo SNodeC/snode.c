@@ -55,10 +55,10 @@ namespace utils {
     class Timeval;
 }
 
+#include <cstddef>
 #include <functional>
 #include <openssl/opensslv.h>
 #include <string>
-#include <cstddef>
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/types.h>
@@ -79,22 +79,16 @@ namespace core::socket::stream::tls {
         , public core::eventreceiver::WriteEventReceiver {
     public:
         static void doShutdown(const std::string& instanceName,
-                                SSL* ssl,
-                                const std::function<void(void)>& onSuccess,
-                                const std::function<void(void)>& onTimeout,
-                                const std::function<void(int)>& onStatus,
-                                const utils::Timeval& timeout);
+                               SSL* ssl,
+                               const std::function<void(void)>& onSuccess,
+                               const std::function<void(void)>& onTimeout,
+                               const std::function<void(int)>& onStatus,
+                               const utils::Timeval& timeout);
 
     private:
-        enum class TypedSuccess {
-            CloseNotifySent,
-            FullShutdownComplete
-        };
+        enum class TypedSuccess { CloseNotifySent, FullShutdownComplete };
 
-        enum class CompletionRequirement {
-            CloseNotifySentIsEnough,
-            RequireFullShutdown
-        };
+        enum class CompletionRequirement { CloseNotifySentIsEnough, RequireFullShutdown };
 
         static void doShutdownTypedWithRelease(const std::string& instanceName,
                                                logger::LogScope logScope,
@@ -131,11 +125,7 @@ namespace core::socket::stream::tls {
         void unobservedEvent() final;
 
         void start();
-        enum class ShutdownPhase {
-            SendLocalCloseNotify,
-            ReadPeerApplicationDataUntilCloseNotify,
-            FinalizeFullShutdown
-        };
+        enum class ShutdownPhase { SendLocalCloseNotify, ReadPeerApplicationDataUntilCloseNotify, FinalizeFullShutdown };
 
         detail::TlsShutdownResult performOperation();
         detail::TlsShutdownResult performShutdownOperation();

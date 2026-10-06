@@ -142,7 +142,8 @@ namespace web::http::decoder {
                         } else {
                             chunkLenTotalS += ch;
                         }
-                        error = error || (limits.maximumHeaderLineBytes != 0 && chunkLenTotalS.size() + CR + LF > limits.maximumHeaderLineBytes);
+                        error = error ||
+                                (limits.maximumHeaderLineBytes != 0 && chunkLenTotalS.size() + CR + LF > limits.maximumHeaderLineBytes);
                     }
                 } while (!error && ret > 0 && !(CR && LF));
 
@@ -161,9 +162,12 @@ namespace web::http::decoder {
                     std::string chunkSizeToken = chunkLenTotalS;
                     std::tie(chunkSizeToken, std::ignore) = httputils::str_split(chunkSizeToken, ';');
                     httputils::str_trimm(chunkSizeToken);
-                    if (chunkSizeToken.empty() || !std::all_of(chunkSizeToken.begin(), chunkSizeToken.end(), [](unsigned char c) {
-                            return std::isxdigit(c) != 0;
-                        }) ||
+                    if (chunkSizeToken.empty() ||
+                        !std::all_of(chunkSizeToken.begin(),
+                                     chunkSizeToken.end(),
+                                     [](unsigned char c) {
+                                         return std::isxdigit(c) != 0;
+                                     }) ||
                         chunkSizeToken.size() > sizeof(std::size_t) * 2) {
                         error = true;
                         state = -1;

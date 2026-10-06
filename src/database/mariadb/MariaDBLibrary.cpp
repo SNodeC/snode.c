@@ -60,7 +60,8 @@ namespace database::mariadb {
         std::call_once(initOnce, []() {
             const int rc = mysql_library_init(0, nullptr, nullptr);
             if (rc != 0) {
-                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).error() << "mysql_library_init failed (rc=" << rc << ")";
+                snode::log::framework("db.mariadb", snode::log::Boundary::Connection).error()
+                    << "mysql_library_init failed (rc=" << rc << ")";
                 // Best effort: proceed; subsequent mysql_* calls may fail.
             }
 

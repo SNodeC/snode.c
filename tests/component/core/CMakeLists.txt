@@ -41,8 +41,14 @@ snodec_add_test(SingleshotTimerTest SingleshotTimerTest.cpp)
 snodec_add_test(IntervalTimerStopableTest IntervalTimerStopableTest.cpp)
 snodec_add_test(SNodeCStopFromCallbackTest SNodeCStopFromCallbackTest.cpp)
 snodec_add_test(SNodeCReconfigureTest SNodeCReconfigureTest.cpp)
-target_link_libraries(SNodeCReconfigureTest PRIVATE snodec-test-support snodec::http-server-express snodec::net)
-set_tests_properties(SNodeCReconfigureTest PROPERTIES LABELS "component;core;config;lifecycle" SKIP_RETURN_CODE 77 TIMEOUT 5)
+target_link_libraries(
+    SNodeCReconfigureTest PRIVATE snodec-test-support
+                                  snodec::http-server-express snodec::net
+)
+set_tests_properties(
+    SNodeCReconfigureTest PROPERTIES LABELS "component;core;config;lifecycle"
+                                     SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 add_executable(
     ShutdownReceiverNotificationTest ShutdownReceiverNotificationTest.cpp
 )
@@ -156,7 +162,7 @@ set_tests_properties(
 )
 set_tests_properties(
     FileReaderTest PROPERTIES LABELS "component;core;file;streaming"
-                               SKIP_RETURN_CODE 77 TIMEOUT 5
+                              SKIP_RETURN_CODE 77 TIMEOUT 5
 )
 
 snodec_add_test(

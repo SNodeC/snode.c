@@ -48,7 +48,7 @@ add_library(snodec::core-mux-epoll ALIAS core-mux-epoll)
 
 target_include_directories(
     core-mux-epoll PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-                     "$<INSTALL_INTERFACE:include/snode.c>"
+                          "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(

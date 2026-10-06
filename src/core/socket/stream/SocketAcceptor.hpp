@@ -109,7 +109,8 @@ namespace core::socket::stream {
                 core::socket::State state = core::socket::STATE_OK;
                 bool bindSucceeded = false;
 
-                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " Listen: starting";
+                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                    << config->getInstanceName() << " Listen: starting";
 
                 if (!configuredAddress) {
                     configuredAddress = config->Local::getSocketAddress();
@@ -164,7 +165,8 @@ namespace core::socket::stream {
 
                         if (physicalServerSocket.listen(config->getBacklog()) < 0) {
                             const int errnum = errno;
-                            snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Error, errnum)
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection)
+                                    .systemError(snode::log::Level::Error, errnum)
                                 << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString();
 
                             switch (errnum) {
@@ -176,12 +178,14 @@ namespace core::socket::stream {
                                     break;
                             }
                         } else {
-                            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " listen "
-                                                                     << physicalServerSocket.getBindAddress().toString() << ": success";
+                            snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                                << config->getInstanceName() << " listen " << physicalServerSocket.getBindAddress().toString()
+                                << ": success";
 
                             if (enable(physicalServerSocket.getFd())) {
-                                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << config->getInstanceName() << " enable "
-                                                                         << physicalServerSocket.getBindAddress().toString() << ": success";
+                                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                                    << config->getInstanceName() << " enable " << physicalServerSocket.getBindAddress().toString()
+                                    << ": success";
                                 log().info("listener started");
                             } else {
                                 snode::log::framework("core.socket", snode::log::Boundary::Connection).error()
@@ -253,8 +257,9 @@ namespace core::socket::stream {
 
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
-                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug() << "  " << socketConnection->getRemoteAddress().toString() << " -> "
-                                                             << socketConnection->getLocalAddress().toString();
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                        << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                        << socketConnection->getLocalAddress().toString();
 
                     onConnect(socketConnection);
                     onConnected(socketConnection);

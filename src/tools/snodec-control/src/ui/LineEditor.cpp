@@ -45,7 +45,9 @@
 
 namespace snodec::control::ui {
 
-    LineEditorBuffer::LineEditorBuffer(std::string initial) : buffer(std::move(initial)), cursorPos(buffer.size()) {
+    LineEditorBuffer::LineEditorBuffer(std::string initial)
+        : buffer(std::move(initial))
+        , cursorPos(buffer.size()) {
     }
 
     const std::string& LineEditorBuffer::text() const {
