@@ -1,3 +1,5 @@
+<a name="project-overview"></a>
+
 <picture>
   <source media="(max-width: 600px)" srcset="docs/readme/media/hero-mobile.svg">
   <img src="docs/readme/media/hero.svg" alt="SNode.C — Your own protocols, HTTP, WebSocket, SSE and MQTT. A smooth white S in a blue connected-node logo on a dark-blue banner.">
@@ -7,17 +9,32 @@
 
 **Write the protocol. Choose the connection. Build the application.**
 
+**[Get prebuilt packages](https://github.com/SNodeC/Packages#readme)** — Signed packages and installation instructions for OpenWrt, Raspberry Pi OS, Debian, Ubuntu, Rocky Linux and Fedora.
+
 SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for Linux. Its starting point is a **factory that creates a protocol context for each connection**. Write your protocol once, then use it with clients and servers over IP, Unix-domain sockets or Bluetooth.
 
 The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-Sent Events and MQTT components build on the same foundation, and multiple named clients and servers can share one event loop and configuration system.
 
-[Install](docs/readme/install.md) · [Start coding](#your-first-program-a-factory-and-a-context) · [Examples](docs/readme/examples.md) · [Capabilities](docs/readme/capabilities.md) · [Deployment](docs/readme/deployment.md) · [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
+**Projects using SNode.C:**
+
+- [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview)
+- [AISuite](https://github.com/SNodeC/AISuite#project-overview)
+- [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
+
+<p>
+  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/build-108.svg" alt="Build from source" width="108" height="24"></a>
+  <a href="#your-first-program-a-factory-and-a-context" title="Start coding"><img src="docs/readme/media/menu/start-coding-108.svg" alt="Start coding" width="108" height="24"></a>
+  <a href="docs/readme/examples.md" title="Examples"><img src="docs/readme/media/menu/examples-108.svg" alt="Examples" width="108" height="24"></a>
+  <a href="docs/readme/capabilities.md" title="Capabilities"><img src="docs/readme/media/menu/capabilities-108.svg" alt="Capabilities" width="108" height="24"></a>
+  <a href="docs/readme/deployment.md" title="Deployment"><img src="docs/readme/media/menu/deployment-108.svg" alt="Deployment" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API reference"><img src="docs/readme/media/menu/api-reference-108.svg" alt="API reference" width="108" height="24"></a>
+</p>
 
 ## Your first program: a factory and a context
 
 This native server and client share one `EchoContext` implementation. The `Role` selects its behavior: the server reflects received bytes; the client sends one line, prints the reply and closes. Each connection gets its own context and receive state.
 
-**You need:** installed SNode.C development libraries with the `net-in-stream-legacy` component, a C++20 compiler, CMake 3.18+, and a free loopback port **18001**. Python 3 is needed only for the additional interoperability check. Create an empty example directory.
+**You need:** installed SNode.C development libraries with the `net-in-stream-legacy` component (included in the `snodec` DEB/RPM package), a C++20 compiler, CMake 3.18+, and a free loopback port **18001**. Python 3 is needed only for the additional interoperability check. Create an empty example directory.
 
 **Code — `echo.h`, shared by both executables:**
 
@@ -166,7 +183,7 @@ PY
 
 **Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-**Go further:** [line framing and composing roles](docs/readme/examples.md).
+**Go further:** [line framing](docs/readme/examples.md#a-line-oriented-protocol).
 
 ### What happens to a connection
 
@@ -284,25 +301,25 @@ curl http://127.0.0.1:18081/hello
 
 *A factory creates a protocol context for each connection. Clients and servers reuse that model; changing the transport does not require a second application architecture.*
 
-| Build with | What it provides |
-| --- | --- |
-| **HTTP / HTTPS** | Client and server APIs, streaming bodies, request/response handling and protocol upgrade. |
-| **Express-style web API** | Routing, routers and middleware; static files, JSON bodies, virtual hosts and HTTP Basic authentication. |
-| **WebSockets** | Client and server roles, HTTP upgrade and application subprotocols, including MQTT-over-WebSocket integration. |
-| **Server-Sent Events** | Stream events from an HTTP server; consume them with the native `EventSource` client, named listeners and reconnect handling. |
-| **MQTT 3.1.1** | Client and server protocol building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite). |
-| **Custom protocols** | `SocketContext` and `SocketContextFactory` let you own framing, messages and per-connection behavior. |
-| **MariaDB** | Event-driven database integration for applications that need queries and persistence. |
+- **HTTP / HTTPS:** client and server APIs, streaming bodies, request/response handling and protocol upgrade.
+- **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
+- **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
+- **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
+- **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview).
+- **Custom protocols:** `SocketContext` and `SocketContextFactory` provide per-connection framing, messages and behavior.
+- **MariaDB:** event-driven database integration for queries and persistence.
 
 ### Connection variants
 
-| Address family | Plain stream | TLS stream | Typical use |
-| --- | :---: | :---: | --- |
-| IPv4 — `net::in` | ✓ | ✓ | Network services and device connections. |
-| IPv6 — `net::in6` | ✓ | ✓ | IPv6-native services. |
-| Unix domain — `net::un` | ✓ | ✓ | Local inter-process communication. |
-| Bluetooth RFCOMM — `net::rc` | ✓ | ✓ | Bluetooth stream connections. |
-| Bluetooth L2CAP — `net::l2` | ✓ | ✓ | Bluetooth connections addressed by PSM. |
+| Family | Namespace | Endpoint |
+| --- | --- | --- |
+| IPv4 | `net::in` | Host + port |
+| IPv6 | `net::in6` | Host + port |
+| Unix domain | `net::un` | Socket path |
+| RFCOMM | `net::rc` | Bluetooth address + channel |
+| L2CAP | `net::l2` | Bluetooth address + PSM |
+
+All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
 
 Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
@@ -364,7 +381,7 @@ cmake --build build --parallel
 
 HTTP serves a small page, then upgrades `/ws` to a bidirectional WebSocket connection. The installed `echo` subprotocol supplies the message handling; the route handles HTTP upgrade rather than implementing another frame parser.
 
-**You need:** the `http-server-express-legacy-in` development component, the framework's installed HTTP/WebSocket upgrade and **server-side echo subprotocol plugins** (included with its example applications), C++20, CMake and a browser. Port **18082** must be free. Keep plugins and libraries from the same installation.
+**You need:** the `http-server-express-legacy-in` development component, the framework's installed HTTP/WebSocket upgrade and **server-side echo subprotocol plugins** (package `snodec-apps`, included in `snodec`), C++20, CMake and a browser. Port **18082** must be free. Keep plugins and libraries from the same installation.
 
 **Code — `main.cpp`:**
 
@@ -428,7 +445,7 @@ cmake --build build --parallel
 ./build/websocket --config-file /dev/null
 ```
 
-Open **http://127.0.0.1:18082/** in a browser.
+Open **[http://127.0.0.1:18082/](http://127.0.0.1:18082/)** in a browser.
 
 **Expected result:** the page displays `Connected` and then `Hello, WebSocket!`. The browser sends a text frame, receives the echo and closes its connection. Stop the server with Ctrl+C.
 
@@ -449,22 +466,24 @@ The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optiona
 
 ## Install
 
-[Choose your route →](docs/readme/install.md#choose-your-route) · [Binary packages](docs/readme/packages.md) · [Build from source](docs/readme/install.md#build-from-source) · [Deploy](docs/readme/deployment.md)
+<p>
+  <a href="https://github.com/SNodeC/Packages#readme" title="Prebuilt packages"><img src="docs/readme/media/menu/prebuilt-packages-136.svg" alt="Prebuilt packages" width="136" height="24"></a>
+  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/build-136.svg" alt="Build from source" width="136" height="24"></a>
+  <a href="docs/readme/deployment.md" title="Deploy"><img src="docs/readme/media/menu/deploy-136.svg" alt="Deploy" width="136" height="24"></a>
+</p>
 
-Prebuilt packages are available through the project’s package feed for **Debian, Ubuntu, Raspberry Pi OS, Rocky Linux, Fedora and OpenWrt**. Choose the guide matching your distribution, release and package architecture—not just the CPU family.
+Prebuilt packages are available from **[SNodeC/Packages](https://github.com/SNodeC/Packages#readme)**. Choose the guide matching your distribution, release and package architecture.
 
-The [package guide](docs/readme/packages.md) lists the published release/architecture combinations and links to the feed’s installation instructions and signing information.
+To compile SNode.C yourself, follow the [source-build guide](docs/readme/install.md).
 
 ## Learn by building
 
-| Your next step | Where to go |
-| --- | --- |
-| Understand stream framing and WebSocket upgrades | [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [inline WebSocket example](#talk-both-ways-with-a-websocket). |
-| Explore the framework's own example applications | [Standalone echo source](https://github.com/SNodeC/snode.c/tree/master/examples/echo) and [application inventory](https://github.com/SNodeC/snode.c/blob/master/src/apps/README.md). |
-| Add HTTP, SSE, WebSockets or MQTT | [Protocol and transport inventory](docs/readme/capabilities.md). |
-| Configure, secure and supervise a service | [Deployment guide](docs/readme/deployment.md). |
-| Browse classes and public methods | [Generated API documentation](https://snodec.github.io/snode.c-doc/html/index.html). |
-| Run MQTT applications without writing a server | [MQTTSuite](https://github.com/SNodeC/mqttsuite). |
+- **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](#talk-both-ways-with-a-websocket)
+- **Explore applications:** [Echo source](https://github.com/SNodeC/snode.c/tree/master/examples/echo) and [application inventory](https://github.com/SNodeC/snode.c/blob/master/src/apps/README.md)
+- **Choose protocols:** [Capability guide](docs/readme/capabilities.md)
+- **Run a service:** [Deployment guide](docs/readme/deployment.md)
+- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
+- **Use MQTT applications:** [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview)
 
 SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
 

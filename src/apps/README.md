@@ -1,21 +1,15 @@
 # Example applications
 
-The programs in this directory demonstrate SNode.C composition and configuration.
-For a first application, use the complete standalone echo project in
-[`examples/echo`](../../examples/echo/). It consumes an **installed** SNode.C
-package exactly as an external application does: CMake discovers SNode.C with
-`find_package()`, framework headers come from the installed include tree, and the
-application links an exported `snodec::` target.
+The programs in this directory demonstrate SNode.C composition and configuration. For a first application, use the complete standalone echo project in [`examples/echo`](../../examples/echo/). It consumes an **installed** SNode.C package exactly as an external application does: CMake discovers SNode.C with `find_package()`, framework headers come from the installed include tree, and the application links an exported `snodec::` target.
 
-The worked path deliberately uses only plain IPv4 streams. It is small enough to
-trace from C++ source through CMake, build, configuration, semantic application
-logging, runtime behavior, and CTest verification before introducing TLS, HTTP,
-SSE/EventSource, WebSocket, MQTT, or another protocol layer.
+The worked path deliberately uses only plain IPv4 streams. It is small enough to trace from C++ source through CMake, build, configuration, semantic application logging, runtime behavior, and CTest verification before introducing TLS, HTTP, SSE/EventSource, WebSocket, MQTT, or another protocol layer.
 
-[Complete echo project](../../examples/echo/) ·
-[Project README](../../README.md) ·
-[API documentation](https://snodec.github.io/snode.c-doc/html/index.html) ·
-[Network component tests](../../tests/component/net/README.md)
+<p>
+  <a href="../../examples/echo/" title="Complete echo project"><img src="../../docs/readme/media/menu/complete-echo-project-184.svg" alt="Complete echo project" width="184" height="24"></a>
+  <a href="../../README.md" title="Project README"><img src="../../docs/readme/media/menu/project-readme-184.svg" alt="Project README" width="184" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API documentation"><img src="../../docs/readme/media/menu/api-documentation-184.svg" alt="API documentation" width="184" height="24"></a>
+  <a href="../../tests/component/net/README.md" title="Network component tests"><img src="../../docs/readme/media/menu/network-component-tests-184.svg" alt="Network component tests" width="184" height="24"></a>
+</p>
 
 ## Worked path: external plain-IPv4 echo pair
 
@@ -48,15 +42,11 @@ examples/echo/
     └── echo_tests.py
 ```
 
-The SNode.C package exports `net-in-stream-legacy` as a supported component.
-That target contributes the installed public headers and brings in the generic
-IPv4 stream and plain stream-connection dependencies transitively.
+The SNode.C package exports `net-in-stream-legacy` as a supported component. That target contributes the installed public headers and brings in the generic IPv4 stream and plain stream-connection dependencies transitively.
 
 ## 1. Define the connection-local behavior
 
-`EchoSocketContext` is the application object attached to one established stream
-connection. The server and client use the same context implementation; `Role`
-only decides whether the context sends the initial greeting.
+`EchoSocketContext` is the application object attached to one established stream connection. The server and client use the same context implementation; `Role` only decides whether the context sends the initial greeting.
 
 ### `EchoSocketContext.h`
 
@@ -108,9 +98,7 @@ namespace echo {
 } // namespace echo
 ```
 
-All SNode.C headers use `<...>` because they are public headers supplied by the
-installed package. Only the project-local `EchoSocketContext.h` is included with
-quotes from the application's `.cpp` files.
+All SNode.C headers use `<...>` because they are public headers supplied by the installed package. Only the project-local `EchoSocketContext.h` is included with quotes from the application's `.cpp` files.
 
 ### `EchoSocketContext.cpp`
 
@@ -202,14 +190,9 @@ readFromPeer()
       └─ sendToPeer()
 ```
 
-There is no observation state or second logging abstraction in the application
-context. `SocketContext::log()` already returns the semantic application logger
-for that context, with context, instance, and connection identity in its scope.
+There is no observation state or second logging abstraction in the application context. `SocketContext::log()` already returns the semantic application logger for that context, with context, instance, and connection identity in its scope.
 
-The client sends `Hello peer! Nice to see you!!!` once from `onConnected()`.
-Every received chunk is logged and queued back unchanged. Since both programs use
-the same reflecting context, running them together creates a continuing echo
-exchange until one side is stopped.
+The client sends `Hello peer! Nice to see you!!!` once from `onConnected()`. Every received chunk is logged and queued back unchanged. Since both programs use the same reflecting context, running them together creates a continuing echo exchange until one side is stopped.
 
 ## 2. Compose the IPv4/plain endpoint types
 
@@ -232,9 +215,7 @@ using EchoSocketClient =
         echo::EchoClientSocketContextFactory>;
 ```
 
-The factory parameter is the application/framework boundary. Once SNode.C owns
-an established connection, the retained factory creates the connection-local
-`EchoSocketContext`.
+The factory parameter is the application/framework boundary. Once SNode.C owns an established connection, the retained factory creates the connection-local `EchoSocketContext`.
 
 ## 3. Server application
 
@@ -269,9 +250,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-The executable creates one named server instance, starts its listener, and then
-enters the caller-thread event loop. The instance name `echoserver` becomes part
-of the generated configuration hierarchy.
+The executable creates one named server instance, starts its listener, and then enters the caller-thread event loop. The instance name `echoserver` becomes part of the generated configuration hierarchy.
 
 ## 4. Client application
 
@@ -306,8 +285,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-After connection establishment, the client factory creates a client-role
-`EchoSocketContext`; its `onConnected()` callback sends the initial greeting.
+After connection establishment, the client factory creates a client-role `EchoSocketContext`; its `onConnected()` callback sends the initial greeting.
 
 ## Essential types and headers
 
@@ -322,9 +300,7 @@ After connection establishment, the client factory creates a client-role
 | `core::socket::State` | Reports endpoint setup state to the listen/connect callback. |
 | `EchoSocketContext::Role` | Lets one context implementation serve both sides; the client role sends the greeting. |
 
-The application does not reproduce SNode.C's internal target graph or define
-network-selection build macros. The imported component target owns the public
-include path and transitive framework dependencies.
+The application does not reproduce SNode.C's internal target graph or define network-selection build macros. The imported component target owns the public include path and transitive framework dependencies.
 
 ## 5. CMake: consume the installed package
 
@@ -373,19 +349,13 @@ if(BUILD_TESTING)
 endif()
 ```
 
-`find_package(snodec ...)` requests exactly the installed component needed by
-this application. `snodec::net-in-stream-legacy` supplies the installed include
-path and its transitive framework link dependencies. `echo-context` is
-application code shared by the two executables.
+`find_package(snodec ...)` requests exactly the installed component needed by this application. `snodec::net-in-stream-legacy` supplies the installed include path and its transitive framework link dependencies. `echo-context` is application code shared by the two executables.
 
-`include(CTest)` provides the standard `BUILD_TESTING` option. With testing
-enabled, the standalone project adds its own `tests` directory; it does not
-depend on SNode.C's in-tree test harness.
+`include(CTest)` provides the standard `BUILD_TESTING` option. With testing enabled, the standalone project adds its own `tests` directory; it does not depend on SNode.C's in-tree test harness.
 
 ## 6. Install SNode.C and build the project
 
-Install SNode.C into a normal prefix first. A user-local prefix keeps this path
-self-contained:
+Install SNode.C into a normal prefix first. A user-local prefix keeps this path self-contained:
 
 ```sh
 cmake -S /path/to/snode.c -B /tmp/snodec-build -G Ninja \
@@ -411,9 +381,7 @@ cmake --build build --parallel 8
 mkdir -p build/echo-config
 ```
 
-`CMAKE_PREFIX_PATH` is needed only when the SNode.C installation prefix is not
-already in CMake's normal package search path. Python 3 is required when
-`BUILD_TESTING` is enabled, which is the default provided by `CTest`.
+`CMAKE_PREFIX_PATH` is needed only when the SNode.C installation prefix is not already in CMake's normal package search path. Python 3 is required when `BUILD_TESTING` is enabled, which is the default provided by `CTest`.
 
 The resulting application artifacts are:
 
@@ -490,8 +458,7 @@ SocketServer.listen()                 SocketClient.connect()
 
 ## 8. CTest: verify the complete application
 
-The standalone project registers four application-level tests. They complement
-SNode.C's lower-level IPv4/plain component tests rather than duplicating them.
+The standalone project registers four application-level tests. They complement SNode.C's lower-level IPv4/plain component tests rather than duplicating them.
 
 `tests/CMakeLists.txt` uses Python only as the deterministic peer/process driver:
 
@@ -531,8 +498,7 @@ add_test(
 )
 ```
 
-The complete [`tests/CMakeLists.txt`](../../examples/echo/tests/CMakeLists.txt)
-also assigns focused labels and 10-second timeouts.
+The complete [`tests/CMakeLists.txt`](../../examples/echo/tests/CMakeLists.txt) also assigns focused labels and 10-second timeouts.
 
 | CTest | What it establishes |
 | --- | --- |
@@ -541,12 +507,7 @@ also assigns focused labels and 10-second timeouts.
 | `echo.client-external-peer` | The real client sends the exact greeting to a deterministic Python server and reflects the returned greeting. |
 | `echo.pair-smoke` | The real server and client can run together for a bounded smoke interval without either process terminating unexpectedly. |
 
-The test driver creates isolated temporary `XDG_CONFIG_HOME` directories and
-uses ephemeral IPv4 loopback ports, so the tests do not depend on the manual
-`18001` example port or the developer's existing SNode.C configuration. The
-real-pair smoke test suppresses application-level information logging during its
-short self-reflecting run; the deterministic peer tests exercise the payload
-paths without creating an unbounded echo loop.
+The test driver creates isolated temporary `XDG_CONFIG_HOME` directories and uses ephemeral IPv4 loopback ports, so the tests do not depend on the manual `18001` example port or the developer's existing SNode.C configuration. The real-pair smoke test suppresses application-level information logging during its short self-reflecting run; the deterministic peer tests exercise the payload paths without creating an unbounded echo loop.
 
 Run the complete suite with:
 
@@ -561,21 +522,10 @@ ctest --test-dir build -R '^echo\.server-external-peer$' --output-on-failure
 ctest --test-dir build -L payload --output-on-failure
 ```
 
-The implementation is in
-[`tests/echo_tests.py`](../../examples/echo/tests/echo_tests.py). CTest owns
-orchestration and pass/fail reporting; Python only supplies deterministic socket
-peers and process control.
+The implementation is in [`tests/echo_tests.py`](../../examples/echo/tests/echo_tests.py). CTest owns orchestration and pass/fail reporting; Python only supplies deterministic socket peers and process control.
 
-SNode.C itself already exercises composition, payload exchange, framed and large
-payloads, multiple messages and clients, disconnect lifecycle, controlled close,
-connection failure, and effective listener addresses under
-[`tests/component/net`](../../tests/component/net/). Those component tests
-validate the framework foundation. These four CTests validate the **complete
-external application artifact** presented here.
+SNode.C itself already exercises composition, payload exchange, framed and large payloads, multiple messages and clients, disconnect lifecycle, controlled close, connection failure, and effective listener addresses under [`tests/component/net`](../../tests/component/net/). Those component tests validate the framework foundation. These four CTests validate the **complete external application artifact** presented here.
 
 ## Continue from here
 
-Once this plain IPv4 path is clear, the same application/context model can be
-applied to other SNode.C components by selecting the corresponding installed
-headers and exported CMake component. Higher application layers then add their
-own protocol semantics above the same event-driven connection foundation.
+Once this plain IPv4 path is clear, the same application/context model can be applied to other SNode.C components by selecting the corresponding installed headers and exported CMake component. Higher application layers then add their own protocol semantics above the same event-driven connection foundation.

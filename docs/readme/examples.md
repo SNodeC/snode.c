@@ -1,6 +1,8 @@
 # Build something with SNode.C
 
-[← SNode.C](../../README.md)
+<p>
+  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="← SNode.C" width="96" height="24"></a>
+</p>
 
 The landing page contains complete [Factory/Context](../../README.md#your-first-program-a-factory-and-a-context), [HTTP](../../README.md#a-small-web-service), [SSE](../../README.md#receive-a-server-sent-event) and [WebSocket](../../README.md#talk-both-ways-with-a-websocket) examples, including their build files and run commands. This guide adds message framing and explains composing roles. Use a separate directory for each project.
 

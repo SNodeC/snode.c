@@ -1,0 +1,229 @@
+menu "SNode.C build defaults"
+
+	comment "Select individual modules in Network / SNode.C (including net-l2 and net-rc)"
+	comment "Dependencies select required lower layers; the snodec package selects all modules, apps and the control tool"
+
+	config SNODEC_GROUP_NAME
+		string "Group name of unix group used for config/log/pid file management"
+		default snodec
+
+	choice
+		prompt "I/O Multiplexer"
+		default SNODEC_EPOLL
+
+		config SNODEC_EPOLL
+			bool "epoll"
+		config SNODEC_POLL
+			bool "poll"
+		config SNODEC_SELECT
+			bool "select"
+	endchoice
+
+	menu "Socket connection behavior"
+		depends on PACKAGE_snodec-net
+
+		config SNODEC_READ_BLOCKSIZE
+			int "Read block size in bytes"
+			range 1 2147483647
+			default 16384
+
+		config SNODEC_WRITE_BLOCKSIZE
+			int "Write block size in bytes"
+			range 1 2147483647
+			default 16384
+
+		config SNODEC_READ_TIMEOUT
+			int "Read inactivity timeout in seconds"
+			range 0 2147483647
+			default 60
+
+		config SNODEC_WRITE_TIMEOUT
+			int "Write inactivity timeout in seconds"
+			range 0 2147483647
+			default 60
+
+		config SNODEC_MAXIMUM_WRITE_QUEUE_BYTES
+			int "Maximum queued write bytes (0 = unlimited)"
+			range 0 2147483647
+			default 0
+
+		config SNODEC_WRITE_QUEUE_HIGH_WATERMARK
+			int "Pipe write queue high watermark (0 = automatic)"
+			range 0 2147483647
+			default 0
+
+		config SNODEC_WRITE_QUEUE_LOW_WATERMARK
+			int "Pipe write queue low watermark"
+			range 0 2147483647
+			default 0
+
+	endmenu
+
+	menu "Server (stream) behavior"
+		depends on PACKAGE_snodec-net
+
+		config SNODEC_BACKLOG
+			int "Listen backlog"
+			range 1 2147483647
+			default 5
+
+		config SNODEC_ACCEPTS_PER_TICK
+			int "Accepts per tick"
+			range 1 2147483647
+			default 1
+	endmenu
+
+	menu "Socket (stream) behavior"
+		depends on PACKAGE_snodec-net
+
+		config SNODEC_ACCEPT_TIMEOUT
+			int "Accept inactivity timeout in seconds"
+			range 0 2147483647
+			default 0
+
+		config SNODEC_CONNECT_TIMEOUT
+			int "Connect timeout in seconds"
+			range 0 2147483647
+			default 10
+
+		config SNODEC_TERMINATE_TIMEOUT
+			int "Shutdown timeout in seconds"
+			range 0 2147483647
+			default 1
+
+		config SNODEC_RECONNECT
+			bool "Reconnect after disconnect"
+			default n
+
+		config SNODEC_RECONNECT_TIME
+			string "Reconnect time in seconds"
+			default 1
+
+		config SNODEC_RETRY
+			bool "Retry listen and connect"
+			default n
+
+		config SNODEC_RETRY_ON_FATAL
+			bool "Retry also on fatal error"
+			default n
+
+		config SNODEC_RETRY_TIMEOUT
+			int "Retry interval in seconds"
+			range 0 2147483647
+			default 1
+
+		config SNODEC_RETRY_TRIES
+			int "Upper limit of retry tries"
+			range 0 2147483647
+			default 0
+
+		config SNODEC_RETRY_BASE
+			string "Base of exponential increase"
+			default "1.8"
+
+		config SNODEC_RETRY_JITTER
+			int "Jitter of retry timeout in percent"
+			range 0 100
+			default 0
+
+		config SNODEC_RETRY_LIMIT
+			int "Upper limit of retry timeout in seconds"
+			range 0 2147483647
+			default 0
+
+		menu "IPv4 Options"
+			depends on PACKAGE_snodec-net-in
+
+			config SNODEC_INV4_REUSE_ADDRESS
+				bool "Reuse address"
+				default n
+
+			config SNODEC_INV4_REUSE_PORT
+				bool "Reuse port"
+				default n
+
+			choice
+				depends on PACKAGE_snodec-net-in-stream
+				prompt "Disable Nagle algorithm for IPv4 sockets"
+				default SNODEC_INV4_DISABLE_NAGLE_ALGORITHM_DEFAULT
+				config SNODEC_INV4_DISABLE_NAGLE_ALGORITHM_TRUE
+					bool "true"
+				config SNODEC_INV4_DISABLE_NAGLE_ALGORITHM_FALSE
+					bool "false"
+				config SNODEC_INV4_DISABLE_NAGLE_ALGORITHM_DEFAULT
+					bool "default"
+			endchoice
+
+			config SNODEC_IPV4_NUMERIC
+				bool "Accept numeric IPv4 hostnames only"
+				default n
+
+			config SNODEC_IPV4_NUMERIC_REVERSE
+				bool "Numeric IPv4 reverse lookup"
+				default n
+		endmenu
+
+		menu "IPv6 Options"
+			depends on PACKAGE_snodec-net-in6
+
+			config SNODEC_IN6_REUSE_ADDRESS
+				bool "Reuse address"
+				default n
+
+			config SNODEC_IN6_REUSE_PORT
+				bool "Reuse port"
+				default n
+
+			choice
+				depends on PACKAGE_snodec-net-in6-stream
+				prompt "Disable Nagle algorithm for IPv6 sockets"
+				default SNODEC_INV6_DISABLE_NAGLE_ALGORITHM_DEFAULT
+				config SNODEC_INV6_DISABLE_NAGLE_ALGORITHM_TRUE
+					bool "true"
+				config SNODEC_INV6_DISABLE_NAGLE_ALGORITHM_FALSE
+					bool "false"
+				config SNODEC_INV6_DISABLE_NAGLE_ALGORITHM_DEFAULT
+					bool "default"
+			endchoice
+
+			config SNODEC_IPV6_ONLY
+				bool "IPv6 only"
+				default n
+
+			config SNODEC_IPV4_MAPPED
+				bool "IPv4-mapped IPv6 addresses"
+				default n
+
+			config SNODEC_IPV6_NUMERIC
+				bool "Accept numeric IPv6 hostnames only"
+				default n
+
+			config SNODEC_IPV6_NUMERIC_REVERSE
+				bool "Numeric IPv6 reverse lookup"
+				default n
+		endmenu
+	endmenu
+
+	menu "SSL/TLS behavior"
+		depends on PACKAGE_snodec-core-socket-stream-tls
+
+		config SNODEC_TLS_INIT_TIMEOUT
+			int "SSL/TLS initial handshake timeout in seconds"
+			range 0 2147483647
+			default 10
+
+		config SNODEC_TLS_SHUTDOWN_TIMEOUT
+			int "SSL/TLS teardown timeout in seconds"
+			range 0 2147483647
+			default 2
+	endmenu
+
+	menu "HTTP client behavior"
+		depends on PACKAGE_snodec-http-client
+
+		config SNODEC_HTTP_REQUEST_PIPELINED
+			bool "Pipelined requests"
+			default y
+
+	endmenu
+endmenu

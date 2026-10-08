@@ -1,6 +1,8 @@
 # Deploy an SNode.C application
 
-[← SNode.C](../../README.md)
+<p>
+  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="← SNode.C" width="96" height="24"></a>
+</p>
 
 SNode.C supplies libraries, runtime facilities and configuration. **Your executable is the service**: choose the interfaces it exposes, the state it persists and the operating-system account that runs it.
 
@@ -63,7 +65,7 @@ For containers, package your executable with its runtime libraries, mount config
 
 ## OpenWrt and embedded deployments
 
-Install only the required framework/application packages from the [matching feed](packages.md#openwrt). Use a matching SDK for custom builds. Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
+Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/openwrt.md). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
 
 ## Upgrade deliberately
 
