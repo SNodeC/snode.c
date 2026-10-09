@@ -14,6 +14,7 @@
 #include "tests/support/TestResult.h"
 
 #include <chrono>
+#include <cstdlib>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -89,7 +90,7 @@ namespace {
 
     private:
         static const core::socket::SocketAddress& unusableAddress() {
-            return *static_cast<const core::socket::SocketAddress*>(nullptr);
+            std::abort();
         }
     };
 

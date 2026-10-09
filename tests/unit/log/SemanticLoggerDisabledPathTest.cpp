@@ -8,6 +8,7 @@
 
 #include <cerrno>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <ostream>
@@ -138,7 +139,7 @@ namespace {
 
     private:
         static const core::socket::SocketAddress& unusableAddress() {
-            return *static_cast<const core::socket::SocketAddress*>(nullptr);
+            std::abort();
         }
     };
 
