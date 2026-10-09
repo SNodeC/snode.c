@@ -10,7 +10,7 @@ SNode.C supplies libraries, runtime facilities and configuration. **Your executa
 
 Use the application’s own configuration interface rather than guessing settings from another program:
 
-```sh
+```text
 ./my-service --help=expanded
 ./my-service --show-config
 snodec-control --target ./my-service --ui
@@ -55,7 +55,7 @@ WantedBy=multi-user.target
 
 Create the service account and configuration first; adapt paths and sandbox policy to the application. Keep daemonization disabled under `Type=simple`. If a Unix-domain socket must be shared with another process, choose an explicit accessible runtime directory rather than relying on a private `/tmp`.
 
-```sh
+```text
 sudo systemctl daemon-reload
 sudo systemctl enable --now my-service
 journalctl -u my-service -f

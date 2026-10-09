@@ -21,7 +21,7 @@ SNode.C requires a C++20 compiler and CMake 3.18 or newer. Its configure checks 
 
 On Debian/Ubuntu, install the build tools and development libraries:
 
-```sh
+```text
 sudo apt-get update
 sudo apt-get install git cmake ninja-build g++ pkg-config \
   libssl-dev nlohmann-json3-dev libbluetooth-dev libmagic-dev \
@@ -32,7 +32,7 @@ The JSON-dependent modules require `nlohmann_json` 3.11 or newer. Package names 
 
 ### Build and install
 
-```sh
+```text
 git clone https://github.com/SNodeC/snode.c.git
 cd snode.c
 cmake -S . -B build -G Ninja \
@@ -60,7 +60,7 @@ To install under a non-system prefix, change `CMAKE_INSTALL_PREFIX`, omit `sudo`
 
 For a development build with tests enabled:
 
-```sh
+```text
 cmake -S . -B build-check -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON
 cmake --build build-check --parallel
@@ -79,7 +79,7 @@ project(check_snodec LANGUAGES CXX)
 find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 ```
 
-```sh
+```text
 cmake -S . -B build
 ```
 
@@ -114,7 +114,7 @@ SHA256: `ff4a38a397caa2cfe1c39e18f84ddede14878221b3593c3f2c4cfe24e3ec4c25`
 
 Obtain the SDK archive and verify its SHA256 before extracting it. Keep its default feed revisions. The recipe is included in your SNode.C checkout; if you do not have one yet, clone it:
 
-```sh
+```text
 git clone https://github.com/SNodeC/snode.c.git
 ```
 
@@ -122,7 +122,7 @@ git clone https://github.com/SNodeC/snode.c.git
 
 Run the following inside the extracted SDK. Replace `/path/to/snode.c` with the absolute path of your SNode.C checkout:
 
-```sh
+```text
 ./scripts/feeds update base packages
 ./scripts/feeds install nlohmannjson libopenssl libmagic bluez-libs libmariadb
 mkdir -p package/local
@@ -137,7 +137,7 @@ The recipe declares the default source release. To select another release, expor
 
 In a fresh SDK, initialize the package selection:
 
-```sh
+```text
 cat > .config <<'EOF'
 # CONFIG_ALL is not set
 # CONFIG_ALL_NONSHARED is not set

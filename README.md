@@ -155,7 +155,7 @@ endforeach()
 
 **Run — terminal 1:**
 
-```sh
+```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/echo-server --config-file /dev/null
@@ -163,13 +163,13 @@ cmake --build build --parallel
 
 **Run — terminal 2:**
 
-```sh
+```text
 ./build/echo-client --config-file /dev/null request socket --reconnect=false
 ```
 
 **Interoperability check with Python — terminal 2:**
 
-```sh
+```text
 python3 - <<'PY'
 import socket
 with socket.create_connection(('127.0.0.1', 18001)) as peer:
@@ -274,7 +274,7 @@ target_link_libraries(hello PRIVATE snodec::http-server-express-legacy-in)
 
 **Run — terminal 1:**
 
-```sh
+```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/hello --config-file /dev/null
@@ -282,7 +282,7 @@ cmake --build build --parallel
 
 **Run — terminal 2:**
 
-```sh
+```text
 curl http://127.0.0.1:18081/hello
 ```
 
@@ -365,7 +365,7 @@ target_link_libraries(events PRIVATE snodec::http-client snodec::net-in-stream-l
 
 **Run — terminal 2:**
 
-```sh
+```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/events --config-file /dev/null
@@ -439,7 +439,7 @@ target_link_libraries(websocket PRIVATE snodec::http-server-express-legacy-in)
 
 **Run — terminal 1:**
 
-```sh
+```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/websocket --config-file /dev/null

@@ -83,7 +83,7 @@ target_link_libraries(lines PRIVATE snodec::net-in-stream-legacy)
 
 **Run — terminal 1:**
 
-```sh
+```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ./build/lines --config-file /dev/null
@@ -91,7 +91,7 @@ cmake --build build --parallel
 
 **Run — terminal 2:**
 
-```sh
+```text
 python3 - <<'PY'
 import socket
 with socket.create_connection(('127.0.0.1', 18002)) as peer:
