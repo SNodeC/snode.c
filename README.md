@@ -35,10 +35,10 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
 <!-- snodec:begin menu -->
 <p>
   <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="108" height="24"></a>
-  <a href="#platforms-and-packages" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
-  <a href="docs/readme/install.md" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
-  <a href="docs/readme/examples.md" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
-  <a href="docs/readme/deployment.md#start-with-one-explicit-configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
+  <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
+  <a href="#build-from-source" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
+  <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
+  <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
   <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
@@ -47,14 +47,16 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
 <details>
 <summary>Text navigation</summary>
 
-[Start](#quick-start) · [Install](#platforms-and-packages) · [Build](docs/readme/install.md) · [Use](docs/readme/examples.md) · [Configure](docs/readme/deployment.md#start-with-one-explicit-configuration) · [Architecture](#architecture) · [API](https://snodec.github.io/snode.c-doc/html/index.html) · [Contribute](#contributing)
+[Start](#quick-start) · [Install](#install) · [Build](#build-from-source) · [Use](#first-success) · [Configure](#configuration) · [Architecture](#architecture) · [API](https://snodec.github.io/snode.c-doc/html/index.html) · [Contribute](#contributing)
 
 </details>
 <!-- snodec:end menu -->
 
 ## Quick start
 
-Choose your route: [install signed packages](https://github.com/SNodeC/Packages#readme) or [build from source](docs/readme/install.md), then run the complete native echo below.
+1. [Install](#install) — choose the available installation route and prepare its requirements.
+2. [Use](#first-success) — run the native echo example.
+3. [Configure](#configuration) — review runtime settings and access boundaries before deployment.
 
 [Native echo](#your-first-program-a-factory-and-a-context) · [HTTP service](#a-small-web-service) · [SSE client](#receive-a-server-sent-event) · [WebSocket](#talk-both-ways-with-a-websocket)
 
@@ -309,17 +311,25 @@ The strings `"echo"` and `"request"` name the server's and client's **configurat
 
 SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
 
+### Configuration
+
+Use the [runtime configuration guide](docs/readme/deployment.md#start-with-one-explicit-configuration) to inspect application settings, persist configuration and choose deployment access boundaries. These are runtime settings; [Build from source](#build-from-source) covers compilation and CMake options.
+
 ## Platforms and packages
 
 ### Install
 
-Choose your route: use signed packages or build from source.
+Choose your route: [install signed packages](https://github.com/SNodeC/Packages#readme) or [build from source](#build-from-source).
 
 [Prebuilt packages](https://github.com/SNodeC/Packages#readme) · [Build from source](docs/readme/install.md) · [Deploy](docs/readme/deployment.md)
 
 Prebuilt packages are available from **[SNodeC/Packages](https://github.com/SNodeC/Packages#readme)**. Choose the guide matching your distribution, release and package architecture.
 
+### Build from source
+
 To compile SNode.C yourself, follow the [source-build guide](docs/readme/install.md).
+
+Choose the [native Linux build](docs/readme/install.md#native-linux-build) or [OpenWrt cross-compilation](docs/readme/install.md#openwrt-cross-compilation). The guide covers prerequisites, build options, complete commands and installation checks.
 
 ## Releases
 
