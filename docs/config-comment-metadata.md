@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../README.md#project-overview" title="SNode.C repository"><img src="readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Configuration comment metadata
 
 `-s` / `--show-config` emits the canonical SNode.C configuration template as INI-compatible text. Version 1 now augments that template with structured metadata comments for tools such as `snodec-control` while keeping the real configuration lines unchanged.

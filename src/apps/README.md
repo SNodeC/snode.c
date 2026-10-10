@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../../docs/readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Example applications
 
 The programs in this directory demonstrate SNode.C composition and configuration. For a first application, use the complete standalone echo project in [`examples/echo`](../../examples/echo/). It consumes an **installed** SNode.C package exactly as an external application does: CMake discovers SNode.C with `find_package()`, framework headers come from the installed include tree, and the application links an exported `snodec::` target.
@@ -6,9 +13,9 @@ The worked path deliberately uses only plain IPv4 streams. It is small enough to
 
 <p>
   <a href="../../examples/echo/" title="Complete echo project"><img src="../../docs/readme/media/menu/complete-echo-project-184.svg" alt="Complete echo project" width="184" height="24"></a>
-  <a href="../../README.md" title="Project README"><img src="../../docs/readme/media/menu/project-readme-184.svg" alt="Project README" width="184" height="24"></a>
+  <a href="../../README.md#project-overview" title="Project README"><img src="../../docs/readme/media/menu/project-readme-184.svg" alt="Project README" width="184" height="24"></a>
   <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API documentation"><img src="../../docs/readme/media/menu/api-documentation-184.svg" alt="API documentation" width="184" height="24"></a>
-  <a href="../../tests/component/net/README.md" title="Network component tests"><img src="../../docs/readme/media/menu/network-component-tests-184.svg" alt="Network component tests" width="184" height="24"></a>
+  <a href="../../tests/component/net/README.md#page-overview" title="Network component tests"><img src="../../docs/readme/media/menu/network-component-tests-184.svg" alt="Network component tests" width="184" height="24"></a>
 </p>
 
 ## Worked path: external plain-IPv4 echo pair

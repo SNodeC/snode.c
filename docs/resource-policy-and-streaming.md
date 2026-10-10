@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../README.md#project-overview" title="SNode.C repository"><img src="readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Framework resource policies and descriptor streaming
 
 SNode.C keeps transport mechanics and protocol resource limits in the framework. Applications remain responsible for protocol semantics and application policy, such as HTTP methods, authorization, `Host`, `Origin`, cookies, and Unix-peer trust decisions.

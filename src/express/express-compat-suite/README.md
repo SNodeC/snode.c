@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../../README.md#project-overview" title="SNode.C repository"><img src="../../../docs/readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Express Compatibility Suite (Node.js/Express v4 vs SNode.C/Express)
 
 This bundle contains:

@@ -26,7 +26,7 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 <p>
   <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="108" height="24"></a>
   <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
-  <a href="docs/readme/install.md" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
   <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
@@ -201,7 +201,7 @@ PY
 
 ### Try another protocol
 
-The [examples guide](docs/readme/examples.md) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
+The [examples guide](docs/readme/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
 
 ## Capabilities
 
@@ -227,9 +227,9 @@ The [examples guide](docs/readme/examples.md) contains complete HTTP, SSE and We
 
 All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
 
-Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
+Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-[![Explore the full capability map](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md)
+[![Explore the full capability map](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md#page-overview)
 
 ### Same context, another transport
 
@@ -245,7 +245,7 @@ Unix socket — component: net-un-stream-legacy
   net::un::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>
 ```
 
-A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md).
+A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md#page-overview).
 
 ### Designed to live inside your application
 
@@ -256,7 +256,7 @@ A Unix listener takes a socket path instead of a host/port. TLS also requires ce
 - **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
 - **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
 
-The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md) separates implementation coverage from deployment requirements.
+The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md#page-overview) separates implementation coverage from deployment requirements.
 
 ## Architecture
 
@@ -292,14 +292,14 @@ Bind only the intended interfaces, configure certificate/trust settings for TLS,
 
 ## Documentation
 
-[Documentation index](docs/index.md) — the existing guides, examples and runtime references.
+[Documentation index](docs/index.md#page-overview) — the existing guides, examples and runtime references.
 
 ### Learn by building
 
 - **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](docs/readme/examples.md#talk-both-ways-with-a-websocket)
-- **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md)
-- **Choose protocols:** [Capability guide](docs/readme/capabilities.md)
-- **Run a service:** [Deployment guide](docs/readme/deployment.md)
+- **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
+- **Choose protocols:** [Capability guide](docs/readme/capabilities.md#page-overview)
+- **Run a service:** [Deployment guide](docs/readme/deployment.md#page-overview)
 - **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
 
 ## Platforms and packages
@@ -312,7 +312,7 @@ Choose your route.
 
 <p>
   <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="152" height="24"></a>
-  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
 </p>
 
 Choose signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
