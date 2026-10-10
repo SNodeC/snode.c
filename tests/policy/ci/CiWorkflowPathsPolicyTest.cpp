@@ -116,18 +116,18 @@ int main() {
         return 1;
     }
     const std::map<std::string, Triggers> workflows = {
-        {"ci.yml", {{"push", {}}, {"pull_request", {}}, {"workflow_dispatch", {}}}},
+        {"ci.yml", {{"workflow_dispatch", {}}}},
         {"packages.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}}, {"repository_dispatch", {{"types", {"package-build"}}}}}},
     };
-    const Triggers verifyEvents = {{"push", {}}, {"pull_request", {}}, {"workflow_dispatch", {}}};
-    bool ok = matchesTriggers("on: [push, pull_request, workflow_dispatch]\n", verifyEvents) &&
-              !matchesTriggers("on: [push, push, pull_request, workflow_dispatch]\n", verifyEvents) &&
-              !matchesTriggers("on: [push, pull_request, release]\n", verifyEvents) &&
-              !matchesTriggers("on: [push, pull_request, workflow_dispatch]\non: [push]\n", verifyEvents);
+    const Triggers verifyEvents = {{"workflow_dispatch", {}}};
+    bool ok = matchesTriggers("on: [workflow_dispatch]\n", verifyEvents) &&
+              !matchesTriggers("on: [workflow_dispatch, workflow_dispatch]\n", verifyEvents) &&
+              !matchesTriggers("on: [push, pull_request, workflow_dispatch]\n", verifyEvents) &&
+              !matchesTriggers("on: [release]\n", verifyEvents) && !matchesTriggers("on: [workflow_dispatch]\non: [push]\n", verifyEvents);
     for (const auto& [name, triggers] : workflows) {
         const auto path = root / ".github/workflows" / name;
         if (!matchesTriggers(source_policy::readSourcePolicyFile(path), triggers)) {
-            std::cerr << "Unexpected CI triggers in " << path << ": expected Verify events or version-tag/package-build events\n";
+            std::cerr << "Unexpected CI triggers in " << path << ": expected manual Verify or version-tag/package-build events\n";
             ok = false;
         }
     }
