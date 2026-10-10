@@ -1,5 +1,5 @@
 name: Build distribution packages
-run-name: Packages · ${{ github.event.client_payload.capture || github.ref_name }} · ${{ github.event.client_payload.target || '-' }}
+run-name: Packages · ${{ github.event.client_payload.capture || github.run_id }} · ${{ github.event.client_payload.target || '-' }}
 on:
   push:
     tags: ['v[0-9]*.[0-9]*.[0-9]*']
@@ -10,68 +10,72 @@ permissions:
   actions: read
 env:
   PYTHONPATH: ${{ github.workspace }}/feed
+  CAPTURE_RUN: ${{ github.event.client_payload.capture || github.run_id }}
+  CAPTURE_REPOSITORY: ${{ github.event_name == 'repository_dispatch' && 'SNodeC/snode.c' || github.repository }}
   BUILD_PROJECT: snode.c
   TARGET_ID: ${{ github.event.client_payload.target || '-' }}
   PUBLISHED_REF: ${{ github.event.client_payload.publication }}
   BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 jobs:
-  release:
-    if: github.event_name == 'push' && github.event.deleted == false
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/create-github-app-token@v3
-        id: app
-        with:
-          client-id: ${{ vars.PACKAGES_APP_CLIENT_ID }}
-          private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
-          owner: SNodeC
-          repositories: DistributionPackages
-          permission-contents: write
-      - name: Request release package build
-        env:
-          GH_TOKEN: ${{ steps.app.outputs.token }}
-        run: |
-          [[ "$GITHUB_REF" =~ ^refs/tags/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 0
-          jq '{event_type: "release-tag-changed", client_payload: {
-            repository: .repository.full_name, ref: .ref,
-            before: .before, after: .after, deleted: .deleted
-          }}' "$GITHUB_EVENT_PATH" |
-            gh api --method POST repos/SNodeC/DistributionPackages/dispatches --input -
   prepare:
-    if: github.event_name == 'repository_dispatch'
+    if: github.event_name == 'repository_dispatch' || github.event.deleted == false
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       revisions: ${{ steps.matrix.outputs.revisions }}
-    steps: &capture_steps
+    steps:
       - uses: actions/create-github-app-token@v3
         id: capture
         with:
           client-id: ${{ vars.PACKAGES_APP_CLIENT_ID }}
           private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
           owner: SNodeC
-          repositories: DistributionPackages,Packages
+          repositories: DistributionPackages,Packages,snode.c,mqttsuite
           permission-actions: read
           permission-contents: write
-      - uses: actions/download-artifact@v8
+      - uses: actions/checkout@v6
         with:
           repository: SNodeC/DistributionPackages
-          run-id: ${{ github.event.client_payload.capture }}
+          ref: main
+          token: ${{ steps.capture.outputs.token }}
+          path: feed
+          persist-credentials: false
+      - name: Allocate revisions and capture release targets
+        if: github.event_name == 'push' && github.run_attempt == 1
+        env:
+          PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
+          RELEASE_PROJECT: ${{ env.BUILD_PROJECT }}
+        run: |
+          [[ "$GITHUB_REF" =~ ^refs/tags/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          export RELEASE_TAG="${GITHUB_REF#refs/tags/}"
+          bash feed/ci/publish/status.sh published reserve
+          python3 -m ci.repository prepare published bundle
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push' && github.run_attempt == 1
+        with:
+          name: source-pair
+          path: bundle/
+          if-no-files-found: error
+      - uses: actions/download-artifact@v8
+        if: github.event_name != 'push' || github.run_attempt > 1
+        with:
+          repository: ${{ env.CAPTURE_REPOSITORY }}
+          run-id: ${{ env.CAPTURE_RUN }}
           github-token: ${{ steps.capture.outputs.token }}
           name: source-pair
           path: bundle
-      - name: Read captured targets or finalize interrupted builds
+      - name: Restore captured tools and select targets
         id: matrix
+        run: |
+          tar -xzf bundle/feed.tar.gz -C feed
+          python3 -m ci.dispatch plan bundle "$BUILD_PROJECT" "$TARGET_ID" >> "$GITHUB_OUTPUT"
+      - name: Initialize pending status
+        if: github.event_name == 'push' && github.run_attempt == 1
+        continue-on-error: true
+        timeout-minutes: 3
         env:
           PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
-        run: |
-          mkdir feed
-          tar -xzf bundle/feed.tar.gz -C feed
-          if [ -n "${FINAL_STATUS:-}" ]; then
-            bash feed/ci/publish/status.sh published finalize bundle "$FINAL_STATUS"
-          else
-            python3 -m ci.dispatch plan bundle "$BUILD_PROJECT" "$TARGET_ID" >> "$GITHUB_OUTPUT"
-          fi
+        run: bash feed/ci/publish/status.sh status-checkout status bundle - - pending
   build:
     name: Build and test · ${{ matrix.distribution }} · ${{ matrix.suite }} · ${{ matrix.arch }}
     needs: prepare
@@ -81,7 +85,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     concurrency:
-      group: package-build-${{ github.event.client_payload.capture }}-${{ matrix.build_slot }}
+      group: package-build-${{ github.event.client_payload.capture || github.run_id }}-${{ matrix.build_slot }}
       cancel-in-progress: false
       queue: max
     env:
@@ -94,13 +98,13 @@ jobs:
           client-id: ${{ vars.PACKAGES_APP_CLIENT_ID }}
           private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
           owner: SNodeC
-          repositories: DistributionPackages
+          repositories: snode.c,mqttsuite
           permission-actions: read
           permission-contents: read
       - uses: actions/download-artifact@v8
         with:
-          repository: SNodeC/DistributionPackages
-          run-id: ${{ github.event.client_payload.capture }}
+          repository: ${{ env.CAPTURE_REPOSITORY }}
+          run-id: ${{ env.CAPTURE_RUN }}
           github-token: ${{ steps.capture.outputs.token }}
           name: source-pair
           path: bundle
@@ -214,9 +218,32 @@ jobs:
         run: bash feed/ci/publish/status.sh published status status-bundle "$TARGET" "$BUILD_PROJECT" "$BUILD_STATUS"
   finalize:
     needs: [prepare, build]
-    if: ${{ always() && github.event_name == 'repository_dispatch' && needs.build.result != 'success' }}
+    if: ${{ always() && needs.prepare.result == 'success' && needs.build.result != 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       FINAL_STATUS: ${{ needs.build.result == 'cancelled' && 'cancelled' || 'failed' }}
-    steps: *capture_steps
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: capture
+        with:
+          client-id: ${{ vars.PACKAGES_APP_CLIENT_ID }}
+          private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
+          owner: SNodeC
+          repositories: Packages,snode.c,mqttsuite
+          permission-actions: read
+          permission-contents: write
+      - uses: actions/download-artifact@v8
+        with:
+          repository: ${{ env.CAPTURE_REPOSITORY }}
+          run-id: ${{ env.CAPTURE_RUN }}
+          github-token: ${{ steps.capture.outputs.token }}
+          name: source-pair
+          path: bundle
+      - name: Finalize interrupted builds
+        env:
+          PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
+        run: |
+          mkdir feed
+          tar -xzf bundle/feed.tar.gz -C feed
+          bash feed/ci/publish/status.sh published finalize bundle "$FINAL_STATUS"
