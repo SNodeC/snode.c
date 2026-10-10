@@ -1,15 +1,11 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
 # SNode.C capability map
-
-<p>
-  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
-</p>
 
 This inventory describes the public framework’s major capability families. Optional dependencies and target-specific package selections determine which components are installed. The [API reference](https://snodec.github.io/snode.c-doc/html/index.html) supplies the class-level detail.
 

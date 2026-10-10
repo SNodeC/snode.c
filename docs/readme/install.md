@@ -1,15 +1,11 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
 # Build and install SNode.C from source
-
-<p>
-  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
-</p>
 
 <p>
   <a href="#native-linux-build" title="Native Linux build"><img src="media/install-native-linux.svg" alt="Native Linux build" width="222" height="24"></a>
