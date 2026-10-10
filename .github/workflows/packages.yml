@@ -40,8 +40,16 @@ jobs:
           token: ${{ steps.capture.outputs.token }}
           path: feed
           persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          repository: ${{ env.CAPTURE_REPOSITORY }}
+          run-id: ${{ env.CAPTURE_RUN }}
+          github-token: ${{ steps.capture.outputs.token }}
+          pattern: source-pair
+          path: bundle
       - name: Allocate revisions and capture release targets
-        if: github.event_name == 'push' && github.run_attempt == 1
+        id: initialize
+        if: github.event_name == 'push' && hashFiles('bundle/context.json') == ''
         env:
           PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
           RELEASE_PROJECT: ${{ env.BUILD_PROJECT }}
@@ -51,26 +59,18 @@ jobs:
           bash feed/ci/publish/status.sh published reserve
           python3 -m ci.repository prepare published bundle
       - uses: actions/upload-artifact@v7
-        if: github.event_name == 'push' && github.run_attempt == 1
+        if: steps.initialize.outcome == 'success'
         with:
           name: source-pair
           path: bundle/
           if-no-files-found: error
-      - uses: actions/download-artifact@v8
-        if: github.event_name != 'push' || github.run_attempt > 1
-        with:
-          repository: ${{ env.CAPTURE_REPOSITORY }}
-          run-id: ${{ env.CAPTURE_RUN }}
-          github-token: ${{ steps.capture.outputs.token }}
-          name: source-pair
-          path: bundle
       - name: Restore captured tools and select targets
         id: matrix
         run: |
           tar -xzf bundle/feed.tar.gz -C feed
           python3 -m ci.dispatch plan bundle "$BUILD_PROJECT" "$TARGET_ID" >> "$GITHUB_OUTPUT"
       - name: Initialize pending status
-        if: github.event_name == 'push' && github.run_attempt == 1
+        if: steps.initialize.outcome == 'success'
         continue-on-error: true
         timeout-minutes: 3
         env:
