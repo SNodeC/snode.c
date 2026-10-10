@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Semantic text output format
 
 Semantic text output is the human-readable presentation for semantic `LogRecord` data. JSON schema v1 is unchanged, production call sites and semantic identity are unchanged, and legacy `LOG`/`PLOG`/`VLOG` output is unchanged.

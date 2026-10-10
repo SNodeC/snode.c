@@ -1,7 +1,14 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Deploy an SNode.C application
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
+  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 SNode.C supplies libraries, runtime facilities and configuration. **Your executable is the service**: choose the interfaces it exposes, the state it persists and the operating-system account that runs it.
@@ -25,7 +32,7 @@ Persist the selected configuration with `--write-config path/to/service.conf`. T
 - Bind only the required interfaces. Use loopback or a Unix-domain socket for local services.
 - Configure TLS certificates, private-key permissions, peer verification and trust roots for encrypted connections. Never deploy the repository’s demonstration keys as production credentials.
 - Choose authentication and authorization appropriate to the application. TLS encryption and HTTP Basic middleware do not by themselves define access policy.
-- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md).
+- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md#page-overview).
 - Keep callbacks non-blocking. Size retry/backoff and reconnect settings to avoid overwhelming a recovering peer.
 - Create writable state directories for the service account. Keep binaries and configuration read-only where practical.
 - Select log levels deliberately. Trace output and payload dumps can be expensive and can expose application data; use scoped filters and rotation.

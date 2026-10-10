@@ -1,7 +1,14 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Build something with SNode.C
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
+  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 Start with the complete [native echo and Python interoperability example](../../README.md#your-first-program-a-factory-and-a-context). Continue here with HTTP, SSE, WebSocket and message framing. Each example includes prerequisites, build files, commands, expected results and boundaries; use a separate directory for each project.
@@ -80,7 +87,7 @@ curl http://127.0.0.1:18081/hello
 
 **Boundaries:** loopback HTTP, without TLS or authentication. For HTTPS use `<express/tls/in/WebApp.h>`, `express::tls::in::WebApp` and component `http-server-express-tls-in`, then configure certificates and trust.
 
-[![deployment and resource limits](media/menu/further-deployment.svg)](deployment.md)
+[![deployment and resource limits](media/menu/further-deployment.svg)](deployment.md#page-overview)
 
 ## Receive a server-sent event
 
@@ -311,7 +318,7 @@ PY
 
 **Boundaries:** an overlong line closes the connection, and an unfinished line is discarded on disconnect. This example uses LF delimiters and unencrypted loopback TCP. Applications should also configure idle and write-queue limits.
 
-[![resource and deployment policy](media/menu/further-deployment.svg)](deployment.md)
+[![resource and deployment policy](media/menu/further-deployment.svg)](deployment.md#page-overview)
 
 ## Compose roles in one application
 

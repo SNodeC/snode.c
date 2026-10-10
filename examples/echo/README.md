@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../../docs/readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # External SNode.C echo pair
 
 This directory is a complete standalone CMake project that consumes an installed
@@ -72,4 +79,4 @@ deterministic external peer, the real client against a deterministic external
 peer, and a bounded real-pair smoke run.
 
 For the annotated source-to-build walkthrough, see
-[`src/apps/README.md`](../../src/apps/README.md).
+[`src/apps/README.md`](../../src/apps/README.md#page-overview).

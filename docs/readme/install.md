@@ -1,7 +1,14 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Build and install SNode.C from source
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
+  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 <p>
@@ -67,7 +74,7 @@ cmake --build build-check --parallel
 ctest --test-dir build-check --output-on-failure --parallel
 ```
 
-Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md).
+Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md#page-overview).
 
 ### Verify the installation
 
