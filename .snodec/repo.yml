@@ -1,0 +1,18 @@
+# Build specifics only; identity lives in SNodeC/.github/catalog.yml.
+ci:
+  profile: cpp
+  apt:
+  - libncurses-dev
+  deps: []
+  cmake_options:
+  - -DCMAKE_BUILD_TYPE=Debug
+  - -DSNODEC_BUILD_TESTS=ON
+  - -DSNODEC_BUILD_APPS=ON
+  ctest_args:
+  - --output-on-failure
+  - --parallel
+  - '8'
+  ipv6: true
+  runtime_dirs: true
+  parallel: 8
+  sdk: true
