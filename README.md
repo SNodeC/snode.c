@@ -33,7 +33,23 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
 - [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
 
 <!-- snodec:begin menu -->
+<p>
+  <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="108" height="24"></a>
+  <a href="#platforms-and-packages" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
+  <a href="docs/readme/install.md" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
+  <a href="docs/readme/examples.md" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
+  <a href="docs/readme/deployment.md#start-with-one-explicit-configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
+  <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
+</p>
+
+<details>
+<summary>Text navigation</summary>
+
 [Start](#quick-start) · [Install](#platforms-and-packages) · [Build](docs/readme/install.md) · [Use](docs/readme/examples.md) · [Configure](docs/readme/deployment.md#start-with-one-explicit-configuration) · [Architecture](#architecture) · [API](https://snodec.github.io/snode.c-doc/html/index.html) · [Contribute](#contributing)
+
+</details>
 <!-- snodec:end menu -->
 
 ## Quick start
