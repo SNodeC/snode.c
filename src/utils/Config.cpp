@@ -991,7 +991,7 @@ namespace utils {
             }
         }
 
-        if (proceed && !std::filesystem::exists(configDirectory)) {
+        if (proceed) {
             if (std::filesystem::create_directories(configDirectory)) {
                 std::filesystem::permissions(
                     configDirectory,
@@ -1011,13 +1011,10 @@ namespace utils {
                         proceed = false;
                     }
                 }
-            } else {
-                std::cout << "Error: Can not create directory '" << configDirectory << "'" << std::endl;
-                proceed = false;
             }
         }
 
-        if (proceed && !std::filesystem::exists(logDirectory)) {
+        if (proceed) {
             if (std::filesystem::create_directories(logDirectory)) {
                 std::filesystem::permissions(logDirectory,
                                              (std::filesystem::perms::owner_all | std::filesystem::perms::group_all) &
@@ -1036,13 +1033,10 @@ namespace utils {
                         proceed = false;
                     }
                 }
-            } else {
-                std::cout << "Error: Can not create directory '" << logDirectory << "'" << std::endl;
-                proceed = false;
             }
         }
 
-        if (proceed && !std::filesystem::exists(pidDirectory)) {
+        if (proceed) {
             if (std::filesystem::create_directories(pidDirectory)) {
                 std::filesystem::permissions(pidDirectory,
                                              geteuid() == 0 ? std::filesystem::perms::owner_all | std::filesystem::perms::group_all
@@ -1061,9 +1055,6 @@ namespace utils {
                         proceed = false;
                     }
                 }
-            } else {
-                std::cout << "Error: Can not create directory '" << pidDirectory << "'" << std::endl;
-                proceed = false;
             }
         }
 
