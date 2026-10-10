@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 
-# snodec-control is an out-of-tree companion tool for SNode.C applications. It
-# is a fully standalone CMake project: it is never add_subdirectory()'d by the
-# SNode.C build, links against none of its libraries, and inspects target
-# applications purely by executing them as separate processes (never dlopen(),
-# never calling their main()). Build it on its own, e.g.: mkdir build && cd
-# build && cmake -DSNODEC_CONTROL_BUILD_TESTS=ON .. && cmake --build .
+# snodec-control is a standalone companion project, also included by
+# src/tools/CMakeLists.txt in the SNode.C tools build. It links no framework
+# libraries and inspects applications only by executing separate processes.
+# For an independent build, configure this directory as the CMake source root.
 
 project(
     snodec-control

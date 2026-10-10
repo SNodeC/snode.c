@@ -1,8 +1,11 @@
-# SNode.C capability map
-
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
+<!-- snodec:end page-header -->
+
+# SNode.C capability map
 
 This inventory describes the public framework’s major capability families. Optional dependencies and target-specific package selections determine which components are installed. The [API reference](https://snodec.github.io/snode.c-doc/html/index.html) supplies the class-level detail.
 
@@ -74,17 +77,17 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 - **C++ / CLI / configuration files.** Configure application sections and named instances through the same configuration model.
 - **`snodec-control`.** Discover an application’s configuration, inspect/edit values, generate configuration files and optionally use a Curses terminal UI.
 - **Retry and reconnect policy.** Retry limits, delays, backoff and jitter; reconnect after connection loss.
-- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../resource-policy-and-streaming.md).
+- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../resource-policy-and-streaming.md#page-overview).
 - **Semantic logging.** Text/JSON output; application/framework, component, boundary and instance filtering; structured context and hex dumps.
 - **CMake components.** Imported `snodec::…` targets for external applications.
-- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](install.md).
+- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](install.md#page-overview).
 
 ## Demonstrations and deployment
 
 The source contains HTTP, echo, WebSocket, database and OAuth2 demonstrations. Production services still need explicit access controls, TLS configuration and qualification on their target hardware; the OAuth2 sample is a learning application.
 
 <p>
-  <a href="install.md" title="Build from source"><img src="media/menu/build-114.svg" alt="Build from source" width="114" height="24"></a>
-  <a href="examples.md" title="Run examples"><img src="media/menu/run-examples-114.svg" alt="Run examples" width="114" height="24"></a>
-  <a href="deployment.md" title="Deploy"><img src="media/menu/deploy-114.svg" alt="Deploy" width="114" height="24"></a>
+  <a href="install.md#page-overview" title="Build from source"><img src="media/menu/build-114.svg" alt="Build from source" width="114" height="24"></a>
+  <a href="examples.md#page-overview" title="Run examples"><img src="media/menu/run-examples-114.svg" alt="Run examples" width="114" height="24"></a>
+  <a href="deployment.md#page-overview" title="Deploy"><img src="media/menu/deploy-114.svg" alt="Deploy" width="114" height="24"></a>
 </p>

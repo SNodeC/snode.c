@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../../../../README.md#project-overview" title="SNode.C repository"><img src="../../../../../docs/readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Manual UI smoke test notes
 
 `fake-snodec-target.sh` in this directory is a tiny, dependency-free stand-in for a real SNode.C

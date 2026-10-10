@@ -15,7 +15,7 @@
 <!-- snodec:end header -->
 
 <!-- snodec:begin status -->
-[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) · [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) · [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) · [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
 <!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
@@ -26,11 +26,11 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 <p>
   <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="108" height="24"></a>
   <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
-  <a href="docs/readme/install.md" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
   <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/annotated.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
@@ -201,7 +201,9 @@ PY
 
 ### Try another protocol
 
-The [examples guide](docs/readme/examples.md) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
+The [examples guide](docs/readme/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
+
+Not working? See [first-program troubleshooting](docs/readme/deployment.md#troubleshoot-a-first-program).
 
 ## Capabilities
 
@@ -227,9 +229,9 @@ The [examples guide](docs/readme/examples.md) contains complete HTTP, SSE and We
 
 All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
 
-Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
+Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-[![Explore the full capability map](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md)
+[![Explore the full capability map](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md#page-overview)
 
 ### Same context, another transport
 
@@ -245,7 +247,7 @@ Unix socket — component: net-un-stream-legacy
   net::un::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>
 ```
 
-A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md).
+A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md#page-overview).
 
 ### Designed to live inside your application
 
@@ -256,7 +258,7 @@ A Unix listener takes a socket path instead of a host/port. TLS also requires ce
 - **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
 - **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
 
-The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md) separates implementation coverage from deployment requirements.
+The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md#page-overview) separates implementation coverage from deployment requirements.
 
 ## Architecture
 
@@ -290,17 +292,21 @@ Bind only the intended interfaces, configure certificate/trust settings for TLS,
 
 [![runtime configuration and deployment](docs/readme/media/menu/further-deployment.svg)](docs/readme/deployment.md#start-with-one-explicit-configuration)
 
+For runtime log levels and foreground supervision, see [logging and process options](docs/readme/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
+
 ## Documentation
 
-[Documentation index](docs/index.md) — the existing guides, examples and runtime references.
+The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
+
+[Documentation index](docs/index.md#page-overview) — the existing guides, examples and runtime references.
 
 ### Learn by building
 
 - **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](docs/readme/examples.md#talk-both-ways-with-a-websocket)
-- **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md)
-- **Choose protocols:** [Capability guide](docs/readme/capabilities.md)
-- **Run a service:** [Deployment guide](docs/readme/deployment.md)
-- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
+- **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
+- **Choose protocols:** [Capability guide](docs/readme/capabilities.md#page-overview)
+- **Run a service:** [Deployment guide](docs/readme/deployment.md#page-overview)
+- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/annotated.html)
 
 ## Platforms and packages
 
@@ -310,9 +316,12 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 
 Choose your route.
 
-**Signed packages:** Use [SNodeC/Packages](https://github.com/SNodeC/Packages#readme) and select your distribution, release and architecture.
+<p>
+  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="152" height="24"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
+</p>
 
-**From source:** Follow [Build from source](docs/readme/install.md) for native Linux or OpenWrt.
+Use signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
 
 ## Releases
 

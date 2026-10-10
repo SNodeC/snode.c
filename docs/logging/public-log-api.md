@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Public logging API
 
 `<Log.h>` is the single application-facing logging header. New code belongs in
