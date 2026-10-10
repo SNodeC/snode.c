@@ -310,9 +310,12 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 
 Choose your route.
 
-**Signed packages:** Use [SNodeC/Packages](https://github.com/SNodeC/Packages#readme) and select your distribution, release and architecture.
+<p>
+  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="152" height="24"></a>
+  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
+</p>
 
-**From source:** Follow [Build from source](docs/readme/install.md) for native Linux or OpenWrt.
+Choose signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
 
 ## Releases
 
