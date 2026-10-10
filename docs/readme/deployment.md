@@ -1,8 +1,11 @@
-# Deploy an SNode.C application
-
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
+<!-- snodec:end page-header -->
+
+# Deploy an SNode.C application
 
 SNode.C supplies libraries, runtime facilities and configuration. **Your executable is the service**: choose the interfaces it exposes, the state it persists and the operating-system account that runs it.
 
@@ -16,7 +19,7 @@ Use the application’s own configuration interface rather than guessing setting
 snodec-control --target ./my-service --ui
 ```
 
-The terminal UI requires a build with Curses support. CLI inspection and file generation do not. Protect exported configuration files: they can contain credentials and private-key paths.
+The [configuration-tool guide](../../src/tools/snodec-control/README.md#page-overview) covers inspection, editing and saving. The terminal UI requires a build with Curses support. CLI inspection and file generation do not. Protect exported configuration files: they can contain credentials and private-key paths.
 
 Persist the selected configuration with `--write-config path/to/service.conf`. This writes and exits; it is not a live reload. Start the service with `--config-file path/to/service.conf`. Applications that construct additional instances dynamically can use the framework’s reconfiguration API, but that is distinct from promising arbitrary hot reload of application state.
 
@@ -25,10 +28,35 @@ Persist the selected configuration with `--write-config path/to/service.conf`. T
 - Bind only the required interfaces. Use loopback or a Unix-domain socket for local services.
 - Configure TLS certificates, private-key permissions, peer verification and trust roots for encrypted connections. Never deploy the repository’s demonstration keys as production credentials.
 - Choose authentication and authorization appropriate to the application. TLS encryption and HTTP Basic middleware do not by themselves define access policy.
-- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md).
+- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md#page-overview).
 - Keep callbacks non-blocking. Size retry/backoff and reconnect settings to avoid overwhelming a recovering peer.
 - Create writable state directories for the service account. Keep binaries and configuration read-only where practical.
 - Select log levels deliberately. Trace output and payload dumps can be expensive and can expose application data; use scoped filters and rotation.
+
+## Logging and process options
+
+Application-level options precede instance subcommands. These names and levels are defined by `src/utils/Config.cpp`; inspect the installed executable's `--help=expanded` if its version differs.
+
+| Option | Meaning |
+| --- | --- |
+| `--log-level 0..6` | 0 off, 1 critical, 2 error, 3 warn, 4 info (default), 5 debug, 6 trace |
+| `--log-format text` / `json` | Semantic log serialization; text is the default |
+| `--log-origin-level application=5` | Override framework/application origin levels |
+| `--log-boundary-level connection=5` | Override a semantic boundary level |
+| `--log-component-level COMPONENT=5` | Override a named component; use identifiers from actual records |
+| `--log-instance-level INSTANCE=5` | Override a named instance |
+| `--verbose-level 0..10` | Legacy verbosity only; does not change semantic log levels |
+| `--log-file PATH` | Select the file used for file logging |
+| `--enforce-log-file=true` | Enable file logging for a foreground process |
+| `--daemonize=false` | Stay in the foreground (default); retain this under systemd/container supervision |
+
+For example, replace the executable with your service:
+
+```sh
+./my-service --config-file /etc/my-service/service.conf --log-level 4 --log-format json --daemonize=false
+```
+
+Start with supervisor-captured foreground logs (`journalctl` for the unit below). When opting into file logging, provision a writable, permission-restricted log destination and an external rotation/retention policy appropriate to your supervisor; no rotation flag is promised here. Debug/trace records can expose payloads and credentials. For application code rather than operator options, see the [public logging API](../logging/public-log-api.md#page-overview).
 
 ## Configure a TLS instance
 

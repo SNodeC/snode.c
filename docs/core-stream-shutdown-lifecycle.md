@@ -1,3 +1,10 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p>
+  <a href="../README.md#project-overview" title="SNode.C repository"><img src="readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+</p>
+<!-- snodec:end page-header -->
+
 # Established stream shutdown lifecycle
 
 This document describes framework shutdown for established plain and TLS stream
