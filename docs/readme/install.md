@@ -1,7 +1,7 @@
 # Build and install SNode.C from source
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="← SNode.C" width="96" height="24"></a>
+  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 <p>
@@ -67,7 +67,7 @@ cmake --build build-check --parallel
 ctest --test-dir build-check --output-on-failure --parallel
 ```
 
-Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](https://github.com/SNodeC/snode.c/blob/master/tests/component/net/README.md).
+Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md).
 
 ### Verify the installation
 
@@ -94,7 +94,7 @@ find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 target_link_libraries(my-service PRIVATE snodec::net-in-stream-legacy)
 ```
 
-[![Build the native client and server →](media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
+[![Build the native client and server](media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
 
 ## OpenWrt cross-compilation
 
@@ -222,4 +222,4 @@ All 44 SNode.C default/choice symbols and the demo selector participate in recip
 
 Install the desired packages and their dependencies on matching firmware. For unsigned local APKs, use `apk add --allow-untrusted ./<package>.apk` with the actual package path. Supply the required local dependency packages or a local feed; a single metapackage cannot discover unpublished packages. Check the selected demonstration applications or `snodec-control --help` on the device.
 
-To build MQTTSuite next, retain this SDK and its staged SNode.C development files, then follow [MQTTSuite's OpenWrt instructions](https://github.com/SNodeC/mqttsuite/blob/master/docs/readme/install.md#openwrt-cross-compilation).
+To build MQTTSuite next, retain this SDK and its staged SNode.C development files, then follow [MQTTSuite's OpenWrt instructions](https://github.com/SNodeC/mqttsuite#project-overview).
