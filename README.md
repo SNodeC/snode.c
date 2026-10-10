@@ -1,3 +1,4 @@
+<!-- snodec:begin header -->
 <a name="project-overview"></a>
 
 <picture>
@@ -6,6 +7,16 @@
 </picture>
 
 # SNode.C
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/media/snodec-chip-dark.svg">
+  <img src="docs/readme/media/snodec-chip-light.svg" alt="Framework · Product" width="240" height="32">
+</picture>
+<!-- snodec:end header -->
+
+<!-- snodec:begin status -->
+[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) · [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) · [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) · [![Licence: MIT or LGPL 3.0 or later](https://img.shields.io/badge/Licence-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+<!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
 
@@ -21,16 +32,19 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
 - [AISuite](https://github.com/SNodeC/AISuite#project-overview)
 - [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
 
-<p>
-  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/build-108.svg" alt="Build from source" width="108" height="24"></a>
-  <a href="#your-first-program-a-factory-and-a-context" title="Start coding"><img src="docs/readme/media/menu/start-coding-108.svg" alt="Start coding" width="108" height="24"></a>
-  <a href="docs/readme/examples.md" title="Examples"><img src="docs/readme/media/menu/examples-108.svg" alt="Examples" width="108" height="24"></a>
-  <a href="docs/readme/capabilities.md" title="Capabilities"><img src="docs/readme/media/menu/capabilities-108.svg" alt="Capabilities" width="108" height="24"></a>
-  <a href="docs/readme/deployment.md" title="Deployment"><img src="docs/readme/media/menu/deployment-108.svg" alt="Deployment" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API reference"><img src="docs/readme/media/menu/api-reference-108.svg" alt="API reference" width="108" height="24"></a>
-</p>
+<!-- snodec:begin menu -->
+[Start](#quick-start) · [Install](#platforms-and-packages) · [Build](docs/readme/install.md) · [Use](docs/readme/examples.md) · [Configure](docs/readme/deployment.md#start-with-one-explicit-configuration) · [Architecture](#architecture) · [API](https://snodec.github.io/snode.c-doc/html/index.html) · [Contribute](#contributing)
+<!-- snodec:end menu -->
 
-## Your first program: a factory and a context
+## Quick start
+
+Choose your route: [install signed packages](https://github.com/SNodeC/Packages#readme) or [build from source](docs/readme/install.md), then run the complete native echo below.
+
+[Native echo](#your-first-program-a-factory-and-a-context) · [HTTP service](#a-small-web-service) · [SSE client](#receive-a-server-sent-event) · [WebSocket](#talk-both-ways-with-a-websocket)
+
+## First success
+
+### Your first program: a factory and a context
 
 This native server and client share one `EchoContext` implementation. The `Role` selects its behavior: the server reflects received bytes; the client sends one line, prints the reply and closes. Each connection gets its own context and receive state.
 
@@ -185,20 +199,33 @@ PY
 
 **Go further:** [line framing](docs/readme/examples.md#a-line-oriented-protocol).
 
-### What happens to a connection
+## Capabilities
 
-- The server accepts a peer; the factory creates its context. Clients use the same factory/context model after connecting.
-- The framework calls `onConnected()`, then dispatches receive callbacks. `onReceivedFromPeer()` returns the number of bytes consumed; writes are buffered by `sendToPeer()`.
-- Per-peer state belongs in the context, not in a shared application-wide protocol object.
-- On detachment, the framework calls `onDisconnected()` and deletes the context. Do not delete it yourself or retain a raw pointer after detachment. A protocol upgrade can detach a context without closing the underlying connection.
-- Callbacks run on the event loop; keep them non-blocking. The returned listen/connect control handle is optional to retain—the operation continues without it.
+### One programming model, several ways to connect
 
-<picture>
-  <source media="(max-width: 600px)" srcset="docs/readme/media/context-lifecycle-mobile.svg">
-  <img src="docs/readme/media/context-lifecycle.svg" alt="One factory per server or client instance creates a separate context for each peer: attachment, receive callbacks, detachment, then framework-owned deletion.">
-</picture>
+- **HTTP / HTTPS:** client and server APIs, streaming bodies, request/response handling and protocol upgrade.
+- **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
+- **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
+- **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
+- **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview).
+- **Custom protocols:** `SocketContext` and `SocketContextFactory` provide per-connection framing, messages and behavior.
+- **MariaDB:** event-driven database integration for queries and persistence.
 
-The strings `"echo"` and `"request"` name the server's and client's **configuration instances**. For example, `./build/echo-server --config-file /dev/null echo local --port 18002` selects the server instance's local endpoint; `./build/echo-server --config-file /dev/null echo --help=expanded` lists its options. The executable name and instance name are separate concepts.
+#### Connection variants
+
+| Family | Namespace | Endpoint |
+| --- | --- | --- |
+| IPv4 | `net::in` | Host + port |
+| IPv6 | `net::in6` | Host + port |
+| Unix domain | `net::un` | Socket path |
+| RFCOMM | `net::rc` | Bluetooth address + channel |
+| L2CAP | `net::l2` | Bluetooth address + PSM |
+
+All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
+
+Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
+
+[Explore the full capability map →](docs/readme/capabilities.md)
 
 ### Same context, another transport
 
@@ -215,6 +242,72 @@ Unix socket — component: net-un-stream-legacy
 ```
 
 A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md).
+
+### Designed to live inside your application
+
+- **One event loop, many instances.** Compose clients, listeners, timers and protocol handlers in the same process. Keep callbacks non-blocking; a long computation on the event-loop thread delays other work.
+- **Per-connection protocol state.** Each connection gets its own context rather than sharing one protocol object across all peers.
+- **Connection lifecycle controls.** Retry, reconnect, backoff, timeouts and per-activation flow-control handles are part of the existing client/server model.
+- **One configuration surface.** Configure named instances through C++, command-line sections or configuration files. Inspect and edit them with `snodec-control`, including its optional terminal UI.
+- **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
+- **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
+
+The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md) separates implementation coverage from deployment requirements.
+
+## Architecture
+
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/readme/media/architecture-mobile.svg">
+  <img src="docs/readme/media/architecture.svg" alt="SNode.C separates application protocols, per-connection contexts, transport handling and the event-driven runtime.">
+</picture>
+
+*A factory creates a protocol context for each connection. Clients and servers reuse that model; changing the transport does not require a second application architecture.*
+
+### What happens to a connection
+
+- The server accepts a peer; the factory creates its context. Clients use the same factory/context model after connecting.
+- The framework calls `onConnected()`, then dispatches receive callbacks. `onReceivedFromPeer()` returns the number of bytes consumed; writes are buffered by `sendToPeer()`.
+- Per-peer state belongs in the context, not in a shared application-wide protocol object.
+- On detachment, the framework calls `onDisconnected()` and deletes the context. Do not delete it yourself or retain a raw pointer after detachment. A protocol upgrade can detach a context without closing the underlying connection.
+- Callbacks run on the event loop; keep them non-blocking. The returned listen/connect control handle is optional to retain—the operation continues without it.
+
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/readme/media/context-lifecycle-mobile.svg">
+  <img src="docs/readme/media/context-lifecycle.svg" alt="One factory per server or client instance creates a separate context for each peer: attachment, receive callbacks, detachment, then framework-owned deletion.">
+</picture>
+
+The strings `"echo"` and `"request"` name the server's and client's **configuration instances**. For example, `./build/echo-server --config-file /dev/null echo local --port 18002` selects the server instance's local endpoint; `./build/echo-server --config-file /dev/null echo --help=expanded` lists its options. The executable name and instance name are separate concepts.
+
+## Documentation
+
+[Documentation index](docs/index.md) — the existing guides, examples and runtime references.
+
+### Learn by building
+
+- **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](#talk-both-ways-with-a-websocket)
+- **Explore applications:** [Echo source](https://github.com/SNodeC/snode.c/tree/master/examples/echo) and [application inventory](https://github.com/SNodeC/snode.c/blob/master/src/apps/README.md)
+- **Choose protocols:** [Capability guide](docs/readme/capabilities.md)
+- **Run a service:** [Deployment guide](docs/readme/deployment.md)
+- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
+- **Use MQTT applications:** [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview)
+
+SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
+
+## Platforms and packages
+
+### Install
+
+Choose your route: use signed packages or build from source.
+
+[Prebuilt packages](https://github.com/SNodeC/Packages#readme) · [Build from source](docs/readme/install.md) · [Deploy](docs/readme/deployment.md)
+
+Prebuilt packages are available from **[SNodeC/Packages](https://github.com/SNodeC/Packages#readme)**. Choose the guide matching your distribution, release and package architecture.
+
+To compile SNode.C yourself, follow the [source-build guide](docs/readme/install.md).
+
+## Releases
+
+[Release history and release notes](https://github.com/SNodeC/snode.c/releases). Match framework libraries, components and plugins from the same installation, as the examples below require.
 
 ## A small web service
 
@@ -291,39 +384,6 @@ curl http://127.0.0.1:18081/hello
 **Boundaries:** loopback HTTP, without TLS or authentication. For HTTPS use `<express/tls/in/WebApp.h>`, `express::tls::in::WebApp` and component `http-server-express-tls-in`, then configure certificates and trust.
 
 **Go further:** [deployment and resource limits](docs/readme/deployment.md).
-
-## One programming model, several ways to connect
-
-<picture>
-  <source media="(max-width: 600px)" srcset="docs/readme/media/architecture-mobile.svg">
-  <img src="docs/readme/media/architecture.svg" alt="SNode.C separates application protocols, per-connection contexts, transport handling and the event-driven runtime.">
-</picture>
-
-*A factory creates a protocol context for each connection. Clients and servers reuse that model; changing the transport does not require a second application architecture.*
-
-- **HTTP / HTTPS:** client and server APIs, streaming bodies, request/response handling and protocol upgrade.
-- **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
-- **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
-- **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
-- **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview).
-- **Custom protocols:** `SocketContext` and `SocketContextFactory` provide per-connection framing, messages and behavior.
-- **MariaDB:** event-driven database integration for queries and persistence.
-
-### Connection variants
-
-| Family | Namespace | Endpoint |
-| --- | --- | --- |
-| IPv4 | `net::in` | Host + port |
-| IPv6 | `net::in6` | Host + port |
-| Unix domain | `net::un` | Socket path |
-| RFCOMM | `net::rc` | Bluetooth address + channel |
-| L2CAP | `net::l2` | Bluetooth address + PSM |
-
-All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
-
-Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
-
-[Explore the full capability map →](docs/readme/capabilities.md)
 
 ## Receive a server-sent event
 
@@ -453,42 +513,20 @@ Open **[http://127.0.0.1:18082/](http://127.0.0.1:18082/)** in a browser.
 
 **Go further:** [WebSocket capabilities](docs/readme/capabilities.md#websockets). Reference: the [framework's subprotocol implementation](https://github.com/SNodeC/snode.c/tree/master/src/apps/websocket/subprotocol).
 
-## Designed to live inside your application
+## Contributing
 
-- **One event loop, many instances.** Compose clients, listeners, timers and protocol handlers in the same process. Keep callbacks non-blocking; a long computation on the event-loop thread delays other work.
-- **Per-connection protocol state.** Each connection gets its own context rather than sharing one protocol object across all peers.
-- **Connection lifecycle controls.** Retry, reconnect, backoff, timeouts and per-activation flow-control handles are part of the existing client/server model.
-- **One configuration surface.** Configure named instances through C++, command-line sections or configuration files. Inspect and edit them with `snodec-control`, including its optional terminal UI.
-- **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
-- **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
-
-The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md) separates implementation coverage from deployment requirements.
-
-## Install
-
-<p>
-  <a href="https://github.com/SNodeC/Packages#readme" title="Prebuilt packages"><img src="docs/readme/media/menu/prebuilt-packages-136.svg" alt="Prebuilt packages" width="136" height="24"></a>
-  <a href="docs/readme/install.md" title="Build from source"><img src="docs/readme/media/menu/build-136.svg" alt="Build from source" width="136" height="24"></a>
-  <a href="docs/readme/deployment.md" title="Deploy"><img src="docs/readme/media/menu/deploy-136.svg" alt="Deploy" width="136" height="24"></a>
-</p>
-
-Prebuilt packages are available from **[SNodeC/Packages](https://github.com/SNodeC/Packages#readme)**. Choose the guide matching your distribution, release and package architecture.
-
-To compile SNode.C yourself, follow the [source-build guide](docs/readme/install.md).
-
-## Learn by building
-
-- **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](#talk-both-ways-with-a-websocket)
-- **Explore applications:** [Echo source](https://github.com/SNodeC/snode.c/tree/master/examples/echo) and [application inventory](https://github.com/SNodeC/snode.c/blob/master/src/apps/README.md)
-- **Choose protocols:** [Capability guide](docs/readme/capabilities.md)
-- **Run a service:** [Deployment guide](docs/readme/deployment.md)
-- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
-- **Use MQTT applications:** [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview)
-
-SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
-
-## Learn more, contribute and license
+### Learn more, contribute and license
 
 [Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/readme/install.md#select-build-features).
 
+<!-- snodec:begin ecosystem -->
+## Ecosystem
+
+[SNode.C organization](https://github.com/SNodeC) · [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview) · [AISuite](https://github.com/SNodeC/AISuite#project-overview) · [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
+<!-- snodec:end ecosystem -->
+
+<!-- snodec:begin footer -->
 Copyright © Volker Christian and contributors. SNode.C is dual-licensed under **[MIT](https://github.com/SNodeC/snode.c/blob/master/LICENSE-MIT) OR [LGPL-3.0-or-later](https://github.com/SNodeC/snode.c/blob/master/LICENSE-LGPL-3.0-or-later)**. Choose either license; bundled dependencies retain their own terms.
+
+Maintainer: [Volker Christian](https://github.com/VolkerChristian). [Organization](https://github.com/SNodeC) · [Contributing](https://github.com/SNodeC/.github/blob/main/CONTRIBUTING.md) · [Security](https://github.com/SNodeC/.github/blob/main/SECURITY.md)
+<!-- snodec:end footer -->
