@@ -1,27 +1,17 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../../README.md#project-overview" title="SNode.C repository"><img src="../../../docs/readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+  <a href="../../../README.md#project-overview" title="SNode.C repository"><img src="../../../docs/readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
 # snodec-control
 
-`snodec-control` is a companion command-line tool for inspecting and configuring SNode.C-based
-applications. It is a **standalone, out-of-tree project**: it is not part of the SNode.C CMake build,
-is never `add_subdirectory()`'d by it, and links against none of its libraries. It only needs a C++20
-standard library and POSIX (`posix_spawn`, `pipe`, `select`, `mkstemp`).
+`snodec-control` inspects and configures SNode.C applications by executing them as separate processes. `src/tools/CMakeLists.txt` includes it in the framework build; its own CMake project can also be configured independently. It links no SNode.C libraries and needs a C++20 standard library and POSIX (`posix_spawn`, `pipe`, `select`, `mkstemp`).
 
-* **Phase 1** implemented discovery and static inspection: parsing a target's `-s`/`--show-config`
-  output into an in-memory model, and printing/exporting it (`--dump-model`, `--print-summary`,
-  `--write-template`, `--materialize`).
-* **Phase 2** turns that into a scriptable configuration *workflow*: look up and edit individual options
-  from the command line, preview the effect of edits, validate that required options are set, materialize
-  an edited config, ask the target to write its own canonical config file, and optionally run the target
-  with a chosen configuration.
-* **Phase 3** (this phase) adds `--ui`: an interactive, `make menuconfig`-style terminal UI (Curses-based)
-  that presents the same configuration as a navigable hierarchy, on top of exactly the same discovery,
-  editing, save, and run machinery Phase 2 already implements (see "Interactive UI (`--ui`)" below).
+* **Discovery and inspection:** parse a target's `-s`/`--show-config` output into an in-memory model; print/export it with `--dump-model`, `--print-summary`, `--write-template` or `--materialize`.
+* **Scriptable configuration:** look up/edit options, preview changes, check required values, materialize the edited configuration, ask the target to write its canonical file, and optionally run it with that configuration.
+* **Interactive editing:** `--ui` provides a Curses-based, `make menuconfig`-style hierarchy on the same discovery/edit/save/run machinery, not a second configuration implementation (see “Interactive UI (`--ui`)” below).
 
 ## What snodec-control does
 
@@ -57,8 +47,7 @@ its own final validation — snodec-control's checks are local preflight conveni
 
 ## Explicitly out of scope / architectural constraints
 
-* **Out-of-tree.** Not built as part of the SNode.C source tree, not wired into its CMake, no
-  dependency on its libraries.
+* **Independent inspection.** Built with the framework tools or separately; no dependency on framework libraries.
 * **No `dlopen()`.** The target is never loaded into `snodec-control`'s own address space.
 * **No calling the target's `main()`.** The target always runs as its own process.
 * **No parsing of human `--help` output.** Only `-s`/`--show-config` output is parsed.
@@ -68,7 +57,7 @@ its own final validation — snodec-control's checks are local preflight conveni
 ## Building
 
 ```sh
-cd snodec-control
+cd src/tools/snodec-control
 mkdir build && cd build
 cmake -DSNODEC_CONTROL_BUILD_TESTS=ON ..
 cmake --build .

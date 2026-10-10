@@ -1,15 +1,11 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
 # Build something with SNode.C
-
-<p>
-  <a href="../../README.md#project-overview"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
-</p>
 
 Start with the complete [native echo and Python interoperability example](../../README.md#your-first-program-a-factory-and-a-context). Continue here with HTTP, SSE, WebSocket and message framing. Each example includes prerequisites, build files, commands, expected results and boundaries; use a separate directory for each project.
 

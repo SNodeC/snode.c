@@ -15,7 +15,7 @@
 <!-- snodec:end header -->
 
 <!-- snodec:begin status -->
-[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) · [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) · [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) · [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
 <!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
@@ -30,7 +30,7 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
   <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/annotated.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
@@ -203,6 +203,8 @@ PY
 
 The [examples guide](docs/readme/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
 
+Not working? See [first-program troubleshooting](docs/readme/deployment.md#troubleshoot-a-first-program).
+
 ## Capabilities
 
 ### One programming model, several ways to connect
@@ -290,7 +292,11 @@ Bind only the intended interfaces, configure certificate/trust settings for TLS,
 
 [![runtime configuration and deployment](docs/readme/media/menu/further-deployment.svg)](docs/readme/deployment.md#start-with-one-explicit-configuration)
 
+For runtime log levels and foreground supervision, see [logging and process options](docs/readme/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
+
 ## Documentation
+
+The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
 
 [Documentation index](docs/index.md#page-overview) — the existing guides, examples and runtime references.
 
@@ -300,7 +306,7 @@ Bind only the intended interfaces, configure certificate/trust settings for TLS,
 - **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
 - **Choose protocols:** [Capability guide](docs/readme/capabilities.md#page-overview)
 - **Run a service:** [Deployment guide](docs/readme/deployment.md#page-overview)
-- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/index.html)
+- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/annotated.html)
 
 ## Platforms and packages
 
@@ -315,7 +321,7 @@ Choose your route.
   <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
 </p>
 
-Choose signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
+Use signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
 
 ## Releases
 

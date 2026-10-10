@@ -1,7 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../README.md#project-overview" title="SNode.C repository"><img src="readme/media/page-banner.svg" alt="SNode.C documentation" width="100%"></a>
+  <a href="../README.md#project-overview" title="SNode.C repository"><img src="readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
@@ -15,7 +15,7 @@
   <a href="../README.md#first-success" title="Use"><img src="readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="../README.md#configuration" title="Configure"><img src="readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="../README.md#architecture" title="Architecture"><img src="readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/index.html" title="API"><img src="readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/annotated.html" title="API"><img src="readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="../README.md#contributing" title="Contribute"><img src="readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
@@ -29,6 +29,9 @@ Start with the [repository README](../README.md#quick-start) for a first working
 - [Capabilities and transport coverage](readme/capabilities.md#page-overview)
 - [Complete examples and line framing](readme/examples.md#page-overview)
 - [Configuration, deployment and access boundaries](readme/deployment.md#page-overview)
+- [Configuration inspection and terminal UI](../src/tools/snodec-control/README.md#page-overview)
+- [Application inventory](../src/apps/README.md#page-overview)
+- [Complete installed-consumer echo tutorial](../examples/echo/README.md#page-overview)
 - [Configuration comment metadata](config-comment-metadata.md#page-overview)
 - [Stream shutdown and lifecycle](core-stream-shutdown-lifecycle.md#page-overview)
 - [Resource policy and streaming](resource-policy-and-streaming.md#page-overview)
