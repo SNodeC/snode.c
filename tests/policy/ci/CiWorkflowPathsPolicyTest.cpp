@@ -103,14 +103,14 @@ int main() {
         return 1;
     }
     const std::map<std::string, Triggers> workflows = {
-        {"main.yml", {{"push", {{"branches", {"master"}}, {"paths", {"README.md"}}}}}},
-        {"openwrt.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}}}},
+        {"packages.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}},
+                          {"repository_dispatch", {{"types", {"package-build"}}}}}},
     };
     bool ok = true;
     for (const auto& [name, triggers] : workflows) {
         const auto path = root / ".github/workflows" / name;
         if (!matchesTriggers(source_policy::readSourcePolicyFile(path), triggers)) {
-            std::cerr << "Unexpected CI triggers in " << path << ": only README TOC updates and version-tag notifications are allowed\n";
+            std::cerr << "Unexpected CI triggers in " << path << ": only version-tag package builds and package-build handoffs are allowed\n";
             ok = false;
         }
     }
