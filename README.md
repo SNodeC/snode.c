@@ -20,8 +20,6 @@
 
 **Write the protocol. Choose the connection. Build the application.**
 
-**[Get prebuilt packages](https://github.com/SNodeC/Packages#readme)** — Signed packages and installation instructions for OpenWrt, Raspberry Pi OS, Debian, Ubuntu, Rocky Linux and Fedora.
-
 SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for Linux. Its starting point is a **factory that creates a protocol context for each connection**. Write your protocol once, then use it with clients and servers over IP, Unix-domain sockets or Bluetooth.
 
 The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-Sent Events and MQTT components build on the same foundation, and multiple named clients and servers can share one event loop and configuration system.
@@ -44,19 +42,13 @@ The example below makes that model concrete. Ready-made HTTP, WebSocket, Server-
   <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
-<details>
-<summary>Text navigation</summary>
-
-[Start](#quick-start) · [Install](#install) · [Build](#build-from-source) · [Use](#first-success) · [Configure](#configuration) · [Architecture](#architecture) · [API](https://snodec.github.io/snode.c-doc/html/index.html) · [Contribute](#contributing)
-
-</details>
 <!-- snodec:end menu -->
 
 ## Quick start
 
-1. [Install](#install) — choose the available installation route and prepare its requirements.
+1. [Install](#install) — get the framework and the components your program needs.
 2. [Use](#first-success) — run the native echo example.
-3. [Configure](#configuration) — review runtime settings and access boundaries before deployment.
+3. [Configure](#configuration) — review runtime settings and access controls before deployment.
 
 [Native echo](#your-first-program-a-factory-and-a-context) · [HTTP service](#a-small-web-service) · [SSE client](#receive-a-server-sent-event) · [WebSocket](#talk-both-ways-with-a-websocket)
 
@@ -319,17 +311,16 @@ Use the [runtime configuration guide](docs/readme/deployment.md#start-with-one-e
 
 ### Install
 
-Choose your route: [install signed packages](https://github.com/SNodeC/Packages#readme) or [build from source](#build-from-source).
+Choose your route.
 
-[Prebuilt packages](https://github.com/SNodeC/Packages#readme) · [Build from source](docs/readme/install.md) · [Deploy](docs/readme/deployment.md)
-
-Prebuilt packages are available from **[SNodeC/Packages](https://github.com/SNodeC/Packages#readme)**. Choose the guide matching your distribution, release and package architecture.
+| Route | How to install |
+| --- | --- |
+| **Signed packages** | Use [SNodeC/Packages](https://github.com/SNodeC/Packages#readme) and select your distribution, release and architecture. |
+| **From source** | Follow [Build from source](#build-from-source) for native Linux or OpenWrt. |
 
 ### Build from source
 
-To compile SNode.C yourself, follow the [source-build guide](docs/readme/install.md).
-
-Choose the [native Linux build](docs/readme/install.md#native-linux-build) or [OpenWrt cross-compilation](docs/readme/install.md#openwrt-cross-compilation). The guide covers prerequisites, build options, complete commands and installation checks.
+The [source-build guide](docs/readme/install.md) covers prerequisites, build options, complete commands and installation checks. Select the [native Linux build](docs/readme/install.md#native-linux-build) or [OpenWrt cross-compilation](docs/readme/install.md#openwrt-cross-compilation).
 
 ## Releases
 
