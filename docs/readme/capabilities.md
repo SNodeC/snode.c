@@ -1,7 +1,7 @@
 # SNode.C capability map
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="← SNode.C" width="96" height="24"></a>
+  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 This inventory describes the public framework’s major capability families. Optional dependencies and target-specific package selections determine which components are installed. The [API reference](https://snodec.github.io/snode.c-doc/html/index.html) supplies the class-level detail.
@@ -54,13 +54,13 @@ Client and server implementations handle HTTP upgrade, WebSocket framing and app
 
 Plain WebSockets and TLS-protected WebSockets use the corresponding HTTP connection. A WebSocket connection is bidirectional; SSE is not a substitute when both sides must send application messages over the same stream.
 
-The [complete WebSocket example](../../README.md#talk-both-ways-with-a-websocket) includes the HTTP upgrade route, browser client, build file and run instructions.
+The [complete WebSocket example](examples.md#talk-both-ways-with-a-websocket) includes the HTTP upgrade route, browser client, build file and run instructions.
 
 ## Server-Sent Events
 
 On the server, stream `text/event-stream` responses with SSE fields and message boundaries. On the client, `EventSource` provides open/error callbacks, ordinary message callbacks, named event listeners and reconnect behavior. Event IDs and the `Last-Event-ID` mechanism support resumption, but **the application must implement any event retention and replay policy**; reconnecting does not create a durable event log.
 
-Use SSE for telemetry, progress and live status flowing from server to client. The [inline server and native client](../../README.md#receive-a-server-sent-event) demonstrate named-event delivery.
+Use SSE for telemetry, progress and live status flowing from server to client. The [inline server and native client](examples.md#receive-a-server-sent-event) demonstrate named-event delivery.
 
 ## MQTT
 
@@ -74,7 +74,7 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 - **C++ / CLI / configuration files.** Configure application sections and named instances through the same configuration model.
 - **`snodec-control`.** Discover an application’s configuration, inspect/edit values, generate configuration files and optionally use a Curses terminal UI.
 - **Retry and reconnect policy.** Retry limits, delays, backoff and jitter; reconnect after connection loss.
-- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](https://github.com/SNodeC/snode.c/blob/master/docs/resource-policy-and-streaming.md).
+- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../resource-policy-and-streaming.md).
 - **Semantic logging.** Text/JSON output; application/framework, component, boundary and instance filtering; structured context and hex dumps.
 - **CMake components.** Imported `snodec::…` targets for external applications.
 - **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](install.md).
