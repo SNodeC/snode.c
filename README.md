@@ -213,7 +213,7 @@ PY
 
 **Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-**Go further:** [line framing](docs/readme/examples.md#a-line-oriented-protocol).
+[![line framing →](docs/readme/media/menu/further-line-framing.svg)](docs/readme/examples.md#a-line-oriented-protocol)
 
 ## Capabilities
 
@@ -241,7 +241,7 @@ All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections 
 
 Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-[Explore the full capability map →](docs/readme/capabilities.md)
+[![Explore the full capability map →](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md)
 
 ### Same context, another transport
 
@@ -399,7 +399,7 @@ curl http://127.0.0.1:18081/hello
 
 **Boundaries:** loopback HTTP, without TLS or authentication. For HTTPS use `<express/tls/in/WebApp.h>`, `express::tls::in::WebApp` and component `http-server-express-tls-in`, then configure certificates and trust.
 
-**Go further:** [deployment and resource limits](docs/readme/deployment.md).
+[![deployment and resource limits →](docs/readme/media/menu/further-deployment.svg)](docs/readme/deployment.md)
 
 ## Receive a server-sent event
 
@@ -451,7 +451,7 @@ cmake --build build --parallel
 
 **Boundaries:** the server sends one event and leaves the response open; the native client closes after receiving it. Stop curl with Ctrl+C. A continuous feed sends further fragments and removes subscriber callbacks on disconnect. SSE records use newline separators and a blank line after each event; HTTP chunk boundaries are not SSE record boundaries. The first `EventSource` argument is the URL scheme (`"http"`), not an instance name. Reconnection and `Last-Event-ID` support do not supply application-level durable replay.
 
-**Go further:** [SSE and WebSocket capabilities](docs/readme/capabilities.md#server-sent-events).
+[![SSE and WebSocket capabilities →](docs/readme/media/menu/further-sse-websocket.svg)](docs/readme/capabilities.md#server-sent-events)
 
 ## Talk both ways with a WebSocket
 
@@ -527,7 +527,7 @@ Open **[http://127.0.0.1:18082/](http://127.0.0.1:18082/)** in a browser.
 
 **Boundaries:** the `echo` demonstration plugin broadcasts received text to its connected clients; this page opens one client. Missing plugins make the upgrade fail. For deployment, use TLS/WSS, authenticate access and configure message limits. SSE is simpler when data only needs to flow from server to client.
 
-**Go further:** [WebSocket capabilities](docs/readme/capabilities.md#websockets). Reference: the [framework's subprotocol implementation](https://github.com/SNodeC/snode.c/tree/master/src/apps/websocket/subprotocol).
+[![WebSocket capabilities →](docs/readme/media/menu/further-websocket.svg)](docs/readme/capabilities.md#websockets) [![framework's subprotocol implementation →](docs/readme/media/menu/further-subprotocol-source.svg)](https://github.com/SNodeC/snode.c/tree/master/src/apps/websocket/subprotocol)
 
 ## Contributing
 
