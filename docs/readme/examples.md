@@ -107,7 +107,7 @@ PY
 
 **Boundaries:** an overlong line closes the connection, and an unfinished line is discarded on disconnect. This example uses LF delimiters and unencrypted loopback TCP. Applications should also configure idle and write-queue limits.
 
-**Go further:** [resource and deployment policy](deployment.md).
+[![resource and deployment policy →](media/menu/further-deployment.svg)](deployment.md)
 
 ## Compose roles in one application
 

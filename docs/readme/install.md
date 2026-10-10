@@ -94,7 +94,7 @@ find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 target_link_libraries(my-service PRIVATE snodec::net-in-stream-legacy)
 ```
 
-[Build the native client and server →](../../README.md#your-first-program-a-factory-and-a-context)
+[![Build the native client and server →](media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
 
 ## OpenWrt cross-compilation
 
