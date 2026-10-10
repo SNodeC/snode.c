@@ -46,7 +46,6 @@
 #include <cerrno>
 #include <cstring>
 #include <map>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
