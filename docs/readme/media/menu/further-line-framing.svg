@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="119" height="24" viewBox="0 0 119 24" role="img" aria-labelledby="title">
+  <title id="title">Line framing →</title>
+  <rect x="0.5" y="0.5" width="118" height="23" rx="5" fill="#203440" stroke="#395260"/>
+  <text x="51.19530763" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#ffffff">Line framing</text>
+  <path d="M0 1.25H5.5V0L9 2L5.5 4V2.75H0Z" transform="translate(95.81250000 10)" fill="#ffffff" aria-hidden="true"/>
+</svg>

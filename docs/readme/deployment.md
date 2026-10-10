@@ -1,7 +1,7 @@
 # Deploy an SNode.C application
 
 <p>
-  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="← SNode.C" width="96" height="24"></a>
+  <a href="../../README.md"><img src="media/menu/back-snode-c.svg" alt="SNode.C" width="96" height="24"></a>
 </p>
 
 SNode.C supplies libraries, runtime facilities and configuration. **Your executable is the service**: choose the interfaces it exposes, the state it persists and the operating-system account that runs it.
@@ -25,10 +25,22 @@ Persist the selected configuration with `--write-config path/to/service.conf`. T
 - Bind only the required interfaces. Use loopback or a Unix-domain socket for local services.
 - Configure TLS certificates, private-key permissions, peer verification and trust roots for encrypted connections. Never deploy the repository’s demonstration keys as production credentials.
 - Choose authentication and authorization appropriate to the application. TLS encryption and HTTP Basic middleware do not by themselves define access policy.
-- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](https://github.com/SNodeC/snode.c/blob/master/docs/resource-policy-and-streaming.md).
+- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md).
 - Keep callbacks non-blocking. Size retry/backoff and reconnect settings to avoid overwhelming a recovering peer.
 - Create writable state directories for the service account. Keep binaries and configuration read-only where practical.
 - Select log levels deliberately. Trace output and payload dumps can be expensive and can expose application data; use scoped filters and rotation.
+
+## Configure a TLS instance
+
+Choose the TLS transport/component when building the application; passing TLS options does not turn a legacy TCP instance into TLS. Replace the executable and `tls-listener` below with the names exposed by your application's `--help=expanded`, then supply your own PEM certificate chain and private key:
+
+```text
+./my-service tls-listener --help=expanded
+./my-service tls-listener tls \
+  --cert /path/to/server-chain.pem --cert-key /path/to/server-key.pem
+```
+
+A TLS client's corresponding `tls` section accepts `--ca-cert /path/to/trusted-ca.pem` or a configured CA directory. Inspect the selected instance's help for SNI and peer-verification settings. Restrict private-key permissions and test both accepted and rejected peers for the actual DNS/IP identity. `--ca-cert-accept-unknown` is not a production fix for trust failures. Certificate trust does not replace your application's authentication/authorization policy.
 
 ## Supervise the foreground process
 
@@ -70,3 +82,11 @@ Install only the required framework/application packages from the [OpenWrt feed]
 ## Upgrade deliberately
 
 Keep executables, shared libraries and dynamically loaded protocol plugins compatible. Back up configuration and application state; verify the new build on a separate instance before replacing a running service. Major framework releases can change ABI even when application source needs little adjustment. When upgrading from SNode.C 1.x to 2.0, rebuild consuming applications, libraries and plugins against the updated headers and libraries; do not mix 1.x and 2.0 C++ binaries in one process.
+
+## Troubleshoot a first program
+
+- **CMake cannot find `snodec`:** install the development components used by the example, or point `CMAKE_PREFIX_PATH` to that complete installation; do not combine unrelated headers and libraries.
+- **Listener startup fails:** read the reported socket error, check the bind address/port or Unix path, and choose an available endpoint. Update both sides of the example together.
+- **Runtime library/plugin lookup fails:** check the installation prefix and runtime search path. The WebSocket example needs its named protocol plugin as well as the HTTP transport libraries.
+- **A stream seems truncated or combined:** TCP read boundaries are not message boundaries; use the [line-framing example](examples.md#a-line-oriented-protocol) or your protocol's own framing.
+- **A service hangs:** callbacks must stay non-blocking; inspect connection/write-queue limits and logs before increasing buffers or timeouts.

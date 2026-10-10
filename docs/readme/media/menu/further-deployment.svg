@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="116" height="24" viewBox="0 0 116 24" role="img" aria-labelledby="title">
+  <title id="title">Deployment →</title>
+  <rect x="0.5" y="0.5" width="115" height="23" rx="5" fill="#203440" stroke="#395260"/>
+  <text x="49.69530763" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#ffffff">Deployment</text>
+  <path d="M0 1.25H5.5V0L9 2L5.5 4V2.75H0Z" transform="translate(92.50781250 10)" fill="#ffffff" aria-hidden="true"/>
+</svg>
