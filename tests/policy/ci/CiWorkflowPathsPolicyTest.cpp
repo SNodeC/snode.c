@@ -31,7 +31,7 @@ namespace {
     using Filters = std::map<std::string, std::set<std::string>>;
     using Triggers = std::map<std::string, Filters>;
 
-    // Read trigger mappings with inline or block lists; ignore the workflow jobs.
+    // Read trigger mappings or an inline event list; ignore the workflow jobs.
     bool matchesTriggers(std::string_view source, const Triggers& expected) {
         Triggers events;
         std::istringstream lines{std::string(source)};
@@ -51,6 +51,19 @@ namespace {
                 inOn = content == "on:" || content == "'on':" || content == "\"on\":";
                 if (inOn && foundOn) {
                     return false;
+                }
+                if (content.starts_with("on: [") && content.ends_with(']')) {
+                    if (foundOn) {
+                        return false;
+                    }
+                    foundOn = true;
+                    std::istringstream items(content.substr(5, content.size() - 6));
+                    std::string item;
+                    while (std::getline(items, item, ',')) {
+                        if (!events.emplace(unquote(trim(item)), Filters{}).second) {
+                            return false;
+                        }
+                    }
                 }
                 foundOn = foundOn || inOn;
                 event.clear();
@@ -103,14 +116,18 @@ int main() {
         return 1;
     }
     const std::map<std::string, Triggers> workflows = {
-        {"packages.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}},
-                          {"repository_dispatch", {{"types", {"package-build"}}}}}},
+        {"ci.yml", {{"push", {}}, {"pull_request", {}}, {"workflow_dispatch", {}}}},
+        {"packages.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}}, {"repository_dispatch", {{"types", {"package-build"}}}}}},
     };
-    bool ok = true;
+    const Triggers verifyEvents = {{"push", {}}, {"pull_request", {}}, {"workflow_dispatch", {}}};
+    bool ok = matchesTriggers("on: [push, pull_request, workflow_dispatch]\n", verifyEvents) &&
+              !matchesTriggers("on: [push, push, pull_request, workflow_dispatch]\n", verifyEvents) &&
+              !matchesTriggers("on: [push, pull_request, release]\n", verifyEvents) &&
+              !matchesTriggers("on: [push, pull_request, workflow_dispatch]\non: [push]\n", verifyEvents);
     for (const auto& [name, triggers] : workflows) {
         const auto path = root / ".github/workflows" / name;
         if (!matchesTriggers(source_policy::readSourcePolicyFile(path), triggers)) {
-            std::cerr << "Unexpected CI triggers in " << path << ": only version-tag package builds and package-build handoffs are allowed\n";
+            std::cerr << "Unexpected CI triggers in " << path << ": expected Verify events or version-tag/package-build events\n";
             ok = false;
         }
     }
