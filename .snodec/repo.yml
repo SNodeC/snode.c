@@ -15,4 +15,3 @@ ci:
   ipv6: true
   runtime_dirs: true
   parallel: 8
-  sdk: true
