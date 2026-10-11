@@ -8,6 +8,8 @@
 
 Design notes on stream shutdown, resource policies and configuration metadata.
 
+## Sections
+
 <!-- snodec:begin section-pages -->
 - [Configuration comment metadata](config-comment-metadata.md#page-overview)
 - [Framework resource policies and descriptor streaming](resource-policies-and-streaming.md#page-overview)

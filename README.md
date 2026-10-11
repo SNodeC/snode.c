@@ -333,6 +333,8 @@ Use signed packages for your distribution, release and architecture, or build fr
 
 ## Contributing
 
+[Engineering instructions for coding agents](AGENTS.md).
+
 [Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/guides/build-from-source.md#select-build-features).
 
 SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
@@ -340,7 +342,7 @@ SNode.C began as a teaching framework at the University of Applied Sciences Uppe
 <!-- snodec:begin ecosystem -->
 ## Ecosystem
 
-[SNode.C organization](https://github.com/SNodeC) · [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview) · [AISuite](https://github.com/SNodeC/AISuite#project-overview) · [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
+[MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview) · [AISuite](https://github.com/SNodeC/AISuite#project-overview) · [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
 <!-- snodec:end ecosystem -->
 
 <!-- snodec:begin footer -->

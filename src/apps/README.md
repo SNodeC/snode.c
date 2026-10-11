@@ -21,3 +21,12 @@ These applications are built as part of SNode.C when their required components a
 For the complete installed-consumer tutorial, follow the [standalone echo pair](../../examples/echo/README.md#page-overview). Its annotated source, configuration, run commands and four application-level CTests now have one owner there. The root README retains its shorter [first success](../../README.md#first-success).
 
 Top-level utilities include `configtest`, `jsonserver`, `jsonclient`, `testpipe`, `testpost`, `testregex`, and `express-compat-server`; consult [the application build file](CMakeLists.txt) for their required libraries and install components.
+
+## OAuth2 frontends
+
+- [Authorization-server frontend](oauth2/authorization_server/vue-frontend-oauth2-auth-server/README.md)
+- [Client-app frontend](oauth2/client_app/vue-frontend-oauth2-client/README.md)
+
+## Express testing
+
+- [Express compatibility suite](../express/express-compat-suite/README.md#page-overview)

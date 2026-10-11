@@ -22,6 +22,14 @@
 
 Start with the [repository README](../README.md#quick-start) for a first working result. These guides own deeper build, configuration, deployment and development instructions.
 
+## Sections
+
+<!-- snodec:begin section-pages -->
+- [Design](design/README.md#page-overview)
+- [Guides](guides/README.md#page-overview)
+- [Logging](logging/README.md#page-overview)
+<!-- snodec:end section-pages -->
+
 ## Guides and references
 
 - [Install and build](guides/build-from-source.md#page-overview)
@@ -36,11 +44,3 @@ Start with the [repository README](../README.md#quick-start) for a first working
 - [Resource policy and streaming](design/resource-policies-and-streaming.md#page-overview)
 - [Public logging API](logging/public-api.md#page-overview)
 - [Semantic text output](logging/text-output-format.md#page-overview)
-
-[Repository](../README.md#project-overview) · [SNode.C organization](https://github.com/SNodeC)
-
-<!-- snodec:begin section-pages -->
-- [Design](design/README.md#page-overview)
-- [Guides](guides/README.md#page-overview)
-- [Logging](logging/README.md#page-overview)
-<!-- snodec:end section-pages -->
