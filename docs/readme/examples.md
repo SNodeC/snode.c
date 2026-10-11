@@ -319,3 +319,5 @@ PY
 ## Compose roles in one application
 
 Multiple named clients and servers can coexist between one `core::SNodeC::init()` and one `core::SNodeC::start()`. Keep shared application state separate from per-peer contexts, give each instance a distinct name, and keep callbacks non-blocking. HTTP, custom protocols and database operations can then cooperate through one event loop without starting a separate process for every interface.
+
+For a complete compilable multi-instance exercise, follow [one-process instance composition](../../examples/echo/README.md#compose-instances-in-one-process). It reuses the standalone pair’s context and verifies two separately named loopback listeners in the same event loop.

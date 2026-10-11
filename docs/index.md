@@ -15,7 +15,7 @@
   <a href="../README.md#first-success" title="Use"><img src="readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="../README.md#configuration" title="Configure"><img src="readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="../README.md#architecture" title="Architecture"><img src="readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/annotated.html" title="API"><img src="readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="../README.md#contributing" title="Contribute"><img src="readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
