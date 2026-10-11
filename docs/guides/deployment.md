@@ -1,7 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
@@ -28,7 +28,7 @@ Persist the selected configuration with `--write-config path/to/service.conf`. T
 - Bind only the required interfaces. Use loopback or a Unix-domain socket for local services.
 - Configure TLS certificates, private-key permissions, peer verification and trust roots for encrypted connections. Never deploy the repository’s demonstration keys as production credentials.
 - Choose authentication and authorization appropriate to the application. TLS encryption and HTTP Basic middleware do not by themselves define access policy.
-- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../resource-policy-and-streaming.md#page-overview).
+- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../design/resource-policies-and-streaming.md#page-overview).
 - Keep callbacks non-blocking. Size retry/backoff and reconnect settings to avoid overwhelming a recovering peer.
 - Create writable state directories for the service account. Keep binaries and configuration read-only where practical.
 - Select log levels deliberately. Trace output and payload dumps can be expensive and can expose application data; use scoped filters and rotation.
@@ -56,7 +56,7 @@ For example, replace the executable with your service:
 ./my-service --config-file /etc/my-service/service.conf --log-level 4 --log-format json --daemonize=false
 ```
 
-Start with supervisor-captured foreground logs (`journalctl` for the unit below). When opting into file logging, provision a writable, permission-restricted log destination and an external rotation/retention policy appropriate to your supervisor; no rotation flag is promised here. Debug/trace records can expose payloads and credentials. For application code rather than operator options, see the [public logging API](../logging/public-log-api.md#page-overview).
+Start with supervisor-captured foreground logs (`journalctl` for the unit below). When opting into file logging, provision a writable, permission-restricted log destination and an external rotation/retention policy appropriate to your supervisor; no rotation flag is promised here. Debug/trace records can expose payloads and credentials. For application code rather than operator options, see the [public logging API](../logging/public-api.md#page-overview).
 
 ## Configure a TLS instance
 
@@ -105,7 +105,7 @@ For containers, package your executable with its runtime libraries, mount config
 
 ## OpenWrt and embedded deployments
 
-Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/openwrt.md). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
+Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/installation/openwrt.md). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
 
 ## Upgrade deliberately
 

@@ -77,7 +77,7 @@ namespace snodec::control {
         std::optional<bool> requiredEffective;     // metadata's "required.effective" (current CLI11 state only)
         std::optional<std::string> requiredSource; // e.g. "cli11-current-state"
         std::optional<bool> configFileWritable;
-        std::optional<std::string> configFileSection; // always nullopt in schema v1 (see docs/config-comment-metadata.md)
+        std::optional<std::string> configFileSection; // always nullopt in schema v1 (see docs/design/config-comment-metadata.md)
 
         // Provenance from the legacy line parser (ConfigParser.cpp), used by applyMetadataToModel() to
         // tell a real option apart from a stray "key = value"-shaped line inside another option's
@@ -120,7 +120,7 @@ namespace snodec::control {
 
     // Enriches every ConfigOption already discovered in `model` with the corresponding MetaOption's
     // typing/relations/required-state fields (matched by `key`, which both share verbatim - see
-    // docs/config-comment-metadata.md in the SNode.C tree). A no-op when `!metadata.usable()`. An
+    // docs/design/config-comment-metadata.md in the SNode.C tree). A no-op when `!metadata.usable()`. An
     // option present in `model` with no matching metadata entry is left with its enrichment fields at
     // their empty defaults, exactly as if metadata were entirely absent for that one option - this
     // can legitimately happen for one option even when metadata is usable overall (see

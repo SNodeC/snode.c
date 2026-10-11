@@ -2,15 +2,15 @@
 <a name="project-overview"></a>
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/readme/media/hero-mobile.svg">
-  <img src="docs/readme/media/hero.svg" alt="SNode.C — Your own protocols, HTTP, WebSocket, SSE and MQTT. A smooth white S in a blue connected-node logo on a dark-blue banner.">
+  <source media="(max-width: 600px)" srcset="docs/media/hero-mobile.svg">
+  <img src="docs/media/hero.svg" alt="SNode.C — Your own protocols, HTTP, WebSocket, SSE and MQTT. A smooth white S in a blue connected-node logo on a dark-blue banner.">
 </picture>
 
 # SNode.C
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/media/snodec-chip-dark.svg">
-  <img src="docs/readme/media/snodec-chip-light.svg" alt="Framework · Product" width="240" height="32">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/snodec-chip-dark.svg">
+  <img src="docs/media/snodec-chip-light.svg" alt="Framework · Product" width="240" height="32">
 </picture>
 <!-- snodec:end header -->
 
@@ -24,14 +24,14 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 
 <!-- snodec:begin menu -->
 <p>
-  <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="133" height="28"></a>
-  <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="133" height="28"></a>
-  <a href="docs/readme/install.md#page-overview" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="133" height="28"></a>
-  <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="133" height="28"></a>
-  <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="133" height="28"></a>
-  <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="133" height="28"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="133" height="28"></a>
-  <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="133" height="28"></a>
+  <a href="#quick-start" title="Start"><img src="docs/media/menu/snodec-start-108.svg" alt="Start" width="133" height="28"></a>
+  <a href="#install" title="Install"><img src="docs/media/menu/snodec-install-108.svg" alt="Install" width="133" height="28"></a>
+  <a href="docs/guides/build-from-source.md#page-overview" title="Build"><img src="docs/media/menu/build-108.svg" alt="Build" width="133" height="28"></a>
+  <a href="#first-success" title="Use"><img src="docs/media/menu/snodec-use-108.svg" alt="Use" width="133" height="28"></a>
+  <a href="#configuration" title="Configure"><img src="docs/media/menu/snodec-configure-108.svg" alt="Configure" width="133" height="28"></a>
+  <a href="#architecture" title="Architecture"><img src="docs/media/menu/snodec-architecture-108.svg" alt="Architecture" width="133" height="28"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/media/menu/snodec-api-108.svg" alt="API" width="133" height="28"></a>
+  <a href="#contributing" title="Contribute"><img src="docs/media/menu/snodec-contribute-108.svg" alt="Contribute" width="133" height="28"></a>
 </p>
 
 <!-- snodec:end menu -->
@@ -197,13 +197,13 @@ PY
 
 **Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-[![line framing](docs/readme/media/menu/further-line-framing.svg)](docs/readme/examples.md#a-line-oriented-protocol)
+[![line framing](docs/media/menu/further-line-framing.svg)](docs/guides/examples.md#a-line-oriented-protocol)
 
 ### Try another protocol
 
-The [examples guide](docs/readme/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
+The [examples guide](docs/guides/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
 
-Not working? See [first-program troubleshooting](docs/readme/deployment.md#troubleshoot-a-first-program).
+Not working? See [first-program troubleshooting](docs/guides/deployment.md#troubleshoot-a-first-program).
 
 ## Capabilities
 
@@ -229,9 +229,9 @@ Not working? See [first-program troubleshooting](docs/readme/deployment.md#troub
 
 All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
 
-Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/readme/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
+Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/guides/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-[![Explore the full capability map](docs/readme/media/menu/further-capability-map.svg)](docs/readme/capabilities.md#page-overview)
+[![Explore the full capability map](docs/media/menu/further-capability-map.svg)](docs/guides/capabilities.md#page-overview)
 
 ### Same context, another transport
 
@@ -247,7 +247,7 @@ Unix socket — component: net-un-stream-legacy
   net::un::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>
 ```
 
-A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/readme/deployment.md#page-overview).
+A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/guides/deployment.md#page-overview).
 
 ### Designed to live inside your application
 
@@ -258,13 +258,13 @@ A Unix listener takes a socket path instead of a host/port. TLS also requires ce
 - **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
 - **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
 
-The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/readme/capabilities.md#page-overview) separates implementation coverage from deployment requirements.
+The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/guides/capabilities.md#page-overview) separates implementation coverage from deployment requirements.
 
 ## Architecture
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/readme/media/architecture-mobile.svg">
-  <img src="docs/readme/media/architecture.svg" alt="SNode.C separates application protocols, per-connection contexts, transport handling and the event-driven runtime.">
+  <source media="(max-width: 600px)" srcset="docs/media/architecture-mobile.svg">
+  <img src="docs/media/architecture.svg" alt="SNode.C separates application protocols, per-connection contexts, transport handling and the event-driven runtime.">
 </picture>
 
 *A factory creates a protocol context for each connection. Clients and servers reuse that model; changing the transport does not require a second application architecture.*
@@ -278,8 +278,8 @@ The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optiona
 - Callbacks run on the event loop; keep them non-blocking. The returned listen/connect control handle is optional to retain—the operation continues without it.
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/readme/media/context-lifecycle-mobile.svg">
-  <img src="docs/readme/media/context-lifecycle.svg" alt="One factory per server or client instance creates a separate context for each peer: attachment, receive callbacks, detachment, then framework-owned deletion.">
+  <source media="(max-width: 600px)" srcset="docs/media/context-lifecycle-mobile.svg">
+  <img src="docs/media/context-lifecycle.svg" alt="One factory per server or client instance creates a separate context for each peer: attachment, receive callbacks, detachment, then framework-owned deletion.">
 </picture>
 
 ## Configuration
@@ -290,22 +290,22 @@ Inspect the effective settings with `./build/echo-server --config-file /dev/null
 
 Bind only the intended interfaces, configure certificate/trust settings for TLS, and choose application-level authentication and authorization before exposing a listener. Compilation options are separate from runtime configuration.
 
-[![runtime configuration and deployment](docs/readme/media/menu/further-deployment.svg)](docs/readme/deployment.md#start-with-one-explicit-configuration)
+[![runtime configuration and deployment](docs/media/menu/further-deployment.svg)](docs/guides/deployment.md#start-with-one-explicit-configuration)
 
-For runtime log levels and foreground supervision, see [logging and process options](docs/readme/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
+For runtime log levels and foreground supervision, see [logging and process options](docs/guides/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
 
 ## Documentation
 
 The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
 
-[Documentation index](docs/index.md#page-overview) — the existing guides, examples and runtime references.
+[Documentation index](docs/README.md#page-overview) — the existing guides, examples and runtime references.
 
 ### Learn by building
 
-- **Frame a protocol:** [Line framing](docs/readme/examples.md#a-line-oriented-protocol) and the [WebSocket example](docs/readme/examples.md#talk-both-ways-with-a-websocket)
+- **Frame a protocol:** [Line framing](docs/guides/examples.md#a-line-oriented-protocol) and the [WebSocket example](docs/guides/examples.md#talk-both-ways-with-a-websocket)
 - **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
-- **Choose protocols:** [Capability guide](docs/readme/capabilities.md#page-overview)
-- **Run a service:** [Deployment guide](docs/readme/deployment.md#page-overview)
+- **Choose protocols:** [Capability guide](docs/guides/capabilities.md#page-overview)
+- **Run a service:** [Deployment guide](docs/guides/deployment.md#page-overview)
 - **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/namespacecore.html)
 
 ## Platforms and packages
@@ -315,19 +315,19 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 ### Install
 
 <p>
-  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="188" height="28"></a>
-  <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="188" height="28"></a>
+  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/media/menu/route-packages.svg" alt="Signed packages" width="188" height="28"></a>
+  <a href="docs/guides/build-from-source.md#page-overview" title="Build from source"><img src="docs/media/menu/route-source.svg" alt="Build from source" width="188" height="28"></a>
 </p>
 
 Use signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
 
 ## Releases
 
-[Release history and release notes](https://github.com/SNodeC/snode.c/releases). Match framework libraries, components and plugins from the same installation. Read the [upgrade and ABI guidance](docs/readme/deployment.md#upgrade-deliberately) before replacing a deployed installation.
+[Release history and release notes](https://github.com/SNodeC/snode.c/releases). Match framework libraries, components and plugins from the same installation. Read the [upgrade and ABI guidance](docs/guides/deployment.md#upgrade-deliberately) before replacing a deployed installation.
 
 ## Contributing
 
-[Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/readme/install.md#select-build-features).
+[Report a bug or propose a feature](https://github.com/SNodeC/snode.c/issues). Include the framework version, transport, configuration with secrets removed, and a small reproducer where possible. Source builds can enable the framework’s tests with `SNODEC_BUILD_TESTS=ON`; see the [developer build instructions](docs/guides/build-from-source.md#select-build-features).
 
 SNode.C began as a teaching framework at the University of Applied Sciences Upper Austria, Hagenberg, in 2020. Its separation of runtime, connection and protocol responsibilities remains visible in the public API.
 

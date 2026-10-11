@@ -49,7 +49,7 @@
 namespace snodec::control {
 
     // Mirrors the "required": { "effective": ..., "source": ... } object emitted for both "node"
-    // and "option" entities. Per docs/config-comment-metadata.md this is *current CLI11 state only*,
+    // and "option" entities. Per docs/design/config-comment-metadata.md this is *current CLI11 state only*,
     // not a canonical/registration-time value and not suppression-aware - snodec-control must not
     // treat it as more authoritative than that.
     struct MetaRequired {
