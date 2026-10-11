@@ -60,7 +60,7 @@ This formatter-only metadata exposes only current CLI11 required state:
 }
 ```
 
-Canonical required/needs state and disable/enable suppression semantics are not part of this formatter-only PR. Registration-default tracking is also deliberately left to a future option-metadata design.
+Canonical required/needs state and disable/enable suppression semantics are not part of this metadata format. Registration-default tracking is also deliberately left to a future option-metadata design.
 
 ## Known limitations
 

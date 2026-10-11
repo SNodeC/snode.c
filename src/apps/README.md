@@ -21,4 +21,4 @@ These applications are built as part of SNode.C when their required components a
 
 For the complete installed-consumer tutorial, follow the [standalone echo pair](../../examples/echo/README.md#page-overview). Its annotated source, configuration, run commands and four application-level CTests now have one owner there. The root README retains its shorter [first success](../../README.md#first-success).
 
-Top-level utilities include `configtest`, `jsonserver`, `jsonclient`, `testpipe`, `testpost`, `testregex`, and `express_compat_server`; consult [the application build file](CMakeLists.txt) for their required libraries and install components.
+Top-level utilities include `configtest`, `jsonserver`, `jsonclient`, `testpipe`, `testpost`, `testregex`, and `express-compat-server`; consult [the application build file](CMakeLists.txt) for their required libraries and install components.

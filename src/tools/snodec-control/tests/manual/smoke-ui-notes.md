@@ -20,7 +20,7 @@ default `false`) and a genuine tristate option (`feature.mode`: `false`/`true`/`
 ## Running it
 
 ```sh
-cd snodec-control/build
+cd src/tools/snodec-control/build
 ./src/snodec-control --target ../tests/manual/fake-snodec-target.sh --ui
 ```
 
@@ -84,7 +84,7 @@ Ctrl-C against it; set `FAKE_TARGET_TICKS=<n>` in the environment to make it exi
 seconds instead, for testing the plain "target exits by itself" path without Ctrl-C at all.
 
 ```sh
-cd snodec-control/build
+cd src/tools/snodec-control/build
 ./src/snodec-control --target ../tests/manual/fake-snodec-target.sh --ui
 ```
 
