@@ -52,6 +52,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|ARM)" AND NOT CMAKE_SYSTEM_PROCESSOR
+                                                   MATCHES "64"
+)
+    add_compile_options($<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-psabi>)
+endif()
+
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
