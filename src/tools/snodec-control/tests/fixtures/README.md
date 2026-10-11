@@ -10,9 +10,9 @@
 ## `NestedSubCommandFixture.h`
 
 Real `--show-config` output, captured verbatim from a throwaway program built against SNode.C
-master, used by tests that need genuinely nested, non-`Instances`/`Sections` custom `SubCommand`s
+the recorded development revision, used by tests that need genuinely nested, non-`Instances`/`Sections` custom `SubCommand`s
 (the framework's own examples/apps don't nest custom subcommands more than one level deep, so this
-was purpose-built per the Phase 4 task's Step 0 instructions rather than hand-written as a `#@`
+was generated from real nested subcommands rather than hand-written as a `#@`
 snippet).
 
 `nested_subcommand_fixture_source.cpp` is the exact source used to produce it. It links only
@@ -31,7 +31,7 @@ To reproduce against a newer SNode.C checkout:
 ```sh
 cmake --build build --target utils
 g++ -std=c++20 -I src \
-    snodec-control/tests/fixtures/nested_subcommand_fixture_source.cpp \
+    src/tools/snodec-control/tests/fixtures/nested_subcommand_fixture_source.cpp \
     -L build/src/utils -L build/src/log -lsnodec-utils -lsnodec-logger \
     -Wl,-rpath,$PWD/build/src/utils -Wl,-rpath,$PWD/build/src/log \
     -o /tmp/nested_fixture

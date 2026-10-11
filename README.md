@@ -30,7 +30,7 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
   <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
   <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
   <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/annotated.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
   <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
 </p>
 
@@ -306,15 +306,13 @@ The API menu opens the legacy Doxygen class index. It is a reference snapshot, n
 - **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
 - **Choose protocols:** [Capability guide](docs/readme/capabilities.md#page-overview)
 - **Run a service:** [Deployment guide](docs/readme/deployment.md#page-overview)
-- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/annotated.html)
+- **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/namespacecore.html)
 
 ## Platforms and packages
 
 Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and CMake 3.18+. Signed packages cover Debian, Ubuntu, Rocky Linux, Fedora, Raspberry Pi OS and OpenWrt; the [Packages matrix](https://github.com/SNodeC/Packages#readme) is authoritative for available releases and architectures.
 
 ### Install
-
-Choose your route.
 
 <p>
   <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="152" height="24"></a>
