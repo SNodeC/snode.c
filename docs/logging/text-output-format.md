@@ -1,7 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../readme/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
@@ -63,7 +63,7 @@ TTY detection only selects the initial default. Non-TTY stdout defaults to plain
 | Text   | colored           | plain                | plain |
 | JSON   | plain             | plain                | plain |
 
-Quiet mode suppresses stdout but not configured file output. This formatter change introduced no additional CLI/configuration option or asynchronous logger. For the existing `--log-format` selection and logging controls, see [runtime logging](../readme/deployment.md#logging-and-process-options).
+Quiet mode suppresses stdout but not configured file output. This formatter change introduced no additional CLI/configuration option or asynchronous logger. For the existing `--log-format` selection and logging controls, see [runtime logging](../guides/deployment.md#logging-and-process-options).
 
 ## Trusted terminal presentations for semantic hex dumps
 

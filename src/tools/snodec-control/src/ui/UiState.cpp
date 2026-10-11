@@ -64,7 +64,7 @@ namespace snodec::control::ui {
     bool isTristateLikeOption(const ConfigOption& option) {
         // Metadata's "type.kind" cannot help disambiguate boolean from tristate here: SNode.C's own
         // formatter derives "boolean" for *any* flag-like option (CLI11 expected_min() == 0), which
-        // covers true booleans and tristates alike (see docs/config-comment-metadata.md's note that
+        // covers true booleans and tristates alike (see docs/design/config-comment-metadata.md's note that
         // type.kind/kindSource is a heuristic on the framework side) - so the literal default value
         // "default" remains the only reliable signal for this and is kept as the sole detector. What
         // metadata *does* add: a list-type option (type.items == "list") must never be treated as a

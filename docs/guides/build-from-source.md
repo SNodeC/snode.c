@@ -1,15 +1,15 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
 # Build and install SNode.C from source
 
 <p>
-  <a href="#native-linux-build" title="Native Linux build"><img src="media/install-native-linux.svg" alt="Native Linux build" width="274" height="28"></a>
-  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="274" height="28"></a>
+  <a href="#native-linux-build" title="Native Linux build"><img src="../media/install-native-linux.svg" alt="Native Linux build" width="274" height="28"></a>
+  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="../media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="274" height="28"></a>
 </p>
 
 **Prefer prebuilt binaries?** See [Packages](https://github.com/SNodeC/Packages#readme) for supported distributions and installation instructions.
@@ -107,7 +107,7 @@ find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 target_link_libraries(my-service PRIVATE snodec::net-in-stream-legacy)
 ```
 
-[![Build the native client and server](media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
+[![Build the native client and server](../media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
 
 ## OpenWrt cross-compilation
 
@@ -165,7 +165,7 @@ make -j16 package/local/snode.c/compile V=s
 
 This example creates unsigned packages for local use. Adjust the parallel job count to the build host. In an existing SDK, retain your `.config` and change selections through `make menuconfig` instead of replacing it.
 
-Use **Network / SNode.C** in `make menuconfig`. OpenWrt generates a `CONFIG_PACKAGE_<package>` tristate: `m` builds an installable package; `y` also selects it for an image build; `n` omits it unless a selected consumer requires it. Required lower layers follow the consumer's selection level. No second set of module booleans overrides these selectors. See the [package catalog](https://github.com/SNodeC/Packages/blob/main/docs/snodec-package-options.md) for package contents.
+Use **Network / SNode.C** in `make menuconfig`. OpenWrt generates a `CONFIG_PACKAGE_<package>` tristate: `m` builds an installable package; `y` also selects it for an image build; `n` omits it unless a selected consumer requires it. Required lower layers follow the consumer's selection level. No second set of module booleans overrides these selectors. See the [package catalog](https://github.com/SNodeC/Packages/blob/main/docs/catalogs/snodec.md) for package contents.
 
 `snodec` selects all 63 shared runtime modules, demonstrations (`snodec-apps`) and the control tool (`snodec-control`). Static/internal targets have no separate runtime payload. RFCOMM (`net-rc`) and L2CAP (`net-l2`) each have address/configuration, physical socket, physical stream, stream configuration, legacy stream and TLS stream layers. RFCOMM also has legacy/TLS Express packages.
 

@@ -1,7 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
 <p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
+  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
 </p>
 <!-- snodec:end page-header -->
 
@@ -77,17 +77,17 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 - **C++ / CLI / configuration files.** Configure application sections and named instances through the same configuration model.
 - **`snodec-control`.** Discover an application’s configuration, inspect/edit values, generate configuration files and optionally use a Curses terminal UI.
 - **Retry and reconnect policy.** Retry limits, delays, backoff and jitter; reconnect after connection loss.
-- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../resource-policy-and-streaming.md#page-overview).
+- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../design/resource-policies-and-streaming.md#page-overview).
 - **Semantic logging.** Text/JSON output; application/framework, component, boundary and instance filtering; structured context and hex dumps.
 - **CMake components.** Imported `snodec::…` targets for external applications.
-- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](install.md#page-overview).
+- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](build-from-source.md#page-overview).
 
 ## Demonstrations and deployment
 
 The source contains HTTP, echo, WebSocket, database and OAuth2 demonstrations. Production services still need explicit access controls, TLS configuration and qualification on their target hardware; the OAuth2 sample is a learning application.
 
 <p>
-  <a href="install.md#page-overview" title="Build from source"><img src="media/menu/build-114.svg" alt="Build from source" width="141" height="28"></a>
-  <a href="examples.md#page-overview" title="Run examples"><img src="media/menu/run-examples-114.svg" alt="Run examples" width="141" height="28"></a>
-  <a href="deployment.md#page-overview" title="Deploy"><img src="media/menu/deploy-114.svg" alt="Deploy" width="141" height="28"></a>
+  <a href="build-from-source.md#page-overview" title="Build from source"><img src="../media/menu/build-114.svg" alt="Build from source" width="141" height="28"></a>
+  <a href="examples.md#page-overview" title="Run examples"><img src="../media/menu/run-examples-114.svg" alt="Run examples" width="141" height="28"></a>
+  <a href="deployment.md#page-overview" title="Deploy"><img src="../media/menu/deploy-114.svg" alt="Deploy" width="141" height="28"></a>
 </p>
