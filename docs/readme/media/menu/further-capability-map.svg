@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="134" height="24" viewBox="0 0 134 24" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="165" height="28" viewBox="0 0 165 28" role="img" aria-labelledby="title">
   <title id="title">Capability map →</title>
-  <rect x="0.5" y="0.5" width="133" height="23" rx="5" fill="#203440" stroke="#395260"/>
-  <text x="58.69530763" y="16" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#ffffff">Capability map</text>
-  <path d="M0 1.25H5.5V0L9 2L5.5 4V2.75H0Z" transform="translate(110.53906250 10)" fill="#ffffff" aria-hidden="true"/>
+  <rect x="0.5" y="0.5" width="164" height="27" rx="5" fill="#203440" stroke="#395260"/>
+  <text x="72.24037862" y="19" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#ffffff">Capability map</text>
+  <path d="M0 1.25H5.5V0L9 2L5.5 4V2.75H0Z" transform="translate(136.04807692 12)" fill="#ffffff" aria-hidden="true"/>
 </svg>
