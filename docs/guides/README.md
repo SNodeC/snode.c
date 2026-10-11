@@ -8,6 +8,8 @@
 
 Task-oriented guides for building, running and deploying SNode.C applications.
 
+## Sections
+
 <!-- snodec:begin section-pages -->
 - [Build and install SNode.C from source](build-from-source.md#page-overview)
 - [SNode.C capability map](capabilities.md#page-overview)

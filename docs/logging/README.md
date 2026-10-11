@@ -8,6 +8,8 @@
 
 The public logging API and the format of its semantic text output.
 
+## Sections
+
 <!-- snodec:begin section-pages -->
 - [Public logging API](public-api.md#page-overview)
 - [Semantic text output format](text-output-format.md#page-overview)

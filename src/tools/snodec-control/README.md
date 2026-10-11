@@ -659,3 +659,8 @@ that case, since there is nothing to reconcile against).
   defaults, if/when a future SNode.C metadata schema version exposes them (see "Known limitations").
 * A dedicated editing affordance for `type.items == "list"` options (currently edited as one
   space-joined text string via the plain prompt, just never mistaken for a boolean/tristate).
+
+## Tests
+
+- [Test fixtures](tests/fixtures/README.md#page-overview)
+- [Manual UI smoke-test notes](tests/manual/smoke-ui-notes.md#page-overview)
