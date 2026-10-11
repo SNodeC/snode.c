@@ -236,4 +236,8 @@ All 44 SNode.C default/choice symbols and the demo selector participate in recip
 
 Install the desired packages and their dependencies on matching firmware. For unsigned local APKs, use `apk add --allow-untrusted ./<package>.apk` with the actual package path. Supply the required local dependency packages or a local feed; a single metapackage cannot discover unpublished packages. Check the selected demonstration applications or `snodec-control --help` on the device.
 
-To build MQTTSuite next, retain this SDK and its staged SNode.C development files, then follow [MQTTSuite → Build → OpenWrt cross-compilation](https://github.com/SNodeC/mqttsuite#project-overview).
+### Next step
+
+Keep the SDK and its staged SNode.C headers and libraries to cross-compile your own application for the same firmware. MQTTSuite is a concrete example of this workflow, not a required next step.
+
+[![Build MQTTSuite →](../media/menu/further-build-mqttsuite.svg)](https://github.com/SNodeC/mqttsuite/blob/master/docs/guides/build-from-source.md#openwrt-cross-compilation)
