@@ -1,0 +1,1642 @@
+[
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/README.md",
+    "width": 1920,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 354.859375,
+      "top": 376,
+      "right": 1619,
+      "bottom": 730.859375,
+      "left": 607
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to Documentation",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/README.md#page-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-light.svg\" alt=\"Up to Documentation\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "Guides",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-guides"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/README.md",
+    "width": 1920,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 354.859375,
+      "top": 376,
+      "right": 1619,
+      "bottom": 730.859375,
+      "left": 607
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to Documentation",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/README.md#page-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-light.svg\" alt=\"Up to Documentation\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "Guides",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-guides"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/README.md",
+    "width": 390,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 484.9375,
+      "top": 468,
+      "right": 342,
+      "bottom": 952.9375,
+      "left": 33
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to Documentation",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/README.md#page-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-light.svg\" alt=\"Up to Documentation\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "Guides",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 50.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 716.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-guides"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/README.md",
+    "width": 390,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 484.9375,
+      "top": 468,
+      "right": 342,
+      "bottom": 952.9375,
+      "left": 33
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to Documentation",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/README.md#page-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-documentation-light.svg\" alt=\"Up to Documentation\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "Guides",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 50.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 716.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-guides"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/build-from-source.md",
+    "width": 1920,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/build-from-source.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 4505.59375,
+      "top": 376,
+      "right": 1619,
+      "bottom": 4881.59375,
+      "left": 607
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to Guides",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md#page-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-light.svg\" alt=\"Up to Guides\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "Build and install SNode.C from source",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-build-and-install-snodec-from-source",
+      "user-content-native-linux-build",
+      "user-content-requirements",
+      "user-content-build-and-install",
+      "user-content-select-build-features",
+      "user-content-verify-the-installation",
+      "user-content-next-step",
+      "user-content-openwrt-cross-compilation",
+      "user-content-prepare-the-sdk",
+      "user-content-link-the-recipe-into-the-sdk",
+      "user-content-select-and-compile-snodec",
+      "user-content-install-and-verify-on-the-device"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/build-from-source.md",
+    "width": 1920,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/build-from-source.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 4505.59375,
+      "top": 376,
+      "right": 1619,
+      "bottom": 4881.59375,
+      "left": 607
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to Guides",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md#page-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-light.svg\" alt=\"Up to Guides\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "Build and install SNode.C from source",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-build-and-install-snodec-from-source",
+      "user-content-native-linux-build",
+      "user-content-requirements",
+      "user-content-build-and-install",
+      "user-content-select-build-features",
+      "user-content-verify-the-installation",
+      "user-content-next-step",
+      "user-content-openwrt-cross-compilation",
+      "user-content-prepare-the-sdk",
+      "user-content-link-the-recipe-into-the-sdk",
+      "user-content-select-and-compile-snodec",
+      "user-content-install-and-verify-on-the-device"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/build-from-source.md",
+    "width": 390,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/build-from-source.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 7965.71875,
+      "top": 468,
+      "right": 342,
+      "bottom": 8433.71875,
+      "left": 33
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to Guides",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md#page-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-light.svg\" alt=\"Up to Guides\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "Build and install SNode.C from source",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 130.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 796.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-build-and-install-snodec-from-source",
+      "user-content-native-linux-build",
+      "user-content-requirements",
+      "user-content-build-and-install",
+      "user-content-select-build-features",
+      "user-content-verify-the-installation",
+      "user-content-next-step",
+      "user-content-openwrt-cross-compilation",
+      "user-content-prepare-the-sdk",
+      "user-content-link-the-recipe-into-the-sdk",
+      "user-content-select-and-compile-snodec",
+      "user-content-install-and-verify-on-the-device"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "docs/guides/build-from-source.md",
+    "width": 390,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/build-from-source.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 7965.71875,
+      "top": 468,
+      "right": 342,
+      "bottom": 8433.71875,
+      "left": 33
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to Guides",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/docs/guides/README.md#page-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-guides-light.svg\" alt=\"Up to Guides\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "Build and install SNode.C from source",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 130.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 796.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-guides.svg\" alt=\"SNode.C \u2014 Guides\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-build-and-install-snodec-from-source",
+      "user-content-native-linux-build",
+      "user-content-requirements",
+      "user-content-build-and-install",
+      "user-content-select-build-features",
+      "user-content-verify-the-installation",
+      "user-content-next-step",
+      "user-content-openwrt-cross-compilation",
+      "user-content-prepare-the-sdk",
+      "user-content-link-the-recipe-into-the-sdk",
+      "user-content-select-and-compile-snodec",
+      "user-content-install-and-verify-on-the-device"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "src/tools/snodec-control/README.md",
+    "width": 1920,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/src/tools/snodec-control/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 14729.71875,
+      "top": 376,
+      "right": 1619,
+      "bottom": 15105.71875,
+      "left": 607
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to SNode.C",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-light.svg\" alt=\"Up to SNode.C\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "snodec-control",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg\" alt=\"SNode.C \u2014 Tools\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-snodec-control",
+      "user-content-what-snodec-control-does",
+      "user-content-explicitly-out-of-scope--architectural-constraints",
+      "user-content-building",
+      "user-content-usage",
+      "user-content-editing---set----unset",
+      "user-content-diffing---diff",
+      "user-content-validation---check-required",
+      "user-content-saving-through-the-target---save-config-file",
+      "user-content-running---run---run-config---print-run-command",
+      "user-content-dry-run---dry-run",
+      "user-content-interactive-ui---ui",
+      "user-content-hierarchy-derivation",
+      "user-content-groups",
+      "user-content-type-aware-editing-and-relations",
+      "user-content-key-bindings",
+      "user-content-boolean-and-tristate-cycling-space",
+      "user-content-save-path-behavior-s",
+      "user-content-quit-and-the-modified-indicator",
+      "user-content-run-and-the-terminal-r",
+      "user-content---ui-combined-with-other-flags",
+      "user-content-examples",
+      "user-content-the-configuration-model",
+      "user-content-code-layout",
+      "user-content-parser-robustness",
+      "user-content-reconciling-the-two-parsers-real-options-vs-description-line-artifacts",
+      "user-content-known-limitations",
+      "user-content-possible-future-work"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "src/tools/snodec-control/README.md",
+    "width": 1920,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/src/tools/snodec-control/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 607,
+      "y": 376,
+      "width": 1012,
+      "height": 14729.71875,
+      "top": 376,
+      "right": 1619,
+      "bottom": 15105.71875,
+      "left": 607
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to SNode.C",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 607,
+          "y": 458.265625,
+          "width": 160,
+          "height": 28,
+          "top": 458.265625,
+          "right": 767,
+          "bottom": 486.265625,
+          "left": 607
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-light.svg\" alt=\"Up to SNode.C\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 1439,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1619,
+          "bottom": 486.265625,
+          "left": 1439
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 1259,
+          "y": 458.265625,
+          "width": 180,
+          "height": 28,
+          "top": 458.265625,
+          "right": 1439,
+          "bottom": 486.265625,
+          "left": 1259
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 767,
+          "y": 469.265625,
+          "width": 0,
+          "height": 22,
+          "top": 469.265625,
+          "right": 767,
+          "bottom": 491.265625,
+          "left": 767
+        }
+      }
+    ],
+    "h1": {
+      "text": "snodec-control",
+      "box": {
+        "x": 607,
+        "y": 516.265625,
+        "width": 1012,
+        "height": 50.59375,
+        "top": 516.265625,
+        "right": 1619,
+        "bottom": 566.859375,
+        "left": 607
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg",
+      "naturalWidth": 1280,
+      "naturalHeight": 56,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg\" alt=\"SNode.C \u2014 Tools\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 607,
+        "y": 392,
+        "width": 1012,
+        "height": 44.265625,
+        "top": 392,
+        "right": 1619,
+        "bottom": 436.265625,
+        "left": 607
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-snodec-control",
+      "user-content-what-snodec-control-does",
+      "user-content-explicitly-out-of-scope--architectural-constraints",
+      "user-content-building",
+      "user-content-usage",
+      "user-content-editing---set----unset",
+      "user-content-diffing---diff",
+      "user-content-validation---check-required",
+      "user-content-saving-through-the-target---save-config-file",
+      "user-content-running---run---run-config---print-run-command",
+      "user-content-dry-run---dry-run",
+      "user-content-interactive-ui---ui",
+      "user-content-hierarchy-derivation",
+      "user-content-groups",
+      "user-content-type-aware-editing-and-relations",
+      "user-content-key-bindings",
+      "user-content-boolean-and-tristate-cycling-space",
+      "user-content-save-path-behavior-s",
+      "user-content-quit-and-the-modified-indicator",
+      "user-content-run-and-the-terminal-r",
+      "user-content---ui-combined-with-other-flags",
+      "user-content-examples",
+      "user-content-the-configuration-model",
+      "user-content-code-layout",
+      "user-content-parser-robustness",
+      "user-content-reconciling-the-two-parsers-real-options-vs-description-line-artifacts",
+      "user-content-known-limitations",
+      "user-content-possible-future-work"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "src/tools/snodec-control/README.md",
+    "width": 390,
+    "theme": "light",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/src/tools/snodec-control/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 34924.609375,
+      "top": 468,
+      "right": 342,
+      "bottom": 35392.609375,
+      "left": 33
+    },
+    "background": "rgb(255, 255, 255)",
+    "buttons": [
+      {
+        "title": "Up to SNode.C",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-light.svg\" alt=\"Up to SNode.C\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "snodec-control",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 50.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 716.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg\" alt=\"SNode.C \u2014 Tools\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-snodec-control",
+      "user-content-what-snodec-control-does",
+      "user-content-explicitly-out-of-scope--architectural-constraints",
+      "user-content-building",
+      "user-content-usage",
+      "user-content-editing---set----unset",
+      "user-content-diffing---diff",
+      "user-content-validation---check-required",
+      "user-content-saving-through-the-target---save-config-file",
+      "user-content-running---run---run-config---print-run-command",
+      "user-content-dry-run---dry-run",
+      "user-content-interactive-ui---ui",
+      "user-content-hierarchy-derivation",
+      "user-content-groups",
+      "user-content-type-aware-editing-and-relations",
+      "user-content-key-bindings",
+      "user-content-boolean-and-tristate-cycling-space",
+      "user-content-save-path-behavior-s",
+      "user-content-quit-and-the-modified-indicator",
+      "user-content-run-and-the-terminal-r",
+      "user-content---ui-combined-with-other-flags",
+      "user-content-examples",
+      "user-content-the-configuration-model",
+      "user-content-code-layout",
+      "user-content-parser-robustness",
+      "user-content-reconciling-the-two-parsers-real-options-vs-description-line-artifacts",
+      "user-content-known-limitations",
+      "user-content-possible-future-work"
+    ]
+  },
+  {
+    "repo": "snode.c",
+    "page": "src/tools/snodec-control/README.md",
+    "width": 390,
+    "theme": "dark",
+    "url": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/src/tools/snodec-control/README.md",
+    "font": "\"Mona Sans VF\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans Backtick Fix\", \"Noto Sans\", Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\"",
+    "fontSize": "16px",
+    "article": {
+      "x": 33,
+      "y": 468,
+      "width": 309,
+      "height": 34924.609375,
+      "top": 468,
+      "right": 342,
+      "bottom": 35392.609375,
+      "left": 33
+    },
+    "background": "rgb(13, 17, 23)",
+    "buttons": [
+      {
+        "title": "Up to SNode.C",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 33,
+          "y": 552.34375,
+          "width": 160,
+          "height": 28,
+          "top": 552.34375,
+          "right": 193,
+          "bottom": 580.34375,
+          "left": 33
+        },
+        "align": null,
+        "float": "none",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-dark.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/up-snode-c-light.svg\" alt=\"Up to SNode.C\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNodeC organization",
+        "href": "https://github.com/SNodeC",
+        "img": {
+          "x": 162,
+          "y": 586.34375,
+          "width": 180,
+          "height": 28,
+          "top": 586.34375,
+          "right": 342,
+          "bottom": 614.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/organization-light.svg\" alt=\"SNodeC organization\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      },
+      {
+        "title": "SNode.C repository",
+        "href": "https://github.com/SNodeC/snode.c/blob/docs/navigation-step2/README.md#project-overview",
+        "img": {
+          "x": 162,
+          "y": 614.34375,
+          "width": 180,
+          "height": 28,
+          "top": 614.34375,
+          "right": 342,
+          "bottom": 642.34375,
+          "left": 162
+        },
+        "align": "right",
+        "float": "right",
+        "picture": "<picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-dark.svg\"><img align=\"right\" src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/repository-light.svg\" alt=\"SNode.C repository\" width=\"160\" height=\"28\" style=\"visibility: visible; max-width: 100%;\"></picture>"
+      }
+    ],
+    "clear": [
+      {
+        "attribute": "all",
+        "computed": "both",
+        "box": {
+          "x": 193,
+          "y": 563.34375,
+          "width": 0,
+          "height": 22,
+          "top": 563.34375,
+          "right": 193,
+          "bottom": 585.34375,
+          "left": 193
+        }
+      }
+    ],
+    "h1": {
+      "text": "snodec-control",
+      "box": {
+        "x": 33,
+        "y": 666.34375,
+        "width": 309,
+        "height": 50.59375,
+        "top": 666.34375,
+        "right": 342,
+        "bottom": 716.9375,
+        "left": 33
+      }
+    },
+    "banner": {
+      "currentSrc": "https://github.com/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg",
+      "naturalWidth": 480,
+      "naturalHeight": 72,
+      "picture": "<picture><source media=\"(max-width: 640px)\" srcset=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools-compact.svg\"><img src=\"/SNodeC/snode.c/raw/docs/navigation-step2/docs/media/nav/banner-tools.svg\" alt=\"SNode.C \u2014 Tools\" width=\"100%\" style=\"visibility: visible; max-width: 100%;\"></picture>",
+      "box": {
+        "x": 33,
+        "y": 484,
+        "width": 309,
+        "height": 46.34375,
+        "top": 484,
+        "right": 342,
+        "bottom": 530.34375,
+        "left": 33
+      },
+      "parent": "PICTURE"
+    },
+    "broken": [],
+    "ids": [
+      "user-content-page-overview",
+      "user-content-snodec-control",
+      "user-content-what-snodec-control-does",
+      "user-content-explicitly-out-of-scope--architectural-constraints",
+      "user-content-building",
+      "user-content-usage",
+      "user-content-editing---set----unset",
+      "user-content-diffing---diff",
+      "user-content-validation---check-required",
+      "user-content-saving-through-the-target---save-config-file",
+      "user-content-running---run---run-config---print-run-command",
+      "user-content-dry-run---dry-run",
+      "user-content-interactive-ui---ui",
+      "user-content-hierarchy-derivation",
+      "user-content-groups",
+      "user-content-type-aware-editing-and-relations",
+      "user-content-key-bindings",
+      "user-content-boolean-and-tristate-cycling-space",
+      "user-content-save-path-behavior-s",
+      "user-content-quit-and-the-modified-indicator",
+      "user-content-run-and-the-terminal-r",
+      "user-content---ui-combined-with-other-flags",
+      "user-content-examples",
+      "user-content-the-configuration-model",
+      "user-content-code-layout",
+      "user-content-parser-robustness",
+      "user-content-reconciling-the-two-parsers-real-options-vs-description-line-artifacts",
+      "user-content-known-limitations",
+      "user-content-possible-future-work"
+    ]
+  }
+]

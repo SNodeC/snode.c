@@ -1,0 +1,77 @@
+<!-- snodec:begin page-header -->
+<a id="page-overview"></a>
+<p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-logging-compact.svg"><img src="../media/nav/banner-logging.svg" alt="SNode.C — Logging" width="100%"></picture></p>
+<p><a href="README.md#page-overview" title="Up to Logging"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-logging-dark.svg"><img src="../media/nav/up-logging-light.svg" alt="Up to Logging" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNodeC organization"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNodeC organization" width="160" height="28"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" width="160" height="28"></picture></a><br clear="all"></p>
+<!-- snodec:end page-header -->
+
+# Semantic text output format
+
+Semantic text output is the human-readable presentation for semantic `LogRecord` data. JSON schema v1 is unchanged, production call sites and semantic identity are unchanged, and legacy `LOG`/`PLOG`/`VLOG` output is unchanged.
+
+## Plain grammar
+
+```text
+<timestamp> <LVL> <origin>/<boundary> <component> [role=...] [inst=...] [conn=...] [event=...] [error=...] [src=...] — <message>
+```
+
+Field order is fixed: timestamp, level, origin/boundary, component, role, inst, conn, event, error, src, separator, message. The timestamp remains UTC `YYYY-MM-DDTHH:MM:SS.mmmZ`.
+
+Level labels are `TRC`, `DBG`, `INF`, `WRN`, `ERR`, `CRT`, and `OFF`. Origin and boundary always render both axes, including `application/application`.
+
+## Optional fields and escaping
+
+Optional keys are exactly `role=`, `inst=`, `conn=`, `event=`, `error=`, and `src=`. Present-empty optionals render as `key=""`. Errors render before the message as `error=<code>:<text>`. Event and source are visible in text; source renders as `src=<file>:<line>` or `src=<file>:<line>:<function>`.
+
+Unquoted values must match `[A-Za-z0-9._:/@#%+-]+`; all other values are quoted. Quoted values escape backslash, quote, newline, carriage return, tab, backspace, form feed, and all other controls through `\xNN` with uppercase hex. UTF-8 bytes pass through. User-controlled controls are escaped, so raw ANSI cannot be injected.
+
+## Messages and multiline records
+
+Messages are not quoted. CRLF is one logical newline, LF is a logical newline, and lone CR becomes `\r`. Other controls use the same deterministic escapes. Empty messages omit the em dash separator and leave no trailing whitespace.
+
+Subsequent logical lines start with `│ `, preserving blank and trailing continuation lines without alignment padding.
+
+Hex-dump rows contain an offset of at least eight hexadecimal digits, 16 bytes
+grouped into two blocks of eight, and a padded `|ASCII|` column. Non-printable
+bytes appear as dots in that column. Rows occupy 78 columns for eight-digit
+offsets (80 with the continuation marker), without the former 32-space padding.
+The public `Logger::hexDump()` operation adds a label and total byte count and
+does not inspect terminal width or truncate payloads.
+
+## Examples
+
+```text
+2026-07-05T12:34:56.789Z INF application/application app
+2026-07-05T12:34:56.789Z INF framework/connection core.socket role=server inst=mqtt-broker conn=7 — Connected
+2026-07-05T12:34:56.789Z ERR framework/system core.runtime error="5:Input/output error" src=Runtime.cpp:42:tick — failed
+2026-07-05T12:34:56.789Z TRC framework/connection web.http — GET / HTTP/1.1
+│ Request:
+│   Method: GET
+2026-07-05T12:34:56.789Z INF application/application app inst="has spaces" conn=7 — quoted
+```
+
+## Color and routing
+
+Colored output is semantic terminal text only. Files never contain ANSI. JSON never contains ANSI.
+
+Palette: `TRC` 35, `DBG` 92, `INF` 93, `WRN` 33, `ERR` 31, `CRT` 91, `OFF` 39. Timestamp, origin/boundary, field keys, component, and continuation markers may be styled; values and message text remain default.
+
+TTY detection only selects the initial default. Non-TTY stdout defaults to plain text, `Logger::setDisableColor(true)` forces plain, and `Logger::setDisableColor(false)` can force color on redirected stdout.
+
+| Format | stdout with color | stdout without color | file  |
+| ------ | ----------------- | -------------------- | ----- |
+| Text   | colored           | plain                | plain |
+| JSON   | plain             | plain                | plain |
+
+Quiet mode suppresses stdout but not configured file output. This formatter change introduced no additional CLI/configuration option or asynchronous logger. For the existing `--log-format` selection and logging controls, see [runtime logging](../guides/deployment.md#logging-and-process-options).
+
+## Trusted terminal presentations for semantic hex dumps
+
+Ordinary semantic message text remains untrusted input. The text formatter continues to sanitize it fully, including escaping raw ESC bytes as printable `\x1B`, so normal messages cannot inject terminal control sequences.
+
+A log record may carry an optional trusted terminal-presentation sidecar for content generated by library code. This sidecar is not semantic data and is used only for color-enabled text stdout. The validator accepts only the narrow SGR whitelist used by hex dumps: `ESC[32m`, `ESC[33m`, `ESC[34m`, `ESC[39m`, and `ESC[0m`. Stripping those SGR sequences must reproduce the plain message byte-for-byte.
+
+The terminal sidecar must also leave foreground styling in the default state before every logical newline and at message end. CRLF is treated as one logical newline, LF is treated as one logical newline, and lone CR is not a trusted-presentation newline. If validation fails, the entire sidecar is discarded and the sanitized plain message is rendered. This prevents style bleed into continuation markers, subsequent records, and the caller's shell.
+
+Files always receive the plain representation. JSON always serializes only the plain message; JSON schema v1, key order, and omission rules are unchanged, and `terminalMessage` is never serialized.
+
+Existing plain APIs remain deterministic and source-compatible. The hex-dump implementation uses one palette-driven renderer: existing public `hexDump()` overloads select the plain palette, while `hexDumpPresentation()` renders both the plain and terminal forms with the same formatting algorithm and explicit palettes. HTTP, WebSocket, MQTT, and MQTT-over-WebSocket body/frame diagnostics use this same palette-driven presentation model. The HTTP request and response formatters each use one layout algorithm parameterized by an explicit hex-dump palette; `httputils::toString()` remains plain and `httputils::toStringPresentation()` returns matched plain and terminal forms.

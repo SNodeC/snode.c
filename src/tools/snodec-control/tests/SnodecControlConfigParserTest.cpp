@@ -192,7 +192,7 @@ namespace {
 
     // Regression test for the "#@ snodec.meta ..." structured-metadata comment blocks that real
     // SNode.C targets now emit ahead of a node's/group's/option's human-readable description and
-    // config/default lines (see docs/config-comment-metadata.md in the SNode.C tree). Before the
+    // config/default lines (see docs/design/config-comment-metadata.md in the SNode.C tree). Before the
     // fix, every "#@ ..." line fell through to the generic "# ..." comment-description-accumulation
     // branch and got folded into the *following* option's description, so e.g. a deeply nested
     // option's description would start with "snodec.meta begin option" and a full pretty-printed
