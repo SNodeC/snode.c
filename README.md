@@ -24,14 +24,14 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 
 <!-- snodec:begin menu -->
 <p>
-  <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="108" height="24"></a>
-  <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="108" height="24"></a>
-  <a href="docs/readme/install.md#page-overview" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="108" height="24"></a>
-  <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="108" height="24"></a>
-  <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="108" height="24"></a>
-  <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="108" height="24"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="108" height="24"></a>
-  <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="108" height="24"></a>
+  <a href="#quick-start" title="Start"><img src="docs/readme/media/menu/snodec-start-108.svg" alt="Start" width="133" height="28"></a>
+  <a href="#install" title="Install"><img src="docs/readme/media/menu/snodec-install-108.svg" alt="Install" width="133" height="28"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build"><img src="docs/readme/media/menu/build-108.svg" alt="Build" width="133" height="28"></a>
+  <a href="#first-success" title="Use"><img src="docs/readme/media/menu/snodec-use-108.svg" alt="Use" width="133" height="28"></a>
+  <a href="#configuration" title="Configure"><img src="docs/readme/media/menu/snodec-configure-108.svg" alt="Configure" width="133" height="28"></a>
+  <a href="#architecture" title="Architecture"><img src="docs/readme/media/menu/snodec-architecture-108.svg" alt="Architecture" width="133" height="28"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/readme/media/menu/snodec-api-108.svg" alt="API" width="133" height="28"></a>
+  <a href="#contributing" title="Contribute"><img src="docs/readme/media/menu/snodec-contribute-108.svg" alt="Contribute" width="133" height="28"></a>
 </p>
 
 <!-- snodec:end menu -->
@@ -315,8 +315,8 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 ### Install
 
 <p>
-  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="152" height="24"></a>
-  <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="152" height="24"></a>
+  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/readme/media/menu/route-packages.svg" alt="Signed packages" width="188" height="28"></a>
+  <a href="docs/readme/install.md#page-overview" title="Build from source"><img src="docs/readme/media/menu/route-source.svg" alt="Build from source" width="188" height="28"></a>
 </p>
 
 Use signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
