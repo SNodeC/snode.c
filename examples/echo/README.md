@@ -1,8 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
-<p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../../docs/media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
-</p>
+<p><picture><source media="(max-width: 640px)" srcset="../../docs/media/nav/banner-examples-compact.svg"><img src="../../docs/media/nav/banner-examples.svg" alt="SNode.C — Examples" width="100%"></picture></p>
+<p><a href="../../README.md#project-overview" title="Up to SNode.C"><picture><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/up-snode-c-dark.svg"><img src="../../docs/media/nav/up-snode-c-light.svg" alt="Up to SNode.C" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNodeC organization"><picture><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/organization-dark.svg"><img align="right" src="../../docs/media/nav/organization-light.svg" alt="SNodeC organization" width="160" height="28"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/repository-dark.svg"><img align="right" src="../../docs/media/nav/repository-light.svg" alt="SNode.C repository" width="160" height="28"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # External SNode.C echo pair

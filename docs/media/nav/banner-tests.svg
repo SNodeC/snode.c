@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="56" viewBox="0 0 1280 56" role="img" aria-label="SNode.C — Tests"><title>SNode.C — Tests</title><defs><linearGradient id="background" x2="1" y2="1"><stop stop-color="#101f35"/><stop offset="1" stop-color="#172f47"/></linearGradient><clipPath id="rounded"><rect width="1280" height="56" rx="10"/></clipPath></defs><g clip-path="url(#rounded)"><rect width="1280" height="56" fill="url(#background)"/><rect width="8" height="56" fill="#7dd3fc"/></g><g transform="translate(46 28) scale(0.20370370) translate(0 0)"><g xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0L0 -92" fill="none" stroke="#75caff" stroke-width="3" />
+    <path d="M0 0L80 -46" fill="none" stroke="#75caff" stroke-width="3" />
+    <path d="M0 0L80 46" fill="none" stroke="#75caff" stroke-width="3" />
+    <path d="M0 0L0 92" fill="none" stroke="#75caff" stroke-width="3" />
+    <path d="M0 0L-80 46" fill="none" stroke="#75caff" stroke-width="3" />
+    <path d="M0 0L-80 -46" fill="none" stroke="#75caff" stroke-width="3" />
+    <circle r="54" fill="#173f56" stroke="#75caff" stroke-width="3" />
+    <circle cx="0" cy="-92" r="14" fill="#75caff" />
+    <circle cx="80" cy="-46" r="14" fill="#78e4ba" />
+    <circle cx="80" cy="46" r="14" fill="#75caff" />
+    <circle cx="0" cy="92" r="14" fill="#78e4ba" />
+    <circle cx="-80" cy="46" r="14" fill="#75caff" />
+    <circle cx="-80" cy="-46" r="14" fill="#78e4ba" />
+    <path d="M21-18C11-26-23-26-23-12C-23 3 23-3 23 12C23 26-11 26-21 18" fill="none" stroke="#f1fff9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  </g><text x="84" y="37" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="700" fill="#ffffff">SNode.C</text><text x="1244" y="37" text-anchor="end" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="23" font-weight="600" fill="#7dd3fc">Tests</text></svg>

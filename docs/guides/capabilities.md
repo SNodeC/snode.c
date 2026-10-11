@@ -1,8 +1,7 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
-<p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
-</p>
+<p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-guides-compact.svg"><img src="../media/nav/banner-guides.svg" alt="SNode.C — Guides" width="100%"></picture></p>
+<p><a href="README.md#page-overview" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNodeC organization"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNodeC organization" width="160" height="28"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" width="160" height="28"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # SNode.C capability map
@@ -87,7 +86,7 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 The source contains HTTP, echo, WebSocket, database and OAuth2 demonstrations. Production services still need explicit access controls, TLS configuration and qualification on their target hardware; the OAuth2 sample is a learning application.
 
 <p>
-  <a href="build-from-source.md#page-overview" title="Build from source"><img src="../media/menu/build-114.svg" alt="Build from source" width="141" height="28"></a>
-  <a href="examples.md#page-overview" title="Run examples"><img src="../media/menu/run-examples-114.svg" alt="Run examples" width="141" height="28"></a>
-  <a href="deployment.md#page-overview" title="Deploy"><img src="../media/menu/deploy-114.svg" alt="Deploy" width="141" height="28"></a>
+  <a href="build-from-source.md#page-overview" title="Build from source"><img src="../media/menu/build-114.svg" alt="Build from source" width="160" height="28"></a>
+  <a href="examples.md#page-overview" title="Run examples"><img src="../media/menu/run-examples-114.svg" alt="Run examples" width="160" height="28"></a>
+  <a href="deployment.md#page-overview" title="Deploy"><img src="../media/menu/deploy-114.svg" alt="Deploy" width="160" height="28"></a>
 </p>
