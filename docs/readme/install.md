@@ -8,8 +8,8 @@
 # Build and install SNode.C from source
 
 <p>
-  <a href="#native-linux-build" title="Native Linux build"><img src="media/install-native-linux.svg" alt="Native Linux build" width="222" height="24"></a>
-  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="222" height="24"></a>
+  <a href="#native-linux-build" title="Native Linux build"><img src="media/install-native-linux.svg" alt="Native Linux build" width="274" height="28"></a>
+  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="274" height="28"></a>
 </p>
 
 **Prefer prebuilt binaries?** See [Packages](https://github.com/SNodeC/Packages#readme) for supported distributions and installation instructions.
