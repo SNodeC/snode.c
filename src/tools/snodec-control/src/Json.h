@@ -50,7 +50,7 @@
 namespace snodec::control {
 
     // A small, hand-rolled JSON value tree and parser, deliberately scoped to what SNode.C's own
-    // "#@ snodec.meta ..." comment-metadata schema actually emits (see docs/config-comment-metadata.md
+    // "#@ snodec.meta ..." comment-metadata schema actually emits (see docs/design/config-comment-metadata.md
     // in the SNode.C tree, and src/utils/Formatter.cpp's writeMetaBlock()/writeDocumentMeta()/
     // writeNodeMeta()/writeGroupMeta()/writeOptionMeta()): objects, arrays, strings (with \" \\ \n \r
     // \t and \uXXXX escapes), booleans, null, and small non-negative integers (only "version" ever

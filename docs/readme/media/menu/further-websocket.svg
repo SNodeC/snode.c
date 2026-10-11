@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="137" height="28" viewBox="0 0 137 28" role="img" aria-labelledby="title">
-  <title id="title">WebSocket →</title>
-  <rect x="0.5" y="0.5" width="136" height="27" rx="5" fill="#203440" stroke="#395260"/>
-  <text x="58.08653247" y="19" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#ffffff">WebSocket</text>
-  <path d="M0 1.25H5.5V0L9 2L5.5 4V2.75H0Z" transform="translate(107.97115385 12)" fill="#ffffff" aria-hidden="true"/>
-</svg>
