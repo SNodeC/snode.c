@@ -1,16 +1,16 @@
-# Vue 3 + TypeScript + Vite
+# OAuth2 client-app frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+This Vue 3 and TypeScript frontend belongs to SNode.C's `client_app` OAuth2 example. The [application source](../ClientApp.cpp) serves the Vite-built `dist/` files through SNode.C's HTTP/Express handlers.
 
-## Recommended IDE Setup
+## Build
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+Use Node.js and npm compatible with the checked-in Vite dependency. In this frontend directory:
 
-## Type Support For `.vue` Imports in TS
+```sh
+npm ci
+npm run build
+```
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+The package's build script type-checks with `vue-tsc` and builds with Vite. The output is `dist/`; `npm run dev` starts the Vite development server and `npm run preview` previews a completed build. See [the package scripts](package.json).
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
-
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+The application source currently names absolute example paths for `dist/`. Adjust those paths to your checkout/deployment before expecting the application to serve your build; building the frontend does not change them.
