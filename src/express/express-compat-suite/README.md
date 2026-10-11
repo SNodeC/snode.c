@@ -33,15 +33,13 @@ PORT=3000 node server.js
 ```
 
 ## 2) Start SNode.C/Express server
-This suite provides a patch that adds `express_compat_server.cpp` as an app target.
+The framework already defines the `express-compat-server` target; do not apply the historical patch in `snodec/` to a current checkout.
 
 From your SNode.C repo root:
 ```bash
-patch -p1 < snodec/0001-add-express-compat-server.patch
-mkdir -p build && cd build
-cmake ..
-cmake --build . --target express-compat-server
-./src/apps/express-compat-server   # listens on port 8080 by default
+cmake -S . -B build
+cmake --build build --target express-compat-server
+./build/src/apps/express-compat-server   # listens on port 8080 by default
 ```
 
 ## 3) Run the tests

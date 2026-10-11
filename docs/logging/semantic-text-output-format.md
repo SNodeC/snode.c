@@ -63,7 +63,7 @@ TTY detection only selects the initial default. Non-TTY stdout defaults to plain
 | Text   | colored           | plain                | plain |
 | JSON   | plain             | plain                | plain |
 
-Quiet mode suppresses stdout but not configured file output. No CLI/configuration option is added and no async logging is introduced.
+Quiet mode suppresses stdout but not configured file output. This formatter change introduced no additional CLI/configuration option or asynchronous logger. For the existing `--log-format` selection and logging controls, see [runtime logging](../readme/deployment.md#logging-and-process-options).
 
 ## Trusted terminal presentations for semantic hex dumps
 

@@ -27,16 +27,16 @@ to have it write its own canonical config file and exit.
    capturing stdout and stderr separately, and parses the captured stdout as the SNode.C `-s`
    configuration template into an in-memory model (sections, options, descriptions, default/active
    values, required markers).
-2. **Editing** (Phase 2): `--set`/`--unset` mutate that in-memory model directly; nothing is sent back
+2. **Editing**: `--set`/`--unset` mutate that in-memory model directly; nothing is sent back
    to the target during editing itself.
 3. **Materializing**: the (possibly edited) model can be rendered to a clean, readable INI file, printed
    as JSON, or summarized.
-4. **Saving** (Phase 2): to get a *canonical* config file (in the target's own exact format), the edited
+4. **Saving**: to get a *canonical* config file (in the target's own exact format), the edited
    model is materialized to a temporary file and the target is invoked out-of-process with
    `--config-file <temp> --write-config <output>`; the target performs the actual, authoritative write.
-5. **Running** (Phase 2): the target can be launched out-of-process with a chosen config file, inheriting
+5. **Running**: the target can be launched out-of-process with a chosen config file, inheriting
    the terminal's stdin/stdout/stderr.
-6. **Interactive editing** (Phase 3): `--ui` opens a Curses-based tree view of the same in-memory model,
+6. **Interactive editing**: `--ui` opens a Curses-based tree view of the same in-memory model,
    letting you navigate, edit, save, run, diff, and check-required interactively instead of one shot at a
    time from the command line. It calls the exact same underlying functions as the plain CLI (see
    `src/ConfigActions.h`); nothing about discovery, saving, or running is reimplemented for the UI.
@@ -175,7 +175,7 @@ snodec-control never claims its own materialized file *is* the canonical config.
    <file>` — the target itself performs the canonical write.
 3. Captures the target's stdout/stderr and inspects whether `<file>` was actually written (created, or
    its modification time changed), since SNode.C applications conventionally exit non-zero even on a
-   successful `--write-config` (the same behavior Phase 1 documented for `-s`).
+   successful `--write-config` (the same behavior as discovery with `-s`).
 4. Removes the temporary file (unless `--keep-temp`, which also prints its path).
 
 If `--target-args` already specifies `--config-file`/`-c`, snodec-control refuses to append its own and
@@ -212,12 +212,12 @@ SNode.C's own vocabulary — **not** a flat list of sections and options.
 
 ### Hierarchy derivation
 
-Since Phase 4, `--ui` no longer guesses the hierarchy from dotted option names. SNode.C's `-s`/
+With structured metadata, `--ui` does not guess the hierarchy from dotted option names. SNode.C's `-s`/
 `--show-config` output carries structured `"#@ snodec.meta ..."` comment metadata describing the
 real CLI11/SNode.C tree — every application/subcommand `node` (with its `kind`, e.g.
 `application`/`instance`/`section`/`anonymous`/`category`/`subcommand`, and its `path`, an array of
 arbitrary length), every option `group`, and every `option`'s own placement. When a target emits
-this metadata (any SNode.C build from this Phase 4 work onward), snodec-control builds the tree
+this metadata (a SNode.C build emitting structured metadata), snodec-control builds the tree
 directly from it:
 
 ```text
@@ -262,7 +262,7 @@ directly to the owning node instead of nesting one level deeper under a redundan
   writable/persistent options, so this is handled defensively rather than assumed impossible.
 
 For a target built against an older SNode.C that predates this metadata format, `--ui` falls back
-automatically to the original dotted-name heuristic, unchanged from Phase 1–3:
+automatically to the original dotted-name heuristic, for targets without metadata:
 
 ```text
 Application
@@ -436,7 +436,7 @@ Processing order for a single invocation:
    layered on top of it.
 4. After the UI is closed (whether by quitting with changes kept or discarded), any other explicitly
    requested actions (`--diff`, `--check-required`, `--materialize`, `--save-config`, `--run`,
-   `--print-run-command`) run exactly as in Phase 2, using the model as the UI left it. Discarding changes
+   `--print-run-command`) run exactly as in the command-line workflow, using the model as the UI left it. Discarding changes
    inside the UI does **not** cancel these other explicitly requested actions — it only reverts the
    model's edits before they run.
 
@@ -446,45 +446,45 @@ flag on the same command line still runs normally.
 ### Examples
 
 ```sh
-# Phase 1: inspect
-snodec-control --target /path/to/mqttbroker --print-summary
-snodec-control --target /path/to/mqttbroker --dump-model
-snodec-control --target /path/to/mqttbroker --write-template /tmp/mqttbroker.conf
+# inspect
+snodec-control --target /path/to/echoserver --print-summary
+snodec-control --target /path/to/echoserver --dump-model
+snodec-control --target /path/to/echoserver --write-template /tmp/echoserver.conf
 
-# Phase 2: browse and query
-snodec-control --target /path/to/mqttbroker --list-options
-snodec-control --target /path/to/mqttbroker --get echoserver.local.port
+# browse and query
+snodec-control --target /path/to/echoserver --list-options
+snodec-control --target /path/to/echoserver --get echoserver.local.port
 
-# Phase 2: edit and preview
-snodec-control --target /path/to/mqttbroker \
+# edit and preview
+snodec-control --target /path/to/echoserver \
     --set echoserver.local.port=8080 --set log-level=5 --diff
 
-# Phase 2: edit and materialize
-snodec-control --target /path/to/mqttbroker \
+# edit and materialize
+snodec-control --target /path/to/echoserver \
     --set echoserver.local.port=8080 --materialize /tmp/edited.conf
 
-# Phase 2: validate before doing anything else
-snodec-control --target /path/to/mqttbroker --check-required
+# validate before doing anything else
+snodec-control --target /path/to/echoserver --check-required
 
-# Phase 2: save the canonical config through the target itself
-snodec-control --target /path/to/mqttbroker \
+# save the canonical config through the target itself
+snodec-control --target /path/to/echoserver \
     --set echoserver.local.port=8080 --save-config /tmp/app.conf
 
-# Phase 2: run with an existing config
-snodec-control --target /path/to/mqttbroker --run-config /tmp/app.conf --run
+# run with an existing config
+snodec-control --target /path/to/echoserver --run-config /tmp/app.conf --run
 
-# Phase 2: edit, save, then run with the saved config
-snodec-control --target /path/to/mqttbroker \
+# edit, save, then run with the saved config
+snodec-control --target /path/to/echoserver \
     --set echoserver.local.port=8080 --save-config /tmp/app.conf --run
 
-# Phase 2: preview the exact run command without executing it
-snodec-control --target /path/to/mqttbroker --run-config /tmp/app.conf --print-run-command
+# preview the exact run command without executing it
+snodec-control --target /path/to/echoserver --run-config /tmp/app.conf --print-run-command
 
-# Phase 3: open the interactive UI
-snodec-control --target /path/to/mqttbroker --ui
+# open the interactive UI
+snodec-control --target /path/to/echoserver --ui
 
-# Phase 3: pre-apply an edit, then let the UI take over, then diff and run afterwards
-snodec-control --target /path/to/mqttbroker \
+# pre-apply an edit, then let the UI take over, then diff and run afterwards
+snodec-control --target /path/to/echoserver \
     --set log-level=5 --ui --diff --save-config /tmp/app.conf --run
 ```
 
@@ -523,12 +523,12 @@ indicator (`--check-required` is the authoritative check for that).
 
 * `src/ConfigModel.*`, `src/ConfigParser.*`, `src/ConfigEditor.*`, `src/CommandBuilder.*`,
   `src/Materializer.*`, `src/JsonWriter.*` — the process-agnostic model, parsing, editing, and rendering
-  primitives (Phase 1/2).
-* `src/Json.*` — a small, hand-rolled JSON value tree/parser (Phase 4), deliberately scoped to what
+  primitives.
+* `src/Json.*` — a small, hand-rolled JSON value tree/parser, deliberately scoped to what
   SNode.C's `"#@ snodec.meta ..."` comment-metadata schema actually emits, not a general-purpose JSON
   library. No external dependency, matching SNode.C's own formatter-side choice.
 * `src/Metadata.*` — decodes `"#@ snodec.meta begin/end <entity>"` blocks (`document`/`node`/`group`/
-  `option`) into `ParsedMetadata`, checking schema/version and degrading gracefully per block (Phase 4).
+  `option`) into `ParsedMetadata`, checking schema/version and degrading gracefully per block.
   `ConfigModel.h`'s `applyMetadataToModel()` merges the decoded option fields (type/relations/required
   state) back onto the already-parsed `ConfigOption`s by matching on `key`.
 * `src/ProcessRunner.*` — process execution: `runProcess()` (captured output, for discovery/save),
@@ -558,14 +558,14 @@ indicator (`--check-required` is the authoritative check for that).
 
 Two parsers run over the same captured `-s` output, independently:
 
-* `parseShowConfigOutput()` (`ConfigParser.*`) is the original line-oriented INI parser (Phase 1),
+* `parseShowConfigOutput()` (`ConfigParser.*`) is the original line-oriented INI parser,
   deliberately lenient: unrecognized lines are recorded as warnings (printed to stderr) and do not
   abort parsing. Recognized line forms include:
 
   * `#` comment/description lines
   * `##`/`###` group and section banner comments (SNode.C emits these; they are informational and do
     not affect the derived section structure)
-  * `"#@ ..."` structured-metadata lines (Phase 4) — recognized and skipped outright by this parser
+  * `"#@ ..."` structured-metadata lines — recognized and skipped outright by this parser
     (never folded into a description; see `parseMetaBlocks()` below for actually decoding them)
   * `#key=value` commented default/template lines, including quoted strings, empty string defaults
     (`""`), and the `<REQUIRED>` placeholder
@@ -573,7 +573,7 @@ Two parsers run over the same captured `-s` output, independently:
   * `[section]` bracket headers
   * blank lines
 
-* `parseMetaBlocks()` (`Metadata.*`, Phase 4) separately scans the same text for `"#@ snodec.meta
+* `parseMetaBlocks()` (`Metadata.*`) separately scans the same text for `"#@ snodec.meta
   begin/end <entity>"` blocks and decodes each one's JSON body. `ParsedMetadata::usable()` is true only
   when metadata was present, its schema/version were recognized, and a root node decoded; a single
   malformed or unrecognized block is dropped with a warning without aborting the rest of the scan, and
@@ -600,7 +600,7 @@ just a comment line that happened to parse as one. An option backed by at least 
 active/uncommented line is always kept, metadata match or not, since it may be a genuine option (e.g.
 one a user hand-set in a config file) that this particular metadata simply doesn't describe. This
 runs only when metadata is present and usable; a legacy target with no metadata at all is not affected
-by this reconciliation (the same false-positive parsing risk that existed before Phase 4 remains for
+by this reconciliation (the dotted-name parsing risk remains for
 that case, since there is nothing to reconcile against).
 
 ## Known limitations
@@ -621,13 +621,13 @@ that case, since there is nothing to reconcile against).
   target's stdout for `-s`, and it is not affected by `--set`/`--unset`.
 * Section detection in the *legacy fallback* tree (a target without `"#@"` metadata) is name-based
   (dotted prefixes / bracket headers), not based on the target's actual internal option types. The
-  metadata-native tree (Phase 4, used whenever the target emits metadata) uses the target's own
+  metadata-native tree (used whenever the target emits metadata) uses the target's own
   `node.kind`/`node.path` instead and does not have this limitation.
 * Metadata's `required.effective` reflects only the target's *current* CLI11 state at the moment `-s`
   ran, not a canonical, registration-time, or suppression-aware value (SNode.C tracks that internally
   as of the "canonical state preservation model" work, but does not yet expose it through `"#@"`
   metadata) — `--check-required`/the UI's `!` marker remain an explicit local preflight, not an
-  authoritative one, exactly as before Phase 4.
+  authoritative one, as with targets without structured metadata.
 * Metadata's `type.kind` is a heuristic on SNode.C's own formatter side (derived from CLI11
   flag-ness and declared type name, not a real type system) and, notably, cannot distinguish a plain
   boolean option from a tristate one — both get `type.kind == "boolean"`. snodec-control does not use

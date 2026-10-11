@@ -527,3 +527,68 @@ SNode.C itself already exercises composition, payload exchange, framed and large
 ## Continue from here
 
 Once this plain IPv4 path is clear, the same application/context model can be applied to other SNode.C components by selecting the corresponding installed headers and exported CMake component. Higher application layers then add their own protocol semantics above the same event-driven connection foundation.
+
+## Compose instances in one process
+
+This optional extension reuses the context and factories above to serve two named endpoints across one event loop. It is not the separate `SNodeC/echo` repository. Each accepted connection still owns its context; application-wide state belongs outside those contexts.
+
+From the SNode.C checkout root, copy the standalone project into a disposable directory so the original example stays unchanged:
+
+```sh
+COMPOSE_DIR="$(mktemp -d)"
+cp -a examples/echo/. "$COMPOSE_DIR/"
+cd "$COMPOSE_DIR"
+```
+
+Save the following as `compose.cpp` beside `EchoSocketContext.h`:
+
+```cpp
+#include "EchoSocketContext.h"
+#include <core/SNodeC.h>
+#include <core/socket/State.h>
+#include <net/in/stream/legacy/SocketServer.h>
+
+using Server = net::in::stream::legacy::SocketServer<echo::EchoServerSocketContextFactory>;
+
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+    const Server first("first");
+    const Server second("second");
+    const auto report = [log = first.log()](const Server::SocketAddress& address, core::socket::State state) {
+        if (state == core::socket::State::OK) {
+            log.info("Listening on {}", address.toString());
+        }
+    };
+    first.listen("127.0.0.1", 18007, report);
+    second.listen("127.0.0.1", 18008, report);
+    return core::SNodeC::start();
+}
+```
+
+Add this target to the disposable copy and build against your installed SNode.C prefix (omit `CMAKE_PREFIX_PATH` if already discoverable):
+
+```sh
+cat >> CMakeLists.txt <<'EOF'
+add_executable(compose compose.cpp)
+target_link_libraries(compose PRIVATE echo-context)
+EOF
+cmake -S . -B build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/snodec/prefix
+cmake --build build --target compose
+./build/compose --config-file /dev/null
+```
+
+In another terminal, verify both endpoints:
+
+```sh
+python3 - <<'PYCODE'
+import socket
+for port in (18007, 18008):
+    with socket.create_connection(('127.0.0.1', port)) as peer:
+        peer.sendall(b'composition works\n')
+        with peer.makefile('rb') as reply:
+            assert reply.readline() == b'composition works\n'
+    print(f'{port}: composition works')
+PYCODE
+```
+
+**Expected result:** each port prints `composition works`, and the server logs both listeners and their connection-local exchanges. Use free ports; these endpoints are unencrypted loopback only. Stop the server with Ctrl+C after clients disconnect. The framework reports an interrupt through its signal-based exit code, rather than a successful batch-job exit. This is an instance-composition exercise, not a throughput benchmark or deployment recipe. Client, HTTP and database instances follow the same one-`init()`/one-`start()` ownership pattern, with their own component requirements.

@@ -31,7 +31,15 @@ sudo apt-get install git cmake ninja-build g++ pkg-config \
   libmariadb-dev libncurses-dev
 ```
 
-The JSON-dependent modules require `nlohmann_json` 3.11 or newer. Package names and available versions differ on other distributions; use their development equivalents or choose the [prebuilt packages](https://github.com/SNodeC/Packages#readme).
+The JSON-dependent modules require `nlohmann_json` 3.11 or newer. On the Fedora/Rocky targets used by the package build, the corresponding development package names are:
+
+```sh
+sudo dnf install gcc gcc-c++ cmake ninja-build pkgconf-pkg-config git ca-certificates \
+  openssl-devel json-devel bluez-libs-devel file-devel mariadb-connector-c-devel ncurses-devel
+```
+
+Rocky needs its development repositories enabled (the package build enables CRB and EPEL). Rocky 9's package build uses `gcc-toolset-14-gcc-c++` and sources `/opt/rh/gcc-toolset-14/enable` before configuring; do not assume the default compiler meets the minimum. Check your release's repositories and toolchain before using these commands. Optional dependencies can be omitted only when their associated modules are deliberately disabled; a package name is not a guarantee of the required version. Alternatively choose the [prebuilt packages](https://github.com/SNodeC/Packages#readme).
+
 
 ### Build and install
 
@@ -45,6 +53,8 @@ cmake --build build --parallel
 sudo cmake --install build
 sudo ldconfig
 ```
+
+Native configuration fetches the pinned spdlog source declared in [the logger build file](../../src/log/CMakeLists.txt). A first configure therefore needs network access (or a pre-provisioned FetchContent source tree); package installation alone is not an offline-build guarantee.
 
 These commands build the checked-out source, not a pinned release. Record `git rev-parse HEAD` when you need to reproduce a deployment. For a packaged release, use a coherent package set rather than mixing source-installed and distribution-installed libraries with the same names.
 
@@ -217,6 +227,8 @@ Every symbol below has the `CONFIG_` prefix in `.config`. Defaults shown are men
 
 Read/write sizes, timeouts, retry/reconnect settings and write-queue limits configure `snodec-net`. IPv4/IPv6 stream flags configure their stream layers; name-resolution flags configure their address layers. TLS defaults are shared by TLS endpoints. HTTP pipelining configures the HTTP client. The I/O choice controls the core's linked default multiplexer and its package dependency; selecting extra multiplexer packages does not change that default.
 
+The `INV4_`, `IN6_` and `INV6_` spellings above match the recipe’s [Config.in](../../supplement/openwrt/Config.in); use those exact symbols rather than normalizing their names.
+
 All 44 SNode.C default/choice symbols and the demo selector participate in recipe reconfiguration. Other module selectors govern package emission and dependency closure; they do not prune the shared library compilation pass.
 
 </details>
@@ -225,4 +237,4 @@ All 44 SNode.C default/choice symbols and the demo selector participate in recip
 
 Install the desired packages and their dependencies on matching firmware. For unsigned local APKs, use `apk add --allow-untrusted ./<package>.apk` with the actual package path. Supply the required local dependency packages or a local feed; a single metapackage cannot discover unpublished packages. Check the selected demonstration applications or `snodec-control --help` on the device.
 
-To build MQTTSuite next, retain this SDK and its staged SNode.C development files, then follow [MQTTSuite's OpenWrt instructions](https://github.com/SNodeC/mqttsuite#project-overview).
+To build MQTTSuite next, retain this SDK and its staged SNode.C development files, then follow [MQTTSuite → Build → OpenWrt cross-compilation](https://github.com/SNodeC/mqttsuite#project-overview).

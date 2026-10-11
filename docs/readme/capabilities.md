@@ -7,7 +7,7 @@
 
 # SNode.C capability map
 
-This inventory describes the public framework’s major capability families. Optional dependencies and target-specific package selections determine which components are installed. The [API reference](https://snodec.github.io/snode.c-doc/html/index.html) supplies the class-level detail.
+This inventory describes the public framework’s major capability families. Optional dependencies and target-specific package selections determine which components are installed. The [API reference](https://snodec.github.io/snode.c-doc/html/namespacecore.html) opens the core namespace of the legacy snapshot; follow its classes or the namespace index for other framework modules. This snapshot is not a versioned reference for the current checkout.
 
 ## Runtime and composition
 
