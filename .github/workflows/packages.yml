@@ -127,6 +127,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         env:
+          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.check_run_id }}
           PACKAGES_TOKEN: ${{ steps.running_status.outputs.token }}
           TARGET: ${{ toJSON(matrix) }}
         run: bash feed/ci/publish/status.sh published status status-bundle "$TARGET" "$BUILD_PROJECT" running
@@ -194,6 +195,7 @@ jobs:
       - name: Request signed publication
         id: handoff
         env:
+          BUILD_JOB_ID: ${{ job.check_run_id }}
           GH_TOKEN: ${{ steps.publication.outputs.token }}
         run: python3 -m ci.dispatch built status-bundle "$TARGET_ID" "$BUILD_PROJECT"
       - uses: actions/create-github-app-token@v3
@@ -212,6 +214,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         env:
+          BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ job.check_run_id }}
           PACKAGES_TOKEN: ${{ steps.ended_status.outputs.token }}
           TARGET: ${{ toJSON(matrix) }}
           BUILD_STATUS: ${{ steps.handoff.outcome == 'success' && 'publishing' || job.status == 'cancelled' && 'cancelled' || 'failed' }}
