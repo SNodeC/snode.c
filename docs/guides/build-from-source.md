@@ -1,15 +1,14 @@
 <!-- snodec:begin page-header -->
 <a id="page-overview"></a>
-<p>
-  <a href="../../README.md#project-overview" title="SNode.C repository"><img src="../media/page-banner.svg" alt="SNode.C repository" width="100%"></a>
-</p>
+<p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-guides-compact.svg"><img src="../media/nav/banner-guides.svg" alt="SNode.C — Guides" width="100%"></picture></p>
+<p><a href="README.md#page-overview" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNodeC organization"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNodeC organization" width="160" height="28"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" width="160" height="28"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # Build and install SNode.C from source
 
 <p>
-  <a href="#native-linux-build" title="Native Linux build"><img src="../media/install-native-linux.svg" alt="Native Linux build" width="274" height="28"></a>
-  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="../media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="274" height="28"></a>
+  <a href="#native-linux-build" title="Native Linux build"><img src="../media/install-native-linux.svg" alt="Native Linux build" width="328" height="28"></a>
+  <a href="#openwrt-cross-compilation" title="OpenWrt cross-compilation"><img src="../media/install-openwrt.svg" alt="OpenWrt cross-compilation" width="328" height="28"></a>
 </p>
 
 **Prefer prebuilt binaries?** See [Packages](https://github.com/SNodeC/Packages#readme) for supported distributions and installation instructions.

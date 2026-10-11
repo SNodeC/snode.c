@@ -1,16 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="90" viewBox="0 0 1280 90" role="img" aria-labelledby="page-banner-title page-banner-description">
-  <title id="page-banner-title">SNode.C</title>
-  <desc id="page-banner-description">SNode.C documentation. Compact identity banner derived from the repository README banner.</desc>
-  <defs>
-    <linearGradient id="snodec-hero-bg" x2="1" y2="1">
-      <stop stop-color="#101f35" />
-      <stop offset="1" stop-color="#172f47" />
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="1280" height="90" rx="12" fill="url(#snodec-hero-bg)" stroke="none" />
-  <circle cx="1180" cy="40" r="260" fill="none" stroke="#254057" />
-  <circle cx="1180" cy="40" r="210" fill="none" stroke="#254057" />
-  <g transform="translate(1200 45) scale(0.33)">
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="72" viewBox="0 0 480 72" role="img" aria-label="SNode.C — Guides"><title>SNode.C — Guides</title><defs><linearGradient id="background" x2="1" y2="1"><stop stop-color="#101f35"/><stop offset="1" stop-color="#172f47"/></linearGradient><clipPath id="rounded"><rect width="480" height="72" rx="10"/></clipPath></defs><g clip-path="url(#rounded)"><rect width="480" height="72" fill="url(#background)"/><rect width="8" height="72" fill="#7dd3fc"/></g><g transform="translate(46 36) scale(0.20370370) translate(0 0)"><g xmlns="http://www.w3.org/2000/svg">
     <path d="M0 0L0 -92" fill="none" stroke="#75caff" stroke-width="3" />
     <path d="M0 0L80 -46" fill="none" stroke="#75caff" stroke-width="3" />
     <path d="M0 0L80 46" fill="none" stroke="#75caff" stroke-width="3" />
@@ -26,5 +14,4 @@
     <circle cx="-80" cy="-46" r="14" fill="#78e4ba" />
     <path d="M21-18C11-26-23-26-23-12C-23 3 23-3 23 12C23 26-11 26-21 18" fill="none" stroke="#f1fff9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
   </g>
-  <text x="48" y="66.76" font-size="64" fill="#f4f8ff" font-weight="700" font-family="DejaVu Sans,Arial,sans-serif">SNode.C</text>
-</svg>
+  </g><text x="84" y="32" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="25" font-weight="700" fill="#ffffff">SNode.C</text><text x="84" y="58" text-anchor="start" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="23" font-weight="600" fill="#7dd3fc">Guides</text></svg>
