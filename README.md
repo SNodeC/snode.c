@@ -4,7 +4,7 @@
 <p>
 <picture>
   <source media="(max-width: 600px)" srcset="docs/media/hero-mobile.svg">
-  <img src="docs/media/hero.svg" alt="SNode.C — Your own protocols, HTTP, WebSocket, SSE and MQTT. A smooth white S in a blue connected-node logo on a dark-blue banner.">
+  <img src="docs/media/hero.svg" alt="SNode.C — Event-driven. Protocol-minded. C++ networking, composed your way. Your own protocols · HTTP · WebSocket · SSE · MQTT." width="100%">
 </picture>
 </p>
 
