@@ -1,0 +1,33 @@
+name: Trigger Companion verification
+on:
+  push:
+    tags: ['Book-*']
+permissions:
+  contents: read
+jobs:
+  notify:
+    if: github.event.deleted == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app
+        with:
+          client-id: ${{ vars.PACKAGES_APP_CLIENT_ID }}
+          private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
+          owner: SNodeC
+          repositories: SNode.C-Book
+          permission-actions: write
+      - name: Dispatch verification, never Book package
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          SOURCE_REF: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          branch=$(gh api repos/SNodeC/SNode.C-Book --jq .default_branch)
+          jq -n --arg branch "$branch" --arg tag "$SOURCE_REF" --arg sha "$SOURCE_SHA" \
+            '{ref: $branch, inputs: {source_ref: $tag, source_sha: $sha}}' |
+            gh api --method POST \
+              repos/SNodeC/SNode.C-Book/actions/workflows/companion-examples.yml/dispatches \
+              --input -
