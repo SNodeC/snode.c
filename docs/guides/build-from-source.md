@@ -106,7 +106,7 @@ find_package(snodec REQUIRED COMPONENTS net-in-stream-legacy)
 target_link_libraries(my-service PRIVATE snodec::net-in-stream-legacy)
 ```
 
-[![Build the native client and server](../media/menu/further-native-client-server.svg)](../../README.md#your-first-program-a-factory-and-a-context)
+Next: [Build the native client and server](../../README.md#your-first-program-a-factory-and-a-context).
 
 ## OpenWrt cross-compilation
 
@@ -240,4 +240,4 @@ Install the desired packages and their dependencies on matching firmware. For un
 
 Keep the SDK and its staged SNode.C headers and libraries to cross-compile your own application for the same firmware. MQTTSuite is a concrete example of this workflow, not a required next step.
 
-[![Build MQTTSuite →](../media/menu/further-build-mqttsuite.svg)](https://github.com/SNodeC/mqttsuite/blob/master/docs/guides/build-from-source.md#openwrt-cross-compilation)
+Next: [Build MQTTSuite](https://github.com/SNodeC/mqttsuite/blob/master/docs/guides/build-from-source.md#openwrt-cross-compilation).
