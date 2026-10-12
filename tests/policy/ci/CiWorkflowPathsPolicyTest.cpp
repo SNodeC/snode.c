@@ -116,6 +116,7 @@ int main() {
         return 1;
     }
     const std::map<std::string, Triggers> workflows = {
+        {"book-companion.yml", {{"push", {{"tags", {"Book-*"}}}}}},
         {"ci.yml", {{"workflow_dispatch", {}}}},
         {"packages.yml", {{"push", {{"tags", {"v[0-9]*.[0-9]*.[0-9]*"}}}}, {"repository_dispatch", {{"types", {"package-build"}}}}}},
     };
@@ -127,7 +128,7 @@ int main() {
     for (const auto& [name, triggers] : workflows) {
         const auto path = root / ".github/workflows" / name;
         if (!matchesTriggers(source_policy::readSourcePolicyFile(path), triggers)) {
-            std::cerr << "Unexpected CI triggers in " << path << ": expected manual Verify or version-tag/package-build events\n";
+            std::cerr << "Unexpected CI triggers in " << path << ": expected manual Verify, Book tags or version-tag/package-build events\n";
             ok = false;
         }
     }
