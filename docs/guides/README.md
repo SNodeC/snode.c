@@ -15,4 +15,5 @@ Task-oriented guides for building, running and deploying SNode.C applications.
 - [SNode.C capability map](capabilities.md#page-overview)
 - [Deploy an SNode.C application](deployment.md#page-overview)
 - [Build something with SNode.C](examples.md#page-overview)
+- [Legacy Stream Component Test Coverage](../../tests/component/net/README.md#page-overview)
 <!-- snodec:end section-pages -->

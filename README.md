@@ -30,14 +30,14 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 
 <!-- snodec:begin menu -->
 <p>
-  <a href="#quick-start" title="Start"><img src="docs/media/menu/snodec-start-108.svg" alt="Start" width="160" height="28"></a>
-  <a href="#install" title="Install"><img src="docs/media/menu/snodec-install-108.svg" alt="Install" width="160" height="28"></a>
-  <a href="docs/guides/build-from-source.md#page-overview" title="Build"><img src="docs/media/menu/build-108.svg" alt="Build" width="160" height="28"></a>
-  <a href="#first-success" title="Use"><img src="docs/media/menu/snodec-use-108.svg" alt="Use" width="160" height="28"></a>
-  <a href="#configuration" title="Configure"><img src="docs/media/menu/snodec-configure-108.svg" alt="Configure" width="160" height="28"></a>
-  <a href="#architecture" title="Architecture"><img src="docs/media/menu/snodec-architecture-108.svg" alt="Architecture" width="160" height="28"></a>
-  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/media/menu/snodec-api-108.svg" alt="API" width="160" height="28"></a>
-  <a href="#contributing" title="Contribute"><img src="docs/media/menu/snodec-contribute-108.svg" alt="Contribute" width="160" height="28"></a>
+  <a href="#quick-start" title="Start"><img src="docs/media/menu/snodec-start.svg" alt="Start" width="160" height="28"></a>
+  <a href="#install" title="Install"><img src="docs/media/menu/snodec-install.svg" alt="Install" width="160" height="28"></a>
+  <a href="docs/guides/build-from-source.md#page-overview" title="Build"><img src="docs/media/menu/build.svg" alt="Build" width="160" height="28"></a>
+  <a href="#first-success" title="Use"><img src="docs/media/menu/snodec-use.svg" alt="Use" width="160" height="28"></a>
+  <a href="#configuration" title="Configure"><img src="docs/media/menu/snodec-configure.svg" alt="Configure" width="160" height="28"></a>
+  <a href="#architecture" title="Architecture"><img src="docs/media/menu/snodec-architecture.svg" alt="Architecture" width="160" height="28"></a>
+  <a href="https://snodec.github.io/snode.c-doc/html/namespacecore.html" title="API"><img src="docs/media/menu/snodec-api.svg" alt="API" width="160" height="28"></a>
+  <a href="#contributing" title="Contribute"><img src="docs/media/menu/snodec-contribute.svg" alt="Contribute" width="160" height="28"></a>
 </p>
 
 <!-- snodec:end menu -->
@@ -203,7 +203,7 @@ PY
 
 **Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-[![line framing](docs/media/menu/further-line-framing.svg)](docs/guides/examples.md#a-line-oriented-protocol)
+Next: [Build a line-oriented protocol](docs/guides/examples.md#a-line-oriented-protocol).
 
 ### Try another protocol
 
@@ -237,7 +237,7 @@ All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections 
 
 Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/guides/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-[![Explore the full capability map](docs/media/menu/further-capability-map.svg)](docs/guides/capabilities.md#page-overview)
+Next: [Explore the full capability map](docs/guides/capabilities.md#page-overview).
 
 ### Same context, another transport
 
@@ -296,7 +296,7 @@ Inspect the effective settings with `./build/echo-server --config-file /dev/null
 
 Bind only the intended interfaces, configure certificate/trust settings for TLS, and choose application-level authentication and authorization before exposing a listener. Compilation options are separate from runtime configuration.
 
-[![runtime configuration and deployment](docs/media/menu/further-deployment.svg)](docs/guides/deployment.md#start-with-one-explicit-configuration)
+Next: [runtime configuration and deployment](docs/guides/deployment.md#start-with-one-explicit-configuration).
 
 For runtime log levels and foreground supervision, see [logging and process options](docs/guides/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
 
@@ -320,12 +320,7 @@ Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and C
 
 ### Install
 
-<p>
-  <a href="https://github.com/SNodeC/Packages#readme" title="Signed packages"><img src="docs/media/menu/route-packages.svg" alt="Signed packages" width="160" height="28"></a>
-  <a href="docs/guides/build-from-source.md#page-overview" title="Build from source"><img src="docs/media/menu/route-source.svg" alt="Build from source" width="160" height="28"></a>
-</p>
-
-Use signed packages for your distribution, release and architecture, or build from source for native Linux or OpenWrt.
+Install from [signed packages](https://github.com/SNodeC/Packages#readme) for your distribution, release and architecture, or [build from source](docs/guides/build-from-source.md#page-overview) for native Linux or OpenWrt.
 
 ## Releases
 

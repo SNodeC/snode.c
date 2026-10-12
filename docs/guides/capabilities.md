@@ -85,8 +85,4 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 
 The source contains HTTP, echo, WebSocket, database and OAuth2 demonstrations. Production services still need explicit access controls, TLS configuration and qualification on their target hardware; the OAuth2 sample is a learning application.
 
-<p>
-  <a href="build-from-source.md#page-overview" title="Build from source"><img src="../media/menu/build-114.svg" alt="Build from source" width="160" height="28"></a>
-  <a href="examples.md#page-overview" title="Run examples"><img src="../media/menu/run-examples-114.svg" alt="Run examples" width="160" height="28"></a>
-  <a href="deployment.md#page-overview" title="Deploy"><img src="../media/menu/deploy-114.svg" alt="Deploy" width="160" height="28"></a>
-</p>
+Next: [build from source](build-from-source.md#page-overview), [run the examples](examples.md#page-overview) or [deploy](deployment.md#page-overview).

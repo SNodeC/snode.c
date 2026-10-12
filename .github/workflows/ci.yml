@@ -3,4 +3,4 @@ on: [workflow_dispatch]
 permissions: { contents: read }
 jobs:
   snodec:
-    uses: SNodeC/.github/.github/workflows/verify.yml@465c7e9398b1c1ab294967153bf855af52b84082 # v1.3
+    uses: SNodeC/.github/.github/workflows/verify.yml@main

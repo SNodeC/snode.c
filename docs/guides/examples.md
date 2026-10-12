@@ -82,7 +82,7 @@ curl http://127.0.0.1:18081/hello
 
 **Boundaries:** loopback HTTP, without TLS or authentication. For HTTPS use `<express/tls/in/WebApp.h>`, `express::tls::in::WebApp` and component `http-server-express-tls-in`, then configure certificates and trust.
 
-[![deployment and resource limits](../media/menu/further-deployment.svg)](deployment.md#page-overview)
+Next: [deployment and resource limits](deployment.md#page-overview).
 
 ## Receive a server-sent event
 
@@ -134,7 +134,7 @@ cmake --build build --parallel
 
 **Boundaries:** the server sends one event and leaves the response open; the native client closes after receiving it. Stop curl with Ctrl+C. A continuous feed sends further fragments and removes subscriber callbacks on disconnect. SSE records use newline separators and a blank line after each event; HTTP chunk boundaries are not SSE record boundaries. The first `EventSource` argument is the URL scheme (`"http"`), not an instance name. Reconnection and `Last-Event-ID` support do not supply application-level durable replay.
 
-[![SSE and WebSocket capabilities](../media/menu/further-sse-websocket.svg)](capabilities.md#server-sent-events)
+Next: [SSE and WebSocket capabilities](capabilities.md#server-sent-events).
 
 ## Talk both ways with a WebSocket
 
@@ -210,7 +210,7 @@ Open **[http://127.0.0.1:18082/](http://127.0.0.1:18082/)** in a browser.
 
 **Boundaries:** the `echo` demonstration plugin broadcasts received text to its connected clients; this page opens one client. Missing plugins make the upgrade fail. For deployment, use TLS/WSS, authenticate access and configure message limits. SSE is simpler when data only needs to flow from server to client.
 
-[![WebSocket capabilities](../media/menu/further-websocket.svg)](capabilities.md#websockets) [![framework's subprotocol implementation](../media/menu/further-subprotocol-source.svg)](../../src/apps/websocket/subprotocol)
+Next: [WebSocket capabilities](capabilities.md#websockets) or [the framework’s subprotocol source directory](../../src/apps/websocket/subprotocol).
 
 ## A line-oriented protocol
 
@@ -313,7 +313,7 @@ PY
 
 **Boundaries:** an overlong line closes the connection, and an unfinished line is discarded on disconnect. This example uses LF delimiters and unencrypted loopback TCP. Applications should also configure idle and write-queue limits.
 
-[![resource and deployment policy](../media/menu/further-deployment.svg)](deployment.md#page-overview)
+Next: [resource and deployment policy](deployment.md#page-overview).
 
 ## Compose roles in one application
 
