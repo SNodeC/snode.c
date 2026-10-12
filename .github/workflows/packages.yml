@@ -41,15 +41,16 @@ jobs:
           path: feed
           persist-credentials: false
       - uses: actions/download-artifact@v8
+        if: github.event_name != 'push' || github.run_attempt > 1
         with:
           repository: ${{ env.CAPTURE_REPOSITORY }}
           run-id: ${{ env.CAPTURE_RUN }}
           github-token: ${{ steps.capture.outputs.token }}
-          pattern: source-pair
+          name: source-pair
           path: bundle
       - name: Allocate revisions and capture release targets
         id: initialize
-        if: github.event_name == 'push' && hashFiles('bundle/context.json') == ''
+        if: github.event_name == 'push' && github.run_attempt == 1
         env:
           PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
           RELEASE_PROJECT: ${{ env.BUILD_PROJECT }}
@@ -70,7 +71,6 @@ jobs:
           tar -xzf bundle/feed.tar.gz -C feed
           python3 -m ci.dispatch plan bundle "$BUILD_PROJECT" "$TARGET_ID" >> "$GITHUB_OUTPUT"
       - name: Initialize pending status
-        if: steps.initialize.outcome == 'success'
         continue-on-error: true
         timeout-minutes: 3
         env:
