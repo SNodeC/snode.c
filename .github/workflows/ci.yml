@@ -3,5 +3,4 @@ on: [workflow_dispatch]
 permissions: { contents: read }
 jobs:
   snodec:
-    uses: SNodeC/.github/.github/workflows/verify.yml@v1.0
-    secrets: inherit
+    uses: SNodeC/.github/.github/workflows/verify.yml@37b76768a383ea28c03fd9e7ceda7eecf3007c0a # v1.2
