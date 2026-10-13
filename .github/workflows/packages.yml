@@ -75,7 +75,7 @@ jobs:
         timeout-minutes: 3
         env:
           PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
-        run: bash feed/ci/publish/status.sh status-checkout status bundle - - pending
+        run: bash feed/ci/publish/status.sh status-checkout status bundle '${{ github.event_name == 'repository_dispatch' && toJSON(fromJSON(steps.matrix.outputs.matrix).include[0]) || '-' }}' '${{ github.event_name == 'repository_dispatch' && env.BUILD_PROJECT || '-' }}' pending
   build:
     name: Build and test · ${{ matrix.distribution }} · ${{ matrix.suite }} · ${{ matrix.arch }}
     needs: prepare
