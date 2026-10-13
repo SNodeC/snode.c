@@ -21,7 +21,7 @@
 <!-- snodec:end header -->
 
 <!-- snodec:begin status -->
-[![CI](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+[![CI](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
 <!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
