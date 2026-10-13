@@ -1,0 +1,8 @@
+Result<FileInfo> doPathInfo(const Path& p) {
+    const HANDLE h = ::CreateFileW(p.c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
+    if (h == INVALID_HANDLE_VALUE) return winFailure<FileInfo>();
+    auto result = doFileInfo(File{h});
+    const BOOL closed = ::CloseHandle(h);
+    if (!closed && result) return winFailure<FileInfo>();
+    return result;
+}

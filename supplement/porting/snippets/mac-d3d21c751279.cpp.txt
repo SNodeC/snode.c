@@ -1,0 +1,21 @@
+Result<std::vector<Address>> doResolve(const char* host, const char* service, Family family, SocketKind kind, bool passive) {
+    addrinfo hints{};
+    hints.ai_family = family == Family::ipv4 ? AF_INET : AF_INET6;
+    hints.ai_socktype = kind == SocketKind::stream ? SOCK_STREAM : SOCK_DGRAM;
+    hints.ai_flags = passive ? AI_PASSIVE : 0;
+    addrinfo* result = nullptr;
+    const int e = ::getaddrinfo(host, service, &hints, &result);
+    if (e) {
+        if (e == EAI_SYSTEM) return posixFailure<std::vector<Address>>();
+        return fail<std::vector<Address>>(ErrorDomain::resolver, static_cast<std::uint32_t>(e));
+    }
+    std::unique_ptr<addrinfo, decltype(&::freeaddrinfo)> guard(result, ::freeaddrinfo);
+    std::vector<Address> addresses;
+    for (auto* p = result; p; p = p->ai_next) {
+        if (p->ai_addrlen > sizeof(sockaddr_storage)) return posixFailure<std::vector<Address>>(EOVERFLOW);
+        Address a; a.length = static_cast<std::uint32_t>(p->ai_addrlen);
+        std::memcpy(&a.storage, p->ai_addr, p->ai_addrlen);
+        addresses.push_back(a);
+    }
+    return ok(std::move(addresses));
+}

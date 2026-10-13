@@ -1,0 +1,5 @@
+Result<Socket> doAccept(Socket listener) {
+    const SOCKET s = ::accept(listener.native, nullptr, nullptr);
+    if (s == INVALID_SOCKET) return wsaFailure<Socket>();
+    return ok(Socket{s});
+}

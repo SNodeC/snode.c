@@ -1,0 +1,13 @@
+struct TerminalState { termios native; };
+Result<TerminalState> doBeginCharacterInput(File terminal) {
+    TerminalState saved{};
+    if (::tcgetattr(terminal.native, &saved.native) != 0) return posixFailure<TerminalState>();
+    termios changed = saved.native;
+    changed.c_lflag &= static_cast<tcflag_t>(~(ICANON | ECHO));
+    changed.c_cc[VMIN] = 1; changed.c_cc[VTIME] = 0;
+    if (::tcsetattr(terminal.native, TCSANOW, &changed) != 0) return posixFailure<TerminalState>();
+    return ok(saved);
+}
+Status doRestoreTerminal(File terminal, const TerminalState& saved) {
+    return posixStatus(::tcsetattr(terminal.native, TCSANOW, &saved.native));
+}

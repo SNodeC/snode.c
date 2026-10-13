@@ -1,0 +1,3 @@
+void doFD_ZERO(std::vector<PollItem>& items) {
+    items.clear();
+}

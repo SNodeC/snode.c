@@ -1,0 +1,3 @@
+int doAtexit(void (*callback)()) {
+    return ::atexit(callback);
+}

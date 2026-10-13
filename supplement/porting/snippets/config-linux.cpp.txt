@@ -1,0 +1,60 @@
+// Include common.hpp, config-types.hpp, <pwd.h>, <grp.h>.
+// Place this function in the existing utils::system owner at adoption.
+namespace core::system {
+ConfigSetup doPrepareConfiguration(const std::string& serviceGroup) {
+    ConfigSetup out;
+    const passwd* pw = ::getpwuid(::getuid());
+    if (!pw) return out;
+    // Copy NSS-owned data before any subsequent lookup can invalidate it.
+    out.userName = pw->pw_name;
+    const std::string accountHome = pw->pw_dir;
+    const gid_t primaryGroup = pw->pw_gid;
+    const group* gr = ::getgrgid(primaryGroup);
+    if (!gr) return out;
+    out.groupName = gr->gr_name;
+    const uid_t owner = ::geteuid();
+    const bool privileged = owner == 0;
+    if (privileged) {
+        out.configDirectory = "/etc/snode.c";
+        out.logDirectory = "/var/log/snode.c";
+        out.pidDirectory = "/var/run/snode.c";
+    } else {
+        const char* environmentHome = ::getenv("HOME");
+        const std::string home = environmentHome && *environmentHome == '/' ? environmentHome : accountHome;
+        auto directory = [&](const char* variable, const char* fallback) -> Path {
+            const char* value = ::getenv(variable);
+            if (value && *value == '/') return Path(value) / "snode.c";
+            if (!home.empty() && home.front() == '/') return Path(home + fallback) / "snode.c";
+            return {};
+        };
+        out.configDirectory = directory("XDG_CONFIG_HOME", "/.config");
+        out.logDirectory = directory("XDG_STATE_HOME", "/.local/state");
+        out.pidDirectory = directory("XDG_RUNTIME_DIR", "/.local/run");
+        if (out.configDirectory.empty() || out.logDirectory.empty() || out.pidDirectory.empty()) return out;
+    }
+    // Preserve current create-only permissions, failure ordering and warning policy.
+    using P = std::filesystem::perms;
+    auto prepare = [&](const Path& path, P permissions) -> bool {
+        if (!std::filesystem::create_directories(path)) return true;
+        std::filesystem::permissions(path, permissions);
+        if (privileged) {
+            const group* service = ::getgrnam(serviceGroup.c_str());
+            if (!service) {
+                out.diagnostics.push_back("Cannot find service group '" + serviceGroup + "'. Create it and add the current user.");
+                std::filesystem::remove(path);
+                return false;
+            }
+            if (::chown(path.c_str(), owner, service->gr_gid) < 0) {
+                const int error = errno;
+                out.diagnostics.push_back("Cannot set group ownership of '" + path.string() + "': " + std::generic_category().message(error));
+            }
+        }
+        return true;
+    };
+    if (!prepare(out.configDirectory, P::owner_all | P::group_read | P::group_exec)) return out;
+    if (!prepare(out.logDirectory, P::owner_all | P::group_all)) return out;
+    if (!prepare(out.pidDirectory, privileged ? P::owner_all | P::group_all : P::owner_all)) return out;
+    out.ready = true;
+    return out;
+}
+}

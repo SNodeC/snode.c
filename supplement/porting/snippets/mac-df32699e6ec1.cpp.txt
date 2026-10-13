@@ -1,0 +1,3 @@
+std::string doSigabbrevNp(int signal) {
+    return utils::system::sigabbrev_np(signal);
+}

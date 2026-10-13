@@ -1,0 +1,4 @@
+Status doPthreadSigmask(int operation, const sigset_t* mask, sigset_t* previous) {
+    const int error = ::pthread_sigmask(operation, mask, previous);
+    return error ? posixFailure(error) : ok();
+}

@@ -1,0 +1,6 @@
+Result<std::string> doFormatIp(const Ip& ip) {
+    char text[INET6_ADDRSTRLEN]{};
+    const int af = ip.family == Family::ipv4 ? AF_INET : AF_INET6;
+    if (!::inet_ntop(af, ip.bytes.data(), text, sizeof(text))) return posixFailure<std::string>();
+    return ok(std::string(text));
+}

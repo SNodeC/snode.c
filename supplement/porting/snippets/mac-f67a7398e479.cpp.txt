@@ -1,0 +1,7 @@
+Result<Address> doGetpeername(Socket s) {
+    Address a;
+    socklen_t n = sizeof(a.storage);
+    if (::getpeername(s.native, reinterpret_cast<sockaddr*>(&a.storage), &n) != 0) return posixFailure<Address>();
+    a.length = n;
+    return ok(a);
+}

@@ -1,0 +1,3 @@
+FILE* doFopen(const Path& path, bool write) {
+    return ::_wfopen(path.c_str(), write ? L"wb" : L"rb");
+}

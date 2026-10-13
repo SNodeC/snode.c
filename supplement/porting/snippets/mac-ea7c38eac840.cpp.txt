@@ -1,0 +1,3 @@
+FILE* doFopen(const Path& path, bool write) {
+    return ::fopen(path.c_str(), write ? "wb" : "rb");
+}

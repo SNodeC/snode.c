@@ -1,0 +1,15 @@
+Result<int> doPollSockets(std::span<PollItem> items, int timeoutMilliseconds) {
+    if (items.empty() || items.size() > ULONG_MAX) return wsaFailure<int>(WSAEINVAL);
+    std::vector<WSAPOLLFD> native;
+    for (const auto& item : items) {
+        if (item.urgent) return wsaFailure<int>(WSAEOPNOTSUPP);
+        native.push_back({item.socket.native, static_cast<short>((item.read ? POLLRDNORM : 0) | (item.write ? POLLWRNORM : 0)), 0});
+    }
+    const int count = ::WSAPoll(native.data(), static_cast<ULONG>(native.size()), timeoutMilliseconds);
+    if (count == SOCKET_ERROR) return wsaFailure<int>();
+    for (std::size_t i = 0; i < items.size(); ++i) {
+        const short events = native[i].revents;
+        items[i].returned = static_cast<short>((events & POLLRDNORM ? 1 : 0) | (events & POLLWRNORM ? 2 : 0) | (events & POLLERR ? 8 : 0) | (events & POLLHUP ? 16 : 0) | (events & POLLNVAL ? 32 : 0));
+    }
+    return ok(count);
+}

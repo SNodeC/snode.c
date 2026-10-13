@@ -1,0 +1,12 @@
+// Include common.hpp. Configuration setup is a startup-only operation.
+namespace core::system {
+struct ConfigSetup {
+    bool ready = false;
+    std::string userName, groupName;
+    Path configDirectory, logDirectory, pidDirectory;
+    std::vector<std::string> diagnostics;
+};
+// Creates only missing directories; never silently changes existing ownership.
+// POSIX retains current root/XDG policy. Windows policy is proposed below.
+ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);
+}

@@ -1,0 +1,3 @@
+FILE* doRedirectToNull(FILE* stream, bool input) {
+    return ::freopen("/dev/null", input ? "r" : "w+", stream);
+}

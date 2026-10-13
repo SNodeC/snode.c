@@ -1,0 +1,5 @@
+Result<Library> doLoadLibrary(const Path& path) {
+    HMODULE module = ::LoadLibraryExW(path.c_str(), nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+    if (!module) return winFailure<Library>();
+    return ok(Library{module});
+}

@@ -1,0 +1,3 @@
+std::int64_t doUnixSeconds() {
+    return static_cast<std::int64_t>(::time(nullptr));
+}

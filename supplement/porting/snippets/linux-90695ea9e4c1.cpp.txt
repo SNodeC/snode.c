@@ -1,0 +1,8 @@
+Result<Library> doLoadLibrary(const Path& path) {
+    void* module = ::dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
+    if (!module) {
+        const char* message = ::dlerror();
+        return {{}, {ErrorDomain::loader, 0, message ? message : "dlopen failed"}};
+    }
+    return ok(Library{module});
+}

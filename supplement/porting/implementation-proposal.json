@@ -1,0 +1,3157 @@
+[
+  {
+    "name": "open",
+    "api": "Result<File> doOpen(const Path& path, int flags, std::uint32_t mode);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-fed5d31776e9.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "CreateFileW body still needs all observed creation/no-follow/nonblocking/inheritance/0600 ACL semantics, plus synchronous versus positioned-I/O handle choice. A plain CreateFileW(...OPEN_EXISTING...) would omit real callers.",
+        "native": "CreateFileW"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-fed5d31776e9.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "openat",
+    "api": "Result<File> doOpenat(File directory, const Path& path, int flags, std::uint32_t mode);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3a0153817c2c.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "NtCreateFile with OBJECT_ATTRIBUTES.RootDirectory is the native building block. A handle-relative, no-follow implementation and NTSTATUS/path conversion remain required; concatenating paths is not equivalent.",
+        "native": "NtCreateFile with OBJECT_ATTRIBUTES.RootDirectory"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3a0153817c2c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "close",
+    "api": "Status doClose(File f); Status doClose(Socket s);",
+    "note": "One close attempt, owner retires the reference. Do not retry on EINTR; final OS-specific release semantics require target validation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-7d708c59c602.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-646ec0d501ec.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-7d708c59c602.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "read",
+    "api": "Result<Count> doRead(File f, MutableBytes b);",
+    "note": "One native call; partial count retained. Zero-length request returns zero without implying EOF. Windows body requires synchronous file/byte-pipe handles; it does not implement nonblocking event-loop pipe I/O. Socket I/O uses doRecv/doSend. POSIX write retains existing SIGPIPE policy; suppressing it is a separate lifecycle decision.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8394a078867d.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-5e414e02d49c.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-8394a078867d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "write",
+    "api": "Result<Count> doWrite(File f, Bytes b);",
+    "note": "One native call; partial count retained. Zero-length request returns zero without implying EOF. Windows body requires synchronous file/byte-pipe handles; it does not implement nonblocking event-loop pipe I/O. Socket I/O uses doRecv/doSend. POSIX write retains existing SIGPIPE policy; suppressing it is a separate lifecycle decision.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-e94f9cea110c.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-7f02e2b59f5f.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-e94f9cea110c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pread",
+    "api": "Result<Count> doPread(File f, MutableBytes b, std::uint64_t offset);",
+    "note": "Windows file MUST have been opened FILE_FLAG_OVERLAPPED; doRead/doWrite synchronous bodies cannot operate on that same handle. This distinction must be integrated into doOpen and resource ownership before copying into production. This operation waits; it is not an event-loop submission API.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-599418672878.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-f2518fe3b909.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-599418672878.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pwrite",
+    "api": "Result<Count> doPwrite(File f, Bytes b, std::uint64_t offset);",
+    "note": "Windows file MUST have been opened FILE_FLAG_OVERLAPPED; doRead/doWrite synchronous bodies cannot operate on that same handle. This distinction must be integrated into doOpen and resource ownership before copying into production. This operation waits; it is not an event-loop submission API.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3804440c46fa.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-e58d1eba4f07.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3804440c46fa.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "ftruncate",
+    "api": "Status doTruncate(File f, std::uint64_t length);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0ae162b824aa.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c8f549b0fd7e.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0ae162b824aa.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fstat",
+    "api": "Result<FileInfo> doFileInfo(File f);",
+    "note": "Disk-file handles only on Windows. Reparse points remain other until their tags are inspected; this does not yet fulfill UNIX socket-node ownership detection. Unsupported filesystem ID queries fail explicitly.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-b4d97046652c.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-87e961885c67.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-9a741df7b28a.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "stat",
+    "api": "Result<FileInfo> doPathInfo(const Path& p);",
+    "note": "Windows symlink/socket reparse-tag classification is still needed before replacing security-sensitive lstat ownership checks. _stat64 is a Windows-only vendor spelling; no additional POSIX syscall.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2f802d880b80.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c42c1d9c804b.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-535d6847c53e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "lstat",
+    "api": "Result<FileInfo> doLinkInfo(const Path& p);",
+    "note": "Windows symlink/socket reparse-tag classification is still needed before replacing security-sensitive lstat ownership checks. _stat64 is a Windows-only vendor spelling; no additional POSIX syscall.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-b2703927e1b8.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-9783edb48fb6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5875a10ad6e4.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "unlink",
+    "api": "Status doUnlink(const Path& p);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-479382b00e42.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-13b747811ed3.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-479382b00e42.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "access",
+    "api": "Result<bool> doPathExists(const Path& path);",
+    "note": "Existence check only. R_OK/W_OK require access-token checks on Windows; X_OK has no executable-mode-bit equivalent. Never authorize a later open using this racy check.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a346961899fd.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-4f550acef6bf.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a346961899fd.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "mkdir",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "rmdir",
+    "api": "Status doRmdir(const Path& p);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8c80401b7964.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-49fed73803db.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-8c80401b7964.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "mkstemp",
+    "api": "Result<File> doMkstemp(std::string& pattern);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-f9363f994c39.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "CreateFileW(CREATE_NEW) with unpredictable candidate names and explicit private security descriptor must be implemented with bounded collision handling and cleanup.",
+        "native": "CreateFileW(CREATE_NEW)"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-f9363f994c39.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "mkdtemp",
+    "api": "Status doMkdtemp(std::string& pattern);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-1eace5baf039.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "CreateDirectoryW with private ACL and unpredictable name/collision handling is required. GetTempFileNameW does not implement private temporary-directory semantics.",
+        "native": "CreateDirectoryW with an explicitly private security descriptor"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-1eace5baf039.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "chdir",
+    "api": "Status doChdir(const Path& p);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-ac6a1b72273c.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-5d18f66674b1.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-ac6a1b72273c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fchdir",
+    "api": "Status doRestoreDirectory(File directory);",
+    "note": "No rename-safe Windows handle-based SetCurrentDirectory operation. Replacing with a saved path changes semantics; not supplied as an equivalent.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-ebfae5f27cc1.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No rename-safe Windows handle-based SetCurrentDirectory operation. Replacing with a saved path changes semantics; not supplied as an equivalent.",
+        "native": "No direct handle-based Win32 equivalent; GetFinalPathNameByHandleW plus SetCurrentDirectoryW is weaker"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-ebfae5f27cc1.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "chown",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "umask",
+    "api": "std::uint32_t doCreationMask(std::uint32_t mask);",
+    "note": "Process-wide POSIX creation mask. No Win32 process-wide ACL equivalent. Windows config capsule supplies security descriptors at creation; CRT _umask would not control native CreateFileW.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d70fe829f622.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Process-wide POSIX creation mask. No Win32 process-wide ACL equivalent. Windows config capsule supplies security descriptors at creation; CRT _umask would not control native CreateFileW.",
+        "native": "_umask affects CRT creation only; no process-wide Win32 ACL equivalent"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d70fe829f622.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "flock",
+    "api": "Status doFileLock(File f, bool exclusive, bool unlock, bool wait);",
+    "note": "Windows body requires a synchronous disk handle. Windows range locks affect I/O; POSIX flock is advisory. Duplicate-handle and process lifetime semantics must be validated before UNIX lock-file migration.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-eed428d124f0.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-db0bf31e34d8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-eed428d124f0.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fcntl",
+    "api": "Status doSetNonblocking(Socket socket, bool enabled);",
+    "note": "Socket variant only, preserves existing flags on POSIX. File/pipe nonblocking and F_GETFD inspection require separate resource-specific capsules; ioctlsocket is not a universal fcntl replacement.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-778e353ce45e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-36ca4b84f023.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-778e353ce45e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dup",
+    "api": "Result<File> doDup(File f);",
+    "note": "File handles only; no SOCKET-to-HANDLE cast. POSIX dup clears close-on-exec, Windows result is non-inheritable; caller migration must choose a consistent inheritance contract.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c8d839b8b880.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-795acebd38d4.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c8d839b8b880.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dup2",
+    "api": "Status doDup2(File from, int target);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-29c0788f7542.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use explicit child standard-handle redirection within the launch operation. Numeric POSIX descriptor-slot replacement has no general HANDLE/SOCKET equivalent; _dup2 covers CRT descriptors only.",
+        "native": "_dup2 for CRT streams; SetStdHandle for Win32 standard handles"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-29c0788f7542.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pipe",
+    "api": "Result<Pipe> doPipe();",
+    "note": "Blocking byte pipe only. Windows handles are non-inheritable. ProcessRunner needs an integrated launch/capture capsule before replacing select on these pipes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-1b202aa42e96.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-507c97a460aa.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-1b202aa42e96.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pipe2",
+    "api": "Result<Pipe> doPipe2(int flags);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2e8d8ba0733f.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "CreateNamedPipeW/ConnectNamedPipe/CreateFileW with OVERLAPPED lifecycle for event-loop pipes; CreatePipe body above only covers synchronous pipes. On macOS pipe+fcntl cannot alone prove atomic close-on-exec against concurrent spawn.",
+        "native": "CreateNamedPipeW and CreateFileW; SetHandleInformation"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "CreateNamedPipeW/ConnectNamedPipe/CreateFileW with OVERLAPPED lifecycle for event-loop pipes; CreatePipe body above only covers synchronous pipes. On macOS pipe+fcntl cannot alone prove atomic close-on-exec against concurrent spawn.",
+        "native": "pipe and fcntl"
+      }
+    }
+  },
+  {
+    "name": "socket",
+    "api": "Result<Socket> doSocket(Family family, SocketKind kind);",
+    "note": "Concrete INET/INET6 TCP/UDP variant. WSAStartup/WSACleanup must bracket framework lifetime once. UNIX, Bluetooth, inheritance and nonblocking creation require separate operation capsules; this is not the whole original socket contract.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-b085cdd85496.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-70c1fd4d68ec.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-b085cdd85496.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "bind",
+    "api": "Status doBind(Socket s, const Address& address);",
+    "note": "Address must be constructed by backend address conversion, length bounded by storage. EINPROGRESS/WSAEWOULDBLOCK is retained as a domain-tagged error for nonblocking connect.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3acd6b7b4ced.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-03f70c829a1f.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3acd6b7b4ced.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "listen",
+    "api": "Status doListen(Socket s, int backlog);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d6bb9f086446.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d6bb9f086446.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d6bb9f086446.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "accept",
+    "api": "Result<Socket> doAccept(Socket listener);",
+    "note": "Base accept without requested flags. Peer can be obtained through doGetpeername. Flags/inheritance and asynchronous cancellation are outside this basic variant.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-43e15b645689.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-862427d8331c.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-43e15b645689.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "accept4",
+    "api": "Result<Socket> doAccept4(Socket listener, int flags);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-babfada3786c.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "accept+ioctlsocket+SetHandleInformation on Windows, accept+fcntl on macOS. Full cleanup and concurrent-spawn noninheritance semantics still need an integrated accept capsule.",
+        "native": "accept or WSAAccept, ioctlsocket and SetHandleInformation"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "accept+ioctlsocket+SetHandleInformation on Windows, accept+fcntl on macOS. Full cleanup and concurrent-spawn noninheritance semantics still need an integrated accept capsule.",
+        "native": "accept and fcntl"
+      }
+    }
+  },
+  {
+    "name": "connect",
+    "api": "Status doConnect(Socket s, const Address& address);",
+    "note": "Address must be constructed by backend address conversion, length bounded by storage. EINPROGRESS/WSAEWOULDBLOCK is retained as a domain-tagged error for nonblocking connect.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-bd17f810a34a.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-0952e185537d.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-bd17f810a34a.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "shutdown",
+    "api": "Status doShutdown(Socket s, Direction direction);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-1892d5d34601.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-69add476b7be.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-1892d5d34601.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "recv",
+    "api": "Result<Count> doRecv(Socket s, MutableBytes b, ReadMode mode);",
+    "note": "Normal/peek/urgent modes cover observed intent; datagram boundary handling must not silently split an oversized datagram. These bounded snippets are for stream I/O. SIGPIPE policy on POSIX remains caller lifecycle policy.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-f1a6d9b6be9c.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d9b12dca24c4.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-f1a6d9b6be9c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "send",
+    "api": "Result<Count> doSend(Socket s, Bytes b, WriteMode mode);",
+    "note": "Normal/peek/urgent modes cover observed intent; datagram boundary handling must not silently split an oversized datagram. These bounded snippets are for stream I/O. SIGPIPE policy on POSIX remains caller lifecycle policy.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-6948e2d89e37.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-10a048aba2bb.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-6948e2d89e37.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getsockname",
+    "api": "Result<Address> doGetsockname(Socket s);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-affec86ce385.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-96d273095548.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-affec86ce385.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpeername",
+    "api": "Result<Address> doGetpeername(Socket s);",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-f67a7398e479.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-6c1730760bcd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-f67a7398e479.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getsockopt",
+    "api": "Result<Error> doSocketError(Socket socket);",
+    "note": "This body implements SO_ERROR only. SO_DOMAIN/SO_TYPE/SO_PROTOCOL, linger, reuse and IPv6 options remain separately enumerated in platform-symbols.json; this is not a complete getsockopt replacement.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-677555be6320.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-4c54c35348f0.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-677555be6320.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "setsockopt",
+    "api": "Status doTcpNoDelay(Socket socket, bool enabled);",
+    "note": "Includes <netinet/tcp.h> on POSIX. TCP_NODELAY body only; SO_REUSEADDR/SO_REUSEPORT cannot be interchanged with Windows exclusive-address semantics. Other option bodies remain an implementation gap.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c4d1ba060338.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c9647dc6cda6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c4d1ba060338.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "socketpair",
+    "api": "Result<std::pair<Socket, Socket>> doSocketpair();",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-6e6110345c44.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No native socketpair. A Windows TCP loopback socket/bind/listen/connect/accept composition needs endpoint verification, cleanup and explicit stream-only semantics.",
+        "native": "No socketpair; socket, bind, listen, connect, accept compose a stream pair"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-6e6110345c44.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sendmsg",
+    "api": "Status doSendHandle(Socket channel, const Address& destination, File resource);",
+    "note": "Sender retains ownership. UNIX datagram address stays inside the operation. No documented Windows SCM_RIGHTS counterpart; WSASendMsg does not transfer handles. A DuplicateHandle/WSADuplicateSocket protocol needs recipient identity and transport changes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2aac97df536d.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Sender retains ownership. UNIX datagram address stays inside the operation. No documented Windows SCM_RIGHTS counterpart; WSASendMsg does not transfer handles. A DuplicateHandle/WSADuplicateSocket protocol needs recipient identity and transport changes.",
+        "native": "No documented AF_UNIX SCM_RIGHTS equivalent; WSASendMsg is not a descriptor-transfer replacement"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-2aac97df536d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "recvmsg",
+    "api": "Result<File> doReceiveHandle(Socket channel);",
+    "note": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c061d3f1c497.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+        "native": "No documented AF_UNIX SCM_RIGHTS equivalent; WSARecvMsg does not receive arbitrary UNIX descriptors"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c061d3f1c497.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpeereid",
+    "api": "Result<PeerIdentity> doPeerIdentity(Socket channel);",
+    "note": "Reshape existing net::un::peerCredentials. Windows named-pipe impersonation authenticates a different transport and returns SIDs; this POSIX numeric identity output is deliberately not claimed portable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8a7174f3373e.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Reshape existing net::un::peerCredentials. Windows named-pipe impersonation authenticates a different transport and returns SIDs; this POSIX numeric identity output is deliberately not claimed portable.",
+        "native": "No equivalent UNIX UID/GID API; GetNamedPipeClientProcessId and ImpersonateNamedPipeClient apply to named pipes only"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a8ce936ad0ec.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getaddrinfo",
+    "api": "Result<std::vector<Address>> doResolve(const char* host, const char* service, Family family, SocketKind kind, bool passive);",
+    "note": "Includes <memory>. This basic variant folds matching release into resolution; vector owns its data. Current numeric-only/canonical/V4-mapped/ordering policies need a ResolveOptions extension before replacing all callers; no freeaddrinfo callback escapes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d3d21c751279.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-cfe9e5882861.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d3d21c751279.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "freeaddrinfo",
+    "api": "Result<std::vector<Address>> doResolve(const char* host, const char* service, Family family, SocketKind kind, bool passive);",
+    "note": "Includes <memory>. This basic variant folds matching release into resolution; vector owns its data. Current numeric-only/canonical/V4-mapped/ordering policies need a ResolveOptions extension before replacing all callers; no freeaddrinfo callback escapes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d3d21c751279.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-cfe9e5882861.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d3d21c751279.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getnameinfo",
+    "api": "Result<std::pair<std::string, std::string>> doEndpointName(const Address& address, bool numeric);",
+    "note": "Basic numeric/reverse-lookup form. NI_NAMEREQD and other observed flags require semantic options before all callers can migrate.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a58a3c290e8d.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-8ad00d0c2286.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a58a3c290e8d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "gai_strerror",
+    "api": "std::string doErrorText(const Error& error);",
+    "note": "Includes <system_error> and <memory>. Returned text is owned; not a pointer into a shared mutable error buffer.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d9f080799cdb.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-9d0b775dccb8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d9f080799cdb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "inet_ntop",
+    "api": "Result<std::string> doFormatIp(const Ip& ip);",
+    "note": "IP numeric text is ASCII, so InetNtopA has no pathname/codepage loss.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5aae8adbffb8.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-8451809cdc16.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5aae8adbffb8.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "inet_pton",
+    "api": "Result<Ip> doParseIp(Family family, const std::string& text);",
+    "note": "Numeric ASCII only. Reject embedded NUL at the public text boundary; never parse a truncated untrusted string.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-634664c96e00.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-ef95c92c0337.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-634664c96e00.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "epoll_create1",
+    "api": "Result<File> doEpollCreate1();",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-823375b993fa.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Replace the whole event registration/wait boundary. Windows socket events/overlapped events and macOS kqueue have different native object models; no epoll descriptor can be returned.",
+        "native": "No epoll; WSACreateEvent for socket events, CreateEventW for capsule wakeups"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "Replace the whole event registration/wait boundary. Windows socket events/overlapped events and macOS kqueue have different native object models; no epoll descriptor can be returned.",
+        "native": "kqueue"
+      }
+    }
+  },
+  {
+    "name": "epoll_ctl",
+    "api": "Status doEpollCtl(File queue, int operation, int descriptor, epoll_event* event);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-738b5c4b9163.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Typed registration on kqueue/kevent or Windows WSAEventSelect plus non-socket completion state. Exposing epoll_event in the project API cannot implement all three targets.",
+        "native": "WSAEventSelect for sockets; no single control call for arbitrary resource readiness"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "Typed registration on kqueue/kevent or Windows WSAEventSelect plus non-socket completion state. Exposing epoll_event in the project API cannot implement all three targets.",
+        "native": "kevent with EV_ADD, EV_DELETE, EV_ENABLE"
+      }
+    }
+  },
+  {
+    "name": "epoll_wait",
+    "api": "Result<int> doEpollWait(File queue, std::span<epoll_event> events, int timeoutMilliseconds);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-b9db5e2eac52.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "kevent on macOS; Windows WaitForMultipleObjects/WSAEnumNetworkEvents plus overlapped completions. Mixed descriptor kinds, nesting, event reset and scaling need the complete existing multiplexer boundary.",
+        "native": "WSAWaitForMultipleEvents or WaitForMultipleObjects with WSAEnumNetworkEvents; overlapped I/O events for pipes"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "kevent on macOS; Windows WaitForMultipleObjects/WSAEnumNetworkEvents plus overlapped completions. Mixed descriptor kinds, nesting, event reset and scaling need the complete existing multiplexer boundary.",
+        "native": "kevent"
+      }
+    }
+  },
+  {
+    "name": "epoll_pwait",
+    "api": "Result<int> doEpollPwait(File queue, std::span<epoll_event> events, int timeoutMilliseconds, const sigset_t* mask);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a78b651ecf77.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No direct equivalent atomic signal-mask/event wait. Windows signal delivery and macOS kqueue+pselect behavior must be designed as one no-lost-wakeup operation.",
+        "native": "No atomic POSIX signal-mask wait; native events plus WaitForMultipleObjects"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "No direct equivalent atomic signal-mask/event wait. Windows signal delivery and macOS kqueue+pselect behavior must be designed as one no-lost-wakeup operation.",
+        "native": "pselect on a kqueue descriptor, then kevent; no epoll_pwait"
+      }
+    }
+  },
+  {
+    "name": "poll",
+    "api": "Result<int> doPollSockets(std::span<PollItem> items, int timeoutMilliseconds);",
+    "note": "Normalized returned bits: read=1, write=2, urgent=4, error=8, hangup=16, invalid=32. Microsoft WSAPoll cannot supply POLLPRI; explicit error is a capability gap, not completed compatibility. This variant cannot replace pipe/pidfd/mixed-handle polling or atomic signal-mask waits.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-6040396864d2.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c928f9c19965.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-6040396864d2.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "ppoll",
+    "api": "Result<int> doPpoll(std::span<pollfd> items, const timespec* timeout, const sigset_t* mask);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-dec3fc6ba087.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No Windows POSIX mask wait and no audited Darwin ppoll entry. A signal-aware readiness operation must replace the full surrounding sequence.",
+        "native": "No ppoll; native event waits"
+      },
+      "mac": {
+        "status": "unresolved",
+        "reason": "No Windows POSIX mask wait and no audited Darwin ppoll entry. A signal-aware readiness operation must replace the full surrounding sequence.",
+        "native": "No ppoll in the audited Darwin syscall list; pselect/kevent are building blocks"
+      }
+    }
+  },
+  {
+    "name": "select",
+    "api": "Result<int> doSelect(int count, fd_set* read, fd_set* write, fd_set* error, timeval* timeout);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-57f2d9e24622.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Winsock select accepts sockets only; it cannot drain ProcessRunner pipes. Use doPollSockets for the socket subset and a full child-capture operation for pipes.",
+        "native": "select for sockets only"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-57f2d9e24622.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pselect",
+    "api": "Result<int> doPselect(int count, fd_set* read, fd_set* write, fd_set* error, const timespec* timeout, const sigset_t* mask);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-bd2ff8f57e9f.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No Windows equivalent of atomic per-thread POSIX mask switching during descriptor wait.",
+        "native": "No pselect; select plus signal-mask changes is not equivalent"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-bd2ff8f57e9f.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sigaction",
+    "api": "Status doSigaction(int signal, const struct sigaction* action, struct sigaction* previous);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-484346733c98.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Windows console-control callbacks and limited CRT signals cannot reproduce arbitrary POSIX sigaction. Propose lifecycle-event subscriptions at the whole signal owner boundary.",
+        "native": "SetConsoleCtrlHandler for console lifecycle events; CRT signal for its limited signal set"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-484346733c98.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "signal",
+    "api": "Result<void (*)(int)> doSignal(int signal, void (*handler)(int));",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-97e6d1778b88.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Limited CRT signal exists; the observed SIGHUP/SIGPIPE/SIGCHLD/job-control uses need separate explicit lifecycle policies. No generic same-number mapping.",
+        "native": "signal (CRT); SetConsoleCtrlHandler for console events"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-97e6d1778b88.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "pthread_sigmask",
+    "api": "Status doPthreadSigmask(int operation, const sigset_t* mask, sigset_t* previous);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-cbd6ea84d6e9.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No Windows per-thread POSIX signal mask; do not pretend an event wait emulates mask semantics.",
+        "native": "No POSIX per-thread signal mask equivalent"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-cbd6ea84d6e9.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sigemptyset",
+    "api": "Status doSigemptyset(sigset_t& set);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-1c4e437ce24c.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "SignalSet must be a semantic lifecycle set once Windows delivery policy is defined; no Windows syscall for this pure value operation.",
+        "native": "No syscall; initialize portable signal set"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-1c4e437ce24c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sigaddset",
+    "api": "Status doSigaddset(sigset_t& set, int signal);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-15b981caa45a.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Same semantic SignalSet as the whole signal-delivery capsule; raw POSIX signal numbers do not port.",
+        "native": "No syscall; update portable signal set"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-15b981caa45a.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sigfillset",
+    "api": "Status doSigfillset(sigset_t& set);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-ccf59bac70c7.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "All supported lifecycle events must be defined; Windows exceptions are not a POSIX full signal set.",
+        "native": "No syscall; populate portable signal set"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-ccf59bac70c7.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strsignal",
+    "api": "std::string doStrsignal(int signal);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-36a35e2d54f6.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Define text for the chosen semantic lifecycle events; no strsignal Win32 syscall.",
+        "native": "No strsignal; capsule-owned descriptions"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-36a35e2d54f6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "sigabbrev_np",
+    "api": "std::string doSigabbrevNp(int signal);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-df32699e6ec1.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Existing utils::system::sigabbrev_np is the single project mapping. Reshape that mapping for semantic events; do not create three competing maps.",
+        "native": "Capsule-owned table"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-df32699e6ec1.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fork",
+    "api": "void doStartDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName);",
+    "note": "Whole existing Daemon::startDaemon operation, placed in namespace utils and using existing DaemonError/DaemonFailure/DaemonSignaled from utils/Daemon.h. Requires its current includes. Extracted verbatim except name; does not fix current PID-publication races. Windows cannot resume this C++ continuation after CreateProcessW; a re-exec/service startup contract is still required. Fork-based tests need a separate launched-child fixture.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-29e3d7e39838.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Whole existing Daemon::startDaemon operation, placed in namespace utils and using existing DaemonError/DaemonFailure/DaemonSignaled from utils/Daemon.h. Requires its current includes. Extracted verbatim except name; does not fix current PID-publication races. Windows cannot resume this C++ continuation after CreateProcessW; a re-exec/service startup contract is still required. Fork-based tests need a separate launched-child fixture.",
+        "native": "No fork equivalent; CreateProcessW starts a fresh process"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-29e3d7e39838.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "setsid",
+    "api": "void doStartDaemon(const std::string& pidFileName, const std::string& userName, const std::string& groupName);",
+    "note": "Whole existing Daemon::startDaemon operation, placed in namespace utils and using existing DaemonError/DaemonFailure/DaemonSignaled from utils/Daemon.h. Requires its current includes. Extracted verbatim except name; does not fix current PID-publication races. Windows cannot resume this C++ continuation after CreateProcessW; a re-exec/service startup contract is still required. Fork-based tests need a separate launched-child fixture.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-29e3d7e39838.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Whole existing Daemon::startDaemon operation, placed in namespace utils and using existing DaemonError/DaemonFailure/DaemonSignaled from utils/Daemon.h. Requires its current includes. Extracted verbatim except name; does not fix current PID-publication races. Windows cannot resume this C++ continuation after CreateProcessW; a re-exec/service startup contract is still required. Fork-based tests need a separate launched-child fixture.",
+        "native": "No POSIX session equivalent; CreateProcessW with DETACHED_PROCESS or CREATE_NEW_PROCESS_GROUP serves different purposes"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-29e3d7e39838.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpid",
+    "api": "std::uint64_t doProcessId();",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-e22d587bf35f.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-320838fea924.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-e22d587bf35f.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getppid",
+    "api": "std::uint64_t doParentProcessId();",
+    "note": "For cross-platform fork-test replacement, pass the known parent identity in the launch operation; snapshot parent-PID queries cannot guarantee live identity.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-1c9298a02dad.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "For cross-platform fork-test replacement, pass the known parent identity in the launch operation; snapshot parent-PID queries cannot guarantee live identity.",
+        "native": "CreateToolhelp32Snapshot and Process32FirstW/Process32NextW; parent ID can be stale"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-1c9298a02dad.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpgrp",
+    "api": "std::uint64_t doGetpgrp();",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-42dd6256ba35.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No Windows POSIX foreground process group. Encapsulate the entire attached foreground job operation.",
+        "native": "No POSIX foreground process-group query"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-42dd6256ba35.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "kill",
+    "api": "Status doForceTerminate(Process process);",
+    "note": "Forced termination only; owned valid Process required. Graceful SIGTERM and terminal SIGINT need distinct doRequestStop(process,reason) policy, not TerminateProcess. Their source occurrences remain unresolved.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-7d3d01adf47f.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-050f487c74c9.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-7d3d01adf47f.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "syscall:SYS_pidfd_open",
+    "api": "Result<ProcessWatch> doWatchProcess(std::uint64_t process);",
+    "note": "Includes <sys/syscall.h> on Linux, <sys/event.h> on macOS. Owned watch, closed with close/CloseHandle. PID reuse between reading a PID file and acquiring the native reference remains possible on every target; macOS registration behavior needs tests. Waiting on the reference is a separate operation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3ade5de8247b.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-2b9d3d785962.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0adf53adebab.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "waitpid",
+    "api": "Result<ExitStatus> doWaitProcess(Process process);",
+    "note": "POSIX reaps this child once; Windows process handle is still owned and must be closed separately. Windows signaled=false means no POSIX signal classification, not proof of graceful termination. No eight-bit truncation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-124eabde1e9c.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d71f05f47dbe.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-124eabde1e9c.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawn",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "CreateProcessW; CreateProcessAsUserW when a user token is required"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawn_file_actions_init",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "STARTUPINFOEXW; InitializeProcThreadAttributeList when needed"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawn_file_actions_adddup2",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "STARTUPINFOEXW standard handles and UpdateProcThreadAttribute(PROC_THREAD_ATTRIBUTE_HANDLE_LIST)"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawn_file_actions_addclose",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "Explicit handle inheritance list in UpdateProcThreadAttribute"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawn_file_actions_destroy",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "DeleteProcThreadAttributeList"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_init",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "STARTUPINFOEXW value initialization"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_setpgroup",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "CreateProcessW(CREATE_NEW_PROCESS_GROUP); not a POSIX group"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_setsigdefault",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "No arbitrary POSIX disposition equivalent"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_setsigmask",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "No POSIX child signal mask equivalent"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_setflags",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "CreateProcessW creation flags and STARTUPINFOEXW"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "posix_spawnattr_destroy",
+    "api": "ProcessResult runProcess(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttached(const std::string& executable, const std::vector<std::string>& arguments);\nProcessResult runProcessAttachedAsForegroundJob(const std::string& executable, const std::vector<std::string>& arguments);",
+    "note": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0bd91c55d508.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Use existing snodec::control operation boundary; do not expose posix_spawn action/attribute builders in project callers. Full current source retained, including private helpers and includes. Windows captured pipes + explicit handle inheritance + quoting + attached-console lifecycle need a complete backend; CreateProcessW alone does not implement these three functions. Current source error-path weaknesses are not certified by this extraction.",
+        "native": "DeleteProcThreadAttributeList when extended attributes were allocated; no syscall for plain value destruction"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0bd91c55d508.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "system",
+    "api": "int doRunShell(const std::string& command);",
+    "note": "Only invocation is portable. Shell language, exit encoding and Warema device commands are not; caller needs an operation-specific contract.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2ea915ed2faa.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-256aa1a3db25.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-2ea915ed2faa.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getuid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "geteuid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getgid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getegid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpwnam",
+    "api": "Status doEnterDaemonIdentity(const std::string& user, const std::string& group); Status doRestoreRealIdentity();",
+    "note": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c5f78e9fffeb.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+        "native": "LookupAccountNameW and NetUserGetInfo"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c5f78e9fffeb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getpwuid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getgrnam",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getgrgid",
+    "api": "ConfigSetup doPrepareConfiguration(const std::string& serviceGroup);",
+    "note": "Whole Config.cpp:953\u20131065 replacement; see config-caller.cpp.txt and config-types.hpp.txt. POSIX preserves root/XDG/create-only ownership policy with copied NSS strings. Windows LocalSystem/known-folder/ACL policy is a proposed behavior, not a proven POSIX equivalence. Other uses of these calls remain in the source ledger and need the daemon/test-specific capsule as applicable.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-5790162f8c9e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-94ae28bc38fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-5790162f8c9e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "seteuid",
+    "api": "Status doEnterDaemonIdentity(const std::string& user, const std::string& group); Status doRestoreRealIdentity();",
+    "note": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c5f78e9fffeb.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+        "native": "No process-wide seteuid; SetThreadToken/ImpersonateLoggedOnUser or CreateProcessAsUserW have different scope"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c5f78e9fffeb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "setegid",
+    "api": "Status doEnterDaemonIdentity(const std::string& user, const std::string& group); Status doRestoreRealIdentity();",
+    "note": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c5f78e9fffeb.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Entire Daemon.cpp identity sequence, including restore order. Startup-only; preserves effective-only changes and supplementary groups as today. Failure can occur after group changed; fail the daemon startup, never proceed as if fully switched. Windows thread impersonation does not implement this process-wide contract. A service account/launch token requires an explicitly different launch API.",
+        "native": "No process-wide setegid; token groups/launch token are different semantics"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c5f78e9fffeb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "_exit",
+    "api": "void doExitImmediately(int status);",
+    "note": "Windows DLL detach differs; not a fork-child-safe POSIX _exit equivalence.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-dbcb06e0a9d5.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-913ecbaae64a.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-dbcb06e0a9d5.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "exit",
+    "api": "void doExit(int status);",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a3d30022c4d8.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-a3d30022c4d8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a3d30022c4d8.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "abort",
+    "api": "void doAbort();",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a4e605bce3d8.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-a4e605bce3d8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a4e605bce3d8.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "atexit",
+    "api": "int doAtexit(void (*callback)());",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-419b65fbeae6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-419b65fbeae6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-419b65fbeae6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "gettimeofday",
+    "api": "Result<WallTime> doWallTime();",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-dda269e36d1d.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-1283ce57070d.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-dda269e36d1d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "time",
+    "api": "std::int64_t doUnixSeconds();",
+    "note": "",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d5ae6aaa88f3.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-3e5dd3a1c10e.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d5ae6aaa88f3.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "gmtime",
+    "api": "Result<std::tm> doUtcTime(std::int64_t seconds);",
+    "note": "Owned calendar fields; OS accepted timestamp ranges differ.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-910ad993fb29.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-891827d29ce6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-910ad993fb29.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "gmtime_r",
+    "api": "Result<std::tm> doUtcTime(std::int64_t seconds);",
+    "note": "Owned calendar fields; OS accepted timestamp ranges differ.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-910ad993fb29.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-891827d29ce6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-910ad993fb29.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "localtime",
+    "api": "Result<std::tm> doLocalTime(std::int64_t seconds);",
+    "note": "Owned calendar fields; OS accepted timestamp ranges differ.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-f3ea1e1ec113.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-ba07670f93c6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-f3ea1e1ec113.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "mktime",
+    "api": "std::int64_t doLocalTimeToUnix(std::tm& calendar);",
+    "note": "Mutates/normalizes calendar as before; -1 can be either failure or valid pre-epoch time. HTTP UTC parsing is a separate semantic issue.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-25230944d275.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-16246fbce3a8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-25230944d275.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strftime",
+    "api": "std::size_t doStrftime(char* out, std::size_t n, const char* format, const std::tm& time);",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-68d96e448077.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-68d96e448077.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-68d96e448077.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strptime",
+    "api": "Result<std::tm> doParseHttpCalendar(const std::string& text);",
+    "note": "Includes <sstream>, <locale>, <iomanip> on Windows. Native strptime has no UCRT equivalent; this is a standard-library parser, not a syscall. Locale/accepted grammar and current mktime timezone behavior require HTTP-date tests before adoption.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-f1fd1ec48535.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-bfa2eefc63f0.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-f1fd1ec48535.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "usleep",
+    "api": "Status doSleepMicroseconds(std::uint32_t microseconds);",
+    "note": "Observed test uses 100000 microseconds. Windows wait is not POSIX signal-interruptible; zero is rounded to a minimum timer interval here. Scheduler precision is not promised.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-0de34f4286bb.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-aa1dbd0a80ad.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-0de34f4286bb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getentropy",
+    "api": "Status doRandomBytes(MutableBytes bytes);",
+    "note": "Fill-all-or-error; buffer may contain a partially filled prefix on error and must be discarded. Replaces the entire WebSocket fallback. Linux minimum libc getentropy availability must be set; old libc variant below uses SYS_getrandom.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-76fdd68f70d9.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-57fe54e722ba.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-76fdd68f70d9.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "syscall:SYS_getrandom",
+    "api": "Status doRandomBytes(MutableBytes bytes);",
+    "note": "Fill-all-or-error; buffer may contain a partially filled prefix on error and must be discarded. Replaces the entire WebSocket fallback. Linux minimum libc getentropy availability must be set; old libc variant below uses SYS_getrandom.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-73832aa7fcc9.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-57fe54e722ba.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-76fdd68f70d9.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dlopen",
+    "api": "Result<Library> doLoadLibrary(const Path& path);",
+    "note": "Absolute path, eager binding and local visibility are the proposed contract. Existing RTLD_GLOBAL/RTLD_LAZY uses must stay visible as an adoption gap, not be silently changed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-90695ea9e4c1.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c1560b40a67c.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-90695ea9e4c1.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dlsym",
+    "api": "Result<void*> doLibrarySymbol(Library library, const char* name);",
+    "note": "Replaces both symbol lookup and dlerror clear/query. POSIX null can be a valid symbol value. RTLD_NEXT test interposition has no equivalent here; redesign that fixture separately. Calling-symbol casts must preserve the actual function type/calling convention.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-50b59366ff17.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-3d56bd3e6d2a.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-50b59366ff17.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dlclose",
+    "api": "Status doUnloadLibrary(Library lib);",
+    "note": "Release one module reference only after its symbols are retired. POSIX loader text is captured immediately.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-567b7febc7ef.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-b14a3dbf45f4.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-567b7febc7ef.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "dlerror",
+    "api": "Result<void*> doLibrarySymbol(Library library, const char* name);",
+    "note": "Replaces both symbol lookup and dlerror clear/query. POSIX null can be a valid symbol value. RTLD_NEXT test interposition has no equivalent here; redesign that fixture separately. Calling-symbol casts must preserve the actual function type/calling convention.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-50b59366ff17.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-3d56bd3e6d2a.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-50b59366ff17.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "isatty",
+    "api": "Result<bool> doIsTerminal(File f);",
+    "note": "Windows console capability, not every pseudo-terminal protocol. POSIX errno ENOTTY is a successful negative result.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-94060133300a.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-0fbd3c04599c.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-94060133300a.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "tcgetattr",
+    "api": "Result<TerminalState> doBeginCharacterInput(File terminal); Status doRestoreTerminal(File terminal, const TerminalState& saved);",
+    "note": "Restore on every caller exit, including exceptions. Only character-input mode intent is shared; Windows console events/Unicode/escape sequences differ from termios bytes. Check VMIN/VTIME against CursesUi before adoption.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3b5e5568f216.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-58dee9d6ab5f.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3b5e5568f216.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "tcsetattr",
+    "api": "Result<TerminalState> doBeginCharacterInput(File terminal); Status doRestoreTerminal(File terminal, const TerminalState& saved);",
+    "note": "Restore on every caller exit, including exceptions. Only character-input mode intent is shared; Windows console events/Unicode/escape sequences differ from termios bytes. Check VMIN/VTIME against CursesUi before adoption.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3b5e5568f216.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-58dee9d6ab5f.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3b5e5568f216.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "tcsetpgrp",
+    "api": "Status doTcsetpgrp(File terminal, std::uint64_t processGroup);",
+    "note": "POSIX-shaped body only. Native flags/structures in this signature are not yet a portable project API; see the replacement contract and the explicitly unresolved platform cell. Do not copy this shape into Windows-facing caller code.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-328b368d1e23.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "No equivalent Windows foreground-terminal process-group syscall. Console attachment/control-event ownership needs a whole attached-job policy.",
+        "native": "No POSIX terminal foreground-group syscall; console attachment and process-group APIs differ"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-328b368d1e23.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fopen",
+    "api": "FILE* doFopen(const Path& path, bool write);",
+    "note": "Binary read or truncating binary write only; extend the semantic mode enum if another observed call needs append/update.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-ea7c38eac840.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-2769c34d072e.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-ea7c38eac840.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "freopen",
+    "api": "FILE* doRedirectToNull(FILE* stream, bool input);",
+    "note": "Replaces the complete native null-device choice in Daemon.cpp. The stream remains owned by its current owner.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8820926cc946.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d1380a949aa3.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-8820926cc946.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fclose",
+    "api": "int doFclose(FILE* stream);",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-ba7a2504bc65.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-ba7a2504bc65.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-ba7a2504bc65.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fflush",
+    "api": "int doFflush(FILE* stream);",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-bb6a54c6be43.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-bb6a54c6be43.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-bb6a54c6be43.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "fileno",
+    "api": "Result<File> doFileno(FILE* stream);",
+    "note": "Borrowed reference; never close independently of FILE*. CRT invalid-parameter behavior must be respected; stream must be valid.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-dae541a7d9e6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-fe422666a3a7.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-dae541a7d9e6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "getenv",
+    "api": "Result<std::optional<std::string>> doEnvironment(const std::string& name);",
+    "note": "Windows backend reads the OS environment; it does not synchronize CRT getenv caches. Migrate all framework consumers to this authority before adopting OS environment mutation. Bundled CLI11 may retain its existing implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8c8d96f48bd6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-09f149512c09.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-8c8d96f48bd6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "setenv",
+    "api": "Status doSetEnvironment(const std::string& name, const std::string& value, bool overwrite);",
+    "note": "Requires serialized startup-time mutation. Windows OS environment only; retained CRT/environ consumers must be migrated together. Check-then-set overwrite=false is not an atomic concurrent operation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-75dd084448fd.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-b2c5184dd58f.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-75dd084448fd.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "_dupenv_s",
+    "api": "Result<std::optional<std::string>> doEnvironment(const std::string& name);",
+    "note": "Windows backend reads the OS environment; it does not synchronize CRT getenv caches. Migrate all framework consumers to this authority before adopting OS environment mutation. Bundled CLI11 may retain its existing implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-8c8d96f48bd6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-09f149512c09.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-8c8d96f48bd6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "_stat64",
+    "api": "Result<FileInfo> doPathInfo(const Path& p);",
+    "note": "Windows symlink/socket reparse-tag classification is still needed before replacing security-sensitive lstat ownership checks. _stat64 is a Windows-only vendor spelling; no additional POSIX syscall.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2f802d880b80.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c42c1d9c804b.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-535d6847c53e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "GetCommandLineW",
+    "api": "Result<std::vector<std::string>> doArguments(int argc, char* const* argv);",
+    "note": "Includes <memory>. Consolidates Windows command-line allocation, Unicode conversion and LocalFree. POSIX argv must be valid and is preserved byte-for-byte; this does not enforce UTF-8 on arbitrary POSIX argument bytes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-da2ada651582.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-7d235682a939.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-da2ada651582.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "CommandLineToArgvW",
+    "api": "Result<std::vector<std::string>> doArguments(int argc, char* const* argv);",
+    "note": "Includes <memory>. Consolidates Windows command-line allocation, Unicode conversion and LocalFree. POSIX argv must be valid and is preserved byte-for-byte; this does not enforce UTF-8 on arbitrary POSIX argument bytes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-da2ada651582.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-7d235682a939.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-da2ada651582.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "LocalFree",
+    "api": "Result<std::vector<std::string>> doArguments(int argc, char* const* argv);",
+    "note": "Includes <memory>. Consolidates Windows command-line allocation, Unicode conversion and LocalFree. POSIX argv must be valid and is preserved byte-for-byte; this does not enforce UTF-8 on arbitrary POSIX argument bytes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-da2ada651582.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-7d235682a939.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-da2ada651582.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "GetLastError",
+    "api": "Error doCaptureError(ErrorDomain domain);",
+    "note": "Backend helper only. Never call for resolver APIs that return their error code directly, or after another native call has overwritten the error.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-685051b786e7.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-95e796759679.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-685051b786e7.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strerror",
+    "api": "std::string doErrorText(const Error& error);",
+    "note": "Includes <system_error> and <memory>. Returned text is owned; not a pointer into a shared mutable error buffer.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d9f080799cdb.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-9d0b775dccb8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d9f080799cdb.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "setlocale",
+    "api": "char* doSetlocale(int category, const char* locale);",
+    "note": "C runtime operation, not a kernel syscall. Return/lifetime/error semantics remain those of this runtime call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-4915a12aa656.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-4915a12aa656.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-4915a12aa656.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strcasecmp",
+    "api": "int doStrcasecmp(const char* a, const char* b);",
+    "note": "Locale-dependent comparison retained. HTTP ASCII-only comparison should be one shared protocol helper, not three OS implementations.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-335df6cb9f15.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-03803c060ca8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-335df6cb9f15.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "strdup",
+    "api": "char* doStrdup(const char* text);",
+    "note": "Caller frees with matching CRT free. Allocation failure remains nullptr.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-33d4209e7429.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d89250c005cd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-33d4209e7429.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htobe16",
+    "api": "std::uint16_t doHostToBig16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a0844de800b5.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-a0844de800b5.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a0844de800b5.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htobe32",
+    "api": "std::uint32_t doHostToBig32(std::uint32_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-9e0d3f168950.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-9e0d3f168950.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-9e0d3f168950.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htobe64",
+    "api": "std::uint64_t doHostToBig64(std::uint64_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-fe7e1e378418.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-fe7e1e378418.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-fe7e1e378418.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "be16toh",
+    "api": "std::uint16_t doBigToHost16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-6679630bcf4b.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-6679630bcf4b.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-6679630bcf4b.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "be32toh",
+    "api": "std::uint32_t doBigToHost32(std::uint32_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-bc2d76615fca.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-bc2d76615fca.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-bc2d76615fca.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "be64toh",
+    "api": "std::uint64_t doBigToHost64(std::uint64_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-d51caf9098d5.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-d51caf9098d5.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-d51caf9098d5.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htons",
+    "api": "std::uint16_t doHostToBig16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a0844de800b5.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-a0844de800b5.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a0844de800b5.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htonl",
+    "api": "std::uint32_t doHostToBig32(std::uint32_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-9e0d3f168950.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-9e0d3f168950.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-9e0d3f168950.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "ntohs",
+    "api": "std::uint16_t doBigToHost16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-6679630bcf4b.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-6679630bcf4b.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-6679630bcf4b.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "htobs",
+    "api": "std::uint16_t doHostToLittle16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-56558ad89db8.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-56558ad89db8.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-56558ad89db8.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "btohs",
+    "api": "std::uint16_t doLittleToHost16(std::uint16_t v);",
+    "note": "Pure C++20 byte-order conversion. Same body on all three platforms; no kernel call exists or is needed.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-7ec41ff49437.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-7ec41ff49437.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-7ec41ff49437.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "ba2str",
+    "api": "std::string doFormatBluetooth(const std::array<std::uint8_t, 6>& address);",
+    "note": "Address bytes use printed order; reverse BlueZ bdaddr_t byte order in its adapter. No kernel call.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-df093032c525.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-df093032c525.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-df093032c525.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "str2ba",
+    "api": "Result<std::array<std::uint8_t, 6>> doParseBluetooth(std::string_view text);",
+    "note": "Canonical six-byte grammar only. BlueZ may accept additional spellings; characterize current accepted inputs before claiming equivalent replacement.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-4d0c936a4000.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-4d0c936a4000.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-4d0c936a4000.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "FD_ZERO",
+    "api": "void doFD_ZERO(std::vector<PollItem>& items);",
+    "note": "Socket collection helper only. Returned masks still need semantic decoding; these helpers cannot make Windows select work with process pipes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-3f3f8768759d.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-3f3f8768759d.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-3f3f8768759d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "FD_SET",
+    "api": "void doFD_SET(std::vector<PollItem>& items, PollItem item);",
+    "note": "Socket collection helper only. Returned masks still need semantic decoding; these helpers cannot make Windows select work with process pipes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c47cb88e1f6a.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-c47cb88e1f6a.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c47cb88e1f6a.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "FD_CLR",
+    "api": "void doFD_CLR(std::vector<PollItem>& items, Socket socket);",
+    "note": "Socket collection helper only. Returned masks still need semantic decoding; these helpers cannot make Windows select work with process pipes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-60b3ce01e8f6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-60b3ce01e8f6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-60b3ce01e8f6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "FD_ISSET",
+    "api": "bool doFD_ISSET(const PollItem& item);",
+    "note": "Socket collection helper only. Returned masks still need semantic decoding; these helpers cannot make Windows select work with process pipes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-28f17b36fd1b.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-28f17b36fd1b.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-28f17b36fd1b.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "CMSG_SPACE",
+    "api": "Status doSendHandle(Socket channel, const Address& destination, File resource);",
+    "note": "Sender retains ownership. UNIX datagram address stays inside the operation. No documented Windows SCM_RIGHTS counterpart; WSASendMsg does not transfer handles. A DuplicateHandle/WSADuplicateSocket protocol needs recipient identity and transport changes.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-2aac97df536d.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Sender retains ownership. UNIX datagram address stays inside the operation. No documented Windows SCM_RIGHTS counterpart; WSASendMsg does not transfer handles. A DuplicateHandle/WSADuplicateSocket protocol needs recipient identity and transport changes.",
+        "native": "WSA_CMSG_SPACE exists, but not an SCM_RIGHTS implementation"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-2aac97df536d.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "CMSG_LEN",
+    "api": "Result<File> doReceiveHandle(Socket channel);",
+    "note": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c061d3f1c497.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+        "native": "WSA_CMSG_LEN exists, but not an SCM_RIGHTS implementation"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c061d3f1c497.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "CMSG_FIRSTHDR",
+    "api": "Result<File> doReceiveHandle(Socket channel);",
+    "note": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c061d3f1c497.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+        "native": "WSA_CMSG_FIRSTHDR exists, but not an SCM_RIGHTS implementation"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c061d3f1c497.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "CMSG_DATA",
+    "api": "Result<File> doReceiveHandle(Socket channel);",
+    "note": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-c061d3f1c497.cpp.txt"
+      },
+      "windows": {
+        "status": "unresolved",
+        "reason": "Returns one new owned descriptor, closes received extras on invalid messages. Before production use: descriptor type detection and atomic close-on-exec policy must be completed and malformed/truncated-message cleanup validated. Windows transport remains unresolved; a stub is not an implementation.",
+        "native": "WSA_CMSG_DATA exists, but not an SCM_RIGHTS implementation"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-c061d3f1c497.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "S_ISREG",
+    "api": "bool doS_ISREG(const FileInfo& info);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-a84bd1f44a1e.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-a84bd1f44a1e.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-a84bd1f44a1e.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "S_ISSOCK",
+    "api": "bool doS_ISSOCK(const FileInfo& info);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-24fa29f8e5fd.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-24fa29f8e5fd.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-24fa29f8e5fd.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "WIFEXITED",
+    "api": "bool doWIFEXITED(const ExitStatus& s);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-edc5145420f6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-edc5145420f6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-edc5145420f6.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "WEXITSTATUS",
+    "api": "std::uint32_t doWEXITSTATUS(const ExitStatus& s);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-fdfea4650938.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-fdfea4650938.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-fdfea4650938.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "WIFSIGNALED",
+    "api": "bool doWIFSIGNALED(const ExitStatus& s);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-42886e0bc9ec.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-42886e0bc9ec.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-42886e0bc9ec.cpp.txt"
+      }
+    }
+  },
+  {
+    "name": "WTERMSIG",
+    "api": "std::optional<int> doWTERMSIG(const ExitStatus& s);",
+    "note": "Pure query of normalized capsule output. Producer must establish this information; Windows exception codes are not signal numbers.",
+    "platforms": {
+      "linux": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/linux-02bf6fea6ef6.cpp.txt"
+      },
+      "windows": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/windows-02bf6fea6ef6.cpp.txt"
+      },
+      "mac": {
+        "status": "draft body; restrictions apply",
+        "file": "snippets/mac-02bf6fea6ef6.cpp.txt"
+      }
+    }
+  }
+]

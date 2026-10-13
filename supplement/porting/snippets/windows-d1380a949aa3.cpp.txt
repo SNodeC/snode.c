@@ -1,0 +1,3 @@
+FILE* doRedirectToNull(FILE* stream, bool input) {
+    return ::_wfreopen(L"NUL", input ? L"r" : L"w+", stream);
+}

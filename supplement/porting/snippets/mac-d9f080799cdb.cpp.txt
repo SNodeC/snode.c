@@ -1,0 +1,6 @@
+std::string doErrorText(const Error& error) {
+    if (!error.text.empty()) return error.text;
+    if (error.domain == ErrorDomain::resolver) return ::gai_strerror(static_cast<int>(error.code));
+    if (error.domain == ErrorDomain::posix) return std::generic_category().message(static_cast<int>(error.code));
+    return "native error " + std::to_string(error.code);
+}

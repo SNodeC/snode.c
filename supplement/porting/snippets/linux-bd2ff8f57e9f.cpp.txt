@@ -1,0 +1,5 @@
+Result<int> doPselect(int count, fd_set* read, fd_set* write, fd_set* error, const timespec* timeout, const sigset_t* mask) {
+    const int result = ::pselect(count, read, write, error, timeout, mask);
+    if (result < 0) return posixFailure<int>();
+    return ok(result);
+}

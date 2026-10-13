@@ -1,0 +1,11 @@
+Result<ProcessWatch> doWatchProcess(std::uint64_t process) {
+    if (!process || process > static_cast<std::uint64_t>(std::numeric_limits<pid_t>::max())) return posixFailure<ProcessWatch>(EINVAL);
+    const int queue = ::kqueue();
+    if (queue == -1) return posixFailure<ProcessWatch>();
+    struct kevent change;
+    EV_SET(&change, process, EVFILT_PROC, EV_ADD | EV_ONESHOT, NOTE_EXIT, 0, nullptr);
+    if (::kevent(queue, &change, 1, nullptr, 0, nullptr) < 0) {
+        const int error = errno; ::close(queue); return posixFailure<ProcessWatch>(error);
+    }
+    return ok(ProcessWatch{queue});
+}

@@ -1,0 +1,7 @@
+Result<Count> doSend(Socket s, Bytes b, WriteMode mode) {
+    const int flags = mode == WriteMode::urgent ? MSG_OOB : 0;
+    const auto n = static_cast<int>(std::min(b.size(), static_cast<std::size_t>(INT_MAX)));
+    const int r = ::send(s.native, reinterpret_cast<const char*>(b.data()), n, flags);
+    if (r == SOCKET_ERROR) return wsaFailure<Count>();
+    return ok(static_cast<Count>(r));
+}

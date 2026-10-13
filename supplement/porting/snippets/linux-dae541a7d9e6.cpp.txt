@@ -1,0 +1,5 @@
+Result<File> doFileno(FILE* stream) {
+    const int fd = ::fileno(stream);
+    if (fd == -1) return posixFailure<File>();
+    return ok(File{fd});
+}

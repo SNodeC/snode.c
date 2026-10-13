@@ -1,0 +1,3 @@
+bool doWIFEXITED(const ExitStatus& s) {
+    return !s.signaled;
+}

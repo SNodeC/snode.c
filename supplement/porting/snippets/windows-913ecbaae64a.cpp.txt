@@ -1,0 +1,3 @@
+void doExitImmediately(int status) {
+    ::ExitProcess(static_cast<UINT>(status));
+}

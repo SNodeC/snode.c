@@ -1,0 +1,3 @@
+void doExit(int status) {
+    ::exit(status);
+}

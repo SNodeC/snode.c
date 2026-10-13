@@ -1,0 +1,5 @@
+Result<int> doSelect(int count, fd_set* read, fd_set* write, fd_set* error, timeval* timeout) {
+    const int result = ::select(count, read, write, error, timeout);
+    if (result < 0) return posixFailure<int>();
+    return ok(result);
+}

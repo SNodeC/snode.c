@@ -1,0 +1,3 @@
+Status doConnect(Socket s, const Address& address) {
+    return socketStatus(::connect(s.native, reinterpret_cast<const sockaddr*>(&address.storage), static_cast<socklen_t>(address.length)));
+}

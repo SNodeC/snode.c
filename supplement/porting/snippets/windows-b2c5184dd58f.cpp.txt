@@ -1,0 +1,12 @@
+Status doSetEnvironment(const std::string& name, const std::string& value, bool overwrite) {
+    if (name.empty() || name.find('=') != std::string::npos || name.find('\0') != std::string::npos || value.find('\0') != std::string::npos) return winFailure(ERROR_INVALID_PARAMETER);
+    if (!overwrite) {
+        auto old = doEnvironment(name);
+        if (!old) return {{}, old.error};
+        if (old.value) return ok();
+    }
+    auto key = toWide(name); auto text = toWide(value);
+    if (!key) return {{}, key.error};
+    if (!text) return {{}, text.error};
+    return winStatus(::SetEnvironmentVariableW(key.value.c_str(), text.value.c_str()));
+}

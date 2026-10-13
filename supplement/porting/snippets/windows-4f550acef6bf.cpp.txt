@@ -1,0 +1,7 @@
+Result<bool> doPathExists(const Path& path) {
+    const DWORD attributes = ::GetFileAttributesW(path.c_str());
+    if (attributes != INVALID_FILE_ATTRIBUTES) return ok(true);
+    const DWORD error = ::GetLastError();
+    if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) return ok(false);
+    return winFailure<bool>(error);
+}

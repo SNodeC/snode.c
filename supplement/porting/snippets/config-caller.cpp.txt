@@ -1,0 +1,17 @@
+// Replacement inside Config::init, after argc/argv/applicationName assignment.
+// Replace the ENTIRE current uid_t/passwd/group/directory setup block.
+const auto setup = core::system::doPrepareConfiguration(XSTR(GROUP_NAME));
+for (const auto& diagnostic : setup.diagnostics) std::cout << diagnostic << '\n';
+if (!setup.ready) return false;
+// POSIX path strings are native bytes. On Windows keep Path through filesystem
+// APIs; if ConfigRoot retains UTF-8 strings, explicitly encode path.u8string().
+auto utf8 = [](const std::filesystem::path& path) {
+    const auto text = path.u8string();
+    return std::string(reinterpret_cast<const char*>(text.data()), text.size());
+};
+configDirectory = utf8(setup.configDirectory);
+logDirectory = utf8(setup.logDirectory);
+pidDirectory = utf8(setup.pidDirectory);
+configRoot.addRootOptions(applicationName, setup.userName, setup.groupName,
+                          configDirectory, logDirectory, pidDirectory);
+return configRoot.parse1(argc, argv);

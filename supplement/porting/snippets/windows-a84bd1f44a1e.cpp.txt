@@ -1,0 +1,3 @@
+bool doS_ISREG(const FileInfo& info) {
+    return info.kind == FileInfo::Kind::regular;
+}

@@ -1,0 +1,5 @@
+Result<File> doOpen(const Path& path, int flags, std::uint32_t mode) {
+    const int fd = ::open(path.c_str(), flags, static_cast<mode_t>(mode));
+    if (fd == -1) return posixFailure<File>();
+    return ok(File{fd});
+}

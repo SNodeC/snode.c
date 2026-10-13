@@ -1,0 +1,5 @@
+Result<File> doDup(File f) {
+    const int n = ::dup(f.native);
+    if (n == -1) return posixFailure<File>();
+    return ok(File{n});
+}

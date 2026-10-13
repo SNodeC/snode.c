@@ -1,0 +1,5 @@
+void doFD_SET(std::vector<PollItem>& items, PollItem item) {
+    auto found = std::find_if(items.begin(), items.end(), [&](const auto& v) { return v.socket.native == item.socket.native; });
+    if (found == items.end()) items.push_back(item);
+    else { found->read |= item.read; found->write |= item.write; found->urgent |= item.urgent; }
+}

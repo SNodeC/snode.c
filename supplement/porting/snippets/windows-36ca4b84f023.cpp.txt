@@ -1,0 +1,4 @@
+Status doSetNonblocking(Socket socket, bool enabled) {
+    u_long value = enabled;
+    return socketStatus(::ioctlsocket(socket.native, FIONBIO, &value));
+}

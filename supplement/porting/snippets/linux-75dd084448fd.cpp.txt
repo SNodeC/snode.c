@@ -1,0 +1,4 @@
+Status doSetEnvironment(const std::string& name, const std::string& value, bool overwrite) {
+    if (name.find('\0') != std::string::npos || value.find('\0') != std::string::npos) return posixFailure(EINVAL);
+    return posixStatus(::setenv(name.c_str(), value.c_str(), overwrite));
+}

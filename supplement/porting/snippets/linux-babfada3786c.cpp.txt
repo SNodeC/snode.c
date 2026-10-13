@@ -1,0 +1,5 @@
+Result<Socket> doAccept4(Socket listener, int flags) {
+    const int fd = ::accept4(listener.native, nullptr, nullptr, flags);
+    if (fd == -1) return posixFailure<Socket>();
+    return ok(Socket{fd});
+}

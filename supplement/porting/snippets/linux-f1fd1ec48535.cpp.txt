@@ -1,0 +1,5 @@
+Result<std::tm> doParseHttpCalendar(const std::string& text) {
+    std::tm value{};
+    if (!::strptime(text.c_str(), "%a, %d %b %Y %H:%M:%S", &value)) return posixFailure<std::tm>(EINVAL);
+    return ok(value);
+}

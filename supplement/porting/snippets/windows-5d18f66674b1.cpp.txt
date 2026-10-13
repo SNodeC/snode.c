@@ -1,0 +1,3 @@
+Status doChdir(const Path& p) {
+    return winStatus(::SetCurrentDirectoryW(p.c_str()));
+}

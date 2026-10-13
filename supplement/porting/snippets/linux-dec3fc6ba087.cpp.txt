@@ -1,0 +1,5 @@
+Result<int> doPpoll(std::span<pollfd> items, const timespec* timeout, const sigset_t* mask) {
+    const int count = ::ppoll(items.data(), items.size(), timeout, mask);
+    if (count < 0) return posixFailure<int>();
+    return ok(count);
+}

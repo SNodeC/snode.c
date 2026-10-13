@@ -1,0 +1,157 @@
+// Documentation proposal, C++20. Not installed or added to the build.
+// Select one OS implementation. Never compile both Linux and macOS bodies.
+#pragma once
+#include <algorithm>
+#include <array>
+#include <bit>
+#include <cerrno>
+#include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <filesystem>
+#include <limits>
+#include <memory>
+#include <system_error>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <winsock2.h> // Must precede windows.h.
+#include <ws2tcpip.h>
+#include <windows.h>
+#include <bcrypt.h>
+#include <io.h>
+#include <shellapi.h>
+#else
+#include <arpa/inet.h>
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/tcp.h>
+#include <pthread.h>
+#include <strings.h>
+#ifdef __linux__
+#include <sys/epoll.h>
+#include <sys/syscall.h>
+#elif defined(__APPLE__)
+#include <sys/event.h>
+#endif
+#include <poll.h>
+#include <signal.h>
+#include <sys/file.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <termios.h>
+#include <unistd.h>
+#endif
+
+namespace core::system {
+enum class ErrorDomain { none, posix, win32, winsock, resolver, ntstatus, loader };
+struct Error { ErrorDomain domain{}; std::uint32_t code{}; std::string text; };
+template<class T> struct Result {
+    T value{};
+    Error error{};
+    explicit operator bool() const { return error.domain == ErrorDomain::none; }
+};
+struct Unit {};
+using Status = Result<Unit>;
+template<class T> Result<T> ok(T value) { return {std::move(value), {}}; }
+inline Status ok() { return {}; }
+template<class T = Unit> Result<T> fail(ErrorDomain d, std::uint32_t e) {
+    return {{}, {d, e}};
+}
+template<class T = Unit> Result<T> posixFailure(int e = errno) {
+    return fail<T>(ErrorDomain::posix, static_cast<std::uint32_t>(e));
+}
+inline Status posixStatus(int r) { return r == -1 ? posixFailure() : ok(); }
+using Count = std::ptrdiff_t;
+using Bytes = std::span<const std::byte>;
+using MutableBytes = std::span<std::byte>;
+using Path = std::filesystem::path;
+struct File {
+#ifdef _WIN32
+    HANDLE native = INVALID_HANDLE_VALUE;
+#else
+    int native = -1;
+#endif
+};
+struct Socket {
+#ifdef _WIN32
+    SOCKET native = INVALID_SOCKET;
+#else
+    int native = -1;
+#endif
+};
+struct Process {
+#ifdef _WIN32
+    HANDLE native = nullptr;
+#else
+    pid_t native = -1;
+#endif
+};
+struct ProcessWatch {
+#ifdef _WIN32
+    HANDLE native = nullptr;
+#else
+    int native = -1;
+#endif
+};
+struct Library {
+#ifdef _WIN32
+    HMODULE native = nullptr;
+#else
+    void* native = nullptr;
+#endif
+};
+// Native representation is backend storage; callers do not inspect it.
+struct Address {
+    sockaddr_storage storage{};
+    std::uint32_t length = sizeof(storage);
+};
+struct Pipe { File reader, writer; };
+enum class Direction { receive, send, both };
+enum class Family { ipv4, ipv6 };
+enum class SocketKind { stream, datagram };
+enum class ReadMode { normal, peek, urgent };
+enum class WriteMode { normal, urgent };
+struct Ip { Family family{}; std::array<std::byte, 16> bytes{}; };
+struct FileInfo {
+    enum class Kind { regular, directory, socket, symlink, other } kind{};
+    std::uint64_t size{}, links{}, device{};
+    std::array<std::byte, 16> id{};
+    std::int64_t modifiedSeconds{};
+    std::uint32_t modifiedNanoseconds{};
+};
+struct WallTime { std::int64_t seconds{}; std::uint32_t microseconds{}; };
+struct PollItem { Socket socket; bool read{}, write{}, urgent{}; short returned{}; };
+struct ExitStatus { bool signaled{}; std::uint32_t code{}; int signal{}; };
+#ifdef _WIN32
+template<class T = Unit> Result<T> winFailure(DWORD e = GetLastError()) {
+    return fail<T>(ErrorDomain::win32, e);
+}
+template<class T = Unit> Result<T> wsaFailure(int e = WSAGetLastError()) {
+    return fail<T>(ErrorDomain::winsock, static_cast<std::uint32_t>(e));
+}
+inline Status winStatus(BOOL r) { return r ? ok() : winFailure(); }
+inline Status socketStatus(int r) { return r == SOCKET_ERROR ? wsaFailure() : ok(); }
+#else
+inline Status socketStatus(int r) { return posixStatus(r); }
+#endif
+// This captures errors; classification into would-block/interrupted/in-progress
+// is still required in consumers when replacing errno-based branches.
+// File/Socket are borrowed references here, NOT RAII owners. Existing owners
+// retain the sole close responsibility. A successful creation transfers ownership.
+}

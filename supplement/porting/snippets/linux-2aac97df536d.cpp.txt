@@ -1,0 +1,17 @@
+Status doSendHandle(Socket channel, const Address& destination, File resource) {
+    char marker = 0;
+    iovec payload{&marker, 1};
+    alignas(cmsghdr) std::array<std::byte, CMSG_SPACE(sizeof(int))> control{};
+    msghdr message{};
+    message.msg_name = const_cast<sockaddr_storage*>(&destination.storage);
+    message.msg_namelen = destination.length;
+    message.msg_iov = &payload; message.msg_iovlen = 1;
+    message.msg_control = control.data(); message.msg_controllen = control.size();
+    cmsghdr* header = CMSG_FIRSTHDR(&message);
+    header->cmsg_level = SOL_SOCKET; header->cmsg_type = SCM_RIGHTS;
+    header->cmsg_len = CMSG_LEN(sizeof(int));
+    std::memcpy(CMSG_DATA(header), &resource.native, sizeof(int));
+    const auto sent = ::sendmsg(channel.native, &message, 0);
+    if (sent < 0) return posixFailure();
+    return sent == 1 ? ok() : posixFailure(EIO);
+}

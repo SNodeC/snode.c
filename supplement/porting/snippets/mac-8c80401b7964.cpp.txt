@@ -1,0 +1,3 @@
+Status doRmdir(const Path& p) {
+    return posixStatus(::rmdir(p.c_str()));
+}

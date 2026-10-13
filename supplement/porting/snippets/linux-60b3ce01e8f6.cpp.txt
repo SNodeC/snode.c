@@ -1,0 +1,3 @@
+void doFD_CLR(std::vector<PollItem>& items, Socket socket) {
+    std::erase_if(items, [&](const auto& item) { return item.socket.native == socket.native; });
+}

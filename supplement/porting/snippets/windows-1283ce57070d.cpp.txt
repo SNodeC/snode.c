@@ -1,0 +1,10 @@
+Result<WallTime> doWallTime() {
+    FILETIME ft{};
+    ::GetSystemTimePreciseAsFileTime(&ft);
+    const auto ticks = (static_cast<std::uint64_t>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+    const auto delta = static_cast<std::int64_t>(ticks) - INT64_C(116444736000000000);
+    auto seconds = delta / INT64_C(10000000);
+    auto remainder = delta % INT64_C(10000000);
+    if (remainder < 0) { --seconds; remainder += INT64_C(10000000); }
+    return ok(WallTime{seconds, static_cast<std::uint32_t>(remainder / 10)});
+}

@@ -1,0 +1,8 @@
+Result<std::tm> doParseHttpCalendar(const std::string& text) {
+    std::tm value{};
+    std::istringstream input(text);
+    input.imbue(std::locale::classic());
+    input >> std::get_time(&value, "%a, %d %b %Y %H:%M:%S");
+    if (input.fail()) return posixFailure<std::tm>(EINVAL);
+    return ok(value);
+}

@@ -1,0 +1,10 @@
+Result<std::pair<std::string, std::string>> doEndpointName(const Address& address, bool numeric) {
+    char host[NI_MAXHOST], service[NI_MAXSERV];
+    const int flags = numeric ? NI_NUMERICHOST | NI_NUMERICSERV : 0;
+    const int e = ::getnameinfo(reinterpret_cast<const sockaddr*>(&address.storage), address.length, host, sizeof(host), service, sizeof(service), flags);
+    if (e) {
+        if (e == EAI_SYSTEM) return posixFailure<std::pair<std::string, std::string>>();
+        return fail<std::pair<std::string, std::string>>(ErrorDomain::resolver, static_cast<std::uint32_t>(e));
+    }
+    return ok(std::pair<std::string, std::string>{host, service});
+}

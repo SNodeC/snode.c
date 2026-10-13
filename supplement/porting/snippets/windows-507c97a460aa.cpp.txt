@@ -1,0 +1,5 @@
+Result<Pipe> doPipe() {
+    HANDLE r, w;
+    if (!::CreatePipe(&r, &w, nullptr, 0)) return winFailure<Pipe>();
+    return ok(Pipe{File{r}, File{w}});
+}

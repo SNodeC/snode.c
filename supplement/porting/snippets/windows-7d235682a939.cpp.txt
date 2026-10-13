@@ -1,0 +1,13 @@
+Result<std::vector<std::string>> doArguments(int, char* const*) {
+    int count = 0;
+    wchar_t** values = ::CommandLineToArgvW(::GetCommandLineW(), &count);
+    if (!values) return winFailure<std::vector<std::string>>();
+    std::unique_ptr<wchar_t*, decltype(&::LocalFree)> guard(values, ::LocalFree);
+    std::vector<std::string> result;
+    for (int i = 0; i < count; ++i) {
+        auto text = toUtf8(values[i]);
+        if (!text) return {{}, text.error};
+        result.push_back(std::move(text.value));
+    }
+    return ok(std::move(result));
+}

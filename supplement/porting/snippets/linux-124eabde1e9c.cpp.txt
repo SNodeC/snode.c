@@ -1,0 +1,7 @@
+Result<ExitStatus> doWaitProcess(Process process) {
+    int status;
+    if (::waitpid(process.native, &status, 0) < 0) return posixFailure<ExitStatus>();
+    if (WIFEXITED(status)) return ok(ExitStatus{false, static_cast<std::uint32_t>(WEXITSTATUS(status)), 0});
+    if (WIFSIGNALED(status)) return ok(ExitStatus{true, 0, WTERMSIG(status)});
+    return posixFailure<ExitStatus>(ECHILD);
+}

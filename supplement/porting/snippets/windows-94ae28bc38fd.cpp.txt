@@ -1,0 +1,108 @@
+// Include common.hpp, windows-text.hpp, config-types.hpp,
+// <shlobj.h>, <sddl.h>, <aclapi.h>.
+// Link Advapi32, Shell32, Ole32. Uses process identity, not thread impersonation.
+// POLICY PROPOSAL: normal users get LocalAppData/snode.c/{config,log,run};
+// LocalSystem gets ProgramData/snode.c/{config,log,run}. Elevated non-System
+// users remain per-user. No synthetic UID zero or GID is introduced.
+namespace core::system {
+ConfigSetup doPrepareConfiguration(const std::string& serviceGroup) {
+    ConfigSetup out;
+    auto report = [&](DWORD error) {
+        out.diagnostics.push_back("Windows configuration setup failed: " + std::to_string(error));
+    };
+    HANDLE rawToken = nullptr;
+    if (!::OpenProcessToken(::GetCurrentProcess(), TOKEN_QUERY, &rawToken)) {
+        report(::GetLastError()); return out;
+    }
+    struct CloseToken { void operator()(void* p) const { ::CloseHandle(p); } };
+    std::unique_ptr<void, CloseToken> token(rawToken);
+    auto tokenInfo = [&](TOKEN_INFORMATION_CLASS kind) -> Result<std::vector<std::byte>> {
+        DWORD size = 0;
+        ::GetTokenInformation(token.get(), kind, nullptr, 0, &size);
+        if (::GetLastError() != ERROR_INSUFFICIENT_BUFFER) return winFailure<std::vector<std::byte>>();
+        std::vector<std::byte> bytes(size);
+        if (!::GetTokenInformation(token.get(), kind, bytes.data(), size, &size)) return winFailure<std::vector<std::byte>>();
+        return ok(std::move(bytes));
+    };
+    auto user = tokenInfo(TokenUser);
+    auto group = tokenInfo(TokenPrimaryGroup);
+    if (!user || !group) { report((!user ? user.error : group.error).code); return out; }
+    PSID userSid = reinterpret_cast<TOKEN_USER*>(user.value.data())->User.Sid;
+    PSID groupSid = reinterpret_cast<TOKEN_PRIMARY_GROUP*>(group.value.data())->PrimaryGroup;
+    auto nameFor = [&](PSID sid) -> Result<std::string> {
+        DWORD nameSize = 0, domainSize = 0; SID_NAME_USE type;
+        ::LookupAccountSidW(nullptr, sid, nullptr, &nameSize, nullptr, &domainSize, &type);
+        if (::GetLastError() != ERROR_INSUFFICIENT_BUFFER) return winFailure<std::string>();
+        std::vector<wchar_t> name(nameSize), domain(std::max(DWORD{1}, domainSize));
+        if (!::LookupAccountSidW(nullptr, sid, name.data(), &nameSize, domain.data(), &domainSize, &type)) return winFailure<std::string>();
+        const std::wstring qualified = domainSize ? std::wstring(domain.data()) + L"\\" + name.data() : name.data();
+        return toUtf8(qualified);
+    };
+    auto userName = nameFor(userSid), groupName = nameFor(groupSid);
+    if (!userName || !groupName) { report((!userName ? userName.error : groupName.error).code); return out; }
+    out.userName = std::move(userName.value); out.groupName = std::move(groupName.value);
+    const bool service = ::IsWellKnownSid(userSid, WinLocalSystemSid) != FALSE;
+    PWSTR folder = nullptr;
+    const HRESULT status = ::SHGetKnownFolderPath(service ? FOLDERID_ProgramData : FOLDERID_LocalAppData, 0, nullptr, &folder);
+    if (FAILED(status)) { report(static_cast<DWORD>(status)); return out; }
+    struct FreeFolder { void operator()(wchar_t* p) const { ::CoTaskMemFree(p); } };
+    std::unique_ptr<wchar_t, FreeFolder> folderOwner(folder);
+    const Path root = Path(folder) / L"snode.c";
+    out.configDirectory = root / L"config";
+    out.logDirectory = root / L"log";
+    out.pidDirectory = root / L"run";
+
+    // Resolve a configured service group to an actual SID. This is not a GID cast.
+    std::vector<std::byte> serviceSid;
+    if (service) {
+        auto name = toWide(serviceGroup);
+        if (!name) { report(name.error.code); return out; }
+        DWORD sidSize = 0, domainSize = 0; SID_NAME_USE type;
+        ::LookupAccountNameW(nullptr, name.value.c_str(), nullptr, &sidSize, nullptr, &domainSize, &type);
+        if (::GetLastError() != ERROR_INSUFFICIENT_BUFFER) { report(::GetLastError()); return out; }
+        serviceSid.resize(sidSize);
+        std::vector<wchar_t> domain(std::max(DWORD{1}, domainSize));
+        if (!::LookupAccountNameW(nullptr, name.value.c_str(), serviceSid.data(), &sidSize, domain.data(), &domainSize, &type)) {
+            report(::GetLastError()); return out;
+        }
+        if (type != SidTypeGroup && type != SidTypeAlias && type != SidTypeWellKnownGroup) {
+            report(ERROR_INVALID_PRIMARY_GROUP); return out;
+        }
+    }
+    auto sidText = [&](PSID sid) -> std::wstring {
+        LPWSTR value = nullptr;
+        if (!::ConvertSidToStringSidW(sid, &value)) return {};
+        std::unique_ptr<wchar_t, decltype(&::LocalFree)> guard(value, ::LocalFree);
+        return value;
+    };
+    const auto owner = sidText(userSid);
+    const auto shared = service ? sidText(serviceSid.data()) : std::wstring{};
+    if (owner.empty() || (service && shared.empty())) { report(::GetLastError()); return out; }
+    auto create = [&](const Path& path, bool readOnlyGroup) -> bool {
+        // Protected DACL: owner and SYSTEM full access. Service group read/execute
+        // on config, modify on log/run. OI/CI apply to new descendants.
+        std::wstring sddl = L"D:P(A;OICI;FA;;;" + owner + L")(A;OICI;FA;;;SY)";
+        if (service) sddl += L"(A;OICI;" + std::wstring(readOnlyGroup ? L"0x1200a9" : L"0x1301bf") + L";;;" + shared + L")";
+        PSECURITY_DESCRIPTOR descriptor = nullptr;
+        if (!::ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl.c_str(), SDDL_REVISION_1, &descriptor, nullptr)) {
+            report(::GetLastError()); return false;
+        }
+        std::unique_ptr<void, decltype(&::LocalFree)> descriptorOwner(descriptor, ::LocalFree);
+        SECURITY_ATTRIBUTES attributes{sizeof(attributes), descriptor, FALSE};
+        if (::CreateDirectoryW(path.c_str(), &attributes)) return true;
+        const DWORD error = ::GetLastError();
+        if (error != ERROR_ALREADY_EXISTS) { report(error); return false; }
+        const DWORD attrs = ::GetFileAttributesW(path.c_str());
+        if (attrs == INVALID_FILE_ATTRIBUTES) { report(::GetLastError()); return false; }
+        // Existing directories retain permissions; reject reparse redirection.
+        if (!(attrs & FILE_ATTRIBUTE_DIRECTORY) || (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
+            report(ERROR_ACCESS_DENIED); return false;
+        }
+        return true;
+    };
+    // Known-folder parent exists. Create root before the three children.
+    if (!create(root, false) || !create(out.configDirectory, true) || !create(out.logDirectory, false) || !create(out.pidDirectory, false)) return out;
+    out.ready = true;
+    return out;
+}
+}

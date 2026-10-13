@@ -1,0 +1,6 @@
+struct PeerIdentity { std::uint64_t user, group; std::optional<std::uint64_t> process; };
+Result<PeerIdentity> doPeerIdentity(Socket channel) {
+    ucred credentials{}; socklen_t size = sizeof(credentials);
+    if (::getsockopt(channel.native, SOL_SOCKET, SO_PEERCRED, &credentials, &size) < 0) return posixFailure<PeerIdentity>();
+    return ok(PeerIdentity{credentials.uid, credentials.gid, static_cast<std::uint64_t>(credentials.pid)});
+}

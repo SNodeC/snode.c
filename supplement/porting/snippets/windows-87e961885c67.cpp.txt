@@ -1,0 +1,15 @@
+Result<FileInfo> doFileInfo(File f) {
+    FILE_STANDARD_INFO standard{}; FILE_ID_INFO id{}; FILE_BASIC_INFO basic{};
+    if (!::GetFileInformationByHandleEx(f.native, FileStandardInfo, &standard, sizeof(standard)) ||
+        !::GetFileInformationByHandleEx(f.native, FileIdInfo, &id, sizeof(id)) ||
+        !::GetFileInformationByHandleEx(f.native, FileBasicInfo, &basic, sizeof(basic))) return winFailure<FileInfo>();
+    FileInfo out;
+    out.kind = (basic.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ? FileInfo::Kind::other : standard.Directory ? FileInfo::Kind::directory : FileInfo::Kind::regular;
+    out.size = standard.EndOfFile.QuadPart; out.links = standard.NumberOfLinks; out.device = id.VolumeSerialNumber;
+    std::memcpy(out.id.data(), id.FileId.Identifier, out.id.size());
+    auto delta = basic.LastWriteTime.QuadPart - INT64_C(116444736000000000);
+    auto seconds = delta / INT64_C(10000000); auto remainder = delta % INT64_C(10000000);
+    if (remainder < 0) { --seconds; remainder += INT64_C(10000000); }
+    out.modifiedSeconds = seconds; out.modifiedNanoseconds = static_cast<std::uint32_t>(remainder * 100);
+    return ok(out);
+}

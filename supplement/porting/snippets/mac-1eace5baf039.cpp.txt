@@ -1,0 +1,3 @@
+Status doMkdtemp(std::string& pattern) {
+    return ::mkdtemp(pattern.data()) ? ok() : posixFailure();
+}

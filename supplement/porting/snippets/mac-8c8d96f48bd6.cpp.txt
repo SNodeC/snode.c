@@ -1,0 +1,5 @@
+Result<std::optional<std::string>> doEnvironment(const std::string& name) {
+    if (name.empty() || name.find('=') != std::string::npos || name.find('\0') != std::string::npos) return posixFailure<std::optional<std::string>>(EINVAL);
+    const char* p = ::getenv(name.c_str());
+    return ok(p ? std::optional<std::string>{p} : std::nullopt);
+}

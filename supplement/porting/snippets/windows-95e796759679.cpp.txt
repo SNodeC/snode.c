@@ -1,0 +1,6 @@
+Error doCaptureError(ErrorDomain domain) {
+    if (domain == ErrorDomain::win32) return {domain, ::GetLastError()};
+    if (domain == ErrorDomain::winsock) return {domain, static_cast<std::uint32_t>(::WSAGetLastError())};
+    if (domain == ErrorDomain::posix) return {domain, static_cast<std::uint32_t>(errno)};
+    return {ErrorDomain::win32, ERROR_INVALID_PARAMETER};
+}

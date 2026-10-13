@@ -1,0 +1,11 @@
+struct TerminalState { DWORD native; };
+Result<TerminalState> doBeginCharacterInput(File terminal) {
+    TerminalState saved{};
+    if (!::GetConsoleMode(terminal.native, &saved.native)) return winFailure<TerminalState>();
+    const DWORD changed = saved.native & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+    if (!::SetConsoleMode(terminal.native, changed)) return winFailure<TerminalState>();
+    return ok(saved);
+}
+Status doRestoreTerminal(File terminal, const TerminalState& saved) {
+    return winStatus(::SetConsoleMode(terminal.native, saved.native));
+}

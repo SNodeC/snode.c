@@ -1,0 +1,5 @@
+Status doSetNonblocking(Socket socket, bool enabled) {
+    const int flags = ::fcntl(socket.native, F_GETFL);
+    if (flags == -1) return posixFailure();
+    return posixStatus(::fcntl(socket.native, F_SETFL, enabled ? flags | O_NONBLOCK : flags & ~O_NONBLOCK));
+}

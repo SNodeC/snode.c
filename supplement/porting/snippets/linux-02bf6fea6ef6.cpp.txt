@@ -1,0 +1,3 @@
+std::optional<int> doWTERMSIG(const ExitStatus& s) {
+    return s.signaled ? std::optional<int>{s.signal} : std::nullopt;
+}

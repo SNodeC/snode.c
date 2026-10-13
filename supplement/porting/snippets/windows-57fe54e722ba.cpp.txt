@@ -1,0 +1,9 @@
+Status doRandomBytes(MutableBytes bytes) {
+    while (!bytes.empty()) {
+        const auto n = static_cast<ULONG>(std::min(bytes.size(), static_cast<std::size_t>(ULONG_MAX)));
+        const NTSTATUS e = ::BCryptGenRandom(nullptr, reinterpret_cast<PUCHAR>(bytes.data()), n, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+        if (e < 0) return fail(ErrorDomain::ntstatus, static_cast<std::uint32_t>(e));
+        bytes = bytes.subspan(n);
+    }
+    return ok();
+}

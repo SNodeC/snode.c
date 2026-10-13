@@ -1,0 +1,18 @@
+Result<Count> doPread(File f, MutableBytes b, std::uint64_t offset) {
+    if (offset > static_cast<std::uint64_t>(INT64_MAX)) return winFailure<Count>(ERROR_INVALID_PARAMETER);
+    OVERLAPPED operation{};
+    operation.Offset = static_cast<DWORD>(offset); operation.OffsetHigh = static_cast<DWORD>(offset >> 32);
+    operation.hEvent = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    if (!operation.hEvent) return winFailure<Count>();
+    DWORD done = 0;
+    const DWORD n = static_cast<DWORD>(std::min(b.size(), std::min(static_cast<std::size_t>(MAXDWORD), static_cast<std::size_t>(PTRDIFF_MAX))));
+    BOOL success = ::ReadFile(f.native, b.data(), n, &done, &operation);
+    DWORD e = success ? ERROR_SUCCESS : ::GetLastError();
+    if (!success && e == ERROR_IO_PENDING) {
+        success = ::GetOverlappedResult(f.native, &operation, &done, TRUE);
+        e = success ? ERROR_SUCCESS : ::GetLastError();
+    }
+    ::CloseHandle(operation.hEvent);
+    if (!success) { if (e == ERROR_HANDLE_EOF) return ok(Count{0}); return winFailure<Count>(e); }
+    return ok(static_cast<Count>(done));
+}

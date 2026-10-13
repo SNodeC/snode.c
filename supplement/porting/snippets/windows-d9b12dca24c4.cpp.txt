@@ -1,0 +1,7 @@
+Result<Count> doRecv(Socket s, MutableBytes b, ReadMode mode) {
+    const int flags = mode == ReadMode::peek ? MSG_PEEK : mode == ReadMode::urgent ? MSG_OOB : 0;
+    const auto n = static_cast<int>(std::min(b.size(), static_cast<std::size_t>(INT_MAX)));
+    const int r = ::recv(s.native, reinterpret_cast<char*>(b.data()), n, flags);
+    if (r == SOCKET_ERROR) return wsaFailure<Count>();
+    return ok(static_cast<Count>(r));
+}

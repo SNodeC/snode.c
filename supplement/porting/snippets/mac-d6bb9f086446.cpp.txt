@@ -1,0 +1,3 @@
+Status doListen(Socket s, int backlog) {
+    return socketStatus(::listen(s.native, backlog));
+}

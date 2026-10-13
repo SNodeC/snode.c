@@ -1,0 +1,4 @@
+std::string doStrsignal(int signal) {
+    const char* text = ::strsignal(signal);
+    return text ? text : "unknown signal";
+}

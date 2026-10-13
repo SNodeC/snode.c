@@ -1,0 +1,4 @@
+std::uint64_t doBigToHost64(std::uint64_t v) {
+    if constexpr (std::endian::native == std::endian::big) return v;
+    return static_cast<std::uint64_t>(((v >> 0) & UINT64_C(0xff)) << 56 | ((v >> 8) & UINT64_C(0xff)) << 48 | ((v >> 16) & UINT64_C(0xff)) << 40 | ((v >> 24) & UINT64_C(0xff)) << 32 | ((v >> 32) & UINT64_C(0xff)) << 24 | ((v >> 40) & UINT64_C(0xff)) << 16 | ((v >> 48) & UINT64_C(0xff)) << 8 | ((v >> 56) & UINT64_C(0xff)) << 0);
+}

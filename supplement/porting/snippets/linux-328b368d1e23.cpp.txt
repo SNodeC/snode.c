@@ -1,0 +1,3 @@
+Status doTcsetpgrp(File terminal, std::uint64_t processGroup) {
+    return posixStatus(::tcsetpgrp(terminal.native, static_cast<pid_t>(processGroup)));
+}

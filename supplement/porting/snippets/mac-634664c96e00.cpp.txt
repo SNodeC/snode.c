@@ -1,0 +1,7 @@
+Result<Ip> doParseIp(Family family, const std::string& text) {
+    Ip ip; ip.family = family;
+    const int r = ::inet_pton(family == Family::ipv4 ? AF_INET : AF_INET6, text.c_str(), ip.bytes.data());
+    if (r == 0) return posixFailure<Ip>(EINVAL);
+    if (r < 0) return posixFailure<Ip>();
+    return ok(ip);
+}

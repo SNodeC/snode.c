@@ -1,0 +1,5 @@
+Result<Pipe> doPipe() {
+    int p[2];
+    if (::pipe(p) == -1) return posixFailure<Pipe>();
+    return ok(Pipe{File{p[0]}, File{p[1]}});
+}

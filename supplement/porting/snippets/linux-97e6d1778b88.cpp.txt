@@ -1,0 +1,5 @@
+Result<void (*)(int)> doSignal(int signal, void (*handler)(int)) {
+    const auto previous = ::signal(signal, handler);
+    if (previous == SIG_ERR) return posixFailure<void (*)(int)>();
+    return ok(previous);
+}

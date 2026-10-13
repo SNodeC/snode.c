@@ -1,0 +1,6 @@
+Result<ProcessWatch> doWatchProcess(std::uint64_t process) {
+    if (!process || process > static_cast<std::uint64_t>(std::numeric_limits<pid_t>::max())) return posixFailure<ProcessWatch>(EINVAL);
+    const int descriptor = static_cast<int>(::syscall(SYS_pidfd_open, static_cast<pid_t>(process), 0));
+    if (descriptor < 0) return posixFailure<ProcessWatch>();
+    return ok(ProcessWatch{descriptor});
+}

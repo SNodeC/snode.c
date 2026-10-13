@@ -1,0 +1,21 @@
+Result<std::optional<std::string>> doEnvironment(const std::string& name) {
+    using Value = std::optional<std::string>;
+    if (name.empty() || name.find('=') != std::string::npos || name.find('\0') != std::string::npos) return winFailure<Value>(ERROR_INVALID_PARAMETER);
+    auto key = toWide(name);
+    if (!key) return {{}, key.error};
+    std::vector<wchar_t> buffer(256);
+    for (;;) {
+        ::SetLastError(ERROR_SUCCESS);
+        const DWORD n = ::GetEnvironmentVariableW(key.value.c_str(), buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (!n) {
+            const DWORD e = ::GetLastError();
+            if (e == ERROR_ENVVAR_NOT_FOUND) return ok(Value{});
+            if (e == ERROR_SUCCESS) return ok(Value{std::string{}});
+            return winFailure<Value>(e);
+        }
+        if (n >= buffer.size()) { buffer.resize(n); continue; }
+        auto text = toUtf8(std::wstring_view(buffer.data(), n));
+        if (!text) return {{}, text.error};
+        return ok(Value{std::move(text.value)});
+    }
+}

@@ -1,0 +1,3 @@
+std::int64_t doLocalTimeToUnix(std::tm& calendar) {
+    return static_cast<std::int64_t>(::_mktime64(&calendar));
+}

@@ -1,0 +1,6 @@
+Status doFileLock(File f, bool exclusive, bool unlock, bool wait) {
+    OVERLAPPED offset{};
+    if (unlock) return winStatus(::UnlockFileEx(f.native, 0, MAXDWORD, MAXDWORD, &offset));
+    const DWORD flags = (exclusive ? LOCKFILE_EXCLUSIVE_LOCK : 0) | (wait ? 0 : LOCKFILE_FAIL_IMMEDIATELY);
+    return winStatus(::LockFileEx(f.native, flags, 0, MAXDWORD, MAXDWORD, &offset));
+}

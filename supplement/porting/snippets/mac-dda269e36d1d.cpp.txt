@@ -1,0 +1,5 @@
+Result<WallTime> doWallTime() {
+    timeval tv{};
+    if (::gettimeofday(&tv, nullptr) == -1) return posixFailure<WallTime>();
+    return ok(WallTime{tv.tv_sec, static_cast<std::uint32_t>(tv.tv_usec)});
+}

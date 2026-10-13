@@ -1,0 +1,11 @@
+Result<Count> doRead(File f, MutableBytes b) {
+    const auto n = static_cast<DWORD>(std::min(b.size(),
+        std::min(static_cast<std::size_t>(MAXDWORD), static_cast<std::size_t>(PTRDIFF_MAX))));
+    DWORD done = 0;
+    if (!::ReadFile(f.native, b.data(), n, &done, nullptr)) {
+        const DWORD e = ::GetLastError();
+        if (e == ERROR_BROKEN_PIPE || e == ERROR_HANDLE_EOF) return ok(Count{0});
+        return winFailure<Count>(e);
+    }
+    return ok(static_cast<Count>(done));
+}

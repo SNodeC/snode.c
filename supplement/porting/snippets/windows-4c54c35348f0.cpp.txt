@@ -1,0 +1,5 @@
+Result<Error> doSocketError(Socket socket) {
+    int error = 0; int size = sizeof(error);
+    if (::getsockopt(socket.native, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&error), &size) == SOCKET_ERROR) return wsaFailure<Error>();
+    return ok(error ? Error{ErrorDomain::winsock, static_cast<std::uint32_t>(error)} : Error{});
+}

@@ -1,0 +1,4 @@
+Status doTcpNoDelay(Socket socket, bool enabled) {
+    const int value = enabled;
+    return socketStatus(::setsockopt(socket.native, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&value), sizeof(value)));
+}

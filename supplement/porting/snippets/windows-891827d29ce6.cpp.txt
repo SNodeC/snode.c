@@ -1,0 +1,7 @@
+Result<std::tm> doUtcTime(std::int64_t seconds) {
+    const __time64_t native = seconds;
+    std::tm out{};
+    const int e = ::_gmtime64_s(&out, &native);
+    if (e) return posixFailure<std::tm>(e);
+    return ok(out);
+}

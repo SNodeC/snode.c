@@ -1,0 +1,11 @@
+Status doRandomBytes(MutableBytes bytes) {
+    while (!bytes.empty()) {
+        const auto n = std::min(bytes.size(), std::size_t{256});
+        if (::getentropy(bytes.data(), n) != 0) {
+            if (errno == EINTR) continue;
+            return posixFailure();
+        }
+        bytes = bytes.subspan(n);
+    }
+    return ok();
+}

@@ -1,0 +1,3 @@
+bool doS_ISSOCK(const FileInfo& info) {
+    return info.kind == FileInfo::Kind::socket;
+}

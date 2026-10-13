@@ -1,0 +1,3 @@
+std::uint64_t doProcessId() {
+    return ::GetCurrentProcessId();
+}

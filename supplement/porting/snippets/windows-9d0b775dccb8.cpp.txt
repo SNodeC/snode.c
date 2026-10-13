@@ -1,0 +1,12 @@
+std::string doErrorText(const Error& error) {
+    if (!error.text.empty()) return error.text;
+    if (error.domain == ErrorDomain::posix) return std::generic_category().message(static_cast<int>(error.code));
+    if (error.domain == ErrorDomain::ntstatus) return "NTSTATUS " + std::to_string(error.code);
+    wchar_t* buffer = nullptr;
+    const DWORD n = ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, error.code, 0, reinterpret_cast<wchar_t*>(&buffer), 0, nullptr);
+    if (!n) return "native error " + std::to_string(error.code);
+    std::unique_ptr<wchar_t, decltype(&::LocalFree)> guard(buffer, ::LocalFree);
+    auto text = toUtf8(std::wstring_view(buffer, n));
+    return text ? std::move(text.value) : "native error " + std::to_string(error.code);
+}

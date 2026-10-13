@@ -1,0 +1,5 @@
+int doRunShell(const std::string& command) {
+    auto text = toWide(command);
+    if (!text) { errno = EINVAL; return -1; }
+    return ::_wsystem(text.value.c_str());
+}

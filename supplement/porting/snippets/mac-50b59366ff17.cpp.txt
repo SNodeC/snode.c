@@ -1,0 +1,7 @@
+Result<void*> doLibrarySymbol(Library library, const char* name) {
+    ::dlerror();
+    void* address = ::dlsym(library.native, name);
+    const char* message = ::dlerror();
+    if (message) return {{}, {ErrorDomain::loader, 0, message}};
+    return ok(address);
+}

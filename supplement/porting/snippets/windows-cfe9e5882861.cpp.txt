@@ -1,0 +1,21 @@
+Result<std::vector<Address>> doResolve(const char* host, const char* service, Family family, SocketKind kind, bool passive) {
+    auto h = toWide(host ? host : ""); auto s = toWide(service ? service : "");
+    if (!h) return {{}, h.error};
+    if (!s) return {{}, s.error};
+    ADDRINFOW hints{};
+    hints.ai_family = family == Family::ipv4 ? AF_INET : AF_INET6;
+    hints.ai_socktype = kind == SocketKind::stream ? SOCK_STREAM : SOCK_DGRAM;
+    hints.ai_flags = passive ? AI_PASSIVE : 0;
+    ADDRINFOW* result = nullptr;
+    const int e = ::GetAddrInfoW(host ? h.value.c_str() : nullptr, service ? s.value.c_str() : nullptr, &hints, &result);
+    if (e) return fail<std::vector<Address>>(ErrorDomain::resolver, static_cast<std::uint32_t>(e));
+    std::unique_ptr<ADDRINFOW, decltype(&::FreeAddrInfoW)> guard(result, ::FreeAddrInfoW);
+    std::vector<Address> addresses;
+    for (auto* p = result; p; p = p->ai_next) {
+        if (p->ai_addrlen > sizeof(sockaddr_storage)) return winFailure<std::vector<Address>>(ERROR_BUFFER_OVERFLOW);
+        Address a; a.length = static_cast<std::uint32_t>(p->ai_addrlen);
+        std::memcpy(&a.storage, p->ai_addr, p->ai_addrlen);
+        addresses.push_back(a);
+    }
+    return ok(std::move(addresses));
+}

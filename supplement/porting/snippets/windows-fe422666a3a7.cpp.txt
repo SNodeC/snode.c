@@ -1,0 +1,7 @@
+Result<File> doFileno(FILE* stream) {
+    const int fd = ::_fileno(stream);
+    if (fd == -1) return posixFailure<File>();
+    const intptr_t h = ::_get_osfhandle(fd);
+    if (h == -1) return posixFailure<File>();
+    return ok(File{reinterpret_cast<HANDLE>(h)});
+}

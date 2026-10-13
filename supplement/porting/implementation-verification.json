@@ -1,0 +1,1811 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "All 163 catalog entries occur exactly once",
+      "passed": true
+    },
+    {
+      "check": "IMPLEMENTATION_PROPOSAL.md has exactly five cells for every source row",
+      "passed": true
+    },
+    {
+      "check": "IMPLEMENTATION_PROPOSAL.md local HTML links resolve",
+      "passed": true
+    },
+    {
+      "check": "IMPLEMENTATION_PROPOSAL.html has exactly five cells for every source row",
+      "passed": true
+    },
+    {
+      "check": "IMPLEMENTATION_PROPOSAL.html local HTML links resolve",
+      "passed": true
+    },
+    {
+      "check": "open/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "open/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "openat/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "openat/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "close/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "close/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "close/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "read/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "read/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "read/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "write/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "write/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "write/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pread/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pread/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pread/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pwrite/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pwrite/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pwrite/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ftruncate/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ftruncate/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ftruncate/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fstat/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fstat/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fstat/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "stat/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "stat/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "stat/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "lstat/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "lstat/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "lstat/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "unlink/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "unlink/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "unlink/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "access/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "access/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "access/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkdir/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkdir/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkdir/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "rmdir/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "rmdir/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "rmdir/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkstemp/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkstemp/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkdtemp/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mkdtemp/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chdir/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chdir/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chdir/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fchdir/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fchdir/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chown/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chown/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "chown/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "umask/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "umask/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "flock/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "flock/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "flock/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fcntl/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fcntl/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fcntl/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dup/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dup/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dup/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dup2/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dup2/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pipe/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pipe/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pipe/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pipe2/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "socket/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "socket/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "socket/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "bind/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "bind/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "bind/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "listen/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "listen/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "listen/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "accept/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "accept/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "accept/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "accept4/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "connect/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "connect/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "connect/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "shutdown/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "shutdown/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "shutdown/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "recv/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "recv/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "recv/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "send/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "send/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "send/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockname/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockname/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockname/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpeername/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpeername/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpeername/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockopt/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockopt/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getsockopt/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setsockopt/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setsockopt/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setsockopt/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "socketpair/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "socketpair/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sendmsg/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sendmsg/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "recvmsg/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "recvmsg/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpeereid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpeereid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getaddrinfo/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getaddrinfo/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getaddrinfo/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freeaddrinfo/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freeaddrinfo/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freeaddrinfo/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getnameinfo/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getnameinfo/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getnameinfo/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gai_strerror/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gai_strerror/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gai_strerror/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_ntop/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_ntop/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_ntop/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_pton/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_pton/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "inet_pton/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "epoll_create1/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "epoll_ctl/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "epoll_wait/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "epoll_pwait/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "poll/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "poll/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "poll/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ppoll/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "select/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "select/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pselect/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pselect/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigaction/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigaction/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "signal/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "signal/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pthread_sigmask/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "pthread_sigmask/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigemptyset/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigemptyset/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigaddset/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigaddset/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigfillset/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigfillset/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strsignal/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strsignal/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigabbrev_np/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "sigabbrev_np/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fork/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fork/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setsid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setsid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getppid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getppid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpgrp/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpgrp/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "kill/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "kill/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "kill/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_pidfd_open/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_pidfd_open/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_pidfd_open/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "waitpid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "waitpid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "waitpid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_init/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_init/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_adddup2/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_adddup2/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_addclose/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_addclose/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_destroy/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawn_file_actions_destroy/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_init/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_init/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setpgroup/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setpgroup/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setsigdefault/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setsigdefault/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setsigmask/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setsigmask/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setflags/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_setflags/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_destroy/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "posix_spawnattr_destroy/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "system/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "system/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "system/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getuid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getuid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getuid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "geteuid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "geteuid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "geteuid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getegid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getegid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getegid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpwnam/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpwnam/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpwuid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpwuid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getpwuid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrnam/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrnam/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrnam/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrgid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrgid/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getgrgid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "seteuid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "seteuid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setegid/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setegid/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_exit/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_exit/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_exit/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "exit/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "exit/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "exit/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "abort/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "abort/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "abort/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "atexit/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "atexit/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "atexit/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gettimeofday/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gettimeofday/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gettimeofday/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "time/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "time/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "time/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime_r/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime_r/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "gmtime_r/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "localtime/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "localtime/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "localtime/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mktime/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mktime/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "mktime/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strftime/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strftime/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strftime/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strptime/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strptime/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strptime/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "usleep/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "usleep/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "usleep/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getentropy/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getentropy/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getentropy/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_getrandom/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_getrandom/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "syscall:SYS_getrandom/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlopen/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlopen/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlopen/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlsym/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlsym/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlsym/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlclose/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlclose/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlclose/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlerror/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlerror/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "dlerror/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "isatty/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "isatty/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "isatty/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcgetattr/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcgetattr/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcgetattr/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcsetattr/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcsetattr/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcsetattr/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcsetpgrp/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "tcsetpgrp/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fopen/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fopen/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fopen/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freopen/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freopen/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "freopen/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fclose/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fclose/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fclose/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fflush/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fflush/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fflush/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fileno/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fileno/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "fileno/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getenv/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getenv/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "getenv/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setenv/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setenv/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setenv/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_dupenv_s/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_dupenv_s/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_dupenv_s/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_stat64/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_stat64/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "_stat64/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetCommandLineW/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetCommandLineW/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetCommandLineW/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CommandLineToArgvW/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CommandLineToArgvW/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CommandLineToArgvW/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "LocalFree/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "LocalFree/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "LocalFree/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetLastError/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetLastError/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "GetLastError/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strerror/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strerror/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strerror/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setlocale/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setlocale/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "setlocale/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strcasecmp/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strcasecmp/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strcasecmp/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strdup/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strdup/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "strdup/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe16/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe16/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe16/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe32/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe32/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe32/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe64/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe64/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobe64/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be16toh/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be16toh/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be16toh/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be32toh/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be32toh/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be32toh/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be64toh/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be64toh/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "be64toh/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htons/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htons/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htons/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htonl/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htonl/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htonl/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ntohs/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ntohs/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ntohs/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobs/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobs/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "htobs/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "btohs/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "btohs/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "btohs/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ba2str/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ba2str/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "ba2str/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "str2ba/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "str2ba/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "str2ba/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ZERO/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ZERO/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ZERO/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_SET/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_SET/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_SET/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_CLR/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_CLR/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_CLR/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ISSET/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ISSET/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "FD_ISSET/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_SPACE/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_SPACE/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_LEN/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_LEN/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_FIRSTHDR/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_FIRSTHDR/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_DATA/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "CMSG_DATA/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISREG/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISREG/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISREG/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISSOCK/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISSOCK/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "S_ISSOCK/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFEXITED/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFEXITED/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFEXITED/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WEXITSTATUS/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WEXITSTATUS/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WEXITSTATUS/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFSIGNALED/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFSIGNALED/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WIFSIGNALED/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WTERMSIG/linux copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WTERMSIG/windows copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "WTERMSIG/mac copyable body matches catalog",
+      "passed": true
+    },
+    {
+      "check": "No accidental NUL characters in generated C++",
+      "passed": true
+    },
+    {
+      "check": "linux-primitives host syntax-only compilation",
+      "passed": true
+    },
+    {
+      "check": "linux-config host syntax-only compilation",
+      "passed": true
+    },
+    {
+      "check": "linux-random-syscall-alternative host syntax-only compilation",
+      "passed": true
+    },
+    {
+      "check": "linux-process-runner host syntax-only compilation",
+      "passed": true
+    },
+    {
+      "check": "linux-daemon host syntax-only compilation",
+      "passed": true
+    },
+    {
+      "check": "Production/test/example/build sources unchanged",
+      "passed": true
+    }
+  ],
+  "syntax": [
+    {
+      "case": "linux-primitives",
+      "passed": true,
+      "diagnostic": "",
+      "sha256": "7e8c5eac34926f5ddb037b588369337a2b439b8d4b9b6ca54f9d305e386a1f39"
+    },
+    {
+      "case": "linux-config",
+      "passed": true,
+      "diagnostic": "",
+      "sha256": "5b902252871c50bb143210e1e8b3d3c923f14e20c4405cbdfeda3521b7b57163"
+    },
+    {
+      "case": "linux-random-syscall-alternative",
+      "passed": true,
+      "diagnostic": "",
+      "sha256": "b942de80b783281db0811858eec02cf2049cdc77edd4fc55924104fb48a5bf89"
+    },
+    {
+      "case": "linux-process-runner",
+      "passed": true,
+      "diagnostic": "",
+      "sha256": "c0f57a56f1f252c2899af029fc27c5811af7687c603310952cebbed2c6819db3"
+    },
+    {
+      "case": "linux-daemon",
+      "passed": true,
+      "diagnostic": "",
+      "sha256": "ea032d3342c93524cbbb6cb35ed36d31e77624aa308c45e05d7c1049efa5e4dc"
+    }
+  ],
+  "platform_validation": "Linux host syntax only; no Windows/macOS compilation, no linking, no runtime/QEMU tests",
+  "missing_platform_bodies": 58
+}

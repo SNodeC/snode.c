@@ -1,0 +1,6 @@
+Result<int> doEpollPwait(File queue, std::span<epoll_event> events, int timeoutMilliseconds, const sigset_t* mask) {
+    if (events.size() > INT_MAX) return posixFailure<int>(EINVAL);
+    const int count = ::epoll_pwait(queue.native, events.data(), static_cast<int>(events.size()), timeoutMilliseconds, mask);
+    if (count < 0) return posixFailure<int>();
+    return ok(count);
+}

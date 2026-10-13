@@ -1,0 +1,9 @@
+std::string doFormatBluetooth(const std::array<std::uint8_t, 6>& address) {
+    static constexpr char digits[] = "0123456789ABCDEF";
+    std::string out;
+    for (std::size_t i = 0; i < address.size(); ++i) {
+        if (i) out += ':';
+        out += digits[address[i] >> 4]; out += digits[address[i] & 15];
+    }
+    return out;
+}

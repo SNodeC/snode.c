@@ -1,0 +1,8 @@
+Result<ExitStatus> doWaitProcess(Process process) {
+    const DWORD state = ::WaitForSingleObject(process.native, INFINITE);
+    if (state == WAIT_FAILED) return winFailure<ExitStatus>();
+    if (state != WAIT_OBJECT_0) return winFailure<ExitStatus>(ERROR_INVALID_FUNCTION);
+    DWORD code;
+    if (!::GetExitCodeProcess(process.native, &code)) return winFailure<ExitStatus>();
+    return ok(ExitStatus{false, code, 0});
+}

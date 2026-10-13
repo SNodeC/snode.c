@@ -1,0 +1,3 @@
+std::uint64_t doParentProcessId() {
+    return static_cast<std::uint64_t>(::getppid());
+}

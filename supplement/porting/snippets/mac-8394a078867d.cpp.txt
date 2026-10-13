@@ -1,0 +1,6 @@
+Result<Count> doRead(File f, MutableBytes b) {
+    const auto n = std::min(b.size(), static_cast<std::size_t>(PTRDIFF_MAX));
+    const auto r = ::read(f.native, b.data(), n);
+    if (r < 0) return posixFailure<Count>();
+    return ok(static_cast<Count>(r));
+}

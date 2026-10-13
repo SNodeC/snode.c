@@ -1,0 +1,3 @@
+bool doFD_ISSET(const PollItem& item) {
+    return item.returned != 0;
+}

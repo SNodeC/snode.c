@@ -1,0 +1,4 @@
+std::uint32_t doBigToHost32(std::uint32_t v) {
+    if constexpr (std::endian::native == std::endian::big) return v;
+    return static_cast<std::uint32_t>(((v >> 0) & UINT32_C(0xff)) << 24 | ((v >> 8) & UINT32_C(0xff)) << 16 | ((v >> 16) & UINT32_C(0xff)) << 8 | ((v >> 24) & UINT32_C(0xff)) << 0);
+}

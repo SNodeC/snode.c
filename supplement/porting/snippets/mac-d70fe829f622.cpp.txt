@@ -1,0 +1,3 @@
+std::uint32_t doCreationMask(std::uint32_t mask) {
+    return ::umask(static_cast<mode_t>(mask));
+}

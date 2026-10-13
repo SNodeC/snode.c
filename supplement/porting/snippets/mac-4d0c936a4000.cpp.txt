@@ -1,0 +1,16 @@
+Result<std::array<std::uint8_t, 6>> doParseBluetooth(std::string_view text) {
+    std::array<std::uint8_t, 6> out{};
+    auto digit = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        return -1;
+    };
+    if (text.size() != 17) return posixFailure<decltype(out)>(EINVAL);
+    for (std::size_t i = 0; i < out.size(); ++i) {
+        const int high = digit(text[3*i]), low = digit(text[3*i+1]);
+        if (high < 0 || low < 0 || (i < 5 && text[3*i+2] != ':')) return posixFailure<decltype(out)>(EINVAL);
+        out[i] = static_cast<std::uint8_t>((high << 4) | low);
+    }
+    return ok(out);
+}

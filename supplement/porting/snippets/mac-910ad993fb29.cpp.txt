@@ -1,0 +1,7 @@
+Result<std::tm> doUtcTime(std::int64_t seconds) {
+    const auto native = static_cast<time_t>(seconds);
+    if (static_cast<std::int64_t>(native) != seconds) return posixFailure<std::tm>(EOVERFLOW);
+    std::tm out{};
+    if (!::gmtime_r(&native, &out)) return posixFailure<std::tm>();
+    return ok(out);
+}

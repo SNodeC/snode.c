@@ -1,0 +1,17 @@
+{
+  "revision": "d4b2b247888fac35411e7e38b5ae8e5a4dee22c8",
+  "tracked_files": 1453,
+  "cxx_files": 1101,
+  "native_runtime_helper_rows": 163,
+  "library_rows": 177,
+  "selected_occurrences": 726,
+  "library_occurrences": 504,
+  "excluded_homonyms": 1289,
+  "kind_counts": {
+    "OS entry": 70,
+    "Runtime/library entry": 65,
+    "Project helper, not syscall": 1,
+    "Helper, not syscall": 27
+  },
+  "method": "all-branches lexical scan, reviewed C API catalog, homonym review, native library symbol cross-check, includes/build/scripts audit; not a semantic AST or runtime syscall trace"
+}

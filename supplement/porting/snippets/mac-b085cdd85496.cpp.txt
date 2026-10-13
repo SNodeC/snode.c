@@ -1,0 +1,7 @@
+Result<Socket> doSocket(Family family, SocketKind kind) {
+    const int af = family == Family::ipv4 ? AF_INET : AF_INET6;
+    const int type = kind == SocketKind::stream ? SOCK_STREAM : SOCK_DGRAM;
+    const int s = ::socket(af, type, 0);
+    if (s == -1) return posixFailure<Socket>();
+    return ok(Socket{s});
+}

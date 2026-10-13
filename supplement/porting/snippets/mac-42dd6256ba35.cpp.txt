@@ -1,0 +1,3 @@
+std::uint64_t doGetpgrp() {
+    return static_cast<std::uint64_t>(::getpgrp());
+}

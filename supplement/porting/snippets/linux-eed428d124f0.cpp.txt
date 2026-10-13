@@ -1,0 +1,4 @@
+Status doFileLock(File f, bool exclusive, bool unlock, bool wait) {
+    const int op = unlock ? LOCK_UN : (exclusive ? LOCK_EX : LOCK_SH) | (wait ? 0 : LOCK_NB);
+    return posixStatus(::flock(f.native, op));
+}

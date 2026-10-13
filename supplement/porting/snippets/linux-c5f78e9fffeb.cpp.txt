@@ -1,0 +1,15 @@
+Status doEnterDaemonIdentity(const std::string& user, const std::string& group) {
+    errno = 0;
+    const struct group* gr = ::getgrnam(group.c_str());
+    if (!gr) return posixFailure(errno ? errno : ENOENT);
+    if (::setegid(gr->gr_gid) != 0) return posixFailure();
+    errno = 0;
+    const passwd* pw = ::getpwnam(user.c_str());
+    if (!pw) return posixFailure(errno ? errno : ENOENT);
+    if (::seteuid(pw->pw_uid) != 0) return posixFailure();
+    return ok();
+}
+Status doRestoreRealIdentity() {
+    if (::seteuid(::getuid()) != 0) return posixFailure();
+    return posixStatus(::setegid(::getgid()));
+}

@@ -1,0 +1,6 @@
+Status doTruncate(File f, std::uint64_t length) {
+    if (length > static_cast<std::uint64_t>(INT64_MAX)) return winFailure(ERROR_INVALID_PARAMETER);
+    FILE_END_OF_FILE_INFO info{};
+    info.EndOfFile.QuadPart = static_cast<LONGLONG>(length);
+    return winStatus(::SetFileInformationByHandle(f.native, FileEndOfFileInfo, &info, sizeof(info)));
+}

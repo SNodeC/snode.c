@@ -1,0 +1,2 @@
+Status doClose(File f) { return winStatus(::CloseHandle(f.native)); }
+Status doClose(Socket s) { return socketStatus(::closesocket(s.native)); }

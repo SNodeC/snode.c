@@ -1,0 +1,13 @@
+Status doRandomBytes(MutableBytes bytes) {
+    while (!bytes.empty()) {
+        const auto n = std::min(bytes.size(), std::size_t{256});
+        const long done = ::syscall(SYS_getrandom, bytes.data(), n, 0);
+        if (done < 0) {
+            if (errno == EINTR) continue;
+            return posixFailure();
+        }
+        if (done == 0) return posixFailure(EIO);
+        bytes = bytes.subspan(static_cast<std::size_t>(done));
+    }
+    return ok();
+}

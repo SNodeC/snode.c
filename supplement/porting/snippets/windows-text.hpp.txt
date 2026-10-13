@@ -1,0 +1,21 @@
+// Include common.hpp first; include only in Windows backend.
+namespace core::system {
+inline Result<std::wstring> toWide(std::string_view text) {
+    if (text.size() > static_cast<std::size_t>(INT_MAX)) return winFailure<std::wstring>(ERROR_INVALID_PARAMETER);
+    if (text.empty()) return ok(std::wstring{});
+    const int size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text.data(), static_cast<int>(text.size()), nullptr, 0);
+    if (!size) return winFailure<std::wstring>();
+    std::wstring result(size, L'\0');
+    if (!::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text.data(), static_cast<int>(text.size()), result.data(), size)) return winFailure<std::wstring>();
+    return ok(std::move(result));
+}
+inline Result<std::string> toUtf8(std::wstring_view text) {
+    if (text.size() > static_cast<std::size_t>(INT_MAX)) return winFailure<std::string>(ERROR_INVALID_PARAMETER);
+    if (text.empty()) return ok(std::string{});
+    const int size = ::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, text.data(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr);
+    if (!size) return winFailure<std::string>();
+    std::string result(size, '\0');
+    if (!::WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, text.data(), static_cast<int>(text.size()), result.data(), size, nullptr, nullptr)) return winFailure<std::string>();
+    return ok(std::move(result));
+}
+}

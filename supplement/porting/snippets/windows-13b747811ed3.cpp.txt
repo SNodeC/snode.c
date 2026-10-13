@@ -1,0 +1,3 @@
+Status doUnlink(const Path& p) {
+    return winStatus(::DeleteFileW(p.c_str()));
+}

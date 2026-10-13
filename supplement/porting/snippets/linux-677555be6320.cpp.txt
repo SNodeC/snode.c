@@ -1,0 +1,5 @@
+Result<Error> doSocketError(Socket socket) {
+    int error = 0; socklen_t size = sizeof(error);
+    if (::getsockopt(socket.native, SOL_SOCKET, SO_ERROR, &error, &size) == -1) return posixFailure<Error>();
+    return ok(error ? Error{ErrorDomain::posix, static_cast<std::uint32_t>(error)} : Error{});
+}

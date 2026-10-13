@@ -1,0 +1,7 @@
+Result<Address> doGetpeername(Socket s) {
+    Address a;
+    int n = sizeof(a.storage);
+    if (::getpeername(s.native, reinterpret_cast<sockaddr*>(&a.storage), &n) == SOCKET_ERROR) return wsaFailure<Address>();
+    a.length = static_cast<std::uint32_t>(n);
+    return ok(a);
+}

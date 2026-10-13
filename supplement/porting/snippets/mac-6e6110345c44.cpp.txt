@@ -1,0 +1,5 @@
+Result<std::pair<Socket, Socket>> doSocketpair() {
+    int fds[2];
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, fds) != 0) return posixFailure<std::pair<Socket, Socket>>();
+    return ok(std::pair<Socket, Socket>{Socket{fds[0]}, Socket{fds[1]}});
+}

@@ -1,0 +1,3 @@
+Status doRmdir(const Path& p) {
+    return winStatus(::RemoveDirectoryW(p.c_str()));
+}

@@ -1,0 +1,6 @@
+Result<ProcessWatch> doWatchProcess(std::uint64_t process) {
+    if (!process || process > MAXDWORD) return winFailure<ProcessWatch>(ERROR_INVALID_PARAMETER);
+    HANDLE handle = ::OpenProcess(SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, static_cast<DWORD>(process));
+    if (!handle) return winFailure<ProcessWatch>();
+    return ok(ProcessWatch{handle});
+}

@@ -1,0 +1,5 @@
+Result<File> doEpollCreate1() {
+    const int fd = ::epoll_create1(EPOLL_CLOEXEC);
+    if (fd == -1) return posixFailure<File>();
+    return ok(File{fd});
+}

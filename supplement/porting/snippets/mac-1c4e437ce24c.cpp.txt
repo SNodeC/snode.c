@@ -1,0 +1,3 @@
+Status doSigemptyset(sigset_t& set) {
+    return posixStatus(::sigemptyset(&set));
+}

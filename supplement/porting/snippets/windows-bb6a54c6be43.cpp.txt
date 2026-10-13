@@ -1,0 +1,3 @@
+int doFflush(FILE* stream) {
+    return ::fflush(stream);
+}

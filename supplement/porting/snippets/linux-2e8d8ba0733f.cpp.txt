@@ -1,0 +1,5 @@
+Result<Pipe> doPipe2(int flags) {
+    int fds[2];
+    if (::pipe2(fds, flags) != 0) return posixFailure<Pipe>();
+    return ok(Pipe{File{fds[0]}, File{fds[1]}});
+}

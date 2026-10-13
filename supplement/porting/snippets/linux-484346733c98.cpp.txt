@@ -1,0 +1,3 @@
+Status doSigaction(int signal, const struct sigaction* action, struct sigaction* previous) {
+    return posixStatus(::sigaction(signal, action, previous));
+}

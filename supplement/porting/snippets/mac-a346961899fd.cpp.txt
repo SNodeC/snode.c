@@ -1,0 +1,5 @@
+Result<bool> doPathExists(const Path& path) {
+    if (::access(path.c_str(), F_OK) == 0) return ok(true);
+    if (errno == ENOENT || errno == ENOTDIR) return ok(false);
+    return posixFailure<bool>();
+}

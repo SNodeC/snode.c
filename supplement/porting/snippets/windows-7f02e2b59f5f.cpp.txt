@@ -1,0 +1,10 @@
+Result<Count> doWrite(File f, Bytes b) {
+    const auto n = static_cast<DWORD>(std::min(b.size(),
+        std::min(static_cast<std::size_t>(MAXDWORD), static_cast<std::size_t>(PTRDIFF_MAX))));
+    DWORD done = 0;
+    if (!::WriteFile(f.native, b.data(), n, &done, nullptr)) {
+        const DWORD e = ::GetLastError();
+        return winFailure<Count>(e);
+    }
+    return ok(static_cast<Count>(done));
+}

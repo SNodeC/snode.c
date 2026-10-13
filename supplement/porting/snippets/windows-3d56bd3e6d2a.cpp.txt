@@ -1,0 +1,5 @@
+Result<void*> doLibrarySymbol(Library library, const char* name) {
+    const auto address = ::GetProcAddress(library.native, name);
+    if (!address) return winFailure<void*>();
+    return ok(reinterpret_cast<void*>(address));
+}

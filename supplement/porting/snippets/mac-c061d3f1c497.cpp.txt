@@ -1,0 +1,31 @@
+Result<File> doReceiveHandle(Socket channel) {
+    char marker;
+    iovec payload{&marker, 1};
+    alignas(cmsghdr) std::array<std::byte, CMSG_SPACE(16 * sizeof(int))> control{};
+    msghdr message{};
+    message.msg_iov = &payload; message.msg_iovlen = 1;
+    message.msg_control = control.data(); message.msg_controllen = control.size();
+    const auto received = ::recvmsg(channel.native, &message, 0);
+    if (received < 0) return posixFailure<File>();
+    std::array<int, 16> fds{};
+    std::size_t count = 0;
+    bool malformed = false;
+    for (auto* header = CMSG_FIRSTHDR(&message); header; header = CMSG_NXTHDR(&message, header)) {
+        if (header->cmsg_level != SOL_SOCKET || header->cmsg_type != SCM_RIGHTS) continue;
+        const auto* begin = reinterpret_cast<const std::byte*>(header);
+        const auto available = static_cast<std::size_t>(control.data() + message.msg_controllen - begin);
+        if (header->cmsg_len < CMSG_LEN(0) || header->cmsg_len > available) { malformed = true; break; }
+        const auto bytes = header->cmsg_len - CMSG_LEN(0);
+        if (bytes % sizeof(int)) malformed = true;
+        for (std::size_t offset = 0; offset + sizeof(int) <= bytes; offset += sizeof(int)) {
+            int fd; std::memcpy(&fd, reinterpret_cast<const std::byte*>(CMSG_DATA(header)) + offset, sizeof(fd));
+            if (count < fds.size()) fds[count++] = fd;
+            else { ::close(fd); malformed = true; }
+        }
+    }
+    if (received != 1 || malformed || (message.msg_flags & (MSG_CTRUNC | MSG_TRUNC)) || count != 1) {
+        for (std::size_t i = 0; i < count; ++i) ::close(fds[i]);
+        return posixFailure<File>(EBADMSG);
+    }
+    return ok(File{fds.front()});
+}

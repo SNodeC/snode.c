@@ -1,0 +1,3 @@
+Status doSigfillset(sigset_t& set) {
+    return posixStatus(::sigfillset(&set));
+}

@@ -1,0 +1,5 @@
+Result<File> doDup(File f) {
+    HANDLE n = INVALID_HANDLE_VALUE;
+    if (!::DuplicateHandle(::GetCurrentProcess(), f.native, ::GetCurrentProcess(), &n, 0, FALSE, DUPLICATE_SAME_ACCESS)) return winFailure<File>();
+    return ok(File{n});
+}

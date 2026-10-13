@@ -1,0 +1,5 @@
+Status doUnloadLibrary(Library lib) {
+    if (::dlclose(lib.native) == 0) return ok();
+    const char* message = ::dlerror();
+    return {{}, {ErrorDomain::loader, 0, message ? message : "dlclose failed"}};
+}

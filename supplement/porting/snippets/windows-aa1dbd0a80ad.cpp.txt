@@ -1,0 +1,12 @@
+Status doSleepMicroseconds(std::uint32_t microseconds) {
+    HANDLE timer = ::CreateWaitableTimerW(nullptr, TRUE, nullptr);
+    if (!timer) return winFailure();
+    LARGE_INTEGER due; due.QuadPart = -static_cast<LONGLONG>(microseconds ? microseconds : 1) * 10;
+    if (!::SetWaitableTimer(timer, &due, 0, nullptr, nullptr, FALSE)) {
+        const DWORD e = ::GetLastError(); ::CloseHandle(timer); return winFailure(e);
+    }
+    const DWORD result = ::WaitForSingleObject(timer, INFINITE);
+    const DWORD e = result == WAIT_FAILED ? ::GetLastError() : ERROR_SUCCESS;
+    ::CloseHandle(timer);
+    return result == WAIT_OBJECT_0 ? ok() : winFailure(e ? e : ERROR_INVALID_FUNCTION);
+}

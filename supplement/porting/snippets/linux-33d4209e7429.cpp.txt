@@ -1,0 +1,3 @@
+char* doStrdup(const char* text) {
+    return ::strdup(text);
+}

@@ -1,0 +1,2328 @@
+{
+  "STDIN_FILENO": [
+    {
+      "path": "src/apps/towercalculator/KeyboardReader.cpp",
+      "line": 66
+    },
+    {
+      "path": "src/apps/towercalculator/KeyboardReader.cpp",
+      "line": 80
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 260
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 318
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 339
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 350
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 353
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 362
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 365
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 368
+    },
+    {
+      "path": "src/utils/Config.cpp",
+      "line": 795
+    },
+    {
+      "path": "src/utils/Config.cpp",
+      "line": 797
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 148
+    }
+  ],
+  "RTLD_LAZY": [
+    {
+      "path": "src/core/DynamicLoader.h",
+      "line": 72
+    }
+  ],
+  "RTLD_LOCAL": [
+    {
+      "path": "src/core/DynamicLoader.h",
+      "line": 72
+    }
+  ],
+  "SIG_IGN": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 175
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 251
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 277
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 160
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 97
+    }
+  ],
+  "SIGPIPE": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 178
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 200
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 254
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 258
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 280
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 331
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    }
+  ],
+  "SIGINT": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 181
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 201
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 216
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 285
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 338
+    },
+    {
+      "path": "src/core/socket/stream/SocketConnection.hpp",
+      "line": 395
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 98
+    }
+  ],
+  "SIGTERM": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 184
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 202
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 217
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 288
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 332
+    },
+    {
+      "path": "src/core/socket/stream/SocketConnection.hpp",
+      "line": 397
+    },
+    {
+      "path": "src/tools/snodec-control/tests/SnodecControlProcessRunnerTest.cpp",
+      "line": 82
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 113
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 180
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 105
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 591
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 608
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 636
+    }
+  ],
+  "SIGALRM": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 187
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 203
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 218
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 291
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 333
+    },
+    {
+      "path": "src/core/socket/stream/SocketConnection.hpp",
+      "line": 408
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "SIGHUP": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 190
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 204
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 219
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 294
+    },
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 334
+    },
+    {
+      "path": "src/core/socket/stream/SocketConnection.hpp",
+      "line": 401
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 97
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    }
+  ],
+  "SIG_BLOCK": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 222
+    },
+    {
+      "path": "src/log/detail/SpdlogBackend.cpp",
+      "line": 48
+    }
+  ],
+  "SIG_SETMASK": [
+    {
+      "path": "src/core/EventLoop.cpp",
+      "line": 238
+    },
+    {
+      "path": "src/log/detail/SpdlogBackend.cpp",
+      "line": 55
+    }
+  ],
+  "O_CREAT": [
+    {
+      "path": "src/core/file/FileReader.cpp",
+      "line": 92
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 109
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 154
+    }
+  ],
+  "O_TMPFILE": [
+    {
+      "path": "src/core/file/FileReader.cpp",
+      "line": 96
+    },
+    {
+      "path": "src/core/file/FileReader.cpp",
+      "line": 97
+    }
+  ],
+  "AT_FDCWD": [
+    {
+      "path": "src/core/file/FileReader.cpp",
+      "line": 124
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 131
+    }
+  ],
+  "O_RDONLY": [
+    {
+      "path": "src/core/file/FileReader.cpp",
+      "line": 128
+    },
+    {
+      "path": "src/core/file/FileReader.h",
+      "line": 73
+    },
+    {
+      "path": "src/core/file/FileReader.h",
+      "line": 88
+    },
+    {
+      "path": "src/web/websocket/client/SocketContextUpgradeFactory.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 121
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 125
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 126
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 128
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 137
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 154
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 187
+    }
+  ],
+  "EPOLL_CLOEXEC": [
+    {
+      "path": "src/core/multiplexer/epoll/DescriptorEventPublisher.cpp",
+      "line": 73
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 106
+    }
+  ],
+  "EPOLL_CTL_ADD": [
+    {
+      "path": "src/core/multiplexer/epoll/DescriptorEventPublisher.cpp",
+      "line": 102
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 82
+    }
+  ],
+  "EPOLL_CTL_DEL": [
+    {
+      "path": "src/core/multiplexer/epoll/DescriptorEventPublisher.cpp",
+      "line": 124
+    }
+  ],
+  "EPOLL_CTL_MOD": [
+    {
+      "path": "src/core/multiplexer/epoll/DescriptorEventPublisher.cpp",
+      "line": 154
+    }
+  ],
+  "EPOLLIN": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 79
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 96
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 97
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 132
+    }
+  ],
+  "EPOLLRDHUP": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 97
+    }
+  ],
+  "EPOLLERR": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 97
+    }
+  ],
+  "EPOLLHUP": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 97
+    }
+  ],
+  "EPOLLOUT": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 100
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 101
+    }
+  ],
+  "EPOLLPRI": [
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 104
+    },
+    {
+      "path": "src/core/multiplexer/epoll/EventMultiplexer.cpp",
+      "line": 105
+    }
+  ],
+  "F_GETFD": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 94
+    },
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 98
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 35
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 69
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 83
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 24
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 49
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 50
+    },
+    {
+      "path": "tests/component/core/PipeTimeoutTest.cpp",
+      "line": 65
+    }
+  ],
+  "POLLIN": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 189
+    },
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 190
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 185
+    }
+  ],
+  "POLLHUP": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 190
+    }
+  ],
+  "POLLERR": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 190
+    }
+  ],
+  "POLLRDHUP": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 190
+    }
+  ],
+  "POLLOUT": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 193
+    },
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 194
+    }
+  ],
+  "POLLPRI": [
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 197
+    },
+    {
+      "path": "src/core/multiplexer/poll/EventMultiplexer.cpp",
+      "line": 198
+    }
+  ],
+  "FD_SET": [
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 62
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 95
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 99
+    }
+  ],
+  "FD_CLR": [
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 66
+    },
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 67
+    }
+  ],
+  "FD_ISSET": [
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 71
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 111
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 122
+    }
+  ],
+  "FD_ZERO": [
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 75
+    },
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 76
+    },
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 91
+    }
+  ],
+  "FD_SETSIZE": [
+    {
+      "path": "src/core/multiplexer/select/DescriptorEventPublisher.cpp",
+      "line": 91
+    }
+  ],
+  "F_GETFL": [
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 81
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 37
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 61
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 47
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 48
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 125
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 409
+    }
+  ],
+  "O_NONBLOCK": [
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 91
+    },
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 147
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 303
+    },
+    {
+      "path": "src/utils/Config.cpp",
+      "line": 795
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 37
+    },
+    {
+      "path": "tests/component/core/PipeBoundedQueueTest.cpp",
+      "line": 61
+    },
+    {
+      "path": "tests/component/core/PipeImmediateCloseTest.cpp",
+      "line": 32
+    },
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 51
+    },
+    {
+      "path": "tests/component/core/PipeSinkFairnessTest.cpp",
+      "line": 29
+    },
+    {
+      "path": "tests/component/core/PipeSinkFairnessTest.cpp",
+      "line": 30
+    },
+    {
+      "path": "tests/component/core/PipeTimeoutTest.cpp",
+      "line": 28
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 86
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 101
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 127
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 411
+    }
+  ],
+  "F_SETFL": [
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 91
+    },
+    {
+      "path": "src/utils/Config.cpp",
+      "line": 795
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 101
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 127
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 411
+    }
+  ],
+  "O_CLOEXEC": [
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 102
+    },
+    {
+      "path": "src/core/pipe/Pipe.cpp",
+      "line": 147
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 303
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 109
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 121
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 125
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 126
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 128
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 137
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 187
+    },
+    {
+      "path": "tests/component/core/PipeImmediateCloseTest.cpp",
+      "line": 32
+    },
+    {
+      "path": "tests/component/core/PipeSinkFairnessTest.cpp",
+      "line": 29
+    },
+    {
+      "path": "tests/component/core/PipeSinkFairnessTest.cpp",
+      "line": 30
+    },
+    {
+      "path": "tests/component/core/PipeTimeoutTest.cpp",
+      "line": 28
+    },
+    {
+      "path": "tests/component/core/ShutdownReceiverNotificationTest.cpp",
+      "line": 86
+    }
+  ],
+  "SIGABRT": [
+    {
+      "path": "src/core/socket/stream/SocketConnection.hpp",
+      "line": 399
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "MSG_NOSIGNAL": [
+    {
+      "path": "src/core/socket/stream/SocketWriter.cpp",
+      "line": 105
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 95
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 129
+    },
+    {
+      "path": "tests/unit/core/TLSLifecycleHelperOwnershipTest.cpp",
+      "line": 44
+    }
+  ],
+  "AF_INET": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 124
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 57
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 117
+    },
+    {
+      "path": "tests/component/http/InetHttpClientConnectFailureTest.cpp",
+      "line": 19
+    },
+    {
+      "path": "tests/component/http/InetHttpClientConnectFailureTest.cpp",
+      "line": 21
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 39
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 40
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 189
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 191
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 192
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 261
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 263
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 264
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 94
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 97
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 99
+    },
+    {
+      "path": "tests/unit/core/ConnectionAttemptLifecycleTest.cpp",
+      "line": 10
+    },
+    {
+      "path": "tests/unit/core/ConnectionAttemptLifecycleTest.cpp",
+      "line": 13
+    },
+    {
+      "path": "tests/unit/net/InetSocketAddressNativeTest.cpp",
+      "line": 55
+    },
+    {
+      "path": "tests/unit/net/InetSocketAddressNativeTest.cpp",
+      "line": 66
+    },
+    {
+      "path": "tests/unit/net/InetSocketAddressNativeTest.cpp",
+      "line": 71
+    },
+    {
+      "path": "tests/unit/net/InetSocketAddressNativeTest.cpp",
+      "line": 80
+    }
+  ],
+  "NI_MAXHOST": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 97
+    },
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 99
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 78
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 80
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 86
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 90
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 92
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 78
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 80
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 86
+    }
+  ],
+  "NI_MAXSERV": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 98
+    },
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 100
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 79
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 81
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 91
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 93
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 79
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 81
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 88
+    }
+  ],
+  "NI_NUMERICHOST": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 108
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 89
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 101
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 89
+    }
+  ],
+  "NI_NUMERICSERV": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 108
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 89
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 101
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 89
+    }
+  ],
+  "PF_INET6": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 116
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 109
+    },
+    {
+      "path": "src/net/in6/phy/PhysicalSocket.hpp",
+      "line": 52
+    }
+  ],
+  "PF_INET": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 116
+    },
+    {
+      "path": "src/net/in/phy/PhysicalSocket.hpp",
+      "line": 52
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 109
+    }
+  ],
+  "SOCK_STREAM": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 118
+    },
+    {
+      "path": "src/net/in/phy/stream/PhysicalSocket.hpp",
+      "line": 55
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 64
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 67
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 64
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 111
+    },
+    {
+      "path": "src/net/in6/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 65
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 68
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 66
+    },
+    {
+      "path": "src/net/l2/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    },
+    {
+      "path": "src/net/rc/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    },
+    {
+      "path": "src/net/un/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    },
+    {
+      "path": "tests/component/http/InetHttpClientConnectFailureTest.cpp",
+      "line": 19
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 92
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 168
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 173
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 183
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 189
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 261
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 70
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 84
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 94
+    },
+    {
+      "path": "tests/unit/core/ConnectionAttemptLifecycleTest.cpp",
+      "line": 10
+    },
+    {
+      "path": "tests/unit/core/SocketWriterResourcePolicyTest.cpp",
+      "line": 197
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 74
+    },
+    {
+      "path": "tests/unit/core/TLSLifecycleHelperOwnershipTest.cpp",
+      "line": 13
+    },
+    {
+      "path": "tests/unit/net/UnixPeerCredentialsTest.cpp",
+      "line": 57
+    }
+  ],
+  "SOCK_DGRAM": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 119
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 112
+    },
+    {
+      "path": "src/net/un/dgram/Socket.cpp",
+      "line": 57
+    }
+  ],
+  "IPPROTO_TCP": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 120
+    },
+    {
+      "path": "src/net/in/phy/stream/PhysicalSocket.hpp",
+      "line": 55
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 65
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 68
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 72
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 90
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 65
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 87
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 135
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 137
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 113
+    },
+    {
+      "path": "src/net/in6/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 66
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 69
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 73
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 91
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 93
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 67
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 112
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 184
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 186
+    }
+  ],
+  "IPPROTO_UDP": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 121
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 114
+    }
+  ],
+  "AF_INET6": [
+    {
+      "path": "src/net/in/SocketAddrInfo.cpp",
+      "line": 125
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 81
+    },
+    {
+      "path": "src/net/in6/SocketAddrInfo.cpp",
+      "line": 118
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 57
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 41
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 42
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 56
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 80
+    },
+    {
+      "path": "tests/unit/net/Inet6SocketAddressNativeTest.cpp",
+      "line": 55
+    },
+    {
+      "path": "tests/unit/net/Inet6SocketAddressNativeTest.cpp",
+      "line": 65
+    },
+    {
+      "path": "tests/unit/net/Inet6SocketAddressNativeTest.cpp",
+      "line": 70
+    },
+    {
+      "path": "tests/unit/net/Inet6SocketAddressNativeTest.cpp",
+      "line": 79
+    }
+  ],
+  "NI_NAMEREQD": [
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 89
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 89
+    }
+  ],
+  "EAI_AGAIN": [
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 96
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 127
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 96
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 127
+    }
+  ],
+  "EAI_MEMORY": [
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 97
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 128
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 97
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 128
+    }
+  ],
+  "EAI_SYSTEM": [
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 106
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 138
+    },
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 139
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 106
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 138
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 139
+    }
+  ],
+  "AI_CANONNAME": [
+    {
+      "path": "src/net/in/SocketAddress.cpp",
+      "line": 115
+    },
+    {
+      "path": "src/net/in6/SocketAddress.cpp",
+      "line": 115
+    }
+  ],
+  "AI_NUMERICHOST": [
+    {
+      "path": "src/net/in/config/ConfigAddress.cpp",
+      "line": 147
+    },
+    {
+      "path": "src/net/in6/config/ConfigAddress.cpp",
+      "line": 154
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 168
+    },
+    {
+      "path": "tests/unit/net/Inet6SocketAddressInvalidInputTest.cpp",
+      "line": 41
+    },
+    {
+      "path": "tests/unit/net/InetSocketAddressInvalidInputTest.cpp",
+      "line": 41
+    }
+  ],
+  "TCP_NODELAY": [
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 73
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketClient.cpp",
+      "line": 90
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 88
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 135
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 137
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 74
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 91
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketClient.cpp",
+      "line": 93
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 113
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 184
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 186
+    }
+  ],
+  "AI_PASSIVE": [
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 63
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 65
+    }
+  ],
+  "SOL_SOCKET": [
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 69
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 78
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 103
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 105
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 119
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 121
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 71
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 80
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 130
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 132
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 148
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 66
+    },
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 69
+    },
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 72
+    },
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 135
+    },
+    {
+      "path": "src/net/un/PeerCredentials.cpp",
+      "line": 61
+    },
+    {
+      "path": "src/net/un/dgram/Socket.cpp",
+      "line": 89
+    },
+    {
+      "path": "src/net/un/dgram/Socket.cpp",
+      "line": 124
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 118
+    },
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 122
+    }
+  ],
+  "SO_REUSEADDR": [
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 70
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 103
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 105
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 72
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 130
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 132
+    }
+  ],
+  "SO_REUSEPORT": [
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 79
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 119
+    },
+    {
+      "path": "src/net/in/stream/config/ConfigSocketServer.cpp",
+      "line": 121
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 81
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 148
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 150
+    }
+  ],
+  "AI_V4MAPPED": [
+    {
+      "path": "src/net/in6/config/ConfigAddress.cpp",
+      "line": 155
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 341
+    }
+  ],
+  "IPPROTO_IPV6": [
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 100
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 166
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 168
+    }
+  ],
+  "IPV6_V6ONLY": [
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 101
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 166
+    },
+    {
+      "path": "src/net/in6/stream/config/ConfigSocketServer.cpp",
+      "line": 168
+    }
+  ],
+  "AF_BLUETOOTH": [
+    {
+      "path": "src/net/l2/SocketAddress.cpp",
+      "line": 53
+    },
+    {
+      "path": "src/net/rc/SocketAddress.cpp",
+      "line": 53
+    }
+  ],
+  "PF_BLUETOOTH": [
+    {
+      "path": "src/net/l2/phy/PhysicalSocket.hpp",
+      "line": 52
+    },
+    {
+      "path": "src/net/rc/phy/PhysicalSocket.hpp",
+      "line": 52
+    }
+  ],
+  "BTPROTO_L2CAP": [
+    {
+      "path": "src/net/l2/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    }
+  ],
+  "SOCK_NONBLOCK": [
+    {
+      "path": "src/net/phy/PhysicalSocket.h",
+      "line": 65
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 112
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 92
+    },
+    {
+      "path": "tests/unit/core/TLSLifecycleHelperOwnershipTest.cpp",
+      "line": 13
+    }
+  ],
+  "SOCK_CLOEXEC": [
+    {
+      "path": "src/net/phy/PhysicalSocket.h",
+      "line": 65
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 112
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 70
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 84
+    },
+    {
+      "path": "tests/unit/core/SocketWriterResourcePolicyTest.cpp",
+      "line": 197
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 74
+    }
+  ],
+  "SO_DOMAIN": [
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 66
+    }
+  ],
+  "SO_TYPE": [
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 69
+    }
+  ],
+  "SO_PROTOCOL": [
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 72
+    }
+  ],
+  "SO_ERROR": [
+    {
+      "path": "src/net/phy/PhysicalSocket.hpp",
+      "line": 135
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 118
+    }
+  ],
+  "SHUT_RDWR": [
+    {
+      "path": "src/net/phy/stream/PhysicalSocket.h",
+      "line": 60
+    }
+  ],
+  "SHUT_RD": [
+    {
+      "path": "src/net/phy/stream/PhysicalSocket.h",
+      "line": 60
+    }
+  ],
+  "SHUT_WR": [
+    {
+      "path": "src/net/phy/stream/PhysicalSocket.h",
+      "line": 60
+    }
+  ],
+  "BTPROTO_RFCOMM": [
+    {
+      "path": "src/net/rc/phy/stream/PhysicalSocket.hpp",
+      "line": 53
+    }
+  ],
+  "SO_PEERCRED": [
+    {
+      "path": "src/net/un/PeerCredentials.cpp",
+      "line": 57
+    },
+    {
+      "path": "src/net/un/PeerCredentials.cpp",
+      "line": 61
+    }
+  ],
+  "AF_UNIX": [
+    {
+      "path": "src/net/un/SocketAddress.cpp",
+      "line": 58
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 92
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 70
+    },
+    {
+      "path": "tests/component/net/UnixPhysicalSocketPathSafetyTest.cpp",
+      "line": 84
+    },
+    {
+      "path": "tests/unit/core/SocketWriterResourcePolicyTest.cpp",
+      "line": 197
+    },
+    {
+      "path": "tests/unit/core/StreamFrameworkShutdownTest.cpp",
+      "line": 74
+    },
+    {
+      "path": "tests/unit/core/TLSLifecycleHelperOwnershipTest.cpp",
+      "line": 13
+    },
+    {
+      "path": "tests/unit/net/UnixPeerCredentialsTest.cpp",
+      "line": 57
+    },
+    {
+      "path": "tests/unit/net/UnixSocketAddressInitTest.cpp",
+      "line": 72
+    },
+    {
+      "path": "tests/unit/net/UnixSocketAddressInitTest.cpp",
+      "line": 75
+    }
+  ],
+  "SCM_RIGHTS": [
+    {
+      "path": "src/net/un/dgram/Socket.cpp",
+      "line": 90
+    },
+    {
+      "path": "src/net/un/dgram/Socket.cpp",
+      "line": 124
+    }
+  ],
+  "PF_UNIX": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 112
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 133
+    }
+  ],
+  "LOCK_UN": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 240
+    }
+  ],
+  "O_RDWR": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 303
+    }
+  ],
+  "O_EXCL": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    }
+  ],
+  "O_NOFOLLOW": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 297
+    },
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 303
+    }
+  ],
+  "LOCK_NB": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 335
+    }
+  ],
+  "LOCK_EX": [
+    {
+      "path": "src/net/un/phy/PhysicalSocket.hpp",
+      "line": 335
+    }
+  ],
+  "X_OK": [
+    {
+      "path": "src/tools/snodec-control/src/Cli.cpp",
+      "line": 315
+    }
+  ],
+  "SIGTTOU": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "SIGQUIT": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    }
+  ],
+  "SIGTSTP": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "SIGTTIN": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 150
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "STDOUT_FILENO": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 188
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 149
+    },
+    {
+      "path": "tests/unit/log/SemanticTerminalColorRoutingTest.cpp",
+      "line": 78
+    },
+    {
+      "path": "tests/unit/log/SemanticTerminalColorRoutingTest.cpp",
+      "line": 80
+    },
+    {
+      "path": "tests/unit/log/SemanticTerminalColorRoutingTest.cpp",
+      "line": 84
+    }
+  ],
+  "STDERR_FILENO": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 189
+    },
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 150
+    }
+  ],
+  "POSIX_SPAWN_SETPGROUP": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 274
+    }
+  ],
+  "POSIX_SPAWN_SETSIGDEF": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 291
+    }
+  ],
+  "POSIX_SPAWN_SETSIGMASK": [
+    {
+      "path": "src/tools/snodec-control/src/ProcessRunner.cpp",
+      "line": 296
+    }
+  ],
+  "ECHO": [
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 359
+    }
+  ],
+  "ICANON": [
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 359
+    }
+  ],
+  "VMIN": [
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 360
+    }
+  ],
+  "VTIME": [
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 361
+    }
+  ],
+  "TCSANOW": [
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 362
+    },
+    {
+      "path": "src/tools/snodec-control/src/ui/CursesUi.cpp",
+      "line": 368
+    }
+  ],
+  "SIG_ERR": [
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 97
+    }
+  ],
+  "SYS_pidfd_open": [
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 174
+    }
+  ],
+  "SIGKILL": [
+    {
+      "path": "src/utils/Daemon.cpp",
+      "line": 194
+    },
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    }
+  ],
+  "SIGBUS": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "SIGFPE": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "SIGCHLD": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "SIGCONT": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 61
+    }
+  ],
+  "SIGPOLL": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    }
+  ],
+  "SIGILL": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 62
+    }
+  ],
+  "SIGSTOP": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    }
+  ],
+  "SIGSYS": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    }
+  ],
+  "SIGSEGV": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    }
+  ],
+  "SIGPROF": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 63
+    }
+  ],
+  "SIGUSR1": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "SIGTRAP": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "SIGUSR2": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 64
+    }
+  ],
+  "SIGVTALRM": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 65
+    }
+  ],
+  "SIGXFSZ": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 65
+    }
+  ],
+  "SIGWINCH": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 65
+    }
+  ],
+  "SIGXCPU": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 65
+    }
+  ],
+  "SIGURG": [
+    {
+      "path": "src/utils/system/signal.cpp",
+      "line": 65
+    }
+  ],
+  "SYS_GETRANDOM": [
+    {
+      "path": "src/web/websocket/client/SocketContextUpgradeFactory.cpp",
+      "line": 60
+    },
+    {
+      "path": "src/web/websocket/client/SocketContextUpgradeFactory.cpp",
+      "line": 75
+    }
+  ],
+  "SYS_getrandom": [
+    {
+      "path": "src/web/websocket/client/SocketContextUpgradeFactory.cpp",
+      "line": 76
+    }
+  ],
+  "O_WRONLY": [
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 109
+    }
+  ],
+  "O_TRUNC": [
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 109
+    }
+  ],
+  "O_DIRECTORY": [
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 121
+    },
+    {
+      "path": "tests/component/core/FileReaderTest.cpp",
+      "line": 128
+    }
+  ],
+  "FD_CLOEXEC": [
+    {
+      "path": "tests/component/core/PipeOwnershipTest.cpp",
+      "line": 53
+    }
+  ],
+  "RTLD_NEXT": [
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 49
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 78
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 117
+    },
+    {
+      "path": "tests/component/net/AddressResolutionPolicyTest.cpp",
+      "line": 129
+    },
+    {
+      "path": "tests/unit/utils/ConfigDirectoryInitializationTest.cpp",
+      "line": 67
+    }
+  ],
+  "F_OK": [
+    {
+      "path": "tests/component/net/UnixLegacyClientConnectFailureTest.cpp",
+      "line": 76
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientCompositionTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientDisconnectLifecycleTest.cpp",
+      "line": 89
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientFramedPayloadExchangeTest.cpp",
+      "line": 295
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientLargePayloadExchangeTest.cpp",
+      "line": 87
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientMultiMessagePayloadExchangeTest.cpp",
+      "line": 91
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerClientPayloadExchangeTest.cpp",
+      "line": 86
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerControlledCloseLifecycleTest.cpp",
+      "line": 72
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerMultipleClientsCompositionTest.cpp",
+      "line": 79
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerMultipleClientsDisconnectLifecycleTest.cpp",
+      "line": 73
+    },
+    {
+      "path": "tests/component/net/UnixLegacyServerMultipleClientsPayloadExchangeTest.cpp",
+      "line": 92
+    }
+  ],
+  "SO_LINGER": [
+    {
+      "path": "tests/support/NetworkTest.h",
+      "line": 122
+    }
+  ]
+}

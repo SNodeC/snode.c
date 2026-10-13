@@ -1,0 +1,5 @@
+Result<bool> doIsTerminal(File f) {
+    if (::isatty(f.native)) return ok(true);
+    if (errno == ENOTTY) return ok(false);
+    return posixFailure<bool>();
+}

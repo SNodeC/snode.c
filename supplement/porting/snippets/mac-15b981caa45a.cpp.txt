@@ -1,0 +1,3 @@
+Status doSigaddset(sigset_t& set, int signal) {
+    return posixStatus(::sigaddset(&set, signal));
+}

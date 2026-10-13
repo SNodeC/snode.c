@@ -1,0 +1,3 @@
+Status doForceTerminate(Process process) {
+    return winStatus(::TerminateProcess(process.native, 1));
+}

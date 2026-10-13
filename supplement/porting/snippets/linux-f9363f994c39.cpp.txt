@@ -1,0 +1,5 @@
+Result<File> doMkstemp(std::string& pattern) {
+    const int fd = ::mkstemp(pattern.data());
+    if (fd == -1) return posixFailure<File>();
+    return ok(File{fd});
+}

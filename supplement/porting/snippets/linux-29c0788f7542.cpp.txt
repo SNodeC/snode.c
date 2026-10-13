@@ -1,0 +1,3 @@
+Status doDup2(File from, int target) {
+    return posixStatus(::dup2(from.native, target));
+}

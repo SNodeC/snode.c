@@ -1,0 +1,3 @@
+Status doEpollCtl(File queue, int operation, int descriptor, epoll_event* event) {
+    return posixStatus(::epoll_ctl(queue.native, operation, descriptor, event));
+}

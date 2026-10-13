@@ -1,0 +1,4 @@
+Status doShutdown(Socket s, Direction direction) {
+    const int how = direction == Direction::receive ? SHUT_RD : direction == Direction::send ? SHUT_WR : SHUT_RDWR;
+    return socketStatus(::shutdown(s.native, how));
+}

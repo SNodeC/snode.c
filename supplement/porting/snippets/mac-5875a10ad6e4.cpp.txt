@@ -1,0 +1,11 @@
+Result<FileInfo> doLinkInfo(const Path& p) {
+    struct stat st{};
+    if (::lstat(p.c_str(), &st) == -1) return posixFailure<FileInfo>();
+    FileInfo out;
+    out.kind = S_ISREG(st.st_mode) ? FileInfo::Kind::regular : S_ISDIR(st.st_mode) ? FileInfo::Kind::directory : S_ISSOCK(st.st_mode) ? FileInfo::Kind::socket : S_ISLNK(st.st_mode) ? FileInfo::Kind::symlink : FileInfo::Kind::other;
+    out.size = static_cast<std::uint64_t>(st.st_size); out.links = st.st_nlink; out.device = st.st_dev;
+    static_assert(sizeof(st.st_ino) <= sizeof(out.id));
+    std::memcpy(out.id.data(), &st.st_ino, sizeof(st.st_ino));
+    out.modifiedSeconds = st.st_mtimespec.tv_sec; out.modifiedNanoseconds = st.st_mtimespec.tv_nsec;
+    return ok(out);
+}

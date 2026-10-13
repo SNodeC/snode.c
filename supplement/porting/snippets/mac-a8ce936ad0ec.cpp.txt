@@ -1,0 +1,6 @@
+struct PeerIdentity { std::uint64_t user, group; std::optional<std::uint64_t> process; };
+Result<PeerIdentity> doPeerIdentity(Socket channel) {
+    uid_t user; gid_t group;
+    if (::getpeereid(channel.native, &user, &group) < 0) return posixFailure<PeerIdentity>();
+    return ok(PeerIdentity{user, group, std::nullopt});
+}

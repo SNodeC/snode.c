@@ -1,0 +1,3 @@
+Status doUnlink(const Path& p) {
+    return posixStatus(::unlink(p.c_str()));
+}

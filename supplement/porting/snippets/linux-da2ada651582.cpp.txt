@@ -1,0 +1,6 @@
+Result<std::vector<std::string>> doArguments(int argc, char* const* argv) {
+    if (argc < 0 || (argc && !argv)) return posixFailure<std::vector<std::string>>(EINVAL);
+    std::vector<std::string> result;
+    for (int i = 0; i < argc; ++i) result.emplace_back(argv[i]);
+    return ok(std::move(result));
+}

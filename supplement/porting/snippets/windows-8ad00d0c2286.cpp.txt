@@ -1,0 +1,10 @@
+Result<std::pair<std::string, std::string>> doEndpointName(const Address& address, bool numeric) {
+    wchar_t host[NI_MAXHOST], service[NI_MAXSERV];
+    const int flags = numeric ? NI_NUMERICHOST | NI_NUMERICSERV : 0;
+    const int e = ::GetNameInfoW(reinterpret_cast<const sockaddr*>(&address.storage), static_cast<int>(address.length), host, NI_MAXHOST, service, NI_MAXSERV, flags);
+    if (e) return fail<std::pair<std::string, std::string>>(ErrorDomain::resolver, static_cast<std::uint32_t>(e));
+    auto h = toUtf8(host); auto s = toUtf8(service);
+    if (!h) return {{}, h.error};
+    if (!s) return {{}, s.error};
+    return ok(std::pair<std::string, std::string>{std::move(h.value), std::move(s.value)});
+}

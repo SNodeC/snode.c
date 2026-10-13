@@ -1,0 +1,10 @@
+Result<bool> doIsTerminal(File f) {
+    DWORD mode;
+    if (::GetConsoleMode(f.native, &mode)) return ok(true);
+    const DWORD e = ::GetLastError();
+    ::SetLastError(ERROR_SUCCESS);
+    const DWORD type = ::GetFileType(f.native);
+    if (type == FILE_TYPE_UNKNOWN && ::GetLastError() != ERROR_SUCCESS) return winFailure<bool>();
+    if (e == ERROR_INVALID_HANDLE) return ok(false);
+    return winFailure<bool>(e);
+}

@@ -1,0 +1,66 @@
+{
+  "revision": "d4b2b247888fac35411e7e38b5ae8e5a4dee22c8",
+  "checks": [
+    {
+      "check": "Every tracked file has a coverage record",
+      "passed": true
+    },
+    {
+      "check": "All audited tracked file bytes still match snapshot",
+      "passed": true
+    },
+    {
+      "check": "Snapshot revision still matches HEAD",
+      "passed": true
+    },
+    {
+      "check": "One machine-readable row per reviewed catalog operation",
+      "passed": true
+    },
+    {
+      "check": "Every catalog row has source evidence and every selected native entry has a row",
+      "passed": true
+    },
+    {
+      "check": "Main table contains each catalog row exactly once",
+      "passed": true
+    },
+    {
+      "check": "Library table contains each appendix entry exactly once",
+      "passed": true
+    },
+    {
+      "check": "Every native row has extraction state, three platform columns and a capsule contract",
+      "passed": true
+    },
+    {
+      "check": "Every selected reference matches its recorded source line",
+      "passed": true
+    },
+    {
+      "check": "Both direct raw syscall targets are individually accounted for",
+      "passed": true
+    },
+    {
+      "check": "Resolver deleters and OpenSSL callback references are included",
+      "passed": true
+    },
+    {
+      "check": "Template-qualified member definitions are excluded from native calls",
+      "passed": true
+    },
+    {
+      "check": "All local documentation links and Markdown table anchors resolve",
+      "passed": true
+    },
+    {
+      "check": "No production, test, example or build source changed",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "changed_source_files": [],
+  "missing_source_lines": [],
+  "broken_links": [],
+  "runtime_tests": "not run; documentation/static source audit only"
+}
