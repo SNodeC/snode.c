@@ -302,6 +302,8 @@ For runtime log levels and foreground supervision, see [logging and process opti
 
 ## Documentation
 
+Manual CI builds and tests SNode.C; version tags start distribution-package builds, whose successful targets are signed and published by DistributionPackages. See the organization [workflow graph](https://github.com/SNodeC/.github/blob/main/docs/workflow-graph.md#page-overview) for the complete package chain and trigger contracts.
+
 The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
 
 [Documentation index](docs/README.md#page-overview) — the existing guides, examples and runtime references.
