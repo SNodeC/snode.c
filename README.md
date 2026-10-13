@@ -203,7 +203,7 @@ PY
 
 **Boundaries:** this is a byte-stream echo, without authentication or encryption. A read can contain part of a message or several messages; a real protocol must implement framing. The client accepts one LF-terminated reply of at most 4096 bytes; an overlong reply closes the connection. It never echoes the reply back. `legacy` means **plain/unencrypted**, not deprecated. `--config-file /dev/null` avoids loading a saved configuration; explicit `--reconnect=false` keeps this example one-shot even with a different build-time default.
 
-Next: [Build a line-oriented protocol](docs/guides/examples.md#a-line-oriented-protocol).
+Next: [build a line-oriented protocol](docs/guides/examples.md#a-line-oriented-protocol).
 
 ### Try another protocol
 
@@ -237,7 +237,7 @@ All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections 
 
 Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/guides/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-Next: [Explore the full capability map](docs/guides/capabilities.md#page-overview).
+Next: [explore the full capability map](docs/guides/capabilities.md#page-overview).
 
 ### Same context, another transport
 
