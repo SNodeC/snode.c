@@ -1,6 +1,0 @@
-name: CI
-on: [workflow_dispatch]
-permissions: { contents: read }
-jobs:
-  snodec:
-    uses: SNodeC/.github/.github/workflows/verify.yml@main

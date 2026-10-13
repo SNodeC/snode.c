@@ -1,4 +1,5 @@
-name: Trigger Companion verification
+name: Trigger book companion verification
+# Request verification of Book examples against the exact framework edition tag and SHA.
 on:
   push:
     tags: ['Book-*']
@@ -17,7 +18,7 @@ jobs:
           private-key: ${{ secrets.OPENWRT_APP_PRIVATE_KEY }}
           owner: SNodeC
           repositories: SNode.C-Book
-          permission-actions: write
+          permission-contents: write
       - name: Dispatch verification, never Book package
         shell: bash
         env:
@@ -25,9 +26,6 @@ jobs:
           SOURCE_REF: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
         run: |
-          branch=$(gh api repos/SNodeC/SNode.C-Book --jq .default_branch)
-          jq -n --arg branch "$branch" --arg tag "$SOURCE_REF" --arg sha "$SOURCE_SHA" \
-            '{ref: $branch, inputs: {source_ref: $tag, source_sha: $sha}}' |
-            gh api --method POST \
-              repos/SNodeC/SNode.C-Book/actions/workflows/companion-examples.yml/dispatches \
-              --input -
+          jq -n --arg tag "$SOURCE_REF" --arg sha "$SOURCE_SHA" \
+            '{event_type: "verify-companion-framework-edition", client_payload: {source_ref: $tag, source_sha: $sha}}' |
+            gh api --method POST repos/SNodeC/SNode.C-Book/dispatches --input -
