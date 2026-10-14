@@ -2,6 +2,12 @@ name: Build SNode.C distribution packages
 # Build unsigned packages and request signing and publication for each successful target.
 run-name: Packages · ${{ github.event.client_payload.capture || github.run_id }} · ${{ github.event.client_payload.target || '-' }}
 on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing version tag to build (vMAJOR.MINOR.PATCH); use the default branch
+        required: true
+        type: string
   push:
     tags: ['v[0-9]*.[0-9]*.[0-9]*']
   repository_dispatch:
@@ -19,7 +25,7 @@ env:
   BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 jobs:
   prepare:
-    if: github.event_name == 'repository_dispatch' || github.event.deleted == false
+    if: (github.event_name == 'push' && github.event.deleted == false) || github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch))
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -42,7 +48,7 @@ jobs:
           path: feed
           persist-credentials: false
       - uses: actions/download-artifact@v8
-        if: github.event_name != 'push' || github.run_attempt > 1
+        if: github.event_name == 'repository_dispatch' || github.run_attempt > 1
         with:
           repository: ${{ env.CAPTURE_REPOSITORY }}
           run-id: ${{ env.CAPTURE_RUN }}
@@ -51,13 +57,13 @@ jobs:
           path: bundle
       - name: Allocate revisions and capture release targets
         id: initialize
-        if: github.event_name == 'push' && github.run_attempt == 1
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.run_attempt == 1
         env:
           PACKAGES_TOKEN: ${{ steps.capture.outputs.token }}
           RELEASE_PROJECT: ${{ env.BUILD_PROJECT }}
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
         run: |
-          [[ "$GITHUB_REF" =~ ^refs/tags/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-          export RELEASE_TAG="${GITHUB_REF#refs/tags/}"
+          [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
           bash feed/ci/publish/status.sh published reserve
           python3 -m ci.repository prepare published bundle
       - uses: actions/upload-artifact@v7
