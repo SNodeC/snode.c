@@ -9,7 +9,7 @@
 </p>
 
 <!-- snodec:begin organization -->
-<p><a href="https://github.com/SNodeC" title="SNodeC organization"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/organization-dark.svg"><img align="right" src="docs/media/nav/organization-light.svg" alt="SNodeC organization" title="SNodeC organization" width="160" height="28"></picture></a><br clear="all"></p>
+<p><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/organization-dark.svg"><img align="right" src="docs/media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization" width="160" height="28"></picture></a><br clear="all"></p>
 <!-- snodec:end organization -->
 
 # SNode.C
@@ -21,7 +21,7 @@
 <!-- snodec:end header -->
 
 <!-- snodec:begin status -->
-[![CI](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/SNodeC/snode.c/build-and-test.yml?branch=master&label=CI&style=flat)](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
 <!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
