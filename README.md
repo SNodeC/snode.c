@@ -326,6 +326,8 @@ Install from [signed packages](https://github.com/SNodeC/Packages#readme) for yo
 
 ## Releases
 
+To rebuild an existing version without moving its tag, open **Build SNode.C distribution packages** in Actions, select **Run workflow** on the default branch and enter its existing `vMAJOR.MINOR.PATCH` tag. Each manual start creates a fresh capture and package revision. Ordinary job retries still require the original capture artifact; use a new manual run if that artifact is unavailable.
+
 [Release history and release notes](https://github.com/SNodeC/snode.c/releases). Match framework libraries, components and plugins from the same installation. Read the [upgrade and ABI guidance](docs/guides/deployment.md#upgrade-deliberately) before replacing a deployed installation.
 
 ## Contributing
