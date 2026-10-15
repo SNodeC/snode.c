@@ -1,3 +1,4 @@
+<a id="banner"></a>
 <!-- snodec:begin header -->
 <a name="project-overview"></a>
 
@@ -9,7 +10,7 @@
 </p>
 
 <!-- snodec:begin organization -->
-<p><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/organization-dark.svg"><img align="right" src="docs/media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization" width="160" height="28"></picture></a><br clear="all"></p>
+<p><a href="https://github.com/VolkerChristian#banner" title="Volker Christian account"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="docs/media/nav/account-icon-dark.svg"><source media="(max-width: 640px)" srcset="docs/media/nav/account-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/account-dark.svg"><img align="right" src="docs/media/nav/account-light.svg" alt="Volker Christian account" title="Volker Christian account"></picture></a><a href="https://github.com/SNodeC#banner" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="docs/media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="docs/media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/organization-dark.svg"><img align="right" src="docs/media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="#banner" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="docs/media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="docs/media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="docs/media/nav/repository-dark.svg"><img align="right" src="docs/media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
 <!-- snodec:end organization -->
 
 # SNode.C
@@ -21,7 +22,7 @@
 <!-- snodec:end header -->
 
 <!-- snodec:begin status -->
-[![CI](https://img.shields.io/github/actions/workflow/status/SNodeC/snode.c/build-and-test.yml?branch=master&label=CI&style=flat)](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#readme) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/SNodeC/snode.c/build-and-test.yml?branch=master&label=CI&style=flat)](https://github.com/SNodeC/snode.c/actions/workflows/build-and-test.yml) [![Release](https://img.shields.io/github/v/release/SNodeC/snode.c?style=flat)](https://github.com/SNodeC/snode.c/releases) [![Packages](https://img.shields.io/badge/Packages-signed-334155?style=flat)](https://github.com/SNodeC/Packages#banner) [![License: MIT or LGPL 3.0 or later](https://img.shields.io/badge/License-MIT%20OR%20LGPL--3.0--or--later-334155?style=flat)](LICENSE)
 <!-- snodec:end status -->
 
 **Write the protocol. Choose the connection. Build the application.**
@@ -32,7 +33,7 @@ SNode.C—Simple Node in C++—is an event-driven C++20 networking framework for
 <p>
   <a href="#quick-start" title="Start"><img src="docs/media/menu/snodec-start.svg" alt="Start" width="160" height="28"></a>
   <a href="#install" title="Install"><img src="docs/media/menu/snodec-install.svg" alt="Install" width="160" height="28"></a>
-  <a href="docs/guides/build-from-source.md#page-overview" title="Build"><img src="docs/media/menu/build.svg" alt="Build" width="160" height="28"></a>
+  <a href="docs/guides/build-from-source.md#banner" title="Build"><img src="docs/media/menu/build.svg" alt="Build" width="160" height="28"></a>
   <a href="#first-success" title="Use"><img src="docs/media/menu/snodec-use.svg" alt="Use" width="160" height="28"></a>
   <a href="#configuration" title="Configure"><img src="docs/media/menu/snodec-configure.svg" alt="Configure" width="160" height="28"></a>
   <a href="#architecture" title="Architecture"><img src="docs/media/menu/snodec-architecture.svg" alt="Architecture" width="160" height="28"></a>
@@ -207,7 +208,7 @@ Next: [build a line-oriented protocol](docs/guides/examples.md#a-line-oriented-p
 
 ### Try another protocol
 
-The [examples guide](docs/guides/examples.md#page-overview) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
+The [examples guide](docs/guides/examples.md#banner) contains complete HTTP, SSE and WebSocket programs, plus line framing. Each has its own build files and expected result; the native echo above remains the shortest first success.
 
 Not working? See [first-program troubleshooting](docs/guides/deployment.md#troubleshoot-a-first-program).
 
@@ -219,7 +220,7 @@ Not working? See [first-program troubleshooting](docs/guides/deployment.md#troub
 - **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
 - **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
 - **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
-- **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview).
+- **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#banner).
 - **Custom protocols:** `SocketContext` and `SocketContextFactory` provide per-connection framing, messages and behavior.
 - **MariaDB:** event-driven database integration for queries and persistence.
 
@@ -235,9 +236,9 @@ Not working? See [first-program troubleshooting](docs/guides/deployment.md#troub
 
 All families offer plain (`stream::legacy`) and TLS (`stream::tls`) connections within the listed namespace.
 
-Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/guides/capabilities.md#page-overview). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
+Bluetooth components require BlueZ and suitable hardware. Higher-level wrappers cover the families listed in the [capability guide](docs/guides/capabilities.md#banner). Unix datagram sockets are a separate lower-level facility; the table describes stream transports.
 
-Next: [explore the full capability map](docs/guides/capabilities.md#page-overview).
+Next: [explore the full capability map](docs/guides/capabilities.md#banner).
 
 ### Same context, another transport
 
@@ -253,7 +254,7 @@ Unix socket — component: net-un-stream-legacy
   net::un::stream::legacy::SocketServer<EchoFactory<Role::SERVER>>
 ```
 
-A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/guides/deployment.md#page-overview).
+A Unix listener takes a socket path instead of a host/port. TLS also requires certificates, private keys and peer-trust configuration; see [deployment](docs/guides/deployment.md#banner).
 
 ### Designed to live inside your application
 
@@ -264,7 +265,7 @@ A Unix listener takes a socket path instead of a host/port. TLS also requires ce
 - **Operational visibility.** Semantic logging supports text and JSON output, scoped filters and hexadecimal payload dumps. Connection and protocol limits let applications bound buffering and message sizes.
 - **Build only what you need.** Exported CMake component targets let consumers link selected libraries. Distribution packages also offer component-level installation.
 
-The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/guides/capabilities.md#page-overview) separates implementation coverage from deployment requirements.
+The runtime has `select`, `poll` and `epoll` multiplexers. Availability, optional libraries and package contents depend on the target build; [the capability guide](docs/guides/capabilities.md#banner) separates implementation coverage from deployment requirements.
 
 ## Architecture
 
@@ -298,31 +299,31 @@ Bind only the intended interfaces, configure certificate/trust settings for TLS,
 
 Next: [runtime configuration and deployment](docs/guides/deployment.md#start-with-one-explicit-configuration).
 
-For runtime log levels and foreground supervision, see [logging and process options](docs/guides/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#page-overview).
+For runtime log levels and foreground supervision, see [logging and process options](docs/guides/deployment.md#logging-and-process-options). Inspect or edit configuration with [snodec-control](src/tools/snodec-control/README.md#banner).
 
 ## Documentation
 
-Manual CI builds and tests SNode.C; version tags start distribution-package builds, whose successful targets are signed and published by DistributionPackages. See the organization [workflow graph](https://github.com/SNodeC/.github/blob/main/docs/workflow-graph.md#page-overview) for the complete package chain and trigger contracts.
+Manual CI builds and tests SNode.C; version tags start distribution-package builds, whose successful targets are signed and published by DistributionPackages. See the organization [workflow graph](https://github.com/SNodeC/.github/blob/main/docs/workflow-graph.md#banner) for the complete package chain and trigger contracts.
 
 The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
 
-[Documentation index](docs/README.md#page-overview) — the existing guides, examples and runtime references.
+[Documentation index](docs/README.md#banner) — the existing guides, examples and runtime references.
 
 ### Learn by building
 
 - **Frame a protocol:** [Line framing](docs/guides/examples.md#a-line-oriented-protocol) and the [WebSocket example](docs/guides/examples.md#talk-both-ways-with-a-websocket)
-- **Explore applications:** [Echo source](examples/echo) and [application inventory](src/apps/README.md#page-overview)
-- **Choose protocols:** [Capability guide](docs/guides/capabilities.md#page-overview)
-- **Run a service:** [Deployment guide](docs/guides/deployment.md#page-overview)
+- **Explore applications:** [Echo source](examples/echo/README.md#banner) and [application inventory](src/apps/README.md#banner)
+- **Choose protocols:** [Capability guide](docs/guides/capabilities.md#banner)
+- **Run a service:** [Deployment guide](docs/guides/deployment.md#banner)
 - **Browse the API:** [API reference](https://snodec.github.io/snode.c-doc/html/namespacecore.html)
 
 ## Platforms and packages
 
-Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and CMake 3.18+. Signed packages cover Debian, Ubuntu, Rocky Linux, Fedora, Raspberry Pi OS and OpenWrt; the [Packages matrix](https://github.com/SNodeC/Packages#readme) is authoritative for available releases and architectures.
+Source builds target Linux with a C++20 toolchain (GCC 12.2+ or Clang 13+) and CMake 3.18+. Signed packages cover Debian, Ubuntu, Rocky Linux, Fedora, Raspberry Pi OS and OpenWrt; the [Packages matrix](https://github.com/SNodeC/Packages#banner) is authoritative for available releases and architectures.
 
 ### Install
 
-Install from [signed packages](https://github.com/SNodeC/Packages#readme) for your distribution, release and architecture, or [build from source](docs/guides/build-from-source.md#page-overview) for native Linux or OpenWrt.
+Install from [signed packages](https://github.com/SNodeC/Packages#banner) for your distribution, release and architecture, or [build from source](docs/guides/build-from-source.md#banner) for native Linux or OpenWrt.
 
 ## Releases
 
@@ -341,11 +342,11 @@ SNode.C began as a teaching framework at the University of Applied Sciences Uppe
 <!-- snodec:begin ecosystem -->
 ## Ecosystem
 
-[MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview) · [AISuite](https://github.com/SNodeC/AISuite#project-overview) · [CodexUI](https://github.com/SNodeC/CodexUI#project-overview)
+[MQTTSuite](https://github.com/SNodeC/mqttsuite#banner) · [AISuite](https://github.com/SNodeC/AISuite#banner) · [CodexUI](https://github.com/SNodeC/CodexUI#banner)
 <!-- snodec:end ecosystem -->
 
 <!-- snodec:begin footer -->
 Copyright © Volker Christian and contributors. SNode.C is dual-licensed under **[MIT](LICENSE-MIT) OR [LGPL-3.0-or-later](LICENSE-LGPL-3.0-or-later)**. Choose either license; bundled dependencies retain their own terms.
 
-Maintainer: [Volker Christian](https://github.com/VolkerChristian). [Organization](https://github.com/SNodeC) · [Contributing](#contributing) · [Security](https://github.com/SNodeC/.github/blob/main/SECURITY.md)
+Maintainer: [Volker Christian](https://github.com/VolkerChristian#banner). [Organization](https://github.com/SNodeC#banner) · [Contributing](#contributing) · [Security](https://github.com/SNodeC/.github/blob/main/SECURITY.md)
 <!-- snodec:end footer -->
