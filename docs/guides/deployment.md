@@ -1,7 +1,9 @@
+<a id="banner"></a>
+
 <!-- snodec:begin page-header -->
-<a id="page-overview"></a>
+<a id="banner"></a><a id="page-overview"></a>
 <p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-guides-compact.svg"><img src="../media/nav/banner-guides.svg" alt="SNode.C — Guides" width="100%"></picture></p>
-<p><a href="README.md#page-overview" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
+<p><a href="README.md#banner" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/VolkerChristian#banner" title="Volker Christian account"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/account-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/account-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/account-dark.svg"><img align="right" src="../media/nav/account-light.svg" alt="Volker Christian account" title="Volker Christian account"></picture></a><a href="https://github.com/SNodeC#banner" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#banner" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # Deploy an SNode.C application
@@ -18,7 +20,7 @@ Use the application’s own configuration interface rather than guessing setting
 snodec-control --target ./my-service --ui
 ```
 
-The [configuration-tool guide](../../src/tools/snodec-control/README.md#page-overview) covers inspection, editing and saving. The terminal UI requires a build with Curses support. CLI inspection and file generation do not. Protect exported configuration files: they can contain credentials and private-key paths.
+The [configuration-tool guide](../../src/tools/snodec-control/README.md#banner) covers inspection, editing and saving. The terminal UI requires a build with Curses support. CLI inspection and file generation do not. Protect exported configuration files: they can contain credentials and private-key paths.
 
 Persist the selected configuration with `--write-config path/to/service.conf`. This writes and exits; it is not a live reload. Start the service with `--config-file path/to/service.conf`. Applications that construct additional instances dynamically can use the framework’s reconfiguration API, but that is distinct from promising arbitrary hot reload of application state.
 
@@ -27,7 +29,7 @@ Persist the selected configuration with `--write-config path/to/service.conf`. T
 - Bind only the required interfaces. Use loopback or a Unix-domain socket for local services.
 - Configure TLS certificates, private-key permissions, peer verification and trust roots for encrypted connections. Never deploy the repository’s demonstration keys as production credentials.
 - Choose authentication and authorization appropriate to the application. TLS encryption and HTTP Basic middleware do not by themselves define access policy.
-- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../design/resource-policies-and-streaming.md#page-overview).
+- Set connection, body/message and write-queue limits for the expected workload. Review [resource-policy and streaming guidance](../design/resource-policies-and-streaming.md#banner).
 - Keep callbacks non-blocking. Size retry/backoff and reconnect settings to avoid overwhelming a recovering peer.
 - Create writable state directories for the service account. Keep binaries and configuration read-only where practical.
 - Select log levels deliberately. Trace output and payload dumps can be expensive and can expose application data; use scoped filters and rotation.
@@ -55,7 +57,7 @@ For example, replace the executable with your service:
 ./my-service --config-file /etc/my-service/service.conf --log-level 4 --log-format json --daemonize=false
 ```
 
-Start with supervisor-captured foreground logs (`journalctl` for the unit below). When opting into file logging, provision a writable, permission-restricted log destination and an external rotation/retention policy appropriate to your supervisor; no rotation flag is promised here. Debug/trace records can expose payloads and credentials. For application code rather than operator options, see the [public logging API](../logging/public-api.md#page-overview).
+Start with supervisor-captured foreground logs (`journalctl` for the unit below). When opting into file logging, provision a writable, permission-restricted log destination and an external rotation/retention policy appropriate to your supervisor; no rotation flag is promised here. Debug/trace records can expose payloads and credentials. For application code rather than operator options, see the [public logging API](../logging/public-api.md#banner).
 
 ## Configure a TLS instance
 
@@ -104,7 +106,7 @@ For containers, package your executable with its runtime libraries, mount config
 
 ## OpenWrt and embedded deployments
 
-Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/installation/openwrt.md). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
+Install only the required framework/application packages from the [OpenWrt feed](https://github.com/SNodeC/Packages/blob/main/docs/installation/openwrt.md#banner). Ready-made application packages may provide init scripts; a custom executable needs its own suitable service definition. Check RAM, storage, TLS trust material and persistent-data locations on the actual device.
 
 ## Upgrade deliberately
 

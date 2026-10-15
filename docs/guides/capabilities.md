@@ -1,7 +1,9 @@
+<a id="banner"></a>
+
 <!-- snodec:begin page-header -->
-<a id="page-overview"></a>
+<a id="banner"></a><a id="page-overview"></a>
 <p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-guides-compact.svg"><img src="../media/nav/banner-guides.svg" alt="SNode.C — Guides" width="100%"></picture></p>
-<p><a href="README.md#page-overview" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
+<p><a href="README.md#banner" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/VolkerChristian#banner" title="Volker Christian account"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/account-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/account-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/account-dark.svg"><img align="right" src="../media/nav/account-light.svg" alt="Volker Christian account" title="Volker Christian account"></picture></a><a href="https://github.com/SNodeC#banner" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#banner" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # SNode.C capability map
@@ -68,7 +70,7 @@ Use SSE for telemetry, progress and live status flowing from server to client. T
 
 The framework contains **MQTT 3.1.1** packet handling, client/server APIs, broker facilities and MQTT-over-WebSocket adapters. MQTT QoS, sessions, subscriptions, retained messages and will messages belong to this protocol layer. Applications choose their authentication, authorization, persistence and resource policies.
 
-SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsuite#project-overview) supplies the broker, bridge, integrator, CLI and database-store executables. Neither this inventory nor MQTT 3.1.1 support implies MQTT 5 support.
+SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsuite#banner) supplies the broker, bridge, integrator, CLI and database-store executables. Neither this inventory nor MQTT 3.1.1 support implies MQTT 5 support.
 
 ## Data, configuration and operations
 
@@ -76,13 +78,13 @@ SNode.C is the library foundation; [MQTTSuite](https://github.com/SNodeC/mqttsui
 - **C++ / CLI / configuration files.** Configure application sections and named instances through the same configuration model.
 - **`snodec-control`.** Discover an application’s configuration, inspect/edit values, generate configuration files and optionally use a Curses terminal UI.
 - **Retry and reconnect policy.** Retry limits, delays, backoff and jitter; reconnect after connection loss.
-- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../design/resource-policies-and-streaming.md#page-overview).
+- **Timeouts and limits.** Connection timeouts, write queues and protocol/body limits; see the [resource-policy reference](../design/resource-policies-and-streaming.md#banner).
 - **Semantic logging.** Text/JSON output; application/framework, component, boundary and instance filtering; structured context and hex dumps.
 - **CMake components.** Imported `snodec::…` targets for external applications.
-- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#readme) and [source builds](build-from-source.md#page-overview).
+- **Packaging.** [Binary packages](https://github.com/SNodeC/Packages#banner) and [source builds](build-from-source.md#banner).
 
 ## Demonstrations and deployment
 
 The source contains HTTP, echo, WebSocket, database and OAuth2 demonstrations. Production services still need explicit access controls, TLS configuration and qualification on their target hardware; the OAuth2 sample is a learning application.
 
-Next: [build from source](build-from-source.md#page-overview), [run the examples](examples.md#page-overview) or [deploy](deployment.md#page-overview).
+Next: [build from source](build-from-source.md#banner), [run the examples](examples.md#banner) or [deploy](deployment.md#banner).

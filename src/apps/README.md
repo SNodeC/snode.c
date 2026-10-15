@@ -1,7 +1,9 @@
+<a id="banner"></a>
+
 <!-- snodec:begin page-header -->
-<a id="page-overview"></a>
+<a id="banner"></a><a id="page-overview"></a>
 <p><picture><source media="(max-width: 640px)" srcset="../../docs/media/nav/banner-examples-compact.svg"><img src="../../docs/media/nav/banner-examples.svg" alt="SNode.C — Examples" width="100%"></picture></p>
-<p><a href="../../README.md#project-overview" title="Up to SNode.C"><picture><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/up-snode-c-dark.svg"><img src="../../docs/media/nav/up-snode-c-light.svg" alt="Up to SNode.C" title="Up to SNode.C" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../../docs/media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../../docs/media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/organization-dark.svg"><img align="right" src="../../docs/media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../../docs/media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../../docs/media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/repository-dark.svg"><img align="right" src="../../docs/media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
+<p><a href="../../README.md#banner" title="Up to SNode.C"><picture><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/up-snode-c-dark.svg"><img src="../../docs/media/nav/up-snode-c-light.svg" alt="Up to SNode.C" title="Up to SNode.C" width="160" height="28"></picture></a><a href="https://github.com/VolkerChristian#banner" title="Volker Christian account"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../../docs/media/nav/account-icon-dark.svg"><source media="(max-width: 640px)" srcset="../../docs/media/nav/account-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/account-dark.svg"><img align="right" src="../../docs/media/nav/account-light.svg" alt="Volker Christian account" title="Volker Christian account"></picture></a><a href="https://github.com/SNodeC#banner" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../../docs/media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../../docs/media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/organization-dark.svg"><img align="right" src="../../docs/media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#banner" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../../docs/media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../../docs/media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../../docs/media/nav/repository-dark.svg"><img align="right" src="../../docs/media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # Example application inventory
@@ -18,7 +20,7 @@ These applications are built as part of SNode.C when their required components a
 | [tlslegacy](tlslegacy/) | TLS and plain-stream examples | `tlslegacyserver`, `tlslegacyclient` |
 | [towercalculator](towercalculator/) | Protocol/application composition example | `towerCalculation` |
 
-For the complete installed-consumer tutorial, follow the [standalone echo pair](../../examples/echo/README.md#page-overview). Its annotated source, configuration, run commands and four application-level CTests now have one owner there. The root README retains its shorter [first success](../../README.md#first-success).
+For the complete installed-consumer tutorial, follow the [standalone echo pair](../../examples/echo/README.md#banner). Its annotated source, configuration, run commands and four application-level CTests now have one owner there. The root README retains its shorter [first success](../../README.md#first-success).
 
 Top-level utilities include `configtest`, `jsonserver`, `jsonclient`, `testpipe`, `testpost`, `testregex`, and `express-compat-server`; consult [the application build file](CMakeLists.txt) for their required libraries and install components.
 
@@ -29,4 +31,4 @@ Top-level utilities include `configtest`, `jsonserver`, `jsonclient`, `testpipe`
 
 ## Express testing
 
-- [Express compatibility suite](../express/express-compat-suite/README.md#page-overview)
+- [Express compatibility suite](../express/express-compat-suite/README.md#banner)

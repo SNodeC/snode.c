@@ -1,7 +1,9 @@
+<a id="banner"></a>
+
 <!-- snodec:begin page-header -->
-<a id="page-overview"></a>
+<a id="banner"></a><a id="page-overview"></a>
 <p><picture><source media="(max-width: 640px)" srcset="../media/nav/banner-guides-compact.svg"><img src="../media/nav/banner-guides.svg" alt="SNode.C — Guides" width="100%"></picture></p>
-<p><a href="README.md#page-overview" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/SNodeC" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#project-overview" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
+<p><a href="README.md#banner" title="Up to Guides"><picture><source media="(prefers-color-scheme: dark)" srcset="../media/nav/up-guides-dark.svg"><img src="../media/nav/up-guides-light.svg" alt="Up to Guides" title="Up to Guides" width="160" height="28"></picture></a><a href="https://github.com/VolkerChristian#banner" title="Volker Christian account"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/account-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/account-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/account-dark.svg"><img align="right" src="../media/nav/account-light.svg" alt="Volker Christian account" title="Volker Christian account"></picture></a><a href="https://github.com/SNodeC#banner" title="SNode.C organization"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/organization-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/organization-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/organization-dark.svg"><img align="right" src="../media/nav/organization-light.svg" alt="SNode.C organization" title="SNode.C organization"></picture></a><a href="../../README.md#banner" title="SNode.C repository"><picture><source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="../media/nav/repository-icon-dark.svg"><source media="(max-width: 640px)" srcset="../media/nav/repository-icon-light.svg"><source media="(prefers-color-scheme: dark)" srcset="../media/nav/repository-dark.svg"><img align="right" src="../media/nav/repository-light.svg" alt="SNode.C repository" title="SNode.C repository"></picture></a><br clear="all"></p>
 <!-- snodec:end page-header -->
 
 # Build and install SNode.C from source
@@ -13,7 +15,7 @@
 </p>
 <!-- snodec:end menu -->
 
-**Prefer prebuilt binaries?** See [Packages](https://github.com/SNodeC/Packages#readme) for supported distributions and installation instructions.
+**Prefer prebuilt binaries?** See [Packages](https://github.com/SNodeC/Packages#banner) for supported distributions and installation instructions.
 
 ## Native Linux build
 
@@ -39,7 +41,7 @@ sudo dnf install gcc gcc-c++ cmake ninja-build pkgconf-pkg-config git ca-certifi
   openssl-devel json-devel bluez-libs-devel file-devel mariadb-connector-c-devel ncurses-devel
 ```
 
-Rocky needs its development repositories enabled (the package build enables CRB and EPEL). Rocky 9's package build uses `gcc-toolset-14-gcc-c++` and sources `/opt/rh/gcc-toolset-14/enable` before configuring; do not assume the default compiler meets the minimum. Check your release's repositories and toolchain before using these commands. Optional dependencies can be omitted only when their associated modules are deliberately disabled; a package name is not a guarantee of the required version. Alternatively choose the [prebuilt packages](https://github.com/SNodeC/Packages#readme).
+Rocky needs its development repositories enabled (the package build enables CRB and EPEL). Rocky 9's package build uses `gcc-toolset-14-gcc-c++` and sources `/opt/rh/gcc-toolset-14/enable` before configuring; do not assume the default compiler meets the minimum. Check your release's repositories and toolchain before using these commands. Optional dependencies can be omitted only when their associated modules are deliberately disabled; a package name is not a guarantee of the required version. Alternatively choose the [prebuilt packages](https://github.com/SNodeC/Packages#banner).
 
 
 ### Build and install
@@ -81,7 +83,7 @@ cmake --build build-check --parallel
 ctest --test-dir build-check --output-on-failure --parallel
 ```
 
-Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md#page-overview).
+Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md#banner).
 
 ### Verify the installation
 
@@ -166,7 +168,7 @@ make -j16 package/local/snode.c/compile V=s
 
 This example creates unsigned packages for local use. Adjust the parallel job count to the build host. In an existing SDK, retain your `.config` and change selections through `make menuconfig` instead of replacing it.
 
-Use **Network / SNode.C** in `make menuconfig`. OpenWrt generates a `CONFIG_PACKAGE_<package>` tristate: `m` builds an installable package; `y` also selects it for an image build; `n` omits it unless a selected consumer requires it. Required lower layers follow the consumer's selection level. No second set of module booleans overrides these selectors. See the [package catalog](https://github.com/SNodeC/Packages/blob/main/docs/catalogs/snodec.md) for package contents.
+Use **Network / SNode.C** in `make menuconfig`. OpenWrt generates a `CONFIG_PACKAGE_<package>` tristate: `m` builds an installable package; `y` also selects it for an image build; `n` omits it unless a selected consumer requires it. Required lower layers follow the consumer's selection level. No second set of module booleans overrides these selectors. See the [package catalog](https://github.com/SNodeC/Packages/blob/main/docs/catalogs/snodec.md#banner) for package contents.
 
 `snodec` selects all 63 shared runtime modules, demonstrations (`snodec-apps`) and the control tool (`snodec-control`). Static/internal targets have no separate runtime payload. RFCOMM (`net-rc`) and L2CAP (`net-l2`) each have address/configuration, physical socket, physical stream, stream configuration, legacy stream and TLS stream layers. RFCOMM also has legacy/TLS Express packages.
 
