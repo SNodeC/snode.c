@@ -63,7 +63,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
-    static core::multiplexer::poll::EventMultiplexer eventMultiplexer;
+    static thread_local core::multiplexer::poll::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
 }

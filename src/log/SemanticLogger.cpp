@@ -46,6 +46,7 @@
 
 #include <iomanip>
 #include <map>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -313,6 +314,8 @@ namespace logger {
             return lines;
         }
 
+        std::mutex policyMutex;
+
         struct SemanticPolicy {
             LogLevel globalLevel = LogLevel::Trace;
             std::map<LogOrigin, LogLevel> originLevels;
@@ -366,56 +369,67 @@ namespace logger {
     }
 
     void LogManager::init() {
+        const std::lock_guard lock(policyMutex);
         const unsigned long nextGeneration = policy().generation + 1;
         policy() = SemanticPolicy{};
         policy().generation = nextGeneration;
     }
 
     void LogManager::setGlobalLevel(LogLevel level) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         policy().globalLevel = level;
     }
 
     void LogManager::setOriginLevel(LogOrigin origin, LogLevel level) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         policy().originLevels[origin] = level;
     }
 
     void LogManager::setBoundaryLevel(LogBoundary boundary, LogLevel level) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         policy().boundaryLevels[boundary] = level;
     }
 
     void LogManager::setComponentLevel(std::string component, LogLevel level) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         ensureNonEmptyKey(component, "component");
         policy().componentLevels[std::move(component)] = level;
     }
 
     void LogManager::setInstanceLevel(std::string instance, LogLevel level) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         ensureNonEmptyKey(instance, "instance");
         policy().instanceLevels[std::move(instance)] = level;
     }
 
     void LogManager::setFormat(Format format) {
+        const std::lock_guard lock(policyMutex);
         ensureMutable();
         policy().format = format;
     }
 
     void LogManager::freeze() {
+        const std::lock_guard lock(policyMutex);
         policy().frozen = true;
     }
 
     bool LogManager::isFrozen() {
+        const std::lock_guard lock(policyMutex);
         return policy().frozen;
     }
 
     unsigned long LogManager::generation() {
+        const std::lock_guard lock(policyMutex);
         return policy().generation;
     }
 
     LogLevel LogManager::effectiveLevel(const LogScope& scope) {
+        const std::lock_guard lock(policyMutex);
         const auto& current = policy();
         if (!scope.instance.empty()) {
             if (const auto it = current.instanceLevels.find(std::string(scope.instance)); it != current.instanceLevels.end())
@@ -448,6 +462,7 @@ namespace logger {
     }
 
     LogManager::Format LogManager::format() {
+        const std::lock_guard lock(policyMutex);
         return policy().format;
     }
 

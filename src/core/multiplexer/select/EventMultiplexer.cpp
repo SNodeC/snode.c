@@ -56,7 +56,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
-    static core::multiplexer::select::EventMultiplexer eventMultiplexer;
+    static thread_local core::multiplexer::select::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
 }

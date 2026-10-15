@@ -78,7 +78,7 @@ namespace web::http::server {
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
-        static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
+        static thread_local SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
     }

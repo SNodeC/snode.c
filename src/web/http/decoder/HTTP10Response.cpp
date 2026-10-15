@@ -67,7 +67,7 @@ namespace web::http::decoder {
     std::size_t HTTP10Response::read() {
         std::size_t consumed = 0;
         std::size_t ret = 0;
-        static char contentChunk[MAX_CONTENT_CHUNK_LEN];
+        char contentChunk[MAX_CONTENT_CHUNK_LEN];
 
         do {
             const std::size_t remaining = maximumBodyBytes == 0 ? MAX_CONTENT_CHUNK_LEN : maximumBodyBytes - content.size();

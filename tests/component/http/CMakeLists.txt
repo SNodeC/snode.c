@@ -429,3 +429,15 @@ set_tests_properties(
     PROPERTIES LABELS "component;http;chunked;request;legacy;ipv4"
                SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+snodec_add_test(ThreadedHttpEventLoopsTest ThreadedHttpEventLoopsTest.cpp)
+target_link_libraries(
+    ThreadedHttpEventLoopsTest
+    PRIVATE snodec-test-support snodec::http-server snodec::http-client
+            snodec::net-in-stream-legacy
+)
+target_compile_features(ThreadedHttpEventLoopsTest PRIVATE cxx_std_20)
+set_tests_properties(
+    ThreadedHttpEventLoopsTest PROPERTIES LABELS "component;http;threads"
+                                          SKIP_RETURN_CODE 77 TIMEOUT 5
+)

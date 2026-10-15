@@ -50,8 +50,7 @@
 namespace utils {
 
     std::string Uuid::getUuid() {
-        static std::random_device dev;
-        static std::mt19937 rng(dev());
+        static thread_local std::mt19937 rng(std::random_device{}());
 
         std::uniform_int_distribution<int> dist(0, 15);
 

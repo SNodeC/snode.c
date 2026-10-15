@@ -55,7 +55,7 @@ namespace core::multiplexer::epoll {
     class EventMultiplexer : public core::EventMultiplexer {
     public:
         EventMultiplexer();
-        ~EventMultiplexer() override = default;
+        ~EventMultiplexer() override;
 
     private:
         int monitorDescriptors(utils::Timeval& tickTimeout, const sigset_t& sigMask) override;

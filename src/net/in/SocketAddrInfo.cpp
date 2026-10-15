@@ -94,8 +94,8 @@ namespace net::in {
 
     void SocketAddrInfo::logAddressInfo() {
         if (currentAddrInfo != nullptr) {
-            static char hostBfr[NI_MAXHOST];
-            static char servBfr[NI_MAXSERV];
+            char hostBfr[NI_MAXHOST];
+            char servBfr[NI_MAXSERV];
             std::memset(hostBfr, 0, NI_MAXHOST);
             std::memset(servBfr, 0, NI_MAXSERV);
 

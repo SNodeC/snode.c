@@ -48,10 +48,16 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <set>
 #include <vector>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+namespace {
+    // Requirement changes propagate through the shared parent graph as one transaction.
+    std::recursive_mutex requirementMutex;
+} // namespace
 
 namespace utils {
 
@@ -163,6 +169,7 @@ namespace utils {
     }
 
     void SubCommand::removeSubCommand() {
+        const std::lock_guard lock(requirementMutex);
         while (!childSubCommands.empty()) {
             SubCommand* child = *childSubCommands.begin();
             childSubCommands.erase(child);
@@ -212,12 +219,14 @@ namespace utils {
     }
 
     SubCommand* SubCommand::forceUnrequired(bool unrequired) {
+        const std::lock_guard lock(requirementMutex);
         requiredForced = unrequired;
 
         return suppressRequirements(ConfigSuppressionReason::ForceUnrequired, requiredForced);
     }
 
     SubCommand* SubCommand::suppressRequirements(ConfigSuppressionReason reason, bool suppressed) {
+        const std::lock_guard lock(requirementMutex);
         const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
 
         subCommandApp->setSuppressionRecursive(reason, suppressed);
@@ -228,6 +237,7 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(bool required) {
+        const std::lock_guard lock(requirementMutex);
         const bool previousCanonicalRequired = requiredCount > 0;
         const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
 
@@ -258,6 +268,7 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(CLI::Option* option, bool required) {
+        const std::lock_guard lock(requirementMutex);
         if (subCommandApp->canonicalRequired(option) != required) {
             subCommandApp->setCanonicalRequired(option, required);
             subCommandApp->setCanonicalNeed(option, required);
@@ -273,10 +284,12 @@ namespace utils {
     }
 
     bool SubCommand::getRequired() const {
+        const std::lock_guard lock(requirementMutex);
         return subCommandApp->get_required();
     }
 
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
+        const std::lock_guard lock(requirementMutex);
         subCommandApp->setCanonicalNeed(subCommand->subCommandApp, needs);
 
         return this;
@@ -334,6 +347,7 @@ namespace utils {
     }
 
     void SubCommand::addSubCommandApp(std::shared_ptr<AppWithPtr> subCommand) {
+        const std::lock_guard lock(requirementMutex);
         if (subCommandApp->get_subcommands({}).empty()) {
             helpOpt->description("Print help message and exit\n"
                                  "* standard: display help for the last command processed\n"

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <cstring>
 #include <limits>
+#include <mutex>
 #include <optional>
 #include <spdlog/async_logger.h>
 #include <spdlog/details/thread_pool.h>
@@ -136,6 +137,8 @@ namespace logger::detail {
 
     class SpdlogBackend::Impl {
     public:
+        mutable std::mutex mutex;
+
         void init() {
             semanticWorkerLogger.reset();
             semanticStdoutLogger.reset();
@@ -555,70 +558,87 @@ namespace logger::detail {
     SpdlogBackend::~SpdlogBackend() = default;
 
     void SpdlogBackend::init() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->init();
     }
 
     void SpdlogBackend::defer() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->defer();
     }
 
     void SpdlogBackend::startAsync() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->startAsync();
     }
 
     void SpdlogBackend::shutdown() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->shutdown();
     }
 
     void SpdlogBackend::discardPending() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->discardPending();
     }
 
     void SpdlogBackend::setQuiet(const bool quiet) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setQuiet(quiet);
     }
 
     void SpdlogBackend::setDisableColor(const bool disableColor) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setDisableColor(disableColor);
     }
 
     bool SpdlogBackend::getDisableColor() const {
+        const std::lock_guard lock(impl_->mutex);
         return impl_->getDisableColor();
     }
 
     void SpdlogBackend::setTickResolver(Logger::TickResolver resolver) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setTickResolver(std::move(resolver));
     }
 
     void SpdlogBackend::setLogFile(const std::string& logFile) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setLogFile(logFile);
     }
 
     void SpdlogBackend::disableLogFile() {
+        const std::lock_guard lock(impl_->mutex);
         impl_->disableLogFile();
     }
 
     void SpdlogBackend::emitSemantic(const LogRecord& record) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->emitSemantic(record);
     }
 
     bool SpdlogBackend::semanticStdoutUsesColor() const {
+        const std::lock_guard lock(impl_->mutex);
         return impl_->semanticStdoutUsesColor();
     }
 
     bool SpdlogBackend::shouldLog(const Level level) const {
+        const std::lock_guard lock(impl_->mutex);
         return impl_->shouldLog(level);
     }
 
     bool SpdlogBackend::shouldVerbose(const int verboseLevel) const {
+        const std::lock_guard lock(impl_->mutex);
         return impl_->shouldVerbose(verboseLevel);
     }
 
     void SpdlogBackend::setLogLevel(const int level) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setLogLevel(level);
     }
 
     void SpdlogBackend::setVerboseLevel(const int level) {
+        const std::lock_guard lock(impl_->mutex);
         impl_->setVerboseLevel(level);
     }
 

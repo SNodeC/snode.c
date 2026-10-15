@@ -246,7 +246,7 @@ namespace httputils {
         struct stat attrib{};
         stat(filePath.c_str(), &attrib); // TODO: to core::system
 
-        (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
+        (void) strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", utils::system::gmtime(&(attrib.st_mtime))); // TODO: to core::system
         errno = 0; // Errno can be modified by strftime even though there is no error
 
         return std::string(buf);

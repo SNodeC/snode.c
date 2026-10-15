@@ -56,6 +56,27 @@
 
 namespace core {
 
+    /**
+     * One event loop per calling thread; existing single-threaded calls retain their signatures.
+     *
+     * Call init in each thread before constructing its receivers, sockets or timers.
+     * The first init supplies the process arguments (which must outlive the runtime).
+     * The first start or tick bootstraps process configuration once, after setup is complete.
+     * Configuration construction, destruction and mutation must be serialized by the application;
+     * reconfigure is supported only with one initialized loop. Daemonize before spawning workers.
+     *
+     * start, tick, state, stop and free act on the calling thread's loop. Resources and
+     * deferred callbacks stay on their construction thread; this API does not transfer them.
+     * Process signals request shutdown in all loops. Descriptor waits are capped at 100 ms
+     * so a signal delivered to another thread is observed without a separate signal thread.
+     *
+     * start drains and frees its loop before returning. Manual tick users call free after
+     * stopping dispatch. Pair every thread's init with start or free before thread exit.
+     * The last initialized loop releases process services, including configuration and logs;
+     * keep the initial thread initialized until workers join if their configuration outlives dispatch.
+     * free is idempotent. A stopped loop/runtime cannot be restarted.
+     * Register linked protocol factories and middleware in each owning thread.
+     */
     class SNodeC {
     public:
         SNodeC() = delete;
@@ -65,8 +86,8 @@ namespace core {
 
         static void init(int argc, char* argv[]);
         static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
-        // Event-loop thread, RUNNING only. Reapply configuration without process startup
-        // or restarting sockets. Failure is diagnosed; partially parsed settings are not rolled back.
+        // Calling loop RUNNING and the only initialized loop. Configuration is shared;
+        // serialize its construction/mutation. Failed parsing is not rolled back.
         [[nodiscard]] static bool reconfigure();
         static void stop();
         static TickStatus tick(const utils::Timeval& timeOut = 0);

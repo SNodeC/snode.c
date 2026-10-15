@@ -44,8 +44,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <random>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
@@ -53,9 +51,6 @@ namespace utils {
     class Random {
     public:
         static double getInRange(double ll, double ul);
-
-    private:
-        static std::random_device rd;
     };
 
 } // namespace utils

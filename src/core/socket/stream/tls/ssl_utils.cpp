@@ -47,6 +47,7 @@
 #include "log/Logger.h"
 #include "utils/PreserveErrno.h"
 
+#include <atomic>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
@@ -145,7 +146,7 @@ namespace core::socket::stream::tls {
     }
 
     SSL_CTX* ssl_ctx_new(const SslConfig& sslConfig) {
-        static int sslSessionCtxId = 1;
+        static std::atomic<int> nextSessionCtxId{1};
 
         SSL_CTX* ctx = SSL_CTX_new(sslConfig.server ? TLS_server_method() : TLS_client_method());
 
@@ -160,8 +161,8 @@ namespace core::socket::stream::tls {
             bool sslErr = false;
 
             if (sslConfig.server) {
+                const int sslSessionCtxId = nextSessionCtxId.fetch_add(1, std::memory_order_relaxed);
                 SSL_CTX_set_session_id_context(ctx, reinterpret_cast<const unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
-                sslSessionCtxId++;
             }
             if (!sslConfig.caCert.empty() || !sslConfig.caCertDir.empty()) {
                 if (SSL_CTX_load_verify_locations(ctx,

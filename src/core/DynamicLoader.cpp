@@ -52,9 +52,9 @@
 
 namespace core {
 
-    std::map<std::string, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
-    std::map<void*, std::string> DynamicLoader::dlOpenedLibrariesByHandle;
-    std::list<std::string> DynamicLoader::closeQueue;
+    thread_local std::map<std::string, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
+    thread_local std::map<void*, std::string> DynamicLoader::dlOpenedLibrariesByHandle;
+    thread_local std::list<std::string> DynamicLoader::closeQueue;
 
     std::string DynamicLoader::canonicalizePath(const std::string& libFile) {
         std::string result = libFile;

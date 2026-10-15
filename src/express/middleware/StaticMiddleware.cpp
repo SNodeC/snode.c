@@ -190,7 +190,7 @@ namespace express::middleware {
 
     class StaticMiddleware& StaticMiddleware::instance(const std::string& root, bool fallThrough) {
         // Keep all created static middlewares alive
-        static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
+        static thread_local std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
 
         if (!staticMiddlewares.contains(root)) {
             staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root, fallThrough));

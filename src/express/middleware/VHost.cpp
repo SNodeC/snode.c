@@ -89,7 +89,7 @@ namespace express::middleware {
 
     class VHost& VHost::instance(const std::string& host) {
         // Keep all created vhost middlewares alive
-        static std::map<std::string, std::shared_ptr<class VHost>> vHostMiddlewares;
+        static thread_local std::map<std::string, std::shared_ptr<class VHost>> vHostMiddlewares;
 
         if (!vHostMiddlewares.contains(host)) {
             vHostMiddlewares[host] = std::shared_ptr<VHost>(new VHost(host));

@@ -60,8 +60,9 @@ namespace utils::system {
     }
 
     struct tm* gmtime(const time_t* timep) {
+        static thread_local struct tm result{};
         errno = 0;
-        return ::gmtime(timep);
+        return ::gmtime_r(timep, &result);
     }
 
     time_t mktime(struct tm* tm) {

@@ -43,14 +43,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <random>
+
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace utils {
 
-    std::random_device Random::rd;
-
     double Random::getInRange(double ll, double ul) {
-        static std::mt19937 gen(rd());
+        static thread_local std::mt19937 gen(std::random_device{}());
 
         std::uniform_real_distribution<double> distr(static_cast<int>(ll), static_cast<int>(ul));
 

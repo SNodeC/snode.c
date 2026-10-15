@@ -179,3 +179,19 @@ set_tests_properties(
     DescriptorRegistrationFailureTest
     PROPERTIES LABELS "component;core;descriptor" SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+add_executable(ThreadedEventLoopsTest ThreadedEventLoopsTest.cpp)
+target_link_libraries(
+    ThreadedEventLoopsTest PRIVATE snodec-test-support snodec::core
+)
+target_compile_features(ThreadedEventLoopsTest PRIVATE cxx_std_20)
+foreach(scenario IN ITEMS isolation late-start tick signal help churn)
+    add_test(NAME ThreadedEventLoops_${scenario} COMMAND ThreadedEventLoopsTest
+                                                         ${scenario}
+    )
+    set_tests_properties(
+        ThreadedEventLoops_${scenario}
+        PROPERTIES LABELS "component;core;threads;lifecycle" SKIP_RETURN_CODE
+                   77 TIMEOUT 5
+    )
+endforeach()

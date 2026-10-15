@@ -56,7 +56,7 @@ namespace utils {
     class Timeval;
 }
 
-#include <csignal>
+#include <atomic>
 #include <optional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -90,6 +90,7 @@ namespace core {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static bool init(int argc, char* argv[]);
         TickStatus _tick(const utils::Timeval& timeOut);
+        static int prepare();
         static TickStatus tick(const utils::Timeval& timeOut);
         static int start(const utils::Timeval& timeOut);
         static bool reconfigure();
@@ -103,11 +104,11 @@ namespace core {
         mutable std::optional<logger::BoundaryLogger> cachedLog_;
         mutable unsigned long cachedLogGeneration_ = 0;
 
-        static volatile std::sig_atomic_t stopsig;
+        static std::atomic<int> stopsig;
 
-        static unsigned long tickCounter;
+        static thread_local unsigned long tickCounter;
 
-        static core::State eventLoopState;
+        static thread_local core::State eventLoopState;
 
         friend class SNodeC;
     };

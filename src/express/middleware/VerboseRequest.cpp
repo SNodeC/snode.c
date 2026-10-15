@@ -82,7 +82,7 @@ namespace express::middleware {
     }
 
     class VerboseRequest& VerboseRequest(VerboseRequest::Details details) {
-        static std::shared_ptr<class VerboseRequest> verboseRequest = nullptr;
+        static thread_local std::shared_ptr<class VerboseRequest> verboseRequest = nullptr;
 
         if (verboseRequest == nullptr) {
             verboseRequest = std::shared_ptr<class VerboseRequest>(new class VerboseRequest(details));

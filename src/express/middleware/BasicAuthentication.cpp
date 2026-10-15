@@ -75,7 +75,7 @@ namespace express::middleware {
     class BasicAuthentication&
     BasicAuthentication::instance(const std::string& userName, const std::string& password, const std::string& realm) {
         // Keep the created authentication middleware alive
-        static std::list<std::shared_ptr<class BasicAuthentication>> basicAuthentications;
+        static thread_local std::list<std::shared_ptr<class BasicAuthentication>> basicAuthentications;
 
         BasicAuthentication* basicAuthentication = new BasicAuthentication(userName, password, realm);
         basicAuthentications.push_back(std::shared_ptr<BasicAuthentication>(basicAuthentication));

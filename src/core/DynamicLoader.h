@@ -82,9 +82,9 @@ namespace core {
         static int realExecDlClose(const Library& library);
         static void execDlCloseDeleyed();
 
-        static std::map<std::string, Library> dlOpenedLibraries;
-        static std::map<void*, std::string> dlOpenedLibrariesByHandle;
-        static std::list<std::string> closeQueue;
+        static thread_local std::map<std::string, Library> dlOpenedLibraries;
+        static thread_local std::map<void*, std::string> dlOpenedLibrariesByHandle;
+        static thread_local std::list<std::string> closeQueue;
 
         friend class EventLoop;
         friend class EventMultiplexer;

@@ -46,6 +46,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
+#include "utils/system/time.h"
 
 #include <cerrno>
 #include <ctime>
@@ -238,7 +239,7 @@ namespace core::socket::stream {
 
     std::string SocketContext::timePointToString(const std::chrono::time_point<std::chrono::system_clock>& timePoint) {
         const std::time_t time = std::chrono::system_clock::to_time_t(timePoint);
-        const std::tm* tm_ptr = std::gmtime(&time);
+        const std::tm* tm_ptr = utils::system::gmtime(&time);
 
         char buffer[100];
         std::string onlineSince = "Formatting error";

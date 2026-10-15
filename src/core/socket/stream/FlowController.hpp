@@ -53,7 +53,7 @@
 namespace core::socket::stream {
 
     template <typename ConcreteFlowController>
-    uint64_t FlowController<ConcreteFlowController>::idCounter = 0;
+    std::atomic<uint64_t> FlowController<ConcreteFlowController>::idCounter{0};
 
     template <typename ConcreteFlowController>
     FlowController<ConcreteFlowController>::FlowController(const std::string& instanceName, logger::LogRole role)

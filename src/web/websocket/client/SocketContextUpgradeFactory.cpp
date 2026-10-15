@@ -127,7 +127,7 @@ namespace web::websocket::client {
     }
 
     void SocketContextUpgradeFactory::link() {
-        static bool linked = false;
+        static thread_local bool linked = false;
 
         if (!linked) {
             web::http::client::SocketContextUpgradeFactory::link("websocket", websocketClientSocketContextUpgradeFactory);

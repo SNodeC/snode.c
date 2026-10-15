@@ -42,6 +42,7 @@
 #include "core/multiplexer/epoll/EventMultiplexer.h"
 
 #include "core/multiplexer/epoll/DescriptorEventPublisher.h"
+#include "core/system/unistd.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,7 +58,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventMultiplexer& EventMultiplexer() {
-    static core::multiplexer::epoll::EventMultiplexer eventMultiplexer;
+    static thread_local core::multiplexer::epoll::EventMultiplexer eventMultiplexer;
 
     return eventMultiplexer;
 }
@@ -120,6 +121,13 @@ namespace core::multiplexer::epoll {
 
         if (setupSucceeded) {
             muxLog().debug("Core::multiplexer: epoll");
+        }
+    }
+
+    EventMultiplexer::~EventMultiplexer() {
+        core::system::close(epfd);
+        for (const int publisherFd : epfds) {
+            core::system::close(publisherFd);
         }
     }
 

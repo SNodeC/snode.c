@@ -52,19 +52,32 @@
 #include "utils/system/signal.h"
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <chrono>
+#include <cstddef>
+#include <mutex>
+#include <set>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    volatile std::sig_atomic_t EventLoop::stopsig = 0;
-    unsigned long EventLoop::tickCounter = 0;
-    core::State EventLoop::eventLoopState = State::LOADED;
+    static_assert(std::atomic<int>::is_always_lock_free);
+    std::atomic<int> EventLoop::stopsig{0};
+    thread_local unsigned long EventLoop::tickCounter = 0;
+    thread_local core::State EventLoop::eventLoopState = State::LOADED;
 
     namespace {
+        constexpr std::array signals{SIGPIPE, SIGINT, SIGTERM, SIGALRM, SIGHUP};
+        using SignalActions = std::array<struct sigaction, signals.size()>;
+
+        // Process services outlive every initialized loop, including loops not started yet.
+        std::mutex runtimeMutex;
+        std::set<EventLoop*> initializedLoops;
+        State applicationState = State::LOADED;
+        std::optional<SignalActions> savedSignalActions;
 
         std::string signalName(int signum) {
             std::string signal = "SIG" + utils::system::sigabbrev_np(signum);
@@ -114,6 +127,23 @@ namespace core {
             EventLoop::instance().log().sysError(logger::LogLevel::Error, error, "Core::EventLoop pthread_sigmask failed: phase={}", phase);
             return false;
         }
+
+        SignalActions installSignalActions(void (*handler)(int), const char* phase) {
+            struct sigaction action{};
+            logSignalFailure(sigemptyset(&action.sa_mask), "sigemptyset", phase);
+            SignalActions previous{};
+            for (std::size_t i = 0; i < signals.size(); ++i) {
+                action.sa_handler = signals[i] == SIGPIPE ? SIG_IGN : handler;
+                logSigactionFailure(sigaction(signals[i], &action, &previous[i]), signals[i], phase);
+            }
+            return previous;
+        }
+
+        void restoreSignalActions(const SignalActions& previous, const char* phase) {
+            for (std::size_t i = 0; i < signals.size(); ++i) {
+                logSigactionFailure(sigaction(signals[i], &previous[i], nullptr), signals[i], phase);
+            }
+        }
     } // namespace
 
     static std::string getTickCounterAsString() {
@@ -132,7 +162,7 @@ namespace core {
     }
 
     EventLoop& EventLoop::instance() {
-        static EventLoop eventLoop;
+        static thread_local EventLoop eventLoop;
 
         return eventLoop;
     }
@@ -169,41 +199,45 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
-        struct sigaction sact{};
-        logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "init-install-mask");
-        sact.sa_flags = 0;
-        sact.sa_handler = SIG_IGN;
-
-        struct sigaction oldPipeAct{};
-        logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "init-install-ignore");
-
-        struct sigaction oldIntAct{};
-        logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "init-install-ignore");
-
-        struct sigaction oldTermAct{};
-        logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "init-install-ignore");
-
-        struct sigaction oldAlarmAct{};
-        logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "init-install-ignore");
-
-        struct sigaction oldHupAct{};
-        logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "init-install-ignore");
-
-        logger::Logger::setTickResolver(core::getTickCounterAsString);
-
-        if (utils::Config::init(argc, argv)) {
-            eventLoopState = State::INITIALIZED;
-
-            EventLoop::instance().log().trace("SNode.C: Starting ... HELLO");
+        const std::lock_guard lock(runtimeMutex);
+        if (eventLoopState != State::LOADED) {
+            return eventLoopState == State::INITIALIZED;
         }
+        if (applicationState == State::LOADED) {
+            const SignalActions previous = installSignalActions(SIG_IGN, "init-install-ignore");
+            logger::Logger::setTickResolver(core::getTickCounterAsString);
+            const bool initialized = utils::Config::init(argc, argv);
+            restoreSignalActions(previous, "init-restore");
+            applicationState = initialized ? State::INITIALIZED : State::STOPPING;
+        }
+        if (applicationState == State::STOPPING) {
+            return false;
+        }
+        initializedLoops.insert(&instance());
+        eventLoopState = State::INITIALIZED;
+        instance().log().trace("SNode.C: Starting ... HELLO");
+        return true;
+    }
 
-        logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "init-restore");
-        logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "init-restore");
-        logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "init-restore");
-        logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "init-restore");
-        logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "init-restore");
-
-        return eventLoopState == State::INITIALIZED;
+    int EventLoop::prepare() {
+        const std::lock_guard lock(runtimeMutex);
+        if (eventLoopState != State::INITIALIZED) {
+            return 1;
+        }
+        if (applicationState == State::INITIALIZED) {
+            savedSignalActions = installSignalActions(stoponsig, "start-install-handler");
+            applicationState = utils::Config::bootstrap() ? State::RUNNING : State::STOPPING;
+            if (applicationState == State::RUNNING) {
+                logger::Logger::startAsync();
+            } else {
+                logger::Logger::discardPending();
+            }
+        }
+        if (applicationState != State::RUNNING) {
+            return 2;
+        }
+        eventLoopState = State::RUNNING;
+        return 0;
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& timeOut) {
@@ -221,12 +255,13 @@ namespace core {
         sigset_t oldSet{};
         const bool signalMaskBlocked = logPthreadSigmaskFailure(pthread_sigmask(SIG_BLOCK, &newSet, &oldSet), "tick-block");
 
-        if ((eventLoopState == State::RUNNING && stopsig == 0) || eventLoopState == State::STOPPING) {
-            tickStatus = eventMultiplexer.tick(timeOut, oldSet);
+        if ((eventLoopState == State::RUNNING && stopsig.load(std::memory_order_relaxed) == 0) || eventLoopState == State::STOPPING) {
+            // A process signal can interrupt another thread's wait. Bound detection in every loop.
+            tickStatus = eventMultiplexer.tick(std::min(timeOut, utils::Timeval({0, 100000})), oldSet);
         }
 
-        if (stopsig > 0 && eventLoopState == State::RUNNING) {
-            const int signalNumber = stopsig;
+        const int signalNumber = stopsig.load(std::memory_order_relaxed);
+        if (signalNumber > 0 && eventLoopState == State::RUNNING) {
             EventLoop::instance().log().trace("Core: Received signal '{}' (SIG{} = {})",
                                               utils::system::strsignal(signalNumber),
                                               utils::system::sigabbrev_np(signalNumber),
@@ -244,18 +279,8 @@ namespace core {
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
         TickStatus tickStatus = TickStatus::TRACE;
 
-        if (eventLoopState == State::INITIALIZED) {
-            struct sigaction sact{};
-            logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "tick-install-mask");
-            sact.sa_flags = 0;
-            sact.sa_handler = SIG_IGN;
-
-            struct sigaction oldPipeAct{};
-            logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "tick-install-ignore");
-
+        if (eventLoopState == State::RUNNING || prepare() == 0) {
             tickStatus = EventLoop::instance()._tick(timeOut);
-
-            logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "tick-restore");
         } else {
             EventLoop::instance().eventMultiplexer.clearEventQueue();
             free();
@@ -271,78 +296,31 @@ namespace core {
     }
 
     int EventLoop::start(const utils::Timeval& timeOut) {
-        struct sigaction sact{};
-        logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "start-install-mask");
-        sact.sa_flags = 0;
-        sact.sa_handler = SIG_IGN;
+        const int result = prepare();
+        if (result == 0) {
+            TickStatus tickStatus = TickStatus::SUCCESS;
+            instance().log().trace("Core::EventLoop: started");
+            do {
+                tickStatus = instance()._tick(timeOut);
+            } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING);
 
-        struct sigaction oldPipeAct{};
-        logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "start-install-ignore");
-
-        sact.sa_handler = EventLoop::stoponsig;
-
-        struct sigaction oldIntAct{};
-        logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "start-install-handler");
-
-        struct sigaction oldTermAct{};
-        logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "start-install-handler");
-
-        struct sigaction oldAlarmAct{};
-        logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "start-install-handler");
-
-        struct sigaction oldHupAct{};
-        logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "start-install-handler");
-
-        if (eventLoopState == State::INITIALIZED) {
-            if (utils::Config::bootstrap()) {
-                eventLoopState = State::RUNNING;
-                logger::Logger::startAsync();
-                core::TickStatus tickStatus = TickStatus::SUCCESS;
-
-                EventLoop::instance().log().trace("Core::EventLoop: started");
-
-                do {
-                    tickStatus = EventLoop::instance()._tick(timeOut);
-                } while ((tickStatus == TickStatus::SUCCESS || tickStatus == TickStatus::INTERRUPTED) && eventLoopState == State::RUNNING);
-
-                switch (tickStatus) {
-                    case TickStatus::SUCCESS:
-                        EventLoop::instance().log().trace("Core::EventLoop: Stopped");
-                        break;
-                    case TickStatus::NOOBSERVER:
-                        EventLoop::instance().log().trace("Core::EventLoop: No Observer");
-                        break;
-                    case TickStatus::INTERRUPTED:
-                        EventLoop::instance().log().trace("Core::EventLoop: Interrupted");
-                        break;
-                    case TickStatus::TRACE:
-                        const int errnum = errno;
-                        EventLoop::instance().log().sysError(logger::LogLevel::Critical, errnum, "Core::EventLoop: _tick()");
-                        break;
-                }
-            } else {
-                logger::Logger::discardPending();
-                stopsig = -2;
+            if (tickStatus == TickStatus::TRACE) {
+                const int errnum = errno;
+                instance().log().sysError(logger::LogLevel::Critical, errnum, "Core::EventLoop: _tick()");
             }
-        } else {
-            stopsig = -1;
         }
-
-        logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "start-restore");
-        logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "start-restore");
-        logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "start-restore");
-        logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "start-restore");
-
         free();
-
-        logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "start-restore");
-
-        return -stopsig;
+        return result != 0 ? result : -stopsig.load(std::memory_order_relaxed);
     }
 
     bool EventLoop::reconfigure() {
         if (eventLoopState != State::RUNNING) {
-            EventLoop::instance().log().error("Configuration can only be reapplied while SNode.C is running");
+            instance().log().error("Configuration can only be reapplied while SNode.C is running");
+            return false;
+        }
+        const std::lock_guard lock(runtimeMutex);
+        if (initializedLoops.size() != 1) {
+            instance().log().error("Configuration can only be reapplied with one initialized event loop");
             return false;
         }
         return utils::Config::reconfigure();
@@ -353,17 +331,22 @@ namespace core {
     }
 
     void EventLoop::free() {
-        if (eventLoopState == State::INITIALIZED) {
+        {
+            const std::lock_guard lock(runtimeMutex);
+            if (!initializedLoops.contains(&instance())) {
+                return;
+            }
             logger::Logger::startAsync();
         }
 
-        const ShutdownReason reason = stopsig > 0                        ? ShutdownReason::Signal
+        const int signalNumber = stopsig.load(std::memory_order_relaxed);
+        const ShutdownReason reason = signalNumber > 0                   ? ShutdownReason::Signal
                                       : eventLoopState == State::RUNNING ? ShutdownReason::NoObserver
                                                                          : ShutdownReason::Requested;
-        std::string signal = "SIG" + utils::system::sigabbrev_np(stopsig);
+        std::string signal = "SIG" + utils::system::sigabbrev_np(signalNumber);
 
         if (signal == "SIGUNKNOWN") {
-            signal = std::to_string(stopsig);
+            signal = std::to_string(signalNumber);
         }
 
         EventLoop& eventLoop = EventLoop::instance();
@@ -375,7 +358,7 @@ namespace core {
             eventLoop.log().trace("Core: Graceful shutdown");
         }
 
-        eventLoop.eventMultiplexer.shutdown({reason, stopsig > 0 ? stopsig : 0});
+        eventLoop.eventMultiplexer.shutdown({reason, signalNumber > 0 ? signalNumber : 0});
 
         utils::Timeval timeout = 2;
         TickStatus tickStatus = TickStatus::SUCCESS;
@@ -395,19 +378,25 @@ namespace core {
         eventLoop.eventMultiplexer.terminate();
         eventLoop.eventMultiplexer.clearEventQueue();
 
-        eventLoop.log().trace("Core: Shutdown config system");
-
-        utils::Config::terminate();
-
-        eventLoop.log().trace("Core: All resources released");
-
-        eventLoop.log().trace("SNode.C: Ended ... BYE");
-
-        logger::Logger::shutdown();
+        std::unique_lock lock(runtimeMutex);
+        initializedLoops.erase(&eventLoop);
+        if (initializedLoops.empty()) {
+            applicationState = State::STOPPING;
+            lock.unlock(); // Configuration destruction can invoke application callbacks.
+            eventLoop.log().trace("Core: Shutdown config system");
+            utils::Config::terminate();
+            eventLoop.log().trace("Core: All resources released");
+            eventLoop.log().trace("SNode.C: Ended ... BYE");
+            logger::Logger::shutdown();
+            if (savedSignalActions) {
+                restoreSignalActions(*savedSignalActions, "shutdown-restore");
+                savedSignalActions.reset();
+            }
+        }
     }
 
     void EventLoop::stoponsig(int sig) {
-        stopsig = sig;
+        stopsig.store(sig, std::memory_order_relaxed);
     }
 
 } // namespace core

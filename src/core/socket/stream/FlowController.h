@@ -50,6 +50,7 @@ namespace core::timer {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -99,8 +100,8 @@ namespace core::socket::stream {
         virtual void terminateAsyncSubFlow() = 0;
 
     private:
-        uint64_t id{idCounter++};
-        static uint64_t idCounter;
+        uint64_t id{idCounter.fetch_add(1, std::memory_order_relaxed)};
+        static std::atomic<uint64_t> idCounter;
         void notifyFlowTerminated();
 
         std::uint64_t retryCount{0};
