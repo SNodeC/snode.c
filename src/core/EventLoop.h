@@ -63,6 +63,14 @@ namespace utils {
 
 namespace core {
 
+    struct CommandLineArguments {
+        int argc;
+        char** argv;
+    };
+
+    CommandLineArguments onInit(int argc, char* argv[]);
+    int onExit(int exitCode);
+
     class EventLoop {
     public:
         EventLoop(const EventLoop& eventLoop) = delete;
