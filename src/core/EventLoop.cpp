@@ -60,6 +60,14 @@
 
 namespace core {
 
+    __attribute__((weak)) CommandLineArguments onInit(int argc, char* argv[]) {
+        return {argc, argv};
+    }
+
+    __attribute__((weak)) int onExit(int exitCode) {
+        return exitCode;
+    }
+
     volatile std::sig_atomic_t EventLoop::stopsig = 0;
     unsigned long EventLoop::tickCounter = 0;
     core::State EventLoop::eventLoopState = State::LOADED;
@@ -169,41 +177,47 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     bool EventLoop::init(int argc, char* argv[]) {
-        struct sigaction sact{};
-        logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "init-install-mask");
-        sact.sa_flags = 0;
-        sact.sa_handler = SIG_IGN;
+        CommandLineArguments args = onInit(argc, argv);
 
-        struct sigaction oldPipeAct{};
-        logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "init-install-ignore");
+        if (args.argc > 0 && args.argv != nullptr) {
+            struct sigaction sact{};
+            logSignalFailure(sigemptyset(&sact.sa_mask), "sigemptyset", "init-install-mask");
+            sact.sa_flags = 0;
+            sact.sa_handler = SIG_IGN;
 
-        struct sigaction oldIntAct{};
-        logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "init-install-ignore");
+            struct sigaction oldPipeAct{};
+            logSigactionFailure(sigaction(SIGPIPE, &sact, &oldPipeAct), SIGPIPE, "init-install-ignore");
 
-        struct sigaction oldTermAct{};
-        logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "init-install-ignore");
+            struct sigaction oldIntAct{};
+            logSigactionFailure(sigaction(SIGINT, &sact, &oldIntAct), SIGINT, "init-install-ignore");
 
-        struct sigaction oldAlarmAct{};
-        logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "init-install-ignore");
+            struct sigaction oldTermAct{};
+            logSigactionFailure(sigaction(SIGTERM, &sact, &oldTermAct), SIGTERM, "init-install-ignore");
 
-        struct sigaction oldHupAct{};
-        logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "init-install-ignore");
+            struct sigaction oldAlarmAct{};
+            logSigactionFailure(sigaction(SIGALRM, &sact, &oldAlarmAct), SIGALRM, "init-install-ignore");
 
-        logger::Logger::setTickResolver(core::getTickCounterAsString);
+            struct sigaction oldHupAct{};
+            logSigactionFailure(sigaction(SIGHUP, &sact, &oldHupAct), SIGHUP, "init-install-ignore");
 
-        if (utils::Config::init(argc, argv)) {
-            eventLoopState = State::INITIALIZED;
+            logger::Logger::setTickResolver(core::getTickCounterAsString);
 
-            EventLoop::instance().log().trace("SNode.C: Starting ... HELLO");
+            if (utils::Config::init(args.argc, args.argv)) {
+                eventLoopState = State::INITIALIZED;
+
+                EventLoop::instance().log().trace("SNode.C: Starting ... HELLO");
+            }
+
+            logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "init-restore");
+            logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "init-restore");
+            logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "init-restore");
+            logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "init-restore");
+            logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "init-restore");
+        } else {
+            EventLoop::instance().log().error("Core: onInit() failed by returning: argc <= 0 and/or argv = nullptr");
         }
 
-        logSigactionFailure(sigaction(SIGPIPE, &oldPipeAct, nullptr), SIGPIPE, "init-restore");
-        logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "init-restore");
-        logSigactionFailure(sigaction(SIGTERM, &oldTermAct, nullptr), SIGTERM, "init-restore");
-        logSigactionFailure(sigaction(SIGALRM, &oldAlarmAct, nullptr), SIGALRM, "init-restore");
-        logSigactionFailure(sigaction(SIGHUP, &oldHupAct, nullptr), SIGHUP, "init-restore");
-
-        return eventLoopState == State::INITIALIZED;
+        return args.argc > 0 && args.argv != nullptr && eventLoopState == State::INITIALIZED;
     }
 
     TickStatus EventLoop::_tick(const utils::Timeval& timeOut) {
@@ -337,7 +351,7 @@ namespace core {
 
         logSigactionFailure(sigaction(SIGINT, &oldIntAct, nullptr), SIGINT, "start-restore");
 
-        return -stopsig;
+        return onExit(-stopsig);
     }
 
     bool EventLoop::reconfigure() {

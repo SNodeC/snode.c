@@ -47,6 +47,15 @@ set_tests_properties(
     SNodeCInitFreeSmokeTest PROPERTIES LABELS "unit;core;smoke"
 )
 
+snodec_add_test(EventLoopHooksTest EventLoopHooksTest.cpp)
+target_link_libraries(
+    EventLoopHooksTest PRIVATE snodec-test-support snodec::core
+)
+set_tests_properties(
+    EventLoopHooksTest PROPERTIES LABELS "unit;core;lifecycle" SKIP_RETURN_CODE
+                                  77
+)
+
 snodec_add_test(SNodeCAsyncLogDrainTest SNodeCAsyncLogDrainTest.cpp)
 
 target_link_libraries(
