@@ -53,7 +53,6 @@ namespace iot::mqtt::server::broker {
 #include "log/SemanticLogger.h"
 
 #include <cstdint>
-#include <iterator>
 #include <list>
 #include <map>
 #include <nlohmann/json_fwd.hpp>

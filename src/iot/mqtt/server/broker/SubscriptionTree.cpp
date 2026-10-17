@@ -39,6 +39,9 @@
  * THE SOFTWARE.
  */
 
+// The public JSON header provides its iterator implementation.
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+
 #include "iot/mqtt/server/broker/SubscriptionTree.h"
 
 #include "iot/mqtt/SemanticLog.h"
@@ -50,7 +53,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

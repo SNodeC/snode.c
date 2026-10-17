@@ -8,6 +8,7 @@
 #include "express/legacy/in/WebApp.h"
 
 #include <nlohmann/json.hpp>
+#include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>

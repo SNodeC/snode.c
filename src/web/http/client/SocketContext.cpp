@@ -39,11 +39,10 @@
  * THE SOFTWARE.
  */
 
-#include "web/http/client/SocketContext.h" // IWYU pragma: export
+#include "web/http/client/SocketContext.h"
 
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
-#include "web/http/CookieOptions.h"
 #include "web/http/client/Request.h"
 #include "web/http/client/SemanticLog.h"
 

@@ -68,12 +68,10 @@
 #include <sstream>
 #include <string>
 #include <sys/types.h>
-#include <termios.h> // IWYU pragma: keep
+#include <termios.h>
 #include <unistd.h>
 #include <utility>
 #include <vector>
-
-// IWYU pragma: no_include <bits/termios-c_cc.h>
 
 namespace snodec::control::ui {
 

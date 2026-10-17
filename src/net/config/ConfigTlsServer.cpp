@@ -50,6 +50,7 @@ namespace net::config {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

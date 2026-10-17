@@ -47,8 +47,6 @@
 #include "log/LogScopeOwner.h"
 #include "log/Logger.h"
 
-// IWYU pragma: no_include "log/SemanticLogger.h"
-
 namespace core::socket::stream {
     class SocketContextFactory;
 }

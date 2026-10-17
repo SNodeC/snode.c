@@ -45,6 +45,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <utility>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {

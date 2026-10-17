@@ -50,11 +50,8 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
-#include <utility> // IWYU pragma: keep
-#include <vector>  // IWYU pragma: keep
-
-// IWYU pragma: no_include <format>
-// IWYU pragma: no_include <iterator>
+#include <utility>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

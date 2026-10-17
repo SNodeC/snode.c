@@ -48,10 +48,6 @@
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
-namespace core {
-    class TimerEventReceiver;
-} // namespace core
-
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

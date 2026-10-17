@@ -42,6 +42,9 @@
 #ifndef CORE_POLL_EVENTDISPATCHER_H
 #define CORE_POLL_EVENTDISPATCHER_H
 
+// std::hash<int> is provided by <functional>, not <string_view>.
+// IWYU pragma: no_include <string_view>
+
 #include "core/EventMultiplexer.h" // IWYU pragma: export
 
 namespace core {
