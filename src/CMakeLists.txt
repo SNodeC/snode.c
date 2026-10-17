@@ -196,7 +196,7 @@ write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/snodecConfigVersion.cmake
     VERSION
         "${SNode.C_VERSION_MAJOR}.${SNode.C_VERSION_MINOR}.${SNode.C_VERSION_PATCH}"
-    COMPATIBILITY SameMinorVersion
+    COMPATIBILITY SameMajorVersion
 )
 
 install(
