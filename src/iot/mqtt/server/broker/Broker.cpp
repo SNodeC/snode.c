@@ -39,6 +39,9 @@
  * THE SOFTWARE.
  */
 
+// The public JSON header provides its iterator implementation.
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+
 #include "iot/mqtt/server/broker/Broker.h"
 
 #include "iot/mqtt/SemanticLog.h"

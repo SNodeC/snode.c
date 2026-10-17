@@ -44,6 +44,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
+#include <utility>
 #include <vector>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>

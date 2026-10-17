@@ -48,7 +48,6 @@
 
 #if (STREAM_TYPE == TLS) // tls
 
-#include <utility>
 #include <variant>
 
 #endif // (STREAM_TYPE == TLS)

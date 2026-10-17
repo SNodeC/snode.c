@@ -59,7 +59,6 @@
 
 #include <cerrno>
 #include <filesystem>
-#include <iterator>
 #include <numeric>
 #include <sstream>
 #include <system_error>

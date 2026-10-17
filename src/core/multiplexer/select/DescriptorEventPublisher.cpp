@@ -49,6 +49,7 @@
 #include <fcntl.h>
 #include <list>
 #include <map>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

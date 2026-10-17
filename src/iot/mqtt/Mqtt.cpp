@@ -62,6 +62,7 @@
 #include <map>
 #include <set>
 #include <span>
+#include <utility>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
