@@ -55,8 +55,7 @@ namespace express {
     Controller::Controller(const std::shared_ptr<web::http::server::Request>& request,
                            const std::shared_ptr<web::http::server::Response>& response)
         : request(std::make_shared<Request>(request))
-        , response(std::make_shared<Response>(response))
-        , lastTick(core::EventLoop::getTickCounter()) {
+        , response(std::make_shared<Response>(response)) {
     }
 
     Controller::Controller(const Controller& controller)
@@ -88,6 +87,7 @@ namespace express {
     }
 
     void Controller::setCurrentRoute(Route* currentRoute) {
+        lastTick = core::EventLoop::getTickCounter();
         this->currentRoute = currentRoute;
     }
 

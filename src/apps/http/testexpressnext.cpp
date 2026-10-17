@@ -211,6 +211,17 @@ int main(int argc, char* argv[]) {
                 next();
             });
         },
+        [] MIDDLEWARE(req, res, next) {
+            next();
+        },
+        [] MIDDLEWARE(req, res, next) {
+            core::EventReceiver::atNextTick([next] {
+                next();
+            });
+        },
+        [] MIDDLEWARE(req, res, next) {
+            next();
+        },
         [] APPLICATION(req, res) {
             std::string marker = "no";
             req->getAttribute<std::string>(
