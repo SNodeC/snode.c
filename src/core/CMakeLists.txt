@@ -141,6 +141,12 @@ set_source_files_properties(
 add_library(core SHARED ${CORE_CPP} ${CORE_H})
 add_library(snodec::core ALIAS core)
 
+# Application hooks must override the weak defaults even with SDK symbolic
+# binding.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_options(core PRIVATE "LINKER:-Bno-symbolic")
+endif()
+
 target_include_directories(
     core PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                 "$<INSTALL_INTERFACE:include/snode.c>"
