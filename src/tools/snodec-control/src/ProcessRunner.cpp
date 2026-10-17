@@ -49,7 +49,7 @@
 #include <spawn.h>
 #include <sys/select.h>
 #include <sys/types.h>
-#include <sys/wait.h> // IWYU pragma: keep
+#include <sys/wait.h>
 #include <unistd.h>
 
 // IWYU pragma: no_include <stdlib.h>

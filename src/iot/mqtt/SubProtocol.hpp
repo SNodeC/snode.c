@@ -46,8 +46,6 @@
 #include "utils/system/signal.h"
 #include "web/websocket/SubProtocolContext.h"
 
-// IWYU pragma: no_include "log/SemanticLogger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>

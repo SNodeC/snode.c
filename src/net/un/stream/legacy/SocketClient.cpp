@@ -41,9 +41,9 @@
 
 #include "net/un/stream/legacy/SocketClient.h"
 
-#include "core/socket/Socket.hpp"                         // IWYU pragma: keep
-#include "core/socket/stream/legacy/SocketConnection.hpp" // IWYU pragma: keep
-#include "core/socket/stream/legacy/SocketConnector.hpp"  // IWYU pragma: keep
+#include "core/socket/Socket.hpp" // IWYU pragma: keep
+#include "core/socket/stream/legacy/SocketConnection.hpp"
+#include "core/socket/stream/legacy/SocketConnector.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -54,8 +54,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-// IWYU pragma: no_include "core/socket/stream/tls/ssl_utils.h"
-
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 

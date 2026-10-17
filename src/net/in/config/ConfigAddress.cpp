@@ -41,7 +41,7 @@
 
 #include "net/in/config/ConfigAddress.h"
 
-#include "net/config/ConfigAddressBase.hpp"    // IWYU pragma: keep
+#include "net/config/ConfigAddressBase.hpp"
 #include "net/config/ConfigAddressLocal.hpp"   // IWYU pragma: keep
 #include "net/config/ConfigAddressRemote.hpp"  // IWYU pragma: keep
 #include "net/config/ConfigAddressReverse.hpp" // IWYU pragma: keep

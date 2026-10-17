@@ -41,9 +41,9 @@
 
 #include "net/l2/stream/tls/SocketClient.h"
 
-#include "core/socket/Socket.hpp"                      // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketConnection.hpp" // IWYU pragma: keep
-#include "core/socket/stream/tls/SocketConnector.hpp"  // IWYU pragma: keep
+#include "core/socket/Socket.hpp" // IWYU pragma: keep
+#include "core/socket/stream/tls/SocketConnection.hpp"
+#include "core/socket/stream/tls/SocketConnector.hpp" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -46,8 +46,6 @@
 #include "core/system/unistd.h"
 #include "log/Logger.h"
 
-// IWYU pragma: no_include "core/system/socket.h"
-
 #include <array>
 #include <cerrno>
 #include <cstring>

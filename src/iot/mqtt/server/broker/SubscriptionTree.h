@@ -59,8 +59,6 @@ namespace iot::mqtt::server::broker {
 #include <string>
 #include <utility>
 
-// IWYU pragma: no_include <iterator>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt::server::broker {

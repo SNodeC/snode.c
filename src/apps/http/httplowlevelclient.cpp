@@ -53,7 +53,6 @@
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 
-// IWYU pragma: no_include <openssl/ssl3.h>
 // IWYU pragma: no_include <openssl/x509.h>
 // IWYU pragma: no_include <openssl/types.h>
 // IWYU pragma: no_include <openssl/asn1.h>

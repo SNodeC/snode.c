@@ -77,9 +77,7 @@ namespace utils {
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector> // IWYU pragma: keep
-
-// IWYU pragma: no_include <format>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

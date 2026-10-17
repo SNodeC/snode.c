@@ -56,13 +56,11 @@ namespace iot::mqtt::server {
 
 #include <cstdint>
 #include <list>
-#include <map> // IWYU pragma: keep
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
-
-// IWYU pragma: no_include <iterator>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

@@ -56,9 +56,6 @@ namespace web::http {
 #include <utility>
 #include <vector>
 
-// IWYU pragma: no_include <iterator>
-// IWYU pragma: no_include <bits/types/struct_tm.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace httputils {

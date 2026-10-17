@@ -47,8 +47,6 @@
 #include <utility>
 #include <vector>
 
-// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
-
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace iot::mqtt {

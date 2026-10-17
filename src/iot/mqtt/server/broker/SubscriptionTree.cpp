@@ -53,7 +53,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-// IWYU pragma: no_include <iterator>
 // IWYU pragma: no_include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
