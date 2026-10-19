@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "support/TestResult.h"
@@ -58,6 +59,8 @@ int main(int argc, char* argv[]) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("TimerCancelBeforeFireTest");
     } else {
         int cancelledCallbackCount = 0;
+        int queuedCallbackCount = 0;
+        int cancelCallbackCount = 0;
         int stopCallbackCount = 0;
 
         core::SNodeC::init(argc, argv);
@@ -66,8 +69,20 @@ int main(int argc, char* argv[]) {
             [&cancelledCallbackCount]() {
                 ++cancelledCallbackCount;
             },
-            utils::Timeval({0, 100000}));
+            utils::Timeval({-1, 0}));
         cancelledTimer.cancel();
+
+        core::timer::Timer queuedTimer = core::timer::Timer::singleshotTimer(
+            [&queuedCallbackCount]() {
+                ++queuedCallbackCount;
+            },
+            utils::Timeval({0, 0}));
+        // This callback executes before the due timers in the same event batch.
+        core::EventReceiver::atNextTick([&queuedTimer, &cancelCallbackCount]() {
+            ++cancelCallbackCount;
+            queuedTimer.cancel();
+            queuedTimer.cancel();
+        });
 
         core::timer::Timer stopTimer = core::timer::Timer::singleshotTimer(
             [&stopCallbackCount]() {
@@ -79,6 +94,8 @@ int main(int argc, char* argv[]) {
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 
         testResult.expectEqual(0, cancelledCallbackCount, "cancelled timer callback does not execute");
+        testResult.expectEqual(0, queuedCallbackCount, "timer cancelled after queueing does not execute");
+        testResult.expectEqual(1, cancelCallbackCount, "queued timer cancellation executes exactly once");
         testResult.expectEqual(1, stopCallbackCount, "stop callback executes exactly once");
         testResult.expectEqual(0, startResult, "event loop exits cleanly after the stop callback");
 
