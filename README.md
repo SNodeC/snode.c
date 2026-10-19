@@ -303,7 +303,7 @@ For runtime log levels and foreground supervision, see [logging and process opti
 
 ## Documentation
 
-Manual CI builds and tests SNode.C; version tags start distribution-package builds, whose successful targets are signed and published by DistributionPackages. See the organization [workflow graph](https://github.com/SNodeC/.github/blob/main/docs/workflow-graph.md#banner) for the complete package chain and trigger contracts.
+Manual CI builds and tests SNode.C. Version tags notify DistributionPackages with the exact source commit. Its coordinator captures the dependency graph, dispatches unsigned builds through a shared workflow and signs and publishes each target before scheduling its dependents. See [CI orchestration](https://github.com/SNodeC/DistributionPackages/blob/main/docs/ci-orchestration.md#banner).
 
 The API menu opens the legacy Doxygen class index. It is a reference snapshot, not proof of current release/platform support; use these source guides and the Packages matrix for current installation decisions.
 
@@ -327,7 +327,7 @@ Install from [signed packages](https://github.com/SNodeC/Packages#banner) for yo
 
 ## Releases
 
-To rebuild an existing version without moving its tag, open **Build SNode.C distribution packages** in Actions, select **Run workflow** on the default branch and enter its existing `vMAJOR.MINOR.PATCH` tag. Each manual start creates a fresh capture and package revision. Ordinary job retries still require the original capture artifact; use a new manual run if that artifact is unavailable.
+Use **Re-run failed jobs** on the source build to retry compilation within its immutable capture; retry central publication separately for signing or handoff failures. Capture and package artifacts must still exist. Release capture belongs to DistributionPackages; the former source-specific manual release entry point is removed. See the [retry and migration guide](https://github.com/SNodeC/DistributionPackages/blob/main/docs/ci-orchestration.md#banner).
 
 [Release history and release notes](https://github.com/SNodeC/snode.c/releases). Match framework libraries, components and plugins from the same installation. Read the [upgrade and ABI guidance](docs/guides/deployment.md#upgrade-deliberately) before replacing a deployed installation.
 
