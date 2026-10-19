@@ -67,6 +67,7 @@ namespace core {
         void unobserveDisableEvents();
 
         void remove(TimerEventReceiver* timer);
+        bool isCancelled(const TimerEventReceiver* timer) const;
 
         void erase(TimerEventReceiver* timer);
         void insert(TimerEventReceiver* timer);

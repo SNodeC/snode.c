@@ -81,10 +81,13 @@ namespace core {
     }
 
     void TimerEventPublisher::remove(TimerEventReceiver* timer) {
-        if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
-            std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
+        if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() && !isCancelled(timer)) {
             removedList.push_back(timer);
         }
+    }
+
+    bool TimerEventPublisher::isCancelled(const TimerEventReceiver* timer) const {
+        return std::find(removedList.begin(), removedList.end(), timer) != removedList.end();
     }
 
     void TimerEventPublisher::erase(TimerEventReceiver* timer) {

@@ -114,9 +114,11 @@ namespace core {
     }
 
     void TimerEventReceiver::onEvent(const utils::Timeval& currentTime) {
-        log().trace("TimerEventReceiver: Dispatch delta = {} ms", (currentTime - getTimeoutAbsolut()).getMsd());
+        if (!timerEventPublisher.isCancelled(this)) {
+            log().trace("TimerEventReceiver: Dispatch delta = {} ms", (currentTime - getTimeoutAbsolut()).getMsd());
 
-        dispatchEvent();
+            dispatchEvent();
+        }
     }
 
     void TimerEventReceiver::setTimer(Timer* timer) {
