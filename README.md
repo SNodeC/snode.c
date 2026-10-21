@@ -350,3 +350,7 @@ Copyright © Volker Christian and contributors. SNode.C is dual-licensed under *
 
 Maintainer: [Volker Christian](https://github.com/VolkerChristian#banner). [Organization](https://github.com/SNodeC#banner) · [Contributing](#contributing) · [Security](https://github.com/SNodeC/.github/blob/main/SECURITY.md)
 <!-- snodec:end footer -->
+
+## Distribution package CI
+
+This repository owns its complete target matrix, `depends_on` and build hook paths in [`ci/packages.json`](ci/packages.json), with product build commands under `ci/package/`. Version-tag creation or movement notifies DistributionPackages with that exact source and full JSON; ordinary branch pushes do not start package CI. The thin wrapper accepts coordinator target requests, builds unsigned packages and reports the real source job/artifact identity. DistributionPackages verifies, signs and publishes centrally, then admits matching dependent targets. Only separated notify/capture credentials belong here; signing and Packages write credentials stay in DistributionPackages. See [CI setup and onboarding](https://github.com/SNodeC/DistributionPackages/blob/main/docs/setup.md#banner) and [orchestration/recovery](https://github.com/SNodeC/DistributionPackages/blob/main/docs/ci-orchestration.md#banner).

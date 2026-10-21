@@ -31,3 +31,5 @@ tag also requires explicit approval for that tag and action. Ordinary developmen
 - Include the required examples directly in the README collection, with the code, configuration, prerequisites, run instructions and expected results needed to follow them. Do not delegate required example content to the book repository.
 - Check both link text and destinations before handing off README changes, including generated previews. Preserve one physical source line per prose paragraph.
 - Follow the recorded owner requirements in `local/docs/readme-owner-findings.md` (local, untracked); do not mark pending changes complete merely because they have been recorded.
+
+This task uses `/tmp/codex/checkouts/snode.c/repository-owned-package-ci` on `refactor/repository-owned-package-ci` for isolated CI changes, preserving the occupied canonical checkout. Retain it until its uncommitted changes are integrated or otherwise preserved. Local package-CI fixture checks/logs use `/tmp/codex/build/snodec/package-ci`; no product installation or live activation is authorized.
