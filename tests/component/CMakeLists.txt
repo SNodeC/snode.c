@@ -43,3 +43,5 @@ add_subdirectory(http)
 add_subdirectory(express)
 add_subdirectory(websocket)
 add_subdirectory(eventsource)
+
+add_subdirectory(database)

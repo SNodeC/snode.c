@@ -99,6 +99,8 @@ namespace database::mariadb {
                                const std::string& instanceName = {});
         ~MariaDBClient() override;
 
+        void connect();
+
     private:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
         void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
