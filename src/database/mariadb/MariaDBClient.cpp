@@ -67,18 +67,20 @@ namespace database::mariadb {
         }
     }
 
-    MariaDBCommandSequence& MariaDBClient::execute_async(MariaDBCommand* mariaDBCommand) {
+    void MariaDBClient::connect() {
         if (mariaDBConnection == nullptr) {
             mariaDBConnection = new MariaDBConnection(this, details, onStateChanged, instanceName);
         }
+    }
+
+    MariaDBCommandSequence& MariaDBClient::execute_async(MariaDBCommand* mariaDBCommand) {
+        connect();
 
         return mariaDBConnection->execute_async(std::move(MariaDBCommandSequence().execute_async(mariaDBCommand)));
     }
 
     void MariaDBClient::execute_sync(MariaDBCommandSync* mariaDBCommand) {
-        if (mariaDBConnection == nullptr) {
-            mariaDBConnection = new MariaDBConnection(this, details, onStateChanged, instanceName);
-        }
+        connect();
 
         mariaDBConnection->execute_sync(mariaDBCommand);
     }
