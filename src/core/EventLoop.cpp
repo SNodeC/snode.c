@@ -235,8 +235,14 @@ namespace core {
         sigset_t oldSet{};
         const bool signalMaskBlocked = logPthreadSigmaskFailure(pthread_sigmask(SIG_BLOCK, &newSet, &oldSet), "tick-block");
 
+        newSet = oldSet;
+        logSignalFailure(sigdelset(&newSet, SIGINT), "sigdelset", "tick-wait-mask");
+        logSignalFailure(sigdelset(&newSet, SIGTERM), "sigdelset", "tick-wait-mask");
+        logSignalFailure(sigdelset(&newSet, SIGALRM), "sigdelset", "tick-wait-mask");
+        logSignalFailure(sigdelset(&newSet, SIGHUP), "sigdelset", "tick-wait-mask");
+
         if ((eventLoopState == State::RUNNING && stopsig == 0) || eventLoopState == State::STOPPING) {
-            tickStatus = eventMultiplexer.tick(timeOut, oldSet);
+            tickStatus = eventMultiplexer.tick(timeOut, newSet);
         }
 
         if (stopsig > 0 && eventLoopState == State::RUNNING) {

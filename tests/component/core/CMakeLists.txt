@@ -132,6 +132,25 @@ foreach(scenario IN ITEMS requested signal signal-wait)
                    77 TIMEOUT 5
     )
 endforeach()
+
+add_executable(TimerSignalShutdownTest TimerSignalShutdownTest.cpp)
+target_link_libraries(
+    TimerSignalShutdownTest PRIVATE snodec-test-support snodec::core
+)
+target_compile_features(TimerSignalShutdownTest PRIVATE cxx_std_20)
+foreach(signal IN ITEMS 1 2 14 15)
+    foreach(mask IN ITEMS blocked unblocked)
+        add_test(NAME TimerSignalShutdown_${signal}_${mask}
+                 COMMAND TimerSignalShutdownTest ${signal} ${mask}
+        )
+        set_tests_properties(
+            TimerSignalShutdown_${signal}_${mask}
+            PROPERTIES LABELS "component;core;timer;lifecycle;shutdown"
+                       SKIP_RETURN_CODE 77 TIMEOUT 5
+        )
+    endforeach()
+endforeach()
+
 set_tests_properties(
     TimerCancelBeforeFireTest PROPERTIES LABELS "component;core;timer"
                                          SKIP_RETURN_CODE 77 TIMEOUT 5
