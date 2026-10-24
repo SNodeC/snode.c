@@ -16,6 +16,7 @@ jobs:
     if: github.event_name == 'push' && github.event.deleted == false
     uses: SNodeC/DistributionPackages/.github/workflows/notify-release.yml@main
     secrets:
+      PACKAGE_CAPTURE_APP_PRIVATE_KEY: ${{ secrets.PACKAGE_CAPTURE_APP_PRIVATE_KEY }}
       PACKAGE_NOTIFY_APP_PRIVATE_KEY: ${{ secrets.PACKAGE_NOTIFY_APP_PRIVATE_KEY }}
   build:
     if: github.event_name == 'workflow_dispatch'
