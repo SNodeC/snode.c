@@ -91,12 +91,13 @@ namespace httputils {
         escaped.fill('0'); // cppcheck-suppress ignoredReturnValue
         escaped << std::hex;
 
-        for (const char c : text) {
-            if ((isalnum(c) != 0) || c == '-' || c == '_' || c == '.' || c == '~') {
+        for (const unsigned char c : text) {
+            if (((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) || c == '-' || c == '_' || c == '.' ||
+                c == '~') {
                 escaped << c;
             } else {
                 escaped << std::uppercase;
-                escaped << '%' << std::setw(2) << static_cast<unsigned char>(c);
+                escaped << '%' << std::setw(2) << static_cast<unsigned int>(c);
                 escaped << std::nouppercase;
             }
         }

@@ -101,3 +101,11 @@ target_link_libraries(
             snodec::net-in-stream-legacy
 )
 set_tests_properties(HttpStreamingSourceFailureTest PROPERTIES TIMEOUT 20)
+
+snodec_add_test(HttpUrlEncodingTest HttpUrlEncodingTest.cpp)
+target_link_libraries(
+    HttpUrlEncodingTest PRIVATE snodec-test-support snodec::http
+)
+set_tests_properties(
+    HttpUrlEncodingTest PROPERTIES LABELS "unit;http;encoding" TIMEOUT 5
+)
