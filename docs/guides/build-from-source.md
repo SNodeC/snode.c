@@ -83,6 +83,8 @@ cmake --build build-check --parallel
 ctest --test-dir build-check --output-on-failure --parallel
 ```
 
+When MariaDB support is built, the normal test suite uses Python 3 and the installed MariaDB server tools (`mariadb-install-db` and `mariadbd`) to create disposable test databases automatically. No running database service, credentials, additional CMake options or environment-variable setup is required. Each instance uses a Unix socket with TCP disabled and is stopped and removed after its test. Missing server tools produce a clear test failure rather than silently skipping the database cases.
+
 Hardware-specific capabilities still need an appropriate device and environment. See the framework’s [network test notes](../../tests/component/net/README.md#banner).
 
 ### Verify the installation

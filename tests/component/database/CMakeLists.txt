@@ -38,6 +38,7 @@
 # THE SOFTWARE.
 
 if(TARGET snodec::db-mariadb)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_executable(MariaDBConnectTest MariaDBConnectTest.cpp)
     target_link_libraries(
         MariaDBConnectTest PRIVATE snodec-test-support snodec::db-mariadb
@@ -53,17 +54,17 @@ if(TARGET snodec::db-mariadb)
         failure
         lazy-failure
     )
-        add_test(NAME MariaDBConnect-${mode} COMMAND MariaDBConnectTest)
+        add_test(
+            NAME MariaDBConnect-${mode}
+            COMMAND
+                ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
+                $<TARGET_FILE:MariaDBConnectTest> ${mode}
+        )
         set_tests_properties(
             MariaDBConnect-${mode}
-            PROPERTIES LABELS
-                       "component;database;mariadb"
-                       SKIP_RETURN_CODE
-                       77
-                       TIMEOUT
-                       10
-                       ENVIRONMENT
-                       "SNODEC_MARIADB_TEST_CASE=${mode}"
+            PROPERTIES LABELS "component;database;mariadb" SKIP_RETURN_CODE 77
+                       TIMEOUT 90
         )
     endforeach()
 endif()

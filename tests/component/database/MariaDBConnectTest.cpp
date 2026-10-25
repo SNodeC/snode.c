@@ -56,19 +56,20 @@
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;
-    const char* selected = std::getenv("SNODEC_MARIADB_TEST_CASE");
-    const char* socket = std::getenv("SNODEC_MARIADB_TEST_SOCKET");
-    const char* user = std::getenv("SNODEC_MARIADB_TEST_USER");
+    const char* selected = argc > 1 ? argv[1] : nullptr;
+    const char* socket = argc > 2 ? argv[2] : nullptr;
+    const char* user = argc > 3 ? argv[3] : nullptr;
     const std::string mode = selected != nullptr ? selected : "idle";
     const bool failure = mode == "failure" || mode == "lazy-failure";
     const bool fixture = mode != "idle" && !failure;
 
-    if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
+    if (argc != 4) {
+        std::cerr << "Run this test through CTest to create its disposable MariaDB fixture" << std::endl;
+        result = EXIT_FAILURE;
+    } else if (tests::support::shouldSkipRootWithoutSNodeCGroup()) {
         tests::support::printRootWithoutSNodeCGroupSkipMessage("MariaDBConnectTest");
-    } else if (fixture && (socket == nullptr || user == nullptr)) {
-        std::cout << "SKIP: set SNODEC_MARIADB_TEST_SOCKET and SNODEC_MARIADB_TEST_USER for a local test server" << std::endl;
     } else {
-        core::SNodeC::init(argc, argv);
+        core::SNodeC::init(1, argv);
         int connections = 0, connectionErrors = 0, queryErrors = 0, rows = 0, executions = 0, fieldReads = 0;
         bool started = false;
         std::unique_ptr<database::mariadb::MariaDBClient> db;
