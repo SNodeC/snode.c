@@ -198,3 +198,19 @@ set_tests_properties(
     DescriptorRegistrationFailureTest
     PROPERTIES LABELS "component;core;descriptor" SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+snodec_add_test(PipeCascadingCloseTest PipeCascadingCloseTest.cpp)
+target_link_libraries(
+    PipeCascadingCloseTest PRIVATE snodec-test-support snodec::core
+)
+target_compile_features(PipeCascadingCloseTest PRIVATE cxx_std_20)
+add_test(NAME PipeCascadingCloseReverseTest COMMAND PipeCascadingCloseTest)
+set_tests_properties(
+    PipeCascadingCloseTest PipeCascadingCloseReverseTest
+    PROPERTIES LABELS "component;core;pipe;lifecycle" SKIP_RETURN_CODE 77
+               TIMEOUT 5
+)
+set_tests_properties(
+    PipeCascadingCloseReverseTest PROPERTIES ENVIRONMENT
+                                             "SNODEC_CLOSE_SECOND_FIRST=1"
+)
