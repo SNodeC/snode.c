@@ -125,7 +125,9 @@ namespace core {
     }
 
     void DescriptorEventPublisher::releaseDisabledEvents(const utils::Timeval& currentTime) {
-        for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceivers] : dirtyEventReceiverLists) {
+        auto pending = std::exchange(dirtyEventReceiverLists, {});
+
+        for (auto& [dirtyDescriptEventReceiverList, disabledDescriptorEventReceivers] : pending) {
             for (DescriptorEventReceiver* disabledDescriptorEventReceiver : disabledDescriptorEventReceivers) {
                 dirtyDescriptEventReceiverList->remove(disabledDescriptorEventReceiver);
 
@@ -148,8 +150,6 @@ namespace core {
                 disabledDescriptorEventReceiver->setDisabled();
             }
         }
-
-        dirtyEventReceiverLists.clear();
     }
 
     int DescriptorEventPublisher::getObservedEventReceiverCount() const {
