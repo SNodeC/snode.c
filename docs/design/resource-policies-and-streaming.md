@@ -101,14 +101,14 @@ As with other SNode.C options, `--show-config` displays the effective tree and `
 | server `http` | `maximum-pending-requests` | `0` | Unlimited per connection |
 | server `http` | `allow-chunked-transfer` | `true` | Accept chunked request bodies |
 | server `http` | `allow-pipelining` | `true` | Accept pipelined requests |
-| `connection` | `maximum-write-queue-bytes` | `0` | Unlimited |
-| `connection` | `write-queue-high-watermark` | `0` | Use the legacy threshold: suspend above five write blocks, capped by a finite maximum queue size |
+| `connection` | `maximum-write-queue-bytes` | `0` | No upper bound on the effective high watermark |
+| `connection` | `write-queue-high-watermark` | `0` | Use the automatic threshold: five write blocks plus one byte, capped by the configured watermark bound |
 | `connection` | `write-queue-low-watermark` | `0` | Resume when the queue is empty |
 | `websocket` | `maximum-frame-bytes` | `0` | Unlimited |
 | `websocket` | `maximum-message-bytes` | `0` | Unlimited across all data fragments |
 | `websocket` | `maximum-fragments` | `0` | Unlimited data frames per message |
 
-The write-queue low watermark must not exceed the effective high watermark. An explicit high watermark must not exceed a finite maximum queue size. Configuration validation rejects inconsistent values.
+The write-queue low watermark must not exceed the effective high watermark. An explicit high watermark must not exceed a configured finite watermark bound. Configuration validation rejects inconsistent values.
 
 Start-line and header-line byte limits include their wire line terminators. `maximum-header-bytes` counts the complete header section, including its terminating empty line; the same limit is applied separately to a chunked trailer section. `maximum-header-fields` likewise applies independently to header and trailer fields. `maximum-body-bytes` counts decoded entity bytes, not chunk framing.
 
@@ -154,18 +154,13 @@ Valid bounded requests continue through the normal Express middleware chain; res
 
 Client `requestEventSource` responses are a deliberate streaming exception to `maximum-body-bytes`: after the HTTP response headers have been validated and the connection switches to the raw SSE event receiver, the HTTP parser no longer owns or accumulates that unbounded event stream. Header limits still apply. Applications that require an SSE byte or event budget must enforce it in the event receiver.
 
-## Bounded socket writes and pipe backpressure
+## Socket writes and pipe backpressure
 
-`core::socket::stream::SocketConnection::trySendToPeer(...)` and the corresponding `SocketContext` overloads return `QueueResult`:
+`core::socket::stream::SocketConnection::sendToPeer(...)` and the corresponding `SocketContext` overloads return `bool`. On an active writer, the entire input is queued: `true` means the resulting queue is below the effective high watermark, and `false` means it has reached or exceeded that watermark. A producer can pause before sending more data. A false return is not a rejection: never retry the chunk that was just queued. Older callers may ignore the return value; there is no `[[nodiscard]]` requirement. A disabled writer or a writer whose shutdown has begun retains its existing behavior of ignoring the send and returns `false`.
 
-- `Queued`: the complete input was appended;
-- `WouldExceedLimit`: none of the input was appended;
-- `Closed`: the writer is not available;
-- `ShutdownInProgress`: write shutdown has begun.
+Configure the high watermark with `connection --write-queue-high-watermark <bytes>`, `connection.write-queue-high-watermark` in a configuration file, or `setWriteQueueHighWatermark(...)`. A value of `0` selects the existing automatic threshold of five write blocks plus one byte. The existing `maximum-write-queue-bytes` setting bounds this effective threshold; it no longer rejects writes or imposes a hard queue capacity. Queue pressure never raises a write error or closes the connection.
 
-The existing `sendToPeer(...)` API remains available. With a finite maximum configured, an overflow through that legacy void API is treated as a write error and fails the connection, preventing a live protocol stream with silently omitted bytes. Callers that need to recover or choose their own policy before connection failure should use `trySendToPeer(...)`.
-
-Attached `core::pipe::Source` objects are suspended when the connection-local queue reaches the high watermark and resumed after it drains to the low watermark. A source is not resumed during write shutdown. Streamed HTTP headers, chunk framing, and payload fragments use atomic bounded admission, and a rejection terminates the stream and connection instead of emitting a partial fragment.
+Attached `core::pipe::Source` objects are suspended when the connection-local queue reaches the high watermark and resumed after it drains to the low watermark. A source is not resumed during write shutdown. HTTP streaming uses the existing send paths and pipe suspension; crossing the watermark does not abort a request or response. No new drain callback is introduced.
 
 ## Descriptor-based file streaming
 

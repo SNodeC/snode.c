@@ -56,10 +56,6 @@ namespace core::pipe {
     class Source;
 }
 
-namespace core::socket::stream {
-    enum class QueueResult;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "web/http/CiStringMap.h" // IWYU pragma: export
@@ -118,9 +114,6 @@ namespace web::http::server {
 
     private:
         void sendCompleted(bool boundedStream = false);
-        core::socket::stream::QueueResult trySendHeader();
-        core::socket::stream::QueueResult trySendFragment(const char* chunk, std::size_t chunkLen);
-        void onSourceQueueError(core::socket::stream::QueueResult queueResult);
 
         void onSourceConnect(core::pipe::Source* source) override;
         void onSourceData(const char* chunk, std::size_t chunkLen) override;

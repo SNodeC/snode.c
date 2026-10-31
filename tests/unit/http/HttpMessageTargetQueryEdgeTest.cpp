@@ -38,7 +38,9 @@ namespace {
         }
 
         int getFd() const override { return -1; }
-        void sendToPeer(const char*, std::size_t) override {}
+        bool sendToPeer(const char*, std::size_t) override {
+            return true;
+        }
         bool streamToPeer(core::pipe::Source*) override { return false; }
         void streamEof() override {}
 

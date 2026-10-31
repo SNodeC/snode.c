@@ -10,7 +10,6 @@
 #include "core/EventMultiplexer.h"
 #include "core/SNodeC.h"
 #include "core/pipe/Source.h"
-#include "core/socket/stream/QueueResult.h"
 #include "core/socket/stream/SocketWriter.h"
 #include "log/SemanticLogger.h"
 #include "net/config/ConfigConnection.h"
@@ -26,8 +25,6 @@
 #include <unistd.h>
 
 namespace {
-
-    using core::socket::stream::QueueResult;
 
     class WriterPolicyConfig final
         : public net::config::ConfigInstance
@@ -46,6 +43,10 @@ namespace {
         using ConfigConnection::setMaximumWriteQueueBytes;
         using ConfigConnection::setWriteQueueHighWatermark;
         using ConfigConnection::setWriteQueueLowWatermark;
+
+        void parseConnection(int argc, char* argv[]) const {
+            ConfigConnection::parse(argc, argv);
+        }
 
         bool hasOption(const std::string& name) const {
             return ConfigConnection::getOption(name) != nullptr;
@@ -141,8 +142,8 @@ namespace {
             }
         }
 
-        QueueResult enqueue(const std::string& bytes) {
-            return trySendToPeer(bytes.data(), bytes.size());
+        bool enqueue(const std::string& bytes) {
+            return sendToPeer(bytes.data(), bytes.size());
         }
 
         void legacyEnqueue(const std::string& bytes) {
@@ -173,9 +174,11 @@ namespace {
 
         int lastError = 0;
         bool shutdownCallback = false;
+        std::string written;
 
     private:
-        ssize_t write(const char*, std::size_t chunkLen) override {
+        ssize_t write(const char* chunk, std::size_t chunkLen) override {
+            written.append(chunk, chunkLen);
             return static_cast<ssize_t>(chunkLen);
         }
 
@@ -221,10 +224,6 @@ namespace {
         int fds[2]{-1, -1};
     };
 
-    void expectResult(tests::support::TestResult& result, QueueResult expected, QueueResult actual, const std::string& message) {
-        result.expectEqual(static_cast<int>(expected), static_cast<int>(actual), message);
-    }
-
     void processOneEventLoopTick() {
         sigset_t sigmask;
         sigemptyset(&sigmask);
@@ -258,6 +257,16 @@ int main() {
         result.expectTrue(config.getWriteQueueHighWatermark() == 3072, "C++ high-watermark accessor reflects configuration");
         result.expectTrue(config.getWriteQueueLowWatermark() == 1024, "C++ low-watermark accessor reflects configuration");
 
+        char command[] = "connection";
+        char highOption[] = "--write-queue-high-watermark";
+        char highValue[] = "2048";
+        char lowOption[] = "--write-queue-low-watermark";
+        char lowValue[] = "512";
+        char* connectionArgs[] = {command, highOption, highValue, lowOption, lowValue, nullptr};
+        config.parseConnection(5, connectionArgs);
+        result.expectTrue(config.getWriteQueueHighWatermark() == 2048, "connection CLI sets the high watermark");
+        result.expectTrue(config.getWriteQueueLowWatermark() == 512, "connection CLI sets the low watermark");
+
         const std::string generatedConfig = config.generatedConfig();
         result.expectTrue(generatedConfig.find("connection.maximum-write-queue-bytes") != std::string::npos,
                           "maximum queue appears in generated configuration-file output");
@@ -272,43 +281,62 @@ int main() {
         result.expectTrue(pair.valid(), "socketpair is available");
 
         TestWriter writer(4, 10, 6, 2);
-        expectResult(result, QueueResult::Closed, writer.enqueue("x"), "disabled writer reports Closed");
+        result.expectTrue(!writer.enqueue("x"), "disabled writer reports false");
+        result.expectTrue(writer.queuedBytes() == 0, "disabled writer does not queue bytes");
         result.expectTrue(writer.open(pair.writerFd()), "writer descriptor is enabled");
 
         CountingSource source;
         result.expectTrue(writer.attach(&source), "pipe source attaches");
 
-        expectResult(result, QueueResult::Queued, writer.enqueue("12345"), "bytes below high watermark are queued");
+        result.expectTrue(writer.enqueue("12345"), "bytes below high watermark are queued and report true");
         result.expectEqual(0, source.suspends, "source remains active below high watermark");
-        expectResult(result, QueueResult::Queued, writer.enqueue("6"), "high-watermark boundary is admitted");
+        result.expectTrue(!writer.enqueue("6"), "high-watermark boundary is queued and reports false");
         result.expectEqual(1, source.suspends, "source suspends at high watermark");
 
-        const std::size_t totalBeforeRejection = writer.totalQueued();
-        expectResult(result, QueueResult::WouldExceedLimit, writer.enqueue("12345"), "chunk that would exceed maximum queue is rejected");
-        result.expectTrue(writer.totalQueued() == totalBeforeRejection, "rejection does not increment total queued bytes");
-        result.expectTrue(writer.queuedBytes() == 6, "rejection leaves connection-local queue unchanged");
+        result.expectTrue(!writer.enqueue("12345"), "bytes beyond the configured maximum are queued and report false");
+        result.expectTrue(writer.totalQueued() == 11, "all accepted bytes contribute to the queued counter");
+        result.expectTrue(writer.queuedBytes() == 11, "the entire chunk is queued beyond the watermark");
+        result.expectEqual(0, writer.lastError, "queue pressure does not report a write error");
+        result.expectEqual(1, source.suspends, "further sends do not repeatedly suspend the source");
 
         processOneEventLoopTick();
-        result.expectTrue(writer.queuedBytes() == 2, "one write drains one configured block");
-        result.expectEqual(1, source.resumes, "source resumes at low watermark");
-
-        expectResult(result, QueueResult::Queued, writer.enqueue("12345678"), "exact queue limit is admitted");
-        result.expectTrue(writer.queuedBytes() == 10, "queue reaches exact configured maximum");
-        expectResult(result, QueueResult::WouldExceedLimit, writer.enqueue("x"), "byte beyond exact limit is rejected");
+        result.expectTrue(writer.queuedBytes() == 7, "one write drains one configured block");
+        result.expectEqual(0, source.resumes, "source stays suspended above the low watermark");
+        processOneEventLoopTick();
+        result.expectTrue(writer.queuedBytes() == 3, "a second write continues draining");
+        result.expectEqual(0, source.resumes, "source stays suspended just above the low watermark");
+        processOneEventLoopTick();
+        result.expectTrue(writer.queuedBytes() == 0, "the complete queue drains");
+        result.expectEqual(1, source.resumes, "source resumes below the low watermark");
+        result.expectTrue(writer.written == "12345612345", "all bytes are written once and in order after false returns");
+        result.expectTrue(!writer.enqueue("123456"), "a new chunk at the watermark queues and reports false");
+        processOneEventLoopTick();
+        result.expectTrue(writer.queuedBytes() == 2, "one block drains the queue to the exact low watermark");
+        result.expectEqual(2, source.resumes, "source resumes at the exact low watermark");
+        result.expectTrue(writer.enqueue("a"), "sending reports true again below the high watermark");
+        result.expectTrue(!writer.enqueue("1234567"), "queue may reach the configured maximum without rejection");
+        result.expectTrue(writer.queuedBytes() == 10, "all bytes at the maximum are retained");
+        result.expectTrue(!writer.enqueue("x"), "sending above the maximum still queues bytes and reports false");
+        result.expectTrue(writer.queuedBytes() == 11, "the queue may exceed the maximum watermark bound");
 
         writer.detachSource();
         writer.closeWriter();
-        expectResult(result, QueueResult::Closed, writer.enqueue("x"), "closed writer reports Closed");
+        result.expectTrue(!writer.enqueue("x"), "closed writer reports false");
+        result.expectTrue(writer.queuedBytes() == 11, "closed writer does not append bytes");
         releaseDisabledWriters();
     }
 
     {
         SocketPair pair;
         TestWriter writer(4, 4, 4, 0);
-        result.expectTrue(writer.open(pair.writerFd()), "legacy-send overflow writer is enabled");
+        result.expectTrue(writer.open(pair.writerFd()), "writer with an ignored send result is enabled");
         writer.legacyEnqueue("12345");
-        result.expectEqual(ENOBUFS, writer.lastError, "legacy void send reports finite-queue overflow as a connection error");
-        result.expectEqual(std::size_t{0}, writer.queuedBytes(), "legacy overflow does not append a partial chunk");
+        result.expectEqual(0, writer.lastError, "ignoring the send result does not turn queue pressure into a connection error");
+        result.expectTrue(writer.queuedBytes() == 5, "ignoring the send result still queues the complete chunk");
+        while (writer.queuedBytes() != 0) {
+            processOneEventLoopTick();
+        }
+        result.expectTrue(writer.written == "12345", "an older caller still delivers all bytes");
         writer.closeWriter();
         releaseDisabledWriters();
     }
@@ -319,9 +347,11 @@ int main() {
         TestWriter writerA(4, 4, 4, 0);
         TestWriter writerB(4, 8, 8, 0);
         result.expectTrue(writerA.open(pairA.writerFd()) && writerB.open(pairB.writerFd()), "two writers are enabled");
-        expectResult(result, QueueResult::Queued, writerA.enqueue("1234"), "first connection admits its own maximum");
-        expectResult(result, QueueResult::WouldExceedLimit, writerA.enqueue("5"), "first connection enforces its limit");
-        expectResult(result, QueueResult::Queued, writerB.enqueue("12345"), "second connection has an independent larger limit");
+        result.expectTrue(!writerA.enqueue("1234"), "first connection reports pressure at its own watermark");
+        result.expectTrue(!writerA.enqueue("5"), "first connection keeps queuing above its watermark");
+        result.expectTrue(writerB.enqueue("12345"), "second connection has an independent larger watermark");
+        result.expectTrue(writerA.queuedBytes() == 5, "first connection retains its entire payload");
+        result.expectTrue(writerB.queuedBytes() == 5, "second connection retains its independent payload");
         writerA.closeWriter();
         writerB.closeWriter();
         releaseDisabledWriters();
@@ -332,9 +362,10 @@ int main() {
         TestWriter writer(4);
         CountingSource source;
         result.expectTrue(writer.open(pair.writerFd()) && writer.attach(&source), "default-policy writer and source are ready");
-        expectResult(result, QueueResult::Queued, writer.enqueue(std::string(20, 'a')), "legacy threshold minus one remains admitted");
+        result.expectTrue(writer.enqueue(std::string(20, 'a')), "default threshold minus one reports true");
         result.expectEqual(0, source.suspends, "legacy source remains active at five blocks");
-        expectResult(result, QueueResult::Queued, writer.enqueue("b"), "default queue remains unlimited");
+        result.expectTrue(!writer.enqueue("b"), "default threshold reports false without rejecting bytes");
+        result.expectTrue(writer.queuedBytes() == 21, "default threshold retains the entire payload");
         result.expectEqual(1, source.suspends, "legacy source suspends above five blocks");
         while (writer.queuedBytes() != 0) {
             processOneEventLoopTick();
@@ -351,7 +382,8 @@ int main() {
         result.expectTrue(writer.open(pair.writerFd()), "shutdown writer is enabled");
         writer.beginShutdown();
         result.expectTrue(writer.shutdownCallback, "empty queue starts shutdown immediately");
-        expectResult(result, QueueResult::ShutdownInProgress, writer.enqueue("x"), "shutdown writer reports ShutdownInProgress");
+        result.expectTrue(!writer.enqueue("x"), "shutdown writer reports false");
+        result.expectTrue(writer.queuedBytes() == 0, "shutdown writer does not append bytes");
         writer.closeWriter();
         releaseDisabledWriters();
     }
@@ -361,7 +393,7 @@ int main() {
         TestWriter writer(4, 6, 6, 0);
         CountingSource source;
         result.expectTrue(writer.open(pair.writerFd()) && writer.attach(&source), "shutdown backpressure writer and source are ready");
-        expectResult(result, QueueResult::Queued, writer.enqueue("123456"), "shutdown fixture reaches its high watermark");
+        result.expectTrue(!writer.enqueue("123456"), "shutdown fixture queues bytes and reports pressure at its high watermark");
         result.expectEqual(1, source.suspends, "shutdown fixture suspends its source");
         writer.beginShutdown();
         while (writer.queuedBytes() != 0) {

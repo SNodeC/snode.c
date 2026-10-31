@@ -148,48 +148,30 @@ namespace core::socket::stream {
         updateEffectiveHighWatermark();
     }
 
-    QueueResult SocketWriter::trySendToPeer(const char* chunk, std::size_t chunkLen) {
+    bool SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
+        bool writable = false;
+
         if (shutdownInProgress || markShutdown) {
-            return QueueResult::ShutdownInProgress;
-        }
-        if (!isEnabled()) {
-            return QueueResult::Closed;
-        }
-        if (maximumWriteQueueBytes != 0 && (chunkLen > maximumWriteQueueBytes || writePuffer.size() > maximumWriteQueueBytes - chunkLen)) {
-            return QueueResult::WouldExceedLimit;
+            log().warn("Send while shutdown in progress: ignoring");
+        } else if (!isEnabled()) {
+            log().warn("Send while not enabled");
+        } else {
+            const bool wasEmpty = writePuffer.empty();
+
+            if (chunkLen != 0) {
+                writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
+                totalQueued += chunkLen;
+            }
+
+            if (wasEmpty && chunkLen != 0 && !writeActivationBlocked) {
+                resume();
+            }
+
+            suspendSourceAtHighWatermark();
+            writable = writePuffer.size() < effectiveWriteQueueHighWatermark;
         }
 
-        const bool wasEmpty = writePuffer.empty();
-
-        if (chunkLen != 0) {
-            writePuffer.insert(writePuffer.end(), chunk, chunk + chunkLen);
-            totalQueued += chunkLen;
-        }
-
-        if (wasEmpty && chunkLen != 0 && !writeActivationBlocked) {
-            resume();
-        }
-
-        suspendSourceAtHighWatermark();
-
-        return QueueResult::Queued;
-    }
-
-    void SocketWriter::sendToPeer(const char* chunk, std::size_t chunkLen) {
-        switch (trySendToPeer(chunk, chunkLen)) {
-            case QueueResult::Queued:
-                break;
-            case QueueResult::WouldExceedLimit:
-                log().warn("Send would exceed maximum write queue: failing the connection for {} bytes", chunkLen);
-                onStatus(ENOBUFS);
-                break;
-            case QueueResult::Closed:
-                log().warn("Send while not enabled");
-                break;
-            case QueueResult::ShutdownInProgress:
-                log().warn("Send while shutdown in progress: ignoring");
-                break;
-        }
+        return writable;
     }
 
     bool SocketWriter::streamToPeer(core::pipe::Source* source) {

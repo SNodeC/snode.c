@@ -50,8 +50,8 @@ namespace core::socket {
     SocketContext::~SocketContext() {
     }
 
-    void SocketContext::sendToPeer(const std::string& data) const {
-        sendToPeer(data.data(), data.length());
+    bool SocketContext::sendToPeer(const std::string& data) const {
+        return sendToPeer(data.data(), data.length());
     }
 
 } // namespace core::socket

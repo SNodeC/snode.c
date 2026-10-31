@@ -42,7 +42,6 @@
 #include "web/http/client/Request.h"
 
 #include "core/file/FileReader.h"
-#include "core/socket/stream/QueueResult.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/TransferEncoding.h"
@@ -676,7 +675,12 @@ namespace web::http::client {
     }
 
     bool MasterRequest::executeSendHeader() {
-        recordQueueFailure(trySendHeader());
+        if (!deliveryFailed && isConnected()) {
+            socketContext->sendToPeer(serializeHeader());
+        } else {
+            errno = EPIPE;
+            deliveryFailed = true;
+        }
 
         return true;
     }
@@ -713,74 +717,23 @@ namespace web::http::client {
         return requestHeader;
     }
 
-    core::socket::stream::QueueResult MasterRequest::trySendHeader() {
-        if (deliveryFailed || !isConnected()) {
-            return core::socket::stream::QueueResult::Closed;
-        }
-
-        return socketContext->trySendToPeer(serializeHeader());
-    }
-
     bool MasterRequest::executeSendFragment(const char* chunk, std::size_t chunkLen) {
-        recordQueueFailure(trySendFragment(chunk, chunkLen));
+        if (!deliveryFailed && isConnected()) {
+            if (transferEncoding == TransferEncoding::Chunked) {
+                socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
+            }
 
-        return true;
-    }
-
-    core::socket::stream::QueueResult MasterRequest::trySendFragment(const char* chunk, std::size_t chunkLen) {
-        using core::socket::stream::QueueResult;
-
-        if (deliveryFailed || !isConnected()) {
-            return QueueResult::Closed;
-        }
-
-        std::string fragment;
-        if (transferEncoding == TransferEncoding::Chunked) {
-            fragment = to_hex_str(chunkLen).append("\r\n");
-        }
-
-        if (chunkLen != 0) {
-            fragment.append(chunk, chunkLen);
-        }
-
-        if (transferEncoding == TransferEncoding::Chunked) {
-            fragment.append("\r\n");
-        }
-
-        const QueueResult queueResult = socketContext->trySendToPeer(fragment);
-        if (queueResult == QueueResult::Queued) {
+            socketContext->sendToPeer(chunk, chunkLen);
             contentLengthSent += chunkLen;
 
             if (transferEncoding == TransferEncoding::Chunked) {
+                socketContext->sendToPeer("\r\n");
                 contentLength += chunkLen;
             }
+        } else {
+            errno = EPIPE;
+            deliveryFailed = true;
         }
-
-        return queueResult;
-    }
-
-    bool MasterRequest::recordQueueFailure(core::socket::stream::QueueResult queueResult) {
-        using core::socket::stream::QueueResult;
-
-        switch (queueResult) {
-            case QueueResult::Queued:
-                return false;
-            case QueueResult::WouldExceedLimit:
-                errno = ENOBUFS;
-                break;
-            case QueueResult::Closed:
-                errno = EPIPE;
-                break;
-            case QueueResult::ShutdownInProgress:
-#ifdef ESHUTDOWN
-                errno = ESHUTDOWN;
-#else
-                errno = EPIPE;
-#endif
-                break;
-        }
-
-        deliveryFailed = true;
 
         return true;
     }
@@ -809,7 +762,7 @@ namespace web::http::client {
                 }
 
                 completion.append("\r\n");
-                recordQueueFailure(socketContext->trySendToPeer(completion));
+                socketContext->sendToPeer(completion);
             }
 
             socketContext->requestDelivered(!deliveryFailed && contentLengthSent == contentLength);
@@ -819,14 +772,14 @@ namespace web::http::client {
     void MasterRequest::onSourceConnect(core::pipe::Source* source) {
         if (isConnected()) {
             if (socketContext->streamToPeer(source)) {
-                const core::socket::stream::QueueResult queueResult = trySendHeader();
-                if (queueResult == core::socket::stream::QueueResult::Queued) {
+                executeSendHeader();
+                if (!deliveryFailed) {
                     source->start();
                 } else {
-                    onSourceQueueError(queueResult);
+                    onSourceError(EPIPE);
                 }
             } else {
-                onSourceQueueError(core::socket::stream::QueueResult::Closed);
+                onSourceError(EPIPE);
             }
         } else {
             stop();
@@ -834,9 +787,9 @@ namespace web::http::client {
     }
 
     void MasterRequest::onSourceData(const char* chunk, std::size_t chunkLen) {
-        const core::socket::stream::QueueResult queueResult = trySendFragment(chunk, chunkLen);
-        if (queueResult != core::socket::stream::QueueResult::Queued) {
-            onSourceQueueError(queueResult);
+        executeSendFragment(chunk, chunkLen);
+        if (deliveryFailed) {
+            onSourceError(EPIPE);
         }
     }
 
@@ -853,22 +806,6 @@ namespace web::http::client {
     void MasterRequest::onSourceError(int errnum) {
         errno = errnum;
         deliveryFailed = true;
-
-        if (isConnected()) {
-            socketContext->streamEof();
-
-            stop();
-
-            socketContext->close();
-
-            requestDelivered();
-        }
-    }
-
-    void MasterRequest::onSourceQueueError(core::socket::stream::QueueResult queueResult) {
-        if (!recordQueueFailure(queueResult)) {
-            return;
-        }
 
         if (isConnected()) {
             socketContext->streamEof();

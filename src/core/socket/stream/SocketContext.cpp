@@ -122,16 +122,8 @@ namespace core::socket::stream {
         return frameworkLogScope.logger(std::move(sink), threshold, std::move(clock));
     }
 
-    void SocketContext::sendToPeer(const char* chunk, std::size_t chunkLen) const {
-        socketConnection->sendToPeer(chunk, chunkLen);
-    }
-
-    QueueResult SocketContext::trySendToPeer(const char* chunk, std::size_t chunkLen) const {
-        return socketConnection->trySendToPeer(chunk, chunkLen);
-    }
-
-    QueueResult SocketContext::trySendToPeer(const std::string& data) const {
-        return socketConnection->trySendToPeer(data);
+    bool SocketContext::sendToPeer(const char* chunk, std::size_t chunkLen) const {
+        return socketConnection->sendToPeer(chunk, chunkLen);
     }
 
     bool SocketContext::streamToPeer(pipe::Source* source) const {

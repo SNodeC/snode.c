@@ -43,7 +43,6 @@
 #define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
 
 #include "core/socket/SocketContext.h"
-#include "core/socket/stream/QueueResult.h"
 #include "log/LogScopeOwner.h"
 
 namespace core::pipe {
@@ -76,9 +75,7 @@ namespace core::socket::stream {
         using Super::readFromPeer;
         using Super::sendToPeer;
 
-        void sendToPeer(const char* chunk, std::size_t chunkLen) const final;
-        QueueResult trySendToPeer(const char* chunk, std::size_t chunkLen) const;
-        QueueResult trySendToPeer(const std::string& data) const;
+        bool sendToPeer(const char* chunk, std::size_t chunkLen) const final;
         bool streamToPeer(core::pipe::Source* source) const;
         void streamEof();
 

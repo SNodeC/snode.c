@@ -43,7 +43,6 @@
 #define CORE_SOCKET_STREAM_SOCKETWRITER_H
 
 #include "core/eventreceiver/WriteEventReceiver.h"
-#include "core/socket/stream/QueueResult.h"
 
 namespace logger {
     struct LogScope;
@@ -98,8 +97,7 @@ namespace core::socket::stream {
 
         void setBlockSize(std::size_t writeBlockSize);
 
-        QueueResult trySendToPeer(const char* chunk, std::size_t chunkLen);
-        void sendToPeer(const char* chunk, std::size_t chunkLen);
+        bool sendToPeer(const char* chunk, std::size_t chunkLen);
         bool streamToPeer(core::pipe::Source* source);
         void streamEof();
 

@@ -240,14 +240,8 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::sendToPeer(const char* chunk, std::size_t chunkLen) {
-        SocketWriter::sendToPeer(chunk, chunkLen);
-    }
-
-    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    QueueResult SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::trySendToPeer(const char* chunk,
-                                                                                                     std::size_t chunkLen) {
-        return SocketWriter::trySendToPeer(chunk, chunkLen);
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::sendToPeer(const char* chunk, std::size_t chunkLen) {
+        return SocketWriter::sendToPeer(chunk, chunkLen);
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
