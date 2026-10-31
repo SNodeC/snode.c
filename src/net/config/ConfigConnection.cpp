@@ -85,14 +85,14 @@ namespace net::config {
 
         maximumWriteQueueBytesOpt = addOption( //
             "--maximum-write-queue-bytes",
-            "Maximum bytes queued for writing (0 means unlimited)",
+            "Upper bound for the write-queue high watermark (0 means no bound)",
             "bytes",
             MAXIMUM_WRITE_QUEUE_BYTES,
             CLI::NonNegativeNumber);
 
         writeQueueHighWatermarkOpt = addOption( //
             "--write-queue-high-watermark",
-            "Suspend a pipe source at this queue size (0 selects the legacy automatic threshold)",
+            "Return false from sendToPeer and suspend a pipe source at this queue size (0 selects the automatic threshold)",
             "bytes",
             WRITE_QUEUE_HIGH_WATERMARK,
             CLI::NonNegativeNumber);

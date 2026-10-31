@@ -43,7 +43,6 @@
 
 #include "SocketContext.h"
 #include "core/file/FileReader.h"
-#include "core/socket/stream/QueueResult.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
@@ -438,10 +437,7 @@ namespace web::http::server {
 
     Response& Response::sendFragment(const char* chunk, std::size_t chunkLen) {
         // RFC 9110 / Express semantics: HEAD responses must not include a message body.
-        if (requestMethod == "HEAD") {
-            return *this;
-        }
-        if (isConnected()) {
+        if (requestMethod != "HEAD" && isConnected()) {
             if (transferEncoding == TransferEncoding::Chunked) {
                 socketContext->sendToPeer(to_hex_str(chunkLen).append("\r\n"));
             }
@@ -476,11 +472,7 @@ namespace web::http::server {
 
                     completion.append("\r\n");
 
-                    const core::socket::stream::QueueResult queueResult = socketContext->trySendToPeer(completion);
-                    if (queueResult != core::socket::stream::QueueResult::Queued) {
-                        sourceFailed = true;
-                        socketContext->close();
-                    }
+                    socketContext->sendToPeer(completion);
                 } else {
                     sendFragment(""); // For transfer encoding chunked. Terminate the chunk sequence.
 
@@ -504,121 +496,6 @@ namespace web::http::server {
         }
     }
 
-    core::socket::stream::QueueResult Response::trySendHeader() {
-        using core::socket::stream::QueueResult;
-
-        if (!isConnected()) {
-            return QueueResult::Closed;
-        }
-
-        socketContext->responseStarted(*this);
-
-        std::string responseHeader = "HTTP/" + std::to_string(httpMajor)
-                                                   .append(".")
-                                                   .append(std::to_string(httpMinor))
-                                                   .append(" ")
-                                                   .append(std::to_string(statusCode))
-                                                   .append(" ")
-                                                   .append(StatusCode::reason(statusCode))
-                                                   .append("\r\n");
-        responseHeader.append("Date: ").append(httputils::to_http_date()).append("\r\n");
-
-        set("X-Powered-By", "SNode.C");
-
-        for (const auto& [field, value] : headers) {
-            responseHeader.append(field).append(": ").append(value).append("\r\n");
-        }
-
-        for (const auto& [cookie, cookieValue] : cookies) {
-            const std::string cookieString =
-                std::accumulate(cookieValue.getOptions().begin(),
-                                cookieValue.getOptions().end(),
-                                cookie + "=" + cookieValue.getValue(),
-                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
-                                });
-            responseHeader.append("Set-Cookie: ").append(cookieString).append("\r\n");
-        }
-
-        responseHeader.append("\r\n");
-
-        return socketContext->trySendToPeer(responseHeader);
-    }
-
-    core::socket::stream::QueueResult Response::trySendFragment(const char* chunk, std::size_t chunkLen) {
-        using core::socket::stream::QueueResult;
-
-        if (requestMethod == "HEAD") {
-            return QueueResult::Queued;
-        }
-
-        if (!isConnected()) {
-            return QueueResult::Closed;
-        }
-
-        const bool serverSentEvent = web::http::ciContains(headers["Content-Type"], "text/event-stream");
-        std::string fragment;
-
-        if (transferEncoding == TransferEncoding::Chunked) {
-            fragment = to_hex_str(chunkLen).append("\r\n");
-        }
-
-        if (chunkLen != 0) {
-            fragment.append(chunk, chunkLen);
-        }
-
-        if (transferEncoding == TransferEncoding::Chunked || serverSentEvent) {
-            fragment.append("\r\n");
-        }
-
-        const QueueResult queueResult = socketContext->trySendToPeer(fragment);
-        if (queueResult == QueueResult::Queued) {
-            contentSent += chunkLen;
-
-            if (transferEncoding == TransferEncoding::Chunked || serverSentEvent) {
-                contentLength += chunkLen;
-            }
-        }
-
-        return queueResult;
-    }
-
-    void Response::onSourceQueueError(core::socket::stream::QueueResult queueResult) {
-        using core::socket::stream::QueueResult;
-
-        switch (queueResult) {
-            case QueueResult::Queued:
-                return;
-            case QueueResult::WouldExceedLimit:
-                errno = ENOBUFS;
-                break;
-            case QueueResult::Closed:
-                errno = EPIPE;
-                break;
-            case QueueResult::ShutdownInProgress:
-#ifdef ESHUTDOWN
-                errno = ESHUTDOWN;
-#else
-                errno = EPIPE;
-#endif
-                break;
-        }
-
-        sourceFailed = true;
-
-        if (isConnected()) {
-            socketContext->streamEof();
-        }
-
-        stop();
-
-        if (isConnected()) {
-            socketContext->close();
-        }
-
-        sendCompleted();
-    }
-
     void Response::onSourceConnect(core::pipe::Source* source) {
         if (isConnected()) {
             if (socketContext->streamToPeer(source)) {
@@ -627,13 +504,9 @@ namespace web::http::server {
                     set("Transfer-Encoding", "chunked");
                 }
 
-                const core::socket::stream::QueueResult queueResult = trySendHeader();
-                if (queueResult == core::socket::stream::QueueResult::Queued) {
-                    sourceConnectAccepted = true;
-                    source->start();
-                } else {
-                    onSourceQueueError(queueResult);
-                }
+                sendHeader();
+                sourceConnectAccepted = true;
+                source->start();
             } else {
                 stop();
             }
@@ -646,10 +519,11 @@ namespace web::http::server {
         if (requestMethod != "HEAD" && transferEncoding == TransferEncoding::Identity &&
             (contentSent > contentLength || chunkLen > contentLength - contentSent)) {
             onSourceError(EMSGSIZE);
-            return;
+        } else if (isConnected()) {
+            sendFragment(chunk, chunkLen);
+        } else {
+            onSourceError(EPIPE);
         }
-
-        onSourceQueueError(trySendFragment(chunk, chunkLen));
     }
 
     void Response::onSourceEof() {

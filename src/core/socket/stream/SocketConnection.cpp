@@ -108,34 +108,16 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketConnection::sendToPeer(const std::string& data) {
-        sendToPeer(data.data(), data.size());
+    bool SocketConnection::sendToPeer(const std::string& data) {
+        return sendToPeer(data.data(), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
-        sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
+    bool SocketConnection::sentToPeer(const std::vector<uint8_t>& data) {
+        return sendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
     }
 
-    void SocketConnection::sentToPeer(const std::vector<char>& data) {
-        sendToPeer(data.data(), data.size());
-    }
-
-    QueueResult SocketConnection::trySendToPeer(const char* chunk, std::size_t chunkLen) {
-        sendToPeer(chunk, chunkLen);
-
-        return QueueResult::Queued;
-    }
-
-    QueueResult SocketConnection::trySendToPeer(const std::string& data) {
-        return trySendToPeer(data.data(), data.size());
-    }
-
-    QueueResult SocketConnection::trySendToPeer(const std::vector<uint8_t>& data) {
-        return trySendToPeer(reinterpret_cast<const char*>(data.data()), data.size());
-    }
-
-    QueueResult SocketConnection::trySendToPeer(const std::vector<char>& data) {
-        return trySendToPeer(data.data(), data.size());
+    bool SocketConnection::sentToPeer(const std::vector<char>& data) {
+        return sendToPeer(data.data(), data.size());
     }
 
     const std::string& SocketConnection::getInstanceName() const {

@@ -42,7 +42,6 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "core/socket/stream/QueueResult.h"
 #include "log/LogScopeOwner.h"
 
 namespace core {
@@ -98,15 +97,10 @@ namespace core::socket::stream {
     public:
         void setSocketContext(SocketContext* socketContext);
 
-        virtual void sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
-        void sendToPeer(const std::string& data);
-        void sentToPeer(const std::vector<uint8_t>& data);
-        void sentToPeer(const std::vector<char>& data);
-
-        virtual QueueResult trySendToPeer(const char* chunk, std::size_t chunkLen);
-        QueueResult trySendToPeer(const std::string& data);
-        QueueResult trySendToPeer(const std::vector<uint8_t>& data);
-        QueueResult trySendToPeer(const std::vector<char>& data);
+        virtual bool sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
+        bool sendToPeer(const std::string& data);
+        bool sentToPeer(const std::vector<uint8_t>& data);
+        bool sentToPeer(const std::vector<char>& data);
 
         virtual bool streamToPeer(core::pipe::Source* source) = 0;
         virtual void streamEof() = 0;
@@ -214,10 +208,7 @@ namespace core::socket::stream {
         std::size_t readFromPeer(char* chunk, std::size_t chunkLen) final;
 
         using Super::sendToPeer;
-        void sendToPeer(const char* chunk, std::size_t chunkLen) final;
-
-        using Super::trySendToPeer;
-        QueueResult trySendToPeer(const char* chunk, std::size_t chunkLen) final;
+        bool sendToPeer(const char* chunk, std::size_t chunkLen) final;
 
         bool streamToPeer(core::pipe::Source* source) final;
         void streamEof() final;

@@ -429,3 +429,24 @@ set_tests_properties(
     PROPERTIES LABELS "component;http;chunked;request;legacy;ipv4"
                SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+add_test(
+    NAME InetHttpServerClientLargeResponseBodyTest-backpressure
+    COMMAND
+        InetHttpServerClientLargeResponseBodyTest --quiet
+        ipv4-http-behavior-server connection --maximum-write-queue-bytes 64
+        --write-queue-high-watermark 32
+)
+add_test(
+    NAME InetHttpServerClientLargeRequestBodyTest-backpressure
+    COMMAND
+        InetHttpServerClientLargeRequestBodyTest --quiet
+        ipv4-http-behavior-client connection --maximum-write-queue-bytes 64
+        --write-queue-high-watermark 32
+)
+set_tests_properties(
+    InetHttpServerClientLargeResponseBodyTest-backpressure
+    InetHttpServerClientLargeRequestBodyTest-backpressure
+    PROPERTIES LABELS "component;http;backpressure;legacy;ipv4"
+               SKIP_RETURN_CODE 77 TIMEOUT 5
+)

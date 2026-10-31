@@ -126,11 +126,11 @@ append_source_file_config(
 )
 append_source_file_config(
     config/ConfigConnection.cpp MAXIMUM_WRITE_QUEUE_BYTES
-    "Maximum queued write bytes (0 means unlimited)" 0
+    "Upper bound for write-queue high watermark (0 means no bound)" 0
 )
 append_source_file_config(
     config/ConfigConnection.cpp WRITE_QUEUE_HIGH_WATERMARK
-    "Pipe source write-queue high watermark (0 means legacy automatic)" 0
+    "Write-queue high watermark (0 means automatic)" 0
 )
 append_source_file_config(
     config/ConfigConnection.cpp WRITE_QUEUE_LOW_WATERMARK
