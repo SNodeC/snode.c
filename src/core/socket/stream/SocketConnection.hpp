@@ -374,6 +374,11 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onDrain() {
+        socketContext->onDrain();
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onWriteError(int errnum) {
         socketContext->onWriteError(errnum);
     }

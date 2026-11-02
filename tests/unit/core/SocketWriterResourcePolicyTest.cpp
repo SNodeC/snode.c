@@ -17,6 +17,7 @@
 #include "tests/support/TestResult.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstddef>
 #include <functional>
 #include <signal.h>
@@ -104,6 +105,7 @@ namespace {
                   writerLogScope(),
                   [this](int errnum) {
                       lastError = errnum;
+                      closeWriter();
                   },
                   {1, 0},
                   blockSize,
@@ -119,6 +121,7 @@ namespace {
                   writerLogScope(),
                   [this](int errnum) {
                       lastError = errnum;
+                      closeWriter();
                   },
                   {1, 0},
                   blockSize,
@@ -173,13 +176,29 @@ namespace {
         }
 
         int lastError = 0;
+        int writeError = 0;
+        int drains = 0;
+        std::function<void()> drained;
         bool shutdownCallback = false;
         std::string written;
 
     private:
         ssize_t write(const char* chunk, std::size_t chunkLen) override {
-            written.append(chunk, chunkLen);
-            return static_cast<ssize_t>(chunkLen);
+            ssize_t result = -1;
+            if (writeError == 0) {
+                written.append(chunk, chunkLen);
+                result = static_cast<ssize_t>(chunkLen);
+            } else {
+                errno = writeError;
+            }
+            return result;
+        }
+
+        void onDrain() override {
+            ++drains;
+            if (drained) {
+                drained();
+            }
         }
 
         bool onSignal(int) override {
@@ -302,17 +321,21 @@ int main() {
         processOneEventLoopTick();
         result.expectTrue(writer.queuedBytes() == 7, "one write drains one configured block");
         result.expectEqual(0, source.resumes, "source stays suspended above the low watermark");
+        result.expectEqual(0, writer.drains, "no drain notification above the low watermark");
         processOneEventLoopTick();
         result.expectTrue(writer.queuedBytes() == 3, "a second write continues draining");
         result.expectEqual(0, source.resumes, "source stays suspended just above the low watermark");
+        result.expectEqual(0, writer.drains, "no drain notification just above the low watermark");
         processOneEventLoopTick();
         result.expectTrue(writer.queuedBytes() == 0, "the complete queue drains");
         result.expectEqual(1, source.resumes, "source resumes below the low watermark");
+        result.expectEqual(1, writer.drains, "one drain notification below the low watermark despite repeated pressured sends");
         result.expectTrue(writer.written == "12345612345", "all bytes are written once and in order after false returns");
         result.expectTrue(!writer.enqueue("123456"), "a new chunk at the watermark queues and reports false");
         processOneEventLoopTick();
         result.expectTrue(writer.queuedBytes() == 2, "one block drains the queue to the exact low watermark");
         result.expectEqual(2, source.resumes, "source resumes at the exact low watermark");
+        result.expectEqual(2, writer.drains, "a second pressure cycle notifies at the exact low watermark");
         result.expectTrue(writer.enqueue("a"), "sending reports true again below the high watermark");
         result.expectTrue(!writer.enqueue("1234567"), "queue may reach the configured maximum without rejection");
         result.expectTrue(writer.queuedBytes() == 10, "all bytes at the maximum are retained");
@@ -400,9 +423,72 @@ int main() {
             processOneEventLoopTick();
         }
         result.expectEqual(0, source.resumes, "draining for shutdown does not resume a suspended source");
+        result.expectEqual(0, writer.drains, "write shutdown suppresses drain notification");
         writer.detachSource();
         writer.closeWriter();
         releaseDisabledWriters();
+    }
+
+    {
+        SocketPair pair;
+        TestWriter writer(4, 0, 6, 2);
+        result.expectTrue(writer.open(pair.writerFd()), "unpressured writer is enabled");
+        result.expectTrue(writer.enqueue("1234"), "ordinary write stays below the high watermark");
+        processOneEventLoopTick();
+        processOneEventLoopTick();
+        result.expectEqual(0, writer.drains, "ordinary writes and empty events do not notify");
+        writer.closeWriter();
+        releaseDisabledWriters();
+    }
+
+    {
+        SocketPair pair;
+        TestWriter writer(4, 0, 6, 2);
+        result.expectTrue(writer.open(pair.writerFd()), "reentrant writer is enabled");
+        writer.drained = [&]() {
+            if (writer.drains == 1) {
+                result.expectTrue(!writer.enqueue("abcd"), "a drain callback may establish another pressure cycle");
+            }
+        };
+        result.expectTrue(!writer.enqueue("123456"), "reentrant fixture reaches the high watermark");
+        processOneEventLoopTick();
+        result.expectEqual(1, writer.drains, "first cycle notifies once");
+        result.expectTrue(writer.queuedBytes() == 6, "callback queues subsequent data without recursion");
+        processOneEventLoopTick();
+        result.expectEqual(2, writer.drains, "reentrant cycle retains its own notification");
+        processOneEventLoopTick();
+        processOneEventLoopTick();
+        result.expectEqual(2, writer.drains, "further draining does not duplicate notifications");
+        result.expectTrue(writer.written == "123456abcd", "reentrant sends preserve byte order");
+        writer.closeWriter();
+        releaseDisabledWriters();
+    }
+
+    {
+        SocketPair pair;
+        TestWriter writer(4, 0, 6, 2);
+        result.expectTrue(writer.open(pair.writerFd()), "closing callback writer is enabled");
+        writer.drained = [&]() {
+            writer.closeWriter();
+        };
+        result.expectTrue(!writer.enqueue("123456"), "closing callback fixture reaches high watermark");
+        processOneEventLoopTick();
+        result.expectEqual(1, writer.drains, "a drain callback may close the writer");
+        result.expectTrue(!writer.enqueue("x"), "callback closure leaves writer disabled");
+        releaseDisabledWriters();
+        result.expectEqual(1, writer.drains, "closure does not cause another notification");
+    }
+
+    {
+        SocketPair pair;
+        TestWriter writer(4, 0, 6, 2);
+        result.expectTrue(writer.open(pair.writerFd()), "failing writer is enabled");
+        result.expectTrue(!writer.enqueue("123456"), "failing fixture reaches high watermark");
+        writer.writeError = EIO;
+        processOneEventLoopTick();
+        result.expectEqual(EIO, writer.lastError, "write failure follows the existing error path");
+        releaseDisabledWriters();
+        result.expectEqual(0, writer.drains, "write failure does not notify drain");
     }
 
     core::SNodeC::free();

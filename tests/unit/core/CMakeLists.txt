@@ -283,3 +283,16 @@ foreach(scenario IN ITEMS retry cancel)
         ConnectionAttemptLifecycleTest-${scenario} PROPERTIES TIMEOUT 20
     )
 endforeach()
+
+snodec_add_test(SocketDrainNotificationTest SocketDrainNotificationTest.cpp)
+target_include_directories(
+    SocketDrainNotificationTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    SocketDrainNotificationTest PRIVATE OpenSSL::SSL snodec-test-support
+                                        snodec::net-in-stream-legacy
+)
+set_tests_properties(
+    SocketDrainNotificationTest PROPERTIES LABELS "unit;core;stream;drain"
+                                           TIMEOUT 12
+)
