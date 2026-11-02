@@ -124,6 +124,11 @@ namespace core::socket::stream {
 
                 resumeSourceAtLowWatermark();
                 span();
+
+                if (drainPending && isEnabled() && !shutdownInProgress && !markShutdown && writePuffer.size() <= writeQueueLowWatermark) {
+                    drainPending = false;
+                    onDrain();
+                }
             } else if ((errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) && isSuspended()) {
                 resume();
             } else {
@@ -210,9 +215,12 @@ namespace core::socket::stream {
     }
 
     void SocketWriter::suspendSourceAtHighWatermark() {
-        if (source != nullptr && !sourceSuspended && writePuffer.size() >= effectiveWriteQueueHighWatermark) {
-            source->suspend();
-            sourceSuspended = true;
+        if (writePuffer.size() >= effectiveWriteQueueHighWatermark) {
+            drainPending = true;
+            if (source != nullptr && !sourceSuspended) {
+                source->suspend();
+                sourceSuspended = true;
+            }
         }
     }
 

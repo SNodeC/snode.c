@@ -181,6 +181,9 @@ namespace core::socket::stream {
         socketConnection->shutdownWrite();
     }
 
+    void SocketContext::onDrain() {
+    }
+
     void SocketContext::onWriteError(int errnum) {
         errno = errnum;
 

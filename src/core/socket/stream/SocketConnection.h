@@ -229,6 +229,7 @@ namespace core::socket::stream {
     protected:
         void doWriteShutdown(const std::function<void()>& onShutdown) override;
 
+        void onDrain() override;
         void onWriteError(int errnum);
         void onReadError(int errnum);
 

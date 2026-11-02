@@ -94,6 +94,7 @@ namespace core::socket::stream {
 
     protected:
         virtual ssize_t write(const char* chunk, std::size_t chunkLen);
+        virtual void onDrain() = 0;
 
         void setBlockSize(std::size_t writeBlockSize);
 
@@ -134,6 +135,7 @@ namespace core::socket::stream {
         const std::size_t writeQueueLowWatermark = 0;
         std::size_t effectiveWriteQueueHighWatermark = 0;
         bool sourceSuspended = false;
+        bool drainPending = false;
 
         std::size_t totalQueued = 0;
         std::size_t totalSent = 0;
