@@ -97,15 +97,7 @@ namespace database::mariadb {
 
                         connected = true;
                     } else {
-                        if (ReadEventReceiver::isEnabled()) {
-                            ReadEventReceiver::disable();
-                        }
-                        if (WriteEventReceiver::isEnabled()) {
-                            WriteEventReceiver::disable();
-                        }
-                        if (ExceptionalConditionEventReceiver::isEnabled()) {
-                            ExceptionalConditionEventReceiver::disable();
-                        }
+                        disableReceivers();
 
                         log().error() << "Descriptor not registered in SNode.C eventloop";
                     }
@@ -127,20 +119,13 @@ namespace database::mariadb {
 
     MariaDBConnection::~MariaDBConnection() {
         if (currentCommandStarted && currentCommand != nullptr) {
-            log().debug() << "database request " << (closing || core::SNodeC::state() != core::State::RUNNING ? "cancelled" : "failed")
+            log().debug() << "database request "
+                          << (closeMode != CloseMode::Active || core::SNodeC::state() != core::State::RUNNING ? "cancelled" : "failed")
                           << ": command=" << currentCommand->commandInfo();
             currentCommandStarted = false;
         }
 
-        for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
-            for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
-                if (core::SNodeC::state() == core::State::RUNNING && connected) {
-                    mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                }
-
-                delete mariaDBCommand;
-            }
-        }
+        clearCommands();
 
         if (mariaDBClient != nullptr) {
             mariaDBClient->connectionVanished();
@@ -157,8 +142,23 @@ namespace database::mariadb {
         }
     }
 
+    void MariaDBConnection::clearCommands() {
+        for (MariaDBCommandSequence& mariaDBCommandSequence : commandSequenceQueue) {
+            for (MariaDBCommand* mariaDBCommand : mariaDBCommandSequence.sequence()) {
+                if (closeMode != CloseMode::Abort && core::SNodeC::state() == core::State::RUNNING && connected) {
+                    mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+                }
+
+                delete mariaDBCommand;
+            }
+        }
+        commandSequenceQueue.clear();
+        currentCommand = nullptr;
+        currentCommandStarted = false;
+    }
+
     MariaDBCommandSequence& MariaDBConnection::execute_async(MariaDBCommandSequence&& commandSequence) {
-        if (currentCommand == nullptr && commandSequenceQueue.empty()) {
+        if (closeMode != CloseMode::Abort && currentCommand == nullptr && commandSequenceQueue.empty()) {
             commandStartEvent.span();
         }
 
@@ -168,20 +168,26 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::execute_sync(MariaDBCommand* mariaDBCommand) {
-        mariaDBCommand->commandStart(mysql, utils::Timeval::currentTime());
-
-        if (mysql_errno(mysql) == 0) {
-            if (mariaDBCommand->commandCompleted()) {
+        if (closeMode != CloseMode::Abort) {
+            mariaDBCommand->commandStart(mysql, utils::Timeval::currentTime());
+            if (mysql_errno(mysql) == 0) {
+                mariaDBCommand->commandCompleted();
+            } else {
+                mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
             }
-        } else {
-            mariaDBCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
         }
-
         delete mariaDBCommand;
     }
 
     void MariaDBConnection::commandStart(const utils::Timeval& currentTime) {
-        if (!commandSequenceQueue.empty()) {
+        if (closeMode == CloseMode::Abort) {
+            clearCommands();
+            if (ReadEventReceiver::isEnabled() || WriteEventReceiver::isEnabled() || ExceptionalConditionEventReceiver::isEnabled()) {
+                unmanaged();
+            } else {
+                delete this;
+            }
+        } else if (!commandSequenceQueue.empty()) {
             currentCommand = commandSequenceQueue.front().nextCommand();
 
             currentCommandStarted = true;
@@ -195,19 +201,15 @@ namespace database::mariadb {
                 ReadEventReceiver::resume();
             }
         } else {
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            ExceptionalConditionEventReceiver::disable();
+            disableReceivers();
         }
     }
 
     void MariaDBConnection::commandContinue(int status) {
-        if (currentCommand != nullptr) {
+        if (closeMode != CloseMode::Abort && currentCommand != nullptr) {
             checkStatus(currentCommand->commandContinue(status));
-        } else if ((status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {
-            ReadEventReceiver::disable();
-            WriteEventReceiver::disable();
-            ExceptionalConditionEventReceiver::disable();
+        } else if (closeMode != CloseMode::Abort && (status & MYSQL_WAIT_READ) != 0 && commandSequenceQueue.empty()) {
+            disableReceivers();
         }
     }
 
@@ -229,25 +231,45 @@ namespace database::mariadb {
         }
     }
 
+    void MariaDBConnection::disableReceivers() {
+        if (ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
+        }
+        if (WriteEventReceiver::isEnabled()) {
+            WriteEventReceiver::disable();
+        }
+        if (ExceptionalConditionEventReceiver::isEnabled()) {
+            ExceptionalConditionEventReceiver::disable();
+        }
+    }
+
     void MariaDBConnection::unmanaged() {
         mariaDBClient = nullptr;
-        closing = true;
+        if (closeMode == CloseMode::Active) {
+            closeMode = CloseMode::Drain;
+        }
 
         if (currentCommand == nullptr && commandSequenceQueue.empty()) {
-            if (ReadEventReceiver::isEnabled()) {
-                ReadEventReceiver::disable();
+            disableReceivers();
+        }
+    }
+
+    void MariaDBConnection::abort() {
+        if (closeMode != CloseMode::Abort) {
+            closeMode = CloseMode::Abort;
+            if (mariaDBClient != nullptr) {
+                mariaDBClient->connectionVanished();
+                mariaDBClient = nullptr;
             }
-            if (WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::disable();
+            if (mariadb_cancel(mysql) != 0) {
+                log().warn() << "MariaDB cancellation failed; controlled close pending";
             }
-            if (ExceptionalConditionEventReceiver::isEnabled()) {
-                ExceptionalConditionEventReceiver::disable();
-            }
+            commandStartEvent.span();
         }
     }
 
     void MariaDBConnection::checkStatus(int status) {
-        if (connected) {
+        if (closeMode != CloseMode::Abort && connected) {
             if ((status & MYSQL_WAIT_READ) != 0) {
                 if (ReadEventReceiver::isSuspended() && ReadEventReceiver::isEnabled()) {
                     ReadEventReceiver::resume();
@@ -284,22 +306,25 @@ namespace database::mariadb {
 
             if (status == 0) {
                 if (mysql_errno(mysql) == 0) {
-                    if (currentCommand->commandCompleted()) {
+                    if (currentCommand->commandCompleted() && closeMode != CloseMode::Abort) {
                         commandCompleted();
                     }
                 } else {
                     currentCommandFailed = true;
                     currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-                    commandCompleted();
+                    if (closeMode != CloseMode::Abort) {
+                        commandCompleted();
+                    }
                 }
                 commandStartEvent.span();
             }
-        } else {
+        } else if (closeMode != CloseMode::Abort) {
             currentCommandFailed = true;
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-            commandCompleted();
-
-            delete this;
+            if (closeMode != CloseMode::Abort) {
+                commandCompleted();
+                delete this;
+            }
         }
     }
 
@@ -328,7 +353,7 @@ namespace database::mariadb {
     }
 
     void MariaDBConnection::unobservedEvent() {
-        if (!closing) {
+        if (closeMode == CloseMode::Active) {
             log().error() << "Lost connection";
         }
 

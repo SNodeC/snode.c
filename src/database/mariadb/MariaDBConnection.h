@@ -109,6 +109,7 @@ namespace database::mariadb {
         void commandCompleted();
 
         void unmanaged();
+        void abort();
 
     protected:
         void checkStatus(int status);
@@ -131,6 +132,10 @@ namespace database::mariadb {
 
         static logger::LogScopeOwner makeLogScope(const std::string& instanceName, const std::string& connectionName);
         logger::BoundaryLogger log() const;
+        void clearCommands();
+        void disableReceivers();
+
+        enum class CloseMode : unsigned char { Active, Drain, Abort };
 
         MariaDBClient* mariaDBClient = nullptr;
         MYSQL* mysql = nullptr;
@@ -139,7 +144,7 @@ namespace database::mariadb {
 
         MariaDBCommand* currentCommand = nullptr;
         bool connected = false;
-        bool closing = false;
+        CloseMode closeMode = CloseMode::Active;
         bool sessionEstablished = false;
         bool currentCommandStarted = false;
         bool currentCommandFailed = false;

@@ -101,6 +101,10 @@ namespace database::mariadb {
 
         void connect();
 
+        // Cancel this session; entered callbacks finish before controlled cleanup.
+        // Already-sent mutations may retain an unknown remote outcome.
+        void abort();
+
     private:
         MariaDBCommandSequence& execute_async(MariaDBCommand* mariaDBCommand) final;
         void execute_sync(MariaDBCommandSync* mariaDBCommand) final;
