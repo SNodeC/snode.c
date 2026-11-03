@@ -18,7 +18,7 @@ printf '\nsrc-link core_ci /work/recipes\n' >> feeds.conf.default
 printf '\nCONFIG_PACKAGE_snodec=m\n' >> .config
 make defconfig
 make -j2 package/snode.c/compile V=s BUILD_LOG=1
-python3 "$SOURCE_DIR/ci/package/openwrt-tests.py" "$SDK_DIR"
+python3 "$CI_DIR/ci/package/openwrt-tests.py" "$SDK_DIR"
 python3 - <<'EXPORT'
 import os,shutil,tarfile
 from pathlib import Path
