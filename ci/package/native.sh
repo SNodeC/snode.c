@@ -1,23 +1,21 @@
-#!/usr/bin/env bash
-# Product dependencies and build policy are versioned with this source.
-if [ "$format" = DEB ]; then
-    apt-get install -y build-essential cmake ninja-build pkg-config \
-        libbluetooth-dev libmagic-dev libmariadb-dev libssl-dev openssl libncurses-dev nlohmann-json3-dev libsqlite3-dev
+#!/bin/sh
+# Source-owned build policy; dependency installation belongs to trusted preparation.
+set -eu
+: "${SOURCE_DIR:?}" "${TARGET_JSON:?}" "${OUTPUT_DIR:?}"
+format=$(python3 -c 'import json,os; print(json.load(open(os.environ["TARGET_JSON"]))["build"]["format"])')
+if [ "$format" = deb ]; then
+    libdir="lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
 else
-    dnf install -y gcc gcc-c++ cmake ninja-build make pkgconf-pkg-config rpm-build \
-        bluez-libs-devel file-devel mariadb-connector-c-devel openssl-devel openssl ncurses-devel json-devel sqlite-devel
-    if [ "$DISTRIBUTION:$SUITE" = rocky:9 ]; then
-        dnf install -y gcc-toolset-14-gcc-c++
-        source /opt/rh/gcc-toolset-14/enable
+    libdir=lib64
+    if [ -f /opt/rh/gcc-toolset-14/enable ]; then
+        . /opt/rh/gcc-toolset-14/enable
     fi
 fi
-cmake -S sources/snode.c -B build-snodec -G Ninja \
+build=/work/build-product
+cmake -S "$SOURCE_DIR" -B "$build" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR="$libdir" -DCMAKE_INSTALL_SYSCONFDIR=/etc \
-    -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON \
-    -DSPDLOG_SYSTEM_INCLUDES=ON
-cmake --build build-snodec --parallel 4
-package build-snodec
-install_packages /work/packages/*."${format,,}"
-chown -R package-test:package-test build-snodec
-runuser -u package-test -- ctest --test-dir build-snodec --output-on-failure
+    -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSPDLOG_SYSTEM_INCLUDES=ON
+cmake --build "$build" --parallel 2
+ctest --test-dir "$build" --output-on-failure --output-junit core-ci-tests.xml
+python3 /tool/native_container.py --package "$build"

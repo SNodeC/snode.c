@@ -1,0 +1,29 @@
+name: core-ci source build
+run-name: Build ${{ fromJSON(inputs.assignment).label }}
+on:
+  workflow_dispatch:
+    inputs:
+      execution:
+        required: true
+        type: string
+      attempt:
+        required: true
+        type: string
+      assignment_sha256:
+        required: true
+        type: string
+      assignment:
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+  packages: read
+jobs:
+  build:
+    uses: SNodeC/DistributionPackages/.github/workflows/core-ci-build.yml@f59e9ea15428d7667613d2388b1109ca7f5fa2f5
+    with:
+      execution: ${{ inputs.execution }}
+      attempt: ${{ inputs.attempt }}
+      assignment_sha256: ${{ inputs.assignment_sha256 }}
+      assignment: ${{ inputs.assignment }}
