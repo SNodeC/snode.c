@@ -73,6 +73,12 @@ namespace database::mariadb {
         }
     }
 
+    void MariaDBClient::abort() {
+        if (mariaDBConnection != nullptr) {
+            mariaDBConnection->abort();
+        }
+    }
+
     MariaDBCommandSequence& MariaDBClient::execute_async(MariaDBCommand* mariaDBCommand) {
         connect();
 
