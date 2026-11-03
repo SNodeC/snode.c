@@ -46,11 +46,8 @@
 #include "database/mariadb/commands/async/MariaDBAutoCommitCommand.h"
 #include "database/mariadb/commands/async/MariaDBCommitCommand.h"
 #include "database/mariadb/commands/async/MariaDBExecCommand.h"
-#include "database/mariadb/commands/async/MariaDBFetchRowCommand.h"
-#include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
 #include "database/mariadb/commands/async/MariaDBQueryCommand.h"
 #include "database/mariadb/commands/async/MariaDBRollbackCommand.h"
-#include "database/mariadb/commands/sync/MariaDBUseResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,25 +63,7 @@ namespace database::mariadb {
     MariaDBCommandSequence& MariaDBClientASyncAPI::query(const std::string& sql,
                                                          const std::function<void(const MYSQL_ROW)>& onQuery,
                                                          const std::function<void(const std::string&, unsigned int)>& onError) {
-        MariaDBCommandSequence& sequence = execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(
-            sql,
-            []() {
-            },
-            onError));
-
-        return sequence
-            .execute_async(new database::mariadb::commands::sync::MariaDBUseResultCommand(
-                [&lastResult = sequence.lastResult](MYSQL_RES* result) {
-                    lastResult = result;
-                },
-                onError))
-            .execute_async(new database::mariadb::commands::async::MariaDBFetchRowCommand(sequence.lastResult, onQuery, onError))
-            .execute_async(new database::mariadb::commands::async::MariaDBFreeResultCommand(
-                sequence.lastResult,
-                [&lastResult = sequence.lastResult]() {
-                    lastResult = nullptr;
-                },
-                onError));
+        return execute_async(new database::mariadb::commands::async::MariaDBQueryCommand(sql, onQuery, onError));
     }
 
     MariaDBCommandSequence& MariaDBClientASyncAPI::exec(const std::string& sql,

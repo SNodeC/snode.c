@@ -49,25 +49,48 @@
 namespace database::mariadb::commands::async {
 
     MariaDBQueryCommand::MariaDBQueryCommand(const std::string& sql,
-                                             const std::function<void(void)>& onQuery,
+                                             const std::function<void(const MYSQL_ROW)>& onQuery,
                                              const std::function<void(const std::string&, unsigned int)>& onError)
         : MariaDBCommandASync("Query", onError)
         , sql(sql)
-        , onQuery(onQuery) {
+        , useResult(
+              [this](MYSQL_RES* value) {
+                  result = value;
+              },
+              onError)
+        , fetchRow(result, onQuery, onError)
+        , freeResult(
+              result,
+              []() {
+              },
+              onError) {
     }
 
     int MariaDBQueryCommand::commandStart() {
-        return mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length());
+        const int status = current == nullptr ? mysql_real_query_start(&ret, mysql, sql.c_str(), sql.length())
+                                              : current->commandStart(mysql, utils::Timeval::currentTime());
+        return status;
     }
 
     int MariaDBQueryCommand::commandContinue(int status) {
-        return mysql_real_query_cont(&ret, mysql, status);
+        const int next = current == nullptr ? mysql_real_query_cont(&ret, mysql, status) : current->commandContinue(status);
+        return next;
     }
 
     bool MariaDBQueryCommand::commandCompleted() {
-        onQuery();
-
-        return true;
+        bool complete = false;
+        if (current == nullptr) {
+            current = &useResult;
+        } else if (current->commandCompleted()) {
+            if (current == &useResult) {
+                current = &fetchRow;
+            } else if (current == &fetchRow) {
+                current = &freeResult;
+            } else {
+                complete = true;
+            }
+        }
+        return complete;
     }
 
     void MariaDBQueryCommand::commandError(const std::string& errorString, unsigned int errorNumber) {

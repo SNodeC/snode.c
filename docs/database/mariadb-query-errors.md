@@ -1,0 +1,7 @@
+# MariaDB query ownership and failure
+
+Each public query call contributes one MariaDBQueryCommand to the normal command sequence. It owns its UseResult, FetchRow and FreeResult commands and its result pointer, and is noncopyable. Successful SQL completion advances to result acquisition; successful acquisition advances to row fetching; end-of-results advances to cleanup. Failure uses the existing single command error path, without advancing later stages. No command-name matching, queue scan, generic grouping engine or transaction rollback policy is added. The connection and generic sequence are unchanged.
+
+The public client query API, row/end callbacks and ordering with other user commands remain unchanged. The owner approved changing the low-level MariaDBQueryCommand constructor to a row callback and its class layout; this is a source/ABI change requiring a major version for a future release. No release, version change or installation is performed. Existing lower-level helper commands remain reused. Abort is unimplemented and outside this change.
+
+Tests use the existing isolated MariaDB fixture and an independent reader. They check one error without caller guards, preservation of a following query, caller-owned rollback, ordered multiple rows with synchronous metadata callbacks, empty results and non-result queries. Success-chained transaction recovery remains caller code. Final memory-lifetime checks use an AddressSanitizer development build; no live acceptance is claimed.
