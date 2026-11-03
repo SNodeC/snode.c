@@ -44,6 +44,9 @@
 #define DATABASE_MARIADB_COMMANDS_ASYNC_MARIADBQUERYCOMMAND
 
 #include "database/mariadb/MariaDBCommandASync.h" // IWYU pragma: export
+#include "database/mariadb/commands/async/MariaDBFetchRowCommand.h"
+#include "database/mariadb/commands/async/MariaDBFreeResultCommand.h"
+#include "database/mariadb/commands/sync/MariaDBUseResultCommand.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -54,8 +57,11 @@ namespace database::mariadb::commands::async {
     class MariaDBQueryCommand : public MariaDBCommandASync {
     public:
         MariaDBQueryCommand(const std::string& sql,
-                            const std::function<void(void)>& onQuery,
+                            const std::function<void(const MYSQL_ROW)>& onQuery,
                             const std::function<void(const std::string&, unsigned int)>& onError);
+        MariaDBQueryCommand(const MariaDBQueryCommand&) = delete;
+
+        MariaDBQueryCommand& operator=(const MariaDBQueryCommand&) = delete;
 
     private:
         int commandStart() override;
@@ -67,7 +73,11 @@ namespace database::mariadb::commands::async {
         int ret = 0;
 
         const std::string sql;
-        const std::function<void(void)> onQuery;
+        MYSQL_RES* result = nullptr;
+        sync::MariaDBUseResultCommand useResult;
+        MariaDBFetchRowCommand fetchRow;
+        MariaDBFreeResultCommand freeResult;
+        MariaDBCommand* current = nullptr;
     };
 
 } // namespace database::mariadb::commands::async

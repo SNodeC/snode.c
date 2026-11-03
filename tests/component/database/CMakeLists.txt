@@ -67,4 +67,13 @@ if(TARGET snodec::db-mariadb)
                        TIMEOUT 90
         )
     endforeach()
+    add_executable(MariaDBQueryTest MariaDBQueryTest.cpp)
+    target_link_libraries(MariaDBQueryTest PRIVATE snodec-test-support snodec::db-mariadb)
+    foreach(mode following rollback rows empty no-result)
+        add_test(NAME MariaDBQuery-${mode}
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
+                $<TARGET_FILE:MariaDBQueryTest> ${mode})
+        set_tests_properties(MariaDBQuery-${mode}
+            PROPERTIES LABELS "component;database;mariadb" SKIP_RETURN_CODE 77 TIMEOUT 90)
+    endforeach()
 endif()
