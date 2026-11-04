@@ -21,7 +21,7 @@ permissions:
   packages: read
 jobs:
   build:
-    uses: SNodeC/DistributionPackages/.github/workflows/core-ci-build.yml@8b2c2fe63b4094ecfea286fca95ed6c02bcd077c
+    uses: SNodeC/DistributionPackages/.github/workflows/core-ci-build.yml@0f238ae7965bdbefdbe8510031de938898a4a68d
     with:
       execution: ${{ inputs.execution }}
       attempt: ${{ inputs.attempt }}
