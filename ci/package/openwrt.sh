@@ -17,7 +17,7 @@ printf '\nsrc-link core_ci /work/recipes\n' >> feeds.conf.default
 ./scripts/feeds install -a
 printf '\nCONFIG_PACKAGE_snodec=m\n' >> .config
 make defconfig
-make -j2 package/snode.c/compile V=s BUILD_LOG=1
+make -j2 package/snode.c/compile CONFIG_AUTOREMOVE= V=s BUILD_LOG=1
 python3 "$CI_DIR/ci/package/openwrt-tests.py" "$SDK_DIR"
 python3 - <<'EXPORT'
 import os,shutil,tarfile
