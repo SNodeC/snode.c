@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "title": "SNode.C",
-  "revision_base": 1,
+  "revision_base": 120,
   "package": "snodec",
   "depends_on": [],
   "build": {
