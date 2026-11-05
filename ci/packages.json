@@ -1028,5 +1028,13 @@
       "json-devel",
       "sqlite-devel"
     ]
+  },
+  "development_packages": {
+    "deb": [
+      "snodec"
+    ],
+    "rpm": [
+      "snodec"
+    ]
   }
 }

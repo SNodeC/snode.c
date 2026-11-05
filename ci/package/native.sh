@@ -18,4 +18,4 @@ cmake -S "$SOURCE_DIR" -B "$build" -G Ninja \
     -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSPDLOG_SYSTEM_INCLUDES=ON
 cmake --build "$build" --parallel 2
 ctest --test-dir "$build" --output-on-failure --output-junit core-ci-tests.xml
-python3 /tool/native_container.py --package "$build"
+python3 -c 'import sys; sys.path.insert(0, "/core_ci"); from native_container import package; package(sys.argv[1])' "$build"
