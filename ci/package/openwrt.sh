@@ -1,10 +1,10 @@
 #!/bin/sh
 set -eu
-: "${SOURCE_DIR:?}" "${SDK_DIR:?}" "${SDK_STAGING_DIR:?}" "${SOURCE_COMMIT:?}"
+: "${SOURCE_DIR:?}" "${SDK_DIR:?}" "${SDK_STAGING_DIR:?}" "${SOURCE_TAG:?}"
 mkdir -p /work/recipes/snode.c "$SDK_DIR/dl"
 cp -a "$SOURCE_DIR/supplement/openwrt/." /work/recipes/snode.c/
 export SNODEC_PACKAGE_RELEASE="$PACKAGE_REVISION"
-export SNODEC_SOURCE_TAG="$SOURCE_COMMIT"
+export SNODEC_SOURCE_TAG="$SOURCE_TAG"
 export SNODEC_PACKAGE_VERSION="$PACKAGE_UPSTREAM_VERSION"
 archive="$SDK_DIR/dl/snode.c-$PACKAGE_UPSTREAM_VERSION.tar.gz"
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
