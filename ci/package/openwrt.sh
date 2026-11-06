@@ -49,7 +49,7 @@ assert ((root/'lib/cmake/snodec/snodecConfig.cmake').is_file()
         and any(p.is_file() and p.suffix in ('.h','.hh','.hpp','.hxx') for p in (root/'include').rglob('*'))
         and any(p.is_file() for pattern in ('libsnodec*.so*','libsnodec*.a') for p in (root/'lib').rglob(pattern))), \
     'incomplete development export: missing snodec CMake configuration, headers or libraries'
-with tarfile.open(Path(os.environ['OUTPUT_DIR'])/'development.tar.gz','w:gz') as archive:
+with tarfile.open(Path(os.environ['OUTPUT_DIR'])/'development.tar.gz','w:gz',dereference=True) as archive:
     for file in sorted(root.iterdir()):
         archive.add(file,arcname=file.name)
 EXPORT

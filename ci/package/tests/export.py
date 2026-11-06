@@ -37,8 +37,9 @@ def main():
             for name, data in files.items():
                 if name.startswith("usr/"):
                     assert archive.extractfile(name[4:]).read() == data, name
-            assert archive.getmember("lib/libsnodec.so").issym()
-            assert archive.getmember("lib/libsnodec.so").linkname == "libsnodec.so.2"
+            assert archive.getmember("lib/libsnodec.so").isfile()
+            assert archive.extractfile("lib/libsnodec.so").read() == files["usr/lib/libsnodec.so.2"]
+            assert all(member.isfile() or member.isdir() for member in archive.getmembers())
             assert archive.extractfile("share/core-ci/pkginfo/snodec.provides").read() == b"libsnodec.so.2"
             assert archive.extractfile("share/core-ci/openwrt/snode.c/Makefile").read() == b"recipe"
             assert "bin/not-development" not in archive.getnames()
