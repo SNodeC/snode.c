@@ -42,6 +42,14 @@ def main():
             assert archive.extractfile("share/core-ci/pkginfo/snodec.provides").read() == b"libsnodec.so.2"
             assert archive.extractfile("share/core-ci/openwrt/snode.c/Makefile").read() == b"recipe"
             assert "bin/not-development" not in archive.getnames()
+        # An incomplete inventory must fail before creating an export archive.
+        listing.write_text("\n".join(line for line in inventory if not line.endswith("snodecConfig.cmake")) + "\n")
+        shutil.rmtree(root / "export")
+        (output / "development.tar.gz").unlink()
+        result = subprocess.run([sys.executable, "-c", script], env=environment, capture_output=True)
+        assert result.returncode != 0 and \
+            b"incomplete development export: missing snodec CMake configuration, headers or libraries" in result.stderr
+        assert not (output / "development.tar.gz").exists()
         # Normalization must not allow parent traversal in a corrupt inventory.
         listing.write_text("./usr/../../outside\n")
         shutil.rmtree(root / "export")
