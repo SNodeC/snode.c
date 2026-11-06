@@ -45,11 +45,16 @@ metadata=root/'share/core-ci/pkginfo'
 metadata.mkdir()
 for file in sorted((staging/'pkginfo').glob('snodec*.provides')):
     shutil.copy2(file,metadata/file.name)
+for link in root.rglob('*'):
+    if link.is_symlink():
+        target=Path(os.path.realpath(link))
+        assert not Path(os.readlink(link)).is_absolute() and target.is_relative_to(root.resolve()) and target.is_file(), \
+            'development export link escapes the export or is not a regular file'
 assert ((root/'lib/cmake/snodec/snodecConfig.cmake').is_file()
         and any(p.is_file() and p.suffix in ('.h','.hh','.hpp','.hxx') for p in (root/'include').rglob('*'))
         and any(p.is_file() for pattern in ('libsnodec*.so*','libsnodec*.a') for p in (root/'lib').rglob(pattern))), \
     'incomplete development export: missing snodec CMake configuration, headers or libraries'
-with tarfile.open(Path(os.environ['OUTPUT_DIR'])/'development.tar.gz','w:gz') as archive:
+with tarfile.open(Path(os.environ['OUTPUT_DIR'])/'development.tar.gz','w:gz',dereference=True) as archive:
     for file in sorted(root.iterdir()):
         archive.add(file,arcname=file.name)
 EXPORT
