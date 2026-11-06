@@ -51,6 +51,20 @@ def main():
         assert result.returncode != 0 and \
             b"incomplete development export: missing snodec CMake configuration, headers or libraries" in result.stderr
         assert not (output / "development.tar.gz").exists()
+        # Dereferencing is allowed only for relative aliases to regular export files.
+        (root / "outside.txt").write_text("outside")
+        link = staging / "usr/share/snodec/invalid-link"
+        cases = [("directory", "../../include"), ("outside", "../../../outside.txt"),
+                 ("dangling", "missing.txt"), ("absolute", str(root / "export/include/snodec/example.h"))]
+        for label, target in cases:
+            link.symlink_to(target)
+            listing.write_text("\n".join(inventory + ["./usr/share/snodec/invalid-link"]) + "\n")
+            shutil.rmtree(root / "export")
+            result = subprocess.run([sys.executable, "-c", script], env=environment, capture_output=True)
+            assert result.returncode != 0 and \
+                b"development export link escapes the export or is not a regular file" in result.stderr, label
+            assert not (output / "development.tar.gz").exists(), label
+            link.unlink()
         # Normalization must not allow parent traversal in a corrupt inventory.
         listing.write_text("./usr/../../outside\n")
         shutil.rmtree(root / "export")
