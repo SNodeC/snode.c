@@ -29,7 +29,7 @@ root.mkdir()
 listing=staging/'packages/snode.c.list'
 assert listing.is_file(), 'SDK did not record the selected project staging inventory'
 for line in listing.read_text().splitlines():
-    line=line.lstrip('/')
+    line=str(Path(line.lstrip('/')))
     assert '..' not in Path(line).parts, 'unsafe SDK staging inventory path'
     relative=Path(line).relative_to('usr') if line.startswith('usr/') else None
     if relative is not None and relative.parts and relative.parts[0] in ('include','lib','share'):
