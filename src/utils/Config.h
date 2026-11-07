@@ -133,6 +133,9 @@ namespace utils {
         // Legacy unchecked parsing; application lifecycle callers should use SNodeC::reconfigure().
         static void parse();
         static void terminate();
+        // After init, on the event-loop thread. Synchronous; false on I/O failure.
+        // Serialization errors propagate. An empty filename uses the default config path.
+        [[nodiscard]] static bool writeConfig(const std::string& filename = {});
 
         static const std::string& getApplicationName();
         static int getLogLevel();
