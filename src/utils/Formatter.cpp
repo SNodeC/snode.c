@@ -41,6 +41,8 @@
 
 #include "Formatter.h"
 
+#include "utils/SubCommand.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"
@@ -447,6 +449,7 @@ namespace CLI {
                                      const std::vector<std::string>& path,
                                      bool root) {
             std::stringstream out;
+            const auto* owner = dynamic_cast<const utils::AppWithPtr*>(app);
             std::string commentLead;
             commentLead.push_back(settings.commentChar);
             commentLead.push_back(' ');
@@ -485,6 +488,7 @@ namespace CLI {
                     if (opt->get_group() != group && !(group == "Options" && opt->get_group().empty()))
                         continue;
                     const std::string name = optionKey(prefix, opt);
+                    const bool promoted = owner != nullptr && owner->getPtr() != nullptr && owner->getPtr()->isDefaultPromoted(opt);
                     std::string value;
                     try {
                         value = detail::ini_join(opt->reduced_results(),
@@ -498,10 +502,11 @@ namespace CLI {
                     }
                     std::string defaultValue{};
                     if (default_also) {
-                        if (!value.empty() &&
+                        if (!promoted && !value.empty() &&
                             detail::convert_arg_for_ini(opt->get_default_str(), settings.stringQuote, settings.literalQuote, true) ==
-                                std::string{settings.stringQuote} + value + settings.stringQuote)
+                                std::string{settings.stringQuote} + value + settings.stringQuote) {
                             value.clear();
+                        }
                         if (!opt->get_default_str().empty()) {
                             defaultValue =
                                 detail::convert_arg_for_ini(opt->get_default_str(), settings.stringQuote, settings.literalQuote, true);
@@ -516,14 +521,18 @@ namespace CLI {
                         else
                             defaultValue = std::string{settings.stringQuote} + settings.stringQuote;
                     }
-                    const OptionMetaValue metaValue = buildOptionMetaValue(opt, settings);
+                    OptionMetaValue metaValue = buildOptionMetaValue(opt, settings);
+                    if (promoted && metaValue.hasConfigured) {
+                        metaValue.source = "result";
+                    }
                     if (write_description)
                         writeOptionMeta(out, opt, optionId(path, opt), name, group, path, metaValue);
                     if (write_description && opt->has_description() && (default_also || !value.empty()))
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                     if (default_also && !defaultValue.empty()) {
-                        if (defaultValue == value)
+                        if (!promoted && defaultValue == value) {
                             value.clear();
+                        }
                         out << settings.commentChar << name << settings.valueDelimiter << defaultValue << "\n";
                     }
                     if (!value.empty()) {

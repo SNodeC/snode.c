@@ -82,23 +82,15 @@ namespace utils {
 
     enum class ConfigSuppressionReason { Disabled, ForceUnrequired };
 
-    struct ConfigRequirementState {
-        bool canonicalRequired = false;
-        bool effectiveRequiredBase = false;
-        bool effectiveRequired = false;
-        std::set<ConfigSuppressionReason> suppressions;
-    };
+    struct OptionView {
+        SubCommand& config;
+        CLI::Option* option;
 
-    struct ConfigOptionState {
-        ConfigRequirementState required;
-    };
-
-    struct ConfigNodeState {
-        ConfigRequirementState required;
-        std::set<const CLI::Option*> canonicalOptionNeeds;
-        std::set<const CLI::Option*> effectiveOptionNeeds;
-        std::set<const CLI::App*> canonicalNeeds;
-        std::set<const CLI::App*> effectiveNeeds;
+        OptionView* operator->() {
+            return this;
+        }
+        // Keep the API default as a result when parsing supplies no value.
+        void promoteDefault();
     };
 
     class AppWithPtr : public CLI::App {
@@ -113,35 +105,10 @@ namespace utils {
         CLI11_INLINE CLI::Option*
         set_help_flag(std::string flag_name, std::function<void(std::size_t)> help_callback, const std::string& help_description);
 
-        void setCanonicalRequired(bool required);
-        void setEffectiveRequiredBase(bool required);
-        void setCanonicalRequired(CLI::Option* option, bool required);
-        void setSuppression(ConfigSuppressionReason reason, bool suppressed);
-        void setSuppression(CLI::Option* option, ConfigSuppressionReason reason, bool suppressed);
-        void setSuppressionRecursive(ConfigSuppressionReason reason, bool suppressed);
-
-        void setCanonicalNeed(CLI::Option* option, bool needed);
-        void setCanonicalNeed(CLI::App* app, bool needed);
-
-        bool canonicalRequired() const;
-        bool effectiveRequired() const;
-        bool canonicalRequired(const CLI::Option* option) const;
-        bool effectiveRequired(const CLI::Option* option) const;
-        bool hasSuppression(ConfigSuppressionReason reason) const;
-        bool hasSuppression(const CLI::Option* option, ConfigSuppressionReason reason) const;
-        bool canonicalNeeds(const CLI::Option* option) const;
-        bool effectiveNeeds(const CLI::Option* option) const;
-        bool canonicalNeeds(const CLI::App* app) const;
-        bool effectiveNeeds(const CLI::App* app) const;
+        void pre_callback() override;
 
     private:
-        ConfigOptionState& optionState(const CLI::Option* option);
-        const ConfigOptionState* findOptionState(const CLI::Option* option) const;
-        void applyEffectiveState();
-
         SubCommand* ptr;
-        ConfigNodeState configState;
-        std::map<const CLI::Option*, ConfigOptionState> optionConfigStates;
     };
 
     class SubCommand {
@@ -279,6 +246,8 @@ namespace utils {
                                      const CLI::Validator& validator) const;
 
         CLI::Option* getOption(const std::string& name) const;
+        OptionView option(const std::string& name);
+        bool isDefaultPromoted(const CLI::Option* option) const;
 
         template <typename ValueTypeT>
         CLI::Option* setDefaultValue(CLI::Option* option, const ValueTypeT& value, bool clear = true) const;
@@ -297,6 +266,14 @@ namespace utils {
         static CLI::App* commandlineTriggerApp;
 
     private:
+        friend struct OptionView;
+        friend class AppWithPtr;
+
+        void updatePromotedDefaults(bool clear) const;
+        void promoteDefault(CLI::Option* option);
+        bool requirementsActive() const;
+        void applyRequirements();
+        void suppressRequirementsRecursive(ConfigSuppressionReason reason, bool suppressed);
         void applyCanonicalRequiredContribution(bool previousCanonicalRequired, bool canonicalRequired);
         void applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired);
 
@@ -318,10 +295,17 @@ namespace utils {
         // attached to the CLI tree but must not be deleted through this set.
         std::set<SubCommand*> childSubCommands;
 
+        struct OptionState {
+            bool required = false;
+            unsigned suppressions = 0;
+            bool needed = false;
+            bool promoted = false;
+        };
+        std::map<CLI::Option*, OptionState, std::less<>> options;
+        std::map<SubCommand*, bool> neededSubCommands;
+        unsigned suppressions = 0;
+
         int requiredCount = 0;
-        // Effective contribution counting stays in SubCommand because required(bool)
-        // is a counted API and not every config child is owned in childSubCommands.
-        // AppWithPtr derives/applies only the local effective CLI11 state from this base.
         int effectiveRequiredCount = 0;
         bool requiredForced = false;
 

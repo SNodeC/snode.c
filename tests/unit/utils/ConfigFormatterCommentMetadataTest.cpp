@@ -1,11 +1,23 @@
 #include "utils/Formatter.h"
+#include "utils/SubCommand.h"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 namespace {
+
+    class PromotionApp : public utils::SubCommand {
+    public:
+        PromotionApp(utils::SubCommand* parent = nullptr, const std::string& name = "promotion")
+            : SubCommand(parent, std::make_shared<utils::AppWithPtr>("Promotion", name, this), "") {
+        }
+        using SubCommand::parse;
+    };
 
     void requireContains(const std::string& text, const std::string& needle) {
         if (text.find(needle) == std::string::npos) {
@@ -185,6 +197,133 @@ int main() {
     const std::string customConfig = customFormatterApp.config_to_str(true, false);
     requireContains(customConfig, ";custom:`hello world`");
     requireNotContains(customConfig, "#custom=");
+
+    PromotionApp promotion;
+    std::string bound;
+    auto* boundOption =
+        promotion.addOptionVariable("--bound", bound, "Bound value", "TEXT", std::string{"api"}, CLI::TypeValidator<std::string>());
+    auto* untouched = promotion.addOption("--untouched", "Untouched", "INT", 9, CLI::TypeValidator<int>());
+    auto* enabled = promotion.addFlag("--enabled{true}", "Enabled", "BOOL", "false", CLI::IsMember({"true", "false"}));
+    std::string empty;
+    promotion.addOptionVariable("--empty", empty, "Empty", "TEXT", std::string{}, CLI::TypeValidator<std::string>());
+    std::vector<int> values;
+    promotion.addOptionVariable("--values", values, "Values", "INT", std::vector<int>{2, 3}, CLI::Validator{});
+    promotion.getAppWithPtr()->parse("--untouched 9");
+    const std::string beforePromotion = promotion.configToStr();
+    requireNotContains(beforePromotion, "\nbound=\"api\"\n");
+    requireNotContains(beforePromotion, "\nuntouched=9\n");
+    if (untouched->count() != 1 || boundOption->count() != 0) {
+        std::abort();
+    }
+    promotion.option("--bound")->promoteDefault();
+    promotion.option("--enabled")->promoteDefault();
+    promotion.option("--empty")->promoteDefault();
+    promotion.option("--values")->promoteDefault();
+    const std::string promoted = promotion.configToStr();
+    requireContains(promoted, "\n#bound=\"api\"\nbound=\"api\"\n");
+    requireContains(promoted, "\nenabled=false\n");
+    requireContains(promoted, "\nempty=\"\"\n");
+    requireNotContains(promoted, "\nuntouched=9\n");
+    if (bound != "api" || boundOption->count() != 1 || boundOption->get_default_str() != "api" || enabled->as<bool>()) {
+        std::abort();
+    }
+    CLI::App restored;
+    restored.config_formatter(std::make_shared<CLI::ConfigFormatter>());
+    std::string restoredBound;
+    std::string restoredEmpty = "different";
+    bool restoredEnabled = true;
+    std::vector<int> restoredValues;
+    int restoredUntouched = 0;
+    restored.add_option("--bound", restoredBound);
+    restored.add_option("--empty", restoredEmpty);
+    restored.add_flag("--enabled", restoredEnabled);
+    restored.add_option("--values", restoredValues);
+    restored.add_option("--untouched", restoredUntouched)->default_val(9);
+    std::istringstream promotedInput(promoted);
+    restored.parse_from_stream(promotedInput);
+    if (restoredBound != "api" || !restoredEmpty.empty() || restoredEnabled || restoredValues != values || restoredUntouched != 9) {
+        std::abort();
+    }
+    promotion.getAppWithPtr()->parse("--bound override");
+    promotion.option("--bound")->promoteDefault();
+    requireContains(promotion.configToStr(), "\nbound=\"override\"\n");
+    if (bound != "override" || boundOption->get_default_str() != "api") {
+        std::abort();
+    }
+    promotion.getAppWithPtr()->parse("--bound api");
+    requireContains(promotion.configToStr(), "\nbound=\"api\"\n");
+    promotion.getAppWithPtr()->parse("");
+    if (boundOption->count() != 1 || bound != "api") {
+        std::abort();
+    }
+    promotion.setDefaultValue(boundOption, std::string{"changed"});
+    promotion.option("--bound")->promoteDefault();
+    requireContains(promotion.configToStr(), "\nbound=\"changed\"\n");
+    if (bound != "changed" || boundOption->get_default_str() != "changed") {
+        std::abort();
+    }
+    promotion.getAppWithPtr()->parse("");
+    requireContains(promotion.configToStr(), "\nbound=\"changed\"\n");
+
+    // API setup before the first framework parse must not hide config/CLI input.
+    PromotionApp startup;
+    PromotionApp promotedSection{&startup, "section"};
+    std::string startupValue;
+    auto* startupOption = startup.addOptionVariable("--value", startupValue, "Value", "TEXT", std::string{"api"}, CLI::Validator{});
+    auto* nestedOption = promotedSection.addOption("--nested", "Nested", "INT", 42, CLI::TypeValidator<int>());
+    startup.option("--value")->promoteDefault();
+    promotedSection.option("--nested")->promoteDefault();
+    startup.getAppWithPtr()->set_config("--config");
+    bool callbackSawResult = false;
+    startup.finalCallback([&]() {
+        callbackSawResult = startupOption->count() == 1 && nestedOption->count() == 1;
+    });
+    char program[] = "promotion";
+    char* noArgs[]{program};
+    // Use the framework's parse boundary for config-file precedence too.
+    const auto filename = std::filesystem::temp_directory_path() / ("snodec-promotion-" + std::to_string(::getpid()) + ".ini");
+    {
+        std::ofstream file(filename);
+        file << "value=from-file\n";
+    }
+    std::string filePath = filename.string();
+    char configName[] = "--config";
+    char* configArgs[]{program, configName, filePath.data()};
+    startup.parse(3, configArgs);
+    if (startupValue != "from-file") {
+        std::abort();
+    }
+    startup.parse(1, noArgs);
+    if (!callbackSawResult || startupValue != "api") {
+        std::abort();
+    }
+    char optionName[] = "--value";
+    char cliValue[] = "cli";
+    char* cliArgs[]{program, optionName, cliValue};
+    startup.parse(3, cliArgs);
+    if (startupValue != "cli" || startupOption->get_default_str() != "api") {
+        std::abort();
+    }
+    startup.parse(1, noArgs);
+    if (startupValue != "api" || startupOption->count() != 1) {
+        std::abort();
+    }
+    startup.parse(3, configArgs);
+    if (startupValue != "from-file" || startupOption->count() != 1) {
+        std::abort();
+    }
+    char* overrideArgs[]{program, configName, filePath.data(), optionName, cliValue};
+    startup.parse(5, overrideArgs);
+    if (startupValue != "cli") {
+        std::abort();
+    }
+    std::filesystem::remove(filename);
+    startup.setDefaultValue(startupOption, std::string{"updated"});
+    startup.parse(1, noArgs);
+    if (startupValue != "updated" || startupOption->get_default_str() != "updated") {
+        std::abort();
+    }
+    requireContains(startup.configToStr(), "\nvalue=\"updated\"\n");
 
     return 0;
 }

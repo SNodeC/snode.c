@@ -469,26 +469,31 @@ namespace utils {
         return out.str();
     }
 
+    bool Config::writeConfig(const std::string& filename) {
+        std::ofstream confFile(filename.empty() ? configRoot.getOption("--write-config")->as<std::string>() : filename);
+        if (confFile.is_open()) {
+            confFile << configRoot.configToStr();
+            confFile.close();
+        }
+
+        return static_cast<bool>(confFile);
+    }
+
     static std::string doWriteConfig(utils::SubCommand* subCommand) {
         std::stringstream out;
 
-        std::ofstream confFile(subCommand->getOption("--write-config")->as<std::string>());
-        if (confFile.is_open()) {
-            try {
-                confFile << subCommand->configToStr();
-                confFile.close();
+        try {
+            if (Config::writeConfig(subCommand->getOption("--write-config")->as<std::string>())) {
                 out << std::string{"["} << Color::Code::FG_GREEN << "SUCCESS" << Color::Code::FG_DEFAULT
                     << "] Writing config file: " + subCommand->getOption("--write-config")->as<std::string>() << std::endl
                     << std::endl;
-            } catch (const CLI::ParseError& e) {
-                confFile.close();
+            } else {
                 out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                    << "] Writing config file: " << e.get_name() << " " << e.what() << std::endl;
+                    << "] Writing config file: " << std::strerror(errno) << std::endl;
             }
-            confFile.close();
-        } else {
+        } catch (const CLI::ParseError& e) {
             out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
-                << "] Writing config file: " << std::strerror(errno) << std::endl;
+                << "] Writing config file: " << e.get_name() << " " << e.what() << std::endl;
         }
 
         return out.str();

@@ -1,7 +1,6 @@
-#include "utils/SubCommand.h"
-
 #include "net/config/ConfigInstance.h"
 #include "utils/Config.h"
+#include "utils/SubCommand.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -20,170 +19,62 @@ namespace {
     class TestSubCommand : public utils::SubCommand {
     public:
         TestSubCommand(utils::SubCommand* parent, const std::string& name)
-            : utils::SubCommand(parent, std::make_shared<utils::AppWithPtr>("test command", name, this), "Tests") {
+            : SubCommand(parent, std::make_shared<utils::AppWithPtr>("test command", name, this), "Tests") {
         }
     };
 
     class TestConfigInstance : public net::config::ConfigInstance {
     public:
         TestConfigInstance()
-            : net::config::ConfigInstance("unit-instance", net::config::ConfigInstance::Role::SERVER) {
+            : ConfigInstance("unit-instance", Role::SERVER) {
+        }
+    };
+
+    bool parseAccepted(utils::SubCommand& command, const std::string& arguments) {
+        bool accepted = false;
+        try {
+            command.getAppWithPtr()->parse(arguments);
+            accepted = true;
+        } catch (const CLI::ParseError&) {
         }
 
-        ~TestConfigInstance() override = default;
-    };
+        return accepted;
+    }
 
 } // namespace
 
 int main() {
-    utils::AppWithPtr app{"Synthetic app", "demo", nullptr};
-    int requiredValue = 0;
-    auto* requiredOpt = app.add_option("--required", requiredValue, "Required value");
-
-    app.setCanonicalRequired(requiredOpt, true);
-    app.setCanonicalNeed(requiredOpt, true);
-    require(app.canonicalRequired(requiredOpt), "option canonical required state was not recorded");
-    require(app.effectiveRequired(requiredOpt), "option effective required state was not applied initially");
-    require(requiredOpt->get_required(), "CLI11 option required state was not applied initially");
-    require(app.canonicalNeeds(requiredOpt), "option canonical need was not recorded");
-    require(app.effectiveNeeds(requiredOpt), "option effective need was not applied initially");
-
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, true);
-    require(app.canonicalRequired(requiredOpt), "disabled suppression erased option canonical required state");
-    require(!app.effectiveRequired(requiredOpt), "disabled suppression did not clear option effective required state");
-    require(!requiredOpt->get_required(), "disabled suppression did not clear CLI11 option required state");
-    require(app.canonicalNeeds(requiredOpt), "disabled suppression erased option canonical need");
-    require(!app.effectiveNeeds(requiredOpt), "disabled suppression did not clear option effective need");
-
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, false);
-    require(app.canonicalRequired(requiredOpt), "re-enable erased option canonical required state");
-    require(app.effectiveRequired(requiredOpt), "re-enable did not restore option effective required state");
-    require(requiredOpt->get_required(), "re-enable did not restore CLI11 option required state");
-    require(app.effectiveNeeds(requiredOpt), "re-enable did not restore option effective need");
-
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, true);
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::ForceUnrequired, true);
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, false);
-    require(app.canonicalRequired(requiredOpt), "multiple suppressions erased canonical option required state");
-    require(!app.effectiveRequired(requiredOpt), "removing one of two suppressions restored option effective required state too early");
-    require(!requiredOpt->get_required(), "removing one of two suppressions restored CLI11 option required state too early");
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::ForceUnrequired, false);
-    require(app.effectiveRequired(requiredOpt), "removing final suppression did not restore option effective required state");
-    require(requiredOpt->get_required(), "removing final suppression did not restore CLI11 option required state");
-
-    utils::AppWithPtr parent{"Parent app", "parent", nullptr};
-    auto appChild = std::make_shared<utils::AppWithPtr>("Child section", "section", nullptr);
-    parent.add_subcommand(appChild);
-    appChild->setCanonicalRequired(true);
-    parent.setCanonicalNeed(appChild.get(), true);
-    require(appChild->canonicalRequired(), "child canonical required state was not recorded");
-    require(appChild->effectiveRequired(), "child effective required state was not applied initially");
-    require(appChild->get_required(), "CLI11 child required state was not applied initially");
-    require(parent.canonicalNeeds(appChild.get()), "child canonical need was not recorded");
-    require(parent.effectiveNeeds(appChild.get()), "child effective need was not applied initially");
-
-    parent.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, true);
-    require(appChild->canonicalRequired(), "disabled suppression erased child canonical required state");
-    require(!appChild->effectiveRequired(), "disabled suppression did not clear child effective required state");
-    require(!appChild->get_required(), "disabled suppression did not clear CLI11 child required state");
-    require(parent.canonicalNeeds(appChild.get()), "disabled suppression erased child canonical need");
-    require(!parent.effectiveNeeds(appChild.get()), "disabled suppression did not clear child effective need");
-
-    parent.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, false);
-    require(appChild->canonicalRequired(), "re-enable erased child canonical required state");
-    require(appChild->effectiveRequired(), "re-enable did not restore child effective required state");
-    require(appChild->get_required(), "re-enable did not restore CLI11 child required state");
-    require(parent.effectiveNeeds(appChild.get()), "re-enable did not restore child effective need");
-
-    std::string defaulted = "from-api";
-    auto* defaultedOpt = app.add_option("--defaulted", defaulted, "Defaulted required value")->default_str(defaulted);
-    app.setCanonicalRequired(defaultedOpt, true);
-    require(app.canonicalRequired(defaultedOpt), "C++ default erased canonical required state");
-    require(app.effectiveRequired(defaultedOpt), "C++ default erased effective required state");
-
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, true);
-    require(!requiredOpt->get_required(), "disabled owner still requires nested option");
-    app.setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, false);
-    require(requiredOpt->get_required(), "re-enabled owner left stale non-required CLI11 state");
-
     TestSubCommand root{nullptr, "root"};
     TestSubCommand child{&root, "child"};
-
-    child.required(true);
-    require(child.getAppWithPtr()->canonicalRequired(), "SubCommand child canonical required state was not recorded");
-    require(child.getAppWithPtr()->effectiveRequired(), "SubCommand child effective required state was not applied");
-    require(root.getAppWithPtr()->canonicalNeeds(child.getAppWithPtr()), "SubCommand parent canonical need was not recorded");
-    require(root.getAppWithPtr()->effectiveNeeds(child.getAppWithPtr()), "SubCommand parent effective need was not applied");
-    require(root.getAppWithPtr()->effectiveRequired(), "SubCommand parent effective required state did not reflect child requirement");
+    root.addOption("--probe", "Probe", "INT", CLI::TypeValidator<int>());
+    auto* value = child.addOption("--value", "Required value", "INT", CLI::TypeValidator<int>());
+    child.required(value);
+    require(child.getRequired() && root.getRequired() && value->get_required(), "required option did not propagate");
+    require(!parseAccepted(root, "--probe 1"), "missing required child was accepted");
+    require(parseAccepted(root, "--probe 1 child --value 5"), "populated required child was rejected");
 
     child.forceUnrequired(true);
-    require(child.getAppWithPtr()->canonicalRequired(), "forceUnrequired erased SubCommand child canonical required state");
-    require(!child.getAppWithPtr()->effectiveRequired(), "forceUnrequired did not suppress SubCommand child effective required state");
-    require(root.getAppWithPtr()->canonicalNeeds(child.getAppWithPtr()), "forceUnrequired erased SubCommand parent canonical need");
-    require(!root.getAppWithPtr()->effectiveNeeds(child.getAppWithPtr()), "forceUnrequired did not suppress SubCommand parent effective need");
-    require(!root.getAppWithPtr()->effectiveRequired(), "forceUnrequired left stale SubCommand parent effective required state");
-
+    require(!child.getRequired() && !root.getRequired() && !value->get_required(), "suppression left effective requirements active");
+    require(parseAccepted(root, "--probe 1"), "suppressed requirements blocked parsing");
     child.forceUnrequired(false);
-    require(child.getAppWithPtr()->canonicalRequired(), "forceUnrequired(false) erased SubCommand child canonical required state");
-    require(child.getAppWithPtr()->effectiveRequired(), "forceUnrequired(false) did not restore SubCommand child effective required state");
-    require(root.getAppWithPtr()->canonicalNeeds(child.getAppWithPtr()), "forceUnrequired(false) erased SubCommand parent canonical need");
-    require(root.getAppWithPtr()->effectiveNeeds(child.getAppWithPtr()), "forceUnrequired(false) did not restore SubCommand parent effective need");
-    require(root.getAppWithPtr()->effectiveRequired(), "forceUnrequired(false) did not restore SubCommand parent effective required state");
+    require(child.getRequired() && root.getRequired() && value->get_required(), "restoration lost declared requirements");
+    require(!parseAccepted(root, "--probe 1"), "restored requirements were not enforced");
 
-    auto* childOption = child.addOption("--child-option", "Child option", "INT", CLI::NonNegativeNumber);
-    child.required(childOption, true);
-    require(child.getAppWithPtr()->canonicalRequired(childOption), "SubCommand option canonical required state was not recorded");
-    require(child.getAppWithPtr()->effectiveRequired(childOption), "SubCommand option effective required state was not applied");
-    require(childOption->get_required(), "CLI11 SubCommand option required state was not applied");
+    TestSubCommand grandchild{&child, "grandchild"};
+    auto* nested = grandchild.addOption("--nested", "Nested required value", "INT", CLI::TypeValidator<int>());
+    grandchild.required(nested);
     child.forceUnrequired(true);
-    require(child.getAppWithPtr()->canonicalRequired(childOption), "forceUnrequired erased SubCommand option canonical required state");
-    require(!child.getAppWithPtr()->effectiveRequired(childOption), "forceUnrequired did not suppress SubCommand option effective required state");
-    require(!childOption->get_required(), "forceUnrequired did not suppress CLI11 option required state");
+    require(!nested->get_required() && !grandchild.getRequired(), "parent suppression missed descendant requirements");
     child.forceUnrequired(false);
-    require(child.getAppWithPtr()->effectiveRequired(childOption), "forceUnrequired(false) did not restore SubCommand option effective required state");
-    require(childOption->get_required(), "forceUnrequired(false) did not restore CLI11 option required state");
-
-    child.getAppWithPtr()->setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, true);
-    child.forceUnrequired(true);
-    child.getAppWithPtr()->setSuppressionRecursive(utils::ConfigSuppressionReason::Disabled, false);
-    require(!child.getAppWithPtr()->effectiveRequired(), "mixed SubCommand suppressions restored effective required state too early");
-    child.forceUnrequired(false);
-    require(child.getAppWithPtr()->effectiveRequired(), "mixed SubCommand suppressions did not restore effective required state");
-
-    TestSubCommand suppressedRoot{nullptr, "suppressed-root"};
-    TestSubCommand suppressedChild{&suppressedRoot, "suppressed-child"};
-    suppressedChild.forceUnrequired(true);
-    suppressedChild.required(true);
-    require(suppressedChild.getAppWithPtr()->canonicalRequired(), "required while suppressed did not record child canonical required");
-    require(!suppressedChild.getAppWithPtr()->effectiveRequired(), "required while suppressed restored child effective required too early");
-    require(suppressedRoot.getAppWithPtr()->canonicalNeeds(suppressedChild.getAppWithPtr()),
-            "required while suppressed did not record parent canonical need");
-    require(!suppressedRoot.getAppWithPtr()->effectiveNeeds(suppressedChild.getAppWithPtr()),
-            "required while suppressed applied parent effective need too early");
-    require(suppressedRoot.getAppWithPtr()->canonicalRequired(), "required while suppressed did not record parent canonical contribution");
-    require(!suppressedRoot.getAppWithPtr()->effectiveRequired(), "required while suppressed applied parent effective contribution too early");
-
-    TestSubCommand removeRoot{nullptr, "remove-root"};
-    TestSubCommand removeChild{&removeRoot, "remove-child"};
-    removeChild.required(true);
-    removeChild.forceUnrequired(true);
-    removeChild.required(false);
-    require(!removeChild.getAppWithPtr()->canonicalRequired(), "required(false) while suppressed left child canonical required");
-    require(!removeChild.getAppWithPtr()->effectiveRequired(), "required(false) while suppressed left child effective required");
-    require(!removeRoot.getAppWithPtr()->canonicalNeeds(removeChild.getAppWithPtr()),
-            "required(false) while suppressed left parent canonical need");
-    require(!removeRoot.getAppWithPtr()->effectiveNeeds(removeChild.getAppWithPtr()),
-            "required(false) while suppressed left parent effective need");
-    require(!removeRoot.getAppWithPtr()->canonicalRequired(), "required(false) while suppressed left parent canonical contribution");
-    require(!removeRoot.getAppWithPtr()->effectiveRequired(), "required(false) while suppressed decremented/restored parent effective contribution incorrectly");
-    removeChild.forceUnrequired(false);
-    require(!removeChild.getAppWithPtr()->canonicalRequired(), "restore after suppressed removal changed child canonical required");
-    require(!removeChild.getAppWithPtr()->effectiveRequired(), "restore after suppressed removal changed child effective required");
-    require(!removeRoot.getAppWithPtr()->canonicalNeeds(removeChild.getAppWithPtr()),
-            "restore after suppressed removal restored parent canonical need");
-    require(!removeRoot.getAppWithPtr()->effectiveNeeds(removeChild.getAppWithPtr()),
-            "restore after suppressed removal restored parent effective need");
-    require(!removeRoot.getAppWithPtr()->effectiveRequired(), "restore after suppressed removal corrupted parent effective count");
+    require(nested->get_required() && grandchild.getRequired(), "parent restoration lost descendant requirements");
+    require(!parseAccepted(root, "--probe 1 child --value 5"), "missing nested requirement was accepted");
+    require(parseAccepted(root, "--probe 1 child --value 5 grandchild --nested 6"), "populated nested requirements were rejected");
+    grandchild.required(nested, false);
+    child.setDefaultValue(value, 9);
+    child.required(value, false);
+    require(!value->get_required() && value->get_default_str() == "9", "API default or optional declaration was lost");
+    require(parseAccepted(root, "--probe 1"), "removed requirements still blocked parsing");
+    require(value->as<int>() == 9, "API default was not effective");
 
     TestSubCommand countedRoot{nullptr, "counted-root"};
     TestSubCommand countedChild{&countedRoot, "counted-child"};
@@ -191,74 +82,60 @@ int main() {
     countedChild.required(true);
     countedChild.forceUnrequired(true);
     countedChild.required(false);
-    require(countedChild.getAppWithPtr()->canonicalRequired(), "balanced counted sequence removed child canonical required too early");
-    require(!countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence restored child effective while still suppressed");
-    require(countedRoot.getAppWithPtr()->canonicalNeeds(countedChild.getAppWithPtr()),
-            "balanced counted sequence removed parent canonical need too early");
-    require(!countedRoot.getAppWithPtr()->effectiveNeeds(countedChild.getAppWithPtr()),
-            "balanced counted sequence restored parent effective need while child still suppressed");
+    require(!countedChild.getRequired() && !countedRoot.getRequired(), "counted decrement restored a suppressed requirement");
     countedChild.forceUnrequired(false);
-    require(countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence did not restore child effective required");
-    require(countedRoot.getAppWithPtr()->effectiveRequired(), "balanced counted sequence did not restore parent effective required");
+    require(countedChild.getRequired() && countedRoot.getRequired(), "counted requirement was removed too early");
     countedChild.required(false);
-    require(!countedChild.getAppWithPtr()->canonicalRequired(), "balanced counted sequence left child canonical required");
-    require(!countedChild.getAppWithPtr()->effectiveRequired(), "balanced counted sequence left child effective required");
-    require(!countedRoot.getAppWithPtr()->canonicalNeeds(countedChild.getAppWithPtr()),
-            "balanced counted sequence left parent canonical need");
-    require(!countedRoot.getAppWithPtr()->effectiveNeeds(countedChild.getAppWithPtr()),
-            "balanced counted sequence left parent effective need");
-    require(!countedRoot.getAppWithPtr()->effectiveRequired(), "balanced counted sequence left parent effective required");
+    require(!countedChild.getRequired() && !countedRoot.getRequired(), "balanced counted requirements remained active");
+
+    countedChild.required(true);
+    countedChild.forceUnrequired(true);
+    countedRoot.required(false);
+    countedChild.forceUnrequired(false);
+    require(!countedRoot.getRequired() && countedChild.getRequired(), "existing parent counted-removal behavior changed");
+
+    TestSubCommand suppressedRoot{nullptr, "suppressed-root"};
+    TestSubCommand suppressedChild{&suppressedRoot, "suppressed-child"};
+    suppressedChild.forceUnrequired(true);
+    suppressedChild.required(true);
+    require(!suppressedChild.getRequired() && !suppressedRoot.getRequired(), "declaration bypassed active suppression");
+    suppressedChild.forceUnrequired(false);
+    require(suppressedChild.getRequired() && suppressedRoot.getRequired(), "suppressed declaration was lost");
+    suppressedChild.forceUnrequired(true);
+    suppressedChild.required(false);
+    suppressedChild.forceUnrequired(false);
+    require(!suppressedChild.getRequired() && !suppressedRoot.getRequired(), "removed declaration returned after restoration");
+
+    TestSubCommand independentRoot{nullptr, "independent-root"};
+    TestSubCommand first{&independentRoot, "first"};
+    TestSubCommand second{&independentRoot, "second"};
+    first.required(true);
+    second.required(true);
+    first.forceUnrequired(true);
+    require(independentRoot.getRequired() && second.getRequired(), "suppressing one child removed an independent requirement");
+    second.forceUnrequired(true);
+    require(!independentRoot.getRequired(), "root stayed required after all contributions were suppressed");
+    first.forceUnrequired(false);
+    require(independentRoot.getRequired(), "restoring one contribution did not restore root requiredness");
 
     TestConfigInstance instance;
-    instance.required(true);
-    require(utils::Config::configRoot.getAppWithPtr()->canonicalNeeds(instance.getAppWithPtr()),
-            "ConfigInstance parent canonical need was not recorded");
-    require(utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
-            "ConfigInstance parent effective need was not applied");
+    auto* instanceValue = instance.addOption("--required-value", "Instance required value", "INT", CLI::TypeValidator<int>());
+    instance.required(instanceValue);
     instance.setDisabled(true);
-    require(instance.getAppWithPtr()->canonicalRequired(), "ConfigInstance disable erased canonical required state");
-    require(!instance.getAppWithPtr()->effectiveRequired(), "ConfigInstance disable did not suppress effective required state");
-    require(utils::Config::configRoot.getAppWithPtr()->canonicalNeeds(instance.getAppWithPtr()),
-            "ConfigInstance disable erased parent canonical need");
-    require(!utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
-            "ConfigInstance disable did not suppress parent effective need");
-    instance.setDisabled(false);
-    require(instance.getAppWithPtr()->canonicalRequired(), "ConfigInstance re-enable erased canonical required state");
-    require(instance.getAppWithPtr()->effectiveRequired(), "ConfigInstance re-enable did not restore effective required state");
-    require(utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
-            "ConfigInstance re-enable did not restore parent effective need");
-
-    instance.setDisabled(true);
-    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
-            "ConfigInstance setDisabled(true) did not apply Disabled suppression");
-    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
-            "ConfigInstance setDisabled(true) incorrectly applied ForceUnrequired suppression");
+    require(!instance.getRequired() && !instanceValue->get_required(), "setDisabled did not suppress requirements");
     instance.forceUnrequired(true);
-    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
-            "layered ConfigInstance suppression lost Disabled suppression");
-    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
-            "layered ConfigInstance suppression did not apply ForceUnrequired suppression");
     instance.setDisabled(false);
-    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
-            "ConfigInstance setDisabled(false) did not clear Disabled suppression");
-    require(instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
-            "ConfigInstance setDisabled(false) cleared ForceUnrequired suppression");
-    require(instance.getAppWithPtr()->canonicalRequired(), "layered ConfigInstance suppression erased canonical required state");
-    require(!instance.getAppWithPtr()->effectiveRequired(),
-            "layered ConfigInstance suppression restored effective required while ForceUnrequired remained active");
-    require(utils::Config::configRoot.getAppWithPtr()->canonicalNeeds(instance.getAppWithPtr()),
-            "layered ConfigInstance suppression erased parent canonical need");
-    require(!utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
-            "layered ConfigInstance suppression restored parent effective need while ForceUnrequired remained active");
+    require(!instance.getRequired() && !instanceValue->get_required(), "removing one suppression removed another");
     instance.forceUnrequired(false);
-    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::Disabled),
-            "clearing final layered suppression restored Disabled suppression");
-    require(!instance.getAppWithPtr()->hasSuppression(utils::ConfigSuppressionReason::ForceUnrequired),
-            "forceUnrequired(false) did not clear ForceUnrequired suppression");
-    require(instance.getAppWithPtr()->effectiveRequired(),
-            "layered ConfigInstance suppression did not restore effective required after final suppression cleared");
-    require(utils::Config::configRoot.getAppWithPtr()->effectiveNeeds(instance.getAppWithPtr()),
-            "layered ConfigInstance suppression did not restore parent effective need after final suppression cleared");
+    require(instance.getRequired() && instanceValue->get_required(), "removing final suppression lost requirements");
+    require(utils::Config::configRoot.getRequired(), "instance requirement did not propagate to config root");
+    require(!parseAccepted(utils::Config::configRoot, "unit-instance --disabled=false"), "enabled instance accepted a missing requirement");
+    require(parseAccepted(utils::Config::configRoot, "unit-instance --disabled"), "disabled instance required its value");
+    require(instance.getDisabled() && !instanceValue->get_required(), "disabled CLI flag did not suppress requirements");
+    require(parseAccepted(utils::Config::configRoot, "unit-instance --disabled=false --required-value 17"),
+            "re-enabled populated instance was rejected");
+    require(!instance.getDisabled() && instanceValue->get_required() && instanceValue->as<int>() == 17,
+            "CLI re-enable did not restore behavior");
 
     return 0;
 }

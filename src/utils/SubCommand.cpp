@@ -147,6 +147,7 @@ namespace utils {
     }
 
     void SubCommand::parse(int argc, char* argv[]) const {
+        updatePromotedDefaults(true);
         subCommandApp->parse(argc, argv);
     }
 
@@ -174,6 +175,8 @@ namespace utils {
             parent->childSubCommands.erase(this);
 
             if (parent->subCommandApp != nullptr && subCommandApp != nullptr) {
+                parent->neededSubCommands.erase(this);
+                parent->subCommandApp->remove_needs(subCommandApp);
                 parent->subCommandApp->remove_subcommand(subCommandApp);
             }
 
@@ -218,18 +221,18 @@ namespace utils {
     }
 
     SubCommand* SubCommand::suppressRequirements(ConfigSuppressionReason reason, bool suppressed) {
-        const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
+        const bool previousEffectiveRequired = requirementsActive();
 
-        subCommandApp->setSuppressionRecursive(reason, suppressed);
+        suppressRequirementsRecursive(reason, suppressed);
 
-        applyEffectiveRequiredContribution(previousEffectiveRequired, subCommandApp->effectiveRequired());
+        applyEffectiveRequiredContribution(previousEffectiveRequired, requirementsActive());
 
         return this;
     }
 
     SubCommand* SubCommand::required(bool required) {
         const bool previousCanonicalRequired = requiredCount > 0;
-        const bool previousEffectiveRequired = subCommandApp->effectiveRequired();
+        const bool previousEffectiveRequired = requirementsActive();
 
         if (required) {
             requiredCount++;
@@ -239,11 +242,10 @@ namespace utils {
             effectiveRequiredCount = effectiveRequiredCount > 0 ? effectiveRequiredCount - 1 : 0;
         }
         const bool countedRequired = requiredCount > 0;
-        const bool effectivelyCountedRequired = effectiveRequiredCount > 0;
-        subCommandApp->setCanonicalRequired(countedRequired);
-        subCommandApp->setEffectiveRequiredBase(effectivelyCountedRequired);
-        subCommandApp->setSuppression(ConfigSuppressionReason::ForceUnrequired, requiredForced);
-        const bool effectiveRequired = subCommandApp->effectiveRequired();
+        const unsigned forced = 1U << static_cast<unsigned>(ConfigSuppressionReason::ForceUnrequired);
+        suppressions = requiredForced ? suppressions | forced : suppressions & ~forced;
+        applyRequirements();
+        const bool effectiveRequired = requirementsActive();
 
         if (hasParent() && previousCanonicalRequired != countedRequired) {
             SubCommand* parent = getParent();
@@ -258,9 +260,11 @@ namespace utils {
     }
 
     SubCommand* SubCommand::required(CLI::Option* option, bool required) {
-        if (subCommandApp->canonicalRequired(option) != required) {
-            subCommandApp->setCanonicalRequired(option, required);
-            subCommandApp->setCanonicalNeed(option, required);
+        const auto state = options.find(option);
+        const bool declaredRequired = state != options.end() && state->second.required;
+        if (declaredRequired != required) {
+            options[option].required = required;
+            applyRequirements();
 
             if (required) {
                 option->default_str("");
@@ -277,7 +281,18 @@ namespace utils {
     }
 
     SubCommand* SubCommand::needs(SubCommand* subCommand, bool needs) {
-        subCommandApp->setCanonicalNeed(subCommand->subCommandApp, needs);
+        if (needs) {
+            neededSubCommands.try_emplace(subCommand, false);
+        } else {
+            const auto needed = neededSubCommands.find(subCommand);
+            if (needed != neededSubCommands.end()) {
+                if (needed->second) {
+                    subCommandApp->remove_needs(subCommand->subCommandApp);
+                }
+                neededSubCommands.erase(needed);
+            }
+        }
+        applyRequirements();
 
         return this;
     }
@@ -293,8 +308,7 @@ namespace utils {
             }
 
             const bool parentCanonicalRequired = requiredCount > 0;
-            subCommandApp->setCanonicalRequired(parentCanonicalRequired);
-            subCommandApp->setEffectiveRequiredBase(effectiveRequiredCount > 0);
+            applyRequirements();
 
             if (hasParent() && previousParentCanonicalRequired != parentCanonicalRequired) {
                 SubCommand* parent = getParent();
@@ -308,16 +322,16 @@ namespace utils {
     void SubCommand::applyEffectiveRequiredContribution(bool previousEffectiveRequired, bool effectiveRequired) {
         if (hasParent() && previousEffectiveRequired != effectiveRequired) {
             SubCommand* parent = getParent();
-            const bool previousParentEffectiveRequired = parent->subCommandApp->effectiveRequired();
+            const bool previousParentEffectiveRequired = parent->requirementsActive();
 
             if (effectiveRequired) {
                 parent->effectiveRequiredCount++;
             } else {
                 parent->effectiveRequiredCount = parent->effectiveRequiredCount > 0 ? parent->effectiveRequiredCount - 1 : 0;
             }
-            parent->subCommandApp->setEffectiveRequiredBase(parent->effectiveRequiredCount > 0);
+            parent->applyRequirements();
 
-            parent->applyEffectiveRequiredContribution(previousParentEffectiveRequired, parent->subCommandApp->effectiveRequired());
+            parent->applyEffectiveRequiredContribution(previousParentEffectiveRequired, parent->requirementsActive());
         }
     }
 
@@ -495,177 +509,97 @@ namespace utils {
         return help_ptr_;
     }
 
-    ConfigOptionState& AppWithPtr::optionState(const CLI::Option* option) {
-        return optionConfigStates[option];
+    bool SubCommand::requirementsActive() const {
+        return requiredCount > 0 && effectiveRequiredCount > 0 && suppressions == 0;
     }
 
-    const ConfigOptionState* AppWithPtr::findOptionState(const CLI::Option* option) const {
-        const auto stateIt = optionConfigStates.find(option);
-
-        return stateIt != optionConfigStates.end() ? &stateIt->second : nullptr;
-    }
-
-    void AppWithPtr::setCanonicalRequired(bool required) {
-        configState.required.canonicalRequired = required;
-        configState.required.effectiveRequiredBase = required;
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setEffectiveRequiredBase(bool required) {
-        configState.required.effectiveRequiredBase = required;
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setCanonicalRequired(CLI::Option* option, bool required) {
-        optionState(option).required.canonicalRequired = required;
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setSuppression(ConfigSuppressionReason reason, bool suppressed) {
-        if (suppressed) {
-            configState.required.suppressions.insert(reason);
-        } else {
-            configState.required.suppressions.erase(reason);
-        }
-
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setSuppression(CLI::Option* option, ConfigSuppressionReason reason, bool suppressed) {
-        ConfigOptionState& state = optionState(option);
-        if (suppressed) {
-            state.required.suppressions.insert(reason);
-        } else {
-            state.required.suppressions.erase(reason);
-        }
-
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setSuppressionRecursive(ConfigSuppressionReason reason, bool suppressed) {
-        setSuppression(reason, suppressed);
-
-        for (CLI::Option* option : get_options([](CLI::Option*) {
-                 return true;
-             })) {
-            setSuppression(option, reason, suppressed);
-        }
-
-        for (CLI::App* subCommand : get_subcommands([](CLI::App*) {
-                 return true;
-             })) {
-            if (auto* appWithPtr = dynamic_cast<AppWithPtr*>(subCommand); appWithPtr != nullptr) {
-                appWithPtr->setSuppressionRecursive(reason, suppressed);
+    void SubCommand::applyRequirements() {
+        subCommandApp->required(requirementsActive());
+        for (auto& [option, state] : options) {
+            option->required(state.required && state.suppressions == 0);
+            if (state.needed) {
+                subCommandApp->remove_needs(option);
+            }
+            state.needed = state.required && state.suppressions == 0 && suppressions == 0;
+            if (state.needed) {
+                subCommandApp->needs(option);
             }
         }
-
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setCanonicalNeed(CLI::Option* option, bool needed) {
-        if (needed) {
-            configState.canonicalOptionNeeds.insert(option);
-        } else {
-            configState.canonicalOptionNeeds.erase(option);
-        }
-
-        applyEffectiveState();
-    }
-
-    void AppWithPtr::setCanonicalNeed(CLI::App* app, bool needed) {
-        if (needed) {
-            configState.canonicalNeeds.insert(app);
-        } else {
-            configState.canonicalNeeds.erase(app);
-        }
-
-        applyEffectiveState();
-    }
-
-    bool AppWithPtr::canonicalRequired() const {
-        return configState.required.canonicalRequired;
-    }
-
-    bool AppWithPtr::effectiveRequired() const {
-        return configState.required.effectiveRequired;
-    }
-
-    bool AppWithPtr::canonicalRequired(const CLI::Option* option) const {
-        const ConfigOptionState* state = findOptionState(option);
-
-        return state != nullptr && state->required.canonicalRequired;
-    }
-
-    bool AppWithPtr::effectiveRequired(const CLI::Option* option) const {
-        const ConfigOptionState* state = findOptionState(option);
-
-        return state != nullptr && state->required.effectiveRequired;
-    }
-
-    bool AppWithPtr::hasSuppression(ConfigSuppressionReason reason) const {
-        return configState.required.suppressions.contains(reason);
-    }
-
-    bool AppWithPtr::hasSuppression(const CLI::Option* option, ConfigSuppressionReason reason) const {
-        const ConfigOptionState* state = findOptionState(option);
-
-        return state != nullptr && state->required.suppressions.contains(reason);
-    }
-
-    bool AppWithPtr::canonicalNeeds(const CLI::Option* option) const {
-        return configState.canonicalOptionNeeds.contains(option);
-    }
-
-    bool AppWithPtr::effectiveNeeds(const CLI::Option* option) const {
-        return configState.effectiveOptionNeeds.contains(option);
-    }
-
-    bool AppWithPtr::canonicalNeeds(const CLI::App* app) const {
-        return configState.canonicalNeeds.contains(app);
-    }
-
-    bool AppWithPtr::effectiveNeeds(const CLI::App* app) const {
-        return configState.effectiveNeeds.contains(app);
-    }
-
-    void AppWithPtr::applyEffectiveState() {
-        configState.required.effectiveRequired = configState.required.canonicalRequired && configState.required.effectiveRequiredBase &&
-                                                 configState.required.suppressions.empty();
-        required(configState.required.effectiveRequired);
-
-        for (auto& [option, state] : optionConfigStates) {
-            state.required.effectiveRequired = state.required.canonicalRequired && state.required.suppressions.empty();
-            const_cast<CLI::Option*>(option)->required(state.required.effectiveRequired);
-        }
-
-        for (const CLI::Option* option : configState.effectiveOptionNeeds) {
-            remove_needs(const_cast<CLI::Option*>(option));
-        }
-        configState.effectiveOptionNeeds.clear();
-
-        std::set<const CLI::App*> previousEffectiveApps;
-        previousEffectiveApps.swap(configState.effectiveNeeds);
-        for (const CLI::App* app : previousEffectiveApps) {
-            remove_needs(const_cast<CLI::App*>(app));
-        }
-
-        if (configState.required.suppressions.empty()) {
-            for (const CLI::Option* option : configState.canonicalOptionNeeds) {
-                const ConfigOptionState* optionRequirementState = findOptionState(option);
-                if (optionRequirementState == nullptr || optionRequirementState->required.suppressions.empty()) {
-                    needs(const_cast<CLI::Option*>(option));
-                    configState.effectiveOptionNeeds.insert(option);
-                }
+        for (auto& [command, needed] : neededSubCommands) {
+            if (needed) {
+                subCommandApp->remove_needs(command->subCommandApp);
             }
+            needed = suppressions == 0 && command->requirementsActive();
+            if (needed) {
+                subCommandApp->needs(command->subCommandApp);
+            }
+        }
+    }
 
-            for (const CLI::App* app : configState.canonicalNeeds) {
-                const auto* appWithPtr = dynamic_cast<const AppWithPtr*>(app);
-                if (appWithPtr == nullptr || appWithPtr->effectiveRequired()) {
-                    needs(const_cast<CLI::App*>(app));
-                    configState.effectiveNeeds.insert(app);
+    void SubCommand::suppressRequirementsRecursive(ConfigSuppressionReason reason, bool suppressed) {
+        const unsigned bit = 1U << static_cast<unsigned>(reason);
+        suppressions = suppressed ? suppressions | bit : suppressions & ~bit;
+        for (CLI::Option* option : subCommandApp->get_options({})) {
+            auto& state = options[option];
+            state.suppressions = suppressed ? state.suppressions | bit : state.suppressions & ~bit;
+        }
+        applyRequirements();
+        for (CLI::App* child : subCommandApp->get_subcommands({})) {
+            if (auto* app = dynamic_cast<AppWithPtr*>(child); app != nullptr && app->getPtr() != nullptr) {
+                app->getPtr()->suppressRequirementsRecursive(reason, suppressed);
+            }
+        }
+        applyRequirements();
+    }
+
+    void SubCommand::promoteDefault(CLI::Option* option) {
+        if (option->empty()) {
+            option->add_result(option->get_default_str());
+            option->run_callback();
+        }
+        auto [state, inserted] = options.try_emplace(option);
+        if (inserted) {
+            state->second.required = option->get_required();
+        }
+        state->second.promoted = true;
+    }
+
+    void SubCommand::updatePromotedDefaults(bool clear) const {
+        for (const auto& [option, state] : options) {
+            if (state.promoted) {
+                if (clear) {
+                    option->clear();
+                } else if (option->empty()) {
+                    option->add_result(option->get_default_str());
+                    option->run_callback();
                 }
             }
         }
+        for (CLI::App* child : subCommandApp->get_subcommands({})) {
+            if (auto* app = dynamic_cast<AppWithPtr*>(child); app != nullptr && app->getPtr() != nullptr) {
+                app->getPtr()->updatePromotedDefaults(clear);
+            }
+        }
+    }
+
+    void AppWithPtr::pre_callback() {
+        if (ptr != nullptr) {
+            ptr->updatePromotedDefaults(false);
+        }
+    }
+
+    bool SubCommand::isDefaultPromoted(const CLI::Option* option) const {
+        const auto state = options.find(option);
+
+        return state != options.end() && state->second.promoted;
+    }
+
+    void OptionView::promoteDefault() {
+        config.promoteDefault(option);
+    }
+
+    OptionView SubCommand::option(const std::string& name) {
+        return {*this, subCommandApp->get_option(name)};
     }
 
     std::map<std::string, std::string> SubCommand::aliases;
