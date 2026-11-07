@@ -92,6 +92,7 @@ namespace utils {
         enum class ParsePhase { Initial, Bootstrap, Runtime };
         bool parse1(int argc, char* argv[]);
         bool parse2(int argc, char* argv[], ParsePhase phase);
+        void applySemanticLoggingPolicy();
         void terminate();
 
         std::string applicationName;
