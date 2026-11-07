@@ -58,7 +58,7 @@ namespace snodec::control {
     // The shared, presentation-agnostic "business logic" behind every snodec-control action: running
     // discovery, formatting inspection output, and saving/resolving a run configuration through the
     // target. Both the plain CLI (Cli.cpp) and the interactive UI (ui/CursesUi.cpp) call these same
-    // functions, so behavior (including SNode.C's non-zero-exit-on-success quirk for `-s`/`-w`) is
+    // functions, so behavior (including SNode.C's non-zero-exit-on-success quirk for `-S`/`-w`) is
     // defined exactly once. None of these functions touch curses or any UI presentation concern; they
     // only return data/strings for the caller to display however is appropriate.
 
@@ -66,12 +66,12 @@ namespace snodec::control {
         bool ok = false;
         std::string fatalError;  // set only when ok == false; ready to print as-is
         std::string diagnostics; // informational notes/warnings to print regardless of ok (may be empty)
-        std::string rawStdOut;   // the target's raw '-s' stdout, for --write-template
+        std::string rawStdOut;   // the target's raw '-S' stdout, for --write-template
         ParseResult parseResult; // valid when ok == true
         ParsedMetadata metadata; // valid when ok == true; metadata.usable() decides metadata-native vs legacy hierarchy
     };
 
-    // Runs `<targetPath> <targetArgTokens...> -s`, capturing and parsing its output. `diagnostics`
+    // Runs `<targetPath> <targetArgTokens...> -S`, capturing and parsing its output. `diagnostics`
     // always reflects the same non-zero-exit-code notes and parser warnings Phase 1/2 always printed;
     // the caller decides where/whether to display them (immediately via stderr for the plain CLI, or
     // buffered until curses is up for the UI's own use).

@@ -42,6 +42,7 @@
 #include "utils/Config.h"
 
 #include "utils/Daemon.h"
+#include "utils/Formatter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -460,7 +461,10 @@ namespace utils {
         std::stringstream out;
 
         try {
-            out << configTriggeredApp->config_to_str(true, true);
+            const auto formatter = std::dynamic_pointer_cast<CLI::ConfigFormatter>(configTriggeredApp->get_config_formatter());
+            const bool extensive = configTriggeredApp->get_option("--show-config")->as<std::string>() == "extensive";
+            out << (formatter != nullptr ? formatter->to_config(configTriggeredApp, true, true, "", extensive)
+                                         : configTriggeredApp->config_to_str(true, true));
         } catch (const CLI::ParseError& e) {
             out << std::string{"["} << Color::Code::FG_RED << "Error" << Color::Code::FG_DEFAULT
                 << "] Showing current config: " << configTriggeredApp->get_name() << " " << e.get_name() << " " << e.what();

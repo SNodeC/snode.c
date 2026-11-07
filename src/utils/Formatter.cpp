@@ -441,22 +441,26 @@ namespace CLI {
             return meta;
         }
 
-        std::string toConfigWithMeta(const ConfigFormatSettings& settings,
-                                     const App* app,
-                                     bool default_also,
-                                     bool write_description,
-                                     const std::string& prefix,
-                                     const std::vector<std::string>& path,
-                                     bool root) {
+        std::string toConfig(const ConfigFormatSettings& settings,
+                             const App* app,
+                             bool default_also,
+                             bool write_description,
+                             const std::string& prefix,
+                             const std::vector<std::string>& path,
+                             bool root,
+                             bool extensive) {
             std::stringstream out;
             const auto* owner = dynamic_cast<const utils::AppWithPtr*>(app);
             std::string commentLead;
             commentLead.push_back(settings.commentChar);
             commentLead.push_back(' ');
             if (write_description) {
-                if (root)
-                    writeDocumentMeta(out, app);
-                writeNodeMeta(out, app, path, prefix);
+                if (extensive) {
+                    if (root) {
+                        writeDocumentMeta(out, app);
+                    }
+                    writeNodeMeta(out, app, path, prefix);
+                }
                 if (!app->get_description().empty()) {
                     out << settings.commentChar << settings.commentChar << commentLead
                         << detail::fix_newlines(settings.commentChar + commentLead, app->get_description()) << '\n';
@@ -478,7 +482,9 @@ namespace CLI {
                                            })
                                             .empty();
                 if (write_description && hasConfigurable) {
-                    writeGroupMeta(out, group, path);
+                    if (extensive) {
+                        writeGroupMeta(out, group, path);
+                    }
                     if (group != "Options" && !group.empty())
                         out << '\n' << settings.commentChar << commentLead << group << "\n";
                 }
@@ -521,12 +527,13 @@ namespace CLI {
                         else
                             defaultValue = std::string{settings.stringQuote} + settings.stringQuote;
                     }
-                    OptionMetaValue metaValue = buildOptionMetaValue(opt, settings);
-                    if (promoted && metaValue.hasConfigured) {
-                        metaValue.source = "result";
-                    }
-                    if (write_description)
+                    if (extensive && write_description) {
+                        OptionMetaValue metaValue = buildOptionMetaValue(opt, settings);
+                        if (promoted && metaValue.hasConfigured) {
+                            metaValue.source = "result";
+                        }
                         writeOptionMeta(out, opt, optionId(path, opt), name, group, path, metaValue);
+                    }
                     if (write_description && opt->has_description() && (default_also || !value.empty()))
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
                     if (default_also && !defaultValue.empty()) {
@@ -553,8 +560,14 @@ namespace CLI {
                     anonymousSegments[subcom] = "<anonymous-" + std::to_string(anon++) + ">";
             for (const App* subcom : subcommands) {
                 if (subcom->get_name().empty()) {
-                    out << toConfigWithMeta(
-                        settings, subcom, default_also, write_description, prefix, pathWith(path, anonymousSegments[subcom]), false);
+                    out << toConfig(settings,
+                                    subcom,
+                                    default_also,
+                                    write_description,
+                                    prefix,
+                                    pathWith(path, anonymousSegments[subcom]),
+                                    false,
+                                    extensive);
                 }
             }
             for (const App* subcom : subcommands) {
@@ -571,16 +584,17 @@ namespace CLI {
                             }
                             out << '[' << subname << "]\n";
                         }
-                        out << toConfigWithMeta(
-                            settings, subcom, default_also, write_description, "", pathWith(path, subcom->get_name()), false);
+                        out << toConfig(
+                            settings, subcom, default_also, write_description, "", pathWith(path, subcom->get_name()), false, extensive);
                     } else {
-                        out << toConfigWithMeta(settings,
-                                                subcom,
-                                                default_also,
-                                                write_description,
-                                                prefix + subcom->get_name() + settings.parentSeparatorChar,
-                                                pathWith(path, subcom->get_name()),
-                                                false);
+                        out << toConfig(settings,
+                                        subcom,
+                                        default_also,
+                                        write_description,
+                                        prefix + subcom->get_name() + settings.parentSeparatorChar,
+                                        pathWith(path, subcom->get_name()),
+                                        false,
+                                        extensive);
                     }
                 }
             }
@@ -590,11 +604,16 @@ namespace CLI {
 
     CLI11_INLINE std::string
     ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix) const {
+        return to_config(app, default_also, write_description, std::move(prefix), false);
+    }
+
+    std::string
+    ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix, bool extensive) const {
         const ConfigFormatSettings settings{
             commentChar, arrayStart, arrayEnd, arraySeparator, valueDelimiter, stringQuote, literalQuote, parentSeparatorChar};
         const std::vector<std::string> path{};
-        return toConfigWithMeta(
-            settings, app, default_also, write_description, prefix, path, app->get_parent() == nullptr && prefix.empty());
+        return toConfig(
+            settings, app, default_also, write_description, prefix, path, app->get_parent() == nullptr && prefix.empty(), extensive);
     }
 
 #ifndef CLI11_ORIGINAL_FORMATTER

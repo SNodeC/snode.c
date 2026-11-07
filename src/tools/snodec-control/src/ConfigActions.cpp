@@ -90,7 +90,7 @@ namespace snodec::control {
 
         if (discoveryResult.stdOut.empty()) {
             std::ostringstream error;
-            error << "Error: target '" << targetPath << "' produced no output on stdout for '-s'.\n";
+            error << "Error: target '" << targetPath << "' produced no output on stdout for '-S'.\n";
             if (!discoveryResult.stdErr.empty()) {
                 error << "Target stderr:\n" << discoveryResult.stdErr;
             }
@@ -106,11 +106,11 @@ namespace snodec::control {
         std::ostringstream diagnostics;
         if (discoveryResult.signaled) {
             diagnostics << "Warning: target was terminated by signal " << discoveryResult.signalNumber
-                        << " but produced usable '-s' output; proceeding.\n";
+                        << " but produced usable '-S' output; proceeding.\n";
         } else if (discoveryResult.exitCode != 0) {
             diagnostics << "Note: target exited with status " << discoveryResult.exitCode
-                        << " while handling '-s' (this is expected for SNode.C applications, which never proceed to "
-                           "run when '-s' is given); usable configuration output was captured and will be parsed.\n";
+                        << " while handling '-S' (this is expected for SNode.C applications, which never proceed to "
+                           "run when '-S' is given); usable configuration output was captured and will be parsed.\n";
         }
 
         outcome.rawStdOut = discoveryResult.stdOut;
@@ -122,7 +122,7 @@ namespace snodec::control {
         outcome.metadata = parseMetaBlocks(discoveryResult.stdOut);
         if (outcome.metadata.present && !outcome.metadata.schemaRecognized) {
             diagnostics << "Note: target emitted '#@' configuration metadata with an unrecognized schema/version; "
-                           "falling back to plain '-s' parsing for hierarchy and type information.\n";
+                           "falling back to plain '-S' parsing for hierarchy and type information.\n";
         }
         for (const std::string& warning : outcome.metadata.warnings) {
             diagnostics << "Warning (metadata): " << warning << "\n";

@@ -8,7 +8,7 @@
 
 # Configuration comment metadata
 
-`-s` / `--show-config` emits the canonical SNode.C configuration template as INI-compatible text. Version 1 now augments that template with structured metadata comments for tools such as `snodec-control` while keeping the real configuration lines unchanged.
+`-s` / `--show-config` emits the canonical SNode.C configuration template as INI-compatible text, including ordinary descriptions and commented defaults. `-S` / `--show-config=extensive` additionally emits structured metadata comments for tools such as `snodec-control`, keeping the real configuration lines unchanged. These are modes of one flag option. `-w` / `--write-config` and `Config::writeConfig()` save the ordinary form without state metadata.
 
 Metadata is carried only in comments with the reserved `#@` prefix:
 
@@ -25,7 +25,7 @@ Metadata is carried only in comments with the reserved `#@` prefix:
 #echoserver.local.port="<REQUIRED>"
 ```
 
-Because each metadata line is a comment, CLI11/SNode.C config parsing ignores it. Existing config files without metadata remain valid, and generated templates can still be edited by changing only normal INI key/value lines. No separate JSON output mode exists; JSON appears only as comment metadata inside the INI output. Metadata is emitted only when description/comment output is enabled (`write_description=true`, as used by `-s` / `--show-config`).
+Because each metadata line is a comment, CLI11/SNode.C config parsing ignores it. Existing config files without metadata remain valid, and generated templates can still be edited by changing only normal INI key/value lines. No separate JSON output mode exists; JSON appears only as comment metadata inside the INI output. Metadata is emitted only when extensive output is explicitly requested and description/comment output is enabled (`write_description=true`).
 
 ## Entities
 

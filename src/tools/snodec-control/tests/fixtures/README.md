@@ -10,7 +10,7 @@
 
 ## `NestedSubCommandFixture.h`
 
-Real `--show-config` output, captured verbatim from a throwaway program built against SNode.C
+Real `--show-config=extensive` output, captured verbatim from a throwaway program built against SNode.C
 the recorded development revision, used by tests that need genuinely nested, non-`Instances`/`Sections` custom `SubCommand`s
 (the framework's own examples/apps don't nest custom subcommands more than one level deep, so this
 was generated from real nested subcommands rather than hand-written as a `#@`
@@ -36,7 +36,7 @@ g++ -std=c++20 -I src \
     -L build/src/utils -L build/src/log -lsnodec-utils -lsnodec-logger \
     -Wl,-rpath,$PWD/build/src/utils -Wl,-rpath,$PWD/build/src/log \
     -o /tmp/nested_fixture
-HOME=/tmp/fakehome /tmp/nested_fixture -s > /tmp/nested_fixture_output.txt
+HOME=/tmp/fakehome /tmp/nested_fixture -S > /tmp/nested_fixture_output.txt
 ```
 
 then re-embed `/tmp/nested_fixture_output.txt` as the raw string literal in
