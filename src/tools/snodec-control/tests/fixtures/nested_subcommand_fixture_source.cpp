@@ -1,7 +1,7 @@
 // Throwaway fixture program: registers genuinely nested, non-Instances/Sections user-defined
 // SubCommands (plus a top-level custom subcommand alongside an Instances-style node, a custom
 // SubCommand nested *inside* an Instances-style node, and a disabled subcommand), then relies on
-// -s output being captured externally (run with `--show-config`). Not part of any build target;
+// -S output being captured externally (run with `--show-config=extensive`). Not part of any build target;
 // built and run manually to obtain a real fixture for snodec-control's tests.
 #include "utils/Config.h"
 #include "utils/SubCommand.h"

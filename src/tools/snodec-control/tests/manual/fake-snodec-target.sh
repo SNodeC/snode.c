@@ -5,7 +5,7 @@
 # smoke testing (see smoke-ui-notes.md in this directory). It is never built, packaged, or run by CTest;
 # it exists purely so `--ui` can be exercised without a real SNode.C target on hand.
 #
-# It emits representative '-s' output covering every hierarchy derivation rule and every UI interaction
+# It emits representative '-S' output covering every hierarchy derivation rule and every UI interaction
 # this fix pass targets:
 #   - application options (dot-less: log-level)
 #   - one instance ("echoserver") with one section ("local")
@@ -13,11 +13,11 @@
 #   - a plain boolean option with no active value yet (feature.enabled, default false)
 #   - a tristate option (feature.mode: false/true/default)
 #
-# Like every real SNode.C application, it exits non-zero for both '-s' and '--write-config' (writing a
+# Like every real SNode.C application, it exits non-zero for both '-S' and '--write-config' (writing a
 # config file, or just describing one, never proceeds to actually running) - snodec-control treats that
 # as expected, not an error, exactly as documented in the Phase 1/2 reports.
 #
-# When actually "run" (neither '-s' nor '--write-config'), it logs one line per second forever, so it
+# When actually "run" (neither '-S' nor '--write-config'), it logs one line per second forever, so it
 # stays alive long enough to manually press Ctrl-C against it (see smoke-ui-notes.md's Ctrl-C scenario).
 # Set FAKE_TARGET_TICKS to a positive number of seconds to make it exit normally on its own instead, for
 # testing the plain "target exits by itself" path without needing Ctrl-C at all.
@@ -46,7 +46,7 @@ feature.mode=default
 '
 
 case " $* " in
-    *" -s "*|*" --show-config "*)
+    *" -s "*|*" -S "*|*" --show-config "*|*" --show-config=standard "*|*" --show-config=extensive "*)
         printf '%s' "$SHOW_CONFIG"
         exit 1
         ;;

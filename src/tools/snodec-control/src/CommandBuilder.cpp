@@ -98,7 +98,7 @@ namespace snodec::control {
 
     std::vector<std::string> buildDiscoveryArgs(const std::vector<std::string>& targetArgTokens) {
         std::vector<std::string> args = targetArgTokens;
-        args.emplace_back("-s");
+        args.emplace_back("-S");
 
         return args;
     }

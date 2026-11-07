@@ -10,13 +10,15 @@
 
 `snodec-control` inspects and configures SNode.C applications by executing them as separate processes. `src/tools/CMakeLists.txt` includes it in the framework build; its own CMake project can also be configured independently. It links no SNode.C libraries and needs a C++20 standard library and POSIX (`posix_spawn`, `pipe`, `select`, `mkstemp`).
 
-* **Discovery and inspection:** parse a target's `-s`/`--show-config` output into an in-memory model; print/export it with `--dump-model`, `--print-summary`, `--write-template` or `--materialize`.
+* **Discovery and inspection:** parse a target's `-S`/`--show-config=extensive` output into an in-memory model; print/export it with `--dump-model`, `--print-summary`, `--write-template` or `--materialize`.
 * **Scriptable configuration:** look up/edit options, preview changes, check required values, materialize the edited configuration, ask the target to write its canonical file, and optionally run it with that configuration.
 * **Interactive editing:** `--ui` provides a Curses-based, `make menuconfig`-style hierarchy on the same discovery/edit/save/run machinery, not a second configuration implementation (see “Interactive UI (`--ui`)” below).
 
 ## What snodec-control does
 
-Every SNode.C application built on `utils::Config`/`utils::SubCommand` accepts a `-s`/`--show-config`
+`-s` / bare `--show-config` prints ordinary configuration with descriptions and commented defaults. `-S` / `--show-config=extensive` additionally includes state metadata for discovery. `-w` / `--write-config` and the `Config::writeConfig()` API save ordinary configuration without state metadata.
+
+Every SNode.C application built on `utils::Config`/`utils::SubCommand` accepts a `-S`/`--show-config=extensive`
 flag that prints an INI-style configuration template describing all of its configurable options,
 grouped by instance/section, together with descriptions, default values, and (if any) currently active
 values. It also accepts `--config-file <path>` to read a config file and `--write-config <path>` (`-w`)
@@ -24,8 +26,8 @@ to have it write its own canonical config file and exit.
 
 `snodec-control` treats a target application as an **opaque, separate executable** throughout:
 
-1. **Discovery**: it runs `<target> [target-args...] -s` as a child process (via `posix_spawn`),
-   capturing stdout and stderr separately, and parses the captured stdout as the SNode.C `-s`
+1. **Discovery**: it runs `<target> [target-args...] -S` as a child process (via `posix_spawn`),
+   capturing stdout and stderr separately, and parses the captured stdout as the SNode.C `-S`
    configuration template into an in-memory model (sections, options, descriptions, default/active
    values, required markers).
 2. **Editing**: `--set`/`--unset` mutate that in-memory model directly; nothing is sent back
@@ -42,7 +44,7 @@ to have it write its own canonical config file and exit.
    time from the command line. It calls the exact same underlying functions as the plain CLI (see
    `src/ConfigActions.h`); nothing about discovery, saving, or running is reimplemented for the UI.
 
-**The target's own `-s`/`--show-config` output remains the sole discovery mechanism.** No other
+**The target's own `-S`/`--show-config=extensive` output remains the sole discovery mechanism.** No other
 introspection (headers, human `--help` text, source code, etc.) is used, and the target always performs
 its own final validation — snodec-control's checks are local preflight conveniences only.
 
@@ -51,7 +53,7 @@ its own final validation — snodec-control's checks are local preflight conveni
 * **Independent inspection.** Built with the framework tools or separately; no dependency on framework libraries.
 * **No `dlopen()`.** The target is never loaded into `snodec-control`'s own address space.
 * **No calling the target's `main()`.** The target always runs as its own process.
-* **No parsing of human `--help` output.** Only `-s`/`--show-config` output is parsed.
+* **No parsing of human `--help` output.** Only `-S`/`--show-config=extensive` output is parsed.
 * **No vendored/third-party UI toolkit.** The interactive UI is built exclusively on Curses via CMake's
   `find_package(Curses)`; nothing like FTXUI is fetched or bundled.
 
@@ -97,12 +99,12 @@ snodec-control --target <path> [options]
 | Option | Description |
 | --- | --- |
 | `--target <path>` | Path to the target SNode.C application executable (required) |
-| `--target-args "<args>"` | Extra arguments passed to the target before `-s` (discovery), `--config-file`/`--write-config` (save), or its own args (run) |
+| `--target-args "<args>"` | Extra arguments passed to the target before `-S` (discovery), `--config-file`/`--write-config` (save), or its own args (run) |
 | `--dump-model` | Print the parsed configuration model as JSON |
 | `--print-summary` | Print a human-readable summary (target, section/option counts, per-section breakdown) |
 | `--list-options` | Print a stable, readable list of every parsed option |
 | `--get <key>` | Print one option, looked up by full key (`section.key`) or bare key |
-| `--write-template <file>` | Write the target's raw `-s` output verbatim to `<file>` |
+| `--write-template <file>` | Write the target's raw `-S` output verbatim to `<file>` |
 | `--set <key=value>` | Set an option's active value (repeatable) |
 | `--unset <key>` | Clear an option's active value, falling back to its default (repeatable) |
 | `--allow-new-options` | Let `--set`/`--unset` create unknown keys instead of erroring |
@@ -176,7 +178,7 @@ snodec-control never claims its own materialized file *is* the canonical config.
    <file>` — the target itself performs the canonical write.
 3. Captures the target's stdout/stderr and inspects whether `<file>` was actually written (created, or
    its modification time changed), since SNode.C applications conventionally exit non-zero even on a
-   successful `--write-config` (the same behavior as discovery with `-s`).
+   successful `--write-config` (the same behavior as discovery with `-S`).
 4. Removes the temporary file (unless `--keep-temp`, which also prints its path).
 
 If `--target-args` already specifies `--config-file`/`-c`, snodec-control refuses to append its own and
@@ -213,8 +215,8 @@ SNode.C's own vocabulary — **not** a flat list of sections and options.
 
 ### Hierarchy derivation
 
-With structured metadata, `--ui` does not guess the hierarchy from dotted option names. SNode.C's `-s`/
-`--show-config` output carries structured `"#@ snodec.meta ..."` comment metadata describing the
+With structured metadata, `--ui` does not guess the hierarchy from dotted option names. SNode.C's `-S`/
+`--show-config=extensive` output carries structured `"#@ snodec.meta ..."` comment metadata describing the
 real CLI11/SNode.C tree — every application/subcommand `node` (with its `kind`, e.g.
 `application`/`instance`/`section`/`anonymous`/`category`/`subcommand`, and its `path`, an array of
 arbitrary length), every option `group`, and every `option`'s own placement. When a target emits
@@ -259,7 +261,7 @@ directly to the owning node instead of nesting one level deeper under a redundan
   persistent/configurable, so this layer is pure noise.
 * `kind == "nonpersistent"` (`"Options (nonpersistent)"`) — excluded from the tree entirely, not
   merely flattened. In practice this cannot currently occur (SNode.C's formatter never emits a
-  non-configurable option into `-s` output at all), but the config editor is deliberately scoped to
+  non-configurable option into `-S` output at all), but the config editor is deliberately scoped to
   writable/persistent options, so this is handled defensively rather than assumed impossible.
 
 For a target built against an older SNode.C that predates this metadata format, `--ui` falls back
@@ -287,11 +289,11 @@ Application
    Section level) if that same prefix is also seen as a confirmed instance via rule 2 elsewhere in the
    model; otherwise it is treated as not-clearly-instance-owned.
 4. Anything from rule 3's "otherwise" case is collected into the **"Other Options"** fallback node.
-5. Instances, their sections, and their options preserve the order the target's own `-s` output listed
+5. Instances, their sections, and their options preserve the order the target's own `-S` output listed
    them in.
 
 Both paths are exercised by the same call site (`ui::runInteractiveUi`/`ui::UiState`), driven by
-whether the target's captured `-s` output carried usable metadata — a fleet of targets built against
+whether the target's captured `-S` output carried usable metadata — a fleet of targets built against
 different SNode.C versions is handled transparently without any flag or configuration.
 
 ### Type-aware editing and relations
@@ -557,7 +559,7 @@ indicator (`--check-required` is the authoritative check for that).
 
 ## Parser robustness
 
-Two parsers run over the same captured `-s` output, independently:
+Two parsers run over the same captured `-S` output, independently:
 
 * `parseShowConfigOutput()` (`ConfigParser.*`) is the original line-oriented INI parser,
   deliberately lenient: unrecognized lines are recorded as warnings (printed to stderr) and do not
@@ -619,12 +621,12 @@ that case, since there is nothing to reconcile against).
   byte-identical to what the target's own `--write-config` would produce (that is exactly why
   `--save-config` exists: it lets the target itself produce the canonical file).
 * `--write-template` does not validate or reformat the captured output; it is a verbatim capture of the
-  target's stdout for `-s`, and it is not affected by `--set`/`--unset`.
+  target's stdout for `-S`, and it is not affected by `--set`/`--unset`.
 * Section detection in the *legacy fallback* tree (a target without `"#@"` metadata) is name-based
   (dotted prefixes / bracket headers), not based on the target's actual internal option types. The
   metadata-native tree (used whenever the target emits metadata) uses the target's own
   `node.kind`/`node.path` instead and does not have this limitation.
-* Metadata's `required.effective` reflects only the target's *current* CLI11 state at the moment `-s`
+* Metadata's `required.effective` reflects only the target's *current* CLI11 state at the moment `-S`
   ran, not a canonical, registration-time, or suppression-aware value (SNode.C tracks that internally
   as of the "canonical state preservation model" work, but does not yet expose it through `"#@"`
   metadata) — `--check-required`/the UI's `!` marker remain an explicit local preflight, not an
@@ -644,7 +646,7 @@ that case, since there is nothing to reconcile against).
   that case; metadata does not currently add anything here.
 * `--save-config` and `--run` infer success/failure of a `--write-config` invocation from whether the
   output file's existence/modification time changed, since SNode.C applications conventionally exit
-  non-zero even on success for both `-s` and `-w`. This is pragmatic but not foolproof (e.g. a target
+  non-zero even on success for both `-S` and `-w`. This is pragmatic but not foolproof (e.g. a target
   that fails after truncating-but-not-finishing the file could look like a false success).
 * `--run`'s attached mode is intentionally simple: it inherits stdio and waits for one process; there is
   no support yet for detaching, daemonizing, or monitoring a long-running target beyond its exit code.

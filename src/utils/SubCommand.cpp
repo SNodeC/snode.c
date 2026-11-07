@@ -100,15 +100,18 @@ namespace utils {
 
             showConfigOpt = setConfigurable(subCommandApp
                                                 ->add_flag_function(
-                                                    "-s,--show-config",
+                                                    "-s{standard},-S{extensive},--show-config{standard}",
                                                     [subCommandApp = this->subCommandApp](std::size_t) {
                                                         if (showConfigTriggerApp == nullptr) {
                                                             showConfigTriggerApp = subCommandApp;
                                                         }
                                                     },
-                                                    "Show current configuration and exit")
+                                                    "Show current configuration and exit\n"
+                                                    "* standard (default): configuration without state metadata\n"
+                                                    "* extensive: include state metadata for snodec-control")
+                                                ->type_name("MODE")
                                                 ->take_first()
-                                                ->disable_flag_override()
+                                                ->check(CLI::IsMember({"standard", "extensive"}))
                                                 ->configurable(false)
                                                 ->trigger_on_parse(),
                                             false);

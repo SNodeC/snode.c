@@ -80,8 +80,8 @@ namespace {
 
     void testDiscoveryArgs(snodec::control::test::TestResult& testResult) {
         const auto args = buildDiscoveryArgs({"--log-level", "5"});
-        const std::vector<std::string> expected{"--log-level", "5", "-s"};
-        testResult.expectTrue(args == expected, "buildDiscoveryArgs: target-args are followed by '-s'");
+        const std::vector<std::string> expected{"--log-level", "5", "-S"};
+        testResult.expectTrue(args == expected, "buildDiscoveryArgs: target-args are followed by '-S'");
     }
 
     void testSaveArgsConstruction(snodec::control::test::TestResult& testResult) {

@@ -81,6 +81,8 @@ namespace CLI {
 
         ~ConfigFormatter() override;
 
+        std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix, bool extensive) const;
+
     private:
         std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix) const override;
     };

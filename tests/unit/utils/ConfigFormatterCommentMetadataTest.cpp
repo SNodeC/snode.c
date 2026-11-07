@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -18,6 +19,12 @@ namespace {
         }
         using SubCommand::parse;
     };
+
+    std::string extensiveConfig(const CLI::App& app) {
+        const auto formatter = std::dynamic_pointer_cast<CLI::ConfigFormatter>(app.get_config_formatter());
+
+        return formatter->to_config(&app, true, true, "", true);
+    }
 
     void requireContains(const std::string& text, const std::string& needle) {
         if (text.find(needle) == std::string::npos) {
@@ -93,7 +100,7 @@ int main() {
     int sectionValue = 2;
     section->add_option("--section-value", sectionValue, "Section value")->default_str("2");
 
-    const std::string config = app.config_to_str(true, true);
+    const std::string config = extensiveConfig(app);
 
     requireContains(config, "#@ snodec.meta begin document\n#@ {\n#@   \"schema\": \"snodec.config.comment-meta\",");
     requireContains(config, "#@ snodec.meta begin node");
@@ -139,6 +146,22 @@ int main() {
                               "#@   \"entity\": \"document\",\n";
     requireContains(config, exact);
     requireParseable(config);
+    const std::string plain = app.config_to_str(true, true);
+    requireNotContains(plain, "#@");
+    requireContains(plain, "# Port number\n#port=\"<REQUIRED>\"");
+    requireContains(plain, "#host=\"localhost\"");
+    requireParseable(plain);
+    std::istringstream metadataInput(config);
+    std::string withoutMetadata;
+    std::string line;
+    while (std::getline(metadataInput, line)) {
+        if (line.rfind("#@", 0) != 0) {
+            withoutMetadata += line + '\n';
+        }
+    }
+    if (withoutMetadata != plain) {
+        std::abort();
+    }
 
     const std::string noComments = app.config_to_str(true, false);
     requireNotContains(noComments, "#@ snodec.meta");
@@ -152,7 +175,7 @@ int main() {
     std::string mode = "default";
     configuredApp.add_option("--mode", mode, "Mode value")->default_str("default");
     configuredApp.parse("--mode default");
-    const std::string configuredConfig = configuredApp.config_to_str(true, true);
+    const std::string configuredConfig = extensiveConfig(configuredApp);
     requireContains(configuredConfig, "#@   \"key\": \"mode\",");
     requireContains(configuredConfig, "#@     \"configured\": \"default\",");
     requireContains(configuredConfig, "#@     \"configuredLiteral\": \"\\\"default\\\"\",");
@@ -166,7 +189,7 @@ int main() {
     const std::string configuredText = "a \"quoted\" value with \\ slash and spaces";
     quotedApp.add_option("--text", text, "Text value")->default_str("default \"quoted\" \\ value");
     quotedApp.parse(std::vector<std::string>{configuredText, "--text"});
-    const std::string quotedConfig = quotedApp.config_to_str(true, true);
+    const std::string quotedConfig = extensiveConfig(quotedApp);
     requireContains(quotedConfig, "#@     \"configuredLiteral\": ");
     requireContains(quotedConfig, "\\\\ slash and spaces");
 
@@ -181,7 +204,7 @@ int main() {
     anonB->group("Anon B");
     int b = 2;
     anonB->add_option("--value-b", b, "Shared value")->default_str("2");
-    const std::string siblingConfig = siblingApp.config_to_str(true, true);
+    const std::string siblingConfig = extensiveConfig(siblingApp);
     requireContains(siblingConfig, "#@   \"id\": \"<anonymous-0>.value\",");
     requireContains(siblingConfig, "#@   \"id\": \"<anonymous-1>.value-b\",");
     requireContains(siblingConfig, "#@   \"key\": \"value\",");
@@ -324,6 +347,32 @@ int main() {
         std::abort();
     }
     requireContains(startup.configToStr(), "\nvalue=\"updated\"\n");
+
+    PromotionApp outputModes;
+    outputModes.addOption("--probe", "Probe", "INT", 7, CLI::TypeValidator<int>());
+    for (const auto& [arguments, mode] : std::vector<std::pair<std::string, std::string>>{{"-s", "standard"},
+                                                                                          {"--show-config", "standard"},
+                                                                                          {"--show-config=standard", "standard"},
+                                                                                          {"-S", "extensive"},
+                                                                                          {"--show-config=extensive", "extensive"}}) {
+        outputModes.getAppWithPtr()->parse(arguments);
+        auto* option = outputModes.getOption("--show-config");
+        if (option != outputModes.getOption("-s") || option != outputModes.getOption("-S") || option->count() != 1 ||
+            option->as<std::string>() != mode) {
+            std::abort();
+        }
+        requireNotContains(outputModes.configToStr(), "#@");
+        requireContains(extensiveConfig(*outputModes.getAppWithPtr()), "#@ snodec.meta begin option");
+    }
+    bool invalidModeRejected = false;
+    try {
+        outputModes.getAppWithPtr()->parse("--show-config=invalid");
+    } catch (const CLI::ParseError&) {
+        invalidModeRejected = true;
+    }
+    if (!invalidModeRejected) {
+        std::abort();
+    }
 
     return 0;
 }
