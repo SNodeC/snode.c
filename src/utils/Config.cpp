@@ -537,12 +537,7 @@ namespace utils {
     ConfigRoot::~ConfigRoot() {
     }
 
-    static void applySemanticLoggingPolicy(CLI::Option* logLevelOpt,
-                                           CLI::Option* logFormatOpt,
-                                           CLI::Option* logOriginLevelOpt,
-                                           CLI::Option* logBoundaryLevelOpt,
-                                           CLI::Option* logComponentLevelOpt,
-                                           CLI::Option* logInstanceLevelOpt) {
+    void ConfigRoot::applySemanticLoggingPolicy() {
         const auto parsedLevel = utils::config::parseLogLevel(std::to_string(logLevelOpt->as<int>()));
         logger::Logger::setLogLevel(parsedLevel.legacyLevel);
         logger::LogManager::setGlobalLevel(parsedLevel.semanticLevel);
@@ -550,12 +545,11 @@ namespace utils {
 
         const auto configuredValues = [](CLI::Option* option) {
             std::vector<std::string> values;
-            if (option->count() == 0) {
-                return values;
-            }
-            for (const std::string& value : option->as<std::vector<std::string>>()) {
-                if (!value.empty() && value != "false") {
-                    values.push_back(value);
+            if (option->count() > 0) {
+                for (const std::string& value : option->as<std::vector<std::string>>()) {
+                    if (!value.empty() && value != "false") {
+                        values.push_back(value);
+                    }
                 }
             }
             return values;
@@ -781,8 +775,7 @@ namespace utils {
             } else {
                 if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
                     versionOpt->count() == 0 && writeConfigOpt->count() == 0) {
-                    applySemanticLoggingPolicy(
-                        logLevelOpt, logFormatOpt, logOriginLevelOpt, logBoundaryLevelOpt, logComponentLevelOpt, logInstanceLevelOpt);
+                    applySemanticLoggingPolicy();
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
 
@@ -828,12 +821,7 @@ namespace utils {
                     if (phase == ParsePhase::Bootstrap) {
                         if (helpTriggerApp == nullptr && showConfigTriggerApp == nullptr && commandlineTriggerApp == nullptr &&
                             writeConfigOpt->count() == 0) {
-                            applySemanticLoggingPolicy(logLevelOpt,
-                                                       logFormatOpt,
-                                                       logOriginLevelOpt,
-                                                       logBoundaryLevelOpt,
-                                                       logComponentLevelOpt,
-                                                       logInstanceLevelOpt);
+                            applySemanticLoggingPolicy();
                             logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                             logger::LogManager::freeze();
                         }

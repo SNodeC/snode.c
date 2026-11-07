@@ -141,31 +141,6 @@ namespace CLI {
             return out.str();
         }
 
-        struct ConfigFormatSettings {
-            char commentChar{'#'};
-            char arrayStart{'['};
-            char arrayEnd{']'};
-            char arraySeparator{','};
-            char valueDelimiter{'='};
-            char stringQuote{'"'};
-            char literalQuote{'\''};
-            char parentSeparatorChar{'.'};
-        };
-
-        struct OptionMetaValue {
-            std::string cppDefaultSemantic{};
-            std::string configuredSemantic{};
-            std::string effectiveSemantic{};
-            std::string source{"empty-default"};
-            std::string cppDefaultLiteral{};
-            std::string configuredLiteral{};
-            std::string effectiveLiteral{};
-            bool hasCppDefault{false};
-            bool hasConfigured{false};
-            bool isCppDefault{false};
-            bool isMissingRequired{false};
-        };
-
         std::string optionKey(const std::string& prefix, const Option* opt) {
             return prefix + opt->get_single_name();
         }
@@ -304,303 +279,294 @@ namespace CLI {
             lines.push_back(std::string("    ]") + (comma ? "," : ""));
         }
 
-        void writeOptionMeta(std::ostream& out,
-                             const Option* opt,
-                             const std::string& id,
-                             const std::string& key,
-                             const std::string& group,
-                             const std::vector<std::string>& path,
-                             const OptionMetaValue& metaValue) {
-            const std::string longName = opt->get_lnames().empty() ? "null" : quoteJson("--" + opt->get_lnames().front());
-            const std::string shortName = opt->get_snames().empty() ? "null" : quoteJson("-" + opt->get_snames().front());
-            const auto gk = groupKind(group);
-            std::vector<std::string> lines = {
-                "{",
-                "  \"schema\": " + quoteJson(MetaSchema) + ",",
-                "  \"version\": 1,",
-                "  \"entity\": \"option\",",
-                "  \"id\": " + quoteJson(id) + ",",
-                "  \"key\": " + quoteJson(key) + ",",
-                "  \"localName\": " + quoteJson(opt->get_single_name()) + ",",
-                "  \"displayName\": " + quoteJson(opt->get_single_name()) + ",",
-                "  \"nodePath\": " + jsonStringArray(path) + ",",
-                "  \"group\": " + quoteJson(group) + ",",
-                "  \"description\": " + quoteJson(opt->get_description()) + ",",
-                "  \"configurable\": true,",
-                "  \"required\": {",
-                std::string("    \"effective\": ") + (opt->get_required() ? "true," : "false,"),
-                "    \"source\": \"cli11-current-state\"",
-                "  },",
-                std::string("  \"persistent\": ") + (gk.first == "persistent" ? "true," : "false,"),
-                "  \"commandLine\": {",
-                "    \"long\": " + longName + ",",
-                "    \"short\": " + shortName + ",",
-                std::string("    \"takesValue\": ") + (opt->get_expected_min() != 0 ? "true," : "false,"),
-                std::string("    \"repeatable\": ") + (opt->get_expected_max() > 1 ? "true" : "false"),
-                "  },",
-                "  \"configFile\": {",
-                "    \"key\": " + quoteJson(key) + ",",
-                "    \"section\": null,",
-                "    \"writable\": true",
-                "  },",
-                "  \"type\": {",
-                "    \"name\": " + quoteJson(opt->get_type_name().empty() ? opt->get_single_name() : opt->get_type_name()) + ",",
-                "    \"kind\": " + quoteJson(typeKind(opt)) + ",",
-                "    \"kindSource\": \"heuristic-name\",",
-                std::string("    \"items\": ") + (opt->get_items_expected_max() > 1 ? "\"list\"" : "\"single\""),
-                "  },",
-                "  \"constraints\": [],",
-                "  \"relations\": {"};
-            writeRelations(lines, "needs", opt->get_needs(), true);
-            writeRelations(lines, "excludes", opt->get_excludes(), false);
-            lines.insert(
-                lines.end(),
-                {"  },",
-                 "  \"value\": {",
-                 "    \"registrationDefault\": null,",
-                 "    \"registrationDefaultSource\": \"not-tracked\",",
-                 "    \"cppDefault\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultSemantic) : "null") + ",",
-                 "    \"configured\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredSemantic) : "null") + ",",
-                 "    \"effective\": " + quoteJson(metaValue.effectiveSemantic) + ",",
-                 "    \"source\": " + quoteJson(metaValue.source) + ",",
-                 std::string("    \"isCppDefault\": ") + (metaValue.isCppDefault ? "true," : "false,"),
-                 std::string("    \"isExplicitlyConfigured\": ") + (metaValue.hasConfigured ? "true," : "false,"),
-                 std::string("    \"isMissingRequired\": ") + (metaValue.isMissingRequired ? "true," : "false,"),
-                 "    \"registrationDefaultLiteral\": null,",
-                 "    \"cppDefaultLiteral\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultLiteral) : "null") + ",",
-                 "    \"configuredLiteral\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredLiteral) : "null") + ",",
-                 "    \"effectiveLiteral\": " + (!metaValue.effectiveLiteral.empty() ? quoteJson(metaValue.effectiveLiteral) : "null"),
-                 "  }",
-                 "}"});
-            writeMetaBlock(out, "option", lines);
+    } // namespace
+
+    struct ConfigFormatter::OptionMetaValue {
+        std::string cppDefaultSemantic{};
+        std::string configuredSemantic{};
+        std::string effectiveSemantic{};
+        std::string source{"empty-default"};
+        std::string cppDefaultLiteral{};
+        std::string configuredLiteral{};
+        std::string effectiveLiteral{};
+        bool hasCppDefault{false};
+        bool hasConfigured{false};
+        bool isCppDefault{false};
+        bool isMissingRequired{false};
+    };
+
+    void ConfigFormatter::writeOptionMeta(std::ostream& out,
+                                          const Option* opt,
+                                          const std::string& id,
+                                          const std::string& key,
+                                          const std::string& group,
+                                          const std::vector<std::string>& path,
+                                          const OptionMetaValue& metaValue) {
+        const std::string longName = opt->get_lnames().empty() ? "null" : quoteJson("--" + opt->get_lnames().front());
+        const std::string shortName = opt->get_snames().empty() ? "null" : quoteJson("-" + opt->get_snames().front());
+        const auto gk = groupKind(group);
+        std::vector<std::string> lines = {
+            "{",
+            "  \"schema\": " + quoteJson(MetaSchema) + ",",
+            "  \"version\": 1,",
+            "  \"entity\": \"option\",",
+            "  \"id\": " + quoteJson(id) + ",",
+            "  \"key\": " + quoteJson(key) + ",",
+            "  \"localName\": " + quoteJson(opt->get_single_name()) + ",",
+            "  \"displayName\": " + quoteJson(opt->get_single_name()) + ",",
+            "  \"nodePath\": " + jsonStringArray(path) + ",",
+            "  \"group\": " + quoteJson(group) + ",",
+            "  \"description\": " + quoteJson(opt->get_description()) + ",",
+            "  \"configurable\": true,",
+            "  \"required\": {",
+            std::string("    \"effective\": ") + (opt->get_required() ? "true," : "false,"),
+            "    \"source\": \"cli11-current-state\"",
+            "  },",
+            std::string("  \"persistent\": ") + (gk.first == "persistent" ? "true," : "false,"),
+            "  \"commandLine\": {",
+            "    \"long\": " + longName + ",",
+            "    \"short\": " + shortName + ",",
+            std::string("    \"takesValue\": ") + (opt->get_expected_min() != 0 ? "true," : "false,"),
+            std::string("    \"repeatable\": ") + (opt->get_expected_max() > 1 ? "true" : "false"),
+            "  },",
+            "  \"configFile\": {",
+            "    \"key\": " + quoteJson(key) + ",",
+            "    \"section\": null,",
+            "    \"writable\": true",
+            "  },",
+            "  \"type\": {",
+            "    \"name\": " + quoteJson(opt->get_type_name().empty() ? opt->get_single_name() : opt->get_type_name()) + ",",
+            "    \"kind\": " + quoteJson(typeKind(opt)) + ",",
+            "    \"kindSource\": \"heuristic-name\",",
+            std::string("    \"items\": ") + (opt->get_items_expected_max() > 1 ? "\"list\"" : "\"single\""),
+            "  },",
+            "  \"constraints\": [],",
+            "  \"relations\": {"};
+        writeRelations(lines, "needs", opt->get_needs(), true);
+        writeRelations(lines, "excludes", opt->get_excludes(), false);
+        lines.insert(lines.end(),
+                     {"  },",
+                      "  \"value\": {",
+                      "    \"registrationDefault\": null,",
+                      "    \"registrationDefaultSource\": \"not-tracked\",",
+                      "    \"cppDefault\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultSemantic) : "null") + ",",
+                      "    \"configured\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredSemantic) : "null") + ",",
+                      "    \"effective\": " + quoteJson(metaValue.effectiveSemantic) + ",",
+                      "    \"source\": " + quoteJson(metaValue.source) + ",",
+                      std::string("    \"isCppDefault\": ") + (metaValue.isCppDefault ? "true," : "false,"),
+                      std::string("    \"isExplicitlyConfigured\": ") + (metaValue.hasConfigured ? "true," : "false,"),
+                      std::string("    \"isMissingRequired\": ") + (metaValue.isMissingRequired ? "true," : "false,"),
+                      "    \"registrationDefaultLiteral\": null,",
+                      "    \"cppDefaultLiteral\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultLiteral) : "null") + ",",
+                      "    \"configuredLiteral\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredLiteral) : "null") + ",",
+                      "    \"effectiveLiteral\": " + (!metaValue.effectiveLiteral.empty() ? quoteJson(metaValue.effectiveLiteral) : "null"),
+                      "  }",
+                      "}"});
+        writeMetaBlock(out, "option", lines);
+    }
+
+    ConfigFormatter::OptionMetaValue ConfigFormatter::buildOptionMetaValue(const Option* opt) const {
+        OptionMetaValue meta;
+        meta.hasConfigured = opt->count() > 0;
+        if (meta.hasConfigured) {
+            try {
+                const results_t configuredResults = opt->reduced_results();
+                meta.configuredSemantic = joinSemanticValues(configuredResults);
+                meta.configuredLiteral =
+                    detail::ini_join(configuredResults, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+            } catch (CLI::ParseError&) {
+                const auto& configuredResults = opt->results();
+                meta.configuredSemantic = joinSemanticValues(configuredResults);
+                meta.configuredLiteral =
+                    detail::ini_join(configuredResults, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
+            }
         }
 
-        OptionMetaValue buildOptionMetaValue(const Option* opt, const ConfigFormatSettings& settings) {
-            OptionMetaValue meta;
-            meta.hasConfigured = opt->count() > 0;
-            if (meta.hasConfigured) {
-                try {
-                    const results_t configuredResults = opt->reduced_results();
-                    meta.configuredSemantic = joinSemanticValues(configuredResults);
-                    meta.configuredLiteral = detail::ini_join(configuredResults,
-                                                              settings.arraySeparator,
-                                                              settings.arrayStart,
-                                                              settings.arrayEnd,
-                                                              settings.stringQuote,
-                                                              settings.literalQuote);
-                } catch (CLI::ParseError&) {
-                    const auto& configuredResults = opt->results();
-                    meta.configuredSemantic = joinSemanticValues(configuredResults);
-                    meta.configuredLiteral = detail::ini_join(configuredResults,
-                                                              settings.arraySeparator,
-                                                              settings.arrayStart,
-                                                              settings.arrayEnd,
-                                                              settings.stringQuote,
-                                                              settings.literalQuote);
+        if (!opt->get_default_str().empty()) {
+            meta.hasCppDefault = true;
+            meta.cppDefaultSemantic = opt->get_default_str();
+            meta.cppDefaultLiteral = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true);
+            if (meta.cppDefaultLiteral == "'\"\"'") {
+                meta.cppDefaultLiteral = "";
+            }
+        } else if (opt->get_run_callback_for_default()) {
+            meta.hasCppDefault = true;
+            meta.cppDefaultSemantic = "";
+            meta.cppDefaultLiteral = std::string{stringQuote} + stringQuote;
+        } else if (opt->get_required()) {
+            meta.hasCppDefault = true;
+            meta.cppDefaultSemantic = "<REQUIRED>";
+            meta.cppDefaultLiteral = std::string{stringQuote} + "<REQUIRED>" + stringQuote;
+            meta.isMissingRequired = !meta.hasConfigured;
+        } else if (opt->get_expected_min() == 0) {
+            meta.hasCppDefault = true;
+            meta.cppDefaultSemantic = "false";
+            meta.cppDefaultLiteral = "false";
+        } else {
+            meta.hasCppDefault = true;
+            meta.cppDefaultSemantic = "";
+            meta.cppDefaultLiteral = std::string{stringQuote} + stringQuote;
+        }
+
+        if (meta.hasConfigured) {
+            meta.effectiveSemantic = meta.configuredSemantic;
+            meta.effectiveLiteral = meta.configuredLiteral;
+            meta.source = "command-line-or-config";
+            meta.isCppDefault = false;
+        } else {
+            meta.effectiveSemantic = meta.cppDefaultSemantic;
+            meta.effectiveLiteral = meta.cppDefaultLiteral;
+            meta.source =
+                meta.isMissingRequired ? "required-placeholder" : (!meta.cppDefaultSemantic.empty() ? "cpp-default" : "empty-default");
+            meta.isCppDefault = true;
+        }
+        return meta;
+    }
+
+    std::string ConfigFormatter::toConfig(const App* app,
+                                          bool default_also,
+                                          bool write_description,
+                                          const std::string& prefix,
+                                          const std::vector<std::string>& path,
+                                          bool extensive) const {
+        std::stringstream out;
+        const auto* owner = dynamic_cast<const utils::AppWithPtr*>(app);
+        std::string commentLead;
+        commentLead.push_back(commentChar);
+        commentLead.push_back(' ');
+        if (write_description) {
+            if (extensive) {
+                if (path.empty() && app->get_parent() == nullptr && prefix.empty()) {
+                    writeDocumentMeta(out, app);
                 }
+                writeNodeMeta(out, app, path, prefix);
             }
-
-            if (!opt->get_default_str().empty()) {
-                meta.hasCppDefault = true;
-                meta.cppDefaultSemantic = opt->get_default_str();
-                meta.cppDefaultLiteral =
-                    detail::convert_arg_for_ini(opt->get_default_str(), settings.stringQuote, settings.literalQuote, true);
-                if (meta.cppDefaultLiteral == "'\"\"'")
-                    meta.cppDefaultLiteral = "";
-            } else if (opt->get_run_callback_for_default()) {
-                meta.hasCppDefault = true;
-                meta.cppDefaultSemantic = "";
-                meta.cppDefaultLiteral = std::string{settings.stringQuote} + settings.stringQuote;
-            } else if (opt->get_required()) {
-                meta.hasCppDefault = true;
-                meta.cppDefaultSemantic = "<REQUIRED>";
-                meta.cppDefaultLiteral = std::string{settings.stringQuote} + "<REQUIRED>" + settings.stringQuote;
-                meta.isMissingRequired = !meta.hasConfigured;
-            } else if (opt->get_expected_min() == 0) {
-                meta.hasCppDefault = true;
-                meta.cppDefaultSemantic = "false";
-                meta.cppDefaultLiteral = "false";
-            } else {
-                meta.hasCppDefault = true;
-                meta.cppDefaultSemantic = "";
-                meta.cppDefaultLiteral = std::string{settings.stringQuote} + settings.stringQuote;
+            if (!app->get_description().empty()) {
+                out << commentChar << commentChar << commentLead << detail::fix_newlines(commentChar + commentLead, app->get_description())
+                    << '\n';
             }
-
-            if (meta.hasConfigured) {
-                meta.effectiveSemantic = meta.configuredSemantic;
-                meta.effectiveLiteral = meta.configuredLiteral;
-                meta.source = "command-line-or-config";
-                meta.isCppDefault = false;
-            } else {
-                meta.effectiveSemantic = meta.cppDefaultSemantic;
-                meta.effectiveLiteral = meta.cppDefaultLiteral;
-                meta.source =
-                    meta.isMissingRequired ? "required-placeholder" : (!meta.cppDefaultSemantic.empty() ? "cpp-default" : "empty-default");
-                meta.isCppDefault = true;
-            }
-            return meta;
         }
 
-        std::string toConfig(const ConfigFormatSettings& settings,
-                             const App* app,
-                             bool default_also,
-                             bool write_description,
-                             const std::string& prefix,
-                             const std::vector<std::string>& path,
-                             bool root,
-                             bool extensive) {
-            std::stringstream out;
-            const auto* owner = dynamic_cast<const utils::AppWithPtr*>(app);
-            std::string commentLead;
-            commentLead.push_back(settings.commentChar);
-            commentLead.push_back(' ');
-            if (write_description) {
+        std::vector<std::string> groups = app->get_groups();
+        std::erase(groups, "Options");
+        std::erase(groups, "");
+        groups.insert(groups.begin(), std::string("Options"));
+        for (const auto& group : groups) {
+            const bool hasConfigurable =
+                !app->get_options([&group](const Option* opt) {
+                        return opt->get_configurable() && (opt->get_group() == group || (group == "Options" && opt->get_group().empty()));
+                    })
+                     .empty();
+            if (write_description && hasConfigurable) {
                 if (extensive) {
-                    if (root) {
-                        writeDocumentMeta(out, app);
-                    }
-                    writeNodeMeta(out, app, path, prefix);
+                    writeGroupMeta(out, group, path);
                 }
-                if (!app->get_description().empty()) {
-                    out << settings.commentChar << settings.commentChar << commentLead
-                        << detail::fix_newlines(settings.commentChar + commentLead, app->get_description()) << '\n';
+                if (group != "Options" && !group.empty()) {
+                    out << '\n' << commentChar << commentLead << group << "\n";
                 }
             }
-
-            std::vector<std::string> groups = app->get_groups();
-            bool defaultUsed = false;
-            groups.insert(groups.begin(), std::string("Options"));
-            for (const auto& group : groups) {
-                if (group == "Options" || group.empty()) {
-                    if (defaultUsed)
-                        continue;
-                    defaultUsed = true;
-                }
-                bool hasConfigurable = !app->get_options([group](const Option* opt) {
-                                               return opt->get_configurable() &&
-                                                      (opt->get_group() == group || (group == "Options" && opt->get_group().empty()));
-                                           })
-                                            .empty();
-                if (write_description && hasConfigurable) {
-                    if (extensive) {
-                        writeGroupMeta(out, group, path);
-                    }
-                    if (group != "Options" && !group.empty())
-                        out << '\n' << settings.commentChar << commentLead << group << "\n";
-                }
-                for (const Option* opt : app->get_options({})) {
-                    if (!opt->get_configurable())
-                        continue;
-                    if (opt->get_group() != group && !(group == "Options" && opt->get_group().empty()))
-                        continue;
+            for (const Option* opt : app->get_options({})) {
+                if (opt->get_configurable() && (opt->get_group() == group || (group == "Options" && opt->get_group().empty()))) {
                     const std::string name = optionKey(prefix, opt);
                     const bool promoted = owner != nullptr && owner->getPtr() != nullptr && owner->getPtr()->isDefaultPromoted(opt);
                     std::string value;
                     try {
-                        value = detail::ini_join(opt->reduced_results(),
-                                                 settings.arraySeparator,
-                                                 settings.arrayStart,
-                                                 settings.arrayEnd,
-                                                 settings.stringQuote,
-                                                 settings.literalQuote);
+                        value = detail::ini_join(opt->reduced_results(), arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
                     } catch (CLI::ParseError& e) {
                         value = std::string{"<["} + Color::Code::FG_RED + e.get_name() + Color::Code::FG_DEFAULT + "] " + e.what() + ">";
                     }
                     std::string defaultValue{};
                     if (default_also) {
                         if (!promoted && !value.empty() &&
-                            detail::convert_arg_for_ini(opt->get_default_str(), settings.stringQuote, settings.literalQuote, true) ==
-                                std::string{settings.stringQuote} + value + settings.stringQuote) {
+                            detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true) ==
+                                std::string{stringQuote} + value + stringQuote) {
                             value.clear();
                         }
                         if (!opt->get_default_str().empty()) {
-                            defaultValue =
-                                detail::convert_arg_for_ini(opt->get_default_str(), settings.stringQuote, settings.literalQuote, true);
-                            if (defaultValue == "'\"\"'")
+                            defaultValue = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true);
+                            if (defaultValue == "'\"\"'") {
                                 defaultValue = "";
-                        } else if (opt->get_run_callback_for_default())
-                            defaultValue = std::string{settings.stringQuote} + settings.stringQuote;
-                        else if (opt->get_required())
-                            defaultValue = std::string{settings.stringQuote} + "<REQUIRED>" + settings.stringQuote;
-                        else if (opt->get_expected_min() == 0)
+                            }
+                        } else if (opt->get_run_callback_for_default()) {
+                            defaultValue = std::string{stringQuote} + stringQuote;
+                        } else if (opt->get_required()) {
+                            defaultValue = std::string{stringQuote} + "<REQUIRED>" + stringQuote;
+                        } else if (opt->get_expected_min() == 0) {
                             defaultValue = "false";
-                        else
-                            defaultValue = std::string{settings.stringQuote} + settings.stringQuote;
+                        } else {
+                            defaultValue = std::string{stringQuote} + stringQuote;
+                        }
                     }
                     if (extensive && write_description) {
-                        OptionMetaValue metaValue = buildOptionMetaValue(opt, settings);
+                        OptionMetaValue metaValue = buildOptionMetaValue(opt);
                         if (promoted && metaValue.hasConfigured) {
                             metaValue.source = "result";
                         }
                         writeOptionMeta(out, opt, optionId(path, opt), name, group, path, metaValue);
                     }
-                    if (write_description && opt->has_description() && (default_also || !value.empty()))
+                    if (write_description && opt->has_description() && (default_also || !value.empty())) {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';
+                    }
                     if (default_also && !defaultValue.empty()) {
                         if (!promoted && defaultValue == value) {
                             value.clear();
                         }
-                        out << settings.commentChar << name << settings.valueDelimiter << defaultValue << "\n";
+                        out << commentChar << name << valueDelimiter << defaultValue << "\n";
                     }
                     if (!value.empty()) {
-                        if (!opt->get_fnames().empty())
+                        if (!opt->get_fnames().empty()) {
                             value = opt->get_flag_value(name, value);
-                        if (value == "\"default\"")
+                        }
+                        if (value == "\"default\"") {
                             value = "default";
-                        out << name << settings.valueDelimiter << value << "\n\n";
-                    } else
+                        }
+                        out << name << valueDelimiter << value << "\n\n";
+                    } else {
                         out << '\n';
+                    }
                 }
             }
-            std::map<const App*, std::string> anonymousSegments;
-            std::size_t anon = 0;
-            auto subcommands = app->get_subcommands({});
-            for (const App* subcom : subcommands)
-                if (subcom->get_name().empty())
-                    anonymousSegments[subcom] = "<anonymous-" + std::to_string(anon++) + ">";
-            for (const App* subcom : subcommands) {
-                if (subcom->get_name().empty()) {
-                    out << toConfig(settings,
-                                    subcom,
+        }
+        std::map<const App*, std::string> anonymousSegments;
+        std::size_t anon = 0;
+        auto subcommands = app->get_subcommands({});
+        for (const App* subcom : subcommands) {
+            if (subcom->get_name().empty()) {
+                anonymousSegments[subcom] = "<anonymous-" + std::to_string(anon++) + ">";
+            }
+        }
+        for (const App* subcom : subcommands) {
+            if (subcom->get_name().empty()) {
+                out << toConfig(subcom, default_also, write_description, prefix, pathWith(path, anonymousSegments[subcom]), extensive);
+            }
+        }
+        for (const App* subcom : subcommands) {
+            if (!subcom->get_name().empty()) {
+                if (subcom->get_configurable() && app->got_subcommand(subcom)) {
+                    if (!prefix.empty() || app->get_parent() == nullptr) {
+                        out << '[' << prefix << subcom->get_name() << "]\n";
+                    } else {
+                        std::string subname = app->get_name() + parentSeparatorChar + subcom->get_name();
+                        const auto* p = app->get_parent();
+                        while (p->get_parent() != nullptr) {
+                            subname = p->get_name() + parentSeparatorChar + subname;
+                            p = p->get_parent();
+                        }
+                        out << '[' << subname << "]\n";
+                    }
+                    out << toConfig(subcom, default_also, write_description, "", pathWith(path, subcom->get_name()), extensive);
+                } else {
+                    out << toConfig(subcom,
                                     default_also,
                                     write_description,
-                                    prefix,
-                                    pathWith(path, anonymousSegments[subcom]),
-                                    false,
+                                    prefix + subcom->get_name() + parentSeparatorChar,
+                                    pathWith(path, subcom->get_name()),
                                     extensive);
                 }
             }
-            for (const App* subcom : subcommands) {
-                if (!subcom->get_name().empty()) {
-                    if (subcom->get_configurable() && app->got_subcommand(subcom)) {
-                        if (!prefix.empty() || app->get_parent() == nullptr)
-                            out << '[' << prefix << subcom->get_name() << "]\n";
-                        else {
-                            std::string subname = app->get_name() + settings.parentSeparatorChar + subcom->get_name();
-                            const auto* p = app->get_parent();
-                            while (p->get_parent() != nullptr) {
-                                subname = p->get_name() + settings.parentSeparatorChar + subname;
-                                p = p->get_parent();
-                            }
-                            out << '[' << subname << "]\n";
-                        }
-                        out << toConfig(
-                            settings, subcom, default_also, write_description, "", pathWith(path, subcom->get_name()), false, extensive);
-                    } else {
-                        out << toConfig(settings,
-                                        subcom,
-                                        default_also,
-                                        write_description,
-                                        prefix + subcom->get_name() + settings.parentSeparatorChar,
-                                        pathWith(path, subcom->get_name()),
-                                        false,
-                                        extensive);
-                    }
-                }
-            }
-            return out.str();
         }
-    } // namespace
+        return out.str();
+    }
 
     CLI11_INLINE std::string
     ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix) const {
@@ -609,11 +575,7 @@ namespace CLI {
 
     std::string
     ConfigFormatter::to_config(const App* app, bool default_also, bool write_description, std::string prefix, bool extensive) const {
-        const ConfigFormatSettings settings{
-            commentChar, arrayStart, arrayEnd, arraySeparator, valueDelimiter, stringQuote, literalQuote, parentSeparatorChar};
-        const std::vector<std::string> path{};
-        return toConfig(
-            settings, app, default_also, write_description, prefix, path, app->get_parent() == nullptr && prefix.empty(), extensive);
+        return toConfig(app, default_also, write_description, prefix, {}, extensive);
     }
 
 #ifndef CLI11_ORIGINAL_FORMATTER

@@ -221,6 +221,33 @@ int main() {
     requireContains(customConfig, ";custom:`hello world`");
     requireNotContains(customConfig, "#custom=");
 
+    CLI::App parentApp{"Parent app"};
+    parentApp.config_formatter(std::make_shared<CLI::ConfigFormatter>());
+    std::string inheritedValue;
+    parentApp.add_option("--shared", inheritedValue, "Inherited option")->default_str("parent")->group("Shared");
+    auto* child = parentApp.add_subcommand("child", "Child app")->fallthrough();
+    std::string localValue;
+    child->add_option("--shared", localValue, "Local hidden option")->configurable(false)->group("Shared");
+    // CLI11 filters before resolving parent duplicates. Preserve the existing
+    // heading, but do not serialize a parent option hidden by the local option.
+    const std::string childConfig = child->config_to_str(true, true);
+    requireContains(childConfig, "## Shared\n");
+    requireNotContains(childConfig, "shared=");
+    const std::string childExtensive = extensiveConfig(*child);
+    requireContains(childExtensive, "#@ snodec.meta begin group");
+    requireNotContains(childExtensive, "#@ snodec.meta begin option");
+    requireNotContains(childExtensive, "shared=");
+
+    auto* parsedChild = parentApp.add_subcommand("parsed", "Parsed child")->configurable();
+    parsedChild->add_option("--value", localValue)->default_str("nested");
+    parsedChild->parse("");
+    const std::string parsedTreeConfig = extensiveConfig(parentApp);
+    const std::string documentMarker = "#@ snodec.meta begin document\n";
+    requireContains(parsedTreeConfig, documentMarker);
+    if (parsedTreeConfig.find(documentMarker) != parsedTreeConfig.rfind(documentMarker)) {
+        std::abort();
+    }
+
     PromotionApp promotion;
     std::string bound;
     auto* boundOption =
