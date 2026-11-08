@@ -42,135 +42,60 @@
 #ifndef SNODECCONTROL_METADATA_H
 #define SNODECCONTROL_METADATA_H
 
-#include <optional>
 #include <string>
 #include <vector>
 
 namespace snodec::control {
 
-    // Mirrors the "required": { "effective": ..., "source": ... } object emitted for both "node"
-    // and "option" entities. Per docs/design/config-comment-metadata.md this is *current CLI11 state only*,
-    // not a canonical/registration-time value and not suppression-aware - snodec-control must not
-    // treat it as more authoritative than that.
-    struct MetaRequired {
-        bool effective = false;
-        std::string source;
-    };
-
-    struct MetaDocument {
-        std::string schema;
-        int version = 0;
-        std::string applicationName;
-        std::string applicationDescription;
-        std::string scope;
-        std::string syntax;
-    };
-
     struct MetaNode {
         std::string kind;
         std::string kindSource;
-        std::string name;
         std::string displayName;
         std::vector<std::string> path;
-        std::string configPrefix;
-        std::string group;
-        std::string description;
-        bool configurable = false;
-        MetaRequired required;
         bool disabled = false;
     };
 
     struct MetaGroup {
         std::string name;
         std::string kind;
-        std::string kindSource;
         std::vector<std::string> nodePath;
-    };
-
-    struct MetaCommandLine {
-        std::optional<std::string> longName;
-        std::optional<std::string> shortName;
-        bool takesValue = false;
-        bool repeatable = false;
-    };
-
-    struct MetaConfigFile {
-        std::string key;
-        std::optional<std::string> section;
-        bool writable = true;
     };
 
     struct MetaType {
-        std::string name;
-        std::string kind;       // e.g. "boolean" | "integer" | "number" | "string" - heuristic, see kindSource
-        std::string kindSource; // always "heuristic-name" in schema v1 (see docs); surface honestly, don't trust blindly
-        std::string items;      // "single" | "list"
-    };
-
-    struct MetaValue {
-        std::optional<std::string> cppDefault;
-        std::optional<std::string> configured;
-        std::string effective;
-        std::string source;
-        bool isCppDefault = false;
-        bool isExplicitlyConfigured = false;
-        bool isMissingRequired = false;
-        std::optional<std::string> cppDefaultLiteral;
-        std::optional<std::string> configuredLiteral;
-        std::optional<std::string> effectiveLiteral;
+        std::string kind;
+        std::string kindSource;
+        std::string items;
     };
 
     struct MetaOption {
-        std::string id;
-        std::string key; // matches the literal INI key snodec-control's legacy parser already discovers
-        std::string localName;
-        std::string displayName;
+        std::string key;
         std::vector<std::string> nodePath;
         std::string group;
         std::string description;
-        bool configurable = true;
-        MetaRequired required;
-        bool persistent = false;
-        MetaCommandLine commandLine;
-        MetaConfigFile configFile;
+        std::string requiredSource;
         MetaType type;
         std::vector<std::string> needs;
         std::vector<std::string> excludes;
-        MetaValue value;
     };
 
-    // The result of scanning one `-s`/`--show-config` capture for "#@ snodec.meta ..." blocks.
-    //
-    // `present` is true the moment any well-formed "snodec.meta begin/end" marker pair was found at
-    // all, regardless of whether the schema turned out to be recognized - it answers "did this
-    // target attempt to emit metadata", which is what callers need to distinguish "legacy target,
-    // metadata absent by design" from "modern target, but something about the metadata was
-    // unusable" (the latter still warrants a warning even though both fall back to legacy parsing).
-    //
-    // `schemaRecognized` is false when the "document" block's schema/version could not be decoded or
-    // named a schema/version this build does not understand; callers must then fall back to legacy
-    // parsing entirely rather than trust any partially-decoded node/group/option entries, since an
-    // unrecognized schema version may have changed field meanings, not just added fields.
+    // Parsed -S blocks. Presence distinguishes an absent format from a rejected metadata attempt.
+    // Any unknown schema/version disables metadata use; warnings explain rejected blocks.
     struct ParsedMetadata {
         bool present = false;
         bool schemaRecognized = true;
-        std::optional<MetaDocument> document;
+        bool documentPresent = false;
         std::vector<MetaNode> nodes;
         std::vector<MetaGroup> groups;
         std::vector<MetaOption> options;
         std::vector<std::string> warnings;
 
         // True exactly when the metadata-native path should be used: metadata was present, its
-        // schema/version were recognized, and at least the root node was decoded.
+        // schema/version were recognized, and a document block was recognized.
         bool usable() const;
     };
 
-    // Scans `text` (the full `-s`/`--show-config` capture) for "#@ snodec.meta begin/end <entity>"
-    // blocks, decodes each block's JSON body, and classifies it by its "entity" field. A single
-    // malformed or unrecognized block is dropped with a warning and does not abort the scan of the
-    // rest of the input (Step 2's "degrade gracefully per entity" requirement); an unrecognized
-    // schema/version on the "document" block instead sets `schemaRecognized = false` for the whole
-    // result, since later entities cannot be trusted to mean what this build assumes they mean.
+    // Decode JSON comments by their begin/end marker. Malformed blocks are dropped with a warning;
+    // a malformed document or an unknown schema/version makes the metadata unusable.
     ParsedMetadata parseMetaBlocks(const std::string& text);
 
 } // namespace snodec::control

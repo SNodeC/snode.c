@@ -251,7 +251,7 @@ namespace snodec::control::ui {
             node.type = UiNodeType::Node;
             node.kind = meta.kind;
             node.kindSource = meta.kindSource;
-            node.label = !meta.displayName.empty() ? meta.displayName : (isRoot ? "Application" : meta.name);
+            node.label = meta.displayName;
             node.path = meta.path;
             node.disabled = meta.disabled;
             node.expanded = isRoot;
@@ -261,7 +261,6 @@ namespace snodec::control::ui {
                     UiNode groupNode;
                     groupNode.type = UiNodeType::Group;
                     groupNode.kind = group->kind;
-                    groupNode.kindSource = group->kindSource;
                     groupNode.label = group->name;
                     groupNode.path = group->nodePath;
 

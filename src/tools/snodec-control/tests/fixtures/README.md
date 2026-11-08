@@ -10,11 +10,7 @@
 
 ## `NestedSubCommandFixture.h`
 
-Real `--show-config=extensive` output, captured verbatim from a throwaway program built against SNode.C
-the recorded development revision, used by tests that need genuinely nested, non-`Instances`/`Sections` custom `SubCommand`s
-(the framework's own examples/apps don't nest custom subcommands more than one level deep, so this
-was generated from real nested subcommands rather than hand-written as a `#@`
-snippet).
+Real `--show-config=extensive` output, captured verbatim from a throwaway program built against the repository sources. It exercises genuinely nested custom `SubCommand`s rather than hand-written metadata.
 
 `nested_subcommand_fixture_source.cpp` is the exact source used to produce it. It links only
 against `utils::SubCommand`/`utils::Config` (no network stack), and registers:
@@ -30,14 +26,19 @@ against `utils::SubCommand`/`utils::Config` (no network stack), and registers:
 To reproduce against a newer SNode.C checkout:
 
 ```sh
-cmake --build build --target utils
-g++ -std=c++20 -I src \
+SNODEC_FIXTURE_BUILD=/tmp/codex/build/snodec/config-metadata-fixture
+cmake -S . -B "$SNODEC_FIXTURE_BUILD" -DSNODEC_BUILD_APPS=OFF
+cmake --build "$SNODEC_FIXTURE_BUILD" --target utils
+c++ -std=c++20 -I src \
     src/tools/snodec-control/tests/fixtures/nested_subcommand_fixture_source.cpp \
-    -L build/src/utils -L build/src/log -lsnodec-utils -lsnodec-logger \
-    -Wl,-rpath,$PWD/build/src/utils -Wl,-rpath,$PWD/build/src/log \
-    -o /tmp/nested_fixture
-HOME=/tmp/fakehome /tmp/nested_fixture -S > /tmp/nested_fixture_output.txt
+    -L "$SNODEC_FIXTURE_BUILD/src/utils" -L "$SNODEC_FIXTURE_BUILD/src/log" \
+    -lsnodec-utils -lsnodec-logger \
+    -Wl,-rpath,"$SNODEC_FIXTURE_BUILD/src/utils" -Wl,-rpath,"$SNODEC_FIXTURE_BUILD/src/log" \
+    -o "$SNODEC_FIXTURE_BUILD/nested_fixture"
+XDG_CONFIG_HOME="$SNODEC_FIXTURE_BUILD/xdg-config" \
+XDG_STATE_HOME="$SNODEC_FIXTURE_BUILD/xdg-state" \
+XDG_RUNTIME_DIR="$SNODEC_FIXTURE_BUILD/xdg-run" \
+    "$SNODEC_FIXTURE_BUILD/nested_fixture" -S > "$SNODEC_FIXTURE_BUILD/nested_fixture_output.txt"
 ```
 
-then re-embed `/tmp/nested_fixture_output.txt` as the raw string literal in
-`NestedSubCommandFixture.h`.
+Then re-embed `$SNODEC_FIXTURE_BUILD/nested_fixture_output.txt` as the raw string literal in `NestedSubCommandFixture.h`.

@@ -576,13 +576,7 @@ Two parsers run over the same captured `-S` output, independently:
   * `[section]` bracket headers
   * blank lines
 
-* `parseMetaBlocks()` (`Metadata.*`) separately scans the same text for `"#@ snodec.meta
-  begin/end <entity>"` blocks and decodes each one's JSON body. `ParsedMetadata::usable()` is true only
-  when metadata was present, its schema/version were recognized, and a root node decoded; a single
-  malformed or unrecognized block is dropped with a warning without aborting the rest of the scan, and
-  an unrecognized schema/version makes the whole result fall back to the legacy parser's output alone
-  for hierarchy/typing purposes (the plain INI values themselves are unaffected either way, since
-  `parseShowConfigOutput()` never depended on metadata being present).
+* `parseMetaBlocks()` (`Metadata.*`) separately scans the same text for `"#@ snodec.meta begin/end <entity>"` blocks and decodes each JSON body according to its marker. `ParsedMetadata::usable()` requires metadata presence, recognized schema/version and a recognized document block; tree construction additionally requires a root node. Malformed individual blocks are dropped with a warning. A malformed document or unknown schema/version disables metadata use. Ordinary INI parsing supplies values independently.
 
 ### Reconciling the two parsers: real options vs. description-line artifacts
 
@@ -626,24 +620,12 @@ that case, since there is nothing to reconcile against).
   (dotted prefixes / bracket headers), not based on the target's actual internal option types. The
   metadata-native tree (used whenever the target emits metadata) uses the target's own
   `node.kind`/`node.path` instead and does not have this limitation.
-* Metadata's `required.effective` reflects only the target's *current* CLI11 state at the moment `-S`
-  ran, not a canonical, registration-time, or suppression-aware value (SNode.C tracks that internally
-  as of the "canonical state preservation model" work, but does not yet expose it through `"#@"`
-  metadata) — `--check-required`/the UI's `!` marker remain an explicit local preflight, not an
-  authoritative one, as with targets without structured metadata.
+* `--check-required` and the UI's `!` marker use required placeholders from the ordinary INI lines. They are local preflight checks, not canonical or suppression-aware validation. Metadata retains only the displayed `required.source` annotation.
 * Metadata's `type.kind` is a heuristic on SNode.C's own formatter side (derived from CLI11
   flag-ness and declared type name, not a real type system) and, notably, cannot distinguish a plain
   boolean option from a tristate one — both get `type.kind == "boolean"`. snodec-control does not use
   it to drive `Space` cycling for this reason; see "Type-aware editing and relations" above.
-* `registrationDefault` (the option's original, pre-C++-API-mutation default) and `constraints`
-  (decomposed validator metadata) are always absent/empty in the metadata schema version this build
-  understands (v1) — snodec-control decodes their JSON shape but does not build any feature around
-  them, so a future schema version populating them will not misbehave, it will simply still be unused
-  until snodec-control is updated to consume them.
-* `configFile.section` is always absent in schema v1 (every option is addressed by its full dotted
-  `key`, even ones that would appear under a `[section]` bracket header), so snodec-control's own
-  bracket-header handling in the legacy line parser remains the only source of section information for
-  that case; metadata does not currently add anything here.
+* Defaults, active values and INI section placement come from ordinary INI lines. Metadata contains no duplicate value, command-line, config-file or validator descriptors.
 * `--save-config` and `--run` infer success/failure of a `--write-config` invocation from whether the
   output file's existence/modification time changed, since SNode.C applications conventionally exit
   non-zero even on success for both `-S` and `-w`. This is pragmatic but not foolproof (e.g. a target

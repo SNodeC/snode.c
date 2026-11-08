@@ -44,6 +44,7 @@
 #include "Json.h"
 
 #include <cstddef>
+#include <optional>
 #include <sstream>
 #include <utility>
 
@@ -168,61 +169,14 @@ namespace snodec::control {
             return blocks;
         }
 
-        MetaRequired decodeRequired(const JsonValue* json) {
-            MetaRequired required;
-            if (json == nullptr || !json->isObject()) {
-                return required;
-            }
-            if (const JsonValue* effective = json->find("effective")) {
-                required.effective = effective->asBool(false);
-            }
-            if (const JsonValue* source = json->find("source")) {
-                required.source = source->asString();
-            }
-            return required;
-        }
-
-        MetaDocument decodeDocument(const JsonValue& json) {
-            MetaDocument document;
-            if (const JsonValue* schema = json.find("schema")) {
-                document.schema = schema->asString();
-            }
-            if (const JsonValue* version = json.find("version")) {
-                document.version = static_cast<int>(version->asNumber(0));
-            }
-            if (const JsonValue* application = json.find("application")) {
-                if (const JsonValue* name = application->find("name")) {
-                    document.applicationName = name->asString();
-                }
-                if (const JsonValue* description = application->find("description")) {
-                    document.applicationDescription = description->asString();
-                }
-            }
-            if (const JsonValue* scope = json.find("scope")) {
-                document.scope = scope->asString();
-            }
-            if (const JsonValue* syntax = json.find("syntax")) {
-                document.syntax = syntax->asString();
-            }
-            return document;
-        }
-
         MetaNode decodeNode(const JsonValue& json) {
             MetaNode node;
             node.kind = json.find("kind") != nullptr ? json.find("kind")->asString() : std::string{};
             node.kindSource = json.find("kindSource") != nullptr ? json.find("kindSource")->asString() : std::string{};
-            node.name = json.find("name") != nullptr ? json.find("name")->asString() : std::string{};
             node.displayName = json.find("displayName") != nullptr ? json.find("displayName")->asString() : std::string{};
             if (const JsonValue* path = json.find("path")) {
                 node.path = path->asStringArray();
             }
-            node.configPrefix = json.find("configPrefix") != nullptr ? json.find("configPrefix")->asString() : std::string{};
-            node.group = json.find("group") != nullptr ? json.find("group")->asString() : std::string{};
-            node.description = json.find("description") != nullptr ? json.find("description")->asString() : std::string{};
-            if (const JsonValue* configurable = json.find("configurable")) {
-                node.configurable = configurable->asBool(false);
-            }
-            node.required = decodeRequired(json.find("required"));
             if (const JsonValue* disabled = json.find("disabled")) {
                 node.disabled = disabled->asBool(false);
             }
@@ -233,106 +187,26 @@ namespace snodec::control {
             MetaGroup group;
             group.name = json.find("name") != nullptr ? json.find("name")->asString() : std::string{};
             group.kind = json.find("kind") != nullptr ? json.find("kind")->asString() : std::string{};
-            group.kindSource = json.find("kindSource") != nullptr ? json.find("kindSource")->asString() : std::string{};
             if (const JsonValue* nodePath = json.find("nodePath")) {
                 group.nodePath = nodePath->asStringArray();
             }
             return group;
         }
 
-        MetaCommandLine decodeCommandLine(const JsonValue* json) {
-            MetaCommandLine commandLine;
-            if (json == nullptr || !json->isObject()) {
-                return commandLine;
-            }
-            if (const JsonValue* longName = json->find("long")) {
-                commandLine.longName = longName->asOptionalString();
-            }
-            if (const JsonValue* shortName = json->find("short")) {
-                commandLine.shortName = shortName->asOptionalString();
-            }
-            if (const JsonValue* takesValue = json->find("takesValue")) {
-                commandLine.takesValue = takesValue->asBool(false);
-            }
-            if (const JsonValue* repeatable = json->find("repeatable")) {
-                commandLine.repeatable = repeatable->asBool(false);
-            }
-            return commandLine;
-        }
-
-        MetaConfigFile decodeConfigFile(const JsonValue* json) {
-            MetaConfigFile configFile;
-            if (json == nullptr || !json->isObject()) {
-                return configFile;
-            }
-            if (const JsonValue* key = json->find("key")) {
-                configFile.key = key->asString();
-            }
-            if (const JsonValue* section = json->find("section")) {
-                configFile.section = section->asOptionalString();
-            }
-            if (const JsonValue* writable = json->find("writable")) {
-                configFile.writable = writable->asBool(true);
-            }
-            return configFile;
-        }
-
         MetaType decodeType(const JsonValue* json) {
             MetaType type;
-            if (json == nullptr || !json->isObject()) {
-                return type;
-            }
-            if (const JsonValue* name = json->find("name")) {
-                type.name = name->asString();
-            }
-            if (const JsonValue* kind = json->find("kind")) {
-                type.kind = kind->asString();
-            }
-            if (const JsonValue* kindSource = json->find("kindSource")) {
-                type.kindSource = kindSource->asString();
-            }
-            if (const JsonValue* items = json->find("items")) {
-                type.items = items->asString();
+            if (json != nullptr && json->isObject()) {
+                if (const JsonValue* kind = json->find("kind")) {
+                    type.kind = kind->asString();
+                }
+                if (const JsonValue* kindSource = json->find("kindSource")) {
+                    type.kindSource = kindSource->asString();
+                }
+                if (const JsonValue* items = json->find("items")) {
+                    type.items = items->asString();
+                }
             }
             return type;
-        }
-
-        MetaValue decodeValue(const JsonValue* json) {
-            MetaValue value;
-            if (json == nullptr || !json->isObject()) {
-                return value;
-            }
-            if (const JsonValue* cppDefault = json->find("cppDefault")) {
-                value.cppDefault = cppDefault->asOptionalString();
-            }
-            if (const JsonValue* configured = json->find("configured")) {
-                value.configured = configured->asOptionalString();
-            }
-            if (const JsonValue* effective = json->find("effective")) {
-                value.effective = effective->asString();
-            }
-            if (const JsonValue* source = json->find("source")) {
-                value.source = source->asString();
-            }
-            if (const JsonValue* isCppDefault = json->find("isCppDefault")) {
-                value.isCppDefault = isCppDefault->asBool(false);
-            }
-            if (const JsonValue* isExplicitlyConfigured = json->find("isExplicitlyConfigured")) {
-                value.isExplicitlyConfigured = isExplicitlyConfigured->asBool(false);
-            }
-            if (const JsonValue* isMissingRequired = json->find("isMissingRequired")) {
-                value.isMissingRequired = isMissingRequired->asBool(false);
-            }
-            if (const JsonValue* cppDefaultLiteral = json->find("cppDefaultLiteral")) {
-                value.cppDefaultLiteral = cppDefaultLiteral->asOptionalString();
-            }
-            if (const JsonValue* configuredLiteral = json->find("configuredLiteral")) {
-                value.configuredLiteral = configuredLiteral->asOptionalString();
-            }
-            if (const JsonValue* effectiveLiteral = json->find("effectiveLiteral")) {
-                value.effectiveLiteral = effectiveLiteral->asOptionalString();
-            }
-            return value;
         }
 
         // Returns nullopt (dropping the whole option, with `warnings` explaining why) only when the
@@ -340,58 +214,47 @@ namespace snodec::control {
         // config-file "key" used to match this metadata back to the option the legacy line parser
         // already discovered. Every other field degrades to its struct default instead of aborting.
         std::optional<MetaOption> decodeOption(const JsonValue& json, std::size_t beginLine, std::vector<std::string>& warnings) {
-            MetaOption option;
-            option.key = json.find("key") != nullptr ? json.find("key")->asString() : std::string{};
-            if (option.key.empty()) {
+            std::optional<MetaOption> option;
+            const JsonValue* key = json.find("key");
+            if (key == nullptr || key->asString().empty()) {
                 warnings.push_back("Line " + std::to_string(beginLine) + ": option metadata block has no usable 'key'; dropped");
-                return std::nullopt;
-            }
-
-            option.id = json.find("id") != nullptr ? json.find("id")->asString() : option.key;
-            option.localName = json.find("localName") != nullptr ? json.find("localName")->asString() : std::string{};
-            option.displayName = json.find("displayName") != nullptr ? json.find("displayName")->asString() : option.localName;
-            if (const JsonValue* nodePath = json.find("nodePath")) {
-                option.nodePath = nodePath->asStringArray();
-            }
-            option.group = json.find("group") != nullptr ? json.find("group")->asString() : std::string{};
-            option.description = json.find("description") != nullptr ? json.find("description")->asString() : std::string{};
-            if (const JsonValue* configurable = json.find("configurable")) {
-                option.configurable = configurable->asBool(true);
-            }
-            option.required = decodeRequired(json.find("required"));
-            if (const JsonValue* persistent = json.find("persistent")) {
-                option.persistent = persistent->asBool(false);
-            }
-            option.commandLine = decodeCommandLine(json.find("commandLine"));
-            option.configFile = decodeConfigFile(json.find("configFile"));
-            option.type = decodeType(json.find("type"));
-            if (const JsonValue* relations = json.find("relations")) {
-                if (const JsonValue* needs = relations->find("needs")) {
-                    option.needs = needs->asStringArray();
+            } else {
+                option.emplace();
+                option->key = key->asString();
+                if (const JsonValue* nodePath = json.find("nodePath")) {
+                    option->nodePath = nodePath->asStringArray();
                 }
-                if (const JsonValue* excludes = relations->find("excludes")) {
-                    option.excludes = excludes->asStringArray();
+                option->group = json.find("group") != nullptr ? json.find("group")->asString() : std::string{};
+                option->description = json.find("description") != nullptr ? json.find("description")->asString() : std::string{};
+                if (const JsonValue* required = json.find("required")) {
+                    if (const JsonValue* source = required->find("source")) {
+                        option->requiredSource = source->asString();
+                    }
+                }
+                option->type = decodeType(json.find("type"));
+                if (const JsonValue* relations = json.find("relations")) {
+                    if (const JsonValue* needs = relations->find("needs")) {
+                        option->needs = needs->asStringArray();
+                    }
+                    if (const JsonValue* excludes = relations->find("excludes")) {
+                        option->excludes = excludes->asStringArray();
+                    }
                 }
             }
-            option.value = decodeValue(json.find("value"));
-
             return option;
         }
 
     } // namespace
 
     bool ParsedMetadata::usable() const {
-        return present && schemaRecognized && document.has_value();
+        return present && schemaRecognized && documentPresent;
     }
 
     ParsedMetadata parseMetaBlocks(const std::string& text) {
         ParsedMetadata result;
 
         const std::vector<RawBlock> blocks = extractRawBlocks(text, result.warnings);
-        if (blocks.empty()) {
-            return result; // present == false: no target-side attempt at metadata at all
-        }
-        result.present = true;
+        result.present = !blocks.empty();
 
         for (const RawBlock& block : blocks) {
             const JsonParseResult parsed = parseJson(block.jsonText);
@@ -424,7 +287,7 @@ namespace snodec::control {
             }
 
             if (block.entity == "document") {
-                result.document = decodeDocument(parsed.value);
+                result.documentPresent = true;
             } else if (block.entity == "node") {
                 result.nodes.push_back(decodeNode(parsed.value));
             } else if (block.entity == "group") {

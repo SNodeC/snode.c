@@ -131,16 +131,6 @@ namespace snodec::control {
         return valueType == Type::Number ? numberValue : fallback;
     }
 
-    std::optional<std::string> JsonValue::asOptionalString() const {
-        if (valueType == Type::Null) {
-            return std::nullopt;
-        }
-        if (valueType == Type::String) {
-            return stringValue;
-        }
-        return std::nullopt;
-    }
-
     std::vector<std::string> JsonValue::asStringArray() const {
         std::vector<std::string> result;
         if (valueType != Type::Array) {

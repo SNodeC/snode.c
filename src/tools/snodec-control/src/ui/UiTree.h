@@ -89,9 +89,7 @@ namespace snodec::control::ui {
         // legacy heuristic builds, which has no metadata to draw these from).
         std::string kind;              // Node: e.g. "application"/"instance"/"section"/"anonymous"/"category"/"subcommand".
                                        // Group: "persistent"/"nonpersistent"/"custom" (never "default" - see buildUiTree()).
-        std::string kindSource;        // Provenance as reported by the target, e.g. "cli11-group"/"heuristic-cli11-group"/
-                                       // "cli11-name"/"fallback"/"heuristic-group-name". Surfaced honestly - a
-                                       // "heuristic-*" source is the target's own best guess, not a certainty.
+        std::string kindSource;        // Node classification provenance; heuristic sources are shown as uncertain.
         std::vector<std::string> path; // Node: its own node path. Group: its owning node's path.
         bool disabled = false;         // Node only; reflects the metadata's "disabled" field (CLI11 App::get_disabled()).
     };

@@ -118,14 +118,7 @@ namespace {
         testResult.expectTrue(metadata.usable(), "metadata: usable() is true end-to-end");
         testResult.expectTrue(metadata.warnings.empty(), "metadata: no warnings for well-formed real output");
 
-        testResult.expectTrue(metadata.document.has_value(), "metadata: document block decoded");
-        if (metadata.document.has_value()) {
-            testResult.expectEqual(
-                std::string("snodec.config.comment-meta"), metadata.document->schema, "metadata: document schema decoded correctly");
-            testResult.expectEqual(1, metadata.document->version, "metadata: document version decoded correctly");
-            testResult.expectEqual(
-                std::string("configurable-options-only"), metadata.document->scope, "metadata: document scope decoded correctly");
-        }
+        testResult.expectTrue(metadata.documentPresent, "metadata: document block recognized");
 
         const MetaNode* root = findNode(metadata, {});
         testResult.expectTrue(root != nullptr, "metadata: root node (path []) decoded");
@@ -174,8 +167,9 @@ namespace {
                                    "metadata: deeply nested option's nodePath decodes correctly");
             testResult.expectEqual(
                 std::string("Options (persistent)"), deepOption->group, "metadata: deeply nested option's group decodes correctly");
-            testResult.expectTrue(deepOption->value.cppDefault.has_value() && *deepOption->value.cppDefault == "deep",
-                                  "metadata: deeply nested option's cppDefault decodes correctly");
+            testResult.expectEqual(std::string("A deeply nested option"),
+                                   deepOption->description,
+                                   "metadata: deeply nested option description decoded correctly");
         }
 
         const MetaGroup* persistentGroup = nullptr;
@@ -196,8 +190,7 @@ namespace {
         const std::string input = "#@ snodec.meta begin document\n"
                                   "#@ {\n"
                                   "#@   \"schema\": \"some.other.schema\",\n"
-                                  "#@   \"version\": 1,\n"
-                                  "#@   \"entity\": \"document\"\n"
+                                  "#@   \"version\": 1\n"
                                   "#@ }\n"
                                   "#@ snodec.meta end document\n"
                                   "log-level=4\n";
@@ -214,15 +207,13 @@ namespace {
         const std::string input = "#@ snodec.meta begin document\n"
                                   "#@ {\n"
                                   "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                                  "#@   \"version\": 1,\n"
-                                  "#@   \"entity\": \"document\"\n"
+                                  "#@   \"version\": 1\n"
                                   "#@ }\n"
                                   "#@ snodec.meta end document\n"
                                   "#@ snodec.meta begin node\n"
                                   "#@ {\n"
                                   "#@   \"schema\": \"snodec.config.comment-meta\",\n"
                                   "#@   \"version\": 1,\n"
-                                  "#@   \"entity\": \"node\",\n"
                                   "#@   \"kind\": \"application\",\n"
                                   "#@   \"path\": []\n"
                                   "#@ }\n"
@@ -234,7 +225,6 @@ namespace {
                                   "#@ {\n"
                                   "#@   \"schema\": \"snodec.config.comment-meta\",\n"
                                   "#@   \"version\": 1,\n"
-                                  "#@   \"entity\": \"option\",\n"
                                   "#@   \"key\": \"log-level\"\n"
                                   "#@ }\n"
                                   "#@ snodec.meta end option\n"
