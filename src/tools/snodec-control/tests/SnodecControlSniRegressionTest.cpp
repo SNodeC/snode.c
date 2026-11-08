@@ -100,120 +100,64 @@ namespace {
     // ConfigTlsServer's real wording, reproduced here only as literal test input text, never modified
     // in SNode.C itself), full "#@" metadata for exactly one option (sni-cert) and one implicit
     // persistent group, and one genuinely unknown active config line.
-    const std::string capturedOutput = "#@ snodec.meta begin document\n"
-                                       "#@ {\n"
-                                       "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                                       "#@   \"version\": 1,\n"
-                                       "#@   \"entity\": \"document\",\n"
-                                       "#@   \"application\": {\n"
-                                       "#@     \"name\": \"httpserver-tls-in\",\n"
-                                       "#@     \"description\": \"Configuration for Application 'httpserver-tls-in'\"\n"
-                                       "#@   },\n"
-                                       "#@   \"scope\": \"configurable-options-only\",\n"
-                                       "#@   \"syntax\": \"ini-with-comment-metadata\"\n"
-                                       "#@ }\n"
-                                       "#@ snodec.meta end document\n"
-                                       "#@ snodec.meta begin node\n"
-                                       "#@ {\n"
-                                       "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                                       "#@   \"version\": 1,\n"
-                                       "#@   \"entity\": \"node\",\n"
-                                       "#@   \"kind\": \"application\",\n"
-                                       "#@   \"kindSource\": \"root\",\n"
-                                       "#@   \"name\": \"httpserver-tls-in\",\n"
-                                       "#@   \"displayName\": \"httpserver-tls-in\",\n"
-                                       "#@   \"path\": [],\n"
-                                       "#@   \"configPrefix\": \"\",\n"
-                                       "#@   \"group\": \"\",\n"
-                                       "#@   \"description\": \"Configuration for Application 'httpserver-tls-in'\",\n"
-                                       "#@   \"configurable\": false,\n"
-                                       "#@   \"required\": {\n"
-                                       "#@     \"effective\": false,\n"
-                                       "#@     \"source\": \"cli11-current-state\"\n"
-                                       "#@   },\n"
-                                       "#@   \"disabled\": false\n"
-                                       "#@ }\n"
-                                       "#@ snodec.meta end node\n"
-                                       "#@ snodec.meta begin group\n"
-                                       "#@ {\n"
-                                       "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                                       "#@   \"version\": 1,\n"
-                                       "#@   \"entity\": \"group\",\n"
-                                       "#@   \"name\": \"Options (persistent)\",\n"
-                                       "#@   \"kind\": \"persistent\",\n"
-                                       "#@   \"kindSource\": \"heuristic-group-name\",\n"
-                                       "#@   \"nodePath\": []\n"
-                                       "#@ }\n"
-                                       "#@ snodec.meta end group\n"
-                                       "#@ snodec.meta begin option\n"
-                                       "#@ {\n"
-                                       "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                                       "#@   \"version\": 1,\n"
-                                       "#@   \"entity\": \"option\",\n"
-                                       "#@   \"id\": \"sni-cert\",\n"
-                                       "#@   \"key\": \"sni-cert\",\n"
-                                       "#@   \"localName\": \"sni-cert\",\n"
-                                       "#@   \"displayName\": \"sni-cert\",\n"
-                                       "#@   \"nodePath\": [],\n"
-                                       "#@   \"group\": \"Options (persistent)\",\n"
-                                       "#@   \"description\": \"SNI certificate mapping. Example:\\nsni = SNI of the virtual server\\ncert "
-                                       "= path to the certificate file\\nkey = path to the private key file\",\n"
-                                       "#@   \"configurable\": true,\n"
-                                       "#@   \"required\": {\n"
-                                       "#@     \"effective\": false,\n"
-                                       "#@     \"source\": \"cli11-current-state\"\n"
-                                       "#@   },\n"
-                                       "#@   \"persistent\": true,\n"
-                                       "#@   \"commandLine\": {\n"
-                                       "#@     \"long\": \"--sni-cert\",\n"
-                                       "#@     \"short\": null,\n"
-                                       "#@     \"takesValue\": true,\n"
-                                       "#@     \"repeatable\": true\n"
-                                       "#@   },\n"
-                                       "#@   \"configFile\": {\n"
-                                       "#@     \"key\": \"sni-cert\",\n"
-                                       "#@     \"section\": null,\n"
-                                       "#@     \"writable\": true\n"
-                                       "#@   },\n"
-                                       "#@   \"type\": {\n"
-                                       "#@     \"name\": \"string\",\n"
-                                       "#@     \"kind\": \"string\",\n"
-                                       "#@     \"kindSource\": \"heuristic-name\",\n"
-                                       "#@     \"items\": \"list\"\n"
-                                       "#@   },\n"
-                                       "#@   \"constraints\": [],\n"
-                                       "#@   \"relations\": {\n"
-                                       "#@     \"needs\": [\n"
-                                       "#@     ],\n"
-                                       "#@     \"excludes\": [\n"
-                                       "#@     ]\n"
-                                       "#@   },\n"
-                                       "#@   \"value\": {\n"
-                                       "#@     \"registrationDefault\": null,\n"
-                                       "#@     \"registrationDefaultSource\": \"not-tracked\",\n"
-                                       "#@     \"cppDefault\": null,\n"
-                                       "#@     \"configured\": null,\n"
-                                       "#@     \"effective\": \"\",\n"
-                                       "#@     \"source\": \"empty-default\",\n"
-                                       "#@     \"isCppDefault\": true,\n"
-                                       "#@     \"isExplicitlyConfigured\": false,\n"
-                                       "#@     \"isMissingRequired\": false,\n"
-                                       "#@     \"registrationDefaultLiteral\": null,\n"
-                                       "#@     \"cppDefaultLiteral\": null,\n"
-                                       "#@     \"configuredLiteral\": null,\n"
-                                       "#@     \"effectiveLiteral\": null\n"
-                                       "#@   }\n"
-                                       "#@ }\n"
-                                       "#@ snodec.meta end option\n"
-                                       "\n"
-                                       "## Options (persistent)\n"
-                                       "# SNI certificate mapping. Example:\n"
-                                       "# sni = SNI of the virtual server\n"
-                                       "# cert = path to the certificate file\n"
-                                       "# key = path to the private key file\n"
-                                       "#sni-cert=\"\"\n"
-                                       "\n"
-                                       "unknown-active=some-value\n";
+    const std::string capturedOutput = R"SNICAPTURE(#@ snodec.meta begin document
+#@ {
+#@   "schema": "snodec.config.comment-meta",
+#@   "version": 1
+#@ }
+#@ snodec.meta end document
+#@ snodec.meta begin node
+#@ {
+#@   "schema": "snodec.config.comment-meta",
+#@   "version": 1,
+#@   "kind": "application",
+#@   "kindSource": "root",
+#@   "displayName": "httpserver-tls-in",
+#@   "path": [],
+#@   "disabled": false
+#@ }
+#@ snodec.meta end node
+#@ snodec.meta begin group
+#@ {
+#@   "schema": "snodec.config.comment-meta",
+#@   "version": 1,
+#@   "name": "Options (persistent)",
+#@   "kind": "persistent",
+#@   "nodePath": []
+#@ }
+#@ snodec.meta end group
+#@ snodec.meta begin option
+#@ {
+#@   "schema": "snodec.config.comment-meta",
+#@   "version": 1,
+#@   "key": "sni-cert",
+#@   "nodePath": [],
+#@   "group": "Options (persistent)",
+#@   "description": "SNI certificate mapping. Example:\nsni = SNI of the virtual server\ncert = path to the certificate file\nkey = path to the private key file",
+#@   "required": {
+#@     "source": "cli11-current-state"
+#@   },
+#@   "type": {
+#@     "kind": "string",
+#@     "kindSource": "heuristic-name",
+#@     "items": "list"
+#@   },
+#@   "relations": {
+#@     "needs": [],
+#@     "excludes": []
+#@   }
+#@ }
+#@ snodec.meta end option
+
+## Options (persistent)
+# SNI certificate mapping. Example:
+# sni = SNI of the virtual server
+# cert = path to the certificate file
+# key = path to the private key file
+#sni-cert=""
+
+unknown-active=some-value
+)SNICAPTURE";
 
     void testSniDescriptionLineDoesNotCreatePhantomOption(snodec::control::test::TestResult& testResult) {
         ConfigModel model = parseShowConfigOutput(capturedOutput).model;

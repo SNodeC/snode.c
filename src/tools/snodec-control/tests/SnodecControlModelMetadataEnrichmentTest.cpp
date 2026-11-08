@@ -82,9 +82,8 @@ namespace {
         testResult.expectTrue(logLevel != nullptr, "enrichment: log-level option found");
         if (logLevel != nullptr) {
             testResult.expectTrue(logLevel->typeKind.has_value(), "enrichment: log-level got a typeKind from metadata");
-            testResult.expectTrue(logLevel->requiredEffective.has_value(), "enrichment: log-level got a requiredEffective from metadata");
-            testResult.expectTrue(logLevel->configFileWritable.has_value() && *logLevel->configFileWritable,
-                                  "enrichment: log-level's configFile.writable decodes to true");
+            testResult.expectTrue(logLevel->requiredSource.has_value() && *logLevel->requiredSource == "cli11-current-state",
+                                  "enrichment: log-level got its displayed required-state source from metadata");
         }
 
         // --token needs --host and excludes --port in the ConfigFormatterCommentMetadataTest-style
@@ -109,7 +108,7 @@ namespace {
         testResult.expectTrue(logLevel != nullptr, "no-op: log-level option found");
         if (logLevel != nullptr) {
             testResult.expectTrue(!logLevel->typeKind.has_value(), "no-op: absent metadata leaves typeKind unset");
-            testResult.expectTrue(!logLevel->requiredEffective.has_value(), "no-op: absent metadata leaves requiredEffective unset");
+            testResult.expectTrue(!logLevel->requiredSource.has_value(), "no-op: absent metadata leaves requiredSource unset");
         }
     }
 

@@ -207,6 +207,8 @@ namespace {
             testResult.expectEqual(std::string("A deeply nested option"),
                                    deepOption->description,
                                    "metadata comments: deeply nested option's description is clean, not polluted with JSON");
+            testResult.expectTrue(deepOption->defaultValue.has_value() && *deepOption->defaultValue == "deep",
+                                  "metadata comments: the ordinary INI line supplies the deeply nested default");
         }
 
         const ConfigOption* outerOption = findOption(parseResult.model, "echoserver.outer", "outer-value");

@@ -74,10 +74,7 @@ namespace snodec::control {
         std::optional<std::string> typeItems;      // "single" | "list"
         std::vector<std::string> needs;            // option names this option's metadata says it needs
         std::vector<std::string> excludes;         // option names this option's metadata says it excludes
-        std::optional<bool> requiredEffective;     // metadata's "required.effective" (current CLI11 state only)
         std::optional<std::string> requiredSource; // e.g. "cli11-current-state"
-        std::optional<bool> configFileWritable;
-        std::optional<std::string> configFileSection; // always nullopt in schema v1 (see docs/design/config-comment-metadata.md)
 
         // Provenance from the legacy line parser (ConfigParser.cpp), used by applyMetadataToModel() to
         // tell a real option apart from a stray "key = value"-shaped line inside another option's

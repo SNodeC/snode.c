@@ -8,67 +8,61 @@
 
 # Configuration comment metadata
 
-`-s` / `--show-config` emits the canonical SNode.C configuration template as INI-compatible text, including ordinary descriptions and commented defaults. `-S` / `--show-config=extensive` additionally emits structured metadata comments for tools such as `snodec-control`, keeping the real configuration lines unchanged. These are modes of one flag option. `-w` / `--write-config` and `Config::writeConfig()` save the ordinary form without state metadata.
+`-s` / `--show-config` emits the SNode.C configuration as INI-compatible text with descriptions and commented defaults. `-S` / `--show-config=extensive` adds the metadata consumed by `snodec-control`. The real configuration lines are identical. `-w` / `--write-config` and `Config::writeConfig()` save the ordinary form without metadata.
 
-Metadata is carried only in comments with the reserved `#@` prefix:
+Metadata is JSON inside comments delimited by `#@ snodec.meta begin <entity>` and `#@ snodec.meta end <entity>`. The marker identifies the entity; there is no duplicate JSON entity field. Normal config parsing ignores these comments. Metadata is emitted only for extensive output with descriptions enabled (`write_description=true`).
 
-```ini
-#@ snodec.meta begin option
-#@ {
-#@   "schema": "snodec.config.comment-meta",
-#@   "version": 1,
-#@   "entity": "option",
-#@   "key": "echoserver.local.port"
-#@ }
-#@ snodec.meta end option
-# Port number
-#echoserver.local.port="<REQUIRED>"
-```
+## Shared fields
 
-Because each metadata line is a comment, CLI11/SNode.C config parsing ignores it. Existing config files without metadata remain valid, and generated templates can still be edited by changing only normal INI key/value lines. No separate JSON output mode exists; JSON appears only as comment metadata inside the INI output. Metadata is emitted only when extensive output is explicitly requested and description/comment output is enabled (`write_description=true`).
+Every block contains `schema = "snodec.config.comment-meta"` and `version = 1`. A consumer checks both before interpreting the fields. The reduced format retains these identifiers because the retained fields have unchanged meanings.
 
-## Entities
+## Document
 
-Version 1 emits four entity types:
+The `document` block contains only the shared fields. Its presence identifies a recognized metadata document. It appears once at the beginning of a full application dump.
 
-* `document` appears once at the beginning and describes the schema, application, output syntax (`ini-with-comment-metadata`), and scope (`configurable-options-only`).
-* `node` appears before each CLI11/SNode.C application or subcommand node represented by the output. Node kinds are inferred from the current CLI11 tree: root applications, `Instances`, `Sections`, anonymous empty-name nodes, other grouped categories, and fallback subcommands.
-* `group` appears before each CLI11 option group that contains configurable options. Group kind is inferred from the group name (`default`, `persistent`, `nonpersistent`, or `custom`).
-* `option` appears immediately before the option's human description and config/default line.
+## Nodes
 
-The root application has `path: []`. Child subcommands use paths relative to that root, for example `["outer"]` and `["outer", "inner"]`, so the application name does not look like part of the config-key hierarchy. Anonymous / empty-name subcommands are not collapsed into their parent. Their metadata path receives deterministic sibling-local generated segments such as `<anonymous-0>` while the `name` field preserves the actual CLI11 name, including the empty string. Option `key` remains the real config key; option `id` uses generated anonymous path segments where needed so sibling anonymous options can be distinguished, for example `<anonymous-0>.value`.
+Each `node` block contains:
 
-## Value fields
+- `kind`: `application`, `instance`, `section`, `anonymous`, `category` or `subcommand`, classified from the current CLI11 tree.
+- `kindSource`: how the classification was obtained, such as `root`, `cli11-group`, `cli11-name`, `heuristic-cli11-group` or `fallback`.
+- `displayName`: a nonempty label, chosen from the node name, group, description, or finally `<anonymous>`.
+- `path`: the node's structural path relative to the dump root. The root has `[]`.
+- `disabled`: CLI11's current disabled flag, displayed as a node annotation. It is not the framework instance's separate `--disabled` option.
 
-Option metadata separates semantic values from INI literals:
+Anonymous siblings receive generated path segments such as `<anonymous-0>`. These distinguish their structural positions without changing real config keys. Their numbering depends on sibling order.
 
-* `cppDefault`, `configured`, and `effective` are semantic values.
-* `cppDefaultLiteral`, `configuredLiteral`, and `effectiveLiteral` are the INI/config-file literal representations.
-* `source` reports `command-line-or-config`, `cpp-default`, `required-placeholder`, or `empty-default` according to current formatter-visible state.
+## Groups
 
-Version 1 exposes the current C++/CLI11 default as `cppDefault`. It does not expose the original registration-time default. `registrationDefault` is emitted as `null` with `registrationDefaultSource = "not-tracked"`.
+Each `group` block contains:
 
-For multi-value options, version 1 may represent semantic values as deterministic space-joined strings and marks list-like options with `type.items = "list"`.
+- `name`: the option group label.
+- `kind`: `default`, `persistent`, `nonpersistent` or `custom`, classified from the group name.
+- `nodePath`: the owning node's path.
 
-## Required state
+The control UI flattens default and persistent groups, preserves custom groups, and excludes nonpersistent groups.
 
-This formatter-only metadata exposes only current CLI11 required state:
+## Options
 
-```json
-"required": {
-  "effective": true,
-  "source": "cli11-current-state"
-}
-```
+Each `option` block contains:
 
-Canonical required/needs state and disable/enable suppression semantics are not part of this metadata format. Registration-default tracking is also deliberately left to a future option-metadata design.
+- `key`: the real emitted INI key, including the current dotted prefix where applicable.
+- `nodePath`: the owning node's path.
+- `group`: the owning option group.
+- `description`: complete help text, without reconstructing it from surrounding comments.
+- `required.source`: `cli11-current-state`, displayed as provenance alongside required-state information parsed from INI.
+- `type.kind`: `boolean`, `integer`, `number` or `string`, inferred from CLI11 arity and the option/type name.
+- `type.kindSource`: `heuristic-name`, identifying that classification as uncertain.
+- `type.items`: `single` or `list`, derived from CLI11's expected item count.
+- `relations.needs`: current CLI11 dependencies, expressed as local option names.
+- `relations.excludes`: current CLI11 exclusions, also expressed as local names.
 
-## Known limitations
+Only configurable options are emitted. A real INI section header may make `key` local to that section; it is not universally a fully qualified dotted address. The control tool matches options through their emitted keys and ordinary INI placement, and uses `nodePath` and `group` for the UI tree.
 
-* The schema scope is `configurable-options-only`; non-configurable options are omitted from config output and metadata.
-* `registrationDefault` is not tracked in version 1.
-* `required.effective` reflects current CLI11 state only and is not a canonical registration-time value.
-* Relation metadata reports available CLI11 `needs` / `excludes` option names but does not restore or infer suppressed state.
-* `constraints` is emitted as an empty array in version 1; validator and constraint metadata is not decomposed yet.
-* Metadata is suppressed when description/comment output is disabled.
-* No separate JSON config output mode is provided; JSON appears only inside INI comments.
+## Authority and limits
+
+Ordinary INI assignments, commented defaults and `<REQUIRED>` placeholders remain the authority for editable values, defaults, active state and required-state decisions. Metadata adds structure, complete descriptions, type hints and relationship information. It does not duplicate values or preserve their origin.
+
+The type classification is a hint, not a validator description. In particular, flag-like arity can classify a tristate as `boolean`. List metadata prevents the control UI from cycling a list as a scalar boolean/tristate. Dependencies and exclusions are displayed, not enforced by the control tool. Preserved original requirements and suppressed relationships are not exported.
+
+The consumer drops malformed individual blocks with a warning. An unknown schema/version or malformed document disables metadata use; ordinary INI parsing remains available. Tree construction also requires a decoded root node.

@@ -145,28 +145,6 @@ namespace CLI {
             return prefix + opt->get_single_name();
         }
 
-        std::string joinSemanticValues(const results_t& values) {
-            std::ostringstream out;
-            for (std::size_t i = 0; i < values.size(); ++i) {
-                if (i > 0)
-                    out << ' ';
-                out << values[i];
-            }
-            return out.str();
-        }
-
-        std::string optionId(const std::vector<std::string>& path, const Option* opt) {
-            std::vector<std::string> idPath = path;
-            idPath.push_back(opt->get_single_name());
-            std::ostringstream out;
-            for (std::size_t i = 0; i < idPath.size(); ++i) {
-                if (i > 0)
-                    out << '.';
-                out << idPath[i];
-            }
-            return out.str();
-        }
-
         std::vector<std::string> pathWith(const std::vector<std::string>& parentPath, const std::string& segment) {
             auto path = parentPath;
             if (!segment.empty())
@@ -174,20 +152,8 @@ namespace CLI {
             return path;
         }
 
-        void writeDocumentMeta(std::ostream& out, const App* app) {
-            writeMetaBlock(out,
-                           "document",
-                           {"{",
-                            "  \"schema\": " + quoteJson(MetaSchema) + ",",
-                            "  \"version\": 1,",
-                            "  \"entity\": \"document\",",
-                            "  \"application\": {",
-                            "    \"name\": " + quoteJson(app->get_name()) + ",",
-                            "    \"description\": " + quoteJson(app->get_description()),
-                            "  },",
-                            "  \"scope\": \"configurable-options-only\",",
-                            "  \"syntax\": \"ini-with-comment-metadata\"",
-                            "}"});
+        void writeDocumentMeta(std::ostream& out) {
+            writeMetaBlock(out, "document", {"{", "  \"schema\": " + quoteJson(MetaSchema) + ",", "  \"version\": 1", "}"});
         }
 
         std::pair<std::string, std::string> nodeKind(const App* app) {
@@ -204,57 +170,47 @@ namespace CLI {
             return {"subcommand", "fallback"};
         }
 
-        void writeNodeMeta(std::ostream& out, const App* app, const std::vector<std::string>& path, const std::string& prefix) {
+        void writeNodeMeta(std::ostream& out, const App* app, const std::vector<std::string>& path) {
             const auto [kind, kindSource] = nodeKind(app);
             std::string display = app->get_name();
-            if (display.empty())
+            if (display.empty()) {
                 display = !app->get_group().empty() ? app->get_group()
                                                     : (!app->get_description().empty() ? app->get_description() : "<anonymous>");
+            }
             writeMetaBlock(out,
                            "node",
                            {"{",
                             "  \"schema\": " + quoteJson(MetaSchema) + ",",
                             "  \"version\": 1,",
-                            "  \"entity\": \"node\",",
                             "  \"kind\": " + quoteJson(kind) + ",",
                             "  \"kindSource\": " + quoteJson(kindSource) + ",",
-                            "  \"name\": " + quoteJson(app->get_name()) + ",",
                             "  \"displayName\": " + quoteJson(display) + ",",
                             "  \"path\": " + jsonStringArray(path) + ",",
-                            "  \"configPrefix\": " + quoteJson(prefix) + ",",
-                            "  \"group\": " + quoteJson(app->get_group()) + ",",
-                            "  \"description\": " + quoteJson(app->get_description()) + ",",
-                            std::string("  \"configurable\": ") + (app->get_configurable() ? "true," : "false,"),
-                            "  \"required\": {",
-                            std::string("    \"effective\": ") + (app->get_required() ? "true," : "false,"),
-                            "    \"source\": \"cli11-current-state\"",
-                            "  },",
                             std::string("  \"disabled\": ") + (app->get_disabled() ? "true" : "false"),
                             "}"});
         }
 
-        std::pair<std::string, std::string> groupKind(const std::string& group) {
-            const std::string l = lower(group);
-            if (group.empty() || lower(group) == "options")
-                return {"default", "cli11-default-group"};
-            if (l.find("nonpersistent") != std::string::npos)
-                return {"nonpersistent", "heuristic-group-name"};
-            if (l.find("persistent") != std::string::npos)
-                return {"persistent", "heuristic-group-name"};
-            return {"custom", "heuristic-group-name"};
+        std::string groupKind(const std::string& group) {
+            const std::string name = lower(group);
+            std::string kind = "custom";
+            if (group.empty() || name == "options") {
+                kind = "default";
+            } else if (name.find("nonpersistent") != std::string::npos) {
+                kind = "nonpersistent";
+            } else if (name.find("persistent") != std::string::npos) {
+                kind = "persistent";
+            }
+            return kind;
         }
 
         void writeGroupMeta(std::ostream& out, const std::string& group, const std::vector<std::string>& path) {
-            const auto [kind, source] = groupKind(group);
             writeMetaBlock(out,
                            "group",
                            {"{",
                             "  \"schema\": " + quoteJson(MetaSchema) + ",",
                             "  \"version\": 1,",
-                            "  \"entity\": \"group\",",
                             "  \"name\": " + quoteJson(group) + ",",
-                            "  \"kind\": " + quoteJson(kind) + ",",
-                            "  \"kindSource\": " + quoteJson(source) + ",",
+                            "  \"kind\": " + quoteJson(groupKind(group)) + ",",
                             "  \"nodePath\": " + jsonStringArray(path),
                             "}"});
         }
@@ -279,149 +235,31 @@ namespace CLI {
             lines.push_back(std::string("    ]") + (comma ? "," : ""));
         }
 
+        void writeOptionMeta(
+            std::ostream& out, const Option* opt, const std::string& key, const std::string& group, const std::vector<std::string>& path) {
+            std::vector<std::string> lines = {"{",
+                                              "  \"schema\": " + quoteJson(MetaSchema) + ",",
+                                              "  \"version\": 1,",
+                                              "  \"key\": " + quoteJson(key) + ",",
+                                              "  \"nodePath\": " + jsonStringArray(path) + ",",
+                                              "  \"group\": " + quoteJson(group) + ",",
+                                              "  \"description\": " + quoteJson(opt->get_description()) + ",",
+                                              "  \"required\": {",
+                                              "    \"source\": \"cli11-current-state\"",
+                                              "  },",
+                                              "  \"type\": {",
+                                              "    \"kind\": " + quoteJson(typeKind(opt)) + ",",
+                                              "    \"kindSource\": \"heuristic-name\",",
+                                              std::string("    \"items\": ") +
+                                                  (opt->get_items_expected_max() > 1 ? "\"list\"" : "\"single\""),
+                                              "  },",
+                                              "  \"relations\": {"};
+            writeRelations(lines, "needs", opt->get_needs(), true);
+            writeRelations(lines, "excludes", opt->get_excludes(), false);
+            lines.insert(lines.end(), {"  }", "}"});
+            writeMetaBlock(out, "option", lines);
+        }
     } // namespace
-
-    struct ConfigFormatter::OptionMetaValue {
-        std::string cppDefaultSemantic{};
-        std::string configuredSemantic{};
-        std::string effectiveSemantic{};
-        std::string source{"empty-default"};
-        std::string cppDefaultLiteral{};
-        std::string configuredLiteral{};
-        std::string effectiveLiteral{};
-        bool hasCppDefault{false};
-        bool hasConfigured{false};
-        bool isCppDefault{false};
-        bool isMissingRequired{false};
-    };
-
-    void ConfigFormatter::writeOptionMeta(std::ostream& out,
-                                          const Option* opt,
-                                          const std::string& id,
-                                          const std::string& key,
-                                          const std::string& group,
-                                          const std::vector<std::string>& path,
-                                          const OptionMetaValue& metaValue) {
-        const std::string longName = opt->get_lnames().empty() ? "null" : quoteJson("--" + opt->get_lnames().front());
-        const std::string shortName = opt->get_snames().empty() ? "null" : quoteJson("-" + opt->get_snames().front());
-        const auto gk = groupKind(group);
-        std::vector<std::string> lines = {
-            "{",
-            "  \"schema\": " + quoteJson(MetaSchema) + ",",
-            "  \"version\": 1,",
-            "  \"entity\": \"option\",",
-            "  \"id\": " + quoteJson(id) + ",",
-            "  \"key\": " + quoteJson(key) + ",",
-            "  \"localName\": " + quoteJson(opt->get_single_name()) + ",",
-            "  \"displayName\": " + quoteJson(opt->get_single_name()) + ",",
-            "  \"nodePath\": " + jsonStringArray(path) + ",",
-            "  \"group\": " + quoteJson(group) + ",",
-            "  \"description\": " + quoteJson(opt->get_description()) + ",",
-            "  \"configurable\": true,",
-            "  \"required\": {",
-            std::string("    \"effective\": ") + (opt->get_required() ? "true," : "false,"),
-            "    \"source\": \"cli11-current-state\"",
-            "  },",
-            std::string("  \"persistent\": ") + (gk.first == "persistent" ? "true," : "false,"),
-            "  \"commandLine\": {",
-            "    \"long\": " + longName + ",",
-            "    \"short\": " + shortName + ",",
-            std::string("    \"takesValue\": ") + (opt->get_expected_min() != 0 ? "true," : "false,"),
-            std::string("    \"repeatable\": ") + (opt->get_expected_max() > 1 ? "true" : "false"),
-            "  },",
-            "  \"configFile\": {",
-            "    \"key\": " + quoteJson(key) + ",",
-            "    \"section\": null,",
-            "    \"writable\": true",
-            "  },",
-            "  \"type\": {",
-            "    \"name\": " + quoteJson(opt->get_type_name().empty() ? opt->get_single_name() : opt->get_type_name()) + ",",
-            "    \"kind\": " + quoteJson(typeKind(opt)) + ",",
-            "    \"kindSource\": \"heuristic-name\",",
-            std::string("    \"items\": ") + (opt->get_items_expected_max() > 1 ? "\"list\"" : "\"single\""),
-            "  },",
-            "  \"constraints\": [],",
-            "  \"relations\": {"};
-        writeRelations(lines, "needs", opt->get_needs(), true);
-        writeRelations(lines, "excludes", opt->get_excludes(), false);
-        lines.insert(lines.end(),
-                     {"  },",
-                      "  \"value\": {",
-                      "    \"registrationDefault\": null,",
-                      "    \"registrationDefaultSource\": \"not-tracked\",",
-                      "    \"cppDefault\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultSemantic) : "null") + ",",
-                      "    \"configured\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredSemantic) : "null") + ",",
-                      "    \"effective\": " + quoteJson(metaValue.effectiveSemantic) + ",",
-                      "    \"source\": " + quoteJson(metaValue.source) + ",",
-                      std::string("    \"isCppDefault\": ") + (metaValue.isCppDefault ? "true," : "false,"),
-                      std::string("    \"isExplicitlyConfigured\": ") + (metaValue.hasConfigured ? "true," : "false,"),
-                      std::string("    \"isMissingRequired\": ") + (metaValue.isMissingRequired ? "true," : "false,"),
-                      "    \"registrationDefaultLiteral\": null,",
-                      "    \"cppDefaultLiteral\": " + (metaValue.hasCppDefault ? quoteJson(metaValue.cppDefaultLiteral) : "null") + ",",
-                      "    \"configuredLiteral\": " + (metaValue.hasConfigured ? quoteJson(metaValue.configuredLiteral) : "null") + ",",
-                      "    \"effectiveLiteral\": " + (!metaValue.effectiveLiteral.empty() ? quoteJson(metaValue.effectiveLiteral) : "null"),
-                      "  }",
-                      "}"});
-        writeMetaBlock(out, "option", lines);
-    }
-
-    ConfigFormatter::OptionMetaValue ConfigFormatter::buildOptionMetaValue(const Option* opt) const {
-        OptionMetaValue meta;
-        meta.hasConfigured = opt->count() > 0;
-        if (meta.hasConfigured) {
-            try {
-                const results_t configuredResults = opt->reduced_results();
-                meta.configuredSemantic = joinSemanticValues(configuredResults);
-                meta.configuredLiteral =
-                    detail::ini_join(configuredResults, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
-            } catch (CLI::ParseError&) {
-                const auto& configuredResults = opt->results();
-                meta.configuredSemantic = joinSemanticValues(configuredResults);
-                meta.configuredLiteral =
-                    detail::ini_join(configuredResults, arraySeparator, arrayStart, arrayEnd, stringQuote, literalQuote);
-            }
-        }
-
-        if (!opt->get_default_str().empty()) {
-            meta.hasCppDefault = true;
-            meta.cppDefaultSemantic = opt->get_default_str();
-            meta.cppDefaultLiteral = detail::convert_arg_for_ini(opt->get_default_str(), stringQuote, literalQuote, true);
-            if (meta.cppDefaultLiteral == "'\"\"'") {
-                meta.cppDefaultLiteral = "";
-            }
-        } else if (opt->get_run_callback_for_default()) {
-            meta.hasCppDefault = true;
-            meta.cppDefaultSemantic = "";
-            meta.cppDefaultLiteral = std::string{stringQuote} + stringQuote;
-        } else if (opt->get_required()) {
-            meta.hasCppDefault = true;
-            meta.cppDefaultSemantic = "<REQUIRED>";
-            meta.cppDefaultLiteral = std::string{stringQuote} + "<REQUIRED>" + stringQuote;
-            meta.isMissingRequired = !meta.hasConfigured;
-        } else if (opt->get_expected_min() == 0) {
-            meta.hasCppDefault = true;
-            meta.cppDefaultSemantic = "false";
-            meta.cppDefaultLiteral = "false";
-        } else {
-            meta.hasCppDefault = true;
-            meta.cppDefaultSemantic = "";
-            meta.cppDefaultLiteral = std::string{stringQuote} + stringQuote;
-        }
-
-        if (meta.hasConfigured) {
-            meta.effectiveSemantic = meta.configuredSemantic;
-            meta.effectiveLiteral = meta.configuredLiteral;
-            meta.source = "command-line-or-config";
-            meta.isCppDefault = false;
-        } else {
-            meta.effectiveSemantic = meta.cppDefaultSemantic;
-            meta.effectiveLiteral = meta.cppDefaultLiteral;
-            meta.source =
-                meta.isMissingRequired ? "required-placeholder" : (!meta.cppDefaultSemantic.empty() ? "cpp-default" : "empty-default");
-            meta.isCppDefault = true;
-        }
-        return meta;
-    }
 
     std::string ConfigFormatter::toConfig(const App* app,
                                           bool default_also,
@@ -437,9 +275,9 @@ namespace CLI {
         if (write_description) {
             if (extensive) {
                 if (path.empty() && app->get_parent() == nullptr && prefix.empty()) {
-                    writeDocumentMeta(out, app);
+                    writeDocumentMeta(out);
                 }
-                writeNodeMeta(out, app, path, prefix);
+                writeNodeMeta(out, app, path);
             }
             if (!app->get_description().empty()) {
                 out << commentChar << commentChar << commentLead << detail::fix_newlines(commentChar + commentLead, app->get_description())
@@ -498,11 +336,7 @@ namespace CLI {
                         }
                     }
                     if (extensive && write_description) {
-                        OptionMetaValue metaValue = buildOptionMetaValue(opt);
-                        if (promoted && metaValue.hasConfigured) {
-                            metaValue.source = "result";
-                        }
-                        writeOptionMeta(out, opt, optionId(path, opt), name, group, path, metaValue);
+                        writeOptionMeta(out, opt, name, group, path);
                     }
                     if (write_description && opt->has_description() && (default_also || !value.empty())) {
                         out << commentLead << detail::fix_newlines(commentLead, opt->get_description()) << '\n';

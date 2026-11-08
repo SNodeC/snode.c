@@ -67,7 +67,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -86,8 +85,6 @@ namespace CLI {
         std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix, bool extensive) const;
 
     private:
-        struct OptionMetaValue;
-
         std::string to_config(const App* app, bool default_also, bool write_description, std::string prefix) const override;
 
         std::string toConfig(const App* app,
@@ -96,14 +93,6 @@ namespace CLI {
                              const std::string& prefix,
                              const std::vector<std::string>& path,
                              bool extensive) const;
-        OptionMetaValue buildOptionMetaValue(const Option* opt) const;
-        static void writeOptionMeta(std::ostream& out,
-                                    const Option* opt,
-                                    const std::string& id,
-                                    const std::string& key,
-                                    const std::string& group,
-                                    const std::vector<std::string>& path,
-                                    const OptionMetaValue& metaValue);
     };
 
     class HelpFormatter : public CLI::Formatter {

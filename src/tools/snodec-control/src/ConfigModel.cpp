@@ -124,76 +124,70 @@ namespace snodec::control {
     }
 
     void applyMetadataToModel(ConfigModel& model, const ParsedMetadata& metadata) {
-        if (!metadata.usable()) {
-            return;
-        }
-
-        std::unordered_map<std::string, ConfigOption*> optionsByKey;
-        for (ConfigSection& section : model.sections) {
-            for (ConfigOption& option : section.options) {
-                optionsByKey[fullOptionKey(option)] = &option;
-            }
-        }
-
-        std::unordered_set<std::string> metadataKeys;
-        for (const MetaOption& metaOption : metadata.options) {
-            metadataKeys.insert(metaOption.key);
-
-            const auto it = optionsByKey.find(metaOption.key);
-            if (it == optionsByKey.end()) {
-                continue;
-            }
-            ConfigOption& option = *it->second;
-
-            if (!metaOption.description.empty()) {
-                // Prefer metadata's description verbatim over the legacy line parser's reconstruction:
-                // a description containing a "key = value"-shaped explanatory line (see the
-                // fromCommentedDefaultLine reconciliation below) can otherwise end up truncated or
-                // scrambled, since the legacy parser has no way to tell such a line apart from a real
-                // commented default while accumulating description text.
-                option.description = metaOption.description;
+        if (metadata.usable()) {
+            std::unordered_map<std::string, ConfigOption*> optionsByKey;
+            for (ConfigSection& section : model.sections) {
+                for (ConfigOption& option : section.options) {
+                    optionsByKey[fullOptionKey(option)] = &option;
+                }
             }
 
-            if (!metaOption.type.kind.empty()) {
-                option.typeKind = metaOption.type.kind;
-            }
-            if (!metaOption.type.kindSource.empty()) {
-                option.typeKindSource = metaOption.type.kindSource;
-            }
-            if (!metaOption.type.items.empty()) {
-                option.typeItems = metaOption.type.items;
-            }
-            option.needs = metaOption.needs;
-            option.excludes = metaOption.excludes;
-            option.requiredEffective = metaOption.required.effective;
-            if (!metaOption.required.source.empty()) {
-                option.requiredSource = metaOption.required.source;
-            }
-            option.configFileWritable = metaOption.configFile.writable;
-            option.configFileSection = metaOption.configFile.section;
-        }
+            std::unordered_set<std::string> metadataKeys;
+            for (const MetaOption& metaOption : metadata.options) {
+                metadataKeys.insert(metaOption.key);
 
-        // Structured metadata is authoritative for option identity. A parsed option that exists only
-        // because a commented "#key=value"-shaped line was found - never a real, active/uncommented
-        // line for that same key - and has no corresponding metadata entry is not a real option. This
-        // happens when a line inside another option's multi-line description text itself happens to
-        // look like "key = value" (e.g. "sni = SNI of the virtual server" inside --sni-cert's
-        // description, which SNode.C legitimately emits as a plain comment continuation line, not a
-        // commented default for a nonexistent "sni" option): the legacy line parser has no way to tell
-        // that apart from a real commented default on its own, so this reconciliation step is what
-        // actually prevents it from becoming a phantom "Unmatched Options" entry. An option backed by
-        // at least one real active/uncommented line is always preserved, metadata match or not, since
-        // it may be a genuine option a user set by hand that this particular metadata simply doesn't
-        // describe.
-        for (ConfigSection& section : model.sections) {
-            std::vector<ConfigOption>& options = section.options;
-            options.erase(std::remove_if(options.begin(),
-                                         options.end(),
-                                         [&metadataKeys](const ConfigOption& option) {
-                                             return option.fromCommentedDefaultLine && !option.fromActiveLine &&
-                                                    metadataKeys.find(fullOptionKey(option)) == metadataKeys.end();
-                                         }),
-                          options.end());
+                const auto it = optionsByKey.find(metaOption.key);
+                if (it != optionsByKey.end()) {
+                    ConfigOption& option = *it->second;
+
+                    if (!metaOption.description.empty()) {
+                        // Prefer metadata's description verbatim over the legacy line parser's reconstruction:
+                        // a description containing a "key = value"-shaped explanatory line (see the
+                        // fromCommentedDefaultLine reconciliation below) can otherwise end up truncated or
+                        // scrambled, since the legacy parser has no way to tell such a line apart from a real
+                        // commented default while accumulating description text.
+                        option.description = metaOption.description;
+                    }
+
+                    if (!metaOption.type.kind.empty()) {
+                        option.typeKind = metaOption.type.kind;
+                    }
+                    if (!metaOption.type.kindSource.empty()) {
+                        option.typeKindSource = metaOption.type.kindSource;
+                    }
+                    if (!metaOption.type.items.empty()) {
+                        option.typeItems = metaOption.type.items;
+                    }
+                    option.needs = metaOption.needs;
+                    option.excludes = metaOption.excludes;
+                    if (!metaOption.requiredSource.empty()) {
+                        option.requiredSource = metaOption.requiredSource;
+                    }
+                }
+            }
+
+            // Structured metadata is authoritative for option identity. A parsed option that exists only
+            // because a commented "#key=value"-shaped line was found - never a real, active/uncommented
+            // line for that same key - and has no corresponding metadata entry is not a real option. This
+            // happens when a line inside another option's multi-line description text itself happens to
+            // look like "key = value" (e.g. "sni = SNI of the virtual server" inside --sni-cert's
+            // description, which SNode.C legitimately emits as a plain comment continuation line, not a
+            // commented default for a nonexistent "sni" option): the legacy line parser has no way to tell
+            // that apart from a real commented default on its own, so this reconciliation step is what
+            // actually prevents it from becoming a phantom "Unmatched Options" entry. An option backed by
+            // at least one real active/uncommented line is always preserved, metadata match or not, since
+            // it may be a genuine option a user set by hand that this particular metadata simply doesn't
+            // describe.
+            for (ConfigSection& section : model.sections) {
+                std::vector<ConfigOption>& options = section.options;
+                options.erase(std::remove_if(options.begin(),
+                                             options.end(),
+                                             [&metadataKeys](const ConfigOption& option) {
+                                                 return option.fromCommentedDefaultLine && !option.fromActiveLine &&
+                                                        metadataKeys.find(fullOptionKey(option)) == metadataKeys.end();
+                                             }),
+                              options.end());
+            }
         }
     }
 

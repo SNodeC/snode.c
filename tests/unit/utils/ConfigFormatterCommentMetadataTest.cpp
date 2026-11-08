@@ -114,23 +114,41 @@ int main() {
     requireContains(config, "#@   \"path\": [\"<anonymous-0>\"],");
     requireContains(config, "#@   \"path\": [\"<anonymous-1>\"],");
     requireContains(config, "#@   \"path\": [\"<anonymous-2>\"],");
+    const auto nodeBegin = config.find("#@ snodec.meta begin node\n");
+    const auto nodeEnd = config.find("#@ snodec.meta end node\n", nodeBegin);
+    const std::string nodeMetadata = config.substr(nodeBegin, nodeEnd - nodeBegin);
+    for (const std::string& field : {"name", "configPrefix", "group", "description", "configurable", "required"}) {
+        requireNotContains(nodeMetadata, "\"" + field + "\":");
+    }
     requireContains(config, "#@ snodec.meta begin group");
     requireContains(config, "#@   \"name\": \"Options (persistent)\",");
     requireContains(config, "#@   \"kind\": \"persistent\",");
     requireContains(config, "#@   \"name\": \"Custom Group\",");
     requireContains(config, "#@   \"kind\": \"custom\",");
+    const auto groupBegin = config.find("#@ snodec.meta begin group\n");
+    const auto groupEnd = config.find("#@ snodec.meta end group\n", groupBegin);
+    requireNotContains(config.substr(groupBegin, groupEnd - groupBegin), "\"kindSource\":");
     requireContains(config, "#@ snodec.meta begin option");
-    requireContains(config, "#@   \"id\": \"port\",");
     requireContains(config, "#@   \"key\": \"port\",");
-    requireContains(config, "#@     \"isMissingRequired\": true,");
-    requireContains(config, "#@     \"cppDefault\": \"<REQUIRED>\",");
-    requireContains(config, "#@     \"cppDefaultLiteral\": \"\\\"<REQUIRED>\\\"\",");
     requireContains(config, "#port=\"<REQUIRED>\"");
     requireContains(config, "#callback-required=\"\"");
     requireNotContains(config, "#callback-required=\"<REQUIRED>\"");
-    requireContains(config, "#@     \"registrationDefault\": null,");
-    requireContains(config, "#@     \"registrationDefaultSource\": \"not-tracked\",");
-    requireNotContains(config, "apiDefault");
+    for (const std::string& field : {"entity",
+                                     "application",
+                                     "scope",
+                                     "syntax",
+                                     "id",
+                                     "localName",
+                                     "configPrefix",
+                                     "configurable",
+                                     "effective",
+                                     "persistent",
+                                     "commandLine",
+                                     "configFile",
+                                     "constraints",
+                                     "value"}) {
+        requireNotContains(config, "\"" + field + "\":");
+    }
     requireContains(config, "#@       \"host\"");
     requireContains(config, "#@       \"port\"");
     requireContains(config, "#host=\"localhost\"");
@@ -142,8 +160,9 @@ int main() {
     const std::string exact = "#@ snodec.meta begin document\n"
                               "#@ {\n"
                               "#@   \"schema\": \"snodec.config.comment-meta\",\n"
-                              "#@   \"version\": 1,\n"
-                              "#@   \"entity\": \"document\",\n";
+                              "#@   \"version\": 1\n"
+                              "#@ }\n"
+                              "#@ snodec.meta end document\n";
     requireContains(config, exact);
     requireParseable(config);
     const std::string plain = app.config_to_str(true, true);
@@ -177,10 +196,8 @@ int main() {
     configuredApp.parse("--mode default");
     const std::string configuredConfig = extensiveConfig(configuredApp);
     requireContains(configuredConfig, "#@   \"key\": \"mode\",");
-    requireContains(configuredConfig, "#@     \"configured\": \"default\",");
-    requireContains(configuredConfig, "#@     \"configuredLiteral\": \"\\\"default\\\"\",");
-    requireContains(configuredConfig, "#@     \"source\": \"command-line-or-config\",");
-    requireContains(configuredConfig, "#@     \"isExplicitlyConfigured\": true,");
+    requireContains(configuredConfig, "#mode=\"default\"");
+    requireNotContains(configuredConfig, "\nmode=");
 
     CLI::App quotedApp{"Quoted value app"};
     quotedApp.name("quoted");
@@ -190,8 +207,15 @@ int main() {
     quotedApp.add_option("--text", text, "Text value")->default_str("default \"quoted\" \\ value");
     quotedApp.parse(std::vector<std::string>{configuredText, "--text"});
     const std::string quotedConfig = extensiveConfig(quotedApp);
-    requireContains(quotedConfig, "#@     \"configuredLiteral\": ");
-    requireContains(quotedConfig, "\\\\ slash and spaces");
+    CLI::App restoredQuoted;
+    restoredQuoted.config_formatter(std::make_shared<CLI::ConfigFormatter>());
+    std::string restoredText;
+    restoredQuoted.add_option("--text", restoredText);
+    std::istringstream quotedInput(quotedConfig);
+    restoredQuoted.parse_from_stream(quotedInput);
+    if (restoredText != configuredText) {
+        std::abort();
+    }
 
     CLI::App siblingApp{"Sibling anonymous app"};
     siblingApp.name("siblings");
@@ -205,8 +229,8 @@ int main() {
     int b = 2;
     anonB->add_option("--value-b", b, "Shared value")->default_str("2");
     const std::string siblingConfig = extensiveConfig(siblingApp);
-    requireContains(siblingConfig, "#@   \"id\": \"<anonymous-0>.value\",");
-    requireContains(siblingConfig, "#@   \"id\": \"<anonymous-1>.value-b\",");
+    requireContains(siblingConfig, "#@   \"nodePath\": [\"<anonymous-0>\"],");
+    requireContains(siblingConfig, "#@   \"nodePath\": [\"<anonymous-1>\"],");
     requireContains(siblingConfig, "#@   \"key\": \"value\",");
     requireContains(siblingConfig, "#@   \"key\": \"value-b\",");
 
