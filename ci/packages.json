@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "title": "SNode.C",
+  "revision_base": 120,
   "package": "snodec",
   "depends_on": [],
   "build": {
@@ -1027,6 +1028,14 @@
       "ncurses-devel",
       "json-devel",
       "sqlite-devel"
+    ]
+  },
+  "development_packages": {
+    "deb": [
+      "snodec"
+    ],
+    "rpm": [
+      "snodec"
     ]
   }
 }
