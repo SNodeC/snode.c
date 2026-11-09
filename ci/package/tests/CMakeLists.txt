@@ -11,3 +11,5 @@ set_tests_properties(
 )
 
 add_test(NAME OpenWrtPackageArchitecture COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/architecture.py")
+
+add_test(NAME NativeBuildParallelism COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/native.py")
