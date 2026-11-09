@@ -33,5 +33,3 @@ tag also requires explicit approval for that tag and action. Ordinary developmen
 - Follow the recorded owner requirements in `local/docs/readme-owner-findings.md` (local, untracked); do not mark pending changes complete merely because they have been recorded.
 
 This task uses `/tmp/codex/checkouts/snode.c/repository-owned-package-ci` on `refactor/repository-owned-package-ci` for isolated CI changes, preserving the occupied canonical checkout. Retain it until its uncommitted changes are integrated or otherwise preserved. Local package-CI fixture checks/logs use `/tmp/codex/build/snodec/package-ci`; no product installation or live activation is authorized.
-
-Phase 4g uses `/tmp/codex/checkouts/snode.c/phase-4g` on `perf/package-hook-speed` for isolated hook changes. Tests/builds use `/tmp/codex/build/snode.c/phase-4g`; retain this checkout until its PR is merged or the owner authorizes cleanup.
