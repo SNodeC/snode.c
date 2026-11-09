@@ -16,6 +16,6 @@ cmake -S "$SOURCE_DIR" -B "$build" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR="$libdir" -DCMAKE_INSTALL_SYSCONFDIR=/etc \
     -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSPDLOG_SYSTEM_INCLUDES=ON
-cmake --build "$build" --parallel 4
+cmake --build "$build" --parallel "$(nproc)"
 ctest --test-dir "$build" --output-on-failure --output-junit core-ci-tests.xml
 python3 /tool/native_container.py --package "$build"

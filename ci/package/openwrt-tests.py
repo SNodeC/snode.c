@@ -55,7 +55,7 @@ def run(sdk):
     subprocess.run([str(cmake), '-S', str(build), '-B', str(build),
                     '-DSNODEC_BUILD_TESTS=ON', '-DBUILD_TESTING=ON',
                     '-DCMAKE_CROSSCOMPILING_EMULATOR=' + str(launcher)], check=True, env=env)
-    subprocess.run([str(cmake), '--build', str(build), '--parallel', str(min(os.cpu_count() or 2, 4))], check=True, env=env)
+    subprocess.run([str(cmake), '--build', str(build), '--parallel', subprocess.check_output(['nproc'], text=True).strip()], check=True, env=env)
     # The toolchain owns the dynamic loader. Include every SDK-installed shared
     # library directory, including SNode.C's plugin directories.
     library_dirs = sorted({str(p.parent) for root in (build / 'src', build / 'snode.c', target / 'usr/lib', toolchain / 'lib')
