@@ -13,11 +13,18 @@ SNODEC_SOURCE_HASH=$(sha256sum "$archive" | cut -d ' ' -f1)
 export SNODEC_SOURCE_HASH
 cd "$SDK_DIR"
 printf '\nsrc-link core_ci /work/recipes\n' >> feeds.conf.default
-./scripts/feeds update -a
-./scripts/feeds install -a
-printf '\nCONFIG_PACKAGE_snodec=m\n' >> .config
+./scripts/feeds update base packages core_ci
+./scripts/feeds install -a -p core_ci
+cat > .config <<'CONFIG'
+# CONFIG_ALL is not set
+# CONFIG_ALL_NONSHARED is not set
+# CONFIG_ALL_KMODS is not set
+# CONFIG_AUTOREMOVE is not set
+# CONFIG_SIGNED_PACKAGES is not set
+CONFIG_PACKAGE_snodec=m
+CONFIG
 make defconfig
-make -j2 package/snode.c/compile CONFIG_AUTOREMOVE= V=s BUILD_LOG=1
+make -j"$(nproc)" package/snode.c/compile CONFIG_AUTOREMOVE= V=s BUILD_LOG=1
 python3 "$CI_DIR/ci/package/openwrt-tests.py" "$SDK_DIR"
 python3 - <<'EXPORT'
 import os,shutil,tarfile

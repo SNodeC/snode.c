@@ -69,3 +69,10 @@ set_tests_properties(
     StagedInstalledConsumerTest PROPERTIES LABELS "install;consumer" TIMEOUT
                                            120
 )
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_test(NAME PackageHookPolicy
+         COMMAND ${Python3_EXECUTABLE}
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ci/test_package_hooks.py
+)
+set_tests_properties(PackageHookPolicy PROPERTIES TIMEOUT 20)
