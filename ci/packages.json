@@ -644,7 +644,7 @@
       "family": "openwrt",
       "distribution": "openwrt",
       "suite": "24.10",
-      "arch": "riscv64_generic",
+      "arch": "riscv64_riscv64",
       "runner": "ubuntu-24.04",
       "build": {
         "target": "sifiveu/generic",
