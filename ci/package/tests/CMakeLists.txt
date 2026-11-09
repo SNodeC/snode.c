@@ -9,3 +9,5 @@ add_test(NAME OpenWrtDevelopmentExport
 set_tests_properties(
     OpenWrtDevelopmentExport PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1"
 )
+
+add_test(NAME OpenWrtPackageArchitecture COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/architecture.py")
