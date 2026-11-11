@@ -3,6 +3,7 @@ ci:
   profile: cpp
   apt:
   - libncurses-dev
+  - mariadb-server
   deps: []
   cmake_options:
   - -DCMAKE_BUILD_TYPE=Debug
