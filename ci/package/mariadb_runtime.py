@@ -44,6 +44,7 @@ def main():
     build = work / 'build'
     subprocess.run(['cmake', '-S', str(source), '-B', str(build), '-G', 'Ninja',
                     '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON',
+                    '-DCMAKE_COMPILE_WARNING_AS_ERROR=OFF',
                     '-DCMAKE_C_FLAGS=' + output(['rpm', '--eval', '%{build_cflags}']),
                     '-DCMAKE_SHARED_LINKER_FLAGS=' + output(['rpm', '--eval', '%{build_ldflags}']),
                     '-DCMAKE_INSTALL_PREFIX=/usr', '-DINSTALL_LAYOUT=RPM', '-DINSTALL_LIBDIR=lib64',
