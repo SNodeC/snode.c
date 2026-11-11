@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.24)
+project(SNodeCMariaDBInstalledTests LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+enable_testing()
+find_package(snodec CONFIG REQUIRED COMPONENTS db-mariadb)
+add_subdirectory("${SNODEC_SOURCE_DIR}/tests/support" support)
+add_subdirectory("${SNODEC_SOURCE_DIR}/tests/component/database" database)
