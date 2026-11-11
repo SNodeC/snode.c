@@ -245,6 +245,7 @@
       "libbluetooth-dev",
       "libmagic-dev",
       "libmariadb-dev",
+      "mariadb-server",
       "libssl-dev",
       "openssl",
       "libncurses-dev",
@@ -257,11 +258,18 @@
       "bluez-libs-devel",
       "file-devel",
       "mariadb-connector-c-devel",
+      "mariadb-server",
       "openssl-devel",
       "openssl",
       "ncurses-devel",
       "json-devel",
       "sqlite-devel"
+    ],
+    "ipk": [
+      "mariadb-server"
+    ],
+    "apk": [
+      "mariadb-server"
     ]
   },
   "development_packages": {

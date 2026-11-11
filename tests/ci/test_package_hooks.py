@@ -7,7 +7,7 @@ import sys
 import tempfile
 
 
-def probe(native):
+def probe(native, fmt='deb'):
     repository = Path(__file__).resolve().parents[2]
     package = json.loads((repository / 'ci/packages.json').read_text())['package']
     with tempfile.TemporaryDirectory() as temporary:
@@ -20,7 +20,7 @@ def probe(native):
         (sdk / 'feeds.conf.default').write_text('src-git base fixture\nsrc-git packages fixture\nsrc-git luci fixture\n')
         (sdk / '.config').write_text('CONFIG_ALL=y\nCONFIG_SIGNED_PACKAGES=y\n')
         target = root / 'target.json'
-        target.write_text('{"build":{"format":"deb"}}')
+        target.write_text(json.dumps({'build': {'format': fmt}}))
         stub = root / 'bin/command'
         stub.write_text(f'#!{sys.executable}\n' + r'''
 import json, os, pathlib, subprocess, sys
@@ -30,6 +30,8 @@ with open(os.environ['COMMANDS'], 'a') as log:
     log.write(json.dumps([name, *args]) + '\n')
 if name == 'nproc':
     print('6')
+elif name == 'dpkg-architecture':
+    print('fixture-linux-gnu')
 elif name == 'python3':
     if args and args[0] == '-c':
         subprocess.run([sys.executable, *args], check=True)
@@ -53,7 +55,7 @@ elif name == 'ctest':
         pathlib.Path(args[args.index('--output-junit') + 1]).write_text('<testsuite><testcase name="fixture"/></testsuite>')
 ''')
         stub.chmod(0o755)
-        for name in ('make', 'cmake', 'ctest', 'python3', 'nproc'):
+        for name in ('make', 'cmake', 'ctest', 'python3', 'nproc', 'dpkg-architecture'):
             (root / 'bin' / name).symlink_to(stub)
         (sdk / 'scripts/feeds').symlink_to(stub)
         kind = 'native' if native else 'openwrt'
@@ -70,6 +72,11 @@ elif name == 'ctest':
         if native:
             builds = [call for call in calls if call[:2] == ['cmake', '--build']]
             assert len(builds) == 1 and builds[0][-2:] == ['--parallel', '6'], calls
+            architecture = [call for call in calls if call[0] == 'dpkg-architecture']
+            assert architecture == ([['dpkg-architecture', '-qDEB_HOST_MULTIARCH']] if fmt == 'deb' else []), calls
+            configure = [call for call in calls if call[0] == 'cmake' and '-S' in call]
+            libdir = 'lib/fixture-linux-gnu' if fmt == 'deb' else 'lib64'
+            assert '-DCMAKE_INSTALL_LIBDIR=' + libdir in configure[0], calls
         else:
             feeds = [call for call in calls if call[0] == 'feeds']
             assert feeds == [['feeds', 'update', 'base', 'packages', 'core_ci'],
@@ -102,6 +109,7 @@ elif name == 'ctest':
 def main():
     probe(False)
     probe(True)
+    probe(True, 'rpm')
     print('Package hooks: bounded SDK config, selected feeds, available CPUs and output handoff passed')
     return 0
 
