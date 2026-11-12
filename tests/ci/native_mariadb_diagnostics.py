@@ -12,6 +12,7 @@ parser.add_argument('--worker', type=Path, required=True)
 parser.add_argument('--target', required=True)
 args = parser.parse_args()
 source = Path(__file__).resolve().parents[2]
+owner = source.stat()
 worker = args.worker.resolve()
 sys.path.insert(0, str(worker))
 from coreci.build import TOOLS
@@ -38,8 +39,8 @@ else:
                " && rpmbuild -bp --nodeps --define '_sourcedir /connector' --define '_builddir /connector/prepared' *.spec")
 (work / 'target.json').write_text(json.dumps(target))
 (work / 'Dockerfile').write_text('FROM ' + target['build']['image'] + '\nRUN ' + tools + '\nRUN ' + sources + '\n'
-    + 'RUN if getent passwd 1000; then usermod -d /work "$(getent passwd 1000 | cut -d: -f1)"; '
-    'else useradd -u 1000 -U -M -d /work diagnostic; fi; mkdir -m 1777 /work /output\n')
+    + f'RUN if getent passwd {owner.st_uid}; then usermod -d /work "$(getent passwd {owner.st_uid} | cut -d: -f1)"; '
+    f'else useradd -u {owner.st_uid} -U -M -d /work diagnostic; fi; mkdir -m 1777 /work /output\n')
 image = 'snodec-native-diagnostic:' + args.target
 subprocess.run(['docker', 'build', '--platform', 'linux/arm64', '-t', image, str(work)], check=True)
 script = ('mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m; '
@@ -52,7 +53,7 @@ script = ('mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m
           'ctest --test-dir /work/build-product -R "^MariaDB" --output-on-failure; '
           'python3 /source/tests/ci/diagnose_mariadb.py /work/build-product/tests/component/database/MariaDBConnectTest; '
           'python3 /source/tests/ci/mariadb_connector_ab.py ' + fmt + '; result=$?; fi; exit "$result"')
-command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--user', '1000:1000',
+command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--user', f'{owner.st_uid}:{owner.st_gid}',
            '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--memory=4g', '--pids-limit=256',
            '--tmpfs', '/tmp:rw,exec,size=2g,mode=1777', '--tmpfs', '/var/tmp:rw,exec,size=2g,mode=1777', '--volume', '/work',
            '--mount', f'type=bind,source={source},target=/source,readonly',
