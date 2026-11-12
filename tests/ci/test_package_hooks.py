@@ -77,6 +77,7 @@ elif name == 'ctest':
             configure = [call for call in calls if call[0] == 'cmake' and '-S' in call]
             libdir = 'lib/fixture-linux-gnu' if fmt == 'deb' else 'lib64'
             assert '-DCMAKE_INSTALL_LIBDIR=' + libdir in configure[0], calls
+            assert not any('-DSNODEC_BUILD_MARIADB_TESTS=OFF' in call for call in calls), calls
         else:
             feeds = [call for call in calls if call[0] == 'feeds']
             assert feeds == [['feeds', 'update', 'base', 'packages', 'core_ci'],
@@ -103,6 +104,8 @@ elif name == 'ctest':
                 calls = [json.loads(line) for line in commands.read_text().splitlines()]
                 builds = [call for call in calls if call[:2] == ['cmake', '--build']]
                 assert len(builds) == 1 and builds[0][-2:] == ['--parallel', '6'], calls
+                configure = [call for call in calls if call[0] == 'cmake' and '-S' in call]
+                assert len(configure) == 1 and '-DSNODEC_BUILD_MARIADB_TESTS=OFF' in configure[0], calls
     return None
 
 

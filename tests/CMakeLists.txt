@@ -71,6 +71,10 @@ set_tests_properties(
 )
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
+add_test(NAME MariaDBFixtureCommand
+         COMMAND ${Python3_EXECUTABLE}
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ci/test_mariadb_fixture.py
+)
 add_test(NAME PackageHookPolicy
          COMMAND ${Python3_EXECUTABLE}
                  ${CMAKE_CURRENT_SOURCE_DIR}/ci/test_package_hooks.py

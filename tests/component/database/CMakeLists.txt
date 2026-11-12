@@ -37,12 +37,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-if(TARGET snodec::db-mariadb)
+option(SNODEC_BUILD_MARIADB_TESTS "Build MariaDB integration tests" ON)
+
+if(TARGET snodec::db-mariadb AND SNODEC_BUILD_MARIADB_TESTS)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
-    add_test(NAME MariaDBFixtureCommand
-             COMMAND ${Python3_EXECUTABLE}
-                     ${CMAKE_SOURCE_DIR}/tests/ci/test_mariadb_fixture.py
-    )
     add_executable(MariaDBConnectTest MariaDBConnectTest.cpp)
     target_link_libraries(
         MariaDBConnectTest PRIVATE snodec-test-support snodec::db-mariadb
