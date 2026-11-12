@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import pwd
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -13,7 +14,9 @@ import time
 def main():
     result = 1
     try:
-        executable, mode = sys.argv[1:]
+        mode, *command = sys.argv[1:]
+        if not command:
+            raise ValueError("Missing MariaDB test command")
         tools = {}
         for name in ("mariadb-install-db", "mariadbd"):
             found = shutil.which(name)
@@ -54,7 +57,11 @@ def main():
                             time.sleep(0.05)
                     if not ready:
                         raise RuntimeError("Disposable MariaDB did not become ready")
-                    result = subprocess.run([executable, mode, str(endpoint), account], cwd=root, timeout=10).returncode
+                    result = subprocess.run(command + [mode, str(endpoint), account], cwd=root, timeout=10).returncode
+                    if result < 0:
+                        print("MariaDB test terminated by " + signal.Signals(-result).name, file=sys.stderr)
+                    elif result != 0:
+                        print("MariaDB test exit status: " + str(result), file=sys.stderr)
             finally:
                 if server is not None:
                     if server.poll() is None:
@@ -65,6 +72,7 @@ def main():
                             server.kill()
                             server.wait(timeout=5)
                     if server.returncode != 0:
+                        print("MariaDB server exit status: " + str(server.returncode), file=sys.stderr)
                         result = 1
                 if result != 0:
                     for name in ("initialize.log", "process.log", "server.log"):

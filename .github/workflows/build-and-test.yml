@@ -1,7 +1,41 @@
 name: Build and test SNode.C
 # Compile and test the project, including its repository-specific verification gates.
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      mariadb_diagnostics:
+        description: Collect native ARM64 MariaDB failures and backtraces
+        type: boolean
+        default: false
 permissions: { contents: read }
 jobs:
   snodec:
+    if: ${{ !inputs.mariadb_diagnostics }}
     uses: SNodeC/.github/.github/workflows/verify-project.yml@main
+  mariadb-diagnostics:
+    if: ${{ inputs.mariadb_diagnostics }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [rocky-10-aarch64, ubuntu-resolute-arm64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: SNodeC/DistributionPackages
+          ref: 0fc7ccc83fc58d6f2555ad22992182854e0e4acb
+          path: worker
+          persist-credentials: false
+      - name: Reproduce declared native build and capture client outcome
+        run: python3 source/tests/ci/native_mariadb_diagnostics.py --worker worker --target ${{ matrix.target }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: mariadb-${{ matrix.target }}
+          path: /tmp/codex/build/snode.c/native-mariadb/${{ matrix.target }}/native.log
+          if-no-files-found: error
