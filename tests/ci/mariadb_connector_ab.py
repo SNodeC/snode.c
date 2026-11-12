@@ -21,7 +21,9 @@ print('CONNECTOR_FLAGS=' + flags, flush=True)
 outcomes = []
 for arm in ('unpatched', 'patched'):
     if arm == 'patched':
-        with (Path(__file__).resolve().parents[2] / 'ci/package/mariadb-context-registers.patch').open('rb') as patch:
+        patch_file = (Path(__file__).with_name('mariadb-context-3.4.4.patch') if fmt == 'rpm'
+                      else Path(__file__).resolve().parents[2] / 'ci/package/mariadb-context-registers.patch')
+        with patch_file.open('rb') as patch:
             subprocess.run(['patch', '--batch', '--fuzz=0', '-p1'], cwd=source, stdin=patch, check=True)
     print('CONTEXT_' + arm + '_SHA256=' + hashlib.sha256(contexts[0].read_bytes()).hexdigest(), flush=True)
     build = root / arm

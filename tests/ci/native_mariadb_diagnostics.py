@@ -39,7 +39,8 @@ else:
 (work / 'target.json').write_text(json.dumps(target))
 (work / 'environment.json').write_text('{}')
 (work / 'Dockerfile').write_text('FROM ' + target['build']['image'] + '\nRUN ' + tools + '\nRUN ' + sources + '\n'
-    + 'RUN (getent passwd 1000 || useradd -u 1000 -U -M -d /tmp diagnostic) && mkdir -m 1777 /work /output\n')
+    + 'RUN if getent passwd 1000; then usermod -d /work "$(getent passwd 1000 | cut -d: -f1)"; '
+    'else useradd -u 1000 -U -M -d /work diagnostic; fi; mkdir -m 1777 /work /output\n')
 image = 'snodec-native-diagnostic:' + args.target
 subprocess.run(['docker', 'build', '--platform', 'linux/arm64', '-t', image, str(work)], check=True)
 script = ('mkdir -p /work/output; mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m; '
