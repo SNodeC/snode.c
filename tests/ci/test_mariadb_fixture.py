@@ -44,7 +44,7 @@ def main():
 
                 def execute(arguments, **kwargs):
                     calls.append(arguments)
-                    status = 0 if '--datadir=' in ' '.join(arguments) else os.spawnv(os.P_WAIT, arguments[0], arguments)
+                    status = os.spawnv(os.P_WAIT, arguments[0], arguments) if arguments[:len(command)] == command else 0
                     return SimpleNamespace(returncode=status)
 
                 with patch.object(sys, 'argv', [str(fixture), '0', *command]), \
@@ -55,7 +55,7 @@ def main():
                     assert module.main() == 0
                 arguments = json.loads(output.read_text())
                 assert arguments[0] == '0' and Path(arguments[1]).name == 's' and arguments[2]
-                assert calls[1] == command + arguments
+                assert calls[-1] == command + arguments
                 server.terminate.assert_called_once()
                 server.wait.assert_called_once()
         print('MariaDB fixture: native and emulator argv, spaces and cleanup passed')

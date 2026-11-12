@@ -3,8 +3,7 @@
 @@ -543,1 +543,1 @@ my_bool ma_tls_connect(MARIADB_TLS *ctls)
 -  my_bool blocking, try_connect= 1;
 +  my_bool try_connect= 1;
-@@ -555,3 +555,2 @@ my_bool ma_tls_connect(MARIADB_TLS *ctls)
-   /* Set socket to non-blocking if not already set */
+@@ -556,2 +556,1 @@ my_bool ma_tls_connect(MARIADB_TLS *ctls)
 -  if (!(blocking= pvio->methods->is_blocking(pvio)))
 -    pvio->methods->blocking(pvio, FALSE, 0);
 +  pvio->methods->blocking(pvio, FALSE, 0);

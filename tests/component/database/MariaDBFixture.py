@@ -37,10 +37,15 @@ def main():
                     subprocess.run([tools["mariadb-install-db"], "--no-defaults", "--datadir=" + str(root / "data"),
                                     "--tmpdir=" + str(root), "--auth-root-authentication-method=socket", "--auth-root-socket-user=" + account,
                                     "--skip-test-db"], stdout=output, stderr=subprocess.STDOUT, check=True, timeout=40)
+                    subprocess.run(["openssl", "req", "-x509", "-newkey", "ec", "-pkeyopt", "ec_paramgen_curve:prime256v1", "-nodes", "-days", "1",
+                                    "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,IP:127.0.0.1",
+                                    "-keyout", str(root / "server.key"), "-out", str(root / "server.crt")],
+                                   stdout=output, stderr=subprocess.STDOUT, check=True, timeout=3)
                 with (root / "process.log").open("w") as output:
                     server = subprocess.Popen([tools["mariadbd"], "--no-defaults", "--user=" + account,
                                                "--datadir=" + str(root / "data"), "--tmpdir=" + str(root), "--socket=" + str(endpoint),
                                                "--pid-file=" + str(root / "server.pid"), "--log-error=" + str(root / "server.log"),
+                                               "--ssl-key=" + str(root / "server.key"), "--ssl-cert=" + str(root / "server.crt"),
                                                "--skip-networking", "--innodb-buffer-pool-size=64M", "--innodb-log-file-size=16M"],
                                               stdout=output, stderr=subprocess.STDOUT)
                     deadline = time.monotonic() + 15
