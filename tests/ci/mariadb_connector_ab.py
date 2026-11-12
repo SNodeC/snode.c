@@ -26,8 +26,8 @@ for arm in ('unpatched', 'patched'):
     print('CONTEXT_' + arm + '_SHA256=' + hashlib.sha256(contexts[0].read_bytes()).hexdigest(), flush=True)
     build = root / arm
     subprocess.run(['cmake', '-S', str(source), '-B', str(build), '-G', 'Ninja',
-                    '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON',
-                    '-DCMAKE_C_FLAGS=' + flags, '-DWITH_UNIT_TESTS=OFF', '-DWITH_SSL=OPENSSL'], check=True)
+                    '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON', '-DCMAKE_C_STANDARD=99',
+                    '-DCMAKE_C_FLAGS=' + flags, '-DWITH_EXTERNAL_ZLIB=ON', '-DWITH_UNIT_TESTS=OFF', '-DWITH_SSL=OPENSSL'], check=True)
     subprocess.run(['cmake', '--build', str(build), '--parallel', '4'], check=True)
     library, = build.rglob('libmariadb.so.3')
     environment = dict(os.environ, LD_LIBRARY_PATH=str(library.parent))

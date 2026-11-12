@@ -42,7 +42,7 @@ else:
     + 'RUN (getent passwd 1000 || useradd -u 1000 -U -M -d /tmp diagnostic) && mkdir -m 1777 /work /output\n')
 image = 'snodec-native-diagnostic:' + args.target
 subprocess.run(['docker', 'build', '--platform', 'linux/arm64', '-t', image, str(work)], check=True)
-script = ('mkdir -p /work/output; uname -m; '
+script = ('mkdir -p /work/output; mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m; '
           + ('dpkg-query -W libmariadb3; ' if fmt == 'deb' else 'rpm -q mariadb-connector-c; ')
           + 'python3 /tool/container.py --tag v2.1.0 --version 2.1.0 --revision 2 --package snodec '
           '--build-id snodec~diagnostic~2.1.0~r2 --feed packages; result=$?; '
@@ -59,7 +59,8 @@ command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--us
            '--mount', f'type=bind,source={work / "environment.json"},target=/environment.json,readonly',
            '-e', 'SOURCE_DIR=/source', '-e', 'CI_DIR=/source', '-e', 'TARGET_JSON=/target.json',
            '-e', 'OUTPUT_DIR=/work/output', '-e', 'SOURCE_VERSION=' + (source / 'VERSION').read_text().strip(),
-           '-e', 'PACKAGE_REVISION=1', image, '/bin/sh', '-c', script]
+           '-e', 'PACKAGE_REVISION=1', '-e', 'XDG_CONFIG_HOME=/work/config', '-e', 'XDG_STATE_HOME=/work/state',
+           '-e', 'XDG_RUNTIME_DIR=/work/run', '-e', 'XDG_DATA_HOME=/work/data', image, '/bin/sh', '-c', script]
 print('DIAGNOSTIC_HOST=' + platform.machine(), flush=True)
 subprocess.run(['git', '-C', str(source), 'rev-parse', 'HEAD'], check=True)
 with (work / 'native.log').open('w') as output:
