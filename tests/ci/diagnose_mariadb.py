@@ -19,7 +19,8 @@ def diagnose(arguments, **kwargs):
         print('ORIGINAL_CLIENT_RETURN_CODE=' + str(completed.returncode), flush=True)
         if completed.returncode != 0:
             trace = execute(['gdb', '--batch', '--return-child-result', '-ex', 'set disable-randomization off',
-                             '-ex', 'run', '-ex', 'thread apply all bt full', '-ex', 'info registers', '--args', *arguments],
+                             '-ex', 'run', '-ex', 'thread apply all bt full', '-ex', 'info registers',
+                             '-ex', 'x/20i $pc-32', '--args', *arguments],
                             cwd=kwargs.get('cwd'), timeout=60)
             print('GDB_RETURN_CODE=' + str(trace.returncode), flush=True)
     return completed

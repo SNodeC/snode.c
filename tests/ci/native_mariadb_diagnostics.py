@@ -1,7 +1,6 @@
 """Reproduce native ARM64 failures using the existing worker and source hook."""
 import argparse
 import json
-import os
 from pathlib import Path
 import platform
 import shlex
@@ -24,30 +23,40 @@ assert target['build']['platform'] == 'linux/arm64'
 declaration = json.loads((source / 'ci/packages.json').read_text())
 work = Path('/tmp/codex/build/snode.c/native-mariadb') / args.target
 work.mkdir(parents=True, exist_ok=False)
-uid, gid = os.getuid(), os.getgid()
 fmt = target['build']['format']
 tools = TOOLS[fmt]
 if target['distribution'] == 'rocky':
     tools = 'dnf install -y dnf-plugins-core epel-release && dnf config-manager --set-enabled crb && ' + tools
 dependencies = declaration['build_dependencies'][fmt] + ['gdb']
 tools += ' && ' + ('apt-get install -y ' if fmt == 'deb' else 'dnf install -y ') + shlex.join(dependencies)
+if fmt == 'deb':
+    sources = ("mkdir /connector && sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources"
+               " && apt-get update && cd /connector && apt-get source mariadb=$(dpkg-query -W -f='${Version}' libmariadb3)")
+else:
+    sources = ("mkdir /connector && cd /connector && dnf download --source mariadb-connector-c"
+               " && rpm2cpio *.src.rpm | cpio -id --no-absolute-filenames"
+               " && rpmbuild -bp --nodeps --define '_sourcedir /connector' --define '_builddir /connector/prepared' *.spec")
 (work / 'target.json').write_text(json.dumps(target))
-(work / 'Dockerfile').write_text('FROM ' + target['build']['image'] + '\nRUN ' + tools + '\n'
-    + f'RUN useradd -u {uid} -U -M -d /tmp diagnostic && mkdir -m 1777 /work\n')
+(work / 'environment.json').write_text('{}')
+(work / 'Dockerfile').write_text('FROM ' + target['build']['image'] + '\nRUN ' + tools + '\nRUN ' + sources + '\n'
+    + 'RUN (getent passwd 1000 || useradd -u 1000 -U -M -d /tmp diagnostic) && mkdir -m 1777 /work /output\n')
 image = 'snodec-native-diagnostic:' + args.target
 subprocess.run(['docker', 'build', '--platform', 'linux/arm64', '-t', image, str(work)], check=True)
 script = ('mkdir -p /work/output; uname -m; '
           + ('dpkg-query -W libmariadb3; ' if fmt == 'deb' else 'rpm -q mariadb-connector-c; ')
-          + '/bin/sh /source/ci/package/native.sh; result=$?; '
+          + 'python3 /tool/container.py --tag v2.1.0 --version 2.1.0 --revision 2 --package snodec '
+          '--build-id snodec~diagnostic~2.1.0~r2 --feed packages; result=$?; '
           'if test -x /work/build-product/tests/component/database/MariaDBConnectTest; then '
-          'python3 /source/tests/ci/diagnose_mariadb.py /work/build-product/tests/component/database/MariaDBConnectTest; fi; '
-          'exit "$result"')
-command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--user', f'{uid}:{gid}',
+          'python3 /source/tests/ci/diagnose_mariadb.py /work/build-product/tests/component/database/MariaDBConnectTest; '
+          'python3 /source/tests/ci/mariadb_connector_ab.py ' + fmt + '; result=$?; fi; exit "$result"')
+command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--user', '1000:1000',
            '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--memory=4g', '--pids-limit=256',
-           '--tmpfs', '/tmp:rw,exec,size=2g,mode=1777', '--tmpfs', '/var/tmp:rw,exec,size=2g,mode=1777', '--volume', '/work',
+           '--tmpfs', '/tmp:rw,exec,size=2g,mode=1777', '--tmpfs', '/var/tmp:rw,exec,size=2g,mode=1777', '--volume', '/work', '--volume', '/output',
            '--mount', f'type=bind,source={source},target=/source,readonly',
+           '--mount', f'type=bind,source={source},target=/definition,readonly',
            '--mount', f'type=bind,source={worker / "coreci"},target=/tool,readonly',
            '--mount', f'type=bind,source={work / "target.json"},target=/target.json,readonly',
+           '--mount', f'type=bind,source={work / "environment.json"},target=/environment.json,readonly',
            '-e', 'SOURCE_DIR=/source', '-e', 'CI_DIR=/source', '-e', 'TARGET_JSON=/target.json',
            '-e', 'OUTPUT_DIR=/work/output', '-e', 'SOURCE_VERSION=' + (source / 'VERSION').read_text().strip(),
            '-e', 'PACKAGE_REVISION=1', image, '/bin/sh', '-c', script]
