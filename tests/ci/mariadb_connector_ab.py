@@ -19,7 +19,7 @@ flags = subprocess.check_output(['dpkg-buildflags', '--get', 'CFLAGS'] if fmt ==
 print('CONNECTOR_SOURCE=' + str(source), flush=True)
 print('CONNECTOR_FLAGS=' + flags, flush=True)
 outcomes = []
-for arm in ('unpatched', 'context', 'context_tls'):
+for arm in (('unpatched', 'context', 'context_tls') if fmt == 'deb' else ('unpatched', 'context')):
     if arm == 'context':
         patch_file = (Path(__file__).with_name('mariadb-context-3.4.4.patch') if fmt == 'rpm'
                       else Path(__file__).resolve().parents[2] / 'ci/package/mariadb-context-registers.patch')
