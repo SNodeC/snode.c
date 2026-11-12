@@ -19,13 +19,17 @@ flags = subprocess.check_output(['dpkg-buildflags', '--get', 'CFLAGS'] if fmt ==
 print('CONNECTOR_SOURCE=' + str(source), flush=True)
 print('CONNECTOR_FLAGS=' + flags, flush=True)
 outcomes = []
-for arm in ('unpatched', 'patched'):
-    if arm == 'patched':
+for arm in ('unpatched', 'context', 'context_tls'):
+    if arm == 'context':
         patch_file = (Path(__file__).with_name('mariadb-context-3.4.4.patch') if fmt == 'rpm'
                       else Path(__file__).resolve().parents[2] / 'ci/package/mariadb-context-registers.patch')
         with patch_file.open('rb') as patch:
             subprocess.run(['patch', '--batch', '--fuzz=0', '-p1'], cwd=source, stdin=patch, check=True)
+    if arm == 'context_tls':
+        with Path(__file__).with_name('mariadb-tls-nonblocking.patch').open('rb') as patch:
+            subprocess.run(['patch', '--batch', '--fuzz=0', '-p1'], cwd=source, stdin=patch, check=True)
     print('CONTEXT_' + arm + '_SHA256=' + hashlib.sha256(contexts[0].read_bytes()).hexdigest(), flush=True)
+    print('TLS_' + arm + '_SHA256=' + hashlib.sha256((source / 'libmariadb/secure/openssl.c').read_bytes()).hexdigest(), flush=True)
     build = root / arm
     subprocess.run(['cmake', '-S', str(source), '-B', str(build), '-G', 'Ninja',
                     '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON', '-DCMAKE_C_STANDARD=99',
@@ -40,4 +44,4 @@ for arm in ('unpatched', 'patched'):
     subprocess.run(['python3', str(Path(__file__).with_name('diagnose_mariadb.py')),
                     '/work/build-product/tests/component/database/MariaDBConnectTest'], env=environment)
 print('CONNECTOR_AB_OUTCOMES=' + repr(outcomes), flush=True)
-sys.exit(0 if outcomes == [('unpatched', 8), ('patched', 0)] else 1)
+sys.exit(0 if outcomes[0][1] != 0 and outcomes[-1][1] == 0 else 1)

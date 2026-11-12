@@ -1,4 +1,4 @@
-"""Reproduce native ARM64 failures using the existing worker and source hook."""
+"""Compare the three MariaDB executables against native distribution connectors."""
 import argparse
 import json
 from pathlib import Path
@@ -37,30 +37,26 @@ else:
                " && rpm2cpio *.src.rpm | cpio -id --no-absolute-filenames"
                " && rpmbuild -bp --nodeps --define '_sourcedir /connector' --define '_builddir /connector/prepared' *.spec")
 (work / 'target.json').write_text(json.dumps(target))
-(work / 'environment.json').write_text('{}')
 (work / 'Dockerfile').write_text('FROM ' + target['build']['image'] + '\nRUN ' + tools + '\nRUN ' + sources + '\n'
     + 'RUN if getent passwd 1000; then usermod -d /work "$(getent passwd 1000 | cut -d: -f1)"; '
     'else useradd -u 1000 -U -M -d /work diagnostic; fi; mkdir -m 1777 /work /output\n')
 image = 'snodec-native-diagnostic:' + args.target
 subprocess.run(['docker', 'build', '--platform', 'linux/arm64', '-t', image, str(work)], check=True)
-script = ('mkdir -p /work/output; mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m; '
+script = ('mkdir -m 0700 /work/config /work/state /work/run /work/data; uname -m; '
           + ('dpkg-query -W libmariadb3; ' if fmt == 'deb' else 'rpm -q mariadb-connector-c; ')
-          + 'python3 /tool/container.py --tag v2.1.0 --version 2.1.0 --revision 2 --package snodec '
-          '--build-id snodec~diagnostic~2.1.0~r2 --feed packages; result=$?; '
+          + 'cmake -S /source -B /work/build-product -G Ninja -DCMAKE_BUILD_TYPE=Release '
+          '-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=' + ('lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)' if fmt == 'deb' else 'lib64')
+          + ' -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DSPDLOG_SYSTEM_INCLUDES=ON && '
+          'cmake --build /work/build-product --parallel 4 --target MariaDBConnectTest MariaDBQueryTest MariaDBAbortTest; result=$?; '
           'if test -x /work/build-product/tests/component/database/MariaDBConnectTest; then '
+          'ctest --test-dir /work/build-product -R "^MariaDB" --output-on-failure; '
           'python3 /source/tests/ci/diagnose_mariadb.py /work/build-product/tests/component/database/MariaDBConnectTest; '
           'python3 /source/tests/ci/mariadb_connector_ab.py ' + fmt + '; result=$?; fi; exit "$result"')
 command = ['docker', 'run', '--rm', '--init', '--platform', 'linux/arm64', '--user', '1000:1000',
            '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--memory=4g', '--pids-limit=256',
-           '--tmpfs', '/tmp:rw,exec,size=2g,mode=1777', '--tmpfs', '/var/tmp:rw,exec,size=2g,mode=1777', '--volume', '/work', '--volume', '/output',
+           '--tmpfs', '/tmp:rw,exec,size=2g,mode=1777', '--tmpfs', '/var/tmp:rw,exec,size=2g,mode=1777', '--volume', '/work',
            '--mount', f'type=bind,source={source},target=/source,readonly',
-           '--mount', f'type=bind,source={source},target=/definition,readonly',
-           '--mount', f'type=bind,source={worker / "coreci"},target=/tool,readonly',
-           '--mount', f'type=bind,source={work / "target.json"},target=/target.json,readonly',
-           '--mount', f'type=bind,source={work / "environment.json"},target=/environment.json,readonly',
-           '-e', 'SOURCE_DIR=/source', '-e', 'CI_DIR=/source', '-e', 'TARGET_JSON=/target.json',
-           '-e', 'OUTPUT_DIR=/work/output', '-e', 'SOURCE_VERSION=' + (source / 'VERSION').read_text().strip(),
-           '-e', 'PACKAGE_REVISION=1', '-e', 'XDG_CONFIG_HOME=/work/config', '-e', 'XDG_STATE_HOME=/work/state',
+           '-e', 'XDG_CONFIG_HOME=/work/config', '-e', 'XDG_STATE_HOME=/work/state',
            '-e', 'XDG_RUNTIME_DIR=/work/run', '-e', 'XDG_DATA_HOME=/work/data', image, '/bin/sh', '-c', script]
 print('DIAGNOSTIC_HOST=' + platform.machine(), flush=True)
 subprocess.run(['git', '-C', str(source), 'rev-parse', 'HEAD'], check=True)

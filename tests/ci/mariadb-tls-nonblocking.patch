@@ -1,0 +1,7 @@
+--- a/libmariadb/secure/openssl.c
++++ b/libmariadb/secure/openssl.c
+@@ -555,3 +555,3 @@ my_bool ma_tls_connect(MARIADB_TLS *ctls)
+   /* Set socket to non-blocking if not already set */
+-  if (!(blocking= pvio->methods->is_blocking(pvio)))
++  if ((blocking= pvio->methods->is_blocking(pvio)))
+     pvio->methods->blocking(pvio, FALSE, 0);
