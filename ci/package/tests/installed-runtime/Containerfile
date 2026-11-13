@@ -1,4 +1,0 @@
-ARG SUITE=44
-FROM fedora:${SUITE}
-RUN dnf install -y cmake ninja-build gcc-c++ python3 mariadb-server mariadb-connector-c-devel json-devel openssl-devel bluez-libs-devel file-devel && dnf clean all
-ENTRYPOINT ["python3", "/source/ci/package/tests/runtime.py", "/source", "/packages", "/tmp/installed-consumer"]
