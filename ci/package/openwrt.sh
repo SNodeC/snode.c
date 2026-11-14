@@ -16,6 +16,6 @@ git -C "$SOURCE_DIR" archive --format=tar.gz --prefix="snode.c-$PACKAGE_VERSION/
 cd "$SDK_DIR"
 printf 'CONFIG_PACKAGE_snodec=y\n' >> .config
 make defconfig
-make package/snode.c/compile CMAKE_BUILD_TYPE=Release FORCE_UNSAFE_CONFIGURE=1 -j"$(nproc)"
+make package/snode.c/compile CMAKE_BUILD_TYPE=Release FORCE_UNSAFE_CONFIGURE=1 V=s -j"$(nproc)"
 find bin/packages -type f \( -name 'snodec*.ipk' -o -name 'snodec*.apk' \) \
     -exec cp '{}' "$OUTPUT_DIR/" \;
