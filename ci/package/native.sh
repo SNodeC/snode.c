@@ -9,13 +9,8 @@ cmake -S "$SOURCE_DIR" -B "$build" -DCMAKE_BUILD_TYPE=Release \
 cmake --build "$build" --parallel "$(nproc)"
 ctest --test-dir "$build" -LE mariadb --output-on-failure
 case "$family" in
-    deb)
-        cpack --config "$build/CPackConfig.cmake" -G DEB -B "$OUTPUT_DIR" \
-            -D "CPACK_PACKAGE_VERSION=$PACKAGE_VERSION-$PACKAGE_RELEASE"
-        ;;
-    rpm)
-        cpack --config "$build/CPackConfig.cmake" -G RPM -B "$OUTPUT_DIR" \
-            -D "CPACK_PACKAGE_VERSION=$PACKAGE_VERSION" \
-            -D "CPACK_RPM_PACKAGE_RELEASE=$PACKAGE_RELEASE"
-        ;;
+    deb) set -- -G DEB -D "CPACK_PACKAGE_VERSION=$PACKAGE_VERSION-$PACKAGE_RELEASE" ;;
+    rpm) set -- -G RPM -D "CPACK_PACKAGE_VERSION=$PACKAGE_VERSION" \
+                -D "CPACK_RPM_PACKAGE_RELEASE=$PACKAGE_RELEASE" ;;
 esac
+cpack --config "$build/CPackConfig.cmake" -B "$build" -D "CPACK_OUTPUT_FILE_PREFIX=$OUTPUT_DIR" "$@"
