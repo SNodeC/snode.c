@@ -1,7 +1,8 @@
 #!/bin/sh
 set -eu
-recipe="$SDK_DIR/package/snode.c"
+recipe="$SDK_DIR/feeds/base/snode.c"
 mkdir -p "$recipe" "$SDK_DIR/dl" "$OUTPUT_DIR"
+ln -s "$recipe" "$SDK_DIR/package/snode.c"
 cp -R "$SOURCE_DIR/supplement/openwrt/." "$recipe/"
 commit=$(git -C "$SOURCE_DIR" rev-parse HEAD)
 {
