@@ -41,27 +41,18 @@ cmake_minimum_required(VERSION 3.18)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-add_compile_options(
-    -Wno-float-equal
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-duplicate-enum>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-switch-enum>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-reserved-macro-identifier>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-c++20-compat>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-covered-switch-default>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-private-field>
-    $<$<AND:$<CXX_COMPILER_ID:Clang>,$<VERSION_GREATER_EQUAL:$<CXX_COMPILER_VERSION>,21>>:-Wno-nrvo>
-)
-
 set(TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 unset(CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
 
 include(FetchContent)
+set(SPDLOG_SYSTEM_INCLUDES ON)
 FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
     GIT_TAG v1.17.0
 )
 FetchContent_MakeAvailable(spdlog)
+set_target_properties(spdlog PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${TMP_CMAKE_CXX_INCLUDE_WHAT_YOU_USE})
 
