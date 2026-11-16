@@ -3,6 +3,7 @@
 #include "database/mariadb/MariaDBClient.h"
 #include "support/TestResult.h"
 
+#include <csignal>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -89,7 +90,7 @@ int main(int argc, char** argv) {
                         killTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(
                             [&] {
                                 if (mode == "shutdown" || mode == "shutdown-query") {
-                                    core::SNodeC::stop();
+                                    std::raise(SIGTERM);
                                 } else {
                                     const auto sql = "KILL CONNECTION " + std::to_string(victim);
                                     checks.expectEqual(0, mysql_query(killer, sql.c_str()), "kill only the disposable test connection");
@@ -100,7 +101,9 @@ int main(int argc, char** argv) {
                 },
                 unexpected);
             deadline = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(finish, 3));
-            checks.expectEqual(0, core::SNodeC::start(), "event loop completes");
+            checks.expectEqual(mode == "shutdown" || mode == "shutdown-query" ? -SIGTERM : 0,
+                               core::SNodeC::start(),
+                               "framework preserves the signal result for its application");
             const bool recovery = mode == "idle" || mode == "query";
             checks.expectEqual(recovery ? 2 : 1, static_cast<int>(connections), "recovery creates a new session");
             checks.expectEqual(recovery ? 1 : 0, static_cast<int>(rows), "recovery query returns its value");
