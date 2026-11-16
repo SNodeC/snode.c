@@ -89,8 +89,13 @@ int main(int argc, char** argv) {
                         }
                         killTimer = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(
                             [&] {
-                                if (mode == "shutdown" || mode == "shutdown-query") {
+                                if (mode == "shutdown" || mode == "shutdown-query" || mode == "shutdown-reuse") {
                                     std::raise(SIGTERM);
+                                    if (mode == "shutdown-reuse") {
+                                        core::SNodeC::stop();
+                                        db->abort();
+                                        recover();
+                                    }
                                 } else {
                                     const auto sql = "KILL CONNECTION " + std::to_string(victim);
                                     checks.expectEqual(0, mysql_query(killer, sql.c_str()), "kill only the disposable test connection");
@@ -101,7 +106,7 @@ int main(int argc, char** argv) {
                 },
                 unexpected);
             deadline = std::make_unique<core::timer::Timer>(core::timer::Timer::singleshotTimer(finish, 3));
-            checks.expectEqual(mode == "shutdown" || mode == "shutdown-query" ? -SIGTERM : 0,
+            checks.expectEqual(mode == "shutdown" || mode == "shutdown-query" || mode == "shutdown-reuse" ? -SIGTERM : 0,
                                core::SNodeC::start(),
                                "framework preserves the signal result for its application");
             const bool recovery = mode == "idle" || mode == "query";

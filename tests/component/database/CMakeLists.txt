@@ -44,7 +44,7 @@ if(TARGET snodec::db-mariadb)
         MariaDBConnectionLossTest PRIVATE snodec-test-support
                                           snodec::db-mariadb
     )
-    foreach(mode idle query cancel shutdown shutdown-query)
+    foreach(mode idle query cancel shutdown shutdown-query shutdown-reuse)
         add_test(
             NAME MariaDBConnectionLoss-${mode}
             COMMAND
