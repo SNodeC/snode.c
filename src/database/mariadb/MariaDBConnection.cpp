@@ -84,37 +84,46 @@ namespace database::mariadb {
         mysql = mysql_init(nullptr);
         mysql_options(mysql, MYSQL_OPT_NONBLOCK, nullptr);
 
-        execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
-            connectionDetails,
-            [this]() {
-                if (mysql_errno(mysql) == 0) {
-                    const int fd = mysql_get_socket(mysql);
+        if (core::SNodeC::state() == core::State::STOPPING) {
+            // No new database session once SNode.C is shutting down: queued commands are
+            // discarded like those of a connection closed by the shutdown itself.
+            log().debug() << "connect: refused, event loop is stopping";
+            closeMode = CloseMode::Abort;
+            commandStartEvent.span();
+        } else {
+            execute_async(std::move(MariaDBCommandSequence().execute_async(new database::mariadb::commands::async::MariaDBConnectCommand(
+                connectionDetails,
+                [this]() {
+                    if (mysql_errno(mysql) == 0) {
+                        const int fd = mysql_get_socket(mysql);
 
-                    if (ReadEventReceiver::enable(fd) && WriteEventReceiver::enable(fd) && ExceptionalConditionEventReceiver::enable(fd)) {
-                        ReadEventReceiver::suspend();
-                        WriteEventReceiver::suspend();
-                        ExceptionalConditionEventReceiver::suspend();
+                        if (ReadEventReceiver::enable(fd) && WriteEventReceiver::enable(fd) &&
+                            ExceptionalConditionEventReceiver::enable(fd)) {
+                            ReadEventReceiver::suspend();
+                            WriteEventReceiver::suspend();
+                            ExceptionalConditionEventReceiver::suspend();
 
-                        connected = true;
-                    } else {
-                        disableReceivers();
+                            connected = true;
+                        } else {
+                            disableReceivers();
 
-                        log().error() << "Descriptor not registered in SNode.C eventloop";
+                            log().error() << "Descriptor not registered in SNode.C eventloop";
+                        }
                     }
-                }
-            },
-            [this]() {
-                log().debug() << "connect: success";
-                this->sessionEstablished = true;
-                log().info() << "database session established";
+                },
+                [this]() {
+                    log().debug() << "connect: success";
+                    this->sessionEstablished = true;
+                    log().info() << "database session established";
 
-                this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
-            },
-            [this](const std::string& errorString, unsigned int errorNumber) {
-                log().warn() << "connect: error: " << errorString << " : " << errorNumber;
+                    this->onStateChanged({.error = 0, .errorMessage = "", .connected = true});
+                },
+                [this](const std::string& errorString, unsigned int errorNumber) {
+                    log().warn() << "connect: error: " << errorString << " : " << errorNumber;
 
-                this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
-            }))));
+                    this->onStateChanged({.error = errorNumber, .errorMessage = errorString});
+                }))));
+        }
     }
 
     MariaDBConnection::~MariaDBConnection() {
@@ -261,15 +270,19 @@ namespace database::mariadb {
                 mariaDBClient->connectionVanished();
                 mariaDBClient = nullptr;
             }
-            if (mariadb_cancel(mysql) != 0) {
-                log().warn() << "MariaDB cancellation failed; controlled close pending";
-            }
+            // Connector/C reports -1 after shutting the socket down even when the cancellation
+            // took effect; the following close is controlled either way.
+            static_cast<void>(mariadb_cancel(mysql));
+            log().debug() << "database request cancellation requested";
             commandStartEvent.span();
         }
     }
 
     void MariaDBConnection::checkStatus(int status) {
-        if (closeMode != CloseMode::Abort && connected) {
+        if (closeMode != CloseMode::Abort && connected && mysql_get_socket(mysql) == MARIADB_INVALID_SOCKET) {
+            abort();
+            currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
+        } else if (closeMode != CloseMode::Abort && connected) {
             if ((status & MYSQL_WAIT_READ) != 0) {
                 if (ReadEventReceiver::isSuspended() && ReadEventReceiver::isEnabled()) {
                     ReadEventReceiver::resume();
@@ -296,12 +309,8 @@ namespace database::mariadb {
 
             if ((status & MYSQL_WAIT_TIMEOUT) != 0) {
                 ReadEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
-                //                WriteEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
-                //                ExceptionalConditionEventReceiver::setTimeout(mysql_get_timeout_value(mysql));
             } else {
                 ReadEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
-                //                WriteEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
-                //                ExceptionalConditionEventReceiver::setTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
             }
 
             if (status == 0) {
@@ -319,12 +328,8 @@ namespace database::mariadb {
                 commandStartEvent.span();
             }
         } else if (closeMode != CloseMode::Abort) {
-            currentCommandFailed = true;
+            abort();
             currentCommand->commandError(mysql_error(mysql), mysql_errno(mysql));
-            if (closeMode != CloseMode::Abort) {
-                commandCompleted();
-                delete this;
-            }
         }
     }
 
@@ -354,11 +359,21 @@ namespace database::mariadb {
 
     void MariaDBConnection::unobservedEvent() {
         if (closeMode == CloseMode::Active) {
-            log().error() << "Lost connection";
+            if (core::SNodeC::state() != core::State::STOPPING) {
+                log().error() << "Lost connection";
+            } else {
+                log().debug() << "connection closed by shutdown";
+            }
         }
 
         if (mariaDBClient != nullptr) {
-            onStateChanged({});
+            // Detach before notifying: commands issued from the state callback must start a new
+            // connection instead of being queued onto this vanishing one.
+            mariaDBClient->connectionVanished();
+            mariaDBClient = nullptr;
+            if (core::SNodeC::state() != core::State::STOPPING) {
+                onStateChanged({});
+            }
         }
 
         delete this;
