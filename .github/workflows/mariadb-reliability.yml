@@ -17,14 +17,14 @@ jobs:
           sudo apt-get install -y ninja-build libssl-dev nlohmann-json3-dev libmagic-dev libbluetooth-dev libmariadb-dev libncurses-dev mariadb-server
       - name: Configure and build
         run: |
-          mkdir -p /tmp/codex/build/snode.c/reliability/tmp
-          export TMPDIR=/tmp/codex/build/snode.c/reliability/tmp
-          cmake -S . -B /tmp/codex/build/snode.c/reliability -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DCHECK_INCLUDES=OFF
-          cmake --build /tmp/codex/build/snode.c/reliability --parallel 2
+          mkdir -p "${{ runner.temp }}/snodec-reliability/tmp"
+          export TMPDIR="${{ runner.temp }}/snodec-reliability/tmp"
+          cmake -S . -B "${{ runner.temp }}/snodec-reliability" -G Ninja -DCMAKE_BUILD_TYPE=Debug -DSNODEC_BUILD_TESTS=ON -DSNODEC_BUILD_APPS=ON -DCHECK_INCLUDES=OFF
+          cmake --build "${{ runner.temp }}/snodec-reliability" --parallel 2
       - name: Run full CTest twice
         env:
           PYTHONDONTWRITEBYTECODE: '1'
-          TMPDIR: /tmp/codex/build/snode.c/reliability/tmp
+          TMPDIR: ${{ runner.temp }}/snodec-reliability/tmp
         run: |
-          ctest --test-dir /tmp/codex/build/snode.c/reliability --output-on-failure --parallel 4
-          ctest --test-dir /tmp/codex/build/snode.c/reliability --output-on-failure --parallel 4
+          ctest --test-dir "${{ runner.temp }}/snodec-reliability" --output-on-failure --parallel 4
+          ctest --test-dir "${{ runner.temp }}/snodec-reliability" --output-on-failure --parallel 4
