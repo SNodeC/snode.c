@@ -23,7 +23,7 @@ def main():
                 raise RuntimeError("MariaDB component tests require the installed tool: " + name)
             tools[name] = found
         account = pwd.getpwuid(os.getuid()).pw_name
-        with tempfile.TemporaryDirectory(prefix="snodec-mariadb-") as directory:
+        with tempfile.TemporaryDirectory(prefix="mdb-") as directory:
             root = Path(directory)
             endpoint = root / "s"
             server = None
@@ -54,7 +54,15 @@ def main():
                             time.sleep(0.05)
                     if not ready:
                         raise RuntimeError("Disposable MariaDB did not become ready")
-                    result = subprocess.run([executable, mode, str(endpoint), account], cwd=root, timeout=10).returncode
+                    case = subprocess.run([executable, mode, str(endpoint), account], cwd=root, timeout=10,
+                                          capture_output=True, text=True)
+                    print(case.stdout, end="")
+                    print(case.stderr, end="", file=sys.stderr)
+                    result = case.returncode
+                    if "MariaDB cancellation failed" in case.stdout + case.stderr:
+                        raise RuntimeError("Completed or already lost socket shutdown reported as cancellation failure")
+                    if mode.startswith("shutdown") and "Lost connection" in case.stdout + case.stderr:
+                        raise RuntimeError("Framework shutdown reported as connection loss")
             finally:
                 if server is not None:
                     if server.poll() is None:

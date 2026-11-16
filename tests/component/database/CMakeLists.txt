@@ -39,6 +39,24 @@
 
 if(TARGET snodec::db-mariadb)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(MariaDBConnectionLossTest MariaDBConnectionLossTest.cpp)
+    target_link_libraries(
+        MariaDBConnectionLossTest PRIVATE snodec-test-support
+                                          snodec::db-mariadb
+    )
+    foreach(mode idle query cancel shutdown shutdown-query)
+        add_test(
+            NAME MariaDBConnectionLoss-${mode}
+            COMMAND
+                ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
+                $<TARGET_FILE:MariaDBConnectionLossTest> ${mode}
+        )
+        set_tests_properties(
+            MariaDBConnectionLoss-${mode}
+            PROPERTIES LABELS "component;database;mariadb" TIMEOUT 90
+        )
+    endforeach()
     add_executable(MariaDBConnectTest MariaDBConnectTest.cpp)
     target_link_libraries(
         MariaDBConnectTest PRIVATE snodec-test-support snodec::db-mariadb
@@ -68,21 +86,52 @@ if(TARGET snodec::db-mariadb)
         )
     endforeach()
     add_executable(MariaDBQueryTest MariaDBQueryTest.cpp)
-    target_link_libraries(MariaDBQueryTest PRIVATE snodec-test-support snodec::db-mariadb)
+    target_link_libraries(
+        MariaDBQueryTest PRIVATE snodec-test-support snodec::db-mariadb
+    )
     foreach(mode following rollback rows empty no-result)
-        add_test(NAME MariaDBQuery-${mode}
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
-                $<TARGET_FILE:MariaDBQueryTest> ${mode})
-        set_tests_properties(MariaDBQuery-${mode}
-            PROPERTIES LABELS "component;database;mariadb" SKIP_RETURN_CODE 77 TIMEOUT 90)
+        add_test(
+            NAME MariaDBQuery-${mode}
+            COMMAND
+                ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
+                $<TARGET_FILE:MariaDBQueryTest> ${mode}
+        )
+        set_tests_properties(
+            MariaDBQuery-${mode} PROPERTIES LABELS "component;database;mariadb"
+                                            SKIP_RETURN_CODE 77 TIMEOUT 90
+        )
     endforeach()
     add_executable(MariaDBAbortTest MariaDBAbortTest.cpp)
-    target_link_libraries(MariaDBAbortTest PRIVATE snodec-test-support snodec::db-mariadb)
-    foreach(mode empty before connecting connect connect-error error row stream eof idle waiting reuse drain)
-        add_test(NAME MariaDBAbort-${mode}
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
-                $<TARGET_FILE:MariaDBAbortTest> ${mode})
-        set_tests_properties(MariaDBAbort-${mode}
-            PROPERTIES LABELS "component;database;mariadb" SKIP_RETURN_CODE 77 TIMEOUT 90)
+    target_link_libraries(
+        MariaDBAbortTest PRIVATE snodec-test-support snodec::db-mariadb
+    )
+    foreach(
+        mode
+        empty
+        before
+        connecting
+        connect
+        connect-error
+        error
+        row
+        stream
+        eof
+        idle
+        waiting
+        reuse
+        drain
+    )
+        add_test(
+            NAME MariaDBAbort-${mode}
+            COMMAND
+                ${Python3_EXECUTABLE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/MariaDBFixture.py
+                $<TARGET_FILE:MariaDBAbortTest> ${mode}
+        )
+        set_tests_properties(
+            MariaDBAbort-${mode} PROPERTIES LABELS "component;database;mariadb"
+                                            SKIP_RETURN_CODE 77 TIMEOUT 90
+        )
     endforeach()
 endif()
