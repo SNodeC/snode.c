@@ -95,6 +95,9 @@ namespace web::websocket {
         } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
             SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
             subProtocolFactory = plugin();
+            if (subProtocolFactory != nullptr) {
+                subProtocolFactories.insert({subProtocolName, subProtocolFactory});
+            }
 
             semantic::webSocketFactoryLog().debug() << "subprotocol plugin '" << subProtocolName << "' selected from static cache";
         } else if (!onlyLinked) {

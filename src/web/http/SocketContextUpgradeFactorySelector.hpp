@@ -134,6 +134,7 @@ namespace web::http {
                 << "upgrade plugin '" << socketContextUpgradeName << "' selected from dynamic cache";
         } else if (linkedSocketContextUpgradePlugins.contains(socketContextUpgradeName)) {
             socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[socketContextUpgradeName]();
+            add(socketContextUpgradeFactory);
 
             snode::log::framework("web.http", snode::log::Boundary::Connection).debug()
                 << "upgrade plugin '" << socketContextUpgradeName << "' selected from static cache";
