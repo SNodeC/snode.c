@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(MCP_JSON REQUIRED nlohmann_json>=3.11)
-add_library(mcp-server SHARED Server.cpp Server.h)
+add_library(mcp-server SHARED Server.cpp Server.h Config.cpp Config.h)
 add_library(snodec::mcp-server ALIAS mcp-server)
 target_compile_features(mcp-server PUBLIC cxx_std_20)
 target_link_libraries(mcp-server PUBLIC core)
@@ -23,7 +23,7 @@ install(
             COMPONENT mcp-server
 )
 install(
-    FILES Server.h
+    FILES Server.h Config.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server
     COMPONENT mcp-server
 )
@@ -34,3 +34,5 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT mcp-server
 )
+
+add_subdirectory(stdio)

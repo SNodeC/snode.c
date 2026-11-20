@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+add_library(mcp-server-stdio SHARED Transport.cpp Transport.h)
+add_library(snodec::mcp-server-stdio ALIAS mcp-server-stdio)
+target_link_libraries(mcp-server-stdio PUBLIC mcp-server)
+set_target_properties(
+    mcp-server-stdio
+    PROPERTIES VERSION ${SNode.C_VERSION}
+               SOVERSION ${SNODEC_SOVERSION}
+               OUTPUT_NAME snodec-mcp-server-stdio
+)
+install(
+    TARGETS mcp-server-stdio
+    EXPORT snodec_mcp-server-stdio_Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/snode.c/mcp
+            COMPONENT mcp-server-stdio
+)
+install(
+    FILES Transport.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server/stdio
+    COMPONENT mcp-server-stdio
+)
+install(
+    EXPORT snodec_mcp-server-stdio_Targets
+    FILE snodec_mcp-server-stdio_Targets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    COMPONENT mcp-server-stdio
+)

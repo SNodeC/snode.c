@@ -150,6 +150,7 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES mcp)
 
 set(SUPPORTED_COMPONENTS
     mcp-server
+    mcp-server-stdio
     core
     core-socket-stream-legacy
     core-socket-stream-tls
