@@ -4,9 +4,8 @@ target_include_directories(
 )
 target_compile_features(Mqtt311PacketValidationTest PRIVATE cxx_std_20)
 target_link_libraries(
-    Mqtt311PacketValidationTest
-    PRIVATE snodec-test-support snodec::mqtt snodec::mqtt-packets
-            snodec::mqtt-server snodec::mqtt-server-packets
+    Mqtt311PacketValidationTest PRIVATE snodec-test-support snodec::mqtt
+                                        snodec::mqtt-server
 )
 set_tests_properties(
     Mqtt311PacketValidationTest
