@@ -101,6 +101,7 @@ namespace web::http::server {
         contentSent = 0;
         sourceFailed = false;
         sourceConnectAccepted = false;
+        headerSent = false;
         connectionState = ConnectionState::Default;
         transferEncoding = TransferEncoding::HTTP10;
     }
@@ -217,7 +218,12 @@ namespace web::http::server {
     }
 
     void Response::send(const char* chunk, std::size_t chunkLen) {
-        if (isConnected()) {
+        if (isConnected() && headerSent) {
+            if (chunkLen > 0) {
+                sendFragment(chunk, chunkLen);
+            }
+            onSourceEof();
+        } else if (isConnected()) {
             if (chunkLen > 0) {
                 set("Content-Type", "application/octet-stream", false);
             }
@@ -399,7 +405,8 @@ namespace web::http::server {
     }
 
     Response& Response::sendHeader() {
-        if (isConnected()) {
+        if (isConnected() && !headerSent) {
+            headerSent = true;
             socketContext->responseStarted(*this);
 
             socketContext->sendToPeer("HTTP/" + std::to_string(httpMajor)

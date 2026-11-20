@@ -382,7 +382,8 @@ namespace tests::component::eventsource {
             [](tests::support::TestResult& testResult, const ReconnectState& observedState, const auto& expectedEvents, int startResult) {
                 testResult.expectEqual(0, startResult, "EventSource reconnect lifecycle exits cleanly");
                 testResult.expectEqual(1, observedState.listenOkCount, "EventSource reconnect server listens once");
-                testResult.expectEqual(1, observedState.eventSourceOpenCount, "EventSource stream establishes after retry");
+                testResult.expectEqual(
+                    2, observedState.eventSourceOpenCount, "EventSource establishes the initial and reconnected streams");
                 testResult.expectEqual(2, observedState.serverRequestCount, "EventSource retry dispatches a second HTTP request");
                 testResult.expectEqual(0, observedState.parseErrorCount, "EventSource reconnect has no parse error");
                 testResult.expectEqual(0, observedState.unexpectedStateCount, "EventSource reconnect has no unexpected state");
@@ -404,7 +405,7 @@ namespace tests::component::eventsource {
                 testResult.expectEqual(
                     1, capture.count(records, component, "", "event source started:"), "reconnecting EventSource starts once");
                 testResult.expectEqual(
-                    1, capture.count(records, component, "", "event stream established:"), "EventSource records the established stream");
+                    2, capture.count(records, component, "", "event stream established:"), "EventSource records both established streams");
                 testResult.expectEqual(1,
                                        capture.count(records, component, "", "event source reconnect scheduled:"),
                                        "EventSource schedules one protocol retry");

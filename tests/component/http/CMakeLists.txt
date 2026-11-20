@@ -467,3 +467,40 @@ set_tests_properties(
     InetHttpServerHeadSourceEofTest
     PROPERTIES LABELS "component;http;head;streaming;legacy;ipv4" TIMEOUT 20
 )
+
+snodec_add_test(
+    InetHttpServerResponseCompletionTest
+    InetHttpServerResponseCompletionTest.cpp
+)
+target_include_directories(
+    InetHttpServerResponseCompletionTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    InetHttpServerResponseCompletionTest
+    PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
+target_compile_features(InetHttpServerResponseCompletionTest PRIVATE cxx_std_20)
+set_tests_properties(
+    InetHttpServerResponseCompletionTest
+    PROPERTIES LABELS "component;http;streaming;keep-alive;legacy;ipv4" TIMEOUT
+               20
+)
+foreach(
+    mode
+    pipe
+    manual
+    trailers
+    fixed
+    http10
+    empty
+    head
+)
+    add_test(NAME InetHttpServerResponseCompletion-${mode}
+             COMMAND InetHttpServerResponseCompletionTest ${mode}
+    )
+    set_tests_properties(
+        InetHttpServerResponseCompletion-${mode}
+        PROPERTIES LABELS "component;http;streaming;legacy;ipv4" TIMEOUT 20
+    )
+endforeach()

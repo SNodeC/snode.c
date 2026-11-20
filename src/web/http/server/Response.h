@@ -140,6 +140,7 @@ namespace web::http::server {
         std::size_t contentLength = 0;
         bool sourceFailed = false;
         bool sourceConnectAccepted = false;
+        bool headerSent = false;
 
         web::http::server::SocketContext* socketContext = nullptr;
 
