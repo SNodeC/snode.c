@@ -130,6 +130,7 @@ add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(database)
 add_subdirectory(iot)
+add_subdirectory(mcp)
 
 if(SNODEC_BUILD_APPS)
     add_subdirectory(apps)
@@ -145,8 +146,10 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES web)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES express)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES database)
 get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES iot)
+get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES mcp)
 
 set(SUPPORTED_COMPONENTS
+    mcp-server
     core
     core-socket-stream-legacy
     core-socket-stream-tls

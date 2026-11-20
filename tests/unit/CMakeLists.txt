@@ -50,3 +50,5 @@ add_subdirectory(log)
 add_subdirectory(mqtt)
 
 add_subdirectory(utils)
+
+add_subdirectory(mcp)
