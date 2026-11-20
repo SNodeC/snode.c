@@ -40,6 +40,7 @@ namespace mcp::server::stdio {
         void receive(const std::string& line);
     };
     struct Transport::State::Input : core::eventreceiver::ReadEventReceiver {
+        ~Input() override;
         std::shared_ptr<State> state;
         explicit Input(const std::shared_ptr<State>& state)
             : ReadEventReceiver("MCP", snode::log::Scope{.component = "mcp.server", .identity = {}}, 0)
@@ -93,9 +94,7 @@ namespace mcp::server::stdio {
             }
             suspend();
         }
-        ~Output() override {
-            close(fd);
-        }
+        ~Output() override;
         void wake() {
             if (isSuspended()) {
                 resume();
@@ -129,6 +128,10 @@ namespace mcp::server::stdio {
             }
         }
     };
+    Transport::State::Input::~Input() = default;
+    Transport::State::Output::~Output() {
+        close(fd);
+    }
     void Transport::State::send(const Json& value) {
         if (!value.is_null() && !failed && output != nullptr) {
             const std::string bytes = value.dump() + "\n";
