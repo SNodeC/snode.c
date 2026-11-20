@@ -504,3 +504,29 @@ foreach(
         PROPERTIES LABELS "component;http;streaming;legacy;ipv4" TIMEOUT 20
     )
 endforeach()
+
+snodec_add_test(InetHttpServerSseModeTest InetHttpServerSseModeTest.cpp)
+target_include_directories(
+    InetHttpServerSseModeTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    InetHttpServerSseModeTest
+    PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
+target_compile_features(InetHttpServerSseModeTest PRIVATE cxx_std_20)
+set_tests_properties(
+    InetHttpServerSseModeTest
+    PROPERTIES LABELS "component;http;streaming;keep-alive;legacy;ipv4" TIMEOUT
+               10
+)
+foreach(mode IN ITEMS sse-keep-alive sse-timeout sse-without-accept)
+    add_test(NAME InetHttpServerSseMode-${mode}
+             COMMAND InetHttpServerSseModeTest ${mode}
+    )
+    set_tests_properties(
+        InetHttpServerSseMode-${mode}
+        PROPERTIES LABELS "component;http;streaming;keep-alive;legacy;ipv4"
+                   TIMEOUT 10
+    )
+endforeach()

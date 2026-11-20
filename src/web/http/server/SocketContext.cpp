@@ -41,6 +41,7 @@
 
 #include "web/http/server/SocketContext.h"
 
+#include "core/DescriptorEventReceiver.h"
 #include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/StatusCodes.h"
@@ -184,7 +185,8 @@ namespace web::http::server {
         if (!pendingRequests.empty()) {
             const std::shared_ptr<Request>& pendingRequest = pendingRequests.front().request;
 
-            serverSentEvent = web::http::ciContains(pendingRequest->get("Accept"), "text/event-stream");
+            serverSentEvent = response.headers.contains("Content-Type") &&
+                              web::http::ciContains(response.headers.at("Content-Type"), "text/event-stream");
 
             if (serverSentEvent) {
                 getSocketConnection()->setReadTimeout(0);
@@ -220,6 +222,11 @@ namespace web::http::server {
     }
 
     void SocketContext::requestCompleted(const Response& response) {
+        if (serverSentEvent) {
+            serverSentEvent = false;
+            getSocketConnection()->setReadTimeout(core::DescriptorEventReceiver::TIMEOUT::DEFAULT);
+        }
+
         PendingRequest pendingRequest = std::move(pendingRequests.front());
         pendingRequests.pop_front();
 
