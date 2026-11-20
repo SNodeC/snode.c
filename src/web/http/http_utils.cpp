@@ -91,7 +91,8 @@ namespace httputils {
         escaped.fill('0'); // cppcheck-suppress ignoredReturnValue
         escaped << std::hex;
 
-        for (const unsigned char c : text) {
+        for (const char character : text) {
+            const auto c = static_cast<unsigned char>(character);
             if (((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) || c == '-' || c == '_' || c == '.' ||
                 c == '~') {
                 escaped << c;
