@@ -36,3 +36,5 @@ install(
 )
 
 add_subdirectory(stdio)
+
+add_subdirectory(http)
