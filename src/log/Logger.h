@@ -107,6 +107,7 @@ namespace logger {
         static void logToFile(const std::string& logFile);
         static void disableLogToFile();
         static void setQuiet(bool quiet = true);
+        static void setConsoleStderr(bool consoleStderr = true);
         static void setTickResolver(TickResolver resolver);
         static void setDisableColor(bool disableColorLog = true);
         static bool getDisableColor();

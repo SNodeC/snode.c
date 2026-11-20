@@ -117,3 +117,13 @@ set_property(
     APPEND
     PROPERTY LABELS "backend"
 )
+
+snodec_add_log_test(SemanticConsoleStreamTest)
+target_link_libraries(
+    SemanticConsoleStreamTest PRIVATE snodec-test-support snodec::core
+                                      snodec::logger snodec::utils util
+)
+set_tests_properties(
+    SemanticConsoleStreamTest PROPERTIES LABELS "unit;log;cli;routing;color"
+                                         TIMEOUT 20
+)

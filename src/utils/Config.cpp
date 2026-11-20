@@ -699,6 +699,9 @@ namespace utils {
                                           true)
                               ->trigger_on_parse();
 
+        setConfigurable(
+            addOption("--log-console", "Console log stream", "stream", std::string("stdout"), CLI::IsMember({"stdout", "stderr"})), true);
+
         quietOpt = setConfigurable(addFlag( //
                                        "-q{true},--quiet{true}",
                                        "Quiet mode",
@@ -779,6 +782,10 @@ namespace utils {
                     logger::Logger::setVerboseLevel(verboseLevelOpt->as<int>());
                 }
 
+                logger::Logger::setConsoleStderr(getOption("--log-console")->as<std::string>() == "stderr");
+                if (monochromLogOpt->count() > 0) {
+                    logger::Logger::setDisableColor(monochromLogOpt->as<bool>());
+                }
                 logger::Logger::setQuiet(quietOpt->as<bool>());
 
                 allowExtras(false);

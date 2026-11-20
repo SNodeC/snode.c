@@ -202,6 +202,17 @@ namespace logger::detail {
             updateWorkerLogger();
         }
 
+        void setConsoleStderr(const bool consoleStderr) {
+            if (consoleStderr) {
+                semanticStdoutSink = std::make_shared<spdlog::sinks::stderr_color_sink_st>();
+            } else {
+                semanticStdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+            }
+            semanticStdoutLogger = makeLogger("snodec-semantic-stdout", semanticStdoutSink);
+            disableColor = ::isatty(::fileno(consoleStderr ? stderr : stdout)) == 0;
+            updateWorkerLogger();
+        }
+
         void setDisableColor(const bool disableColorValue) {
             disableColor = disableColorValue;
         }
@@ -531,7 +542,7 @@ namespace logger::detail {
         }
 
         std::shared_ptr<spdlog::details::thread_pool> threadPool;
-        std::shared_ptr<spdlog::sinks::stdout_color_sink_st> semanticStdoutSink;
+        std::shared_ptr<spdlog::sinks::sink> semanticStdoutSink;
         std::shared_ptr<spdlog::sinks::rotating_file_sink_st> semanticFileSink;
         std::shared_ptr<spdlog::logger> semanticStdoutLogger;
         std::shared_ptr<spdlog::logger> semanticFileLogger;
@@ -576,6 +587,10 @@ namespace logger::detail {
 
     void SpdlogBackend::setQuiet(const bool quiet) {
         impl_->setQuiet(quiet);
+    }
+
+    void SpdlogBackend::setConsoleStderr(const bool consoleStderr) {
+        impl_->setConsoleStderr(consoleStderr);
     }
 
     void SpdlogBackend::setDisableColor(const bool disableColor) {

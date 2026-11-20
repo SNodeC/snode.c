@@ -40,6 +40,7 @@ namespace logger::detail {
         void discardPending();
 
         void setQuiet(bool quiet);
+        void setConsoleStderr(bool consoleStderr);
         void setDisableColor(bool disableColor);
         bool getDisableColor() const;
 

@@ -101,6 +101,11 @@ namespace logger {
         backend.setQuiet(quiet);
     }
 
+    void Logger::setConsoleStderr(bool consoleStderr) {
+        backend.setConsoleStderr(consoleStderr);
+        disableColorLog = backend.getDisableColor();
+    }
+
     void Logger::setDisableColor(bool disableColor) {
         backend.setDisableColor(disableColor);
         disableColorLog = disableColor;
