@@ -450,3 +450,20 @@ set_tests_properties(
     PROPERTIES LABELS "component;http;backpressure;legacy;ipv4"
                SKIP_RETURN_CODE 77 TIMEOUT 5
 )
+
+snodec_add_test(
+    InetHttpServerHeadSourceEofTest InetHttpServerHeadSourceEofTest.cpp
+)
+target_include_directories(
+    InetHttpServerHeadSourceEofTest PRIVATE ${PROJECT_SOURCE_DIR}
+)
+target_link_libraries(
+    InetHttpServerHeadSourceEofTest
+    PRIVATE OpenSSL::SSL snodec-test-support snodec::http-server
+            snodec::net-in-stream-legacy
+)
+target_compile_features(InetHttpServerHeadSourceEofTest PRIVATE cxx_std_20)
+set_tests_properties(
+    InetHttpServerHeadSourceEofTest
+    PROPERTIES LABELS "component;http;head;streaming;legacy;ipv4" TIMEOUT 20
+)

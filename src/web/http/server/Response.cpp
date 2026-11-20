@@ -460,7 +460,7 @@ namespace web::http::server {
 
     void Response::sendCompleted(bool boundedStream) {
         if (isConnected()) {
-            if (!sourceFailed && transferEncoding == TransferEncoding::Chunked) {
+            if (requestMethod != "HEAD" && !sourceFailed && transferEncoding == TransferEncoding::Chunked) {
                 if (boundedStream) {
                     std::string completion = "0\r\n";
 
