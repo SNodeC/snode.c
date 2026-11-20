@@ -13,6 +13,19 @@ to a public class or changing its virtual interface can break ABI even when
 existing application source still compiles. Such changes require a major release.
 Use the highest required increment among the changes included in a release.
 
+A private data member added in existing padding of a class in an installed header
+is ABI-compatible and requires a minor release only when all of the following
+are demonstrated and recorded:
+
+- `gdb ptype /o` or equivalent DWARF evidence shows identical `sizeof` and
+  identical offsets for every pre-existing member.
+- No installed inline code constructs the class, takes its `sizeof`, or accesses
+  its members.
+- The member is set by its default initializer and by every reset/init path.
+- A probe built against the old header runs correctly with the new library.
+
+Otherwise, the major-release rule applies.
+
 Library VERSION follows the complete release version; SOVERSION follows its major
 number. Version numbering does not automatically prove ABI compatibility.
 
