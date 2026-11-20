@@ -57,8 +57,6 @@ namespace express::middleware {
     JsonMiddleware::JsonMiddleware() {
         use("/", [] MIDDLEWARE(req, res, next) {
             try {
-                const nlohmann::json json = nlohmann::json::parse(std::string(req->body.begin(), req->body.end()));
-
                 // set all the json data as attributes in the request object
                 req->setAttribute<nlohmann::json>(nlohmann::json::parse(std::string(req->body.begin(), req->body.end())));
             } catch ([[maybe_unused]] const nlohmann::detail::parse_error& error) {
