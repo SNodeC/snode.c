@@ -188,11 +188,10 @@ namespace mcp::server::stdio {
                                  (request["params"]["_meta"].contains(versionKey) || request["params"]["_meta"].contains(capabilitiesKey));
             const std::string method =
                 request.is_object() && request.value("method", Json()).is_string() ? request["method"].get<std::string>() : "";
-            if (method == "initialize" && !hasMeta && !legacy) {
-                legacy = true;
-            }
-            const bool legacyRequest = legacy && !hasMeta;
-            if (method == "notifications/cancelled" && request.value("params", Json()).is_object()) {
+            const bool initializing = method == "initialize" && !hasMeta;
+            const bool legacyRequest = (legacy || initializing) && !hasMeta;
+            if (method == "notifications/cancelled" && Server::validRequest(request) && !request.contains("id") &&
+                request.value("params", Json()).is_object()) {
                 const std::string key = request["params"].value("requestId", Json()).dump();
                 if (pending.contains(key)) {
                     pending[key]->cancel();
@@ -215,8 +214,11 @@ namespace mcp::server::stdio {
                     auto reply = server.dispatch(
                         request,
                         legacyRequest,
-                        [weak](const Json& value, bool) {
+                        [weak, initializing](const Json& value, bool) {
                             if (const auto owner = weak.lock()) {
+                                if (initializing && value.contains("result")) {
+                                    owner->legacy = true;
+                                }
                                 owner->send(value);
                             }
                         },

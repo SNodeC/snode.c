@@ -88,12 +88,14 @@ class Server:
         self.errors.close()
 
 
-def wire(value):
+def wire(value, overrides=None):
     body = json.dumps(value).encode()
     fields = headers(value)
+    fields.update(overrides or {})
     fields["Content-Length"] = str(len(body))
     fields["Host"] = "localhost"
-    return b"POST /mcp HTTP/1.1\r\n" + b"".join((key + ": " + text + "\r\n").encode() for key, text in fields.items()) + b"\r\n" + body
+    return b"POST /mcp HTTP/1.1\r\n" + b"".join((key + ": " + text + "\r\n").encode() for key, text in fields.items()
+                                              if text is not None) + b"\r\n" + body
 
 
 def read_response(connection):
@@ -124,10 +126,54 @@ def read_response(connection):
     return bytes(head), bytes(body)
 
 
+def legacy_qualification(server):
+    fields = {"MCP-Protocol-Version": "2025-11-25", "Mcp-Method": None, "Mcp-Name": None, "Mcp-Session-Id": "ignored"}
+
+    def legacy(method, params=None, ident=40):
+        return {"jsonrpc": "2.0", "id": ident, "method": method, "params": params or {}}
+
+    status, head, body = server.curl(legacy("tools/list"), fields)
+    assert status == 200 and b"application/json" in head and b"mcp-session-id" not in head.lower()
+    assert "resultType" not in json.loads(body)["result"], "legacy HTTP is usable without a session record"
+    init = legacy("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}})
+    status, head, body = server.curl(init, dict(fields, **{"MCP-Protocol-Version": None}))
+    assert status == 200 and json.loads(body)["result"]["protocolVersion"] == "2025-11-25"
+    assert b"mcp-session-id" not in head.lower()
+    bad = legacy("initialize", {"protocolVersion": "2025-11-25"})
+    assert json.loads(server.curl(bad, fields)[2])["error"]["code"] == -32602
+    assert server.curl(legacy("ping"), fields)[0] == 200
+    status, _, body = server.curl(legacy("tools/call", {"name": "overflow"}), fields)
+    assert status == 500 and json.loads(body)["error"]["code"] == -32603, "JSON output is bounded too"
+    for method in ["GET", "DELETE"]:
+        assert server.curl(overrides=fields, method=method)[0] == 405
+    for method in ["server/discover", "subscriptions/listen"]:
+        assert server.curl(legacy(method), fields)[0] == 404
+    connection = server.connection()
+    connection.sendall(wire(legacy("tools/call", {"name": "delay"}, 55), fields))
+    cancel = {"jsonrpc": "2.0", "method": "notifications/cancelled", "params": {"requestId": 55}}
+    assert server.curl(cancel, fields)[::2] == (202, b"")
+    head, body = read_response(connection)
+    assert b"application/json" in head and json.loads(body)["id"] == 55, "legacy HTTP cancellation is acknowledged and ignored"
+    connection.close()
+    modern = request("server/discover")
+    for overrides in [fields, {"Mcp-Method": None}, {"MCP-Protocol-Version": None}]:
+        status, _, body = server.curl(modern, overrides)
+        assert status == 400 and json.loads(body)["error"]["code"] == -32020, "legacy traffic never relaxes modern headers"
+    missing = request("tools/list")
+    missing["params"] = {}
+    status, _, body = server.curl(missing)
+    assert status == 400 and json.loads(body)["error"]["code"] == -32602
+    for malformed in [b"[1,2]", b'{"jsonrpc":"2.0","id":3,"result":{}}']:
+        status, _, body = server.curl(modern, raw=malformed)
+        assert status == 400 and json.loads(body)["error"]["code"] == -32600
+    print("PASS: stateless legacy HTTP, JSON only, ignored sessions/cancellation, strict modern isolation")
+
+
 def run():
     with tempfile.TemporaryDirectory(prefix="mcp-http-", dir=os.environ["TMPDIR"]) as directory:
         server = Server(sys.argv[1], directory, sys.argv[3] == "Tls")
         try:
+            legacy_qualification(server)
             value = request("server/discover")
             status, head, body = server.curl(value)
             assert status == 200 and json.loads(body)["result"]["supportedVersions"][0] == "2026-07-28"

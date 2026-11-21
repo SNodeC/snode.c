@@ -57,6 +57,7 @@ namespace mcp::server {
                                         std::chrono::milliseconds timeout = std::chrono::seconds(30)) const;
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
+        static bool validRequest(const Json& request);
         static int httpStatus(const Json& message);
 
     private:

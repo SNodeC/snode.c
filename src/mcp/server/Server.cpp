@@ -10,6 +10,9 @@
 
 namespace mcp::server {
     namespace {
+        bool validId(const Json& id) {
+            return id.is_string() || id.is_number_integer();
+        }
         bool isType(const Json& value, const std::string& type) {
             const bool result = (type == "object" && value.is_object()) || (type == "array" && value.is_array()) ||
                                 (type == "string" && value.is_string()) || (type == "number" && value.is_number()) ||
@@ -157,7 +160,7 @@ namespace mcp::server {
     } // namespace
 
     Reply::Reply(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout)
-        : id(std::move(id))
+        : id(validId(id) ? std::move(id) : Json())
         , modern(modern)
         , cacheable(cacheable)
         , output(std::move(output))
@@ -269,6 +272,11 @@ namespace mcp::server {
     bool Server::valid() const {
         return registrationsValid;
     }
+    bool Server::validRequest(const Json& request) {
+        const Json method = request.is_object() ? request.value("method", Json()) : Json();
+        return request.is_object() && request.value("jsonrpc", Json()) == "2.0" && method.is_string() && method != "" &&
+               (!request.contains("id") || validId(request["id"])) && (!request.contains("params") || request["params"].is_object());
+    }
     Json Server::capabilities() const {
         Json result = Json::object();
         for (const auto& [key, entry] : entries) {
@@ -280,18 +288,16 @@ namespace mcp::server {
     std::shared_ptr<Reply>
     Server::dispatch(const Json& request, bool legacy, Reply::Output output, std::chrono::milliseconds timeout) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
-        const bool readableId = id.is_string() || id.is_number_integer();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
                                        : std::string();
-        auto reply = std::make_shared<Reply>(readableId ? id : Json(),
+        auto reply = std::make_shared<Reply>(id,
                                              !legacy,
                                              method == "server/discover" || method.ends_with("/list") || method == "resources/read",
                                              std::move(output),
                                              timeout);
         try {
-            if (!request.is_object() || request.value("jsonrpc", Json()) != "2.0" || method.empty() ||
-                (request.contains("id") && !readableId) || (request.contains("params") && !request["params"].is_object())) {
+            if (!validRequest(request)) {
                 reply->error(-32600, "Invalid Request");
             } else if (!request.contains("id")) {
                 reply->cancel();
@@ -299,6 +305,7 @@ namespace mcp::server {
                 const Json params = request.value("params", Json::object());
                 const Json meta = params.value("_meta", Json::object());
                 const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
+                const Json client = params.value("clientInfo", Json());
                 if (!legacy &&
                     (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                     reply->error(-32602, "Missing or malformed per-request metadata");
@@ -307,7 +314,12 @@ namespace mcp::server {
                         -32022, "Unsupported protocol version", {{"supported", {modernVersion, legacyVersion}}, {"requested", version}});
                 } else if (!valid()) {
                     reply->error(-32603, "Invalid server registration");
-                } else if (method == "server/discover" || (legacy && method == "initialize")) {
+                } else if (legacy && method == "initialize" &&
+                           (!params.value("protocolVersion", Json()).is_string() || !params.value("capabilities", Json()).is_object() ||
+                            !client.is_object() || !client.value("name", Json()).is_string() ||
+                            !client.value("version", Json()).is_string())) {
+                    reply->error(-32602, "Malformed initialize parameters");
+                } else if ((!legacy && method == "server/discover") || (legacy && method == "initialize")) {
                     Json value{{"capabilities", capabilities()}};
                     if (legacy) {
                         value["protocolVersion"] = legacyVersion;
@@ -347,7 +359,8 @@ namespace mcp::server {
                         const Json arguments = params.value("arguments", Json::object());
                         std::string error;
                         if (entry == entries.end() || !arguments.is_object()) {
-                            reply->error(-32602, "Unknown registration or malformed arguments");
+                            reply->error(legacy && kind == Kind::Resource && entry == entries.end() ? -32002 : -32602,
+                                         "Unknown registration or malformed arguments");
                         } else if (kind == Kind::Tool && !validate(entry->second.description["inputSchema"], arguments, error)) {
                             reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", error}}}}});
                         } else {

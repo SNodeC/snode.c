@@ -121,7 +121,12 @@ namespace mcp::server::http {
                         }
                     } else if (terminal) {
                         if (!value.is_null() && response->isConnected()) {
-                            response->status(Server::httpStatus(value)).json(value);
+                            const std::string bytes = value.dump();
+                            if (bytes.size() > config.outputBytes()) {
+                                fail(response, request, legacy, -32603, "Output limit exceeded");
+                            } else {
+                                response->status(Server::httpStatus(value)).type("application/json").send(bytes);
+                            }
                         }
                         stop();
                     }
@@ -287,48 +292,56 @@ namespace mcp::server::http {
                 req->template getAttribute<Json>([&request](const Json& body) {
                     request = body;
                 });
-                const Json params = request.is_object() && request.value("params", Json()).is_object() ? request["params"] : Json::object();
-                const Json meta = params.value("_meta", Json::object());
-                const bool modernMeta = meta.is_object() && (meta.contains(versionKey) || meta.contains(capabilitiesKey));
-                const Json method = request.is_object() ? request.value("method", Json()) : Json();
-                const bool legacy = !modernMeta && (headerLegacy || (req->get("MCP-Protocol-Version").empty() && method == "initialize"));
-                const std::string accept = lower(req->get("Accept"));
-                const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
-                const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read";
-                const Json name = params.value(method == "resources/read" ? "uri" : "name", Json());
-                const bool notification = request.is_object() && !request.contains("id");
-                if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
-                    res->status(406).end();
-                } else if (!legacy && !notification &&
-                           (req->get("MCP-Protocol-Version").empty() ||
-                            (version.is_string() && !headerMatches(req->get("MCP-Protocol-Version"), version, false)) ||
-                            !headerMatches(req->get("Mcp-Method"), method, false) ||
-                            (needsName && !headerMatches(req->get("Mcp-Name"), name, true)))) {
-                    fail(res, request, false, -32020, "Header mismatch");
-                } else if (notification) {
-                    res->status(202).end();
-                } else {
-                    std::erase_if(state->operations, [](const auto& weak) {
-                        return weak.expired();
+                if (!Server::validRequest(request)) {
+                    state->server.dispatch(request, headerLegacy, [res](const Json& value, bool) {
+                        res->status(Server::httpStatus(value)).json(value);
                     });
-                    if (state->stopping || state->operations.size() >= 64) {
-                        res->status(429).end();
+                } else {
+                    const Json params =
+                        request.is_object() && request.value("params", Json()).is_object() ? request["params"] : Json::object();
+                    const Json meta = params.value("_meta", Json::object());
+                    const bool modernMeta = meta.is_object() && (meta.contains(versionKey) || meta.contains(capabilitiesKey));
+                    const Json method = request.is_object() ? request.value("method", Json()) : Json();
+                    const bool legacy =
+                        !modernMeta && (headerLegacy || (req->get("MCP-Protocol-Version").empty() && method == "initialize"));
+                    const std::string accept = lower(req->get("Accept"));
+                    const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
+                    const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read";
+                    const Json name = params.value(method == "resources/read" ? "uri" : "name", Json());
+                    const bool notification = request.is_object() && !request.contains("id");
+                    if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
+                        res->status(406).end();
+                    } else if (!legacy && !notification &&
+                               (req->get("MCP-Protocol-Version").empty() ||
+                                (version.is_string() && !headerMatches(req->get("MCP-Protocol-Version"), version, false)) ||
+                                !headerMatches(req->get("Mcp-Method"), method, false) ||
+                                (needsName && !headerMatches(req->get("Mcp-Name"), name, true)))) {
+                        fail(res, request, false, -32020, "Header mismatch");
+                    } else if (notification) {
+                        res->status(202).end();
                     } else {
-                        const bool streaming =
-                            !legacy && (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1));
-                        auto operation = std::make_shared<Operation>(state->server, state->config, request, res, legacy, streaming);
-                        operation->owner = operation;
-                        state->operations.push_back(operation);
-                        if (streaming) {
-                            res->status(200)
-                                .set("Content-Type", "text/event-stream")
-                                .set("Cache-Control", "no-cache")
-                                .set("X-Accel-Buffering", "no");
-                            if (!res->pipe(operation.get())) {
-                                operation->stop();
-                            }
+                        std::erase_if(state->operations, [](const auto& weak) {
+                            return weak.expired();
+                        });
+                        if (state->stopping || state->operations.size() >= 64) {
+                            res->status(429).end();
                         } else {
-                            operation->start();
+                            const bool streaming =
+                                !legacy && (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1));
+                            auto operation = std::make_shared<Operation>(state->server, state->config, request, res, legacy, streaming);
+                            operation->owner = operation;
+                            state->operations.push_back(operation);
+                            if (streaming) {
+                                res->status(200)
+                                    .set("Content-Type", "text/event-stream")
+                                    .set("Cache-Control", "no-cache")
+                                    .set("X-Accel-Buffering", "no");
+                                if (!res->pipe(operation.get())) {
+                                    operation->stop();
+                                }
+                            } else {
+                                operation->start();
+                            }
                         }
                     }
                 }

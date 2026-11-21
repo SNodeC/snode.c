@@ -125,10 +125,25 @@ int main() {
         server.dispatch(malformed, false, output);
         test.expectEqual(-32600, response["error"]["code"].get<int>(), "invalid envelopes");
     }
-    server.dispatch(
-        {{"jsonrpc", "2.0"}, {"method", "initialize"}, {"id", 1}, {"params", {{"protocolVersion", "2025-06-18"}}}}, true, output);
+    const Json initialize{
+        {"jsonrpc", "2.0"},
+        {"method", "initialize"},
+        {"id", 1},
+        {"params",
+         {{"protocolVersion", "2025-06-18"}, {"capabilities", Json::object()}, {"clientInfo", {{"name", "test"}, {"version", "1"}}}}}};
+    server.dispatch(initialize, true, output);
     test.expectTrue(response["result"]["protocolVersion"] == mcp::server::legacyVersion && !response["result"].contains("resultType"),
                     "legacy normalization");
+    Json malformedInitialize = initialize;
+    malformedInitialize["params"].erase("clientInfo");
+    server.dispatch(malformedInitialize, true, output);
+    test.expectEqual(-32602, response["error"]["code"].get<int>(), "legacy initialize requires client information");
+    server.dispatch(request("server/discover"), true, output);
+    test.expectEqual(-32601, response["error"]["code"].get<int>(), "discover belongs only to the modern era");
+    server.dispatch(request("resources/read", {{"uri", "missing"}}), true, output);
+    test.expectEqual(-32002, response["error"]["code"].get<int>(), "legacy resource error");
+    server.dispatch(request("resources/read", {{"uri", "missing"}}), false, output);
+    test.expectEqual(-32602, response["error"]["code"].get<int>(), "modern resource error remains strict");
     server.dispatch(request("tools/list"), false, output);
     test.expectTrue(response["result"].contains("resultType"), "legacy dispatch never changes modern contract");
     const int notified = messages;

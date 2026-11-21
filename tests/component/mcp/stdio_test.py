@@ -92,6 +92,10 @@ def run(executable):
         batch.finish()
         assert len(batch.messages) == 100
         legacy = Client(executable, [], directory)
+        legacy.send(request("initialize", 8, {"protocolVersion": "2025-11-25"}, False))
+        assert legacy.receive()["error"]["code"] == -32602
+        legacy.send(request("tools/list", 9, modern=False))
+        assert legacy.receive()["error"]["code"] == -32602, "failed initialize cannot establish legacy context"
         legacy.send(request("initialize", 10, {"protocolVersion": "2025-06-18", "capabilities": {},
                                                "clientInfo": {"name": "test", "version": "1"}}, False))
         assert legacy.receive()["result"]["protocolVersion"] == "2025-11-25"
