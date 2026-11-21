@@ -38,6 +38,8 @@ Otherwise, the major-release rule applies.
 Library VERSION follows the complete release version; SOVERSION follows its major
 number. Version numbering does not automatically prove ABI compatibility.
 
+The MCP libraries (`mcp-server`, `mcp-server-stdio`, and `mcp-server-http`), their installed headers under `mcp/server`, and the `snodec-dev` applications are EXPERIMENTAL: their API and ABI may change in a minor SNode.C release. The MCP libraries carry their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C SOVERSION; their VERSION continues to follow the SNode.C release version. Changes to the MCP module never by themselves require a major SNode.C release. All other libraries remain subject to the compatibility rules above, including the padding rule.
+
 Never create, move, or push a version tag without the user's explicit approval for that
 tag and action. Approval to modify code, commit, push a branch, or run CI does not
 authorize creating or pushing version tags. Do not infer release approval from
