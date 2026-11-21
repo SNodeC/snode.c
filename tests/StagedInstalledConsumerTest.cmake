@@ -21,6 +21,21 @@ if(NOT install_result EQUAL 0)
     )
 endif()
 
+if(SNODEC_BUILD_APPS)
+    foreach(skill_file IN ITEMS SKILL.md references/structure.md
+                                references/mcp-usage.md
+    )
+        if(NOT
+           EXISTS
+           "${prefix}/${SNODEC_INSTALL_DATADIR}/snode.c/skills/snodec-development/${skill_file}"
+        )
+            message(
+                FATAL_ERROR "installed snodec-dev skill missing: ${skill_file}"
+            )
+        endif()
+    endforeach()
+endif()
+
 foreach(private_header IN
         ITEMS core/EventLoop.h core/EventMultiplexer.h
               core/DescriptorEventPublisher.h core/TimerEventPublisher.h

@@ -90,7 +90,15 @@ The shipped tools never start child processes. A future command-running tool wou
 
 ## Agent skill and tests
 
-The repository skill lives at `.agents/skills/snodec-development`, with `SKILL.md` and two focused references. `.claude/skills/snodec-development` is a relative symlink to the same directory. [Codex discovers repository skills](https://learn.chatgpt.com/docs/build-skills) in `.agents/skills` from the working directory up to the repository root (personal skills also load from `~/.agents/skills`). [Claude Code loads project skills](https://code.claude.com/docs/en/skills) from `.claude/skills`, personal skills from `~/.claude/skills`, and supports symlinked skill directories.
+The companion skill is part of the `apps` component, sourced from `src/apps/mcp/skill/snodec-development`. Installation places `SKILL.md` and its two references under `<datadir>/snode.c/skills/snodec-development`, where `<datadir>` is the absolute installed data directory (`<prefix>/share` by default, governed by `CMAKE_INSTALL_DATADIR`). To enable the installed skill for your user, substitute that absolute directory below; these commands leave existing links or directories intact if the name is already occupied.
+
+```sh
+mkdir -p ~/.agents/skills ~/.claude/skills
+ln -s "<datadir>/snode.c/skills/snodec-development" ~/.agents/skills/snodec-development
+ln -s "<datadir>/snode.c/skills/snodec-development" ~/.claude/skills/snodec-development
+```
+
+[Codex loads personal skills](https://learn.chatgpt.com/docs/build-skills) from `~/.agents/skills`; [Claude Code loads personal skills](https://code.claude.com/docs/en/skills) from `~/.claude/skills` and supports symlinked skill directories. The installation does not modify either user directory.
 
 CTest uses the existing repository mechanism: `McpServerTest` covers dispatch and schema enforcement; `McpStdioTest` covers framing, cancellation, EOF, pressure, logging, quiet mode, and CLI stdout purity; `McpHttpTest` and `McpTlsTest` use curl plus wire-level checks for headers, SSE framing/chunk termination, authentication, cancellation, and era isolation; `McpDevelopmentTest` covers confinement, slicing, cancellation, budgets, previews compiled against the staged installation, and both applications. The independent four-mode `InetHttpServerSseModeTest` verifies the framework's response-based SSE lifetime.
 

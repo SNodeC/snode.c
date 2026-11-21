@@ -26,3 +26,9 @@ foreach(transport IN ITEMS stdio http)
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT apps
     )
 endforeach()
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/skill/snodec-development/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/snode.c/skills/snodec-development
+    COMPONENT apps
+)

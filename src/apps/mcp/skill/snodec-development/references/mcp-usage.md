@@ -1,6 +1,6 @@
 # Using the development MCP server
 
-The installed executables are `snodec-dev-stdio` and `snodec-dev-http`. Start them with an explicitly selected installed header tree when it differs from the build's configured installation prefix. See `docs/mcp/README.md` for transport configuration, limits, and protocol qualifications.
+Use the installed executables `snodec-dev-stdio` and `snodec-dev-http`. Select the installed header tree with `snodec-dev-stdio mcp --header-root DIRECTORY` or `snodec-dev-http mcp-http mcp --header-root DIRECTORY` when it differs from the configured installation prefix. Read the relevant section's `--help` for options and limits; transport setup and protocol qualifications are documented in `docs/mcp/README.md` when a source checkout is available.
 
 ## API evidence
 
