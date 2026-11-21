@@ -42,6 +42,7 @@ cmake_minimum_required(VERSION 3.18)
 find_package(OpenSSL REQUIRED)
 
 include(CheckPIESupported)
+include(GNUInstallDirs)
 check_pie_supported()
 option(CMAKE_POSITION_INDEPENDENT_CODE "Build position-independent code" ON)
 
