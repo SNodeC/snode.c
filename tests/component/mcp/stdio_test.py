@@ -127,4 +127,5 @@ def run(executable):
         print("PASS: stdio framing, eras, cancellation, EOF/signal, logging/quiet/CLI stdout purity")
 
 
-run(sys.argv[1])
+if __name__ == "__main__":
+    run(sys.argv[1])

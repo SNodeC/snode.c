@@ -28,12 +28,13 @@ def headers(value):
 
 
 class Server:
-    def __init__(self, executable, directory, tls):
+    def __init__(self, executable, directory, tls, extra=(), curl=None):
         sock = socket.socket()
         sock.bind(("127.0.0.1", 0))
         self.port = sock.getsockname()[1]
         sock.close()
         self.tls = tls
+        self.curlCommand = curl or sys.argv[2]
         self.url = ("https" if tls else "http") + "://127.0.0.1:" + str(self.port) + "/mcp"
         self.errors = tempfile.TemporaryFile()
         args = [executable, "--log-console", "stderr", "mcp-http", "local", "--port", str(self.port),
@@ -43,6 +44,7 @@ class Server:
             subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-subj", "/CN=localhost",
                             "-keyout", key, "-out", cert, "-days", "1"], check=True, capture_output=True)
             args += ["tls", "--cert", cert, "--cert-key", key]
+        args += list(extra)
         self.process = subprocess.Popen(args, stdout=self.errors, stderr=self.errors,
                                         env=dict(os.environ, XDG_CONFIG_HOME=directory, XDG_STATE_HOME=directory))
         connected = False
@@ -61,7 +63,7 @@ class Server:
     def curl(self, value=None, overrides=None, method="POST", raw=None):
         fields = headers(value) if value is not None else {"Authorization": "Bearer fixture"}
         fields.update(overrides or {})
-        command = [sys.argv[2], "--silent", "--show-error", "--max-time", "4", "--http1.1", "--insecure", "-i", "-X", method]
+        command = [self.curlCommand, "--silent", "--show-error", "--max-time", "4", "--http1.1", "--insecure", "-i", "-X", method]
         for key, text in fields.items():
             command += ["-H", key + (";" if text == "" else ":" + (" " + text if text is not None else ""))]
         body = json.dumps(value, ensure_ascii=False).encode() if raw is None and value is not None else raw

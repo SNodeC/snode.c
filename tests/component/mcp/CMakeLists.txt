@@ -33,3 +33,19 @@ foreach(variant IN ITEMS Http Tls)
                                      30
     )
 endforeach()
+
+if(TARGET snodec-dev-stdio AND TARGET snodec-dev-http)
+    add_test(
+        NAME McpDevelopmentTest
+        COMMAND
+            ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/dev_test.py
+            $<TARGET_FILE:snodec-dev-stdio> $<TARGET_FILE:snodec-dev-http>
+            ${MCP_CURL} ${CMAKE_CXX_COMPILER}
+            ${CMAKE_BINARY_DIR}/staged-installed-consumer/prefix/${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+            "${CMAKE_CXX_FLAGS}" "${CMAKE_EXE_LINKER_FLAGS}"
+    )
+    set_tests_properties(
+        McpDevelopmentTest PROPERTIES LABELS "mcp;component;development"
+                                      TIMEOUT 120
+    )
+endif()
