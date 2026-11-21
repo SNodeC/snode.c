@@ -2,6 +2,15 @@
 #include "ReviewPrompt.h"
 
 #include "Tools.h"
+#include "mcp/server/Request.h"
+#include "mcp/server/Results.h"
+#include "mcp/server/Types.h"
+
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 namespace apps::mcp {
     ReviewPrompt::ReviewPrompt()
         : Prompt({"snodec-review",

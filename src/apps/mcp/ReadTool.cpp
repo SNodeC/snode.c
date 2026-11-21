@@ -2,6 +2,9 @@
 #include "ReadTool.h"
 
 #include "Tools.h"
+
+#include <nlohmann/json.hpp>
+#include <string>
 namespace apps::mcp {
     ReadTool::ReadTool(const DevelopmentConfig& config)
         : Tool({"api.read",

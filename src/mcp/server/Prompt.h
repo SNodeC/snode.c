@@ -2,8 +2,15 @@
 #ifndef MCP_SERVER_PROMPT_H
 #define MCP_SERVER_PROMPT_H
 #include "mcp/server/Reply.h"
-#include "mcp/server/Request.h"
+
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
 namespace mcp::server {
+    struct PromptGet; ///< Borrowed request declared in Request.h.
+
     /// Whether a prompt argument must be present before its handler runs.
     enum class Requirement { Optional, Required };
     /// Owned prompt argument metadata; names must be nonempty and unique.

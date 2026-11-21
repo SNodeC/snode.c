@@ -5,10 +5,10 @@
 #include "core/timer/Timer.h"
 #include "mcp-config.h"
 #include "mcp/server/Config.h"
-#include "mcp/server/Server.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
+#include "mcp/server/Server.h"
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"
 
@@ -22,15 +22,12 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <optional>
-#include <variant>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-
-// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 namespace apps::mcp {
     using ::mcp::server::Json;

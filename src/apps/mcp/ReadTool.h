@@ -3,9 +3,13 @@
 #ifndef APPS_MCP_READTOOL_H
 #define APPS_MCP_READTOOL_H
 
-#include "Tools.h"
+#include "mcp/server/Reply.h"
 #include "mcp/server/Tool.h"
+
+#include <memory>
 namespace apps::mcp {
+    class Headers;
+    class DevelopmentConfig;
     class ReadTool : public ::mcp::server::Tool {
     public:
         explicit ReadTool(const DevelopmentConfig& config);

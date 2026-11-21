@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #include "mcp/server/Server.h"
+
+#include "Log.h"
+#include "core/timer/Timer.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
-
-#include "Log.h"
-#include "core/timer/Timer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -16,18 +16,17 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <optional>
+#include <nlohmann/detail/iterators/iter_impl.hpp>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <variant>
 #include <vector>
-#include <utility>
-
-// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
-// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 namespace mcp::server {
     using namespace detail;

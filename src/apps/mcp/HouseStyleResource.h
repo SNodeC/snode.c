@@ -3,6 +3,7 @@
 #ifndef APPS_MCP_HOUSESTYLERESOURCE_H
 #define APPS_MCP_HOUSESTYLERESOURCE_H
 
+#include "mcp/server/Reply.h"
 #include "mcp/server/Resource.h"
 namespace apps::mcp {
     class HouseStyleResource : public ::mcp::server::Resource {

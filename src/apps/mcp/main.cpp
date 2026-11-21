@@ -9,10 +9,11 @@
 #include "mcp-config.h"
 #include "mcp/server/Server.h"
 
-#include <memory>
 #ifdef MCP_STDIO
 #include "mcp/server/stdio/Transport.h"
 #include "utils/Config.h"
+
+#include <memory>
 #include <string>
 
 #else

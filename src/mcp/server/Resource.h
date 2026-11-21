@@ -2,8 +2,14 @@
 #ifndef MCP_SERVER_RESOURCE_H
 #define MCP_SERVER_RESOURCE_H
 #include "mcp/server/Reply.h"
-#include "mcp/server/Request.h"
+
+#include <memory>
+#include <optional>
+#include <string>
+
 namespace mcp::server {
+    struct ResourceRead; ///< Borrowed request declared in Request.h.
+
     /// Owned resource metadata; the URI is the registration key.
     struct ResourceDefinition {
         std::string uri;                    ///< Nonempty owned resource URI.

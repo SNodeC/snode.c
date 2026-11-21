@@ -2,8 +2,16 @@
 #ifndef MCP_SERVER_TOOL_H
 #define MCP_SERVER_TOOL_H
 #include "mcp/server/Reply.h"
-#include "mcp/server/Request.h"
+#include "mcp/server/Types.h"
+
+#include <memory>
+#include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
+
 namespace mcp::server {
+    struct ToolCall; ///< Borrowed request declared in Request.h.
+
     /// Owned tool metadata; raw JSON Schema remains the sole schema representation.
     struct ToolDefinition {
         std::string name;                   ///< Nonempty owned protocol identifier.

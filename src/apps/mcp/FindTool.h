@@ -3,9 +3,14 @@
 #ifndef APPS_MCP_FINDTOOL_H
 #define APPS_MCP_FINDTOOL_H
 
-#include "Tools.h"
+#include "mcp/server/Reply.h"
 #include "mcp/server/Tool.h"
+
+#include <cstddef>
+#include <memory>
 namespace apps::mcp {
+    class Headers;
+    class DevelopmentConfig;
     class FindTool : public ::mcp::server::Tool {
     public:
         explicit FindTool(const DevelopmentConfig& config);

@@ -2,15 +2,19 @@
 #pragma once
 #include "mcp/server/Config.h"
 #include "mcp/server/Reply.h"
-#include "mcp/server/Request.h"
+#include "mcp/server/Types.h"
 
 #include <cstddef>
+#include <memory>
 #include <string>
 namespace CLI {
     class Option;
 }
 namespace utils {
     class SubCommand;
+}
+namespace mcp::server {
+    struct ToolCall;
 }
 namespace apps::mcp {
     class Headers;

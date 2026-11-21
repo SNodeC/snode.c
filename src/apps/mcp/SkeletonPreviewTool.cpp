@@ -2,6 +2,15 @@
 #include "SkeletonPreviewTool.h"
 
 #include "Tools.h"
+#include "mcp/server/Request.h"
+#include "mcp/server/Results.h"
+#include "mcp/server/Types.h"
+
+#include <map>
+#include <memory>
+#include <nlohmann/detail/json_ref.hpp>
+#include <nlohmann/json.hpp>
+#include <string>
 namespace apps::mcp {
     SkeletonPreviewTool::SkeletonPreviewTool()
         : Tool({"skeleton.preview",

@@ -3,6 +3,7 @@
 #ifndef APPS_MCP_SKELETONPREVIEWTOOL_H
 #define APPS_MCP_SKELETONPREVIEWTOOL_H
 
+#include "mcp/server/Reply.h"
 #include "mcp/server/Tool.h"
 namespace apps::mcp {
     class SkeletonPreviewTool : public ::mcp::server::Tool {

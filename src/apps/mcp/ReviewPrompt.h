@@ -4,6 +4,7 @@
 #define APPS_MCP_REVIEWPROMPT_H
 
 #include "mcp/server/Prompt.h"
+#include "mcp/server/Reply.h"
 namespace apps::mcp {
     class ReviewPrompt : public ::mcp::server::Prompt {
     public:

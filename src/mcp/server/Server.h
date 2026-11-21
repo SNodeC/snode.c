@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
-#include "mcp/server/Prompt.h"
+#include "mcp/server/Prompt.h" // IWYU pragma: export
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
-#include "mcp/server/Resource.h"
-#include "mcp/server/Tool.h"
+#include "mcp/server/Resource.h" // IWYU pragma: export
+#include "mcp/server/Tool.h"     // IWYU pragma: export
 
 #include <functional>
 #include <memory>

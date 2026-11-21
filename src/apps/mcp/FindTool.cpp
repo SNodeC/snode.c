@@ -2,6 +2,9 @@
 #include "FindTool.h"
 
 #include "Tools.h"
+
+#include <nlohmann/json.hpp>
+#include <string>
 namespace apps::mcp {
     FindTool::FindTool(const DevelopmentConfig& config)
         : Tool({"api.find",

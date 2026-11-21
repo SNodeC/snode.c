@@ -2,6 +2,12 @@
 #include "HouseStyleResource.h"
 
 #include "Tools.h"
+#include "mcp/server/Results.h"
+
+#include <memory>
+#include <string>
+#include <variant>
+#include <vector>
 namespace apps::mcp {
     HouseStyleResource::HouseStyleResource()
         : Resource({"snodec://development/house-style", "SNode.C house style", {}, "text/plain"}) {
