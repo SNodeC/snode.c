@@ -231,8 +231,8 @@ namespace apps::mcp {
             }
             void tick() {
                 try {
-                    if (!reply->active() || reply->expired()) {
-                        failure = "Lookup cancelled or deadline exceeded";
+                    reply->expire();
+                    if (!reply->active()) {
                         done = true;
                     }
                     if (!done && (bytes >= maximumBytes || (files >= maximumFiles && file < 0)) && !read) {

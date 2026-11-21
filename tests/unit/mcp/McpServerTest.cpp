@@ -77,6 +77,9 @@ int main() {
     server.prompt({{"name", "review"}}, [](const Json&, const auto& reply) {
         reply->result({{"messages", Json::array()}});
     });
+    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pending](const Json&, const auto& reply) {
+        pending = reply;
+    });
     Json response;
     int messages = 0;
     auto output = [&response, &messages](const Json& value, bool) {
@@ -149,6 +152,12 @@ int main() {
     const int notified = messages;
     server.dispatch({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, true, output);
     test.expectEqual(notified, messages, "no notification response");
+    server.dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, std::chrono::milliseconds(0));
+    pending->expire();
+    test.expectEqual(-32603, response["error"]["code"].get<int>(), "resource deadline is a JSON-RPC error");
+    server.dispatch(request("tools/call", {{"name", "pending"}}), false, output, std::chrono::milliseconds(0));
+    pending->expire();
+    test.expectTrue(response["result"]["isError"] == true, "tool deadline is a tool error");
     server.dispatch(request("tools/call", {{"name", "pending"}}), false, output);
     pending->cancel();
     const int cancelled = messages;

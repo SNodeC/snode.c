@@ -28,6 +28,7 @@ namespace mcp::server {
         void cancel(bool serverInitiated = false);
         bool active() const;
         bool expired() const;
+        void expire();
         void listen();
         bool isSubscription() const;
 
@@ -37,6 +38,7 @@ namespace mcp::server {
         Json id;
         bool modern;
         bool cacheable;
+        bool toolRequest = false;
         bool done = false;
         bool subscription = false;
         Output output;

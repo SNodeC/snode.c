@@ -175,9 +175,8 @@ namespace mcp::server::http {
                             if (const auto current = weak.lock(); current && !current->closed) {
                                 if (!current->legacy && !current->response->isConnected()) {
                                     current->stop();
-                                } else if (current->reply->active() && current->reply->expired() && !current->reply->isSubscription()) {
-                                    current->reply->result(
-                                        {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
+                                } else {
+                                    current->reply->expire();
                                 }
                                 if (current->streaming) {
                                     current->pump();

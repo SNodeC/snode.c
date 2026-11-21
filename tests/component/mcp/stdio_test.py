@@ -91,6 +91,10 @@ def run(executable):
         batch.process.stdin.write(b"".join(json.dumps(request("tools/list", i)).encode() + b"\n" for i in range(100)))
         batch.finish()
         assert len(batch.messages) == 100
+        pressure = Client(executable, ["mcp", "--maximum-output-bytes", "1024"], directory)
+        pressure.send(request("tools/call", 6, {"name": "echo", "arguments": {"value": "x" * 4096}}))
+        assert b"stdio output limit exceeded" in pressure.finish()
+        assert not pressure.messages, "oversized output closes without partial protocol frames"
         legacy = Client(executable, [], directory)
         legacy.send(request("initialize", 8, {"protocolVersion": "2025-11-25"}, False))
         assert legacy.receive()["error"]["code"] == -32602

@@ -172,6 +172,15 @@ namespace mcp::server {
     bool Reply::expired() const {
         return std::chrono::steady_clock::now() >= deadline;
     }
+    void Reply::expire() {
+        if (active() && expired() && !subscription) {
+            if (toolRequest) {
+                result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
+            } else {
+                error(-32603, "Request deadline exceeded");
+            }
+        }
+    }
     bool Reply::isSubscription() const {
         return subscription;
     }
@@ -296,6 +305,7 @@ namespace mcp::server {
                                              method == "server/discover" || method.ends_with("/list") || method == "resources/read",
                                              std::move(output),
                                              timeout);
+        reply->toolRequest = method == "tools/call";
         try {
             if (!validRequest(request)) {
                 reply->error(-32600, "Invalid Request");

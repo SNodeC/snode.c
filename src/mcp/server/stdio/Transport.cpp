@@ -288,11 +288,10 @@ namespace mcp::server::stdio {
             [weak] {
                 if (const auto owner = weak.lock(); owner && !owner->closing) {
                     owner->process();
-                    for (const auto& [id, reply] : owner->pending) {
-                        static_cast<void>(id);
-                        if (reply->active() && reply->expired() && !reply->isSubscription()) {
-                            reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
-                        }
+                    auto next = owner->pending.begin();
+                    while (!owner->closing && next != owner->pending.end()) {
+                        const auto reply = (next++)->second;
+                        reply->expire();
                     }
                     std::erase_if(owner->pending, [](const auto& item) {
                         return !item.second->active();
