@@ -1,11 +1,6 @@
 # SNode.C versioning policy
 
-## Canonical checkout and persistent builds
-
-- Source: `/home/voc/projects/snodec/snode.c/`.
-- GCC Debug: `/home/voc/projects/snodec/build/codex/snode.c/demo-bugs-gcc-debug/`.
-- Strict Clang+ASan Debug: `/home/voc/projects/snodec/build/codex/snode.c/demo-bugs-clang-asan/`.
-- Run CTest with `TMPDIR=/tmp/snc`; keep all build trees outside the source checkout.
+Keep build trees outside the source checkout; run CTest with a short TMPDIR (e.g. `/tmp/snc`), because the MariaDB fixtures reject long Unix-socket paths.
 
 ## Release compatibility
 
