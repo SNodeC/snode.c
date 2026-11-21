@@ -8,9 +8,9 @@ Paths refer to a SNode.C source checkout.
 
 3. Choose the legacy or TLS WebApp variant using the compile-time aliases in `src/apps/http/model/servers.h`. Both `getWebApp` factories construct the selected WebApp with an instance name.
 
-4. Follow `src/apps/http/ConfigWWW.h` and `.cpp` for application configuration: derive from `utils::SubCommand`, add an option with a CLI11 validator, mark it required, and expose a typed getter. The HTTP application attaches this subcommand with `newSubCommand` before initialization.
+4. Follow `src/apps/http/ConfigWWW.h` and `.cpp` for application configuration: derive from `utils::SubCommand`, add an option with a CLI11 validator, and expose a typed getter. Options may be marked required: `ConfigWWW.cpp:54` does this for `--html-root`, while `setHtmlRoot()` supplies a default and lifts the requirement (`ConfigWWW.cpp:58,60`). The HTTP application attaches this subcommand with `newSubCommand` before initialization.
 
-5. Follow `src/apps/main.cpp` for express routing: `use` attaches middleware and nested `express::Router` objects; `get` registers handlers that reply with `send` or `json`. Its `/sse` example sets SSE headers, calls `sendHeader`, sends `sendFragment` fragments from an interval timer, and stops that timer when `isConnected()` is false.
+5. Follow `src/apps/main.cpp` for express routing: `use` attaches middleware and nested `express::Router` objects; `get` registers handlers that reply with `send` or `json`. Its `/sse` example sets SSE headers, calls `sendHeader`, sends `sendFragment` fragments from an interval timer, and stops that timer when `isConnected()` is false. For open-ended browser streams use that timer + `sendFragment` pattern; for finite streamed responses use `Response::pipe()` with a `core::pipe::Source` and complete through Source EOF (see “Embedding the MCP module” in `mcp-usage.md`).
 
 6. Use the semantic logger shown by the HTTP and echo callbacks: `snode::log::application().info()`, `.error()`, and `.critical()`. `src/Log.h` declares the application logger factory and level-specific streaming methods.
 
