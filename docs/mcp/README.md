@@ -2,6 +2,10 @@
 
 The in-tree MCP module provides one registry and dispatcher with stdio and Streamable HTTP adapters. Its first application is a read-only SNode.C development assistant: `api.find`, `api.read`, `skeleton.preview`, the `snodec://development/house-style` resource, and the `snodec-review` prompt. It does not execute commands, inspect app configurations, build examples, or write files.
 
+## Stability
+
+The MCP libraries (`mcp-server`, `mcp-server-stdio`, and `mcp-server-http`), their installed headers under `mcp/server`, and the `snodec-dev` applications are EXPERIMENTAL. Their API and ABI may change in a minor SNode.C release. The MCP libraries have their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C core; their VERSION continues to follow the SNode.C release version. MCP changes alone never require a major SNode.C release. The compatibility policy for all other SNode.C libraries is unchanged.
+
 ## Build and consume
 
 Configure the canonical checkout with an external build directory. Set `BUILD_DIR` and `HEADER_ROOT` for your environment; `HEADER_ROOT` must name the actual installed SNode.C header directory, whose children include `core/` and `express/`.
