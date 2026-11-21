@@ -327,26 +327,21 @@ namespace apps::mcp {
                           {"bytes", {{"type", "integer"}, {"minimum", 1}, {"maximum", 65536}}}}},
                         {"required", {"path"}},
                         {"additionalProperties", false}};
-        server.tool({{"name", "api.find"},
-                     {"description", "Literal search of confined installed headers; returns relative paths, lines and byte offsets."},
-                     {"inputSchema", find}},
+        server.tool({"api.find", "Literal search of confined installed headers; returns relative paths, lines and byte offsets.", find},
                     [headers, files, bytes](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
                         std::make_shared<Lookup>(headers, reply, args, false, files, bytes)->start(call.context);
                     });
-        server.tool({{"name", "api.read"},
-                     {"description", "Read a bounded UTF-8 header range using a relative path and optional byte offset."},
-                     {"inputSchema", read}},
+        server.tool({"api.read", "Read a bounded UTF-8 header range using a relative path and optional byte offset.", read},
                     [headers](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
                         std::make_shared<Lookup>(headers, reply, args, true, 1, 65536)->start(call.context);
                     });
-        server.tool({{"name", "skeleton.preview"},
-                     {"description", "Preview an express application or router module. Does not write files."},
-                     {"inputSchema",
-                      {{"type", "object"},
-                       {"properties", {{"kind", {{"enum", {"application", "module"}}, {"default", "application"}}}}},
-                       {"additionalProperties", false}}}},
+        server.tool({"skeleton.preview",
+                     "Preview an express application or router module. Does not write files.",
+                     {{"type", "object"},
+                      {"properties", {{"kind", {{"enum", {"application", "module"}}, {"default", "application"}}}}},
+                      {"additionalProperties", false}}},
                     [](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
                         const bool module = args.value("kind", std::string("application")) == "module";
@@ -421,15 +416,15 @@ install(TARGETS example RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     : "The apps directory discovers example/CMakeLists.txt; review before writing."}};
                         reply->result(ToolResult::json(value));
                     });
-        server.resource({{"name", "SNode.C house style"}, {"uri", "snodec://development/house-style"}, {"mimeType", "text/plain"}},
+        server.resource({"snodec://development/house-style", "SNode.C house style", {}, "text/plain"},
                         [](const auto&, const auto& reply) {
                             reply->result(::mcp::server::ResourceResult{
                                 {::mcp::server::TextResource{"snodec://development/house-style", "text/plain", style}}});
                         });
         server.prompt(
-            {{"name", "snodec-review"},
-             {"description", "Review SNode.C code for event-loop, ownership, configuration and streaming conventions."},
-             {"arguments", {{{"name", "code"}, {"description", "Code to review"}, {"required", true}}}}},
+            {"snodec-review",
+             "Review SNode.C code for event-loop, ownership, configuration and streaming conventions.",
+             {{"code", "Code to review", ::mcp::server::Requirement::Required}}},
             [](const ::mcp::server::PromptGet& call, const auto& reply) {
                 const auto& args = call.arguments;
                 if (!args.contains("code") || args.at("code").size() > 16384) {

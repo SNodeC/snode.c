@@ -11,13 +11,13 @@ using namespace mcp::server;
 int main(int argc, char* argv[]) {
     tests::support::TestResult test;
     core::SNodeC::init(argc, argv);
-    Server server("context");
+    Server server("context", "test-version");
     std::shared_ptr<ToolReply> pending;
     std::optional<RequestContext> context;
     std::vector<CancelReason> cancelled;
     std::vector<Json> messages;
     bool stopOnCancel = false;
-    server.tool({{"name", "work"}, {"inputSchema", {{"type", "object"}}}}, [&](const ToolCall& call, const auto& reply) {
+    server.tool({"work", {}, {{"type", "object"}}}, [&](const ToolCall& call, const auto& reply) {
         context = call.context;
         pending = reply;
         call.context.onCancel([](CancelReason) {

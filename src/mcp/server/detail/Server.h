@@ -71,11 +71,9 @@ namespace mcp::server {
     struct Server::Impl {
     public:
         using Handler = std::variant<Server::ToolHandler, Server::ResourceHandler, Server::PromptHandler>;
-        explicit Impl(std::string name);
-        void tool(Json description, Server::ToolHandler handler);
-        void resource(Json description, Server::ResourceHandler handler);
-        void prompt(Json description, Server::PromptHandler handler);
-        bool valid() const;
+        explicit Impl(std::string name, std::string version, std::string instructions);
+        void seal();
+        void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            bool legacy,
                                                            detail::Access::Response::Output output,
@@ -86,16 +84,16 @@ namespace mcp::server {
         static int httpStatus(const Json& message);
 
     private:
-        enum class Kind { Tool, Resource, Prompt };
+        using Kind = RegistrationKind;
         struct Entry {
             Kind kind;
             Json description;
             Handler handler;
         };
-        void add(Kind kind, Json description, Handler handler);
         Json capabilities() const;
         std::string name;
-        bool registrationsValid = true;
+        std::string version, instructions;
+        bool sealed = false;
         std::map<std::string, Entry> entries;
     };
 } // namespace mcp::server

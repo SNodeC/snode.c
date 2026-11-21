@@ -266,11 +266,9 @@ namespace mcp::server::http {
         };
     } // namespace
     Router::Router(Server& server, Config& config, Authorize authorize) {
-        if (!Access::registry(server).valid()) {
-            throw std::invalid_argument("Invalid MCP registration");
-        }
         auto state = std::make_shared<State>(server, config);
         state->observe();
+        Access::registry(server).seal();
         use("/", [state, authorize](const auto& req, const auto& res, auto& next) {
             const std::string origin = req->get("Origin");
             const auto allowed = state->config.origins();

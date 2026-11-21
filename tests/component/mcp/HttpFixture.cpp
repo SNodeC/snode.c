@@ -23,25 +23,25 @@ int main(int argc, char* argv[]) {
     app.getConfig()->Connection::setMaximumWriteQueueBytes(1048576);
     app.getConfig()->Local::setHost("127.0.0.1")->setPort(3337);
     WebApp::init(argc, argv);
-    mcp::server::Server server("http-fixture");
+    mcp::server::Server server("http-fixture", "test-version");
     for (const std::string name : {"echo", "écho", "=?base64?literal?="}) {
-        server.tool({{"name", name}, {"inputSchema", {{"type", "object"}}}}, [http](const auto& call, const auto& reply) {
+        server.tool({name, {}, {{"type", "object"}}}, [http](const auto& call, const auto& reply) {
             const auto& args = call.arguments;
             static_cast<void>(args);
             reply->result(ToolResult::json({{"pipelining", http->getAllowPipelining()}, {"pending", http->getMaximumPendingRequests()}}));
         });
     }
-    server.tool({{"name", "delay"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
+    server.tool({"delay", {}, {{"type", "object"}}}, [](const auto&, const auto& reply) {
         core::timer::Timer::singleshotTimer(
             [reply] {
                 reply->result(ToolResult::content({}));
             },
             utils::Timeval(0.1));
     });
-    server.tool({{"name", "large"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
+    server.tool({"large", {}, {{"type", "object"}}}, [](const auto&, const auto& reply) {
         reply->result(ToolResult::text(std::string(200000, 'x')));
     });
-    server.tool({{"name", "overflow"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
+    server.tool({"overflow", {}, {{"type", "object"}}}, [](const auto&, const auto& reply) {
         reply->result(ToolResult::text(std::string(1048576, 'x')));
     });
     app.use("/mcp", mcp::server::http::Router(server, *config, [](const auto& request) {

@@ -16,7 +16,6 @@
 #include <functional>
 #include <map>
 #include <nlohmann/json.hpp>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <system_error>
@@ -283,10 +282,6 @@ namespace mcp::server::stdio {
     }
     Transport::Transport(Server& server, Config& config, int protocolFd)
         : state(std::make_shared<State>(server, config)) {
-        if (!Access::registry(server).valid()) {
-            close(protocolFd);
-            throw std::invalid_argument("Invalid MCP registration");
-        }
         try {
             state->output = new State::Output(state, protocolFd);
             state->input = new State::Input(state);
@@ -295,6 +290,7 @@ namespace mcp::server::stdio {
             state->finish();
             throw;
         }
+        Access::registry(server).seal();
         const std::weak_ptr<State> weak = state;
         state->timer = core::timer::Timer::intervalTimer(
             [weak] {

@@ -21,6 +21,7 @@
 #include <optional>
 #include <nlohmann/json.hpp>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <variant>
@@ -304,8 +305,10 @@ namespace mcp::server {
             }
         }
     }
-    Server::Impl::Impl(std::string name)
-        : name(std::move(name)) {
+    Server::Impl::Impl(std::string name, std::string version, std::string instructions)
+        : name(std::move(name))
+        , version(std::move(version))
+        , instructions(std::move(instructions)) {
     }
     bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
         std::size_t nodes = 0;
@@ -316,44 +319,51 @@ namespace mcp::server {
         error.clear();
         return matches(schema, value, error, 0);
     }
-    void Server::Impl::add(Kind kind, Json description, Handler handler) {
+    void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
         const std::string keyName = kind == Kind::Resource ? "uri" : "name";
-        std::string error;
-        bool good = description.is_object() && description.contains(keyName) && description[keyName].is_string() &&
-                    !description[keyName].get_ref<const std::string&>().empty() &&
-                    std::visit(
-                        [](const auto& callback) {
-                            return static_cast<bool>(callback);
-                        },
-                        handler) &&
-                    entries.size() < 128;
-        if (good && kind == Kind::Tool) {
-            good = description.contains("inputSchema") && description["inputSchema"].is_object() &&
-                   description["inputSchema"].value("type", Json()) == "object" && checkSchema(description["inputSchema"], error);
-            if (good && description.contains("outputSchema")) {
-                good = checkSchema(description["outputSchema"], error);
+        const std::string identifier = description.value(keyName, std::string());
+        const std::string key = std::to_string(static_cast<int>(kind)) + ":" + identifier;
+        const auto reject = [&](const std::string& field, const std::string& reason) {
+            throw RegistrationError(kind, identifier, field, reason);
+        };
+        if (sealed) {
+            reject("registration", "registry is sealed");
+        } else if (identifier.empty() || description.value("name", std::string()).empty()) {
+            reject(identifier.empty() ? keyName : "name", "must not be empty");
+        } else if (!std::visit(
+                       [](const auto& callback) {
+                           return static_cast<bool>(callback);
+                       },
+                       handler)) {
+            reject("handler", "must be callable");
+        } else if (entries.size() >= 128 || entries.contains(key)) {
+            reject(keyName, entries.contains(key) ? "duplicate registration" : "128-registration limit exceeded");
+        }
+        if (kind == Kind::Tool) {
+            std::string error;
+            if (description.contains("annotations") && !description["annotations"].is_object()) {
+                reject("annotations", "must be an object");
+            }
+            const Json& input = description["inputSchema"];
+            if (!input.is_object() || input.value("type", Json()) != "object" || !checkSchema(input, error)) {
+                reject("inputSchema", error.empty() ? "supported object schema required" : error);
+            }
+            if (description.contains("outputSchema") && !checkSchema(description["outputSchema"], error)) {
+                reject("outputSchema", error.empty() ? "supported schema required" : error);
+            }
+        } else if (kind == Kind::Prompt) {
+            std::set<std::string> names;
+            for (const auto& argument : description["arguments"]) {
+                const std::string name = argument["name"];
+                if (name.empty() || !names.insert(name).second) {
+                    reject("arguments.name", "must be nonempty and unique");
+                }
             }
         }
-        if (good) {
-            const std::string key = std::to_string(static_cast<int>(kind)) + ":" + description[keyName].get<std::string>();
-            good = entries.emplace(key, Entry{kind, std::move(description), std::move(handler)}).second;
-        }
-        if (!good) {
-            registrationsValid = false;
-            snode::log::framework("mcp.server", snode::log::Boundary::Configuration).error() << "registration rejected: " << error;
-        }
+        entries.emplace(key, Entry{kind, std::move(description), std::move(handler)});
     }
-    void Server::Impl::tool(Json description, Server::ToolHandler handler) {
-        add(Kind::Tool, std::move(description), std::move(handler));
-    }
-    void Server::Impl::resource(Json description, Server::ResourceHandler handler) {
-        add(Kind::Resource, std::move(description), std::move(handler));
-    }
-    void Server::Impl::prompt(Json description, Server::PromptHandler handler) {
-        add(Kind::Prompt, std::move(description), std::move(handler));
-    }
-    bool Server::Impl::valid() const {
-        return registrationsValid;
+    void Server::Impl::seal() {
+        sealed = true;
     }
     bool Server::Impl::validRequest(const Json& request) {
         const Json method = request.is_object() ? request.value("method", Json()) : Json();
@@ -420,8 +430,7 @@ namespace mcp::server {
                 } else if (!legacy && version != modernVersion) {
                     reply->error(
                         -32022, "Unsupported protocol version", {{"supported", {modernVersion, legacyVersion}}, {"requested", version}});
-                } else if (!valid()) {
-                    reply->error(-32603, "Invalid server registration");
+
                 } else if (legacy && method == "initialize" &&
                            (!params.value("protocolVersion", Json()).is_string() || !params.value("capabilities", Json()).is_object() ||
                             !client.is_object() || !client.value("name", Json()).is_string() ||
@@ -431,10 +440,13 @@ namespace mcp::server {
                     Json value{{"capabilities", capabilities()}};
                     if (legacy) {
                         value["protocolVersion"] = legacyVersion;
-                        value["serverInfo"] = {{"name", name}, {"version", "1"}};
+                        value["serverInfo"] = {{"name", name}, {"version", this->version}};
                     } else {
                         value["supportedVersions"] = {modernVersion, legacyVersion};
-                        value["_meta"]["io.modelcontextprotocol/serverInfo"] = {{"name", name}, {"version", "1"}};
+                        value["_meta"]["io.modelcontextprotocol/serverInfo"] = {{"name", name}, {"version", this->version}};
+                    }
+                    if (!instructions.empty()) {
+                        value["instructions"] = instructions;
                     }
                     reply->result(std::move(value));
                 } else if (legacy && method == "ping") {
@@ -481,6 +493,13 @@ namespace mcp::server {
                         } else if (kind == Kind::Tool && !validate(entry->second.description["inputSchema"], arguments, error)) {
                             reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", error}}}}});
                         } else {
+                            if (kind == Kind::Prompt) {
+                                for (const auto& argument : entry->second.description["arguments"]) {
+                                    if (argument.value("required", false) && !arguments.contains(argument["name"].get<std::string>())) {
+                                        reply->error(-32602, "Missing required prompt argument: " + argument["name"].get<std::string>());
+                                    }
+                                }
+                            }
                             if (entry->second.description.contains("outputSchema")) {
                                 reply->outputSchema = entry->second.description["outputSchema"];
                             }
@@ -490,7 +509,7 @@ namespace mcp::server {
                             } else if (kind == Kind::Resource) {
                                 std::get<Server::ResourceHandler>(entry->second.handler)(
                                     ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
-                            } else {
+                            } else if (reply->active()) {
                                 std::get<Server::PromptHandler>(entry->second.handler)(
                                     PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
                                     Access::wrap<PromptResult>(reply));
@@ -676,18 +695,51 @@ namespace mcp::server {
     template class Reply<ResourceResult>;
     template class Reply<PromptResult>;
 
-    Server::Server(std::string name)
-        : impl(std::make_unique<Impl>(std::move(name))) {
+    RegistrationError::RegistrationError(RegistrationKind kind, std::string identifier, std::string field, std::string reason)
+        : std::invalid_argument(std::string(kind == RegistrationKind::Tool       ? "tool "
+                                            : kind == RegistrationKind::Resource ? "resource "
+                                                                                 : "prompt ") +
+                                (identifier.empty() ? "<unnamed>" : identifier) + ": " + field + ": registration rejected: " + reason) {
+    }
+    Server::Server(std::string name, std::string version, std::string instructions)
+        : impl(std::make_unique<Impl>(std::move(name), std::move(version), std::move(instructions))) {
     }
     Server::~Server() = default;
-    void Server::tool(Json description, ToolHandler handler) {
-        impl->tool(std::move(description), std::move(handler));
+    Server* Server::tool(ToolDefinition definition, ToolHandler handler) {
+        Json description{{"name", definition.name}, {"description", definition.description}, {"inputSchema", definition.inputSchema}};
+        if (definition.outputSchema) {
+            description["outputSchema"] = *definition.outputSchema;
+        }
+        if (definition.title) {
+            description["title"] = *definition.title;
+        }
+        if (!definition.annotations.is_null()) {
+            description["annotations"] = std::move(definition.annotations);
+        }
+        impl->add(RegistrationKind::Tool, std::move(description), std::move(handler));
+        return this;
     }
-    void Server::resource(Json description, ResourceHandler handler) {
-        impl->resource(std::move(description), std::move(handler));
+    Server* Server::resource(ResourceDefinition definition, ResourceHandler handler) {
+        Json description{
+            {"uri", definition.uri}, {"name", definition.name}, {"description", definition.description}, {"mimeType", definition.mimeType}};
+        if (definition.title) {
+            description["title"] = *definition.title;
+        }
+        impl->add(RegistrationKind::Resource, std::move(description), std::move(handler));
+        return this;
     }
-    void Server::prompt(Json description, PromptHandler handler) {
-        impl->prompt(std::move(description), std::move(handler));
+    Server* Server::prompt(PromptDefinition definition, PromptHandler handler) {
+        Json description{{"name", definition.name}, {"description", definition.description}, {"arguments", Json::array()}};
+        for (const auto& argument : definition.arguments) {
+            description["arguments"].push_back({{"name", argument.name},
+                                                {"description", argument.description},
+                                                {"required", argument.requirement == Requirement::Required}});
+        }
+        if (definition.title) {
+            description["title"] = *definition.title;
+        }
+        impl->add(RegistrationKind::Prompt, std::move(description), std::move(handler));
+        return this;
     }
     detail::Access::Registry& detail::Access::registry(const Server& server) {
         return *server.impl;

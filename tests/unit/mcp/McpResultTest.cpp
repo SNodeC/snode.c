@@ -5,9 +5,9 @@
 using namespace mcp::server;
 int main() {
     tests::support::TestResult test;
-    Server server("results");
+    Server server("results", "test-version");
     ToolResult next = ToolResult::text("header bytes\n");
-    server.tool({{"name", "value"}, {"inputSchema", {{"type", "object"}}}}, [&next](const auto&, const auto& reply) {
+    server.tool({"value", {}, {{"type", "object"}}}, [&next](const auto&, const auto& reply) {
         reply->result(next);
     });
     Json response;
@@ -57,11 +57,10 @@ int main() {
                         blocks[3]["type"] == "resource_link" && blocks[3]["size"] == 4 && blocks[4]["resource"]["text"] == "resource" &&
                         blocks[5]["resource"]["blob"] == "AA==",
                     "all tool content kinds encoded");
-    Server schema("schema");
-    schema.tool({{"name", "value"}, {"inputSchema", {{"type", "object"}}}, {"outputSchema", {{"type", "integer"}}}},
-                [](const auto&, const auto& reply) {
-                    reply->result(ToolResult::json("wrong type"));
-                });
+    Server schema("schema", "test-version");
+    schema.tool({"value", {}, {{"type", "object"}}, Json{{"type", "integer"}}}, [](const auto&, const auto& reply) {
+        reply->result(ToolResult::json("wrong type"));
+    });
     detail::Access::registry(schema).dispatch({{"jsonrpc", "2.0"}, {"id", 2}, {"method", "tools/call"}, {"params", {{"name", "value"}}}},
                                               true,
                                               [&response](const Json& value, bool) {

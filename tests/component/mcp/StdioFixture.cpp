@@ -22,23 +22,23 @@ int main(int argc, char* argv[]) {
         arguments.push_back(nullptr);
         core::SNodeC::init(argc + 1, arguments.data());
         utils::Config::configRoot.setDefaultValue(utils::Config::configRoot.getOption("--log-console"), "stderr", false);
-        mcp::server::Server server("stdio-fixture");
-        server.tool({{"name", "echo"}, {"inputSchema", {{"type", "object"}}}}, [](const auto& call, const auto& reply) {
-            const auto& args = call.arguments;
-            reply->result(ToolResult::text(args.dump()));
-        });
-        server.tool({{"name", "delay"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
-            core::timer::Timer::singleshotTimer(
-                [reply] {
-                    reply->result(ToolResult::content({}));
-                },
-                utils::Timeval(0.2));
-        });
-        if (config->getOption("--fixture-schema")->as<std::string>() == "invalid") {
-            server.tool({{"name", "bad"}, {"inputSchema", {{"type", "object"}, {"$ref", "unsupported"}}}}, [](const auto&, const auto&) {
-            });
-        }
         try {
+            mcp::server::Server server("stdio-fixture", "test-version");
+            server.tool({"echo", {}, {{"type", "object"}}}, [](const auto& call, const auto& reply) {
+                const auto& args = call.arguments;
+                reply->result(ToolResult::text(args.dump()));
+            });
+            server.tool({"delay", {}, {{"type", "object"}}}, [](const auto&, const auto& reply) {
+                core::timer::Timer::singleshotTimer(
+                    [reply] {
+                        reply->result(ToolResult::content({}));
+                    },
+                    utils::Timeval(0.2));
+            });
+            if (config->getOption("--fixture-schema")->as<std::string>() == "invalid") {
+                server.tool({"bad", {}, {{"type", "object"}, {"$ref", "unsupported"}}}, [](const auto&, const auto&) {
+                });
+            }
             mcp::server::stdio::Transport transport(server, *config, fd);
             snode::log::application("mcp.fixture").info() << "MCP fixture ready";
             result = core::SNodeC::start();

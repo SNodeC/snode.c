@@ -53,3 +53,12 @@ target_link_libraries(
 set_tests_properties(
     McpContextTest PROPERTIES LABELS "unit;mcp;cancellation;deadline"
 )
+
+snodec_add_test(McpRegistrationTest McpRegistrationTest.cpp)
+target_include_directories(McpRegistrationTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpRegistrationTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(
+    McpRegistrationTest PROPERTIES LABELS "unit;mcp;registration"
+)

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #include "Log.h"
 #include "Tools.h"
+#include "mcp-config.h"
 #include "core/SNodeC.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
             arguments.push_back(nullptr);
             core::SNodeC::init(argc + 1, arguments.data());
             utils::Config::configRoot.setDefaultValue(utils::Config::configRoot.getOption("--log-console"), "stderr", false);
-            mcp::server::Server server("snodec-dev");
+            mcp::server::Server server("snodec-dev", MCP_APPLICATION_VERSION);
             apps::mcp::registerTools(server, *config);
             mcp::server::stdio::Transport transport(server, *config, std::exchange(protocolFd, -1));
             snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
             core::SNodeC::free();
             result = 0;
         } else {
-            mcp::server::Server server("snodec-dev");
+            mcp::server::Server server("snodec-dev", MCP_APPLICATION_VERSION);
             apps::mcp::registerTools(server, *config);
             app.use("/mcp", mcp::server::http::Router(server, *config));
             int listenFailure = 0;

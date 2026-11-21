@@ -63,26 +63,26 @@ int main() {
     test.expectTrue(Access::Registry::validate({{"const", nullptr}}, nullptr, error), "const null");
     test.expectTrue(!Access::Registry::validate(false, true, error), "boolean false schema");
     test.expectTrue(Access::Registry::validate({{"type", {"null", "boolean"}}}, true, error), "type union");
-    Server server("test");
+    Server server("test", "test-version");
     int calls = 0;
     std::shared_ptr<mcp::server::ToolReply> pending;
     std::shared_ptr<mcp::server::ResourceReply> pendingResource;
-    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [&calls](const ::mcp::server::ToolCall& call, const auto& reply) {
+    server.tool({"echo", {}, schema}, [&calls](const ::mcp::server::ToolCall& call, const auto& reply) {
         const auto& args = call.arguments;
         ++calls;
         reply->result(ToolResult::text(args["word"]));
         reply->result(ToolResult::content({}));
     });
-    server.tool({{"name", "pending"}, {"inputSchema", {{"type", "object"}}}}, [&pending](const auto&, const auto& reply) {
+    server.tool({"pending", {}, {{"type", "object"}}}, [&pending](const auto&, const auto& reply) {
         pending = reply;
     });
-    server.resource({{"name", "style"}, {"uri", "snodec://style"}}, [](const auto&, const auto& reply) {
+    server.resource({"snodec://style", "style"}, [](const auto&, const auto& reply) {
         reply->result(mcp::server::ResourceResult{{mcp::server::TextResource{"snodec://style", "text/plain", "style"}}});
     });
-    server.prompt({{"name", "review"}}, [](const auto&, const auto& reply) {
+    server.prompt({"review"}, [](const auto&, const auto& reply) {
         reply->result(mcp::server::PromptResult{});
     });
-    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pendingResource](const auto&, const auto& reply) {
+    server.resource({"snodec://slow", "slow"}, [&pendingResource](const auto&, const auto& reply) {
         pendingResource = reply;
     });
     Json response;
@@ -183,12 +183,22 @@ int main() {
     test.expectTrue(shutdown.size() == 3 && shutdown[1]["method"] == "notifications/cancelled" && shutdown.back().is_null(),
                     "subscription teardown cancellation");
     subscription->cancel();
-    Server invalid("invalid");
-    invalid.tool({{"name", "bad"}, {"inputSchema", {{"type", "object"}, {"$ref", "unsafe"}}}}, [](const auto&, const auto&) {
-    });
-    test.expectTrue(!Access::registry(invalid).valid(), "unsupported advertised schema poisons startup");
-    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [](const auto&, const auto&) {
-    });
-    test.expectTrue(!Access::registry(server).valid(), "duplicate registration rejected");
+    Server invalid("invalid", "test-version");
+    bool rejected = false;
+    try {
+        invalid.tool({"bad", {}, {{"type", "object"}, {"$ref", "unsafe"}}}, [](const auto&, const auto&) {
+        });
+    } catch (const mcp::server::RegistrationError& error) {
+        rejected = std::string(error.what()).find("tool bad: inputSchema:") != std::string::npos;
+    }
+    test.expectTrue(rejected, "unsupported schema is rejected immediately with its registration name");
+    rejected = false;
+    try {
+        server.tool({"echo", {}, schema}, [](const auto&, const auto&) {
+        });
+    } catch (const mcp::server::RegistrationError& error) {
+        rejected = std::string(error.what()).find("duplicate registration") != std::string::npos;
+    }
+    test.expectTrue(rejected, "duplicate registration rejected immediately");
     return test.processResult();
 }

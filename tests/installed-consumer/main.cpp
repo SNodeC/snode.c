@@ -12,6 +12,6 @@ int main() {
     const auto retainProtocol = &mcp::server::stdio::Transport::retainProtocol;
     static_cast<void>(retainProtocol);
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
-    mcp::server::Server server("installed-consumer");
+    mcp::server::Server server("installed-consumer", "test-version");
     return 0;
 }
