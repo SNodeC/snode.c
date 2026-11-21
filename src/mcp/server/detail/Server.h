@@ -76,7 +76,8 @@ namespace mcp::server {
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            bool legacy,
                                                            detail::Access::Response::Output output,
-                                                           const utils::Timeval& timeout = utils::Timeval(30)) const;
+                                                           const utils::Timeval& timeout = utils::Timeval(30),
+                                                           std::optional<Principal> principal = {}) const;
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);

@@ -183,7 +183,20 @@ def run():
             for origin, expected in [("http://localhost:3000", 200), ("null", 403), ("http://evil", 403), ("malformed", 403), ("", 403)]:
                 actual = server.curl(value, {"Origin": origin})[0]
                 assert actual == expected, (origin, actual, expected)
-            assert server.curl(value, {"Authorization": "Bearer wrong"})[0] == 401
+            status, headers, _ = server.curl(value, {"Authorization": "Bearer wrong"})
+            assert status == 401 and b'WWW-Authenticate: Bearer realm="fixture"'.lower() in headers.lower()
+            status, headers, _ = server.curl(value, {"Authorization": "Bearer forbidden"})
+            assert status == 403 and b"www-authenticate" not in headers.lower()
+            for credential in ["Bearer malformed", "Bearer throw"]:
+                assert server.curl(value, {"Authorization": credential})[0] == 500
+            assert server.curl(value, {"Origin": "http://evil", "Authorization": "Bearer throw"})[0] == 403
+            for credential, expected in [("Bearer fixture", {"subject": "fixture-user", "claims": {"scope": "test"}}),
+                                         ("Bearer anonymous", {"anonymous": True})]:
+                identity = request("tools/call", {"name": "identity"})
+                status, _, body = server.curl(identity, {"Authorization": credential})
+                result = json.loads(body.split(b"data: ", 1)[1])["result"]
+                assert status == 200 and result["structuredContent"] == expected
+                assert json.loads(result["content"][0]["text"]) == expected
             for method in ["GET", "DELETE"]:
                 assert server.curl(method=method)[0] == 405
             for content_type in ["text/plain", "application/jsonx", "application/json junk", None]:

@@ -4,6 +4,7 @@
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/http/Router.h"
+#include <stdexcept>
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 #ifdef MCP_TLS
@@ -44,8 +45,27 @@ int main(int argc, char* argv[]) {
     server.tool({"overflow", {}, {{"type", "object"}}}, [](const auto&, const auto& reply) {
         reply->result(ToolResult::text(std::string(1048576, 'x')));
     });
-    app.use("/mcp", mcp::server::http::Router(server, *config, [](const auto& request) {
-                return request->get("Authorization") == "Bearer fixture";
+    server.tool({"identity", {}, {{"type", "object"}}}, [](const auto& call, const auto& reply) {
+        const auto& principal = call.context.getPrincipal();
+        reply->result(ToolResult::json(principal ? mcp::server::Json{{"subject", principal->subject}, {"claims", principal->claims}}
+                                                 : mcp::server::Json{{"anonymous", true}}));
+    });
+    app.use("/mcp", mcp::server::http::Router(server, *config, [](const auto& request) -> mcp::server::http::Authorization {
+                using namespace mcp::server::http;
+                const std::string credential = request->get("Authorization");
+                Authorization result = Unauthorized{"Bearer realm=\"fixture\""};
+                if (credential == "Bearer fixture") {
+                    result = Authorized{mcp::server::Principal{"fixture-user", {{"scope", "test"}}}};
+                } else if (credential == "Bearer anonymous") {
+                    result = Authorized{};
+                } else if (credential == "Bearer forbidden") {
+                    result = Forbidden{};
+                } else if (credential == "Bearer malformed") {
+                    result = Unauthorized{"invalid\r\nchallenge"};
+                } else if (credential == "Bearer throw") {
+                    throw std::runtime_error("authorization failed");
+                }
+                return result;
             }));
     app.listen([](const auto&, const auto&) {
     });

@@ -377,8 +377,11 @@ namespace mcp::server {
         }
         return result;
     }
-    std::shared_ptr<detail::Access::Response>
-    Server::Impl::dispatch(const Json& request, bool legacy, detail::Access::Response::Output output, const utils::Timeval& timeout) const {
+    std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
+                                                                     bool legacy,
+                                                                     detail::Access::Response::Output output,
+                                                                     const utils::Timeval& timeout,
+                                                                     std::optional<Principal> principal) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
@@ -390,6 +393,7 @@ namespace mcp::server {
                                                                 std::move(output),
                                                                 timeout);
         reply->toolRequest = method == "tools/call";
+        reply->principal = std::move(principal);
         if (legacy || method != "subscriptions/listen") {
             const std::weak_ptr<Response> weak = reply;
             reply->timer = core::timer::Timer::singleshotTimer(

@@ -21,6 +21,8 @@
 #include <cstddef>
 #include <nlohmann/json.hpp>
 #include <regex>
+#include <optional>
+#include <variant>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -79,6 +81,7 @@ namespace mcp::server::http {
             Server& server;
             Config& config;
             Json request;
+            std::optional<Principal> principal;
             std::shared_ptr<express::Response> response;
             std::shared_ptr<Operation> owner;
             std::shared_ptr<WireReply> reply;
@@ -89,11 +92,17 @@ namespace mcp::server::http {
             bool paused = false;
             bool ended = false;
             bool closed = false;
-            Operation(
-                Server& server, Config& config, Json request, std::shared_ptr<express::Response> response, bool legacy, bool streaming)
+            Operation(Server& server,
+                      Config& config,
+                      Json request,
+                      std::shared_ptr<express::Response> response,
+                      bool legacy,
+                      bool streaming,
+                      std::optional<Principal> principal)
                 : server(server)
                 , config(config)
                 , request(std::move(request))
+                , principal(std::move(principal))
                 , response(std::move(response))
                 , legacy(legacy)
                 , streaming(streaming) {
@@ -177,7 +186,8 @@ namespace mcp::server::http {
                             current->feed(value, terminal);
                         }
                     },
-                    config.getDeadline());
+                    config.getDeadline(),
+                    std::move(principal));
                 if (streaming) {
                     pump();
                 }
@@ -277,16 +287,38 @@ namespace mcp::server::http {
             if (req->headers.contains("Origin") && (origin.size() > 256 || !std::regex_match(origin, originShape) ||
                                                     std::find(allowed.begin(), allowed.end(), origin) == allowed.end())) {
                 res->status(403).end();
-            } else if (authorize && !authorize(req)) {
-                res->status(401).set("WWW-Authenticate", "Bearer").end();
-            } else if (req->method != "POST") {
-                res->status(405).set("Allow", "POST").end();
-            } else if (contentType != "application/json") {
-                res->status(415).end();
-            } else if (req->body.size() > state->config.getMaximumMessageBytes()) {
-                res->status(413).end();
             } else {
-                next();
+                std::optional<Authorization> authorization;
+                try {
+                    authorization = authorize ? authorize(req) : Authorized{};
+                    if (const auto* denied = std::get_if<Unauthorized>(&*authorization);
+                        denied && (denied->wwwAuthenticate.empty() ||
+                                   !std::all_of(denied->wwwAuthenticate.begin(), denied->wwwAuthenticate.end(), [](unsigned char c) {
+                                       return c >= 32 && c <= 126;
+                                   }))) {
+                        throw std::invalid_argument("Invalid authentication challenge");
+                    }
+                } catch (...) {
+                    authorization.reset();
+                    snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "HTTP authorization callback failed";
+                    res->status(500).end();
+                }
+                if (authorization) {
+                    if (const auto* denied = std::get_if<Unauthorized>(&*authorization)) {
+                        res->status(401).set("WWW-Authenticate", denied->wwwAuthenticate).end();
+                    } else if (std::holds_alternative<Forbidden>(*authorization)) {
+                        res->status(403).end();
+                    } else if (req->method != "POST") {
+                        res->status(405).set("Allow", "POST").end();
+                    } else if (contentType != "application/json") {
+                        res->status(415).end();
+                    } else if (req->body.size() > state->config.getMaximumMessageBytes()) {
+                        res->status(413).end();
+                    } else {
+                        req->template setAttribute<Authorized>(std::get<Authorized>(*authorization));
+                        next();
+                    }
+                }
             }
         });
         use("/", express::middleware::JsonMiddleware());
@@ -335,7 +367,12 @@ namespace mcp::server::http {
                         } else {
                             const bool streaming =
                                 !legacy && (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1));
-                            auto operation = std::make_shared<Operation>(state->server, state->config, request, res, legacy, streaming);
+                            std::optional<Principal> principal;
+                            req->template getAttribute<Authorized>([&principal](const Authorized& authorization) {
+                                principal = authorization.principal;
+                            });
+                            auto operation = std::make_shared<Operation>(
+                                state->server, state->config, request, res, legacy, streaming, std::move(principal));
                             operation->owner = operation;
                             state->operations.push_back(operation);
                             if (streaming) {
