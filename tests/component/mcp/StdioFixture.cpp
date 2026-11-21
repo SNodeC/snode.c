@@ -8,6 +8,7 @@
 #include "utils/Config.h"
 
 #include <unistd.h>
+using mcp::server::ToolResult;
 int main(int argc, char* argv[]) {
     const int fd = mcp::server::stdio::Transport::retainProtocol();
     int result = 1;
@@ -23,12 +24,12 @@ int main(int argc, char* argv[]) {
         utils::Config::configRoot.setDefaultValue(utils::Config::configRoot.getOption("--log-console"), "stderr", false);
         mcp::server::Server server("stdio-fixture");
         server.tool({{"name", "echo"}, {"inputSchema", {{"type", "object"}}}}, [](const auto& args, const auto& reply) {
-            reply->result({{"content", {{{"type", "text"}, {"text", args.dump()}}}}});
+            reply->result(ToolResult::text(args.dump()));
         });
         server.tool({{"name", "delay"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
             core::timer::Timer::singleshotTimer(
                 [reply] {
-                    reply->result({{"content", mcp::server::Json::array()}});
+                    reply->result(ToolResult::content({}));
                 },
                 utils::Timeval(0.2));
         });

@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <map>
+#include <variant>
 namespace mcp::server::detail {
     inline constexpr const char* modernVersion = "2026-07-28";
     inline constexpr const char* legacyVersion = "2025-11-25";
@@ -13,20 +14,10 @@ namespace mcp::server::detail {
 
 } // namespace mcp::server::detail
 namespace mcp::server::detail {
-    class Access {
-    public:
-        using Response = Reply::Impl;
-        using Registry = Server::Impl;
-        static Registry& registry(const Server& server);
-        static Response& response(const Reply& reply);
-        static std::shared_ptr<Reply> wrap(std::shared_ptr<Response> response);
-    };
-} // namespace mcp::server::detail
-namespace mcp::server {
-    struct Reply::Impl {
+    struct Response {
     public:
         using Output = std::function<void(const Json&, bool)>;
-        Impl(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout);
+        Response(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout);
         void result(Json value);
         void error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
@@ -49,13 +40,29 @@ namespace mcp::server {
         std::chrono::steady_clock::time_point deadline;
     };
 
+    class Access {
+    public:
+        using Response = detail::Response;
+        using Registry = Server::Impl;
+        static Registry& registry(const Server& server);
+        template <class Result>
+        static Response& response(const Reply<Result>& reply) {
+            return *reply.impl;
+        }
+        template <class Result>
+        static std::shared_ptr<Reply<Result>> wrap(std::shared_ptr<Response> response) {
+            return std::shared_ptr<Reply<Result>>(new Reply<Result>(std::move(response)));
+        }
+    };
+} // namespace mcp::server::detail
+namespace mcp::server {
     struct Server::Impl {
     public:
-        using Handler = Server::Handler;
+        using Handler = std::variant<Server::ToolHandler, Server::ResourceHandler, Server::PromptHandler>;
         explicit Impl(std::string name);
-        void tool(Json description, Handler handler);
-        void resource(Json description, Handler handler);
-        void prompt(Json description, Handler handler);
+        void tool(Json description, Server::ToolHandler handler);
+        void resource(Json description, Server::ResourceHandler handler);
+        void prompt(Json description, Server::PromptHandler handler);
         bool valid() const;
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            bool legacy,

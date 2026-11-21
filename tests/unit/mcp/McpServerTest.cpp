@@ -5,6 +5,7 @@
 #include <string>
 
 using mcp::server::Json;
+using mcp::server::ToolResult;
 namespace {
     Json request(const std::string& method, Json params = Json::object()) {
         params["_meta"] = {{mcp::server::detail::versionKey, mcp::server::detail::modernVersion},
@@ -64,23 +65,24 @@ int main() {
     test.expectTrue(Access::Registry::validate({{"type", {"null", "boolean"}}}, true, error), "type union");
     Server server("test");
     int calls = 0;
-    std::shared_ptr<mcp::server::Reply> pending;
+    std::shared_ptr<mcp::server::ToolReply> pending;
+    std::shared_ptr<mcp::server::ResourceReply> pendingResource;
     server.tool({{"name", "echo"}, {"inputSchema", schema}}, [&calls](const Json& args, const auto& reply) {
         ++calls;
-        reply->result({{"content", {{{"type", "text"}, {"text", args["word"]}}}}});
-        reply->result(Json::object());
+        reply->result(ToolResult::text(args["word"]));
+        reply->result(ToolResult::content({}));
     });
     server.tool({{"name", "pending"}, {"inputSchema", {{"type", "object"}}}}, [&pending](const Json&, const auto& reply) {
         pending = reply;
     });
     server.resource({{"name", "style"}, {"uri", "snodec://style"}}, [](const Json&, const auto& reply) {
-        reply->result({{"contents", {{{"uri", "snodec://style"}, {"text", "style"}}}}});
+        reply->result(mcp::server::ResourceResult{{mcp::server::TextResource{"snodec://style", "text/plain", "style"}}});
     });
     server.prompt({{"name", "review"}}, [](const Json&, const auto& reply) {
-        reply->result({{"messages", Json::array()}});
+        reply->result(mcp::server::PromptResult{});
     });
-    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pending](const Json&, const auto& reply) {
-        pending = reply;
+    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pendingResource](const Json&, const auto& reply) {
+        pendingResource = reply;
     });
     Json response;
     int messages = 0;
@@ -157,7 +159,7 @@ int main() {
     Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, true, output);
     test.expectEqual(notified, messages, "no notification response");
     Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, std::chrono::milliseconds(0));
-    pending->expire();
+    pendingResource->expire();
     test.expectEqual(-32603, response["error"]["code"].get<int>(), "resource deadline is a JSON-RPC error");
     Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output, std::chrono::milliseconds(0));
     pending->expire();
@@ -165,7 +167,7 @@ int main() {
     Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output);
     Access::response(*pending).cancel();
     const int cancelled = messages;
-    pending->result(Json::object());
+    pending->result(ToolResult::content({}));
     test.expectEqual(cancelled, messages, "cancel prevents late result");
     auto subscription = Access::registry(server).dispatch(
         request("subscriptions/listen", {{"notifications", {{"toolsListChanged", true}}}}), false, output);

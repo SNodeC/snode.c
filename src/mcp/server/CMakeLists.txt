@@ -23,7 +23,7 @@ install(
             COMPONENT mcp-server
 )
 install(
-    FILES Server.h Config.h
+    FILES Server.h Config.h Types.h Results.h Reply.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server
     COMPONENT mcp-server
 )

@@ -13,6 +13,7 @@ using WebApp = express::tls::in::WebApp;
 #include "express/legacy/in/WebApp.h"
 using WebApp = express::legacy::in::WebApp;
 #endif
+using mcp::server::ToolResult;
 int main(int argc, char* argv[]) {
     const WebApp app("mcp-http");
     auto* config = app.getConfig()->Instance::newSubCommand<mcp::server::Config>();
@@ -25,23 +26,22 @@ int main(int argc, char* argv[]) {
     mcp::server::Server server("http-fixture");
     for (const std::string name : {"echo", "écho", "=?base64?literal?="}) {
         server.tool({{"name", name}, {"inputSchema", {{"type", "object"}}}}, [http](const auto& args, const auto& reply) {
-            reply->result(
-                {{"content", {{{"type", "text"}, {"text", args.dump()}}}},
-                 {"structuredContent", {{"pipelining", http->getAllowPipelining()}, {"pending", http->getMaximumPendingRequests()}}}});
+            static_cast<void>(args);
+            reply->result(ToolResult::json({{"pipelining", http->getAllowPipelining()}, {"pending", http->getMaximumPendingRequests()}}));
         });
     }
     server.tool({{"name", "delay"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
         core::timer::Timer::singleshotTimer(
             [reply] {
-                reply->result({{"content", mcp::server::Json::array()}});
+                reply->result(ToolResult::content({}));
             },
             utils::Timeval(0.1));
     });
     server.tool({{"name", "large"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
-        reply->result({{"content", {{{"type", "text"}, {"text", std::string(200000, 'x')}}}}});
+        reply->result(ToolResult::text(std::string(200000, 'x')));
     });
     server.tool({{"name", "overflow"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {
-        reply->result({{"content", {{{"type", "text"}, {"text", std::string(1048576, 'x')}}}}});
+        reply->result(ToolResult::text(std::string(1048576, 'x')));
     });
     app.use("/mcp", mcp::server::http::Router(server, *config, [](const auto& request) {
                 return request->get("Authorization") == "Bearer fixture";

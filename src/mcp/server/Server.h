@@ -1,54 +1,34 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
+#include "mcp/server/Reply.h"
+#include "mcp/server/Types.h"
 #include <functional>
 #include <memory>
-#include <nlohmann/json.hpp>
 #include <string>
-// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 namespace mcp::server {
-    /// Application JSON value, owned by value; use on the event-loop thread.
-    using Json = nlohmann::json;
     namespace detail {
         class Access;
     }
-    /// Shared asynchronous completion handle; created only by the server.
-    class Reply {
-    public:
-        /// Release this handle; outstanding server work retains its own state.
-        ~Reply();
-        /// Complete at most once on the event-loop thread with an owned result.
-        void result(Json value);
-        /// Complete at most once on the event-loop thread with an error.
-        void error(int code, const std::string& message, Json data = nullptr);
-        /// Observe completion on the event-loop thread without mutation.
-        bool active() const;
-        /// Observe the deadline on the event-loop thread without mutation.
-        bool expired() const;
-        /// Apply the deadline on the event-loop thread; temporary migration API.
-        void expire();
-
-    private:
-        struct Impl;
-        explicit Reply(std::shared_ptr<Impl> impl);
-        std::shared_ptr<Impl> impl;
-        friend class detail::Access;
-    };
     /// Registry owner; retain through every attached transport's shutdown.
     class Server {
     public:
         /// Event-loop callback; retain the shared reply for asynchronous work.
-        using Handler = std::function<void(const Json&, const std::shared_ptr<Reply>&)>;
+        using ToolHandler = std::function<void(const Json&, const std::shared_ptr<ToolReply>&)>;
+        /// Resource callback on the event loop; shared completion owns request state.
+        using ResourceHandler = std::function<void(const Json&, const std::shared_ptr<ResourceReply>&)>;
+        /// Prompt callback on the event loop; shared completion owns request state.
+        using PromptHandler = std::function<void(const Json&, const std::shared_ptr<PromptReply>&)>;
         /// Construct before attachment; owns its name and registration data.
         explicit Server(std::string name);
         /// Destroy only after attached transports have drained.
         ~Server();
         /// Register before attachment on the event-loop thread.
-        void tool(Json description, Handler handler);
+        void tool(Json description, ToolHandler handler);
         /// Register before attachment on the event-loop thread.
-        void resource(Json description, Handler handler);
+        void resource(Json description, ResourceHandler handler);
         /// Register before attachment on the event-loop thread.
-        void prompt(Json description, Handler handler);
+        void prompt(Json description, PromptHandler handler);
 
     private:
         struct Impl;

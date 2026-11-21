@@ -9,7 +9,7 @@
 #include "core/timer/Timer.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "mcp/server/Config.h"
-#include "mcp/server/Server.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "utils/base64.h"
 #include "web/http/http_utils.h"

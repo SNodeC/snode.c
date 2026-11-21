@@ -6,6 +6,7 @@
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "core/timer/Timer.h"
 #include "mcp/server/Config.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 
 #include <algorithm>
