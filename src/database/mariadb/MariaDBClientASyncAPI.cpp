@@ -42,7 +42,6 @@
 
 #include "database/mariadb/MariaDBClientASyncAPI.h"
 
-#include "database/mariadb/MariaDBCommandSequence.h"
 #include "database/mariadb/commands/async/MariaDBAutoCommitCommand.h"
 #include "database/mariadb/commands/async/MariaDBCommitCommand.h"
 #include "database/mariadb/commands/async/MariaDBExecCommand.h"
