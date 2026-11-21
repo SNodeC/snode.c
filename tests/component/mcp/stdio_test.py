@@ -128,6 +128,10 @@ def run(executable):
                                  env=dict(os.environ, XDG_CONFIG_HOME=directory), timeout=4)
         assert invalid.returncode == 1 and invalid.stdout == b""
         assert b"registration rejected" in invalid.stderr, invalid.stderr
+        for kind in ["throw", "throw-int"]:
+            failed = subprocess.run([executable, "--config-file", "/dev/null", "mcp", "--fixture-schema", kind], input=b"", capture_output=True, timeout=4)
+            assert failed.returncode == 1 and failed.stdout == b"" and failed.stderr, (kind, failed)
+            assert b"AddressSanitizer" not in failed.stderr
         print("PASS: stdio framing, eras, cancellation, EOF/signal, logging/quiet/CLI stdout purity")
 
 

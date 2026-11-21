@@ -13,14 +13,15 @@ def run():
         server = Server(http, directory, False, ["--header-root", root], curl=curl)
         results = []
         try:
-            for kind, target in [("stdio", stdio), ("http", server.url)]:
-                result = subprocess.run([node, str(Path(__file__).with_name("read_sdk.mjs")), sdk, kind, target, root],
-                                        capture_output=True, timeout=15)
-                print((result.stdout + result.stderr).decode(), flush=True)
-                results.append(result.returncode)
+            for era in ["2025-11-25", "2026-07-28"]:
+                for kind, target in [("stdio", stdio), ("http", server.url)]:
+                    result = subprocess.run([node, str(Path(__file__).with_name("read_sdk.mjs")), sdk, kind, target, root, era],
+                                            capture_output=True, timeout=15)
+                    print((result.stdout + result.stderr).decode(), flush=True)
+                    results.append(result.returncode)
         finally:
             server.stop()
-        assert results == [0, 0], results
+        assert results == [0, 0, 0, 0], results
 
 
 run()

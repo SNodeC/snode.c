@@ -2,20 +2,24 @@
 #include "mcp/server/stdio/Transport.h"
 
 #include "Log.h"
+#include "core/SNodeC.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "core/timer/Timer.h"
 #include "mcp/server/Config.h"
-#include "mcp/server/Server.h"
+#include "mcp/server/Types.h"
+#include "mcp/server/detail/Server.h"
 
 #include <algorithm>
 #include <cerrno>
 #include <cstddef>
 #include <fcntl.h>
 #include <functional>
+#include <exception>
+#include <vector>
 #include <map>
+#include <memory>
 #include <nlohmann/json.hpp>
-#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 #include <system_error>
@@ -23,6 +27,9 @@
 #include <utility>
 
 namespace mcp::server::stdio {
+    using namespace mcp::server::detail;
+    using WireReply = Access::Response;
+    using WireServer = Access::Registry;
     struct Transport::State : std::enable_shared_from_this<State> {
         struct Input;
         struct Output;
@@ -32,10 +39,10 @@ namespace mcp::server::stdio {
         Output* output = nullptr;
         std::string incoming;
         std::string outgoing;
-        std::map<std::string, std::shared_ptr<Reply>> pending;
+        std::map<std::string, std::shared_ptr<WireReply>> pending;
         core::timer::Timer timer;
         bool inputEof = false;
-        bool legacy = false;
+        ProtocolEra era = ProtocolEra::PerRequest20260728;
         bool closing = false;
         bool failed = false;
         State(Server& server, Config& config)
@@ -74,7 +81,7 @@ namespace mcp::server::stdio {
             const ssize_t count = read(STDIN_FILENO, bytes, sizeof(bytes));
             if (count > 0) {
                 keep->incoming.append(bytes, static_cast<std::size_t>(count));
-                if (keep->incoming.size() > keep->config.messageBytes() + sizeof(bytes)) {
+                if (keep->incoming.size() > keep->config.getMaximumMessageBytes() + sizeof(bytes)) {
                     keep->failed = true;
                     keep->finish();
                 } else {
@@ -143,7 +150,7 @@ namespace mcp::server::stdio {
     void Transport::State::send(const Json& value) {
         if (!value.is_null() && !failed && output != nullptr) {
             const std::string bytes = value.dump() + "\n";
-            if (bytes.size() > config.outputBytes() - std::min(outgoing.size(), config.outputBytes())) {
+            if (bytes.size() > config.getMaximumOutputBytes() - std::min(outgoing.size(), config.getMaximumOutputBytes())) {
                 snode::log::framework("mcp.server", snode::log::Boundary::Context).error() << "stdio output limit exceeded";
                 failed = true;
                 finish();
@@ -162,7 +169,7 @@ namespace mcp::server::stdio {
             }
             for (const auto& [id, reply] : pending) {
                 static_cast<void>(id);
-                reply->cancel(true);
+                reply->cancel(CancelReason::Shutdown);
             }
             pending.clear();
             if (output != nullptr && (outgoing.empty() || failed)) {
@@ -172,7 +179,7 @@ namespace mcp::server::stdio {
     }
     void Transport::State::receive(const std::string& line) {
         std::erase_if(pending, [](const auto& item) {
-            return !item.second->active();
+            return item.second->done;
         });
         Json request;
         bool parsed = false;
@@ -180,14 +187,14 @@ namespace mcp::server::stdio {
             request = Json::parse(line);
             parsed = true;
         } catch (const Json::exception&) {
-            Reply(
+            WireReply(
                 nullptr,
-                !legacy,
-                false,
+                era,
+                CachePolicy::None,
                 [this](const Json& value, bool) {
                     send(value);
                 },
-                config.deadline())
+                config.getDeadline())
                 .error(-32700, "Parse error");
         }
         if (parsed) {
@@ -197,8 +204,10 @@ namespace mcp::server::stdio {
             const std::string method =
                 request.is_object() && request.value("method", Json()).is_string() ? request["method"].get<std::string>() : "";
             const bool initializing = method == "initialize" && !hasMeta;
-            const bool legacyRequest = (legacy || initializing) && !hasMeta;
-            if (method == "notifications/cancelled" && Server::validRequest(request) && !request.contains("id") &&
+            const ProtocolEra requestEra = (era == ProtocolEra::Initialization20251125 || initializing) && !hasMeta
+                                               ? ProtocolEra::Initialization20251125
+                                               : ProtocolEra::PerRequest20260728;
+            if (method == "notifications/cancelled" && WireServer::validRequest(request) && !request.contains("id") &&
                 request.value("params", Json()).is_object()) {
                 const std::string key = request["params"].value("requestId", Json()).dump();
                 if (pending.contains(key)) {
@@ -208,30 +217,30 @@ namespace mcp::server::stdio {
                 const Json id = request.is_object() ? request.value("id", Json()) : Json();
                 const std::string key = id.dump();
                 if ((!id.is_null() && pending.contains(key)) || pending.size() >= 64) {
-                    Reply(
+                    WireReply(
                         id,
-                        !legacyRequest,
-                        false,
+                        requestEra,
+                        CachePolicy::None,
                         [this](const Json& value, bool) {
                             send(value);
                         },
-                        config.deadline())
+                        config.getDeadline())
                         .error(-32600, "Duplicate id or in-flight limit");
                 } else {
                     const std::weak_ptr<State> weak = shared_from_this();
-                    auto reply = server.dispatch(
+                    auto reply = Access::registry(server).dispatch(
                         request,
-                        legacyRequest,
+                        requestEra,
                         [weak, initializing](const Json& value, bool) {
                             if (const auto owner = weak.lock()) {
                                 if (initializing && value.contains("result")) {
-                                    owner->legacy = true;
+                                    owner->era = ProtocolEra::Initialization20251125;
                                 }
                                 owner->send(value);
                             }
                         },
-                        config.deadline());
-                    if (reply->active()) {
+                        config.getDeadline());
+                    if (!reply->done) {
                         pending[key] = std::move(reply);
                     }
                 }
@@ -242,7 +251,7 @@ namespace mcp::server::stdio {
         std::size_t count = 0;
         std::size_t newline = incoming.find('\n');
         while (!closing && count < 8 && newline != std::string::npos) {
-            if (newline > config.messageBytes()) {
+            if (newline > config.getMaximumMessageBytes()) {
                 failed = true;
                 finish();
             } else {
@@ -260,55 +269,72 @@ namespace mcp::server::stdio {
             }
             finish();
         }
-        if (!closing && incoming.size() > config.messageBytes() && newline == std::string::npos) {
+        if (!closing && incoming.size() > config.getMaximumMessageBytes() && newline == std::string::npos) {
             failed = true;
             finish();
         }
     }
     int Transport::retainProtocol() {
-        const int fd = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
-        const int flags = fd >= 0 ? fcntl(fd, F_GETFL) : -1;
-        int result = fd;
-        if (fd < 0 || flags < 0 || dup2(STDERR_FILENO, STDOUT_FILENO) < 0 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
-            if (fd >= 0) {
-                close(fd);
+        int result = fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
+        const int flags = result >= 0 ? fcntl(result, F_GETFL) : -1;
+        if (result < 0 || flags < 0 || dup2(STDERR_FILENO, STDOUT_FILENO) < 0 || fcntl(result, F_SETFL, flags | O_NONBLOCK) < 0) {
+            if (result >= 0) {
+                close(result);
             }
             result = -1;
         }
         return result;
     }
-    Transport::Transport(Server& server, Config& config, int protocolFd)
-        : state(std::make_shared<State>(server, config)) {
-        if (!server.valid()) {
-            close(protocolFd);
-            throw std::invalid_argument("Invalid MCP registration");
-        }
-        try {
-            state->output = new State::Output(state, protocolFd);
-            state->input = new State::Input(state);
-        } catch (...) {
-            state->failed = true;
-            state->finish();
-            throw;
-        }
-        const std::weak_ptr<State> weak = state;
-        state->timer = core::timer::Timer::intervalTimer(
-            [weak] {
-                if (const auto owner = weak.lock(); owner && !owner->closing) {
-                    owner->process();
-                    auto next = owner->pending.begin();
-                    while (!owner->closing && next != owner->pending.end()) {
-                        const auto reply = (next++)->second;
-                        reply->expire();
+    int Transport::run(int argc, char* argv[], Server& server, Config& config, Ready ready) {
+        int result = 1;
+        if (core::SNodeC::state() == core::State::LOADED) {
+            int fd = retainProtocol();
+            if (fd >= 0) {
+                std::shared_ptr<State> state;
+                std::vector<char*> arguments(argv, argv + argc);
+                char foreground[] = "--daemonize=false";
+                arguments.push_back(foreground);
+                arguments.push_back(nullptr);
+                try {
+                    core::SNodeC::init(argc + 1, arguments.data());
+                    if (ready) {
+                        ready();
                     }
-                    std::erase_if(owner->pending, [](const auto& item) {
-                        return !item.second->active();
-                    });
+                    state = std::make_shared<State>(server, config);
+                    state->output = new State::Output(state, std::exchange(fd, -1));
+                    state->input = new State::Input(state);
+                    Access::registry(server).seal();
+                    const std::weak_ptr<State> weak = state;
+                    state->timer = core::timer::Timer::intervalTimer(
+                        [weak] {
+                            if (const auto owner = weak.lock(); owner && !owner->closing) {
+                                owner->process();
+                                std::erase_if(owner->pending, [](const auto& item) {
+                                    return item.second->done;
+                                });
+                            }
+                        },
+                        utils::Timeval(0.005));
+                    result = core::SNodeC::start();
+                } catch (...) {
+                    try {
+                        throw;
+                    } catch (const std::exception& error) {
+                        snode::log::application("mcp.server").error() << error.what();
+                    } catch (...) {
+                        snode::log::application("mcp.server").error() << "MCP stdio processing failed";
+                    }
+                    if (state) {
+                        state->failed = true;
+                        state->finish();
+                    }
+                    core::SNodeC::free();
                 }
-            },
-            utils::Timeval(0.005));
-    }
-    Transport::~Transport() {
-        state->finish();
+                if (fd >= 0) {
+                    close(fd);
+                }
+            }
+        }
+        return result;
     }
 } // namespace mcp::server::stdio

@@ -1,20 +1,25 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_STDIO_TRANSPORT_H
 #define MCP_SERVER_STDIO_TRANSPORT_H
-#include <memory>
+#include <functional>
 namespace mcp::server {
-    class Server;
-    class Config;
+    class Server; ///< Borrowed registry; retain until run returns.
+    class Config; ///< Borrowed CLI configuration; create before run and retain until it returns.
     namespace stdio {
+        /// Process-owning stdio entry; no independently constructible transport instance.
         class Transport {
         public:
-            static int retainProtocol();
-            Transport(Server& server, Config& config, int protocolFd);
-            ~Transport();
+            /// Called at most once after successful init on the event loop to register handlers.
+            using Ready = std::function<void()>;
+            /// Call once in core state LOADED; otherwise returns failure before touching descriptors.
+            /// Owns stdout retention, foreground init, Ready, attachment, event loop and cleanup.
+            /// Borrows argv/server/config through return; catches exceptions and returns failure.
+            static int run(int argc, char* argv[], Server& server, Config& config, Ready ready);
 
         private:
+            Transport() = delete;
             struct State;
-            std::shared_ptr<State> state;
+            static int retainProtocol();
         };
     } // namespace stdio
 } // namespace mcp::server

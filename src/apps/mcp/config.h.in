@@ -1,3 +1,4 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #pragma once
 #define MCP_HEADER_ROOT "@CMAKE_INSTALL_FULL_INCLUDEDIR@/snode.c"
+#define SNODEC_DEV_VERSION "@SNode.C_VERSION@"

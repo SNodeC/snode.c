@@ -32,7 +32,7 @@ snodec-dev-stdio --config-file /dev/null --log-console stderr \
   mcp --header-root "$HEADER_ROOT"
 ```
 
-Stdio preserves the original stdout descriptor for newline-delimited JSON-RPC and redirects ordinary stdout to stderr before initialization. Logging defaults to stderr, and the application forces foreground operation. Even CLI help/errors are separated from protocol output. `--quiet` suppresses ordinary logging; it does not change the protocol descriptor. Client stdin EOF drains accepted requests and shuts down. Signals follow the normal SNode.C shutdown path.
+Stdio preserves the original stdout descriptor for newline-delimited JSON-RPC and redirects ordinary stdout to stderr before initialization. The process-owning `stdio::Transport::run` redirects ordinary stdout before initialization and forces foreground operation. Even CLI help/errors are separated from protocol output. `--quiet` suppresses ordinary logging; it does not change the protocol descriptor. Client stdin EOF drains accepted requests and shuts down. Signals follow the normal SNode.C shutdown path.
 
 For HTTP, the default instance is `mcp-http`, listening on `127.0.0.1:3337`, with the router mounted at `/mcp`:
 
@@ -84,13 +84,70 @@ Every registered input/output schema is checked at startup, including its keywor
 
 ## Embedding and security
 
-Register handlers with `mcp::server::Server::tool`, `resource`, and `prompt`. Handlers receive arguments and a shared `Reply`; use `result`, `error`, and `active` for bounded asynchronous work. The complete examples are `src/apps/mcp/main.cpp` and `Tools.cpp`. Link the transport component, create `mcp::server::Config` before initialization, and ensure the server and config outlive the transport/router. For HTTP construct and mount `mcp::server::http::Router` before calling `listen`; its shutdown guard preserves cancellation ordering. The same router is exercised with both legacy and TLS WebApp variants in the component tests.
+Subclass `mcp::server::Tool`, `Resource` or `Prompt` and override `call`, `read` or `get`. Each base owns its typed definition and exposes it through `getDefinition`; register a shared instance with `Server::tool`, `resource` or `prompt`. The server retains the instance for its lifetime, validates the definition transactionally and throws a named `RegistrationError` on failure. Registration is sealed on transport attachment. Constructors and handlers run on the event-loop thread; retain a shared reply for asynchronous work and keep the server alive until attached transports and requests drain.
+
+Parse schema raw strings once during construction. Use fully expanded JSON in natural schema order (`type`, `properties`, `required`, then the remaining keys), exactly as `nlohmann::ordered_json::parse(text).dump(4)` writes it; malformed schema text must throw `RegistrationError` naming the registration and `inputSchema` or `outputSchema`. The constructor function-try-block below catches parsing failures during base initialization. Demo classes use the equivalent application-local `parseSchema` helper.
+
+```cpp
+#include <mcp/server/Server.h>
+#include <mcp/server/Tool.h>
+#include <memory>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+
+class EchoTool final : public mcp::server::Tool {
+public:
+    EchoTool();
+    void call(const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
+};
+EchoTool::EchoTool() try
+    : Tool({"echo", "Echo the supplied text object", nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "text": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "text"
+    ],
+    "additionalProperties": false
+}
+)json")}) {
+} catch (const mcp::server::Json::parse_error& error) {
+    throw mcp::server::RegistrationError(mcp::server::RegistrationKind::Tool, "echo", "inputSchema", error.what());
+}
+void EchoTool::call(const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(request.arguments));
+}
+```
+
+```cpp
+mcp::server::Server server("example", "1", "Example tools");
+server.tool(std::make_shared<EchoTool>());
+```
+
+For an existing `ToolDefinition`, the lambda overload is the short form. It wraps the callback in a private `Tool` subclass and uses the same validation, retention and dispatch path. For example, use this instead of the class registration above:
+
+```cpp
+const auto definition = EchoTool().getDefinition();
+server.tool(definition, [](const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(request.arguments));
+});
+```
+
+The handlers receive `ToolCall`, `ResourceRead` or `PromptGet` plus the matching shared `ToolReply`, `ResourceReply` or `PromptReply`; a mismatched result kind does not compile. Use `ToolResult::text`, `ToolResult::json`, `ToolResult::toolError`, `ResourceResult` and `PromptResult` instead of constructing wire envelopes. `ToolResult::json` derives text and structured content from one value; non-object JSON is text-only in the 2025 era. Use `RequestContext::onCancel` to stop bounded asynchronous work; the module owns the deadline timer and `Reply::progress` preserves the request token's string/integer type. The complete examples are `src/apps/mcp/main.cpp` and the five class files `FindTool`, `ReadTool`, `SkeletonPreviewTool`, `HouseStyleResource` and `ReviewPrompt`; `Tools.cpp` retains shared confinement and slicing. Link the transport component, create `mcp::server::Config` before initialization, and ensure the server and config outlive the transport/router. For stdio call `mcp::server::stdio::Transport::run(argc, argv, server, config, ready)` once while the core is still LOADED; its callback registers application handlers after initialization. Do not call `core::SNodeC::init` first. For HTTP construct and mount `mcp::server::http::Router` before calling `listen`; its shutdown guard preserves cancellation ordering. The same router is exercised with both legacy and TLS WebApp variants in the component tests.
 
 The development HTTP app binds to localhost by default. A present Origin must be well-formed and exactly allowed; invalid or unlisted Origins receive 403. An absent Origin is allowed for native clients. The default empty allowlist therefore rejects browser Origins. Supply repeatable `--allowed-origin` values only for trusted browser callers.
 
-The router accepts an optional `Authorize` callback taking the express request and returning a boolean. Rejection returns 401 with a Bearer challenge. An embedding application can validate bearer tokens there; a future SNode.C identity-provider integration can call its token-validation interface through this hook. No identity-provider integration or built-in token store is supplied. Use TLS and an appropriate authorization callback before exposing HTTP beyond loopback. The shipped HTTP development application does not expose a bearer-token configuration option.
+The router accepts an optional `Authorize` callback taking the express request and returning `Authorization`: `Authorized`, `Unauthorized` with a challenge, or `Forbidden`. An embedding application can validate bearer tokens there; a future SNode.C identity-provider integration can call its token-validation interface through this hook. No identity-provider integration or built-in token store is supplied. Use TLS and an appropriate authorization callback before exposing HTTP beyond loopback. The shipped HTTP development application does not expose a bearer-token configuration option.
 
 The shipped tools never start child processes. A future command-running tool would require a separately approved command allowlist and confined working-directory policy; this release provides neither command execution nor a generic shell escape. Header text and review input are untrusted data, not instructions granting additional permissions.
+
+Config setters follow the existing SubCommand defaults: `setMaximumMessageBytes`, `setMaximumOutputBytes`, `setDeadline(const utils::Timeval&)` and `setAllowedOrigins` return `Config*`. Their matching getters read effective values; `getAllowedOrigins` borrows the current list for one event-loop turn. `--deadline-ms` remains milliseconds with default 30000 and range 1–300000. The timeout-type precedent is `ConfigConnection::getReadTimeout`/`setReadTimeout` and its write-timeout pair (`src/net/config/ConfigConnection.h:72`, `:75`; conversions in `.cpp:139–156`). Derive an application-local Config and retain CLI11 option handles, as DevelopmentConfig does; no development-only options are installed in MCP Config.
+
+HTTP `Router::Authorize` returns `Authorized{principal}`, `Unauthorized{wwwAuthenticate}` or `Forbidden{}`. An empty principal permits anonymous access; identity and claims reach `RequestContext::getPrincipal`. Unauthorized emits 401 with a validated challenge, Forbidden emits 403 without one, and callback failures emit 500 without logging credentials. Origin validation runs independently before authorization.
 
 ## Agent skill and tests
 

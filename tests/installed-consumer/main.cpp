@@ -2,16 +2,37 @@
 #include <core/socket/stream/SocketServer.h>
 #include <express/legacy/in/Server.h>
 #include <mcp/server/Server.h>
+#include <mcp/server/Tool.h>
 #include <mcp/server/http/Router.h>
 #include <mcp/server/stdio/Transport.h>
 #include <net/in/stream/legacy/SocketClient.h>
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketClient.h>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
+namespace {
+    class InstalledTool final : public mcp::server::Tool {
+    public:
+        InstalledTool();
+        void call(const mcp::server::ToolCall&, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
+    };
+    InstalledTool::InstalledTool()
+        : Tool({"installed", {}, nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object"
+}
+)json")}) {
+    }
+    void InstalledTool::call(const mcp::server::ToolCall&, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+        reply->result(mcp::server::ToolResult::text("installed consumer"));
+    }
+} // namespace
 int main() {
-    const auto retainProtocol = &mcp::server::stdio::Transport::retainProtocol;
-    static_cast<void>(retainProtocol);
+    const auto run = &mcp::server::stdio::Transport::run;
+    static_cast<void>(run);
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
-    mcp::server::Server server("installed-consumer");
-    return server.valid() ? 0 : 1;
+    mcp::server::Server server("installed-consumer", "test-version");
+    server.tool(std::make_shared<InstalledTool>());
+    return 0;
 }
