@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
-#pragma once
+
+#ifndef APPS_MCP_READTOOL_H
+#define APPS_MCP_READTOOL_H
+
 #include "Tools.h"
 #include "mcp/server/Tool.h"
 namespace apps::mcp {
@@ -12,3 +15,5 @@ namespace apps::mcp {
         std::shared_ptr<Headers> headers;
     };
 } // namespace apps::mcp
+
+#endif // APPS_MCP_READTOOL_H

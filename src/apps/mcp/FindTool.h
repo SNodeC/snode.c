@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
-#pragma once
+
+#ifndef APPS_MCP_FINDTOOL_H
+#define APPS_MCP_FINDTOOL_H
+
 #include "Tools.h"
 #include "mcp/server/Tool.h"
 namespace apps::mcp {
@@ -14,3 +17,5 @@ namespace apps::mcp {
         std::size_t bytes;
     };
 } // namespace apps::mcp
+
+#endif // APPS_MCP_FINDTOOL_H

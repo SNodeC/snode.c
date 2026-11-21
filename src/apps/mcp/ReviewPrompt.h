@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
-#pragma once
+
+#ifndef APPS_MCP_REVIEWPROMPT_H
+#define APPS_MCP_REVIEWPROMPT_H
+
 #include "mcp/server/Prompt.h"
 namespace apps::mcp {
     class ReviewPrompt : public ::mcp::server::Prompt {
@@ -8,3 +11,5 @@ namespace apps::mcp {
         void get(const ::mcp::server::PromptGet& request, const std::shared_ptr<::mcp::server::PromptReply>& reply) override;
     };
 } // namespace apps::mcp
+
+#endif // APPS_MCP_REVIEWPROMPT_H
