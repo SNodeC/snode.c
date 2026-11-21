@@ -9,6 +9,11 @@
 
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
+    const auto objectSchema = mcp::server::Json::parse(R"json(
+{
+    "type": "object"
+}
+)json");
     tests::support::TestResult test;
     core::SNodeC::init(argc, argv);
     Server server("context", "test-version");
@@ -17,7 +22,7 @@ int main(int argc, char* argv[]) {
     std::vector<CancelReason> cancelled;
     std::vector<Json> messages;
     bool stopOnCancel = false;
-    server.tool({"work", {}, {{"type", "object"}}}, [&](const ToolCall& call, const auto& reply) {
+    server.tool({"work", {}, objectSchema}, [&](const ToolCall& call, const auto& reply) {
         context = call.context;
         pending = reply;
         call.context.onCancel([](CancelReason) {

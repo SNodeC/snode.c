@@ -1,13 +1,27 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 configure_file(config.h.in mcp-config.h @ONLY)
+add_library(
+    snodec-dev-tools STATIC
+    Tools.cpp
+    Tools.h
+    FindTool.cpp
+    FindTool.h
+    ReadTool.cpp
+    ReadTool.h
+    SkeletonPreviewTool.cpp
+    SkeletonPreviewTool.h
+    HouseStyleResource.cpp
+    HouseStyleResource.h
+    ReviewPrompt.cpp
+    ReviewPrompt.h
+)
+target_include_directories(snodec-dev-tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(snodec-dev-tools PUBLIC snodec::mcp-server)
 foreach(transport IN ITEMS stdio http)
-    add_executable(snodec-dev-${transport} main.cpp Tools.cpp Tools.h)
-    target_include_directories(
-        snodec-dev-${transport} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-    )
-    target_compile_features(snodec-dev-${transport} PRIVATE cxx_std_20)
+    add_executable(snodec-dev-${transport} main.cpp)
     target_link_libraries(
         snodec-dev-${transport} PRIVATE snodec::mcp-server-${transport}
+                                        snodec-dev-tools
     )
     if(transport STREQUAL "stdio")
         target_compile_definitions(snodec-dev-${transport} PRIVATE MCP_STDIO=1)

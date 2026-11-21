@@ -89,7 +89,8 @@ if(TARGET snodec-dev-stdio AND TARGET snodec-dev-http)
             "${CMAKE_CXX_FLAGS}" "${CMAKE_EXE_LINKER_FLAGS}"
     )
     set_tests_properties(
-        McpDevelopmentTest PROPERTIES LABELS "mcp;component;development"
-                                      TIMEOUT 120
+        McpDevelopmentTest
+        PROPERTIES LABELS "mcp;component;development" DEPENDS
+                   StagedInstalledConsumerTest TIMEOUT 120
     )
 endif()

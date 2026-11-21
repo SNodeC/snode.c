@@ -15,19 +15,49 @@ namespace {
     }
 } // namespace
 int main(int argc, char* argv[]) {
+    const auto objectSchema = mcp::server::Json::parse(R"json(
+{
+    "type": "object"
+}
+)json");
     core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     using mcp::server::Server;
     using mcp::server::detail::Access;
     std::string error;
-    const Json schema{{"$schema", "https://json-schema.org/draft/2020-12/schema"},
-                      {"type", "object"},
-                      {"properties",
-                       {{"word", {{"type", "string"}, {"minLength", 1}, {"maxLength", 2}}},
-                        {"number", {{"type", "integer"}, {"minimum", 0}, {"maximum", 3}}},
-                        {"list", {{"type", "array"}, {"items", {{"enum", {1, 2}}}}, {"minItems", 1}, {"maxItems", 2}}}}},
-                      {"required", {"word"}},
-                      {"additionalProperties", false}};
+    const Json schema = Json::parse(R"json(
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "properties": {
+        "list": {
+            "items": {
+                "enum": [
+                    1,
+                    2
+                ]
+            },
+            "maxItems": 2,
+            "minItems": 1,
+            "type": "array"
+        },
+        "number": {
+            "maximum": 3,
+            "minimum": 0,
+            "type": "integer"
+        },
+        "word": {
+            "maxLength": 2,
+            "minLength": 1,
+            "type": "string"
+        }
+    },
+    "required": [
+        "word"
+    ],
+    "type": "object"
+}
+)json");
     test.expectTrue(Access::Registry::checkSchema(schema, error), "supported dialect/subset accepted");
     test.expectTrue(Access::Registry::validate(schema, {{"word", "é日"}, {"number", 2.0}, {"list", {1, 2}}}, error),
                     "Unicode code points, integral numbers, array items");
@@ -49,22 +79,96 @@ int main(int argc, char* argv[]) {
         unsupported["properties"]["word"][keyword] = Json::object();
         test.expectTrue(!Access::Registry::checkSchema(unsupported, error), "unsupported nested keyword rejected: " + keyword);
     }
-    for (const Json& malformed : Json::array({{{"$schema", "http://json-schema.org/draft-07/schema#"}},
-                                              {{"type", "typo"}},
-                                              {{"required", {1}}},
-                                              {{"required", {"a", "a"}}},
-                                              {{"additionalProperties", Json::object()}},
-                                              {{"minLength", -1}},
-                                              {{"maxItems", 0.5}},
-                                              {{"items", 1}},
-                                              {{"properties", Json::array()}},
-                                              {{"enum", {1, 1}}},
-                                              {{"minimum", "a"}}})) {
+    for (const Json& malformed : Json::array({Json::parse(R"json(
+{
+    "$schema": "http://json-schema.org/draft-07/schema#"
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "type": "typo"
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "required": [
+        1
+    ]
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "required": [
+        "a",
+        "a"
+    ]
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "additionalProperties": {}
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "minLength": -1
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "maxItems": 0.5
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "items": 1
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "properties": []
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "enum": [
+        1,
+        1
+    ]
+}
+)json"),
+                                              Json::parse(R"json(
+{
+    "minimum": "a"
+}
+)json")})) {
         test.expectTrue(!Access::Registry::checkSchema(malformed, error), "malformed schema rejected: " + malformed.dump());
     }
-    test.expectTrue(Access::Registry::validate({{"const", nullptr}}, nullptr, error), "const null");
-    test.expectTrue(!Access::Registry::validate(false, true, error), "boolean false schema");
-    test.expectTrue(Access::Registry::validate({{"type", {"null", "boolean"}}}, true, error), "type union");
+    test.expectTrue(Access::Registry::validate(Json::parse(R"json(
+{
+    "const": null
+}
+)json"),
+                                               nullptr,
+                                               error),
+                    "const null");
+    test.expectTrue(!Access::Registry::validate(Json::parse(R"json(
+false
+)json"),
+                                                true,
+                                                error),
+                    "boolean false schema");
+    test.expectTrue(Access::Registry::validate(Json::parse(R"json(
+{
+    "type": [
+        "null",
+        "boolean"
+    ]
+}
+)json"),
+                                               true,
+                                               error),
+                    "type union");
     Server server("test", "test-version");
     int calls = 0;
     std::shared_ptr<mcp::server::ToolReply> pending;
@@ -75,7 +179,7 @@ int main(int argc, char* argv[]) {
         reply->result(ToolResult::text(args["word"]));
         reply->result(ToolResult::content({}));
     });
-    server.tool({"pending", {}, {{"type", "object"}}}, [&pending](const auto&, const auto& reply) {
+    server.tool({"pending", {}, objectSchema}, [&pending](const auto&, const auto& reply) {
         pending = reply;
     });
     server.resource({"snodec://style", "style"}, [](const auto&, const auto& reply) {
@@ -203,8 +307,14 @@ int main(int argc, char* argv[]) {
     Server invalid("invalid", "test-version");
     bool rejected = false;
     try {
-        invalid.tool({"bad", {}, {{"type", "object"}, {"$ref", "unsafe"}}}, [](const auto&, const auto&) {
-        });
+        invalid.tool({"bad", {}, Json::parse(R"json(
+{
+    "$ref": "unsafe",
+    "type": "object"
+}
+)json")},
+                     [](const auto&, const auto&) {
+                     });
     } catch (const mcp::server::RegistrationError& error) {
         rejected = std::string(error.what()).find("tool bad: inputSchema:") != std::string::npos;
     }

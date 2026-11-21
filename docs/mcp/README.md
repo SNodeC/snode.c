@@ -84,7 +84,58 @@ Every registered input/output schema is checked at startup, including its keywor
 
 ## Embedding and security
 
-Construct `mcp::server::Server(name, version, instructions)` and register `ToolDefinition`, `ResourceDefinition` and `PromptDefinition` values through `tool`, `resource` and `prompt`. Registration throws a named `RegistrationError` immediately and is sealed on transport attachment. The handlers receive `ToolCall`, `ResourceRead` or `PromptGet` plus the matching shared `ToolReply`, `ResourceReply` or `PromptReply`; a mismatched result kind does not compile. Use `ToolResult::text`, `ToolResult::json`, `ToolResult::toolError`, `ResourceResult` and `PromptResult` instead of constructing wire envelopes. `ToolResult::json` derives text and structured content from one value; non-object JSON is text-only in the 2025 era. Use `RequestContext::onCancel` to stop bounded asynchronous work; the module owns the deadline timer and `Reply::progress` preserves the request token's string/integer type. The complete examples are `src/apps/mcp/main.cpp` and `Tools.cpp`. Link the transport component, create `mcp::server::Config` before initialization, and ensure the server and config outlive the transport/router. For stdio call `mcp::server::stdio::Transport::run(argc, argv, server, config, ready)` once while the core is still LOADED; its callback registers application handlers after initialization. Do not call `core::SNodeC::init` first. For HTTP construct and mount `mcp::server::http::Router` before calling `listen`; its shutdown guard preserves cancellation ordering. The same router is exercised with both legacy and TLS WebApp variants in the component tests.
+Subclass `mcp::server::Tool`, `Resource` or `Prompt` and override `call`, `read` or `get`. Each base owns its typed definition and exposes it through `getDefinition`; register a shared instance with `Server::tool`, `resource` or `prompt`. The server retains the instance for its lifetime, validates the definition transactionally and throws a named `RegistrationError` on failure. Registration is sealed on transport attachment. Constructors and handlers run on the event-loop thread; retain a shared reply for asynchronous work and keep the server alive until attached transports and requests drain.
+
+Parse schema raw strings once during construction. Use fully expanded JSON exactly as `Json::dump(4)` writes it; malformed schema text must throw `RegistrationError` naming the registration and `inputSchema` or `outputSchema`. The constructor function-try-block below catches parsing failures during base initialization. Demo classes use the equivalent application-local `parseSchema` helper.
+
+```cpp
+#include <mcp/server/Server.h>
+#include <mcp/server/Tool.h>
+#include <memory>
+
+class EchoTool final : public mcp::server::Tool {
+public:
+    EchoTool();
+    void call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
+};
+EchoTool::EchoTool() try
+    : Tool({"echo", "Echo the supplied text object", mcp::server::Json::parse(R"json(
+{
+    "additionalProperties": false,
+    "properties": {
+        "text": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "text"
+    ],
+    "type": "object"
+}
+)json")}) {
+} catch (const mcp::server::Json::parse_error& error) {
+    throw mcp::server::RegistrationError(mcp::server::RegistrationKind::Tool, "echo", "inputSchema", error.what());
+}
+void EchoTool::call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(call.arguments));
+}
+```
+
+```cpp
+mcp::server::Server server("example", "1", "Example tools");
+server.tool(std::make_shared<EchoTool>());
+```
+
+For an existing `ToolDefinition`, the lambda overload is the short form. It wraps the callback in a private `Tool` subclass and uses the same validation, retention and dispatch path. For example, use this instead of the class registration above:
+
+```cpp
+const auto definition = EchoTool().getDefinition();
+server.tool(definition, [](const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(call.arguments));
+});
+```
+
+The handlers receive `ToolCall`, `ResourceRead` or `PromptGet` plus the matching shared `ToolReply`, `ResourceReply` or `PromptReply`; a mismatched result kind does not compile. Use `ToolResult::text`, `ToolResult::json`, `ToolResult::toolError`, `ResourceResult` and `PromptResult` instead of constructing wire envelopes. `ToolResult::json` derives text and structured content from one value; non-object JSON is text-only in the 2025 era. Use `RequestContext::onCancel` to stop bounded asynchronous work; the module owns the deadline timer and `Reply::progress` preserves the request token's string/integer type. The complete examples are `src/apps/mcp/main.cpp` and the five class files `FindTool`, `ReadTool`, `SkeletonPreviewTool`, `HouseStyleResource` and `ReviewPrompt`; `Tools.cpp` retains shared confinement and slicing. Link the transport component, create `mcp::server::Config` before initialization, and ensure the server and config outlive the transport/router. For stdio call `mcp::server::stdio::Transport::run(argc, argv, server, config, ready)` once while the core is still LOADED; its callback registers application handlers after initialization. Do not call `core::SNodeC::init` first. For HTTP construct and mount `mcp::server::http::Router` before calling `listen`; its shutdown guard preserves cancellation ordering. The same router is exercised with both legacy and TLS WebApp variants in the component tests.
 
 The development HTTP app binds to localhost by default. A present Origin must be well-formed and exactly allowed; invalid or unlisted Origins receive 403. An absent Origin is allowed for native clients. The default empty allowlist therefore rejects browser Origins. Supply repeatable `--allowed-origin` values only for trusted browser callers.
 

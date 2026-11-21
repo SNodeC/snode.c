@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
+#include "mcp/server/Prompt.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
-#include "mcp/server/Types.h"
+#include "mcp/server/Resource.h"
+#include "mcp/server/Tool.h"
+
 #include <functional>
 #include <memory>
-#include <optional>
-#include <nlohmann/json.hpp>
 #include <stdexcept>
-#include <vector>
 #include <string>
 namespace mcp::server {
     namespace detail {
@@ -17,38 +17,6 @@ namespace mcp::server {
     }
     /// Registration category used in immediate validation diagnostics.
     enum class RegistrationKind { Tool, Resource, Prompt };
-    /// Whether a prompt argument must be present before its handler runs.
-    enum class Requirement { Optional, Required };
-    /// Owned tool metadata; raw JSON Schema remains the sole schema representation.
-    struct ToolDefinition {
-        std::string name;                   ///< Nonempty owned protocol identifier.
-        std::string description{};          ///< Owned human-readable description.
-        Json inputSchema{};                 ///< Owned supported object-input schema.
-        std::optional<Json> outputSchema{}; ///< Optional owned successful-output schema.
-        std::optional<std::string> title{}; ///< Optional owned display title.
-        Json annotations{};                 ///< Optional protocol tool annotations; null omits them.
-    };
-    /// Owned resource metadata; the URI is the registration key.
-    struct ResourceDefinition {
-        std::string uri;                    ///< Nonempty owned resource URI.
-        std::string name;                   ///< Nonempty owned protocol name.
-        std::string description{};          ///< Owned human-readable description.
-        std::string mimeType{};             ///< Owned resource MIME type.
-        std::optional<std::string> title{}; ///< Optional owned display title.
-    };
-    /// Owned prompt argument metadata; names must be nonempty and unique.
-    struct PromptArgument {
-        std::string name;                                ///< Owned argument name.
-        std::string description{};                       ///< Owned human-readable description.
-        Requirement requirement = Requirement::Optional; ///< Required arguments are checked before dispatch.
-    };
-    /// Owned prompt metadata; its handler receives only string-valued arguments.
-    struct PromptDefinition {
-        std::string name;                        ///< Nonempty owned protocol identifier.
-        std::string description{};               ///< Owned human-readable description.
-        std::vector<PromptArgument> arguments{}; ///< Owned ordered argument declarations.
-        std::optional<std::string> title{};      ///< Optional owned display title.
-    };
     /// Immediate registration failure; what() owns kind, identifier, field and reason.
     class RegistrationError : public std::invalid_argument {
     public:
@@ -72,10 +40,16 @@ namespace mcp::server {
         Server(const Server&) = delete;            ///< Stable owner identity; share through a reference instead.
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* tool(ToolDefinition definition, ToolHandler handler);
+        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        Server* tool(std::shared_ptr<Tool> handler);
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* resource(ResourceDefinition definition, ResourceHandler handler);
+        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        Server* resource(std::shared_ptr<Resource> handler);
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* prompt(PromptDefinition definition, PromptHandler handler);
+        /// Retain shared ownership and validate transactionally before attachment; returns this.
+        Server* prompt(std::shared_ptr<Prompt> handler);
 
     private:
         struct Impl;

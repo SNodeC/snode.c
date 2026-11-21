@@ -63,7 +63,7 @@ namespace mcp::server::detail {
 } // namespace mcp::server::detail
 namespace mcp::server {
     struct Server::Impl {
-        using Handler = std::variant<Server::ToolHandler, Server::ResourceHandler, Server::PromptHandler>;
+        using Handler = std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>>;
         void seal();
         void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,

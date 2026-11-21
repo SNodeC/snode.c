@@ -80,3 +80,22 @@ add_test(NAME McpStdioEntryWrongOrder COMMAND McpStdioEntryTest wrong-order)
 set_tests_properties(
     McpStdioEntryWrongOrder PROPERTIES LABELS "unit;mcp;startup" TIMEOUT 5
 )
+
+snodec_add_test(McpClassTest McpClassTest.cpp)
+target_include_directories(McpClassTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpClassTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpClassTest PROPERTIES LABELS "unit;mcp;registration")
+
+if(TARGET snodec-dev-tools)
+    snodec_add_test(McpSchemaTest McpSchemaTest.cpp)
+    target_include_directories(McpSchemaTest PRIVATE ${PROJECT_SOURCE_DIR})
+    target_compile_definitions(
+        McpSchemaTest PRIVATE MCP_SOURCE_ROOT="${PROJECT_SOURCE_DIR}"
+    )
+    target_link_libraries(
+        McpSchemaTest PRIVATE snodec-dev-tools snodec-test-support
+    )
+    set_tests_properties(McpSchemaTest PROPERTIES LABELS "unit;mcp;schema")
+endif()

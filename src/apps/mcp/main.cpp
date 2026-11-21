@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+#include "FindTool.h"
+#include "HouseStyleResource.h"
 #include "Log.h"
+#include "ReadTool.h"
+#include "ReviewPrompt.h"
+#include "SkeletonPreviewTool.h"
 #include "Tools.h"
 #include "mcp-config.h"
 #include "mcp/server/Server.h"
+
+#include <memory>
 #ifdef MCP_STDIO
 #include "mcp/server/stdio/Transport.h"
 #include "utils/Config.h"
@@ -24,7 +31,11 @@ int main(int argc, char* argv[]) {
 #ifdef MCP_STDIO
     auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
     result = mcp::server::stdio::Transport::run(argc, argv, server, *config, [&] {
-        apps::mcp::registerTools(server, *config);
+        server.tool(std::make_shared<apps::mcp::FindTool>(*config));
+        server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
+        server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
+        server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
+        server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
         snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
     });
 #else
@@ -43,7 +54,11 @@ int main(int argc, char* argv[]) {
             core::SNodeC::free();
             result = 0;
         } else {
-            apps::mcp::registerTools(server, *config);
+            server.tool(std::make_shared<apps::mcp::FindTool>(*config));
+            server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
+            server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
+            server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
+            server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
             app.use("/mcp", mcp::server::http::Router(server, *config));
             app.listen([&listenFailure](const auto& address, const auto& state) {
                 if (state == core::socket::State::OK) {

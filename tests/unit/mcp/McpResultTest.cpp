@@ -5,11 +5,16 @@
 
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
+    const auto objectSchema = mcp::server::Json::parse(R"json(
+{
+    "type": "object"
+}
+)json");
     core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     Server server("results", "test-version");
     ToolResult next = ToolResult::text("header bytes\n");
-    server.tool({"value", {}, {{"type", "object"}}}, [&next](const auto&, const auto& reply) {
+    server.tool({"value", {}, objectSchema}, [&next](const auto&, const auto& reply) {
         reply->result(next);
     });
     Json response;
@@ -62,9 +67,14 @@ int main(int argc, char* argv[]) {
                         blocks[5]["resource"]["blob"] == "AA==",
                     "all tool content kinds encoded");
     Server schema("schema", "test-version");
-    schema.tool({"value", {}, {{"type", "object"}}, Json{{"type", "integer"}}}, [](const auto&, const auto& reply) {
-        reply->result(ToolResult::json("wrong type"));
-    });
+    schema.tool({"value", {}, objectSchema, Json::parse(R"json(
+{
+    "type": "integer"
+}
+)json")},
+                [](const auto&, const auto& reply) {
+                    reply->result(ToolResult::json("wrong type"));
+                });
     detail::Access::registry(schema).dispatch({{"jsonrpc", "2.0"}, {"id", 2}, {"method", "tools/call"}, {"params", {{"name", "value"}}}},
                                               detail::ProtocolEra::Initialization20251125,
                                               [&response](const Json& value, bool) {

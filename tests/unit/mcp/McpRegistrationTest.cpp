@@ -7,10 +7,15 @@
 
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
+    const auto objectSchema = mcp::server::Json::parse(R"json(
+{
+    "type": "object"
+}
+)json");
     core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     Server server("owned-name", "application-version", "server instructions");
-    const Json schema{{"type", "object"}};
+    const Json schema = objectSchema;
     const Server::ToolHandler handler = [](const auto&, const auto& reply) {
         reply->result(ToolResult::text("ok"));
     };
@@ -35,12 +40,22 @@ int main(int argc, char* argv[]) {
         "tool no-handler: handler:");
     reject(
         [&] {
-            server.tool({"bad", {}, {{"type", "array"}}}, handler);
+            server.tool({"bad", {}, Json::parse(R"json(
+{
+    "type": "array"
+}
+)json")},
+                        handler);
         },
         "tool bad: inputSchema:");
     reject(
         [&] {
-            server.tool({"bad", {}, schema, Json{{"$ref", "unsupported"}}}, handler);
+            server.tool({"bad", {}, schema, Json::parse(R"json(
+{
+    "$ref": "unsupported"
+}
+)json")},
+                        handler);
         },
         "tool bad: outputSchema:");
     reject(

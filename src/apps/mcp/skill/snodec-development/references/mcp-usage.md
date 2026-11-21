@@ -22,10 +22,61 @@ The first application exposes exactly these three tools, one resource, and one p
 
 These techniques belong to the MCP implementation; they are not general application conventions.
 
-- Construct `mcp::server::Server(name, version, instructions)` and use typed `ToolDefinition`, `ResourceDefinition` and `PromptDefinition` registrations with `ToolReply`, `ResourceReply` and `PromptReply`. `ToolResult::json` derives both content channels from one value; use `ResourceResult` and `PromptResult` for the other kinds. Use `mcp::server::Server` for the shared tool/resource/prompt registry and dispatcher, with `mcp::server::Config` for CLI11 limits. `src/apps/mcp/main.cpp` shows their attachment and lifetime around the stdio transport or HTTP router. Keep them alive while the transport can dispatch.
+- Use the class-based form first: derive `mcp::server::Tool`, `Resource` or `Prompt`; override `call`, `read` or `get`, taking the matching request and shared reply. Construct the typed definition once, use `getDefinition` for immutable metadata and register the shared object through `Server::tool`, `resource` or `prompt`. The server retains it for its lifetime. Follow the separate `.h`/`.cpp` files `FindTool`, `ReadTool`, `SkeletonPreviewTool`, `HouseStyleResource` and `ReviewPrompt` under `src/apps/mcp/`; `main()` registers the five objects directly. Use `ToolResult::json`, `ResourceResult` and `PromptResult` for completion. The existing definition/callback overloads are short convenience adapters on this same class path.
 - For stdio, call `mcp::server::stdio::Transport::run` once before core initialization. It owns protocol descriptor retention, foreground initialization, the registration callback, event-loop execution and cleanup; ordinary stdout is redirected to stderr. Follow `src/mcp/server/stdio/Transport.cpp` for event-receiver framing, pressure handling, and EOF/shutdown. Its private receiver destructors are defined out of line.
 - For sliced tool work, follow `src/apps/mcp/Tools.cpp`: retain lookup state across `core::timer::Timer::singleshotTimer` callbacks, perform bounded reads/directory steps, and register `RequestContext::onCancel` to cancel the next slice and close descriptors. The module owns deadlines; applications do not poll reply state. Descriptor cleanup belongs to that lookup state.
 - HTTP authorization returns `Authorized`, `Unauthorized` with a WWW-Authenticate challenge, or `Forbidden`; handlers read `RequestContext::getPrincipal`. Config offers chainable setters and matching getters; `setDeadline`/`getDeadline` use `utils::Timeval` while CLI `--deadline-ms` remains milliseconds.
 - For HTTP, mount `mcp::server::http::Router` before listening. `src/mcp/server/http/Router.cpp` owns the Origin/authentication/Content-Type checks, invokes `JsonMiddleware`, checks JSON-attribute presence, then validates headers and dispatches. Reuse that chain rather than duplicating it in the application.
 - MCP SSE uses `Response::pipe()` with `core::pipe::Source`, bounded output queues and blank-line event framing. Complete through Source EOF; never call `json()` or `send()` on an open streamed response. Follow the router's source for backpressure, disconnect cancellation, and shutdown cancellation while output can still drain.
 - Copy the application's explicit failure cleanup from `src/apps/mcp/main.cpp`: failed listeners call `core::SNodeC::stop`, and initialization exceptions call `core::SNodeC::free`. Keep this MCP embedding guidance separate from the established examples in `structure.md`.
+
+### Class and short-form examples
+
+Own the definition in the base and parse fully expanded schema text exactly once during construction. Preserve `Json::dump(4)` layout in every schema raw string, including nested arrays. Convert parsing failures to a named `RegistrationError`; for output schemas use field `outputSchema`. The demo's `parseSchema` helper performs that conversion for its constructors. Keep callbacks and final release on the event-loop thread.
+
+```cpp
+#include <mcp/server/Server.h>
+#include <mcp/server/Tool.h>
+#include <memory>
+
+class EchoTool final : public mcp::server::Tool {
+public:
+    EchoTool();
+    void call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
+};
+EchoTool::EchoTool() try
+    : Tool({"echo", "Echo the supplied text object", mcp::server::Json::parse(R"json(
+{
+    "additionalProperties": false,
+    "properties": {
+        "text": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "text"
+    ],
+    "type": "object"
+}
+)json")}) {
+} catch (const mcp::server::Json::parse_error& error) {
+    throw mcp::server::RegistrationError(mcp::server::RegistrationKind::Tool, "echo", "inputSchema", error.what());
+}
+void EchoTool::call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(call.arguments));
+}
+```
+
+```cpp
+mcp::server::Server server("example", "1", "Example tools");
+server.tool(std::make_shared<EchoTool>());
+```
+
+For an existing `ToolDefinition`, the lambda overload is the short form. It wraps the callback in a private `Tool` subclass and uses the same validation, retention and dispatch path. For example, use this instead of the class registration above:
+
+```cpp
+const auto definition = EchoTool().getDefinition();
+server.tool(definition, [](const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(call.arguments));
+});
+```

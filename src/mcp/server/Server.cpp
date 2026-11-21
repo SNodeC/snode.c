@@ -500,15 +500,15 @@ namespace mcp::server {
                                 reply->outputSchema = entry->second.description["outputSchema"];
                             }
                             if (kind == Kind::Tool) {
-                                std::get<Server::ToolHandler>(entry->second.handler)(ToolCall{Access::context(reply), arguments},
-                                                                                     Access::wrap<ToolResult>(reply));
+                                std::get<std::shared_ptr<Tool>>(entry->second.handler)
+                                    ->call(ToolCall{Access::context(reply), arguments}, Access::wrap<ToolResult>(reply));
                             } else if (kind == Kind::Resource) {
-                                std::get<Server::ResourceHandler>(entry->second.handler)(
-                                    ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
+                                std::get<std::shared_ptr<Resource>>(entry->second.handler)
+                                    ->read(ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
                             } else if (!reply->done) {
-                                std::get<Server::PromptHandler>(entry->second.handler)(
-                                    PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
-                                    Access::wrap<PromptResult>(reply));
+                                std::get<std::shared_ptr<Prompt>>(entry->second.handler)
+                                    ->get(PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
+                                          Access::wrap<PromptResult>(reply));
                             }
                         }
                     }
@@ -682,6 +682,68 @@ namespace mcp::server {
     template class Reply<ResourceResult>;
     template class Reply<PromptResult>;
 
+    namespace {
+        struct FunctionTool final : Tool {
+            Server::ToolHandler handler;
+            FunctionTool(ToolDefinition definition, Server::ToolHandler handler)
+                : Tool(std::move(definition))
+                , handler(std::move(handler)) {
+                if (!this->handler) {
+                    throw RegistrationError(RegistrationKind::Tool, getDefinition().name, "handler", "must be callable");
+                }
+            }
+            void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) override {
+                handler(request, reply);
+            }
+        };
+        struct FunctionResource final : Resource {
+            Server::ResourceHandler handler;
+            FunctionResource(ResourceDefinition definition, Server::ResourceHandler handler)
+                : Resource(std::move(definition))
+                , handler(std::move(handler)) {
+                if (!this->handler) {
+                    throw RegistrationError(RegistrationKind::Resource, getDefinition().uri, "handler", "must be callable");
+                }
+            }
+            void read(const ResourceRead& request, const std::shared_ptr<ResourceReply>& reply) override {
+                handler(request, reply);
+            }
+        };
+        struct FunctionPrompt final : Prompt {
+            Server::PromptHandler handler;
+            FunctionPrompt(PromptDefinition definition, Server::PromptHandler handler)
+                : Prompt(std::move(definition))
+                , handler(std::move(handler)) {
+                if (!this->handler) {
+                    throw RegistrationError(RegistrationKind::Prompt, getDefinition().name, "handler", "must be callable");
+                }
+            }
+            void get(const PromptGet& request, const std::shared_ptr<PromptReply>& reply) override {
+                handler(request, reply);
+            }
+        };
+    } // namespace
+    Tool::Tool(ToolDefinition definition)
+        : definition(std::move(definition)) {
+    }
+    Tool::~Tool() = default;
+    const ToolDefinition& Tool::getDefinition() const {
+        return definition;
+    }
+    Resource::Resource(ResourceDefinition definition)
+        : definition(std::move(definition)) {
+    }
+    Resource::~Resource() = default;
+    const ResourceDefinition& Resource::getDefinition() const {
+        return definition;
+    }
+    Prompt::Prompt(PromptDefinition definition)
+        : definition(std::move(definition)) {
+    }
+    Prompt::~Prompt() = default;
+    const PromptDefinition& Prompt::getDefinition() const {
+        return definition;
+    }
     RegistrationError::RegistrationError(RegistrationKind kind, std::string identifier, std::string field, std::string reason)
         : std::invalid_argument(std::string(kind == RegistrationKind::Tool       ? "tool "
                                             : kind == RegistrationKind::Resource ? "resource "
@@ -696,6 +758,10 @@ namespace mcp::server {
     }
     Server::~Server() = default;
     Server* Server::tool(ToolDefinition definition, ToolHandler handler) {
+        return tool(std::make_shared<FunctionTool>(std::move(definition), std::move(handler)));
+    }
+    Server* Server::tool(std::shared_ptr<Tool> handler) {
+        const auto definition = handler ? handler->getDefinition() : ToolDefinition{};
         Json description{{"name", definition.name}, {"description", definition.description}, {"inputSchema", definition.inputSchema}};
         if (definition.outputSchema) {
             description["outputSchema"] = *definition.outputSchema;
@@ -710,6 +776,10 @@ namespace mcp::server {
         return this;
     }
     Server* Server::resource(ResourceDefinition definition, ResourceHandler handler) {
+        return resource(std::make_shared<FunctionResource>(std::move(definition), std::move(handler)));
+    }
+    Server* Server::resource(std::shared_ptr<Resource> handler) {
+        const auto definition = handler ? handler->getDefinition() : ResourceDefinition{};
         Json description{
             {"uri", definition.uri}, {"name", definition.name}, {"description", definition.description}, {"mimeType", definition.mimeType}};
         if (definition.title) {
@@ -719,6 +789,10 @@ namespace mcp::server {
         return this;
     }
     Server* Server::prompt(PromptDefinition definition, PromptHandler handler) {
+        return prompt(std::make_shared<FunctionPrompt>(std::move(definition), std::move(handler)));
+    }
+    Server* Server::prompt(std::shared_ptr<Prompt> handler) {
+        const auto definition = handler ? handler->getDefinition() : PromptDefinition{};
         Json description{{"name", definition.name}, {"description", definition.description}, {"arguments", Json::array()}};
         for (const auto& argument : definition.arguments) {
             description["arguments"].push_back({{"name", argument.name},
