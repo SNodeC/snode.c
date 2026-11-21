@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #include "mcp/server/Server.h"
 #include "mcp/server/Reply.h"
+#include "mcp/server/Request.h"
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 
 #include "Log.h"
+#include "core/timer/Timer.h"
 
 #include <algorithm>
 #include <chrono>
@@ -187,6 +189,9 @@ namespace mcp::server {
         , output(std::move(output))
         , deadline(std::chrono::steady_clock::now() + timeout) {
     }
+    detail::Response::~Response() {
+        timer.cancel();
+    }
     bool detail::Response::active() const {
         return !done;
     }
@@ -195,17 +200,17 @@ namespace mcp::server {
     }
     void detail::Response::expire() {
         if (active() && expired() && !subscription) {
-            if (toolRequest) {
-                result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
-            } else {
-                error(-32603, "Request deadline exceeded");
-            }
+            cancel(CancelReason::Deadline);
         }
     }
     bool detail::Response::isSubscription() const {
         return subscription;
     }
     void detail::Response::result(Json value) {
+        const auto keep = weak_from_this().lock();
+        if (!cancellation) {
+            expire();
+        }
         if (!done) {
             std::string validationError;
             if (!outputSchema.is_null() && value.value("isError", Json()) != true &&
@@ -224,10 +229,16 @@ namespace mcp::server {
                 }
             }
             done = true;
+            timer.cancel();
+            observers.clear();
             output(Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(value)}}, true);
         }
     }
     void detail::Response::error(int code, const std::string& message, Json data) {
+        const auto keep = weak_from_this().lock();
+        if (!cancellation) {
+            expire();
+        }
         if (!done) {
             Json response{{"jsonrpc", "2.0"}, {"error", {{"code", code}, {"message", message}}}};
             if (!id.is_null() || !modern) {
@@ -237,6 +248,8 @@ namespace mcp::server {
                 response["error"]["data"] = std::move(data);
             }
             done = true;
+            timer.cancel();
+            observers.clear();
             output(response, true);
         }
     }
@@ -252,13 +265,43 @@ namespace mcp::server {
         subscription = true;
         notify("notifications/subscriptions/acknowledged", {{"notifications", Json::object()}});
     }
-    void detail::Response::cancel(bool serverInitiated) {
-        if (!done) {
-            if (serverInitiated && subscription) {
-                notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
+    void detail::Response::observe(RequestContext::OnCancel callback) {
+        if (callback) {
+            if (cancellation) {
+                try {
+                    callback(*cancellation);
+                } catch (const std::exception& error) {
+                    snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "cancel observer: " << error.what();
+                } catch (...) {
+                    snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "cancel observer failed";
+                }
+            } else if (active()) {
+                observers.push_back(std::move(callback));
             }
-            done = true;
-            output(nullptr, true);
+        }
+    }
+    void detail::Response::cancel(CancelReason reason) {
+        const auto keep = weak_from_this().lock();
+        if (!done) {
+            cancellation = reason;
+            auto callbacks = std::move(observers);
+            if (reason == CancelReason::Deadline) {
+                if (toolRequest) {
+                    result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
+                } else {
+                    error(-32603, "Request deadline exceeded");
+                }
+            } else {
+                if (reason == CancelReason::Shutdown && subscription) {
+                    notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
+                }
+                done = true;
+                timer.cancel();
+                output(nullptr, true);
+            }
+            for (auto& callback : callbacks) {
+                observe(std::move(callback));
+            }
         }
     }
     Server::Impl::Impl(std::string name)
@@ -340,6 +383,16 @@ namespace mcp::server {
                                                                 std::move(output),
                                                                 timeout);
         reply->toolRequest = method == "tools/call";
+        if (legacy || method != "subscriptions/listen") {
+            const std::weak_ptr<Response> weak = reply;
+            reply->timer = core::timer::Timer::singleshotTimer(
+                [weak] {
+                    if (const auto current = weak.lock()) {
+                        current->cancel(CancelReason::Deadline);
+                    }
+                },
+                utils::Timeval(static_cast<double>(timeout.count()) / 1000.0));
+        }
         try {
             if (!validRequest(request)) {
                 reply->error(-32600, "Invalid Request");
@@ -350,9 +403,20 @@ namespace mcp::server {
                 const Json meta = params.value("_meta", Json::object());
                 const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
                 const Json client = params.value("clientInfo", Json());
+                const Json token = meta.is_object() ? meta.value("progressToken", Json()) : Json();
+                const bool validToken =
+                    !meta.is_object() || !meta.contains("progressToken") || token.is_string() ||
+                    (token.is_number_integer() && (!token.is_number_unsigned() || token.get<std::uint64_t>() <= INT64_MAX));
+                if (token.is_string()) {
+                    reply->progressToken = token.get<std::string>();
+                } else if (validToken && !token.is_null()) {
+                    reply->progressToken = token.get<std::int64_t>();
+                }
                 if (!legacy &&
                     (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                     reply->error(-32602, "Missing or malformed per-request metadata");
+                } else if (!validToken) {
+                    reply->error(-32602, "Progress token must be a string or signed integer");
                 } else if (!legacy && version != modernVersion) {
                     reply->error(
                         -32022, "Unsupported protocol version", {{"supported", {modernVersion, legacyVersion}}, {"requested", version}});
@@ -408,7 +472,10 @@ namespace mcp::server {
                         const auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + params[argument].get<std::string>());
                         const Json arguments = params.value("arguments", Json::object());
                         std::string error;
-                        if (entry == entries.end() || !arguments.is_object()) {
+                        if (entry == entries.end() || !arguments.is_object() ||
+                            (kind == Kind::Prompt && !std::all_of(arguments.begin(), arguments.end(), [](const Json& value) {
+                                 return value.is_string();
+                             }))) {
                             reply->error(legacy && kind == Kind::Resource && entry == entries.end() ? -32002 : -32602,
                                          "Unknown registration or malformed arguments");
                         } else if (kind == Kind::Tool && !validate(entry->second.description["inputSchema"], arguments, error)) {
@@ -418,11 +485,15 @@ namespace mcp::server {
                                 reply->outputSchema = entry->second.description["outputSchema"];
                             }
                             if (kind == Kind::Tool) {
-                                std::get<Server::ToolHandler>(entry->second.handler)(arguments, Access::wrap<ToolResult>(reply));
+                                std::get<Server::ToolHandler>(entry->second.handler)(ToolCall{Access::context(reply), arguments},
+                                                                                     Access::wrap<ToolResult>(reply));
                             } else if (kind == Kind::Resource) {
-                                std::get<Server::ResourceHandler>(entry->second.handler)(params, Access::wrap<ResourceResult>(reply));
+                                std::get<Server::ResourceHandler>(entry->second.handler)(
+                                    ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
                             } else {
-                                std::get<Server::PromptHandler>(entry->second.handler)(arguments, Access::wrap<PromptResult>(reply));
+                                std::get<Server::PromptHandler>(entry->second.handler)(
+                                    PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
+                                    Access::wrap<PromptResult>(reply));
                             }
                         }
                     }
@@ -434,6 +505,7 @@ namespace mcp::server {
             snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "dispatch failed: " << error.what();
             reply->error(-32603, "Internal error");
         }
+        reply->expire();
         return reply;
     }
     int Server::Impl::httpStatus(const Json& message) {
@@ -534,6 +606,8 @@ namespace mcp::server {
     Reply<Result>::~Reply() = default;
     template <class Result>
     Completion Reply<Result>::result(Result result) {
+        const auto keep = impl;
+        impl->expire();
         const Completion completion = impl->active() ? Completion::Accepted : Completion::Inactive;
         if constexpr (std::is_same_v<Result, ToolResult>) {
             impl->result(std::move(result.value));
@@ -558,21 +632,45 @@ namespace mcp::server {
     }
     template <class Result>
     Completion Reply<Result>::error(ErrorCode code, std::string message, Json data) {
+        const auto keep = impl;
+        impl->expire();
         const Completion completion = impl->active() ? Completion::Accepted : Completion::Inactive;
         impl->error(static_cast<int>(code), message, std::move(data));
         return completion;
     }
     template <class Result>
-    bool Reply<Result>::active() const {
-        return impl->active();
-    }
-    template <class Result>
-    bool Reply<Result>::expired() const {
-        return impl->expired();
-    }
-    template <class Result>
-    void Reply<Result>::expire() {
+    void Reply<Result>::progress(Progress progress) {
         impl->expire();
+        if (impl->progressToken && impl->active() && std::isfinite(progress.value) && progress.value >= 0 &&
+            (!impl->lastProgress || progress.value >= *impl->lastProgress) &&
+            (!progress.total || (std::isfinite(*progress.total) && *progress.total >= progress.value))) {
+            impl->lastProgress = progress.value;
+            Json params{{"progress", progress.value}};
+            params["progressToken"] = std::visit(
+                [](const auto& token) {
+                    return Json(token);
+                },
+                *impl->progressToken);
+            if (progress.total) {
+                params["total"] = *progress.total;
+            }
+            if (!progress.message.empty()) {
+                params["message"] = std::move(progress.message);
+            }
+            impl->notify("notifications/progress", std::move(params));
+        }
+    }
+    RequestContext::RequestContext(std::shared_ptr<detail::Response> impl)
+        : impl(std::move(impl)) {
+    }
+    const std::optional<Principal>& RequestContext::getPrincipal() const {
+        return impl->principal;
+    }
+    const std::optional<ProgressToken>& RequestContext::getProgressToken() const {
+        return impl->progressToken;
+    }
+    void RequestContext::onCancel(OnCancel callback) const {
+        impl->observe(std::move(callback));
     }
     template class Reply<ToolResult>;
     template class Reply<ResourceResult>;

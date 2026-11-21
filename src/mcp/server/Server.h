@@ -2,6 +2,7 @@
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
 #include "mcp/server/Reply.h"
+#include "mcp/server/Request.h"
 #include "mcp/server/Types.h"
 #include <functional>
 #include <memory>
@@ -14,11 +15,11 @@ namespace mcp::server {
     class Server {
     public:
         /// Event-loop callback; retain the shared reply for asynchronous work.
-        using ToolHandler = std::function<void(const Json&, const std::shared_ptr<ToolReply>&)>;
+        using ToolHandler = std::function<void(const ToolCall&, const std::shared_ptr<ToolReply>&)>;
         /// Resource callback on the event loop; shared completion owns request state.
-        using ResourceHandler = std::function<void(const Json&, const std::shared_ptr<ResourceReply>&)>;
+        using ResourceHandler = std::function<void(const ResourceRead&, const std::shared_ptr<ResourceReply>&)>;
         /// Prompt callback on the event loop; shared completion owns request state.
-        using PromptHandler = std::function<void(const Json&, const std::shared_ptr<PromptReply>&)>;
+        using PromptHandler = std::function<void(const PromptGet&, const std::shared_ptr<PromptReply>&)>;
         /// Construct before attachment; owns its name and registration data.
         explicit Server(std::string name);
         /// Destroy only after attached transports have drained.

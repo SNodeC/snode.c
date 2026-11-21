@@ -23,7 +23,8 @@ int main(int argc, char* argv[]) {
         core::SNodeC::init(argc + 1, arguments.data());
         utils::Config::configRoot.setDefaultValue(utils::Config::configRoot.getOption("--log-console"), "stderr", false);
         mcp::server::Server server("stdio-fixture");
-        server.tool({{"name", "echo"}, {"inputSchema", {{"type", "object"}}}}, [](const auto& args, const auto& reply) {
+        server.tool({{"name", "echo"}, {"inputSchema", {{"type", "object"}}}}, [](const auto& call, const auto& reply) {
+            const auto& args = call.arguments;
             reply->result(ToolResult::text(args.dump()));
         });
         server.tool({{"name", "delay"}, {"inputSchema", {{"type", "object"}}}}, [](const auto&, const auto& reply) {

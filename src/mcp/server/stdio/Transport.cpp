@@ -166,7 +166,7 @@ namespace mcp::server::stdio {
             }
             for (const auto& [id, reply] : pending) {
                 static_cast<void>(id);
-                reply->cancel(true);
+                reply->cancel(CancelReason::Shutdown);
             }
             pending.clear();
             if (output != nullptr && (outgoing.empty() || failed)) {
@@ -300,11 +300,6 @@ namespace mcp::server::stdio {
             [weak] {
                 if (const auto owner = weak.lock(); owner && !owner->closing) {
                     owner->process();
-                    auto next = owner->pending.begin();
-                    while (!owner->closing && next != owner->pending.end()) {
-                        const auto reply = (next++)->second;
-                        reply->expire();
-                    }
                     std::erase_if(owner->pending, [](const auto& item) {
                         return !item.second->active();
                     });

@@ -116,7 +116,7 @@ namespace mcp::server::http {
                     closed = true;
                     timer.cancel();
                     if (reply) {
-                        reply->cancel();
+                        reply->cancel(CancelReason::Disconnected);
                     }
                     owner.reset();
                 }
@@ -160,7 +160,7 @@ namespace mcp::server::http {
             }
             void shutdown() {
                 if (!closed && reply) {
-                    reply->cancel(true);
+                    reply->cancel(CancelReason::Shutdown);
                     if (streaming) {
                         pump();
                     } else {
@@ -188,8 +188,6 @@ namespace mcp::server::http {
                             if (const auto current = weak.lock(); current && !current->closed) {
                                 if (!current->legacy && !current->response->isConnected()) {
                                     current->stop();
-                                } else {
-                                    current->reply->expire();
                                 }
                                 if (current->streaming) {
                                     current->pump();

@@ -25,7 +25,8 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
     mcp::server::Server server("http-fixture");
     for (const std::string name : {"echo", "écho", "=?base64?literal?="}) {
-        server.tool({{"name", name}, {"inputSchema", {{"type", "object"}}}}, [http](const auto& args, const auto& reply) {
+        server.tool({{"name", name}, {"inputSchema", {{"type", "object"}}}}, [http](const auto& call, const auto& reply) {
+            const auto& args = call.arguments;
             static_cast<void>(args);
             reply->result(ToolResult::json({{"pipelining", http->getAllowPipelining()}, {"pending", http->getMaximumPendingRequests()}}));
         });

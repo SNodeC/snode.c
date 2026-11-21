@@ -15,23 +15,41 @@ foreach(reply Tool Resource Prompt)
             "${CMAKE_CURRENT_BINARY_DIR}/reply-${reply}-${result}"
             SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/ReplyTypeCheck.cpp"
             CMAKE_FLAGS "-DCMAKE_CXX_STANDARD=20"
-            COMPILE_DEFINITIONS "-I${CMAKE_SOURCE_DIR}/src"
-                                "-DMCP_REPLY=${reply}Reply"
-                                "-DMCP_RESULT=${result}Result"
+            COMPILE_DEFINITIONS
+                "-I${CMAKE_SOURCE_DIR}/src" "-DMCP_REPLY=${reply}Reply"
+                "-DMCP_RESULT=${result}Result"
             OUTPUT_VARIABLE reply_output
         )
         if(reply STREQUAL result AND NOT accepts_${reply}_${result})
-            message(FATAL_ERROR "MCP positive compile control failed: ${reply_output}")
+            message(
+                FATAL_ERROR
+                    "MCP positive compile control failed: ${reply_output}"
+            )
         elseif(NOT reply STREQUAL result AND accepts_${reply}_${result})
-            message(FATAL_ERROR "MCP accepted mismatched ${reply}Reply/${result}Result")
+            message(
+                FATAL_ERROR
+                    "MCP accepted mismatched ${reply}Reply/${result}Result"
+            )
         endif()
         file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/reply-${reply}-${result}.log"
-             "${reply_output}")
+             "${reply_output}"
+        )
     endforeach()
 endforeach()
 message(STATUS "MCP Reply: 3 positive controls and 6 type rejections passed")
 
 snodec_add_test(McpResultTest McpResultTest.cpp)
 target_include_directories(McpResultTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(McpResultTest PRIVATE snodec::mcp-server snodec-test-support)
+target_link_libraries(
+    McpResultTest PRIVATE snodec::mcp-server snodec-test-support
+)
 set_tests_properties(McpResultTest PROPERTIES LABELS "unit;mcp;results")
+
+snodec_add_test(McpContextTest McpContextTest.cpp)
+target_include_directories(McpContextTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpContextTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(
+    McpContextTest PROPERTIES LABELS "unit;mcp;cancellation;deadline"
+)

@@ -2,6 +2,7 @@
 #pragma once
 #include "mcp/server/Server.h"
 
+#include "core/timer/Timer.h"
 #include <chrono>
 #include <map>
 #include <variant>
@@ -14,14 +15,16 @@ namespace mcp::server::detail {
 
 } // namespace mcp::server::detail
 namespace mcp::server::detail {
-    struct Response {
+    struct Response : std::enable_shared_from_this<Response> {
     public:
         using Output = std::function<void(const Json&, bool)>;
         Response(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout);
+        ~Response();
         void result(Json value);
         void error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
-        void cancel(bool serverInitiated = false);
+        void cancel(CancelReason reason = CancelReason::Client);
+        void observe(RequestContext::OnCancel callback);
         bool active() const;
         bool expired() const;
         void expire();
@@ -29,6 +32,12 @@ namespace mcp::server::detail {
         bool isSubscription() const;
 
     public:
+        std::optional<Principal> principal;
+        std::optional<ProgressToken> progressToken;
+        std::optional<CancelReason> cancellation;
+        std::vector<RequestContext::OnCancel> observers;
+        core::timer::Timer timer;
+        std::optional<double> lastProgress;
         Json outputSchema;
         Json id;
         bool modern;
@@ -45,6 +54,9 @@ namespace mcp::server::detail {
         using Response = detail::Response;
         using Registry = Server::Impl;
         static Registry& registry(const Server& server);
+        static RequestContext context(std::shared_ptr<Response> response) {
+            return RequestContext(std::move(response));
+        }
         template <class Result>
         static Response& response(const Reply<Result>& reply) {
             return *reply.impl;

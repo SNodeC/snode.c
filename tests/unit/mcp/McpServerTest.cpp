@@ -67,21 +67,22 @@ int main() {
     int calls = 0;
     std::shared_ptr<mcp::server::ToolReply> pending;
     std::shared_ptr<mcp::server::ResourceReply> pendingResource;
-    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [&calls](const Json& args, const auto& reply) {
+    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [&calls](const ::mcp::server::ToolCall& call, const auto& reply) {
+        const auto& args = call.arguments;
         ++calls;
         reply->result(ToolResult::text(args["word"]));
         reply->result(ToolResult::content({}));
     });
-    server.tool({{"name", "pending"}, {"inputSchema", {{"type", "object"}}}}, [&pending](const Json&, const auto& reply) {
+    server.tool({{"name", "pending"}, {"inputSchema", {{"type", "object"}}}}, [&pending](const auto&, const auto& reply) {
         pending = reply;
     });
-    server.resource({{"name", "style"}, {"uri", "snodec://style"}}, [](const Json&, const auto& reply) {
+    server.resource({{"name", "style"}, {"uri", "snodec://style"}}, [](const auto&, const auto& reply) {
         reply->result(mcp::server::ResourceResult{{mcp::server::TextResource{"snodec://style", "text/plain", "style"}}});
     });
-    server.prompt({{"name", "review"}}, [](const Json&, const auto& reply) {
+    server.prompt({{"name", "review"}}, [](const auto&, const auto& reply) {
         reply->result(mcp::server::PromptResult{});
     });
-    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pendingResource](const Json&, const auto& reply) {
+    server.resource({{"name", "slow"}, {"uri", "snodec://slow"}}, [&pendingResource](const auto&, const auto& reply) {
         pendingResource = reply;
     });
     Json response;
@@ -159,10 +160,10 @@ int main() {
     Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, true, output);
     test.expectEqual(notified, messages, "no notification response");
     Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, std::chrono::milliseconds(0));
-    pendingResource->expire();
+    Access::response(*pendingResource).expire();
     test.expectEqual(-32603, response["error"]["code"].get<int>(), "resource deadline is a JSON-RPC error");
     Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output, std::chrono::milliseconds(0));
-    pending->expire();
+    Access::response(*pending).expire();
     test.expectTrue(response["result"]["isError"] == true, "tool deadline is a tool error");
     Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output);
     Access::response(*pending).cancel();
@@ -178,15 +179,15 @@ int main() {
     auto ending = Access::registry(server).dispatch(request("subscriptions/listen"), false, [&shutdown](const Json& value, bool) {
         shutdown.push_back(value);
     });
-    ending->cancel(true);
+    ending->cancel(mcp::server::CancelReason::Shutdown);
     test.expectTrue(shutdown.size() == 3 && shutdown[1]["method"] == "notifications/cancelled" && shutdown.back().is_null(),
                     "subscription teardown cancellation");
     subscription->cancel();
     Server invalid("invalid");
-    invalid.tool({{"name", "bad"}, {"inputSchema", {{"type", "object"}, {"$ref", "unsafe"}}}}, [](const Json&, const auto&) {
+    invalid.tool({{"name", "bad"}, {"inputSchema", {{"type", "object"}, {"$ref", "unsafe"}}}}, [](const auto&, const auto&) {
     });
     test.expectTrue(!Access::registry(invalid).valid(), "unsupported advertised schema poisons startup");
-    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [](const Json&, const auto&) {
+    server.tool({{"name", "echo"}, {"inputSchema", schema}}, [](const auto&, const auto&) {
     });
     test.expectTrue(!Access::registry(server).valid(), "duplicate registration rejected");
     return test.processResult();

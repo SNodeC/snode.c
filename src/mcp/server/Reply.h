@@ -23,10 +23,8 @@ namespace mcp::server {
         Completion result(Result result);
         /// Complete once with an application error on the event-loop thread.
         Completion error(ErrorCode code, std::string message, Json data = nullptr);
-        /// Inspect liveness on the event-loop thread until context migration.
-        bool active() const;
-        bool expired() const; ///< Inspect the deadline on the event-loop thread.
-        void expire();        ///< Complete a deadline failure once on the event-loop thread.
+        /// Send progress on the event loop with the original typed token; no token is a no-op.
+        void progress(Progress progress);
 
     private:
         explicit Reply(std::shared_ptr<detail::Response> impl);
