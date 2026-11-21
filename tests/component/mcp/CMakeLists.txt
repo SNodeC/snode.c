@@ -36,6 +36,37 @@ endforeach()
 
 if(TARGET snodec-dev-stdio AND TARGET snodec-dev-http)
     add_test(
+        NAME McpReadTest
+        COMMAND
+            ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/read_test.py
+            $<TARGET_FILE:snodec-dev-stdio> $<TARGET_FILE:snodec-dev-http>
+            ${MCP_CURL} ${CMAKE_SOURCE_DIR}/src
+    )
+    set_tests_properties(
+        McpReadTest PROPERTIES LABELS "mcp;component;development" TIMEOUT 30
+    )
+    set(SNODEC_MCP_SDK_ROOT
+        ""
+        CACHE
+            PATH
+            "Official @modelcontextprotocol/client package directory for SDK regression tests"
+    )
+    if(SNODEC_MCP_SDK_ROOT)
+        find_program(MCP_NODE NAMES node REQUIRED)
+        add_test(
+            NAME McpReadSdkTest
+            COMMAND
+                ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/read_sdk_test.py
+                ${MCP_NODE} ${SNODEC_MCP_SDK_ROOT}
+                $<TARGET_FILE:snodec-dev-stdio> $<TARGET_FILE:snodec-dev-http>
+                ${MCP_CURL} ${CMAKE_SOURCE_DIR}/src
+        )
+        set_tests_properties(
+            McpReadSdkTest PROPERTIES LABELS "mcp;component;development;sdk"
+                                      TIMEOUT 40
+        )
+    endif()
+    add_test(
         NAME McpDevelopmentTest
         COMMAND
             ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/dev_test.py

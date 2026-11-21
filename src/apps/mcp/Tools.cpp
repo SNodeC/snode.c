@@ -228,9 +228,12 @@ namespace apps::mcp {
                     if (!failure.empty()) {
                         reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", failure}}}}});
                     } else if (read) {
-                        static_cast<void>(Json(text).dump());
-                        reply->result({{"content", {{{"type", "text"}, {"text", text}}}},
-                                       {"structuredContent", {{"path", path}, {"truncated", truncated}}}});
+                        const Json value{{"path", path},
+                                         {"offset", args.value("offset", std::size_t{0})},
+                                         {"bytes", text.size()},
+                                         {"text", text},
+                                         {"truncated", truncated}};
+                        reply->result({{"content", {{{"type", "text"}, {"text", value.dump()}}}}, {"structuredContent", value}});
                     } else {
                         const Json value{
                             {"matches", matches}, {"files", files}, {"bytes", bytes}, {"entries", entries}, {"truncated", truncated}};

@@ -54,8 +54,9 @@ def run():
         assert found["matches"] == [{"path": "alpha.h", "line": 1, "offset": 16381}], "literal match crosses a read boundary"
         assert found["files"] <= 4096 and found["bytes"] <= 8388608
         boundary = call("api.read", {"path": "alpha.h", "offset": 16380, "bytes": 9})
-        assert boundary["content"][0]["text"] == alpha[16380:16389].decode()
-        assert call("api.read", {"path": "utf8.hpp"})["content"][0]["text"] == "é日\n"
+        assert boundary["structuredContent"]["text"] == alpha[16380:16389].decode()
+        assert json.loads(boundary["content"][0]["text"]) == boundary["structuredContent"]
+        assert call("api.read", {"path": "utf8.hpp"})["structuredContent"]["text"] == "é日\n"
         assert call("api.read", {"path": "invalid.h"})["isError"]
         literal = call("api.find", {"query": "needle.*", "limit": 1})["structuredContent"]["matches"]
         assert literal == [{"path": "literal.h", "line": 1, "offset": 0}], "search is literal, not regex"
