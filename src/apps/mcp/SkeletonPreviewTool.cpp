@@ -17,7 +17,7 @@ namespace apps::mcp {
                 "Preview an express application or router module. Does not write files.",
                 parseSchema("skeleton.preview", R"json(
 {
-    "additionalProperties": false,
+    "type": "object",
     "properties": {
         "kind": {
             "default": "application",
@@ -27,7 +27,7 @@ namespace apps::mcp {
             ]
         }
     },
-    "type": "object"
+    "additionalProperties": false
 }
 )json")}) {
     }

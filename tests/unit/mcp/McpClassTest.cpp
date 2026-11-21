@@ -3,6 +3,8 @@
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <type_traits>
 
 using namespace mcp::server;
@@ -28,7 +30,7 @@ namespace {
 } // namespace
 static_assert(!std::is_copy_assignable_v<EchoTool>);
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }
@@ -103,7 +105,7 @@ int main(int argc, char* argv[]) {
             "tool echo: name: registration rejected: duplicate");
         reject(
             [&] {
-                classes.tool(std::make_shared<EchoTool>(ToolDefinition{"bad", {}, Json::parse(R"json(
+                classes.tool(std::make_shared<EchoTool>(ToolDefinition{"bad", {}, nlohmann::ordered_json::parse(R"json(
 {
     "type": "array"
 }

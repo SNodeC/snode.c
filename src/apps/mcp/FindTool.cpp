@@ -11,24 +11,24 @@ namespace apps::mcp {
                 "Literal search of confined installed headers; returns relative paths, lines and byte offsets.",
                 parseSchema("api.find", R"json(
 {
-    "additionalProperties": false,
+    "type": "object",
     "properties": {
+        "query": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+        },
         "limit": {
+            "type": "integer",
             "default": 20,
             "maximum": 100,
-            "minimum": 1,
-            "type": "integer"
-        },
-        "query": {
-            "maxLength": 128,
-            "minLength": 1,
-            "type": "string"
+            "minimum": 1
         }
     },
     "required": [
         "query"
     ],
-    "type": "object"
+    "additionalProperties": false
 }
 )json")})
         , headers(openHeaders(config.getHeaderRoot()))

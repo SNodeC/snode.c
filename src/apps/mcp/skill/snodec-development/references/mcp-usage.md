@@ -32,22 +32,24 @@ These techniques belong to the MCP implementation; they are not general applicat
 
 ### Class and short-form examples
 
-Own the definition in the base and parse fully expanded schema text exactly once during construction. Preserve `Json::dump(4)` layout in every schema raw string, including nested arrays. Convert parsing failures to a named `RegistrationError`; for output schemas use field `outputSchema`. The demo's `parseSchema` helper performs that conversion for its constructors. Keep callbacks and final release on the event-loop thread.
+Own the definition in the base and parse fully expanded schema text exactly once during construction. Preserve `nlohmann::ordered_json::parse(text).dump(4)` layout in every schema raw string, including nested arrays. Convert parsing failures to a named `RegistrationError`; for output schemas use field `outputSchema`. The demo's `parseSchema` helper performs that conversion for its constructors. Keep callbacks and final release on the event-loop thread.
 
 ```cpp
 #include <mcp/server/Server.h>
 #include <mcp/server/Tool.h>
 #include <memory>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 class EchoTool final : public mcp::server::Tool {
 public:
     EchoTool();
-    void call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
+    void call(const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
 };
 EchoTool::EchoTool() try
-    : Tool({"echo", "Echo the supplied text object", mcp::server::Json::parse(R"json(
+    : Tool({"echo", "Echo the supplied text object", nlohmann::ordered_json::parse(R"json(
 {
-    "additionalProperties": false,
+    "type": "object",
     "properties": {
         "text": {
             "type": "string"
@@ -56,14 +58,14 @@ EchoTool::EchoTool() try
     "required": [
         "text"
     ],
-    "type": "object"
+    "additionalProperties": false
 }
 )json")}) {
 } catch (const mcp::server::Json::parse_error& error) {
     throw mcp::server::RegistrationError(mcp::server::RegistrationKind::Tool, "echo", "inputSchema", error.what());
 }
-void EchoTool::call(const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
-    reply->result(mcp::server::ToolResult::json(call.arguments));
+void EchoTool::call(const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(request.arguments));
 }
 ```
 
@@ -76,7 +78,7 @@ For an existing `ToolDefinition`, the lambda overload is the short form. It wrap
 
 ```cpp
 const auto definition = EchoTool().getDefinition();
-server.tool(definition, [](const mcp::server::ToolCall& call, const std::shared_ptr<mcp::server::ToolReply>& reply) {
-    reply->result(mcp::server::ToolResult::json(call.arguments));
+server.tool(definition, [](const mcp::server::ToolCall& request, const std::shared_ptr<mcp::server::ToolReply>& reply) {
+    reply->result(mcp::server::ToolResult::json(request.arguments));
 });
 ```

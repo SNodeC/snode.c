@@ -11,28 +11,28 @@ namespace apps::mcp {
                 "Read a bounded UTF-8 header range using a relative path and optional byte offset.",
                 parseSchema("api.read", R"json(
 {
-    "additionalProperties": false,
+    "type": "object",
     "properties": {
-        "bytes": {
-            "maximum": 65536,
-            "minimum": 1,
-            "type": "integer"
+        "path": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 1
         },
         "offset": {
+            "type": "integer",
             "maximum": 67108864,
-            "minimum": 0,
-            "type": "integer"
+            "minimum": 0
         },
-        "path": {
-            "maxLength": 512,
-            "minLength": 1,
-            "type": "string"
+        "bytes": {
+            "type": "integer",
+            "maximum": 65536,
+            "minimum": 1
         }
     },
     "required": [
         "path"
     ],
-    "type": "object"
+    "additionalProperties": false
 }
 )json")})
         , headers(openHeaders(config.getHeaderRoot())) {

@@ -8,6 +8,8 @@
 #include <net/in/stream/legacy/SocketClient.h>
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketClient.h>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace {
     class InstalledTool final : public mcp::server::Tool {
@@ -16,7 +18,7 @@ namespace {
         void call(const mcp::server::ToolCall&, const std::shared_ptr<mcp::server::ToolReply>& reply) override;
     };
     InstalledTool::InstalledTool()
-        : Tool({"installed", {}, mcp::server::Json::parse(R"json(
+        : Tool({"installed", {}, nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }

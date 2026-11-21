@@ -3,9 +3,12 @@
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }
@@ -67,7 +70,7 @@ int main(int argc, char* argv[]) {
                         blocks[5]["resource"]["blob"] == "AA==",
                     "all tool content kinds encoded");
     Server schema("schema", "test-version");
-    schema.tool({"value", {}, objectSchema, Json::parse(R"json(
+    schema.tool({"value", {}, objectSchema, nlohmann::ordered_json::parse(R"json(
 {
     "type": "integer"
 }

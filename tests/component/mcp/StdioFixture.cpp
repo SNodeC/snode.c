@@ -6,10 +6,12 @@
 #include "mcp/server/stdio/Transport.h"
 #include "utils/Config.h"
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 using mcp::server::ToolResult;
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }
@@ -34,10 +36,10 @@ int main(int argc, char* argv[]) {
                 utils::Timeval(0.2));
         });
         if (config->getOption("--fixture-schema")->as<std::string>() == "invalid") {
-            server.tool({"bad", {}, mcp::server::Json::parse(R"json(
+            server.tool({"bad", {}, nlohmann::ordered_json::parse(R"json(
 {
-    "$ref": "unsupported",
-    "type": "object"
+    "type": "object",
+    "$ref": "unsupported"
 }
 )json")},
                         [](const auto&, const auto&) {

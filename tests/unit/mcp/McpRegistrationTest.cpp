@@ -2,12 +2,15 @@
 #include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
+
 #include <functional>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }
@@ -40,7 +43,7 @@ int main(int argc, char* argv[]) {
         "tool no-handler: handler:");
     reject(
         [&] {
-            server.tool({"bad", {}, Json::parse(R"json(
+            server.tool({"bad", {}, nlohmann::ordered_json::parse(R"json(
 {
     "type": "array"
 }
@@ -50,7 +53,7 @@ int main(int argc, char* argv[]) {
         "tool bad: inputSchema:");
     reject(
         [&] {
-            server.tool({"bad", {}, schema, Json::parse(R"json(
+            server.tool({"bad", {}, schema, nlohmann::ordered_json::parse(R"json(
 {
     "$ref": "unsupported"
 }

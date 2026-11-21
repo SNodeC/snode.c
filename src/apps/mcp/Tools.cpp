@@ -24,6 +24,7 @@
 #include <memory>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -336,7 +337,7 @@ namespace apps::mcp {
     ::mcp::server::Json parseSchema(const std::string& name, const char* text, const char* field) {
         ::mcp::server::Json schema;
         try {
-            schema = ::mcp::server::Json::parse(text);
+            schema = nlohmann::ordered_json::parse(text);
         } catch (const ::mcp::server::Json::parse_error& error) {
             throw ::mcp::server::RegistrationError(::mcp::server::RegistrationKind::Tool, name, field, error.what());
         }

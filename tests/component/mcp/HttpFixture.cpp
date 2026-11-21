@@ -4,9 +4,12 @@
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/http/Router.h"
-#include <stdexcept>
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
+
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <stdexcept>
 #ifdef MCP_TLS
 #include "express/tls/in/WebApp.h"
 using WebApp = express::tls::in::WebApp;
@@ -16,7 +19,7 @@ using WebApp = express::legacy::in::WebApp;
 #endif
 using mcp::server::ToolResult;
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }

@@ -3,6 +3,8 @@
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 
 using mcp::server::Json;
@@ -15,7 +17,7 @@ namespace {
     }
 } // namespace
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }
@@ -25,12 +27,12 @@ int main(int argc, char* argv[]) {
     using mcp::server::Server;
     using mcp::server::detail::Access;
     std::string error;
-    const Json schema = Json::parse(R"json(
+    const Json schema = nlohmann::ordered_json::parse(R"json(
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "additionalProperties": false,
+    "type": "object",
     "properties": {
         "list": {
+            "type": "array",
             "items": {
                 "enum": [
                     1,
@@ -38,24 +40,24 @@ int main(int argc, char* argv[]) {
                 ]
             },
             "maxItems": 2,
-            "minItems": 1,
-            "type": "array"
+            "minItems": 1
         },
         "number": {
+            "type": "integer",
             "maximum": 3,
-            "minimum": 0,
-            "type": "integer"
+            "minimum": 0
         },
         "word": {
+            "type": "string",
             "maxLength": 2,
-            "minLength": 1,
-            "type": "string"
+            "minLength": 1
         }
     },
     "required": [
         "word"
     ],
-    "type": "object"
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false
 }
 )json");
     test.expectTrue(Access::Registry::checkSchema(schema, error), "supported dialect/subset accepted");
@@ -79,24 +81,24 @@ int main(int argc, char* argv[]) {
         unsupported["properties"]["word"][keyword] = Json::object();
         test.expectTrue(!Access::Registry::checkSchema(unsupported, error), "unsupported nested keyword rejected: " + keyword);
     }
-    for (const Json& malformed : Json::array({Json::parse(R"json(
+    for (const Json& malformed : Json::array({nlohmann::ordered_json::parse(R"json(
 {
     "$schema": "http://json-schema.org/draft-07/schema#"
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "type": "typo"
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "required": [
         1
     ]
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "required": [
         "a",
@@ -104,32 +106,32 @@ int main(int argc, char* argv[]) {
     ]
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "additionalProperties": {}
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "minLength": -1
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "maxItems": 0.5
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "items": 1
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "properties": []
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "enum": [
         1,
@@ -137,14 +139,14 @@ int main(int argc, char* argv[]) {
     ]
 }
 )json"),
-                                              Json::parse(R"json(
+                                              nlohmann::ordered_json::parse(R"json(
 {
     "minimum": "a"
 }
 )json")})) {
         test.expectTrue(!Access::Registry::checkSchema(malformed, error), "malformed schema rejected: " + malformed.dump());
     }
-    test.expectTrue(Access::Registry::validate(Json::parse(R"json(
+    test.expectTrue(Access::Registry::validate(nlohmann::ordered_json::parse(R"json(
 {
     "const": null
 }
@@ -152,13 +154,13 @@ int main(int argc, char* argv[]) {
                                                nullptr,
                                                error),
                     "const null");
-    test.expectTrue(!Access::Registry::validate(Json::parse(R"json(
+    test.expectTrue(!Access::Registry::validate(nlohmann::ordered_json::parse(R"json(
 false
 )json"),
                                                 true,
                                                 error),
                     "boolean false schema");
-    test.expectTrue(Access::Registry::validate(Json::parse(R"json(
+    test.expectTrue(Access::Registry::validate(nlohmann::ordered_json::parse(R"json(
 {
     "type": [
         "null",
@@ -307,10 +309,10 @@ false
     Server invalid("invalid", "test-version");
     bool rejected = false;
     try {
-        invalid.tool({"bad", {}, Json::parse(R"json(
+        invalid.tool({"bad", {}, nlohmann::ordered_json::parse(R"json(
 {
-    "$ref": "unsafe",
-    "type": "object"
+    "type": "object",
+    "$ref": "unsafe"
 }
 )json")},
                      [](const auto&, const auto&) {

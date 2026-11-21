@@ -2,14 +2,17 @@
 #include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
-#include <optional>
+
 #include <limits>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
 using namespace mcp::server;
 int main(int argc, char* argv[]) {
-    const auto objectSchema = mcp::server::Json::parse(R"json(
+    const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
     "type": "object"
 }

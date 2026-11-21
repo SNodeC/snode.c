@@ -4,6 +4,7 @@
 #include "src/apps/mcp/FindTool.h"
 #include "src/apps/mcp/ReadTool.h"
 #include "src/apps/mcp/SkeletonPreviewTool.h"
+#include "src/apps/mcp/Tools.h"
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
 
@@ -11,6 +12,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <regex>
 #include <sstream>
 using mcp::server::Json;
@@ -33,7 +36,7 @@ int main(int argc, char* argv[]) {
                         indent = std::min(indent, line.find_first_not_of(' '));
                     }
                     text = std::regex_replace(text, std::regex("^ {" + std::to_string(indent) + "}", std::regex_constants::multiline), "");
-                    test.expectTrue(Json::parse(text).dump(4) == text, entry.path().string() + " schema matches dump(4)");
+                    test.expectTrue(nlohmann::ordered_json::parse(text).dump(4) == text, entry.path().string() + " schema matches dump(4)");
                     ++checked;
                 }
             }
@@ -46,54 +49,54 @@ int main(int argc, char* argv[]) {
     const apps::mcp::FindTool find(*config);
     const apps::mcp::ReadTool read(*config);
     const apps::mcp::SkeletonPreviewTool preview;
-    const Json previous = Json::parse(R"json(
+    const Json previous = nlohmann::ordered_json::parse(R"json(
 {
     "api.find": {
-        "additionalProperties": false,
+        "type": "object",
         "properties": {
+            "query": {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1
+            },
             "limit": {
+                "type": "integer",
                 "default": 20,
                 "maximum": 100,
-                "minimum": 1,
-                "type": "integer"
-            },
-            "query": {
-                "maxLength": 128,
-                "minLength": 1,
-                "type": "string"
+                "minimum": 1
             }
         },
         "required": [
             "query"
         ],
-        "type": "object"
+        "additionalProperties": false
     },
     "api.read": {
-        "additionalProperties": false,
+        "type": "object",
         "properties": {
-            "bytes": {
-                "maximum": 65536,
-                "minimum": 1,
-                "type": "integer"
+            "path": {
+                "type": "string",
+                "maxLength": 512,
+                "minLength": 1
             },
             "offset": {
+                "type": "integer",
                 "maximum": 67108864,
-                "minimum": 0,
-                "type": "integer"
+                "minimum": 0
             },
-            "path": {
-                "maxLength": 512,
-                "minLength": 1,
-                "type": "string"
+            "bytes": {
+                "type": "integer",
+                "maximum": 65536,
+                "minimum": 1
             }
         },
         "required": [
             "path"
         ],
-        "type": "object"
+        "additionalProperties": false
     },
     "skeleton.preview": {
-        "additionalProperties": false,
+        "type": "object",
         "properties": {
             "kind": {
                 "default": "application",
@@ -103,7 +106,7 @@ int main(int argc, char* argv[]) {
                 ]
             }
         },
-        "type": "object"
+        "additionalProperties": false
     }
 }
 )json");
