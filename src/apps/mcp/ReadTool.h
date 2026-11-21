@@ -5,7 +5,7 @@
 namespace apps::mcp {
     class ReadTool : public ::mcp::server::Tool {
     public:
-        ReadTool(const DevelopmentConfig& config);
+        explicit ReadTool(const DevelopmentConfig& config);
         void call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) override;
 
     private:

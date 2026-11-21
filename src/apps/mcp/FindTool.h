@@ -5,7 +5,7 @@
 namespace apps::mcp {
     class FindTool : public ::mcp::server::Tool {
     public:
-        FindTool(const DevelopmentConfig& config);
+        explicit FindTool(const DevelopmentConfig& config);
         void call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) override;
 
     private:
