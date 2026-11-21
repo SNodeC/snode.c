@@ -37,8 +37,8 @@ class Client:
         else:
             self.process.stdin.write(wire)
 
-    def receive(self):
-        until = time.monotonic() + 4
+    def receive(self, timeout=4):
+        until = time.monotonic() + timeout
         while b"\n" not in self.buffer and time.monotonic() < until:
             ready, _, _ = select.select([self.process.stdout], [], [], 0.1)
             if ready:

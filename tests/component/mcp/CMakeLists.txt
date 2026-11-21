@@ -35,6 +35,19 @@ foreach(variant IN ITEMS Http Tls)
 endforeach()
 
 if(TARGET snodec-dev-stdio AND TARGET snodec-dev-http)
+    foreach(transport IN ITEMS stdio http)
+        add_test(
+            NAME McpSourceSearch_${transport}
+            COMMAND
+                ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/search_test.py
+                ${transport} $<TARGET_FILE:snodec-dev-${transport}> ${MCP_CURL}
+                ${CMAKE_SOURCE_DIR}/src
+        )
+        set_tests_properties(
+            McpSourceSearch_${transport}
+            PROPERTIES LABELS "mcp;component;development;timing" TIMEOUT 35
+        )
+    endforeach()
     add_test(
         NAME McpReadTest
         COMMAND

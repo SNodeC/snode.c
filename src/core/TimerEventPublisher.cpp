@@ -47,6 +47,7 @@
 
 #include <algorithm>
 #include <climits>
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -111,7 +112,9 @@ namespace core {
     }
 
     bool TimerEventPublisher::timernode_lt::operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-        return t1->getTimeoutAbsolut() < t2->getTimeoutAbsolut();
+        const utils::Timeval first = t1->getTimeoutAbsolut();
+        const utils::Timeval second = t2->getTimeoutAbsolut();
+        return first < second || (first == second && std::less<const TimerEventReceiver*>{}(t1, t2));
     }
 
 } // namespace core

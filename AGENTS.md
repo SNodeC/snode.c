@@ -1,5 +1,14 @@
 # SNode.C versioning policy
 
+## Canonical checkout and persistent builds
+
+- Source: `/home/voc/projects/snodec/snode.c/`.
+- GCC Debug: `/home/voc/projects/snodec/build/codex/snode.c/demo-bugs-gcc-debug/`.
+- Strict Clang+ASan Debug: `/home/voc/projects/snodec/build/codex/snode.c/demo-bugs-clang-asan/`.
+- Run CTest with `TMPDIR=/tmp/snc`; keep all build trees outside the source checkout.
+
+## Release compatibility
+
 Use semantic release versions `MAJOR.MINOR.PATCH`:
 
 - Increment **major** for a backward-incompatible public API or ABI change.

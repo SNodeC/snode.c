@@ -38,6 +38,15 @@
 # THE SOFTWARE.
 
 snodec_add_test(SingleshotTimerTest SingleshotTimerTest.cpp)
+snodec_add_test(TimerEqualDeadlineTest TimerEqualDeadlineTest.cpp)
+target_link_libraries(
+    TimerEqualDeadlineTest PRIVATE snodec-test-support snodec::core
+)
+target_compile_features(TimerEqualDeadlineTest PRIVATE cxx_std_20)
+set_tests_properties(
+    TimerEqualDeadlineTest PROPERTIES LABELS "component;core;timer"
+                                      SKIP_RETURN_CODE 77 TIMEOUT 5
+)
 snodec_add_test(IntervalTimerStopableTest IntervalTimerStopableTest.cpp)
 snodec_add_test(SNodeCStopFromCallbackTest SNodeCStopFromCallbackTest.cpp)
 snodec_add_test(SNodeCReconfigureTest SNodeCReconfigureTest.cpp)
