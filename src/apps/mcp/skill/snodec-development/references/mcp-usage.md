@@ -17,3 +17,14 @@ Call `skeleton.preview` with `{"kind":"application"}` or `{"kind":"module"}`. Th
 Read the resource `snodec://development/house-style` for the concise runtime conventions. Get prompt `snodec-review` with a string `code` argument of at most 16384 bytes to obtain a review instruction containing that code as data. The prompt does not execute or review code by itself.
 
 The first application exposes exactly these three tools, one resource, and one prompt. It has no build/run, configuration-inspection, command-execution, or file-writing tool. Do not infer those capabilities from the broader MCP framework.
+
+## Embedding the MCP module
+
+These techniques belong to the MCP implementation; they are not general application conventions.
+
+- Use `mcp::server::Server` for the shared tool/resource/prompt registry and dispatcher, with `mcp::server::Config` for CLI11 limits. `src/apps/mcp/main.cpp` shows their attachment and lifetime around the stdio transport or HTTP router. Keep them alive while the transport can dispatch.
+- For stdio, call `mcp::server::stdio::Transport::retainProtocol` before `core::SNodeC::init`. It retains the protocol descriptor and redirects ordinary stdout; the application defaults logging to stderr. Follow `src/mcp/server/stdio/Transport.cpp` for event-receiver framing, pressure handling, and EOF/shutdown. Its private receiver destructors are defined out of line.
+- For sliced tool work, follow `src/apps/mcp/Tools.cpp`: retain lookup state across `core::timer::Timer::singleshotTimer` callbacks, perform bounded reads/directory steps, and check `Reply::expire` and `Reply::active` between slices. Descriptor cleanup belongs to that lookup state.
+- For HTTP, mount `mcp::server::http::Router` before listening. `src/mcp/server/http/Router.cpp` owns the Origin/authentication/Content-Type checks, invokes `JsonMiddleware`, checks JSON-attribute presence, then validates headers and dispatches. Reuse that chain rather than duplicating it in the application.
+- MCP SSE uses `Response::pipe()` with `core::pipe::Source`, bounded output queues and blank-line event framing. Complete through Source EOF; never call `json()` or `send()` on an open streamed response. Follow the router's source for backpressure, disconnect cancellation, and shutdown cancellation while output can still drain.
+- Copy the application's explicit failure cleanup from `src/apps/mcp/main.cpp`: failed listeners call `core::SNodeC::stop`, and initialization exceptions call `core::SNodeC::free`. Keep this MCP embedding guidance separate from the established examples in `structure.md`.

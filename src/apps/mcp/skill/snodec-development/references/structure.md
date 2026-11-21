@@ -1,19 +1,19 @@
-# SNode.C source conventions
+# Established SNode.C examples
 
-The paths below identify source examples in a SNode.C checkout.
+Paths refer to a SNode.C source checkout.
 
-1. Configure named application instances before initialization. The HTTP example in `src/apps/mcp/main.cpp` creates `express::legacy::in::WebApp`, attaches configuration and HTTP limits, calls `WebApp::init`, mounts routes, calls `listen`, then enters `WebApp::start`. Follow its listener-failure `core::SNodeC::stop` and initialization-failure `core::SNodeC::free` paths.
+1. For an HTTP application, follow `src/apps/http/httpserver.cpp`: create a named WebApp, attach its configuration subcommand, call `WebApp::init`, add middleware, listen, then return `WebApp::start`. The raw echo example in `src/apps/echo/echoserver.cpp` uses `core::SNodeC::init`, a server listen callback, and `core::SNodeC::start`.
 
-2. Keep handler work bounded between event-loop iterations. Follow `src/apps/mcp/Tools.cpp`: schedule the next slice with `core::timer::Timer::singleshotTimer`, check the shared reply's deadline and active state, and retain descriptor ownership until completion or cancellation.
+2. Handle the four listen states shown in both examples: `core::socket::State::OK`, `DISABLED`, `ERROR`, and `FATAL`. They log the instance name; OK adds the address, while ERROR/FATAL add error information.
 
-3. Follow the MQTT module layout under `src/iot/mqtt` and the MCP example under `src/mcp/server`. Keep registration/dispatch in `mcp::server::Server` and framing/lifetime in its stdio or HTTP transport. Define `snodec::` target aliases, install headers and exports, and add components to the central inventory in `src/CMakeLists.txt`.
+3. Choose the legacy or TLS WebApp variant using the compile-time aliases in `src/apps/http/model/servers.h`. Both `getWebApp` factories construct the selected WebApp with an instance name.
 
-4. Extend `utils::SubCommand` for application options, as `mcp::server::Config` does. Attach it with `newSubCommand` before initialization; use `addOption` with CLI11 validators. The development application's HTTP options are under the named `mcp-http` instance and its `mcp` section; stdio uses a root `mcp` section.
+4. Follow `src/apps/http/ConfigWWW.h` and `.cpp` for application configuration: derive from `utils::SubCommand`, add an option with a CLI11 validator, mark it required, and expose a typed getter. The HTTP application attaches this subcommand with `newSubCommand` before initialization.
 
-5. Use `snode::log::application("component.name").info()` or `.error()` for application diagnostics. For stdio, follow `src/apps/mcp/main.cpp` and `src/mcp/server/stdio/Transport.cpp`: retain the protocol descriptor and redirect ordinary stdout before `core::SNodeC::init`, then default console logging to stderr.
+5. Follow `src/apps/main.cpp` for express routing: `use` attaches middleware and nested `express::Router` objects; `get` registers handlers that reply with `send` or `json`. Its `/sse` example sets SSE headers, calls `sendHeader`, sends `sendFragment` fragments from an interval timer, and stops that timer when `isConnected()` is false.
 
-6. Route HTTP through `express::Router`. Follow `src/mcp/server/http/Router.cpp` for explicit Content-Type and JSON-attribute checks around `JsonMiddleware`, and for an authorization callback before dispatch. Stream SSE through `Response::pipe()` and `core::pipe::Source`, send records ending in a blank line, and complete through Source EOF. Keep `json()`/`send()` on the non-streaming path. The router demonstrates queue bounds, backpressure, disconnect cancellation, and shutdown ordering; `src/web/http/server/SocketContext.cpp` derives SSE mode from the response Content-Type.
+6. Use the semantic logger shown by the HTTP and echo callbacks: `snode::log::application().info()`, `.error()`, and `.critical()`. `src/Log.h` declares the application logger factory and level-specific streaming methods.
 
-7. Define descriptor receiver destructors out of line, following `src/core/pipe/PipeSource.h`/`.cpp` and the private MCP receivers in `src/mcp/server/stdio/Transport.cpp`.
+7. Follow `src/iot/mqtt/CMakeLists.txt` and `src/iot/mqtt/server/CMakeLists.txt` for module layout: client/server subdirectories, shared-library targets, `snodec::` aliases, explicit dependencies, installed public headers, and component-scoped target exports.
 
-8. Use the existing CTest mechanism. Follow `tests/unit/mcp` for dispatch/schema tests, `tests/component/mcp` for public transport/application behavior, and `tests/StagedInstalledConsumerTest.cmake` for installed-package checks.
+8. Use the existing CTest helper in `tests/cmake/AddSNodeCTest.cmake`: `snodec_add_test` creates an executable, registers it, and sets a timeout. `tests/support/TestResult.h` provides `tests::support::TestResult` with `expectTrue`, `expectEqual`, and `processResult`.
