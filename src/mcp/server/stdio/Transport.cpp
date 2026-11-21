@@ -6,7 +6,7 @@
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "core/timer/Timer.h"
 #include "mcp/server/Config.h"
-#include "mcp/server/Server.h"
+#include "mcp/server/detail/Server.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -23,6 +23,9 @@
 #include <utility>
 
 namespace mcp::server::stdio {
+    using namespace mcp::server::detail;
+    using WireReply = Access::Response;
+    using WireServer = Access::Registry;
     struct Transport::State : std::enable_shared_from_this<State> {
         struct Input;
         struct Output;
@@ -32,7 +35,7 @@ namespace mcp::server::stdio {
         Output* output = nullptr;
         std::string incoming;
         std::string outgoing;
-        std::map<std::string, std::shared_ptr<Reply>> pending;
+        std::map<std::string, std::shared_ptr<WireReply>> pending;
         core::timer::Timer timer;
         bool inputEof = false;
         bool legacy = false;
@@ -180,7 +183,7 @@ namespace mcp::server::stdio {
             request = Json::parse(line);
             parsed = true;
         } catch (const Json::exception&) {
-            Reply(
+            WireReply(
                 nullptr,
                 !legacy,
                 false,
@@ -198,7 +201,7 @@ namespace mcp::server::stdio {
                 request.is_object() && request.value("method", Json()).is_string() ? request["method"].get<std::string>() : "";
             const bool initializing = method == "initialize" && !hasMeta;
             const bool legacyRequest = (legacy || initializing) && !hasMeta;
-            if (method == "notifications/cancelled" && Server::validRequest(request) && !request.contains("id") &&
+            if (method == "notifications/cancelled" && WireServer::validRequest(request) && !request.contains("id") &&
                 request.value("params", Json()).is_object()) {
                 const std::string key = request["params"].value("requestId", Json()).dump();
                 if (pending.contains(key)) {
@@ -208,7 +211,7 @@ namespace mcp::server::stdio {
                 const Json id = request.is_object() ? request.value("id", Json()) : Json();
                 const std::string key = id.dump();
                 if ((!id.is_null() && pending.contains(key)) || pending.size() >= 64) {
-                    Reply(
+                    WireReply(
                         id,
                         !legacyRequest,
                         false,
@@ -219,7 +222,7 @@ namespace mcp::server::stdio {
                         .error(-32600, "Duplicate id or in-flight limit");
                 } else {
                     const std::weak_ptr<State> weak = shared_from_this();
-                    auto reply = server.dispatch(
+                    auto reply = Access::registry(server).dispatch(
                         request,
                         legacyRequest,
                         [weak, initializing](const Json& value, bool) {
@@ -279,7 +282,7 @@ namespace mcp::server::stdio {
     }
     Transport::Transport(Server& server, Config& config, int protocolFd)
         : state(std::make_shared<State>(server, config)) {
-        if (!server.valid()) {
+        if (!Access::registry(server).valid()) {
             close(protocolFd);
             throw std::invalid_argument("Invalid MCP registration");
         }

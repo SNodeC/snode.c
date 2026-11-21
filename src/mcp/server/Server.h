@@ -1,80 +1,59 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
-
-#include <chrono>
 #include <functional>
-#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
-
 // IWYU pragma: no_include <nlohmann/json_fwd.hpp>
-
 namespace mcp::server {
+    /// Application JSON value, owned by value; use on the event-loop thread.
     using Json = nlohmann::json;
-    inline constexpr const char* modernVersion = "2026-07-28";
-    inline constexpr const char* legacyVersion = "2025-11-25";
-    inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
-    inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
-    inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
-
+    namespace detail {
+        class Access;
+    }
+    /// Shared asynchronous completion handle; created only by the server.
     class Reply {
     public:
-        using Output = std::function<void(const Json&, bool)>;
-        Reply(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout);
+        /// Release this handle; outstanding server work retains its own state.
+        ~Reply();
+        /// Complete at most once on the event-loop thread with an owned result.
         void result(Json value);
+        /// Complete at most once on the event-loop thread with an error.
         void error(int code, const std::string& message, Json data = nullptr);
-        void notify(const std::string& method, Json params);
-        void cancel(bool serverInitiated = false);
+        /// Observe completion on the event-loop thread without mutation.
         bool active() const;
+        /// Observe the deadline on the event-loop thread without mutation.
         bool expired() const;
+        /// Apply the deadline on the event-loop thread; temporary migration API.
         void expire();
-        void listen();
-        bool isSubscription() const;
 
     private:
-        friend class Server;
-        Json outputSchema;
-        Json id;
-        bool modern;
-        bool cacheable;
-        bool toolRequest = false;
-        bool done = false;
-        bool subscription = false;
-        Output output;
-        std::chrono::steady_clock::time_point deadline;
+        struct Impl;
+        explicit Reply(std::shared_ptr<Impl> impl);
+        std::shared_ptr<Impl> impl;
+        friend class detail::Access;
     };
-
+    /// Registry owner; retain through every attached transport's shutdown.
     class Server {
     public:
+        /// Event-loop callback; retain the shared reply for asynchronous work.
         using Handler = std::function<void(const Json&, const std::shared_ptr<Reply>&)>;
+        /// Construct before attachment; owns its name and registration data.
         explicit Server(std::string name);
+        /// Destroy only after attached transports have drained.
+        ~Server();
+        /// Register before attachment on the event-loop thread.
         void tool(Json description, Handler handler);
+        /// Register before attachment on the event-loop thread.
         void resource(Json description, Handler handler);
+        /// Register before attachment on the event-loop thread.
         void prompt(Json description, Handler handler);
-        bool valid() const;
-        std::shared_ptr<Reply> dispatch(const Json& request,
-                                        bool legacy,
-                                        Reply::Output output,
-                                        std::chrono::milliseconds timeout = std::chrono::seconds(30)) const;
-        static bool checkSchema(const Json& schema, std::string& error);
-        static bool validate(const Json& schema, const Json& value, std::string& error);
-        static bool validRequest(const Json& request);
-        static int httpStatus(const Json& message);
 
     private:
-        enum class Kind { Tool, Resource, Prompt };
-        struct Entry {
-            Kind kind;
-            Json description;
-            Handler handler;
-        };
-        void add(Kind kind, Json description, Handler handler);
-        Json capabilities() const;
-        std::string name;
-        bool registrationsValid = true;
-        std::map<std::string, Entry> entries;
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+        friend class detail::Access;
     };
 } // namespace mcp::server
 #endif

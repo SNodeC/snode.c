@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #include "mcp/server/Server.h"
+#include "mcp/server/detail/Server.h"
 
 #include "Log.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <compare>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
+#include <map>
+#include <memory>
+#include <nlohmann/json.hpp>
 #include <set>
+#include <string>
 #include <utility>
 
 // IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 namespace mcp::server {
+    using namespace detail;
     namespace {
         bool validId(const Json& id) {
             return id.is_string() || id.is_number_integer();
@@ -166,20 +173,20 @@ namespace mcp::server {
         }
     } // namespace
 
-    Reply::Reply(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout)
+    Reply::Impl::Impl(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout)
         : id(validId(id) ? std::move(id) : Json())
         , modern(modern)
         , cacheable(cacheable)
         , output(std::move(output))
         , deadline(std::chrono::steady_clock::now() + timeout) {
     }
-    bool Reply::active() const {
+    bool Reply::Impl::active() const {
         return !done;
     }
-    bool Reply::expired() const {
+    bool Reply::Impl::expired() const {
         return std::chrono::steady_clock::now() >= deadline;
     }
-    void Reply::expire() {
+    void Reply::Impl::expire() {
         if (active() && expired() && !subscription) {
             if (toolRequest) {
                 result({{"isError", true}, {"content", {{{"type", "text"}, {"text", "Request deadline exceeded"}}}}});
@@ -188,14 +195,15 @@ namespace mcp::server {
             }
         }
     }
-    bool Reply::isSubscription() const {
+    bool Reply::Impl::isSubscription() const {
         return subscription;
     }
-    void Reply::result(Json value) {
+    void Reply::Impl::result(Json value) {
         if (!done) {
             std::string validationError;
             if (!outputSchema.is_null() && value.value("isError", Json()) != true &&
-                (!value.contains("structuredContent") || !Server::validate(outputSchema, value["structuredContent"], validationError))) {
+                (!value.contains("structuredContent") ||
+                 !Access::Registry::validate(outputSchema, value["structuredContent"], validationError))) {
                 value = {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Tool output failed its registered schema"}}}}};
             }
             if (modern) {
@@ -209,7 +217,7 @@ namespace mcp::server {
             output(Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(value)}}, true);
         }
     }
-    void Reply::error(int code, const std::string& message, Json data) {
+    void Reply::Impl::error(int code, const std::string& message, Json data) {
         if (!done) {
             Json response{{"jsonrpc", "2.0"}, {"error", {{"code", code}, {"message", message}}}};
             if (!id.is_null() || !modern) {
@@ -222,7 +230,7 @@ namespace mcp::server {
             output(response, true);
         }
     }
-    void Reply::notify(const std::string& method, Json params) {
+    void Reply::Impl::notify(const std::string& method, Json params) {
         if (!done) {
             if (subscription) {
                 params["_meta"][subscriptionKey] = id;
@@ -230,11 +238,11 @@ namespace mcp::server {
             output(Json{{"jsonrpc", "2.0"}, {"method", method}, {"params", std::move(params)}}, false);
         }
     }
-    void Reply::listen() {
+    void Reply::Impl::listen() {
         subscription = true;
         notify("notifications/subscriptions/acknowledged", {{"notifications", Json::object()}});
     }
-    void Reply::cancel(bool serverInitiated) {
+    void Reply::Impl::cancel(bool serverInitiated) {
         if (!done) {
             if (serverInitiated && subscription) {
                 notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
@@ -243,19 +251,19 @@ namespace mcp::server {
             output(nullptr, true);
         }
     }
-    Server::Server(std::string name)
+    Server::Impl::Impl(std::string name)
         : name(std::move(name)) {
     }
-    bool Server::checkSchema(const Json& schema, std::string& error) {
+    bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
         std::size_t nodes = 0;
         error.clear();
         return schema.dump().size() <= 16384 && schemaShape(schema, error, 0, nodes);
     }
-    bool Server::validate(const Json& schema, const Json& value, std::string& error) {
+    bool Server::Impl::validate(const Json& schema, const Json& value, std::string& error) {
         error.clear();
         return matches(schema, value, error, 0);
     }
-    void Server::add(Kind kind, Json description, Handler handler) {
+    void Server::Impl::add(Kind kind, Json description, Handler handler) {
         const std::string keyName = kind == Kind::Resource ? "uri" : "name";
         std::string error;
         bool good = description.is_object() && description.contains(keyName) && description[keyName].is_string() &&
@@ -276,24 +284,24 @@ namespace mcp::server {
             snode::log::framework("mcp.server", snode::log::Boundary::Configuration).error() << "registration rejected: " << error;
         }
     }
-    void Server::tool(Json description, Handler handler) {
+    void Server::Impl::tool(Json description, Handler handler) {
         add(Kind::Tool, std::move(description), std::move(handler));
     }
-    void Server::resource(Json description, Handler handler) {
+    void Server::Impl::resource(Json description, Handler handler) {
         add(Kind::Resource, std::move(description), std::move(handler));
     }
-    void Server::prompt(Json description, Handler handler) {
+    void Server::Impl::prompt(Json description, Handler handler) {
         add(Kind::Prompt, std::move(description), std::move(handler));
     }
-    bool Server::valid() const {
+    bool Server::Impl::valid() const {
         return registrationsValid;
     }
-    bool Server::validRequest(const Json& request) {
+    bool Server::Impl::validRequest(const Json& request) {
         const Json method = request.is_object() ? request.value("method", Json()) : Json();
         return request.is_object() && request.value("jsonrpc", Json()) == "2.0" && method.is_string() && method != "" &&
                (!request.contains("id") || validId(request["id"])) && (!request.contains("params") || request["params"].is_object());
     }
-    Json Server::capabilities() const {
+    Json Server::Impl::capabilities() const {
         Json result = Json::object();
         for (const auto& [key, entry] : entries) {
             static_cast<void>(key);
@@ -301,17 +309,20 @@ namespace mcp::server {
         }
         return result;
     }
-    std::shared_ptr<Reply>
-    Server::dispatch(const Json& request, bool legacy, Reply::Output output, std::chrono::milliseconds timeout) const {
+    std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
+                                                                     bool legacy,
+                                                                     detail::Access::Response::Output output,
+                                                                     std::chrono::milliseconds timeout) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
                                        : std::string();
-        auto reply = std::make_shared<Reply>(id,
-                                             !legacy,
-                                             method == "server/discover" || method.ends_with("/list") || method == "resources/read",
-                                             std::move(output),
-                                             timeout);
+        auto reply = std::make_shared<detail::Access::Response>(id,
+                                                                !legacy,
+                                                                method == "server/discover" || method.ends_with("/list") ||
+                                                                    method == "resources/read",
+                                                                std::move(output),
+                                                                timeout);
         reply->toolRequest = method == "tools/call";
         try {
             if (!validRequest(request)) {
@@ -384,7 +395,7 @@ namespace mcp::server {
                             if (entry->second.description.contains("outputSchema")) {
                                 reply->outputSchema = entry->second.description["outputSchema"];
                             }
-                            entry->second.handler(kind == Kind::Resource ? params : arguments, reply);
+                            entry->second.handler(kind == Kind::Resource ? params : arguments, Access::wrap(reply));
                         }
                     }
                 } else {
@@ -397,12 +408,53 @@ namespace mcp::server {
         }
         return reply;
     }
-    int Server::httpStatus(const Json& message) {
+    int Server::Impl::httpStatus(const Json& message) {
         int status = 200;
         if (message.contains("error")) {
             const int code = message["error"]["code"].get<int>();
             status = code == -32601 ? 404 : code == -32603 ? 500 : 400;
         }
         return status;
+    }
+    Reply::Reply(std::shared_ptr<Impl> impl)
+        : impl(std::move(impl)) {
+    }
+    Reply::~Reply() = default;
+    void Reply::result(Json value) {
+        impl->result(std::move(value));
+    }
+    void Reply::error(int code, const std::string& message, Json data) {
+        impl->error(code, message, std::move(data));
+    }
+    bool Reply::active() const {
+        return impl->active();
+    }
+    bool Reply::expired() const {
+        return impl->expired();
+    }
+    void Reply::expire() {
+        impl->expire();
+    }
+    Server::Server(std::string name)
+        : impl(std::make_unique<Impl>(std::move(name))) {
+    }
+    Server::~Server() = default;
+    void Server::tool(Json description, Handler handler) {
+        impl->tool(std::move(description), std::move(handler));
+    }
+    void Server::resource(Json description, Handler handler) {
+        impl->resource(std::move(description), std::move(handler));
+    }
+    void Server::prompt(Json description, Handler handler) {
+        impl->prompt(std::move(description), std::move(handler));
+    }
+    detail::Access::Registry& detail::Access::registry(const Server& server) {
+        return *server.impl;
+    }
+    detail::Access::Response& detail::Access::response(const Reply& reply) {
+        return *reply.impl;
+    }
+    std::shared_ptr<Reply> detail::Access::wrap(std::shared_ptr<Response> response) {
+        return std::shared_ptr<Reply>(new Reply(std::move(response)));
     }
 } // namespace mcp::server

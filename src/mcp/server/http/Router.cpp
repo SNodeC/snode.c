@@ -10,6 +10,7 @@
 #include "express/middleware/JsonMiddleware.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
+#include "mcp/server/detail/Server.h"
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
@@ -31,6 +32,9 @@ namespace core {
 }
 
 namespace mcp::server::http {
+    using namespace mcp::server::detail;
+    using WireReply = Access::Response;
+    using WireServer = Access::Registry;
     namespace {
         std::string lower(std::string value) {
             std::transform(value.begin(), value.end(), value.begin(), [](char c) {
@@ -60,12 +64,12 @@ namespace mcp::server::http {
         }
         void fail(const std::shared_ptr<express::Response>& response, const Json& request, bool legacy, int code, const std::string& text) {
             const Json id = request.is_object() ? request.value("id", Json()) : Json();
-            Reply(
+            WireReply(
                 id.is_string() || id.is_number_integer() ? id : Json(),
                 !legacy,
                 false,
                 [response](const Json& value, bool) {
-                    response->status(Server::httpStatus(value)).json(value);
+                    response->status(WireServer::httpStatus(value)).json(value);
                 },
                 std::chrono::seconds(30))
                 .error(code, text);
@@ -78,7 +82,7 @@ namespace mcp::server::http {
             Json request;
             std::shared_ptr<express::Response> response;
             std::shared_ptr<Operation> owner;
-            std::shared_ptr<Reply> reply;
+            std::shared_ptr<WireReply> reply;
             core::timer::Timer timer;
             std::string queue;
             bool legacy;
@@ -134,7 +138,7 @@ namespace mcp::server::http {
                             if (bytes.size() > config.outputBytes()) {
                                 fail(response, request, legacy, -32603, "Output limit exceeded");
                             } else {
-                                response->status(Server::httpStatus(value)).type("application/json").send(bytes);
+                                response->status(WireServer::httpStatus(value)).type("application/json").send(bytes);
                             }
                         }
                         stop();
@@ -166,7 +170,7 @@ namespace mcp::server::http {
             }
             void start() override {
                 const std::weak_ptr<Operation> weak = shared_from_this();
-                reply = server.dispatch(
+                reply = Access::registry(server).dispatch(
                     request,
                     legacy,
                     [weak](const Json& value, bool terminal) {
@@ -264,7 +268,7 @@ namespace mcp::server::http {
         };
     } // namespace
     Router::Router(Server& server, Config& config, Authorize authorize) {
-        if (!server.valid()) {
+        if (!Access::registry(server).valid()) {
             throw std::invalid_argument("Invalid MCP registration");
         }
         auto state = std::make_shared<State>(server, config);
@@ -300,9 +304,9 @@ namespace mcp::server::http {
                 req->template getAttribute<Json>([&request](const Json& body) {
                     request = body;
                 });
-                if (!Server::validRequest(request)) {
-                    state->server.dispatch(request, headerLegacy, [res](const Json& value, bool) {
-                        res->status(Server::httpStatus(value)).json(value);
+                if (!WireServer::validRequest(request)) {
+                    Access::registry(state->server).dispatch(request, headerLegacy, [res](const Json& value, bool) {
+                        res->status(WireServer::httpStatus(value)).json(value);
                     });
                 } else {
                     const Json params =
