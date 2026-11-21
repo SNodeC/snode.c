@@ -62,3 +62,10 @@ target_link_libraries(
 set_tests_properties(
     McpRegistrationTest PROPERTIES LABELS "unit;mcp;registration"
 )
+
+snodec_add_test(McpConfigTest McpConfigTest.cpp)
+target_include_directories(McpConfigTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpConfigTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpConfigTest PROPERTIES LABELS "unit;mcp;config")

@@ -10,7 +10,6 @@
 #include "core/timer/Timer.h"
 
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <compare>
 #include <cstddef>
@@ -183,12 +182,12 @@ namespace mcp::server {
         }
     } // namespace
 
-    detail::Response::Response(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout)
+    detail::Response::Response(Json id, bool modern, bool cacheable, Output output, const utils::Timeval& timeout)
         : id(validId(id) ? std::move(id) : Json())
         , modern(modern)
         , cacheable(cacheable)
         , output(std::move(output))
-        , deadline(std::chrono::steady_clock::now() + timeout) {
+        , deadline(utils::Timeval::currentTime() + timeout) {
     }
     detail::Response::~Response() {
         timer.cancel();
@@ -197,7 +196,7 @@ namespace mcp::server {
         return !done;
     }
     bool detail::Response::expired() const {
-        return std::chrono::steady_clock::now() >= deadline;
+        return utils::Timeval::currentTime() >= deadline;
     }
     void detail::Response::expire() {
         if (active() && expired() && !subscription) {
@@ -378,10 +377,8 @@ namespace mcp::server {
         }
         return result;
     }
-    std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
-                                                                     bool legacy,
-                                                                     detail::Access::Response::Output output,
-                                                                     std::chrono::milliseconds timeout) const {
+    std::shared_ptr<detail::Access::Response>
+    Server::Impl::dispatch(const Json& request, bool legacy, detail::Access::Response::Output output, const utils::Timeval& timeout) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
@@ -401,7 +398,7 @@ namespace mcp::server {
                         current->cancel(CancelReason::Deadline);
                     }
                 },
-                utils::Timeval(static_cast<double>(timeout.count()) / 1000.0));
+                timeout);
         }
         try {
             if (!validRequest(request)) {

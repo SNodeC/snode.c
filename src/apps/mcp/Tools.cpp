@@ -11,6 +11,7 @@
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"
+#include "utils/SubCommand.h"
 
 #include <algorithm>
 #include <array>
@@ -304,16 +305,26 @@ namespace apps::mcp {
                                       "Keep protocol code independent of transports. Bound every handler's work. "
                                       "Stream with Response::pipe and finish through Source EOF. Never mix send/json with an open stream.";
     } // namespace
-    void addOptions(::mcp::server::Config& config) {
-        config.addOption(
-            "--header-root", "Confined installed SNode.C header tree", "directory", std::string(MCP_HEADER_ROOT), CLI::Validator());
-        config.addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
-        config.addOption("--search-bytes", "Maximum bytes read per search", "bytes", std::size_t{8388608}, CLI::Range(1, 67108864));
+    DevelopmentConfig::DevelopmentConfig(utils::SubCommand* parent)
+        : ::mcp::server::Config(parent) {
+        headerRoot =
+            addOption("--header-root", "Installed SNode.C header root", "directory", std::string(MCP_HEADER_ROOT), CLI::ExistingDirectory);
+        searchFiles = addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
+        searchBytes = addOption("--search-bytes", "Maximum bytes read per search", "bytes", std::size_t{8388608}, CLI::Range(1, 67108864));
     }
-    void registerTools(::mcp::server::Server& server, const ::mcp::server::Config& config) {
-        auto headers = std::make_shared<Headers>(config.getOption("--header-root")->as<std::string>());
-        const auto files = config.getOption("--search-files")->as<std::size_t>();
-        const auto bytes = config.getOption("--search-bytes")->as<std::size_t>();
+    std::string DevelopmentConfig::getHeaderRoot() const {
+        return headerRoot->as<std::string>();
+    }
+    std::size_t DevelopmentConfig::getSearchFiles() const {
+        return searchFiles->as<std::size_t>();
+    }
+    std::size_t DevelopmentConfig::getSearchBytes() const {
+        return searchBytes->as<std::size_t>();
+    }
+    void registerTools(::mcp::server::Server& server, const DevelopmentConfig& config) {
+        auto headers = std::make_shared<Headers>(config.getHeaderRoot());
+        const auto files = config.getSearchFiles();
+        const auto bytes = config.getSearchBytes();
         const Json find{{"type", "object"},
                         {"properties",
                          {{"query", {{"type", "string"}, {"minLength", 1}, {"maxLength", 128}}},

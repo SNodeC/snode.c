@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
-#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <nlohmann/json.hpp>
@@ -71,7 +70,7 @@ namespace mcp::server::http {
                 [response](const Json& value, bool) {
                     response->status(WireServer::httpStatus(value)).json(value);
                 },
-                std::chrono::seconds(30))
+                utils::Timeval(30))
                 .error(code, text);
         }
         struct Operation
@@ -128,14 +127,14 @@ namespace mcp::server::http {
                         if (!value.is_null()) {
                             queue += "event: message\ndata: " + value.dump() + "\n\n";
                         }
-                        if (queue.size() > config.outputBytes()) {
+                        if (queue.size() > config.getMaximumOutputBytes()) {
                             snode::log::framework("mcp.server", snode::log::Boundary::Context).error() << "HTTP output limit exceeded";
                             error(EMSGSIZE);
                         }
                     } else if (terminal) {
                         if (!value.is_null() && response->isConnected()) {
                             const std::string bytes = value.dump();
-                            if (bytes.size() > config.outputBytes()) {
+                            if (bytes.size() > config.getMaximumOutputBytes()) {
                                 fail(response, request, legacy, -32603, "Output limit exceeded");
                             } else {
                                 response->status(WireServer::httpStatus(value)).type("application/json").send(bytes);
@@ -178,7 +177,7 @@ namespace mcp::server::http {
                             current->feed(value, terminal);
                         }
                     },
-                    config.deadline());
+                    config.getDeadline());
                 if (streaming) {
                     pump();
                 }
@@ -271,7 +270,7 @@ namespace mcp::server::http {
         Access::registry(server).seal();
         use("/", [state, authorize](const auto& req, const auto& res, auto& next) {
             const std::string origin = req->get("Origin");
-            const auto allowed = state->config.origins();
+            const auto& allowed = state->config.getAllowedOrigins();
             std::string contentType = httputils::str_split(lower(req->get("Content-Type")), ';').first;
             httputils::str_trimm(contentType);
             static const std::regex originShape(R"(https?://([A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])(:[0-9]{1,5})?)");
@@ -284,7 +283,7 @@ namespace mcp::server::http {
                 res->status(405).set("Allow", "POST").end();
             } else if (contentType != "application/json") {
                 res->status(415).end();
-            } else if (req->body.size() > state->config.messageBytes()) {
+            } else if (req->body.size() > state->config.getMaximumMessageBytes()) {
                 res->status(413).end();
             } else {
                 next();

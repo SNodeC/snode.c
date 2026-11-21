@@ -3,7 +3,6 @@
 #include "Tools.h"
 #include "mcp-config.h"
 #include "core/SNodeC.h"
-#include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 #ifdef MCP_STDIO
 #include "mcp/server/stdio/Transport.h"
@@ -29,8 +28,7 @@ int main(int argc, char* argv[]) {
     int protocolFd = mcp::server::stdio::Transport::retainProtocol();
     if (protocolFd >= 0) {
         try {
-            auto* config = utils::Config::configRoot.newSubCommand<mcp::server::Config>();
-            apps::mcp::addOptions(*config);
+            auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
             std::vector<char*> arguments(argv, argv + argc);
             char foreground[] = "--daemonize=false";
             arguments.push_back(foreground);
@@ -53,8 +51,7 @@ int main(int argc, char* argv[]) {
 #else
     using WebApp = express::legacy::in::WebApp;
     const WebApp app("mcp-http");
-    auto* config = app.getConfig()->Instance::newSubCommand<mcp::server::Config>();
-    apps::mcp::addOptions(*config);
+    auto* config = app.getConfig()->Instance::newSubCommand<apps::mcp::DevelopmentConfig>();
     auto* http = app.getConfig()->Instance::getSubCommand<web::http::server::ConfigHttpServer>();
     http->setAllowPipelining(false)->setMaximumPendingRequests(1);
     http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);

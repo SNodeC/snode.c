@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
             [&](const Json& message, bool) {
                 messages.push_back(message);
             },
-            std::chrono::milliseconds(timeout));
+            utils::Timeval(static_cast<double>(timeout) / 1000.0));
     };
     for (const Json& token : Json::array({"token", 0, -9, INT64_MAX})) {
         messages.clear();

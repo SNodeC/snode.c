@@ -3,7 +3,6 @@
 #include "mcp/server/Server.h"
 
 #include "core/timer/Timer.h"
-#include <chrono>
 #include <map>
 #include <variant>
 namespace mcp::server::detail {
@@ -18,7 +17,7 @@ namespace mcp::server::detail {
     struct Response : std::enable_shared_from_this<Response> {
     public:
         using Output = std::function<void(const Json&, bool)>;
-        Response(Json id, bool modern, bool cacheable, Output output, std::chrono::milliseconds timeout);
+        Response(Json id, bool modern, bool cacheable, Output output, const utils::Timeval& timeout);
         ~Response();
         void result(Json value);
         void error(int code, const std::string& message, Json data = nullptr);
@@ -46,7 +45,7 @@ namespace mcp::server::detail {
         bool done = false;
         bool subscription = false;
         Output output;
-        std::chrono::steady_clock::time_point deadline;
+        utils::Timeval deadline;
     };
 
     class Access {
@@ -77,7 +76,7 @@ namespace mcp::server {
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
                                                            bool legacy,
                                                            detail::Access::Response::Output output,
-                                                           std::chrono::milliseconds timeout = std::chrono::seconds(30)) const;
+                                                           const utils::Timeval& timeout = utils::Timeval(30)) const;
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);

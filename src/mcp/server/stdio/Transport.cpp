@@ -77,7 +77,7 @@ namespace mcp::server::stdio {
             const ssize_t count = read(STDIN_FILENO, bytes, sizeof(bytes));
             if (count > 0) {
                 keep->incoming.append(bytes, static_cast<std::size_t>(count));
-                if (keep->incoming.size() > keep->config.messageBytes() + sizeof(bytes)) {
+                if (keep->incoming.size() > keep->config.getMaximumMessageBytes() + sizeof(bytes)) {
                     keep->failed = true;
                     keep->finish();
                 } else {
@@ -146,7 +146,7 @@ namespace mcp::server::stdio {
     void Transport::State::send(const Json& value) {
         if (!value.is_null() && !failed && output != nullptr) {
             const std::string bytes = value.dump() + "\n";
-            if (bytes.size() > config.outputBytes() - std::min(outgoing.size(), config.outputBytes())) {
+            if (bytes.size() > config.getMaximumOutputBytes() - std::min(outgoing.size(), config.getMaximumOutputBytes())) {
                 snode::log::framework("mcp.server", snode::log::Boundary::Context).error() << "stdio output limit exceeded";
                 failed = true;
                 finish();
@@ -190,7 +190,7 @@ namespace mcp::server::stdio {
                 [this](const Json& value, bool) {
                     send(value);
                 },
-                config.deadline())
+                config.getDeadline())
                 .error(-32700, "Parse error");
         }
         if (parsed) {
@@ -218,7 +218,7 @@ namespace mcp::server::stdio {
                         [this](const Json& value, bool) {
                             send(value);
                         },
-                        config.deadline())
+                        config.getDeadline())
                         .error(-32600, "Duplicate id or in-flight limit");
                 } else {
                     const std::weak_ptr<State> weak = shared_from_this();
@@ -233,7 +233,7 @@ namespace mcp::server::stdio {
                                 owner->send(value);
                             }
                         },
-                        config.deadline());
+                        config.getDeadline());
                     if (reply->active()) {
                         pending[key] = std::move(reply);
                     }
@@ -245,7 +245,7 @@ namespace mcp::server::stdio {
         std::size_t count = 0;
         std::size_t newline = incoming.find('\n');
         while (!closing && count < 8 && newline != std::string::npos) {
-            if (newline > config.messageBytes()) {
+            if (newline > config.getMaximumMessageBytes()) {
                 failed = true;
                 finish();
             } else {
@@ -263,7 +263,7 @@ namespace mcp::server::stdio {
             }
             finish();
         }
-        if (!closing && incoming.size() > config.messageBytes() && newline == std::string::npos) {
+        if (!closing && incoming.size() > config.getMaximumMessageBytes() && newline == std::string::npos) {
             failed = true;
             finish();
         }

@@ -159,10 +159,10 @@ int main() {
     const int notified = messages;
     Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, true, output);
     test.expectEqual(notified, messages, "no notification response");
-    Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, std::chrono::milliseconds(0));
+    Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, utils::Timeval(0));
     Access::response(*pendingResource).expire();
     test.expectEqual(-32603, response["error"]["code"].get<int>(), "resource deadline is a JSON-RPC error");
-    Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output, std::chrono::milliseconds(0));
+    Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output, utils::Timeval(0));
     Access::response(*pending).expire();
     test.expectTrue(response["result"]["isError"] == true, "tool deadline is a tool error");
     Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output);
