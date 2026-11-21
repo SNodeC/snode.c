@@ -34,7 +34,7 @@ namespace apps::mcp {
 )json")})
         , headers(openHeaders(config.getHeaderRoot())) {
     }
-    void ReadTool::call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
-        lookup(headers, call, reply, LookupMode::Read, 1, 65536);
+    void ReadTool::call(const ::mcp::server::ToolCall& request, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
+        lookup(headers, request, reply, LookupMode::Read, 1, 65536);
     }
 } // namespace apps::mcp

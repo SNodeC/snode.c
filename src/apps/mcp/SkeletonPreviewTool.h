@@ -5,6 +5,6 @@ namespace apps::mcp {
     class SkeletonPreviewTool : public ::mcp::server::Tool {
     public:
         SkeletonPreviewTool();
-        void call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) override;
+        void call(const ::mcp::server::ToolCall& request, const std::shared_ptr<::mcp::server::ToolReply>& reply) override;
     };
 } // namespace apps::mcp

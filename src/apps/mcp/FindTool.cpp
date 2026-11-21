@@ -32,7 +32,7 @@ namespace apps::mcp {
         , files(config.getSearchFiles())
         , bytes(config.getSearchBytes()) {
     }
-    void FindTool::call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
-        lookup(headers, call, reply, LookupMode::Find, files, bytes);
+    void FindTool::call(const ::mcp::server::ToolCall& request, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
+        lookup(headers, request, reply, LookupMode::Find, files, bytes);
     }
 } // namespace apps::mcp

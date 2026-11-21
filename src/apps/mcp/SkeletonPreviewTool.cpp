@@ -22,8 +22,8 @@ namespace apps::mcp {
 }
 )json")}) {
     }
-    void SkeletonPreviewTool::call(const ::mcp::server::ToolCall& call, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
-        const auto& args = call.arguments;
+    void SkeletonPreviewTool::call(const ::mcp::server::ToolCall& request, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
+        const auto& args = request.arguments;
         const bool module = args.value("kind", std::string("application")) == "module";
         ::mcp::server::Json files;
         if (module) {
