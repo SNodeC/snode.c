@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 namespace mcp::server {
-    /// CLI11 configuration owner; create before init and retain through transport drain.
+    /// Noncopyable, nonmovable CLI owner; create before init and retain through transport drain.
     class Config : public utils::SubCommand {
     public:
         static constexpr std::string_view NAME = "mcp";                                 ///< Stable CLI subcommand name.
@@ -18,9 +18,6 @@ namespace mcp::server {
         explicit Config(utils::SubCommand* parent);
         ~Config() override;                        ///< Destroy after all attached transports have drained.
         Config(const Config&) = delete;            ///< Stable CLI owner; copying is unsupported.
-        Config& operator=(const Config&) = delete; ///< Stable CLI owner; assignment is unsupported.
-        Config(Config&&) = delete;                 ///< CLI callbacks borrow this stable owner.
-        Config& operator=(Config&&) = delete;      ///< CLI callbacks borrow this stable owner.
         /// Set the default before init; range 1..16777216; throws on invalid input; returns this.
         Config* setMaximumMessageBytes(std::size_t bytes);
         std::size_t getMaximumMessageBytes() const; ///< Read the effective message limit on the event loop.

@@ -11,7 +11,6 @@
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"
-#include "utils/SubCommand.h"
 
 #include <algorithm>
 #include <array>
@@ -117,6 +116,7 @@ namespace apps::mcp {
             void schedule() {
                 timer = core::timer::Timer::singleshotTimer(
                     [self = shared_from_this()] {
+                        auto current = std::move(self->timer); // Detach this firing handle before scheduling its successor.
                         self->tick();
                     },
                     utils::Timeval(0.001));
@@ -307,8 +307,8 @@ namespace apps::mcp {
     } // namespace
     DevelopmentConfig::DevelopmentConfig(utils::SubCommand* parent)
         : ::mcp::server::Config(parent) {
-        headerRoot =
-            addOption("--header-root", "Installed SNode.C header root", "directory", std::string(MCP_HEADER_ROOT), CLI::ExistingDirectory);
+        headerRoot = addOption("--header-root", "Installed SNode.C header root", "directory", CLI::ExistingDirectory);
+        setDefaultValue(headerRoot, std::string(MCP_HEADER_ROOT));
         searchFiles = addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
         searchBytes = addOption("--search-bytes", "Maximum bytes read per search", "bytes", std::size_t{8388608}, CLI::Range(1, 67108864));
     }
@@ -320,6 +320,9 @@ namespace apps::mcp {
     }
     std::size_t DevelopmentConfig::getSearchBytes() const {
         return searchBytes->as<std::size_t>();
+    }
+    std::string instructions() {
+        return style;
     }
     void registerTools(::mcp::server::Server& server, const DevelopmentConfig& config) {
         auto headers = std::make_shared<Headers>(config.getHeaderRoot());

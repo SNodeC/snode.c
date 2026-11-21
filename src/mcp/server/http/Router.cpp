@@ -37,6 +37,7 @@ namespace mcp::server::http {
     using WireReply = Access::Response;
     using WireServer = Access::Registry;
     namespace {
+        enum class StreamMode { Json, Sse };
         std::string lower(std::string value) {
             std::transform(value.begin(), value.end(), value.begin(), [](char c) {
                 return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
@@ -63,12 +64,13 @@ namespace mcp::server::http {
             }
             return valid && value.is_string() && decoded == value.get_ref<const std::string&>();
         }
-        void fail(const std::shared_ptr<express::Response>& response, const Json& request, bool legacy, int code, const std::string& text) {
+        void
+        fail(const std::shared_ptr<express::Response>& response, const Json& request, ProtocolEra era, int code, const std::string& text) {
             const Json id = request.is_object() ? request.value("id", Json()) : Json();
             WireReply(
                 id.is_string() || id.is_number_integer() ? id : Json(),
-                !legacy,
-                false,
+                era,
+                CachePolicy::None,
                 [response](const Json& value, bool) {
                     response->status(WireServer::httpStatus(value)).json(value);
                 },
@@ -87,8 +89,8 @@ namespace mcp::server::http {
             std::shared_ptr<WireReply> reply;
             core::timer::Timer timer;
             std::string queue;
-            bool legacy;
-            bool streaming;
+            ProtocolEra era;
+            StreamMode mode;
             bool paused = false;
             bool ended = false;
             bool closed = false;
@@ -96,16 +98,16 @@ namespace mcp::server::http {
                       Config& config,
                       Json request,
                       std::shared_ptr<express::Response> response,
-                      bool legacy,
-                      bool streaming,
+                      ProtocolEra era,
+                      StreamMode mode,
                       std::optional<Principal> principal)
                 : server(server)
                 , config(config)
                 , request(std::move(request))
                 , principal(std::move(principal))
                 , response(std::move(response))
-                , legacy(legacy)
-                , streaming(streaming) {
+                , era(era)
+                , mode(mode) {
             }
             ~Operation() override;
             bool isOpen() override {
@@ -132,7 +134,7 @@ namespace mcp::server::http {
             void feed(const Json& value, bool terminal) {
                 if (!closed) {
                     ended = terminal;
-                    if (streaming) {
+                    if (mode == StreamMode::Sse) {
                         if (!value.is_null()) {
                             queue += "event: message\ndata: " + value.dump() + "\n\n";
                         }
@@ -144,7 +146,7 @@ namespace mcp::server::http {
                         if (!value.is_null() && response->isConnected()) {
                             const std::string bytes = value.dump();
                             if (bytes.size() > config.getMaximumOutputBytes()) {
-                                fail(response, request, legacy, -32603, "Output limit exceeded");
+                                fail(response, request, era, -32603, "Output limit exceeded");
                             } else {
                                 response->status(WireServer::httpStatus(value)).type("application/json").send(bytes);
                             }
@@ -169,7 +171,7 @@ namespace mcp::server::http {
             void shutdown() {
                 if (!closed && reply) {
                     reply->cancel(CancelReason::Shutdown);
-                    if (streaming) {
+                    if (mode == StreamMode::Sse) {
                         pump();
                     } else {
                         stop();
@@ -180,7 +182,7 @@ namespace mcp::server::http {
                 const std::weak_ptr<Operation> weak = shared_from_this();
                 reply = Access::registry(server).dispatch(
                     request,
-                    legacy,
+                    era,
                     [weak](const Json& value, bool terminal) {
                         if (const auto current = weak.lock()) {
                             current->feed(value, terminal);
@@ -188,17 +190,17 @@ namespace mcp::server::http {
                     },
                     config.getDeadline(),
                     std::move(principal));
-                if (streaming) {
+                if (mode == StreamMode::Sse) {
                     pump();
                 }
                 if (!closed) {
                     timer = core::timer::Timer::intervalTimer(
                         [weak] {
                             if (const auto current = weak.lock(); current && !current->closed) {
-                                if (!current->legacy && !current->response->isConnected()) {
+                                if (current->era == ProtocolEra::PerRequest20260728 && !current->response->isConnected()) {
                                     current->stop();
                                 }
-                                if (current->streaming) {
+                                if (current->mode == StreamMode::Sse) {
                                     current->pump();
                                 }
                             }
@@ -323,16 +325,17 @@ namespace mcp::server::http {
         });
         use("/", express::middleware::JsonMiddleware());
         post("/", [state](const auto& req, const auto& res) {
-            const bool headerLegacy = req->get("MCP-Protocol-Version") == legacyVersion;
+            const ProtocolEra headerEra = req->get("MCP-Protocol-Version") == protocolVersion2025 ? ProtocolEra::Initialization20251125
+                                                                                                  : ProtocolEra::PerRequest20260728;
             if (!req->template hasAttribute<Json>()) {
-                fail(res, nullptr, headerLegacy, -32700, "Parse error");
+                fail(res, nullptr, headerEra, -32700, "Parse error");
             } else {
                 Json request;
                 req->template getAttribute<Json>([&request](const Json& body) {
                     request = body;
                 });
                 if (!WireServer::validRequest(request)) {
-                    Access::registry(state->server).dispatch(request, headerLegacy, [res](const Json& value, bool) {
+                    Access::registry(state->server).dispatch(request, headerEra, [res](const Json& value, bool) {
                         res->status(WireServer::httpStatus(value)).json(value);
                     });
                 } else {
@@ -341,8 +344,10 @@ namespace mcp::server::http {
                     const Json meta = params.value("_meta", Json::object());
                     const bool modernMeta = meta.is_object() && (meta.contains(versionKey) || meta.contains(capabilitiesKey));
                     const Json method = request.is_object() ? request.value("method", Json()) : Json();
-                    const bool legacy =
-                        !modernMeta && (headerLegacy || (req->get("MCP-Protocol-Version").empty() && method == "initialize"));
+                    const ProtocolEra era = !modernMeta && (headerEra == ProtocolEra::Initialization20251125 ||
+                                                            (req->get("MCP-Protocol-Version").empty() && method == "initialize"))
+                                                ? ProtocolEra::Initialization20251125
+                                                : ProtocolEra::PerRequest20260728;
                     const std::string accept = lower(req->get("Accept"));
                     const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
                     const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read";
@@ -350,12 +355,12 @@ namespace mcp::server::http {
                     const bool notification = request.is_object() && !request.contains("id");
                     if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
                         res->status(406).end();
-                    } else if (!legacy && !notification &&
+                    } else if (era == ProtocolEra::PerRequest20260728 && !notification &&
                                (req->get("MCP-Protocol-Version").empty() ||
                                 (version.is_string() && !headerMatches(req->get("MCP-Protocol-Version"), version, false)) ||
                                 !headerMatches(req->get("Mcp-Method"), method, false) ||
                                 (needsName && !headerMatches(req->get("Mcp-Name"), name, true)))) {
-                        fail(res, request, false, -32020, "Header mismatch");
+                        fail(res, request, ProtocolEra::PerRequest20260728, -32020, "Header mismatch");
                     } else if (notification) {
                         res->status(202).end();
                     } else {
@@ -365,17 +370,20 @@ namespace mcp::server::http {
                         if (state->stopping || state->operations.size() >= 64) {
                             res->status(429).end();
                         } else {
-                            const bool streaming =
-                                !legacy && (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1));
+                            const StreamMode mode =
+                                era == ProtocolEra::PerRequest20260728 &&
+                                        (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1))
+                                    ? StreamMode::Sse
+                                    : StreamMode::Json;
                             std::optional<Principal> principal;
                             req->template getAttribute<Authorized>([&principal](const Authorized& authorization) {
                                 principal = authorization.principal;
                             });
-                            auto operation = std::make_shared<Operation>(
-                                state->server, state->config, request, res, legacy, streaming, std::move(principal));
+                            auto operation =
+                                std::make_shared<Operation>(state->server, state->config, request, res, era, mode, std::move(principal));
                             operation->owner = operation;
                             state->operations.push_back(operation);
-                            if (streaming) {
+                            if (mode == StreamMode::Sse) {
                                 res->status(200)
                                     .set("Content-Type", "text/event-stream")
                                     .set("Cache-Control", "no-cache")

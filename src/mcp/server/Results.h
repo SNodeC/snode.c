@@ -60,18 +60,16 @@ namespace mcp::server {
         Role role;       ///< Sender of this prompt message.
         Content content; ///< Owned message content.
     };
-    template <class Result>
-    class Reply; ///< Completion template; only the three library result kinds are supported.
     /// Owned tool completion; factories derive all wire fields from one value.
     class ToolResult {
     public:
-        /// Unstructured text; no invented structuredContent.
+        /// Own text as a value before init; submit through an event-loop reply.
         static ToolResult text(std::string text);
-        /// Serialize one JSON value; the encoder handles era-specific wire fields.
+        /// Own one JSON value before init; event-loop completion encodes both channels consistently.
         static ToolResult json(Json value);
-        /// Other tool content shapes, including mixed image/audio/resource blocks.
+        /// Own mixed image/audio/resource content before init; submit through an event-loop reply.
         static ToolResult content(std::vector<Content> content);
-        /// Tool execution/schema failure, distinct from a JSON-RPC error.
+        /// Own a tool-failure message before init; submit through an event-loop reply.
         static ToolResult toolError(std::string message);
         static ToolResult toolError(std::vector<Content> content); ///< Owned mixed failure content; event-loop completion reports isError.
 

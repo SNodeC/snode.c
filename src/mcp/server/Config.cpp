@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #include "mcp/server/Config.h"
 #include <stdexcept>
+#include <cmath>
 namespace mcp::server {
     struct Config::Impl {
         CLI::Option *message, *output, *deadline, *origins;
@@ -13,7 +14,14 @@ namespace mcp::server {
             addOption("--maximum-message-bytes", "Maximum MCP message bytes", "bytes", std::size_t{1048576}, CLI::Range(1, 16777216));
         impl->output = addOption(
             "--maximum-output-bytes", "Maximum queued MCP output bytes", "bytes", std::size_t{1048576}, CLI::Range(1024, 16777216));
-        impl->deadline = addOption("--deadline-ms", "Ordinary request deadline", "milliseconds", 30000.0, CLI::Range(1.0, 300000.0));
+        const CLI::Range range(1.0, 300000.0);
+        const CLI::Validator deadline(
+            [range](std::string& value) -> std::string {
+                const std::string error = range(value);
+                return error.empty() && !std::isfinite(std::stod(value)) ? "Finite deadline required" : error;
+            },
+            range.get_description());
+        impl->deadline = addOption("--deadline-ms", "Ordinary request deadline", "milliseconds", 30000.0, deadline);
         impl->origins =
             addOptionVariable(
                 "--allowed-origin", impl->allowedOrigins, "Exact allowed browser Origin (repeatable)", "origin", CLI::Validator())
@@ -53,9 +61,7 @@ namespace mcp::server {
         return impl->allowedOrigins;
     }
     Config* Config::setAllowedOrigins(std::vector<std::string> origins) {
-        if (!setDefaultValue(impl->origins, origins)) {
-            throw std::invalid_argument("Invalid allowed-origin");
-        }
+        setDefaultValue(impl->origins, origins);
         return this;
     }
 } // namespace mcp::server

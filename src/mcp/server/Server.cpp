@@ -14,7 +14,6 @@
 #include <compare>
 #include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <map>
 #include <memory>
 #include <optional>
@@ -182,31 +181,23 @@ namespace mcp::server {
         }
     } // namespace
 
-    detail::Response::Response(Json id, bool modern, bool cacheable, Output output, const utils::Timeval& timeout)
+    detail::Response::Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout)
         : id(validId(id) ? std::move(id) : Json())
-        , modern(modern)
-        , cacheable(cacheable)
+        , era(era)
+        , cachePolicy(cachePolicy)
         , output(std::move(output))
         , deadline(utils::Timeval::currentTime() + timeout) {
     }
     detail::Response::~Response() {
         timer.cancel();
     }
-    bool detail::Response::active() const {
-        return !done;
-    }
-    bool detail::Response::expired() const {
-        return utils::Timeval::currentTime() >= deadline;
-    }
     void detail::Response::expire() {
-        if (active() && expired() && !subscription) {
+        if (!done && utils::Timeval::currentTime() >= deadline && !subscription) {
             cancel(CancelReason::Deadline);
         }
     }
-    bool detail::Response::isSubscription() const {
-        return subscription;
-    }
-    void detail::Response::result(Json value) {
+    Completion detail::Response::result(Json value) {
+        Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         if (!cancellation) {
             expire();
@@ -218,40 +209,46 @@ namespace mcp::server {
                  !Access::Registry::validate(outputSchema, value["structuredContent"], validationError))) {
                 value = {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Tool output failed its registered schema"}}}}};
             }
-            if (!modern && value.contains("structuredContent") && !value["structuredContent"].is_object()) {
+            if (era == ProtocolEra::Initialization20251125 && value.contains("structuredContent") &&
+                !value["structuredContent"].is_object()) {
                 value.erase("structuredContent");
             }
-            if (modern) {
+            if (era == ProtocolEra::PerRequest20260728) {
                 value["resultType"] = "complete";
-                if (cacheable) {
+                if (cachePolicy == CachePolicy::Private) {
                     value["ttlMs"] = 0;
                     value["cacheScope"] = "private";
                 }
             }
             done = true;
+            completion = Completion::Accepted;
             timer.cancel();
             observers.clear();
             output(Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(value)}}, true);
         }
+        return completion;
     }
-    void detail::Response::error(int code, const std::string& message, Json data) {
+    Completion detail::Response::error(int code, const std::string& message, Json data) {
+        Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         if (!cancellation) {
             expire();
         }
         if (!done) {
             Json response{{"jsonrpc", "2.0"}, {"error", {{"code", code}, {"message", message}}}};
-            if (!id.is_null() || !modern) {
+            if (!id.is_null() || era == ProtocolEra::Initialization20251125) {
                 response["id"] = id;
             }
             if (!data.is_null()) {
                 response["error"]["data"] = std::move(data);
             }
             done = true;
+            completion = Completion::Accepted;
             timer.cancel();
             observers.clear();
             output(response, true);
         }
+        return completion;
     }
     void detail::Response::notify(const std::string& method, Json params) {
         if (!done) {
@@ -270,12 +267,10 @@ namespace mcp::server {
             if (cancellation) {
                 try {
                     callback(*cancellation);
-                } catch (const std::exception& error) {
-                    snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "cancel observer: " << error.what();
                 } catch (...) {
                     snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "cancel observer failed";
                 }
-            } else if (active()) {
+            } else if (!done) {
                 observers.push_back(std::move(callback));
             }
         }
@@ -304,11 +299,6 @@ namespace mcp::server {
             }
         }
     }
-    Server::Impl::Impl(std::string name, std::string version, std::string instructions)
-        : name(std::move(name))
-        , version(std::move(version))
-        , instructions(std::move(instructions)) {
-    }
     bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
         std::size_t nodes = 0;
         error.clear();
@@ -323,39 +313,39 @@ namespace mcp::server {
         const std::string identifier = description.value(keyName, std::string());
         const std::string key = std::to_string(static_cast<int>(kind)) + ":" + identifier;
         const auto reject = [&](const std::string& field, const std::string& reason) {
-            throw RegistrationError(kind, identifier, field, reason);
+            return RegistrationError(kind, identifier, field, reason);
         };
         if (sealed) {
-            reject("registration", "registry is sealed");
+            throw reject("registration", "registry is sealed");
         } else if (identifier.empty() || description.value("name", std::string()).empty()) {
-            reject(identifier.empty() ? keyName : "name", "must not be empty");
+            throw reject(identifier.empty() ? keyName : "name", "must not be empty");
         } else if (!std::visit(
                        [](const auto& callback) {
                            return static_cast<bool>(callback);
                        },
                        handler)) {
-            reject("handler", "must be callable");
+            throw reject("handler", "must be callable");
         } else if (entries.size() >= 128 || entries.contains(key)) {
-            reject(keyName, entries.contains(key) ? "duplicate registration" : "128-registration limit exceeded");
+            throw reject(keyName, entries.contains(key) ? "duplicate registration" : "128-registration limit exceeded");
         }
         if (kind == Kind::Tool) {
             std::string error;
             if (description.contains("annotations") && !description["annotations"].is_object()) {
-                reject("annotations", "must be an object");
+                throw reject("annotations", "must be an object");
             }
             const Json& input = description["inputSchema"];
             if (!input.is_object() || input.value("type", Json()) != "object" || !checkSchema(input, error)) {
-                reject("inputSchema", error.empty() ? "supported object schema required" : error);
+                throw reject("inputSchema", error.empty() ? "supported object schema required" : error);
             }
             if (description.contains("outputSchema") && !checkSchema(description["outputSchema"], error)) {
-                reject("outputSchema", error.empty() ? "supported schema required" : error);
+                throw reject("outputSchema", error.empty() ? "supported schema required" : error);
             }
         } else if (kind == Kind::Prompt) {
             std::set<std::string> names;
             for (const auto& argument : description["arguments"]) {
                 const std::string name = argument["name"];
                 if (name.empty() || !names.insert(name).second) {
-                    reject("arguments.name", "must be nonempty and unique");
+                    throw reject("arguments.name", "must be nonempty and unique");
                 }
             }
         }
@@ -378,7 +368,7 @@ namespace mcp::server {
         return result;
     }
     std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
-                                                                     bool legacy,
+                                                                     ProtocolEra era,
                                                                      detail::Access::Response::Output output,
                                                                      const utils::Timeval& timeout,
                                                                      std::optional<Principal> principal) const {
@@ -386,15 +376,16 @@ namespace mcp::server {
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
                                        : std::string();
-        auto reply = std::make_shared<detail::Access::Response>(id,
-                                                                !legacy,
-                                                                method == "server/discover" || method.ends_with("/list") ||
-                                                                    method == "resources/read",
-                                                                std::move(output),
-                                                                timeout);
+        auto reply = std::make_shared<detail::Access::Response>(
+            id,
+            era,
+            method == "server/discover" || method.ends_with("/list") || method == "resources/read" ? CachePolicy::Private
+                                                                                                   : CachePolicy::None,
+            std::move(output),
+            timeout);
         reply->toolRequest = method == "tools/call";
         reply->principal = std::move(principal);
-        if (legacy || method != "subscriptions/listen") {
+        if (era == ProtocolEra::Initialization20251125 || method != "subscriptions/listen") {
             const std::weak_ptr<Response> weak = reply;
             reply->timer = core::timer::Timer::singleshotTimer(
                 [weak] {
@@ -423,36 +414,38 @@ namespace mcp::server {
                 } else if (validToken && !token.is_null()) {
                     reply->progressToken = token.get<std::int64_t>();
                 }
-                if (!legacy &&
+                if (era == ProtocolEra::PerRequest20260728 &&
                     (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                     reply->error(-32602, "Missing or malformed per-request metadata");
                 } else if (!validToken) {
                     reply->error(-32602, "Progress token must be a string or signed integer");
-                } else if (!legacy && version != modernVersion) {
-                    reply->error(
-                        -32022, "Unsupported protocol version", {{"supported", {modernVersion, legacyVersion}}, {"requested", version}});
+                } else if (era == ProtocolEra::PerRequest20260728 && version != protocolVersion2026) {
+                    reply->error(-32022,
+                                 "Unsupported protocol version",
+                                 {{"supported", {protocolVersion2026, protocolVersion2025}}, {"requested", version}});
 
-                } else if (legacy && method == "initialize" &&
+                } else if (era == ProtocolEra::Initialization20251125 && method == "initialize" &&
                            (!params.value("protocolVersion", Json()).is_string() || !params.value("capabilities", Json()).is_object() ||
                             !client.is_object() || !client.value("name", Json()).is_string() ||
                             !client.value("version", Json()).is_string())) {
                     reply->error(-32602, "Malformed initialize parameters");
-                } else if ((!legacy && method == "server/discover") || (legacy && method == "initialize")) {
+                } else if ((era == ProtocolEra::PerRequest20260728 && method == "server/discover") ||
+                           (era == ProtocolEra::Initialization20251125 && method == "initialize")) {
                     Json value{{"capabilities", capabilities()}};
-                    if (legacy) {
-                        value["protocolVersion"] = legacyVersion;
-                        value["serverInfo"] = {{"name", name}, {"version", this->version}};
+                    if (era == ProtocolEra::Initialization20251125) {
+                        value["protocolVersion"] = protocolVersion2025;
+                        value["serverInfo"] = serverInfo;
                     } else {
-                        value["supportedVersions"] = {modernVersion, legacyVersion};
-                        value["_meta"]["io.modelcontextprotocol/serverInfo"] = {{"name", name}, {"version", this->version}};
+                        value["supportedVersions"] = {protocolVersion2026, protocolVersion2025};
+                        value["_meta"]["io.modelcontextprotocol/serverInfo"] = serverInfo;
                     }
                     if (!instructions.empty()) {
                         value["instructions"] = instructions;
                     }
                     reply->result(std::move(value));
-                } else if (legacy && method == "ping") {
+                } else if (era == ProtocolEra::Initialization20251125 && method == "ping") {
                     reply->result(Json::object());
-                } else if (!legacy && method == "subscriptions/listen") {
+                } else if (era == ProtocolEra::PerRequest20260728 && method == "subscriptions/listen") {
                     if (params.contains("notifications") && !params["notifications"].is_object()) {
                         reply->error(-32602, "Invalid subscription filter");
                     } else {
@@ -467,7 +460,7 @@ namespace mcp::server {
                         static_cast<void>(key);
                         if (entry.kind == kind) {
                             Json description = entry.description;
-                            if (legacy && kind == Kind::Tool && description.contains("outputSchema") &&
+                            if (era == ProtocolEra::Initialization20251125 && kind == Kind::Tool && description.contains("outputSchema") &&
                                 (!description["outputSchema"].is_object() ||
                                  description["outputSchema"].value("type", Json()) != "object")) {
                                 description.erase("outputSchema");
@@ -489,7 +482,9 @@ namespace mcp::server {
                             (kind == Kind::Prompt && !std::all_of(arguments.begin(), arguments.end(), [](const Json& value) {
                                  return value.is_string();
                              }))) {
-                            reply->error(legacy && kind == Kind::Resource && entry == entries.end() ? -32002 : -32602,
+                            reply->error(era == ProtocolEra::Initialization20251125 && kind == Kind::Resource && entry == entries.end()
+                                             ? -32002
+                                             : -32602,
                                          "Unknown registration or malformed arguments");
                         } else if (kind == Kind::Tool && !validate(entry->second.description["inputSchema"], arguments, error)) {
                             reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", error}}}}});
@@ -510,7 +505,7 @@ namespace mcp::server {
                             } else if (kind == Kind::Resource) {
                                 std::get<Server::ResourceHandler>(entry->second.handler)(
                                     ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
-                            } else if (reply->active()) {
+                            } else if (!reply->done) {
                                 std::get<Server::PromptHandler>(entry->second.handler)(
                                     PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
                                     Access::wrap<PromptResult>(reply));
@@ -521,8 +516,8 @@ namespace mcp::server {
                     reply->error(-32601, "Method not found");
                 }
             }
-        } catch (const std::exception& error) {
-            snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "dispatch failed: " << error.what();
+        } catch (...) {
+            snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "dispatch failed";
             reply->error(-32603, "Internal error");
         }
         reply->expire();
@@ -540,7 +535,7 @@ namespace mcp::server {
     namespace {
         Json encode(const ResourceContents& contents) {
             return std::visit(
-                [](const auto& resource) {
+                [](const auto& resource) -> Json {
                     Json value{{"uri", resource.uri}, {"mimeType", resource.mimeType}};
                     if constexpr (std::is_same_v<std::decay_t<decltype(resource)>, TextResource>) {
                         value["text"] = resource.text;
@@ -553,7 +548,7 @@ namespace mcp::server {
         }
         Json encode(const Content& content) {
             return std::visit(
-                [](const auto& block) {
+                [](const auto& block) -> Json {
                     using Block = std::decay_t<decltype(block)>;
                     Json value;
                     if constexpr (std::is_same_v<Block, TextContent>) {
@@ -623,22 +618,17 @@ namespace mcp::server {
         : impl(std::move(impl)) {
     }
     template <class Result>
-    Reply<Result>::~Reply() = default;
-    template <class Result>
     Completion Reply<Result>::result(Result result) {
-        const auto keep = impl;
-        impl->expire();
-        const Completion completion = impl->active() ? Completion::Accepted : Completion::Inactive;
+        Json value;
         if constexpr (std::is_same_v<Result, ToolResult>) {
-            impl->result(std::move(result.value));
+            value = std::move(result.value);
         } else if constexpr (std::is_same_v<Result, ResourceResult>) {
-            Json contents = Json::array();
+            value["contents"] = Json::array();
             for (const auto& resource : result.contents) {
-                contents.push_back(encode(resource));
+                value["contents"].push_back(encode(resource));
             }
-            impl->result({{"contents", std::move(contents)}});
         } else {
-            Json value{{"messages", Json::array()}};
+            value = {{"messages", Json::array()}};
             if (result.description) {
                 value["description"] = *result.description;
             }
@@ -646,38 +636,34 @@ namespace mcp::server {
                 value["messages"].push_back(
                     {{"role", message.role == Role::User ? "user" : "assistant"}, {"content", encode(message.content)}});
             }
-            impl->result(std::move(value));
         }
-        return completion;
+        return impl->result(std::move(value));
     }
     template <class Result>
     Completion Reply<Result>::error(ErrorCode code, std::string message, Json data) {
-        const auto keep = impl;
-        impl->expire();
-        const Completion completion = impl->active() ? Completion::Accepted : Completion::Inactive;
-        impl->error(static_cast<int>(code), message, std::move(data));
-        return completion;
+        return impl->error(static_cast<int>(code), message, std::move(data));
     }
     template <class Result>
     void Reply<Result>::progress(Progress progress) {
-        impl->expire();
-        if (impl->progressToken && impl->active() && std::isfinite(progress.value) && progress.value >= 0 &&
-            (!impl->lastProgress || progress.value >= *impl->lastProgress) &&
+        const auto request = impl;
+        request->expire();
+        if (request->progressToken && !request->done && std::isfinite(progress.value) && progress.value >= 0 &&
+            (!request->lastProgress || progress.value > *request->lastProgress) &&
             (!progress.total || (std::isfinite(*progress.total) && *progress.total >= progress.value))) {
-            impl->lastProgress = progress.value;
+            request->lastProgress = progress.value;
             Json params{{"progress", progress.value}};
             params["progressToken"] = std::visit(
                 [](const auto& token) {
                     return Json(token);
                 },
-                *impl->progressToken);
+                *request->progressToken);
             if (progress.total) {
                 params["total"] = *progress.total;
             }
             if (!progress.message.empty()) {
                 params["message"] = std::move(progress.message);
             }
-            impl->notify("notifications/progress", std::move(params));
+            request->notify("notifications/progress", std::move(params));
         }
     }
     RequestContext::RequestContext(std::shared_ptr<detail::Response> impl)
@@ -702,8 +688,11 @@ namespace mcp::server {
                                                                                  : "prompt ") +
                                 (identifier.empty() ? "<unnamed>" : identifier) + ": " + field + ": registration rejected: " + reason) {
     }
+    RegistrationError::~RegistrationError() = default;
     Server::Server(std::string name, std::string version, std::string instructions)
-        : impl(std::make_unique<Impl>(std::move(name), std::move(version), std::move(instructions))) {
+        : impl(std::make_unique<Impl>()) {
+        impl->serverInfo = {{"name", std::move(name)}, {"version", std::move(version)}};
+        impl->instructions = std::move(instructions);
     }
     Server::~Server() = default;
     Server* Server::tool(ToolDefinition definition, ToolHandler handler) {

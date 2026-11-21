@@ -14,7 +14,6 @@ namespace mcp::server {
     template <class Result>
     class Reply {
     public:
-        ~Reply();                                ///< Release this handle on the event loop; does not imply completion.
         Reply(const Reply&) = delete;            ///< Non-transferable handle; share ownership through std::shared_ptr instead.
         Reply& operator=(const Reply&) = delete; ///< Non-transferable handle; share ownership through std::shared_ptr instead.
         Reply(Reply&&) = delete;                 ///< Non-transferable handle; share ownership through std::shared_ptr instead.

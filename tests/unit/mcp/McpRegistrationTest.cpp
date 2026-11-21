@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+#include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 #include <functional>
 #include <string>
 
 using namespace mcp::server;
-int main() {
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     Server server("owned-name", "application-version", "server instructions");
     const Json schema{{"type", "object"}};
@@ -76,12 +78,14 @@ int main() {
     const auto call = [&](const std::string& method, Json params = Json::object(), bool legacy = false) {
         Json response;
         if (!legacy) {
-            params["_meta"] = {{detail::versionKey, detail::modernVersion}, {detail::capabilitiesKey, Json::object()}};
+            params["_meta"] = {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}};
         }
-        detail::Access::registry(server).dispatch(
-            {{"jsonrpc", "2.0"}, {"id", 1}, {"method", method}, {"params", params}}, legacy, [&](const Json& value, bool) {
-                response = value;
-            });
+        detail::Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"id", 1}, {"method", method}, {"params", params}},
+                                                  legacy ? detail::ProtocolEra::Initialization20251125
+                                                         : detail::ProtocolEra::PerRequest20260728,
+                                                  [&](const Json& value, bool) {
+                                                      response = value;
+                                                  });
         return response;
     };
     Json response = call("server/discover");
@@ -89,7 +93,7 @@ int main() {
                         response["result"]["_meta"]["io.modelcontextprotocol/serverInfo"]["version"] == "application-version",
                     "modern discovery uses application identity and instructions");
     response = call("initialize",
-                    {{"protocolVersion", detail::legacyVersion},
+                    {{"protocolVersion", detail::protocolVersion2025},
                      {"capabilities", Json::object()},
                      {"clientInfo", {{"name", "client"}, {"version", "1"}}}},
                     true);
@@ -118,5 +122,6 @@ int main() {
             server.tool({"later", {}, schema}, handler);
         },
         "tool later: registration: registration rejected: registry is sealed");
+    core::SNodeC::free();
     return test.processResult();
 }

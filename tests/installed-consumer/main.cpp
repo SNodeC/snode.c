@@ -9,8 +9,8 @@
 #include <net/un/stream/legacy/SocketClient.h>
 
 int main() {
-    const auto retainProtocol = &mcp::server::stdio::Transport::retainProtocol;
-    static_cast<void>(retainProtocol);
+    const auto run = &mcp::server::stdio::Transport::run;
+    static_cast<void>(run);
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
     mcp::server::Server server("installed-consumer", "test-version");
     return 0;

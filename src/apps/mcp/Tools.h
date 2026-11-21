@@ -23,5 +23,6 @@ namespace apps::mcp {
     private:
         CLI::Option *headerRoot, *searchFiles, *searchBytes;
     };
+    std::string instructions();
     void registerTools(::mcp::server::Server& server, const DevelopmentConfig& config);
 } // namespace apps::mcp

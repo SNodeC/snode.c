@@ -2,52 +2,31 @@
 #include "Log.h"
 #include "Tools.h"
 #include "mcp-config.h"
-#include "core/SNodeC.h"
 #include "mcp/server/Server.h"
 #ifdef MCP_STDIO
 #include "mcp/server/stdio/Transport.h"
 #include "utils/Config.h"
-
 #include <string>
-#include <unistd.h>
-#include <utility>
-#include <vector>
 
 #else
+#include "core/SNodeC.h"
+#include <exception>
 #include "express/legacy/in/WebApp.h"
 #include "mcp/server/http/Router.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 #endif
 
-#include <exception>
 
 int main(int argc, char* argv[]) {
     int result = 1;
+    mcp::server::Server server("snodec-dev", SNODEC_DEV_VERSION, apps::mcp::instructions());
 #ifdef MCP_STDIO
-    int protocolFd = mcp::server::stdio::Transport::retainProtocol();
-    if (protocolFd >= 0) {
-        try {
-            auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
-            std::vector<char*> arguments(argv, argv + argc);
-            char foreground[] = "--daemonize=false";
-            arguments.push_back(foreground);
-            arguments.push_back(nullptr);
-            core::SNodeC::init(argc + 1, arguments.data());
-            utils::Config::configRoot.setDefaultValue(utils::Config::configRoot.getOption("--log-console"), "stderr", false);
-            mcp::server::Server server("snodec-dev", MCP_APPLICATION_VERSION);
-            apps::mcp::registerTools(server, *config);
-            mcp::server::stdio::Transport transport(server, *config, std::exchange(protocolFd, -1));
-            snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
-            result = core::SNodeC::start();
-        } catch (const std::exception& error) {
-            snode::log::application("mcp.development").error() << error.what();
-            core::SNodeC::free();
-        }
-        if (protocolFd >= 0) {
-            ::close(protocolFd);
-        }
-    }
+    auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
+    result = mcp::server::stdio::Transport::run(argc, argv, server, *config, [&] {
+        apps::mcp::registerTools(server, *config);
+        snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
+    });
 #else
     using WebApp = express::legacy::in::WebApp;
     const WebApp app("mcp-http");
@@ -57,16 +36,15 @@ int main(int argc, char* argv[]) {
     http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);
     app.getConfig()->Connection::setMaximumWriteQueueBytes(1048576);
     app.getConfig()->Local::setHost("127.0.0.1")->setPort(3337);
+    int listenFailure = 0;
     try {
         WebApp::init(argc, argv);
         if (app.getConfig()->Instance::getDisabled()) {
             core::SNodeC::free();
             result = 0;
         } else {
-            mcp::server::Server server("snodec-dev", MCP_APPLICATION_VERSION);
             apps::mcp::registerTools(server, *config);
             app.use("/mcp", mcp::server::http::Router(server, *config));
-            int listenFailure = 0;
             app.listen([&listenFailure](const auto& address, const auto& state) {
                 if (state == core::socket::State::OK) {
                     snode::log::application("mcp.development").info() << "SNode.C development HTTP listening on " << address.toString();
@@ -80,10 +58,8 @@ int main(int argc, char* argv[]) {
                 core::SNodeC::free();
                 result = listenFailure;
             } else {
-                result = WebApp::start();
-                if (listenFailure != 0) {
-                    result = listenFailure;
-                }
+                const int loopResult = WebApp::start();
+                result = listenFailure != 0 ? listenFailure : loopResult;
             }
         }
     } catch (const std::exception& error) {

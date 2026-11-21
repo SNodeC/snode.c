@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+#include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
 using namespace mcp::server;
-int main() {
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     Server server("results", "test-version");
     ToolResult next = ToolResult::text("header bytes\n");
@@ -14,12 +16,14 @@ int main() {
     const auto call = [&](bool legacy) {
         Json params{{"name", "value"}};
         if (!legacy) {
-            params["_meta"] = {{detail::versionKey, detail::modernVersion}, {detail::capabilitiesKey, Json::object()}};
+            params["_meta"] = {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}};
         }
-        detail::Access::registry(server).dispatch(
-            {{"jsonrpc", "2.0"}, {"id", 1}, {"method", "tools/call"}, {"params", params}}, legacy, [&response](const Json& value, bool) {
-                response = value;
-            });
+        detail::Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"id", 1}, {"method", "tools/call"}, {"params", params}},
+                                                  legacy ? detail::ProtocolEra::Initialization20251125
+                                                         : detail::ProtocolEra::PerRequest20260728,
+                                                  [&response](const Json& value, bool) {
+                                                      response = value;
+                                                  });
     };
     for (bool legacy : {false, true}) {
         call(legacy);
@@ -62,10 +66,11 @@ int main() {
         reply->result(ToolResult::json("wrong type"));
     });
     detail::Access::registry(schema).dispatch({{"jsonrpc", "2.0"}, {"id", 2}, {"method", "tools/call"}, {"params", {{"name", "value"}}}},
-                                              true,
+                                              detail::ProtocolEra::Initialization20251125,
                                               [&response](const Json& value, bool) {
                                                   response = value;
                                               });
     test.expectTrue(response["result"]["isError"] == true, "legacy validates canonical value before content-only encoding");
+    core::SNodeC::free();
     return test.processResult();
 }

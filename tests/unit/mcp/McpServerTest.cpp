@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+#include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
@@ -8,12 +9,13 @@ using mcp::server::Json;
 using mcp::server::ToolResult;
 namespace {
     Json request(const std::string& method, Json params = Json::object()) {
-        params["_meta"] = {{mcp::server::detail::versionKey, mcp::server::detail::modernVersion},
+        params["_meta"] = {{mcp::server::detail::versionKey, mcp::server::detail::protocolVersion2026},
                            {mcp::server::detail::capabilitiesKey, Json::object()}};
         return {{"jsonrpc", "2.0"}, {"id", 7}, {"method", method}, {"params", params}};
     }
 } // namespace
-int main() {
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
     tests::support::TestResult test;
     using mcp::server::Server;
     using mcp::server::detail::Access;
@@ -93,9 +95,9 @@ int main() {
             ++messages;
         }
     };
-    Access::registry(server).dispatch(request("server/discover"), false, output);
+    Access::registry(server).dispatch(request("server/discover"), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectTrue(response["result"]["supportedVersions"] ==
-                        Json::array({mcp::server::detail::modernVersion, mcp::server::detail::legacyVersion}),
+                        Json::array({mcp::server::detail::protocolVersion2026, mcp::server::detail::protocolVersion2025}),
                     "versions");
     test.expectTrue(response["result"]["capabilities"] ==
                         Json({{"tools", Json::object()}, {"resources", Json::object()}, {"prompts", Json::object()}}),
@@ -103,26 +105,30 @@ int main() {
     test.expectTrue(response["result"]["resultType"] == "complete" && response["result"]["ttlMs"] == 0 &&
                         response["result"]["cacheScope"] == "private",
                     "modern result/cache contract");
-    Access::registry(server).dispatch(request("tools/list"), false, output);
+    Access::registry(server).dispatch(request("tools/list"), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectEqual(2, static_cast<int>(response["result"]["tools"].size()), "populated tool registry");
     const int before = messages;
-    Access::registry(server).dispatch(request("tools/call", {{"name", "echo"}, {"arguments", {{"word", "é"}}}}), false, output);
+    Access::registry(server).dispatch(request("tools/call", {{"name", "echo"}, {"arguments", {{"word", "é"}}}}),
+                                      mcp::server::detail::ProtocolEra::PerRequest20260728,
+                                      output);
     test.expectEqual(before + 1, messages, "only one terminal response");
     test.expectEqual(1, calls, "valid handler invoked");
-    Access::registry(server).dispatch(request("tools/call", {{"name", "echo"}, {"arguments", {{"word", "too long"}}}}), false, output);
+    Access::registry(server).dispatch(request("tools/call", {{"name", "echo"}, {"arguments", {{"word", "too long"}}}}),
+                                      mcp::server::detail::ProtocolEra::PerRequest20260728,
+                                      output);
     test.expectTrue(response["result"]["isError"] == true && !response.contains("error"), "input-value failure is a tool error");
     test.expectEqual(1, calls, "invalid arguments never reach handler");
     for (const auto& [method, code] : std::map<std::string, int>{{"ping", -32601}, {"unknown", -32601}, {"tools/call", -32602}}) {
-        Access::registry(server).dispatch(request(method), false, output);
+        Access::registry(server).dispatch(request(method), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
         test.expectEqual(code, response["error"]["code"].get<int>(), "protocol error mapping");
     }
     Json noMeta = request("tools/list");
     noMeta["params"].erase("_meta");
-    Access::registry(server).dispatch(noMeta, false, output);
+    Access::registry(server).dispatch(noMeta, mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectEqual(-32602, response["error"]["code"].get<int>(), "no inherited modern capabilities");
     Json unsupported = request("tools/list");
     unsupported["params"]["_meta"][mcp::server::detail::versionKey] = "other";
-    Access::registry(server).dispatch(unsupported, false, output);
+    Access::registry(server).dispatch(unsupported, mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectEqual(-32022, response["error"]["code"].get<int>(), "unsupported version code");
     test.expectTrue(response["error"]["data"].contains("supported") && response["error"]["data"]["requested"] == "other",
                     "version error data");
@@ -131,7 +137,7 @@ int main() {
                                               {{"jsonrpc", "2.0"}, {"method", "x"}, {"id", nullptr}},
                                               {{"jsonrpc", "1"}, {"method", "x"}, {"id", 1}},
                                               {{"jsonrpc", "2.0"}, {"method", "x"}, {"params", Json::array()}}})) {
-        Access::registry(server).dispatch(malformed, false, output);
+        Access::registry(server).dispatch(malformed, mcp::server::detail::ProtocolEra::PerRequest20260728, output);
         test.expectEqual(-32600, response["error"]["code"].get<int>(), "invalid envelopes");
     }
     const Json initialize{
@@ -140,45 +146,56 @@ int main() {
         {"id", 1},
         {"params",
          {{"protocolVersion", "2025-06-18"}, {"capabilities", Json::object()}, {"clientInfo", {{"name", "test"}, {"version", "1"}}}}}};
-    Access::registry(server).dispatch(initialize, true, output);
-    test.expectTrue(response["result"]["protocolVersion"] == mcp::server::detail::legacyVersion &&
+    Access::registry(server).dispatch(initialize, mcp::server::detail::ProtocolEra::Initialization20251125, output);
+    test.expectTrue(response["result"]["protocolVersion"] == mcp::server::detail::protocolVersion2025 &&
                         !response["result"].contains("resultType"),
                     "legacy normalization");
     Json malformedInitialize = initialize;
     malformedInitialize["params"].erase("clientInfo");
-    Access::registry(server).dispatch(malformedInitialize, true, output);
+    Access::registry(server).dispatch(malformedInitialize, mcp::server::detail::ProtocolEra::Initialization20251125, output);
     test.expectEqual(-32602, response["error"]["code"].get<int>(), "legacy initialize requires client information");
-    Access::registry(server).dispatch(request("server/discover"), true, output);
+    Access::registry(server).dispatch(request("server/discover"), mcp::server::detail::ProtocolEra::Initialization20251125, output);
     test.expectEqual(-32601, response["error"]["code"].get<int>(), "discover belongs only to the modern era");
-    Access::registry(server).dispatch(request("resources/read", {{"uri", "missing"}}), true, output);
+    Access::registry(server).dispatch(
+        request("resources/read", {{"uri", "missing"}}), mcp::server::detail::ProtocolEra::Initialization20251125, output);
     test.expectEqual(-32002, response["error"]["code"].get<int>(), "legacy resource error");
-    Access::registry(server).dispatch(request("resources/read", {{"uri", "missing"}}), false, output);
+    Access::registry(server).dispatch(
+        request("resources/read", {{"uri", "missing"}}), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectEqual(-32602, response["error"]["code"].get<int>(), "modern resource error remains strict");
-    Access::registry(server).dispatch(request("tools/list"), false, output);
+    Access::registry(server).dispatch(request("tools/list"), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     test.expectTrue(response["result"].contains("resultType"), "legacy dispatch never changes modern contract");
     const int notified = messages;
-    Access::registry(server).dispatch({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, true, output);
+    Access::registry(server).dispatch(
+        {{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}, mcp::server::detail::ProtocolEra::Initialization20251125, output);
     test.expectEqual(notified, messages, "no notification response");
-    Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}), false, output, utils::Timeval(0));
+    Access::registry(server).dispatch(request("resources/read", {{"uri", "snodec://slow"}}),
+                                      mcp::server::detail::ProtocolEra::PerRequest20260728,
+                                      output,
+                                      utils::Timeval(0));
     Access::response(*pendingResource).expire();
     test.expectEqual(-32603, response["error"]["code"].get<int>(), "resource deadline is a JSON-RPC error");
-    Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output, utils::Timeval(0));
+    Access::registry(server).dispatch(
+        request("tools/call", {{"name", "pending"}}), mcp::server::detail::ProtocolEra::PerRequest20260728, output, utils::Timeval(0));
     Access::response(*pending).expire();
     test.expectTrue(response["result"]["isError"] == true, "tool deadline is a tool error");
-    Access::registry(server).dispatch(request("tools/call", {{"name", "pending"}}), false, output);
+    Access::registry(server).dispatch(
+        request("tools/call", {{"name", "pending"}}), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
     Access::response(*pending).cancel();
     const int cancelled = messages;
     pending->result(ToolResult::content({}));
     test.expectEqual(cancelled, messages, "cancel prevents late result");
-    auto subscription = Access::registry(server).dispatch(
-        request("subscriptions/listen", {{"notifications", {{"toolsListChanged", true}}}}), false, output);
+    auto subscription =
+        Access::registry(server).dispatch(request("subscriptions/listen", {{"notifications", {{"toolsListChanged", true}}}}),
+                                          mcp::server::detail::ProtocolEra::PerRequest20260728,
+                                          output);
     test.expectTrue(response["method"] == "notifications/subscriptions/acknowledged" && response["params"]["notifications"].empty() &&
                         response["params"]["_meta"][mcp::server::detail::subscriptionKey] == 7,
                     "empty honored filter and correlated ack");
     std::vector<Json> shutdown;
-    auto ending = Access::registry(server).dispatch(request("subscriptions/listen"), false, [&shutdown](const Json& value, bool) {
-        shutdown.push_back(value);
-    });
+    auto ending = Access::registry(server).dispatch(
+        request("subscriptions/listen"), mcp::server::detail::ProtocolEra::PerRequest20260728, [&shutdown](const Json& value, bool) {
+            shutdown.push_back(value);
+        });
     ending->cancel(mcp::server::CancelReason::Shutdown);
     test.expectTrue(shutdown.size() == 3 && shutdown[1]["method"] == "notifications/cancelled" && shutdown.back().is_null(),
                     "subscription teardown cancellation");
@@ -200,5 +217,6 @@ int main() {
         rejected = std::string(error.what()).find("duplicate registration") != std::string::npos;
     }
     test.expectTrue(rejected, "duplicate registration rejected immediately");
+    core::SNodeC::free();
     return test.processResult();
 }

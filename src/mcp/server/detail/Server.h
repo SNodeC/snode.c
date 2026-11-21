@@ -6,31 +6,26 @@
 #include <map>
 #include <variant>
 namespace mcp::server::detail {
-    inline constexpr const char* modernVersion = "2026-07-28";
-    inline constexpr const char* legacyVersion = "2025-11-25";
+    enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
+    enum class CachePolicy { None, Private };
+    inline constexpr const char* protocolVersion2026 = "2026-07-28";
+    inline constexpr const char* protocolVersion2025 = "2025-11-25";
     inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
     inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
     inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
-} // namespace mcp::server::detail
-namespace mcp::server::detail {
     struct Response : std::enable_shared_from_this<Response> {
-    public:
         using Output = std::function<void(const Json&, bool)>;
-        Response(Json id, bool modern, bool cacheable, Output output, const utils::Timeval& timeout);
+        Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout);
         ~Response();
-        void result(Json value);
-        void error(int code, const std::string& message, Json data = nullptr);
+        Completion result(Json value);
+        Completion error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
         void cancel(CancelReason reason = CancelReason::Client);
         void observe(RequestContext::OnCancel callback);
-        bool active() const;
-        bool expired() const;
         void expire();
         void listen();
-        bool isSubscription() const;
 
-    public:
         std::optional<Principal> principal;
         std::optional<ProgressToken> progressToken;
         std::optional<CancelReason> cancellation;
@@ -39,8 +34,8 @@ namespace mcp::server::detail {
         std::optional<double> lastProgress;
         Json outputSchema;
         Json id;
-        bool modern;
-        bool cacheable;
+        ProtocolEra era;
+        CachePolicy cachePolicy;
         bool toolRequest = false;
         bool done = false;
         bool subscription = false;
@@ -68,13 +63,11 @@ namespace mcp::server::detail {
 } // namespace mcp::server::detail
 namespace mcp::server {
     struct Server::Impl {
-    public:
         using Handler = std::variant<Server::ToolHandler, Server::ResourceHandler, Server::PromptHandler>;
-        explicit Impl(std::string name, std::string version, std::string instructions);
         void seal();
         void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,
-                                                           bool legacy,
+                                                           detail::ProtocolEra era,
                                                            detail::Access::Response::Output output,
                                                            const utils::Timeval& timeout = utils::Timeval(30),
                                                            std::optional<Principal> principal = {}) const;
@@ -84,6 +77,7 @@ namespace mcp::server {
         static int httpStatus(const Json& message);
 
     private:
+        friend class Server;
         using Kind = RegistrationKind;
         struct Entry {
             Kind kind;
@@ -91,8 +85,8 @@ namespace mcp::server {
             Handler handler;
         };
         Json capabilities() const;
-        std::string name;
-        std::string version, instructions;
+        Json serverInfo;
+        std::string instructions;
         bool sealed = false;
         std::map<std::string, Entry> entries;
     };

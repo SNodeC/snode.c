@@ -30,24 +30,27 @@ int main(int argc, char* argv[]) {
             }
         });
         reply->progress({1, 2, "half"});
+        reply->progress({1, 2, "duplicate"});
         reply->progress({0, 2, "backwards"});
         reply->progress({-1, {}, "negative"});
         reply->progress({std::numeric_limits<double>::infinity(), {}, "infinite"});
         reply->progress({2, 1, "invalid total"});
         if (call.arguments.value("finish", false)) {
-            test.expectTrue(reply->result(ToolResult::text("done")) == Completion::Accepted, "live completion accepted");
+            test.expectTrue(reply->result(ToolResult::text("done")) ==
+                                (call.arguments.value("overdue", false) ? Completion::Inactive : Completion::Accepted),
+                            "completion reports the winning terminal transition");
         }
     });
     const auto dispatch = [&](Json token, bool finish = false, int timeout = 30000) {
         Json params{{"name", "work"},
-                    {"arguments", {{"finish", finish}}},
-                    {"_meta", {{detail::versionKey, detail::modernVersion}, {detail::capabilitiesKey, Json::object()}}}};
+                    {"arguments", {{"finish", finish}, {"overdue", timeout == 0}}},
+                    {"_meta", {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}}}};
         if (token != "absent") {
             params["_meta"]["progressToken"] = std::move(token);
         }
         return detail::Access::registry(server).dispatch(
             {{"jsonrpc", "2.0"}, {"id", 1}, {"method", "tools/call"}, {"params", params}},
-            false,
+            detail::ProtocolEra::PerRequest20260728,
             [&](const Json& message, bool) {
                 messages.push_back(message);
             },
@@ -96,6 +99,10 @@ int main(int argc, char* argv[]) {
         state.reset();
         test.expectTrue(weak.expired(), "timer and observers do not keep request state alive");
     }
+    messages.clear();
+    auto overdue = dispatch("overdue", true, 0);
+    test.expectTrue(messages.size() == 1 && messages.back()["result"]["isError"] == true,
+                    "overdue synchronous work cannot win before the timer callback");
     messages.clear();
     stopOnCancel = true;
     auto deadline = dispatch("deadline", false, 10);

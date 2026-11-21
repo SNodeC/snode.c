@@ -85,5 +85,15 @@ int main() {
     root.getAppWithPtr()->clear();
     root.getAppWithPtr()->parse("mcp");
     test.expectTrue(config.getAllowedOrigins().empty(), "removing Origin options on reparse restores the empty default");
+    for (const std::string value : {"nan", "NaN", "nan(payload)", "inf", "abc", "0", "300001"}) {
+        bool rejected = false;
+        root.getAppWithPtr()->clear();
+        try {
+            root.getAppWithPtr()->parse("mcp --deadline-ms " + value);
+        } catch (const CLI::ParseError&) {
+            rejected = true;
+        }
+        test.expectTrue(rejected, "deadline remains finite and bounded: " + value);
+    }
     return test.processResult();
 }
