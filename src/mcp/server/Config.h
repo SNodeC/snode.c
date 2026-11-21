@@ -4,7 +4,11 @@
 #include "utils/SubCommand.h"
 
 #include <chrono>
+#include <cstddef>
+#include <string>
 #include <string_view>
+#include <vector>
+
 namespace mcp::server {
     class Config : public utils::SubCommand {
     public:

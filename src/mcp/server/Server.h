@@ -8,7 +8,8 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <vector>
+
+// IWYU pragma: no_include <nlohmann/json_fwd.hpp>
 
 namespace mcp::server {
     using Json = nlohmann::json;

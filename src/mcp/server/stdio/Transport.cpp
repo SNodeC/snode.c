@@ -2,17 +2,25 @@
 #include "mcp/server/stdio/Transport.h"
 
 #include "Log.h"
-#include "core/Shutdown.h"
 #include "core/eventreceiver/ReadEventReceiver.h"
 #include "core/eventreceiver/WriteEventReceiver.h"
 #include "core/timer/Timer.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
 
+#include <algorithm>
 #include <cerrno>
+#include <cstddef>
 #include <fcntl.h>
+#include <functional>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <stdexcept>
+#include <string>
+#include <sys/types.h>
 #include <system_error>
 #include <unistd.h>
+#include <utility>
 
 namespace mcp::server::stdio {
     struct Transport::State : std::enable_shared_from_this<State> {

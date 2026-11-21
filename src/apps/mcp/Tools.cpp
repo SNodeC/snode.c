@@ -6,16 +6,25 @@
 #include "mcp-config.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
+#include "utils/CLI11.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cerrno>
+#include <cstdio>
 #include <deque>
 #include <dirent.h>
-#include <fcntl.h>
+#include <exception>
+#include <functional>
+#include <map>
+#include <memory>
+#include <nlohmann/json.hpp>
 #include <stdexcept>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <string>
+#include <utility>
+#include <vector>
+
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 namespace apps::mcp {
     namespace {

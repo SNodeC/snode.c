@@ -8,14 +8,19 @@
 #include "mcp/server/stdio/Transport.h"
 #include "utils/Config.h"
 
+#include <string>
 #include <unistd.h>
 #include <utility>
+#include <vector>
+
 #else
 #include "express/legacy/in/WebApp.h"
 #include "mcp/server/http/Router.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 #endif
+
+#include <exception>
 
 int main(int argc, char* argv[]) {
     int result = 1;

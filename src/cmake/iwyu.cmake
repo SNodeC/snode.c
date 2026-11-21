@@ -49,6 +49,10 @@ if(iwyu_path)
 
     if(CHECK_INCLUDES)
         set(iwyu_path_and_options
+            ${CMAKE_COMMAND}
+            -P
+            ${CMAKE_CURRENT_LIST_DIR}/RunIwyu.cmake
+            --
             ${iwyu_path}
             -Xiwyu
             --verbose=3

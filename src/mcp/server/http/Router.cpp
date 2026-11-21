@@ -7,8 +7,6 @@
 #include "core/pipe/PipeSource.h"
 #include "core/pipe/Source.h"
 #include "core/timer/Timer.h"
-#include "express/Request.h"
-#include "express/Response.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
@@ -18,8 +16,19 @@
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
+#include <chrono>
+#include <cmath>
+#include <cstddef>
+#include <nlohmann/json.hpp>
 #include <regex>
+#include <stdexcept>
+#include <string>
 #include <utility>
+#include <vector>
+
+namespace core {
+    struct ShutdownContext;
+}
 
 namespace mcp::server::http {
     namespace {

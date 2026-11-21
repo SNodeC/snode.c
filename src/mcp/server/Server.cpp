@@ -5,8 +5,15 @@
 
 #include <algorithm>
 #include <cmath>
+#include <compare>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
 #include <set>
 #include <utility>
+
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 namespace mcp::server {
     namespace {

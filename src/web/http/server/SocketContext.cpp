@@ -42,7 +42,6 @@
 #include "web/http/server/SocketContext.h"
 
 #include "core/DescriptorEventReceiver.h"
-#include "core/EventReceiver.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/server/Response.h"
