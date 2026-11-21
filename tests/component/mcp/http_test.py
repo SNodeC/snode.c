@@ -172,7 +172,7 @@ def legacy_qualification(server):
 
 
 def run():
-    with tempfile.TemporaryDirectory(prefix="mcp-http-", dir=os.environ["TMPDIR"]) as directory:
+    with tempfile.TemporaryDirectory(prefix="mcp-http-") as directory:
         server = Server(sys.argv[1], directory, sys.argv[3] == "Tls")
         try:
             legacy_qualification(server)

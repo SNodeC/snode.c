@@ -45,7 +45,9 @@
 #include "fixtures/NestedSubCommandFixture.h"
 
 #include <algorithm>
+#include <optional>
 #include <string>
+#include <vector>
 
 using snodec::control::ConfigModel;
 using snodec::control::ConfigOption;

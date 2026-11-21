@@ -46,7 +46,10 @@
 #include "ui/UiState.h"
 #include "ui/UiTree.h"
 
+#include <cstddef>
+#include <optional>
 #include <string>
+#include <vector>
 
 using snodec::control::ConfigModel;
 using snodec::control::ConfigOption;

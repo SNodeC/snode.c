@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 import json
-import os
 from pathlib import Path
 import sys
 import tempfile
@@ -25,7 +24,7 @@ def run():
     cases = [{"path": "core/SNodeC.h", **arguments} for arguments in [
         {"offset": 2000, "bytes": 2500}, {"offset": 2220, "bytes": 1500}, {},
         {"offset": 2368, "bytes": 200}, {"offset": 10000, "bytes": 200}]]
-    with tempfile.TemporaryDirectory(prefix="mcp-read-", dir=os.environ["TMPDIR"]) as directory:
+    with tempfile.TemporaryDirectory(prefix="mcp-read-") as directory:
         client = Client(sys.argv[1], ["--config-file", "/dev/null", "mcp", "--header-root", str(root)], directory)
         server = Server(sys.argv[2], directory, False, ["--header-root", str(root)], curl=sys.argv[3])
         try:

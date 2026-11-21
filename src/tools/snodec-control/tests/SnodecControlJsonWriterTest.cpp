@@ -39,7 +39,6 @@
  * THE SOFTWARE.
  */
 
-#include "ConfigModel.h"
 #include "ConfigParser.h"
 #include "JsonWriter.h"
 #include "TestResult.h"

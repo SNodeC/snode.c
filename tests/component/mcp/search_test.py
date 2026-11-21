@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 import json
-import os
 from pathlib import Path
 import signal
 import subprocess
@@ -98,7 +97,7 @@ def http(executable, curl, directory, root, listening):
 
 def run():
     kind, executable, curl, source = sys.argv[1:]
-    with tempfile.TemporaryDirectory(prefix="mcp-search-", dir=os.environ["TMPDIR"]) as directory:
+    with tempfile.TemporaryDirectory(prefix="mcp-search-") as directory:
         failures = []
         for listening in [False, True]:
             try:

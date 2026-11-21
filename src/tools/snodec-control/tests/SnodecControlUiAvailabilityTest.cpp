@@ -50,7 +50,9 @@
 #include "TestResult.h"
 #include "ui/Ui.h"
 
+#include <optional>
 #include <string>
+#include <vector>
 
 using snodec::control::ConfigModel;
 using snodec::control::parseShowConfigOutput;

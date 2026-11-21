@@ -40,12 +40,12 @@
  */
 
 #include "ConfigEditor.h"
-#include "ConfigModel.h"
 #include "ConfigParser.h"
 #include "Materializer.h"
 #include "TestResult.h"
 
 #include <string>
+#include <vector>
 
 using snodec::control::applyEdits;
 using snodec::control::EditOperation;

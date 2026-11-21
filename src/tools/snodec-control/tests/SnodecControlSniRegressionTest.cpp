@@ -59,6 +59,7 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
 using snodec::control::applyMetadataToModel;
 using snodec::control::ConfigModel;

@@ -44,7 +44,9 @@
 #include "TestResult.h"
 #include "ui/UiTree.h"
 
+#include <cstddef>
 #include <string>
+#include <vector>
 
 using snodec::control::ConfigModel;
 using snodec::control::parseShowConfigOutput;

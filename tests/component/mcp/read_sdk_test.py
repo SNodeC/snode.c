@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -10,7 +9,7 @@ from http_test import Server
 
 def run():
     node, sdk, stdio, http, curl, root = sys.argv[1:]
-    with tempfile.TemporaryDirectory(prefix="mcp-sdk-read-", dir=os.environ["TMPDIR"]) as directory:
+    with tempfile.TemporaryDirectory(prefix="mcp-sdk-read-") as directory:
         server = Server(http, directory, False, ["--header-root", root], curl=curl)
         results = []
         try:

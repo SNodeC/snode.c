@@ -46,6 +46,7 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
 using snodec::control::JsonValue;
 using snodec::control::MetaGroup;

@@ -12,7 +12,7 @@ import http_test
 
 
 def run():
-    with tempfile.TemporaryDirectory(prefix="mcp-dev-", dir=os.environ["TMPDIR"]) as temporary:
+    with tempfile.TemporaryDirectory(prefix="mcp-dev-") as temporary:
         directory = Path(temporary)
         root = directory / "headers"
         root.mkdir()

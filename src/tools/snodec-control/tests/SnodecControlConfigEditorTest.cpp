@@ -44,7 +44,9 @@
 #include "ConfigParser.h"
 #include "TestResult.h"
 
+#include <optional>
 #include <string>
+#include <vector>
 
 using snodec::control::applyEdits;
 using snodec::control::ChangeRecord;

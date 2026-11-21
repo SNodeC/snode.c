@@ -47,6 +47,7 @@
 #include "ui/UiTree.h"
 
 #include <string>
+#include <vector>
 
 using snodec::control::ConfigModel;
 using snodec::control::ParsedMetadata;
