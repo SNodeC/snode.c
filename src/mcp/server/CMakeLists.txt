@@ -13,7 +13,7 @@ target_include_directories(
 set_target_properties(
     mcp-server
     PROPERTIES VERSION ${SNode.C_VERSION}
-               SOVERSION ${SNODEC_SOVERSION}
+               SOVERSION ${SNODEC_MCP_SOVERSION}
                OUTPUT_NAME snodec-mcp-server
 )
 install(

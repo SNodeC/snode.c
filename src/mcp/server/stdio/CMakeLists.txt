@@ -5,7 +5,7 @@ target_link_libraries(mcp-server-stdio PUBLIC mcp-server)
 set_target_properties(
     mcp-server-stdio
     PROPERTIES VERSION ${SNode.C_VERSION}
-               SOVERSION ${SNODEC_SOVERSION}
+               SOVERSION ${SNODEC_MCP_SOVERSION}
                OUTPUT_NAME snodec-mcp-server-stdio
 )
 install(
