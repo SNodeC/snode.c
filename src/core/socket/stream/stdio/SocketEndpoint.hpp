@@ -66,6 +66,7 @@ namespace core::socket::stream::stdio {
                     });
                     if (active) {
                         connection = candidate;
+                        *established = true;
                         if (context->onConnect) {
                             context->onConnect(connection);
                         }
@@ -80,7 +81,6 @@ namespace core::socket::stream::stdio {
                             throw std::runtime_error("Endpoint factory returned no context");
                         }
                         connection->setSocketContext(protocol);
-                        *established = true;
                     } else {
                         connection = nullptr;
                     }

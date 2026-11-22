@@ -38,7 +38,7 @@ namespace core::socket::stream::stdio {
         const SocketEndpoint& setOnConnect(const std::function<void(SocketConnection*)>& callback, bool initialize = false) const;
         /// Append a callback after activation; closing here cancels establishment safely.
         const SocketEndpoint& setOnConnected(const std::function<void(SocketConnection*)>& callback, bool initialize = false) const;
-        /// Append a teardown callback for established connections only; no facade pointer is retained.
+        /// Append teardown paired with onConnect, including later establishment failure; no facade pointer is retained.
         const SocketEndpoint& setOnDisconnect(const std::function<void(SocketConnection*)>& callback, bool initialize = false) const;
         /// Return shared ownership of the original stream factory.
         std::shared_ptr<Factory> getSocketContextFactory() const;

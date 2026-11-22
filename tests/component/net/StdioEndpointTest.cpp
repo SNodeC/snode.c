@@ -9,6 +9,7 @@
 #include "support/TestResult.h"
 
 #include <fcntl.h>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -17,6 +18,7 @@
 namespace {
     tests::support::TestResult test;
     std::string mode, order;
+    std::map<core::socket::stream::SocketConnection*, std::unique_ptr<int>> connectionStates;
     int statuses = 0, disconnected = 0, factories = 0, protocols = 0;
     class Context final : public core::socket::stream::SocketContext {
     public:
@@ -106,7 +108,8 @@ int main(int argc, char* argv[]) {
             test.expectTrue(!endpoint.getConfig()->getLogRole(), "endpoint has no logging role");
             endpoint.getConfig()->Local::setSocketAddress(net::stdio::SocketAddress(handles[0], handles[0]));
             endpoint.getConfig()->Instance::setDisabled(mode == "disabled");
-            endpoint.setOnConnect([](auto*) {
+            endpoint.setOnConnect([](auto* connection) {
+                connectionStates.emplace(connection, std::make_unique<int>(1));
                 order += "c";
                 if (mode == "halt") {
                     core::SNodeC::stop();
@@ -118,7 +121,8 @@ int main(int argc, char* argv[]) {
                     connection->close();
                 }
             });
-            endpoint.setOnDisconnect([](auto*) {
+            endpoint.setOnDisconnect([](auto* connection) {
+                test.expectTrue(connectionStates.erase(connection) == 1, "disconnect releases exactly the state allocated by onConnect");
                 ++disconnected;
                 order += "d";
                 core::SNodeC::stop();
@@ -177,9 +181,12 @@ int main(int argc, char* argv[]) {
         if (mode == "success" || mode == "destroy" || mode == "stop" || mode == "retry" || mode == "first") {
             test.expectTrue(order == (mode == "retry" || mode == "first" ? "rcCfpsd" : "cCfpsd") && protocols == 1 && disconnected == 1,
                             "activation/callback/factory/status/release order");
+        } else if (mode == "null" || mode == "throw" || mode == "close" || mode == "halt") {
+            test.expectEqual(1, disconnected, "every onConnect is paired with onDisconnect, including establishment failures");
         } else {
-            test.expectEqual(0, disconnected, "no application disconnect before establishment");
+            test.expectEqual(0, disconnected, "no application disconnect without onConnect");
         }
+        test.expectTrue(connectionStates.empty(), "all per-connection state is released after teardown");
         if (mode == "disabled" || mode == "invalid" || (mode == "lifecycle" || mode == "stopping")) {
             test.expectTrue(::fcntl(handles[0], F_GETFL) == flags && factories == 0, "rejected attachment leaves caller binding untouched");
             ::close(handles[0]);
