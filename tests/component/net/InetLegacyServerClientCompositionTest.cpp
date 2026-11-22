@@ -52,11 +52,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
 #include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -70,17 +66,7 @@ namespace {
         int serverConnectedCount = 0;
         int clientConnectedCount = 0;
         int unexpectedStateCount = 0;
-        bool skipAddressInUse = false;
     };
-
-    constexpr std::uint16_t fixedLoopbackPort = 51306;
-
-    bool isAddressInUse(core::socket::State state) {
-        const std::string stateMessage = state.what();
-        const bool addressInUse = state == core::socket::State::ERROR && stateMessage.find(std::strerror(EADDRINUSE)) != std::string::npos;
-
-        return addressInUse;
-    }
 
     void stopWhenBothContextsAreConnected(TestState& testState) {
         if (testState.serverConnectedCount == 1 && testState.clientConnectedCount == 1) {
@@ -204,44 +190,36 @@ int main(int argc, char* argv[]) {
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(net::in::SocketAddress("127.0.0.1", fixedLoopbackPort),
-                            [&socketClient, &testState](const net::in::SocketAddress& socketAddress, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
-                                    socketClient.connect(net::in::SocketAddress("127.0.0.1", fixedLoopbackPort),
-                                                         [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
-                                                             if (connectState == core::socket::State::OK) {
-                                                                 ++testState.clientConnectOkCount;
-                                                             } else {
-                                                                 ++testState.unexpectedStateCount;
-                                                             }
-                                                         });
-                                } else if (isAddressInUse(state)) {
-                                    testState.skipAddressInUse = true;
-                                    std::cerr << "SKIP: InetLegacyServerClientCompositionTest fixed loopback port " << fixedLoopbackPort
-                                              << " is already in use" << std::endl;
-                                    core::SNodeC::stop();
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                }
-                            });
+        socketServer.listen(
+            net::in::SocketAddress("127.0.0.1", 0),
+            [&socketClient, &testState, &testResult](const net::in::SocketAddress& socketAddress, core::socket::State state) {
+                if (state == core::socket::State::OK) {
+                    ++testState.serverListenOkCount;
+                    testResult.expectTrue(socketAddress.getPort() != 0, "listener reports its assigned port");
+                    socketClient.connect(socketAddress, [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
+                        if (connectState == core::socket::State::OK) {
+                            ++testState.clientConnectOkCount;
+                        } else {
+                            ++testState.unexpectedStateCount;
+                        }
+                    });
+                } else {
+                    ++testState.unexpectedStateCount;
+                }
+            });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 
-        if (testState.skipAddressInUse) {
-            result = tests::support::cTestSkipReturnCode;
-        } else {
-            testResult.expectEqual(0, startResult, "event loop stops successfully after both composition contexts connect");
-            testResult.expectEqual(1, testState.serverListenOkCount, "IPv4 legacy server listen callback reports OK exactly once");
-            testResult.expectEqual(1, testState.clientConnectOkCount, "IPv4 legacy client connect callback reports OK exactly once");
-            testResult.expectEqual(1, testState.serverFactoryCreateCount, "server socket context factory creates exactly one context");
-            testResult.expectEqual(1, testState.clientFactoryCreateCount, "client socket context factory creates exactly one context");
-            testResult.expectEqual(1, testState.serverConnectedCount, "server socket context reaches onConnected exactly once");
-            testResult.expectEqual(1, testState.clientConnectedCount, "client socket context reaches onConnected exactly once");
-            testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
+        testResult.expectEqual(0, startResult, "event loop stops successfully after both composition contexts connect");
+        testResult.expectEqual(1, testState.serverListenOkCount, "IPv4 legacy server listen callback reports OK exactly once");
+        testResult.expectEqual(1, testState.clientConnectOkCount, "IPv4 legacy client connect callback reports OK exactly once");
+        testResult.expectEqual(1, testState.serverFactoryCreateCount, "server socket context factory creates exactly one context");
+        testResult.expectEqual(1, testState.clientFactoryCreateCount, "client socket context factory creates exactly one context");
+        testResult.expectEqual(1, testState.serverConnectedCount, "server socket context reaches onConnected exactly once");
+        testResult.expectEqual(1, testState.clientConnectedCount, "client socket context reaches onConnected exactly once");
+        testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
 
-            result = testResult.processResult();
-        }
+        result = testResult.processResult();
 
         core::SNodeC::free();
     }
