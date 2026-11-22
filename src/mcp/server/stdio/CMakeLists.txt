@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
-add_library(mcp-server-stdio SHARED Transport.cpp Transport.h)
+add_library(
+    mcp-server-stdio SHARED
+    ../stream/SocketContext.cpp ../stream/SocketContext.h
+    ../stream/SocketContextFactory.cpp ../stream/SocketContextFactory.h
+)
 add_library(snodec::mcp-server-stdio ALIAS mcp-server-stdio)
-target_link_libraries(mcp-server-stdio PUBLIC mcp-server)
+target_link_libraries(mcp-server-stdio PUBLIC mcp-server core-socket-stream)
 set_target_properties(
     mcp-server-stdio
     PROPERTIES VERSION ${SNode.C_VERSION}
@@ -15,8 +19,8 @@ install(
             COMPONENT mcp-server-stdio
 )
 install(
-    FILES Transport.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server/stdio
+    FILES ../stream/SocketContext.h ../stream/SocketContextFactory.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server/stream
     COMPONENT mcp-server-stdio
 )
 install(

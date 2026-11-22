@@ -7,7 +7,7 @@
 #include <mcp/server/Server.h>
 #include <mcp/server/Tool.h>
 #include <mcp/server/http/Router.h>
-#include <mcp/server/stdio/Transport.h>
+#include <mcp/server/stream/SocketContextFactory.h>
 #include <net/in/stream/legacy/SocketClient.h>
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/stdio/stream/SocketEndpoint.h>
@@ -15,6 +15,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <sys/socket.h>
+#include <type_traits>
 #include <unistd.h>
 
 namespace {
@@ -65,8 +66,7 @@ namespace {
 int main([[maybe_unused]] int argc, char* argv[]) {
     int result = 1;
     int pair[2]{};
-    const auto run = &mcp::server::stdio::Transport::run;
-    static_cast<void>(run);
+    static_assert(std::is_base_of_v<core::socket::stream::SocketContextFactory, mcp::server::stream::SocketContextFactory>);
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
     mcp::server::Server server("installed-consumer", "test-version");
     server.tool(std::make_shared<InstalledTool>());

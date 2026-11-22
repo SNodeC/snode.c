@@ -2,9 +2,12 @@
 #include "core/SNodeC.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
-#include "mcp/server/stdio/Transport.h"
+#include "mcp/server/stream/SocketContextFactory.h"
+#include "net/stdio/stream/SocketEndpoint.h"
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
+
+#include <cerrno>
 #include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
@@ -19,46 +22,42 @@ int main(int argc, char* argv[]) {
     tests::support::TestResult test;
     auto* config = utils::Config::configRoot.newSubCommand<mcp::server::Config>();
     mcp::server::Server server("entry", "test-version");
-    char option[] = "--config-file", path[] = "/dev/null";
-    char* arguments[] = {argv[0], option, path, nullptr};
-    int ready = 0;
+    using Endpoint =
+        net::stdio::stream::SocketEndpoint<mcp::server::stream::SocketContextFactory, mcp::server::Server&, mcp::server::Config&>;
+    const Endpoint endpoint("entry", server, *config);
+    endpoint.getConfig()->Instance::forceUnrequired();
+    endpoint.getConfig()->Connection::setReadTimeout(0)->setWriteTimeout(0);
+    char option[] = "--config-file=/dev/null", quiet[] = "--quiet";
+    char* arguments[] = {argv[0], option, quiet};
     const bool wrongOrder = argc > 1 && std::string(argv[1]) == "wrong-order";
-    if (wrongOrder) {
-        core::SNodeC::init(3, arguments);
-    } else {
-        int input[2] = {-1, -1};
-        test.expectEqual(0, ::pipe(input), "create a real protocol input pipe");
-        test.expectTrue(::dup2(input[0], STDIN_FILENO) >= 0, "attach the protocol input pipe");
-        ::close(input[0]);
-        ::close(input[1]);
-        test.expectEqual(0,
-                         mcp::server::stdio::Transport::run(3,
-                                                            arguments,
-                                                            server,
-                                                            *config,
-                                                            [&] {
-                                                                ++ready;
-                                                            }),
-                         "ordered entry initializes and drains EOF successfully");
-    }
+    int input[2]{}, output[2]{}, completions = 0;
+    test.expectEqual(0, ::pipe(input), "create a real protocol input pipe");
+    test.expectEqual(0, ::pipe(output), "create a real protocol output pipe");
+    ::close(input[1]);
     struct stat before{}, after{};
     const int flags = ::fcntl(STDOUT_FILENO, F_GETFL);
-    test.expectEqual(0, ::fstat(STDOUT_FILENO, &before), "capture stdout before rejected entry");
-    test.expectEqual(1,
-                     mcp::server::stdio::Transport::run(3,
-                                                        arguments,
-                                                        server,
-                                                        *config,
-                                                        [&] {
-                                                            ++ready;
-                                                        }),
-                     "wrong-order or duplicate entry rejected");
-    test.expectEqual(0, ::fstat(STDOUT_FILENO, &after), "capture stdout after rejected entry");
-    test.expectTrue(before.st_dev == after.st_dev && before.st_ino == after.st_ino && flags == ::fcntl(STDOUT_FILENO, F_GETFL),
-                    "rejected entry never redirects stdout or changes its flags");
-    test.expectEqual(wrongOrder ? 0 : 1, ready, "Ready runs exactly once, only on accepted entry");
+    test.expectEqual(0, ::fstat(STDOUT_FILENO, &before), "capture stdout before endpoint activation");
+    core::SNodeC::init(3, arguments);
+    endpoint.attach(net::stdio::SocketAddress(input[0], output[1]), [&](const auto&, auto state) {
+        ++completions;
+        test.expectTrue(state == (wrongOrder ? core::socket::State::ERROR : core::socket::State::OK),
+                        "entry obeys event-loop activation order");
+    });
+    test.expectEqual(0, completions, "attachment never activates synchronously");
     if (wrongOrder) {
+        static_cast<void>(core::SNodeC::tick());
+        test.expectTrue(::fcntl(input[0], F_GETFD) >= 0 && ::fcntl(output[1], F_GETFD) >= 0, "rejected entry retains caller ownership");
         core::SNodeC::free();
+        ::close(input[0]);
+        ::close(output[1]);
+    } else {
+        test.expectEqual(0, core::SNodeC::start(), "ordered entry drains EOF successfully");
+        test.expectTrue(::fcntl(input[0], F_GETFD) < 0 && ::fcntl(output[1], F_GETFD) < 0, "ordered entry releases owned protocol handles");
     }
+    ::close(output[0]);
+    test.expectEqual(0, ::fstat(STDOUT_FILENO, &after), "capture stdout after endpoint activation");
+    test.expectTrue(before.st_dev == after.st_dev && before.st_ino == after.st_ino && flags == ::fcntl(STDOUT_FILENO, F_GETFL),
+                    "the endpoint never redirects stdout or changes its flags");
+    test.expectEqual(1, completions, "one completion per executed attempt");
     return test.processResult();
 }

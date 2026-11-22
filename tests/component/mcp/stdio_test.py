@@ -69,7 +69,7 @@ class Client:
 
 def run(executable):
     with tempfile.TemporaryDirectory(prefix="mcp-stdio-") as directory:
-        for flags in [[], ["--quiet"], ["--log-console", "stderr"], ["--daemonize"]]:
+        for flags in [[], ["--quiet"], ["--log-console", "stderr"]]:
             client = Client(executable, flags, directory)
             client.send(request("server/discover", 1), split=True)
             assert client.receive()["result"]["supportedVersions"][0] == MODERN

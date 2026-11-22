@@ -25,6 +25,9 @@ foreach(transport IN ITEMS stdio http)
     )
     if(transport STREQUAL "stdio")
         target_compile_definitions(snodec-dev-${transport} PRIVATE MCP_STDIO=1)
+        target_link_libraries(
+            snodec-dev-${transport} PRIVATE snodec::net-stdio-stream
+        )
     else()
         target_link_libraries(
             snodec-dev-${transport} PRIVATE snodec::net-in-stream-legacy

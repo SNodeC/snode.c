@@ -194,6 +194,7 @@ cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
+cpack_add_component(mcp-server-stdio DEPENDS mcp-server core-socket-stream)
 
 cpack_add_component(net DEPENDS core-socket)
 cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)
@@ -252,7 +253,8 @@ cpack_add_component(
     apps
     DISPLAY_NAME "Applications"
     DESCRIPTION "We install Applications"
-    DEPENDS http-server-express
+    DEPENDS net-stdio-stream
+            http-server-express
             http-client
             net-in-stream-tls
             net-in6-stream-tls
