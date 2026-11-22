@@ -246,6 +246,7 @@ install(
     PATTERN "l2" EXCLUDE
     PATTERN "rc" EXCLUDE
     PATTERN "un" EXCLUDE
+    PATTERN "stdio" EXCLUDE
 )
 
 install(
@@ -261,3 +262,4 @@ add_subdirectory(in6)
 add_subdirectory(l2)
 add_subdirectory(rc)
 add_subdirectory(un)
+add_subdirectory(stdio)
