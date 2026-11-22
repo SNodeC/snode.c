@@ -73,8 +73,8 @@ set_tests_properties(McpConfigTest PROPERTIES LABELS "unit;mcp;config")
 snodec_add_test(McpStdioEntryTest McpStdioEntryTest.cpp)
 target_include_directories(McpStdioEntryTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(
-    McpStdioEntryTest PRIVATE snodec::mcp-server-stdio snodec::net-stdio-stream
-                              snodec-test-support
+    McpStdioEntryTest PRIVATE snodec::mcp-server-stream
+                              snodec::net-stdio-stream snodec-test-support
 )
 set_tests_properties(McpStdioEntryTest PROPERTIES LABELS "unit;mcp;startup")
 add_test(NAME McpStdioEntryWrongOrder COMMAND McpStdioEntryTest wrong-order)

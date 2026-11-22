@@ -43,6 +43,6 @@ install(
     COMPONENT mcp-server
 )
 
-add_subdirectory(stdio)
+add_subdirectory(stream)
 
 add_subdirectory(http)

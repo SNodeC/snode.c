@@ -2,7 +2,7 @@
 find_program(MCP_PYTHON NAMES python3 REQUIRED)
 add_executable(McpStdioFixture StdioFixture.cpp)
 target_link_libraries(
-    McpStdioFixture PRIVATE snodec::mcp-server-stdio snodec::net-stdio-stream
+    McpStdioFixture PRIVATE snodec::mcp-server-stream snodec::net-stdio-stream
 )
 add_test(NAME McpStdioTest
          COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/stdio_test.py

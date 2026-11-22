@@ -194,7 +194,7 @@ cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
-cpack_add_component(mcp-server-stdio DEPENDS mcp-server core-socket-stream)
+cpack_add_component(mcp-server-stream DEPENDS mcp-server core-socket-stream)
 
 cpack_add_component(net DEPENDS core-socket)
 cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)
