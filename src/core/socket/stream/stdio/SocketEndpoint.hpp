@@ -69,10 +69,10 @@ namespace core::socket::stream::stdio {
                         if (context->onConnect) {
                             context->onConnect(connection);
                         }
-                        if (connection->isActive() && context->onConnected) {
+                        if (core::SNodeC::state() == core::State::RUNNING && connection->isActive() && context->onConnected) {
                             context->onConnected(connection);
                         }
-                        if (!connection->isActive()) {
+                        if (core::SNodeC::state() != core::State::RUNNING || !connection->isActive()) {
                             throw std::runtime_error("Endpoint closed during establishment");
                         }
                         auto* protocol = context->factory->create(connection);

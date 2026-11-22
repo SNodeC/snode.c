@@ -768,6 +768,7 @@ foreach(
           network
           retry
           first
+          halt
 )
     add_test(NAME StdioEndpoint-${mode} COMMAND StdioEndpointTest ${mode})
     set_tests_properties(

@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
                       "Test registration failure",
                       "kind",
                       std::string("valid"),
-                      CLI::IsMember({"valid", "invalid", "throw", "throw-int"}));
+                      CLI::IsMember({"valid", "invalid", "throw", "throw-int", "stop"}));
     config->addOption("--fixture-reparse-config", "Bootstrap reparse fixture", "path", std::string(""), CLI::Validator());
     mcp::server::Server server("stdio-fixture", "test-version");
     int result = 1;
@@ -52,10 +52,14 @@ int main(int argc, char* argv[]) {
                     const auto& args = call.arguments;
                     reply->result(ToolResult::text(args.dump()));
                 });
-                server.tool({"delay", {}, objectSchema}, [](const auto&, const auto& reply) {
+                server.tool({"delay", {}, objectSchema}, [config](const auto&, const auto& reply) {
                     core::timer::Timer::singleshotTimer(
-                        [reply] {
-                            reply->result(ToolResult::content({}));
+                        [reply, config] {
+                            if (config->getOption("--fixture-schema")->as<std::string>() == "stop") {
+                                core::SNodeC::stop();
+                            } else {
+                                reply->result(ToolResult::content({}));
+                            }
                         },
                         utils::Timeval(0.2));
                 });

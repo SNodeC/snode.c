@@ -399,6 +399,11 @@ namespace core::socket::stream {
         }
         frameworkShutdownProcessed = true;
 
+        const auto onShutdown = Super::onShutdown;
+        if (onShutdown) {
+            onShutdown();
+        }
+
         if (context.reason == core::ShutdownReason::Signal) {
             static_cast<void>(SocketConnectionT::onSignal(context.signal));
         }

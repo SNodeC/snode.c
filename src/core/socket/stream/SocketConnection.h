@@ -97,6 +97,10 @@ namespace core::socket::stream {
     public:
         void setSocketContext(SocketContext* socketContext);
 
+        // Replace the current protocol notification on the event-loop thread.
+        // Owned callable runs once before framework shutdown drains output; must not throw.
+        void setOnShutdown(const std::function<void()>& callback);
+
         virtual bool sendToPeer(const char* chunk, std::size_t chunkLen) = 0;
         bool sendToPeer(const std::string& data);
         bool sentToPeer(const std::vector<uint8_t>& data);
@@ -149,6 +153,7 @@ namespace core::socket::stream {
                          const std::chrono::time_point<std::chrono::system_clock>& later = std::chrono::system_clock::now());
 
     protected:
+        std::function<void()> onShutdown;
         core::socket::stream::SocketContext* socketContext = nullptr;
         core::socket::stream::SocketContext* newSocketContext = nullptr;
 

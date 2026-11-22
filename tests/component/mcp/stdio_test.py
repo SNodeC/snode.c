@@ -118,6 +118,13 @@ def run(executable):
         assert subscription.receive()["method"] == "notifications/subscriptions/acknowledged"
         subscription.finish(signal.SIGTERM)
         assert any(message.get("method") == "notifications/cancelled" for message in subscription.messages)
+        requested = Client(executable, ["mcp", "--fixture-schema", "stop"], directory)
+        requested.send(request("subscriptions/listen", "requested-listen"))
+        assert requested.receive()["method"] == "notifications/subscriptions/acknowledged"
+        requested.send(request("tools/call", "stop", {"name": "delay"}))
+        cancelled = requested.receive()
+        assert cancelled["method"] == "notifications/cancelled" and cancelled["params"]["requestId"] == "requested-listen"
+        requested.finish()
         for flags in [["--bad-option"], ["--quiet", "--bad-option"], ["--log-console", "bad"], ["--help"]]:
             result = subprocess.run([executable] + flags, input=b"", stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     env=dict(os.environ, XDG_CONFIG_HOME=directory), timeout=4)

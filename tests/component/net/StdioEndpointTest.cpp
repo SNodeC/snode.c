@@ -108,6 +108,9 @@ int main(int argc, char* argv[]) {
             endpoint.getConfig()->Instance::setDisabled(mode == "disabled");
             endpoint.setOnConnect([](auto*) {
                 order += "c";
+                if (mode == "halt") {
+                    core::SNodeC::stop();
+                }
             });
             endpoint.setOnConnected([](auto* connection) {
                 order += "C";
@@ -166,6 +169,9 @@ int main(int argc, char* argv[]) {
         }
         if (mode == "destroy") {
             test.expectEqual(0, core::SNodeC::start(), "queued state outlives facade");
+        }
+        if (mode == "halt") {
+            test.expectEqual(0, factories, "shutdown from onConnect prevents protocol construction");
         }
         test.expectEqual(mode == "retry" || mode == "first" ? 2 : 1, statuses, "exactly one completion per attempt");
         if (mode == "success" || mode == "destroy" || mode == "stop" || mode == "retry" || mode == "first") {

@@ -182,6 +182,11 @@ namespace mcp::server::stream {
     SocketContext::SocketContext(core::socket::stream::SocketConnection* connection, Server& server, Config& config)
         : core::socket::stream::SocketContext(connection)
         , state(std::make_shared<State>(this, server, config)) {
+        connection->setOnShutdown([weak = std::weak_ptr<State>(state)] {
+            if (const auto owner = weak.lock()) {
+                owner->finish();
+            }
+        });
     }
     SocketContext::~SocketContext() = default;
     void SocketContext::onConnected() {
