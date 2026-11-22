@@ -173,13 +173,24 @@ namespace core::socket::stream {
         , localAddress(getLocalSocketAddress<SocketAddress>(this->physicalSocket, config, Super::log()))
         , remoteAddress(getRemoteSocketAddress<SocketAddress>(this->physicalSocket, config, Super::log()))
         , config(config) {
-        if (!SocketReader::enable(this->physicalSocket.getFd())) {
-            delete this;
-        } else if (!SocketWriter::enable(this->physicalSocket.getFd())) {
-            delete this;
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::Activation
+    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate() {
+        Activation activation = Activation::ACTIVE;
+        if (!SocketReader::enable(physicalSocket.getFd())) {
+            activation = Activation::FAILED_UNOBSERVED;
+        } else if (!SocketWriter::enable(physicalSocket.getFd())) {
+            const utils::PreserveErrno preserveErrno;
+            onDisconnect = [] {
+            };
+            SocketReader::disable();
+            activation = Activation::FAILED_RELEASING;
         } else {
             SocketWriter::suspend();
         }
+        return activation;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>

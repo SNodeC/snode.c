@@ -195,6 +195,12 @@ namespace core::socket::stream {
         ~SocketConnectionT() override;
 
     public:
+        enum class Activation { ACTIVE, FAILED_UNOBSERVED, FAILED_RELEASING };
+
+        // Call once after construction; only ACTIVE permits connection callbacks.
+        // FAILED_UNOBSERVED needs deletion; FAILED_RELEASING owns deferred cleanup.
+        Activation activate();
+
         int getFd() const final;
 
         void setTimeout(const utils::Timeval& timeout) final;

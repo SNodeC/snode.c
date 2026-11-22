@@ -699,3 +699,37 @@ foreach(
         PROPERTIES TIMEOUT 5 LABELS "component;net;resolution;retry"
     )
 endforeach()
+
+add_executable(ConnectionActivationTest ConnectionActivationTest.cpp)
+target_link_libraries(
+    ConnectionActivationTest
+    PRIVATE snodec-test-support snodec::net-in-stream-legacy
+            snodec::net-in-stream-tls ${CMAKE_DL_LIBS}
+)
+target_compile_features(ConnectionActivationTest PRIVATE cxx_std_20)
+target_link_options(ConnectionActivationTest PRIVATE -Wl,--export-dynamic)
+if(SNODEC_IO_MULTIPLEXER STREQUAL "select")
+    add_test(NAME ConnectionActivation-select COMMAND ConnectionActivationTest
+                                                      accept-select
+    )
+    set_tests_properties(
+        ConnectionActivation-select PROPERTIES TIMEOUT 5 LABELS
+                                               "component;net;activation"
+    )
+elseif(SNODEC_IO_MULTIPLEXER STREQUAL "epoll")
+    foreach(transport IN ITEMS legacy tls)
+        foreach(path IN ITEMS accept client-immediate client-deferred)
+            foreach(registration IN ITEMS first second)
+                add_test(
+                    NAME ConnectionActivation-${transport}-${path}-${registration}
+                    COMMAND ConnectionActivationTest
+                            ${transport}-${path}-${registration}
+                )
+                set_tests_properties(
+                    ConnectionActivation-${transport}-${path}-${registration}
+                    PROPERTIES TIMEOUT 5 LABELS "component;net;activation"
+                )
+            endforeach()
+        endforeach()
+    endforeach()
+endif()

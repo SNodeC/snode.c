@@ -209,18 +209,27 @@ namespace core::socket::stream {
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                                        << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
-                                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                                        << "  " << socketConnection->getLocalAddress().toString() << " -> "
-                                        << socketConnection->getRemoteAddress().toString();
+                                    const auto activation = socketConnection->activate();
+                                    const int activationError = errno;
+                                    if (activation == SocketConnection::Activation::ACTIVE) {
+                                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                                            << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
+                                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                                            << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                                            << socketConnection->getRemoteAddress().toString();
 
-                                    finishAttempt("connection attempt succeeded", *remoteAddress, state);
+                                        finishAttempt("connection attempt succeeded", *remoteAddress, state);
 
-                                    socketConnection->log().info("transport connected");
+                                        socketConnection->log().info("transport connected");
 
-                                    onConnect(socketConnection);
-                                    onConnected(socketConnection);
+                                        onConnect(socketConnection);
+                                        onConnected(socketConnection);
+                                    } else {
+                                        if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
+                                            delete socketConnection;
+                                        }
+                                        finishAttempt("connection attempt failed", *remoteAddress, connectErrorState(activationError));
+                                    }
                                 }
                             }
                         }
@@ -269,17 +278,27 @@ namespace core::socket::stream {
                 SocketConnection* socketConnection =
                     new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                    << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
-                snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                    << "  " << socketConnection->getLocalAddress().toString() << " -> " << socketConnection->getRemoteAddress().toString();
+                const auto activation = socketConnection->activate();
+                const int activationError = errno;
+                if (activation == SocketConnection::Activation::ACTIVE) {
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                        << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
+                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                        << "  " << socketConnection->getLocalAddress().toString() << " -> "
+                        << socketConnection->getRemoteAddress().toString();
 
-                finishAttempt("connection attempt succeeded", *remoteAddress, core::socket::STATE_OK);
+                    finishAttempt("connection attempt succeeded", *remoteAddress, core::socket::STATE_OK);
 
-                socketConnection->log().info("transport connected");
+                    socketConnection->log().info("transport connected");
 
-                onConnect(socketConnection);
-                onConnected(socketConnection);
+                    onConnect(socketConnection);
+                    onConnected(socketConnection);
+                } else {
+                    if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
+                        delete socketConnection;
+                    }
+                    finishAttempt("connection attempt failed", *remoteAddress, connectErrorState(activationError));
+                }
 
                 disable();
             } else if (PhysicalClientSocket::connectInProgress(errnum)) {

@@ -28,6 +28,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -517,6 +518,15 @@ namespace {
                 41,
                 config,
                 lifecycle);
+
+            const auto activation = connection->activate();
+            if (activation != TestConnection::Activation::ACTIVE) {
+                if (activation == TestConnection::Activation::FAILED_UNOBSERVED) {
+                    delete connection;
+                }
+                core::SNodeC::free();
+                throw std::runtime_error("shutdown fixture activation failed");
+            }
 
             connection->setSocketContext(new CountingContext(connection, lifecycle, false));
 

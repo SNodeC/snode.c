@@ -253,16 +253,27 @@ namespace core::socket::stream {
                     SocketConnection* socketConnection =
                         new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, connectionId, config);
 
-                    socketConnection->log().info("transport connected");
+                    const auto activation = socketConnection->activate();
+                    const int activationError = errno;
+                    if (activation == SocketConnection::Activation::ACTIVE) {
+                        socketConnection->log().info("transport connected");
 
-                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                        << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
-                    snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
-                        << "  " << socketConnection->getRemoteAddress().toString() << " -> "
-                        << socketConnection->getLocalAddress().toString();
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                            << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString() << ": success";
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
+                            << "  " << socketConnection->getRemoteAddress().toString() << " -> "
+                            << socketConnection->getLocalAddress().toString();
 
-                    onConnect(socketConnection);
-                    onConnected(socketConnection);
+                        onConnect(socketConnection);
+                        onConnected(socketConnection);
+                    } else {
+                        if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
+                            delete socketConnection;
+                        }
+                        snode::log::framework("core.socket", snode::log::Boundary::Connection)
+                                .systemError(snode::log::Level::Warning, activationError)
+                            << config->getInstanceName() << " connection activation failed";
+                    }
                 } else if (errnum != EINTR && errnum != EAGAIN && errnum != EWOULDBLOCK) {
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).systemError(snode::log::Level::Warning, errnum)
                         << config->getInstanceName() << " accept " << physicalServerSocket.getBindAddress().toString();

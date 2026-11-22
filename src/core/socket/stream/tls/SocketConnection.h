@@ -77,6 +77,7 @@ namespace core::socket::stream::tls {
     public:
         using SocketAddress = typename Super::SocketAddress;
 
+        // Constructs only; direct callers must call activate() before use.
         SocketConnection(PhysicalSocket&& physicalSocket,
                          const std::function<void(SocketConnection*)>& onDisconnect,
                          std::uint64_t connectionId,
