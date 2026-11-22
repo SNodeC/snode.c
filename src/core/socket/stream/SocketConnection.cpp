@@ -105,10 +105,6 @@ namespace core::socket::stream {
         }
     }
 
-    void SocketConnection::setOnShutdown(const std::function<void()>& callback) {
-        onShutdown = callback;
-    }
-
     bool SocketConnection::sendToPeer(const std::string& data) {
         return sendToPeer(data.data(), data.size());
     }

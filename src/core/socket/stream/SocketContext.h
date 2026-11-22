@@ -112,6 +112,9 @@ namespace core::socket::stream {
 
         DetachReason getDetachReason() const noexcept;
 
+        /// Called once on the event-loop thread before signal handling and output drain; must not throw.
+        virtual void onShutdown();
+
         virtual void onDrain();
 
         void onWriteError(int errnum) override;

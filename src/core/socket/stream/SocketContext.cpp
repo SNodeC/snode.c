@@ -181,6 +181,9 @@ namespace core::socket::stream {
         socketConnection->shutdownWrite();
     }
 
+    void SocketContext::onShutdown() {
+    }
+
     void SocketContext::onDrain() {
     }
 

@@ -28,6 +28,7 @@ namespace mcp::server::stream {
         void onReadError(int error) override;
         void onWriteError(int error) override;
         bool onSignal(int signal) override;
+        void onShutdown() override;
         struct State;
         std::shared_ptr<State> state;
     };
