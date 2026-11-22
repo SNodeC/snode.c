@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     http->setAllowPipelining(false)->setMaximumPendingRequests(1);
     http->getParserConfig()->setMaximumBodyBytes(1048576)->setMaximumHeaderBytes(65536)->setMaximumHeaderFields(100);
     app.getConfig()->Connection::setMaximumWriteQueueBytes(1048576);
-    app.getConfig()->Local::setHost("127.0.0.1")->setPort(3337);
+    app.getConfig()->Local::setHost("127.0.0.1")->setPort(0);
     WebApp::init(argc, argv);
     mcp::server::Server server("http-fixture", "test-version");
     for (const std::string name : {"echo", "écho", "=?base64?literal?="}) {
