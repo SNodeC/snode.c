@@ -46,7 +46,8 @@ int main(int argc, char* argv[]) {
     mcp::server::Server server("snodec-dev", SNODEC_DEV_VERSION, apps::mcp::instructions());
 #ifdef MCP_STDIO
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
-    struct stat protocol{}, diagnostics{};
+    struct stat protocol{};
+    struct stat diagnostics{};
     const bool shared = protocolFd >= 0 && ::fstat(protocolFd, &protocol) == 0 && ::fstat(STDERR_FILENO, &diagnostics) == 0 &&
                         protocol.st_dev == diagnostics.st_dev && protocol.st_ino == diagnostics.st_ino;
     if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {

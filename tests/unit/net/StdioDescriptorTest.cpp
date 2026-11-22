@@ -27,6 +27,7 @@ namespace {
             , Remote(this) {
         }
     };
+
     template <typename Function>
     void rejected(tests::support::TestResult& result, Function function) {
         bool invalid = false;
@@ -37,6 +38,7 @@ namespace {
         }
         result.expectTrue(invalid, "invalid address throws BadSocketAddress");
     }
+
     void addressAndConfig(tests::support::TestResult& result) {
         Address address;
         result.expectTrue(address.getInputFd() == -1 && address.getOutputFd() == -1 && address.toString() == "stdio:unspecified",
@@ -80,6 +82,7 @@ namespace {
         raw.inputFd = -1;
         result.expectTrue(config.Remote::getSocketAddress(raw, sizeof(raw)).toString() == "stdio:unspecified", "non-CLI remote sentinel");
     }
+
     void ownership(tests::support::TestResult& result) {
         int pair[2]{};
         result.expectEqual(0, ::socketpair(AF_UNIX, SOCK_STREAM, 0, pair), "create duplex descriptors");
@@ -134,6 +137,7 @@ namespace {
         result.expectTrue(::fcntl(pair[0], F_GETFD) < 0, "same number released once at final teardown");
         ::close(pair[1]);
     }
+
     void validation(tests::support::TestResult& result) {
         int pair[2]{};
         result.expectEqual(0, ::pipe(pair), "create pipe");
@@ -154,6 +158,7 @@ namespace {
         ::close(pair[0]);
         ::close(pair[1]);
     }
+
     void standardNumbers(tests::support::TestResult& result) {
         for (int fd = 0; fd < 3; ++fd) {
             const int saved = ::fcntl(fd, F_DUPFD_CLOEXEC, 3);
@@ -197,6 +202,7 @@ namespace {
         result.expectTrue(replaced, "identical standard descriptor replaced rather than retained");
         result.expectEqual(O_RDWR, access, "identical standard handle replaced with duplex null handle");
     }
+
 } // namespace
 
 int main() {

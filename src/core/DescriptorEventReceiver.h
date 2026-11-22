@@ -47,7 +47,9 @@
 #include "log/LogScopeOwner.h"
 
 namespace core {
+
     class DescriptorEventPublisher;
+
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

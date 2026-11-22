@@ -16,8 +16,14 @@
 
 namespace {
     tests::support::TestResult result;
-    std::string mode, reply;
-    int disconnected = 0, writeError = 0, reads = 0, output = -1, input = -1, reused = -1;
+    std::string mode;
+    std::string reply;
+    int disconnected = 0;
+    int writeError = 0;
+    int reads = 0;
+    int output = -1;
+    int input = -1;
+    int reused = -1;
     class Config
         : public net::config::ConfigInstance
         , public net::config::ConfigConnection
@@ -35,6 +41,7 @@ namespace {
             setReadTimeout(0)->setWriteTimeout(0)->setReadBlockSize(2)->setWriteBlockSize(3)->setTerminateTimeout(0.3);
         }
     };
+
     using Physical = net::stdio::phy::stream::PhysicalSocket;
     using Connection = core::socket::stream::stdio::SocketConnection<Physical, Config>;
     class Context : public core::socket::stream::SocketContext {
@@ -52,11 +59,14 @@ namespace {
                 shutdownWrite();
             }
         }
+
         void onDisconnected() override {
         }
+
         bool onSignal([[maybe_unused]] int signal) override {
             return true;
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[2];
             const auto length = readFromPeer(chunk, sizeof(chunk));
@@ -67,6 +77,7 @@ namespace {
             }
             return length;
         }
+
         void onReadError(int error) override {
             if (!initiator && error == 0) {
                 if (mode == "pipes") {
@@ -76,8 +87,10 @@ namespace {
                 }
                 sendToPeer(received);
             }
+
             SocketContext::onReadError(error);
         }
+
         void onWriteError(int error) override {
             writeError = error;
             close();
@@ -86,15 +99,18 @@ namespace {
         bool initiator;
         std::string received;
     };
+
 } // namespace
 
 int main(int argc, char* argv[]) {
     mode = argc > 1 ? argv[1] : "pipes";
     auto config = std::make_shared<Config>();
-    char file[] = "--config-file=/dev/null", quiet[] = "--quiet";
+    char file[] = "--config-file=/dev/null";
+    char quiet[] = "--quiet";
     char* arguments[] = {argv[0], file, quiet};
     core::SNodeC::init(3, arguments);
-    int handles[4]{}, alias = -1;
+    int handles[4]{};
+    int alias = -1;
     if (mode == "duplex") {
         result.expectEqual(0, ::socketpair(AF_UNIX, SOCK_STREAM, 0, handles), "create duplex pair");
         handles[2] = handles[1];
@@ -111,6 +127,7 @@ int main(int argc, char* argv[]) {
             core::SNodeC::stop();
         }
     };
+
     if (mode == "epipe") {
         ::close(handles[2]);
         ::close(handles[1]);

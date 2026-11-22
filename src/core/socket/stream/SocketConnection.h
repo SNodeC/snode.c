@@ -45,6 +45,7 @@
 #include "log/LogScopeOwner.h"
 
 namespace core {
+
     struct ShutdownContext;
 
     namespace pipe {
@@ -57,15 +58,19 @@ namespace core {
             class SocketContext;
         } // namespace stream
     } // namespace socket
+
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
+
     class ConfigInstance;
+
 } // namespace net::config
 
 namespace utils {
+
     class Timeval;
 }
 

@@ -56,6 +56,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
+
     SocketWriter::SocketWriter(const std::string& name,
                                logger::LogScope logScope,
                                const std::function<void(int)>& onStatus,

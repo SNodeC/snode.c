@@ -91,6 +91,22 @@ def run(executable):
         batch.process.stdin.write(b"".join(json.dumps(request("tools/list", i)).encode() + b"\n" for i in range(100)))
         batch.finish()
         assert len(batch.messages) == 100
+        for modern in [True, False]:
+            partial = Client(executable, [], directory)
+            expected = []
+            if not modern:
+                partial.send(request("initialize", 20, {"protocolVersion": "2025-11-25", "capabilities": {},
+                                                        "clientInfo": {"name": "test", "version": "1"}}, False))
+                initialized = partial.receive()
+                assert initialized["id"] == 20 and initialized["result"]["protocolVersion"] == "2025-11-25"
+                expected.append(initialized)
+            partial.process.stdin.write(b'{"jsonrpc":"2.0","id":99')
+            partial.finish()
+            error = {"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error"}}
+            if not modern:
+                error["id"] = None
+            expected.append(error)
+            assert partial.messages == expected, partial.messages
         pressure = Client(executable, ["mcp", "--maximum-output-bytes", "1024"], directory)
         pressure.send(request("tools/call", 6, {"name": "echo", "arguments": {"value": "x" * 4096}}))
         assert b"stdio output limit exceeded" in pressure.finish()

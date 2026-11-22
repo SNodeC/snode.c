@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
     mcp::server::Server server("stdio-fixture", "test-version");
     int result = 1;
     int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
-    struct stat protocol{}, diagnostics{};
+    struct stat protocol{};
+    struct stat diagnostics{};
     const bool shared = protocolFd >= 0 && ::fstat(protocolFd, &protocol) == 0 && ::fstat(STDERR_FILENO, &diagnostics) == 0 &&
                         protocol.st_dev == diagnostics.st_dev && protocol.st_ino == diagnostics.st_ino;
     if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {
@@ -79,6 +80,7 @@ int main(int argc, char* argv[]) {
                 if (config->getOption("--fixture-schema")->as<std::string>() == "throw-int") {
                     throw 42;
                 }
+
                 snode::log::application("mcp.fixture").info() << "MCP fixture ready";
                 std::cout << "fixture direct stdout diagnostic" << std::endl;
                 const auto path = config->getOption("--fixture-reparse-config")->as<std::string>();

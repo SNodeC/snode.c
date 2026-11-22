@@ -17,6 +17,7 @@
 #include <string>
 #include <utility>
 namespace mcp::server::stream {
+
     using namespace mcp::server::detail;
     using WireReply = Access::Response;
     using WireServer = Access::Registry;
@@ -26,18 +27,24 @@ namespace mcp::server::stream {
         Config& config;
         std::string incoming;
         std::map<std::string, std::shared_ptr<WireReply>> pending;
-        bool inputEof = false, closing = false, failed = false, scheduled = false;
+        bool inputEof = false;
+        bool closing = false;
+        bool failed = false;
+        bool scheduled = false;
         ProtocolEra era = ProtocolEra::PerRequest20260728;
         State(SocketContext* owner, Server& server, Config& config)
             : owner(owner)
             , server(server)
             , config(config) {
         }
+
         void send(const Json& value);
         void receive(const std::string& line);
         void process();
         void finish();
+        void parseError();
     };
+
     void SocketContext::State::send(const Json& value) {
         if (owner != nullptr && !value.is_null() && !failed) {
             const std::string bytes = value.dump() + "\n";
@@ -52,6 +59,7 @@ namespace mcp::server::stream {
             }
         }
     }
+
     void SocketContext::State::finish() {
         if (!closing) {
             closing = true;
@@ -69,6 +77,19 @@ namespace mcp::server::stream {
             }
         }
     }
+
+    void SocketContext::State::parseError() {
+        WireReply(
+            nullptr,
+            era,
+            CachePolicy::None,
+            [this](const Json& value, bool) {
+                send(value);
+            },
+            config.getDeadline())
+            .error(-32700, "Parse error");
+    }
+
     void SocketContext::State::receive(const std::string& line) {
         std::erase_if(pending, [](const auto& item) {
             return item.second->done;
@@ -79,15 +100,7 @@ namespace mcp::server::stream {
             request = Json::parse(line);
             parsed = true;
         } catch (const Json::exception&) {
-            WireReply(
-                nullptr,
-                era,
-                CachePolicy::None,
-                [this](const Json& value, bool) {
-                    send(value);
-                },
-                config.getDeadline())
-                .error(-32700, "Parse error");
+            parseError();
         }
         if (parsed) {
             const bool hasMeta = request.is_object() && request.contains("params") && request["params"].is_object() &&
@@ -139,6 +152,7 @@ namespace mcp::server::stream {
             }
         }
     }
+
     void SocketContext::State::process() {
         std::size_t count = 0;
         std::size_t newline = incoming.find('\n');
@@ -168,7 +182,7 @@ namespace mcp::server::stream {
         }
         if (!closing && inputEof && newline == std::string::npos) {
             if (!incoming.empty()) {
-                receive("{");
+                parseError();
                 incoming.clear();
             }
             finish();
@@ -183,13 +197,17 @@ namespace mcp::server::stream {
         : core::socket::stream::SocketContext(connection)
         , state(std::make_shared<State>(this, server, config)) {
     }
+
     SocketContext::~SocketContext() = default;
+
     void SocketContext::onConnected() {
     }
+
     void SocketContext::onDisconnected() {
         state->finish();
         state->owner = nullptr;
     }
+
     std::size_t SocketContext::onReceivedFromPeer() {
         char bytes[16384];
         const auto count = readFromPeer(bytes, sizeof(bytes));
@@ -204,6 +222,7 @@ namespace mcp::server::stream {
         }
         return count;
     }
+
     void SocketContext::onReadError(int error) {
         if (error == 0) {
             state->inputEof = true;
@@ -212,10 +231,12 @@ namespace mcp::server::stream {
             state->finish();
         }
     }
+
     void SocketContext::onWriteError([[maybe_unused]] int error) {
         state->failed = true;
         state->finish();
     }
+
     void SocketContext::onShutdown() {
         state->finish();
     }
@@ -224,4 +245,5 @@ namespace mcp::server::stream {
         state->finish();
         return true;
     }
+
 } // namespace mcp::server::stream

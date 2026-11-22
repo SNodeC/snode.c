@@ -17,9 +17,13 @@
 
 namespace {
     tests::support::TestResult test;
-    std::string mode, order;
+    std::string mode;
+    std::string order;
     std::map<core::socket::stream::SocketConnection*, std::unique_ptr<int>> connectionStates;
-    int statuses = 0, disconnected = 0, factories = 0, protocols = 0;
+    int statuses = 0;
+    int disconnected = 0;
+    int factories = 0;
+    int protocols = 0;
     class Context final : public core::socket::stream::SocketContext {
     public:
         explicit Context(core::socket::stream::SocketConnection* connection)
@@ -32,16 +36,20 @@ namespace {
             order += "p";
             close();
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             char bytes[16];
             return readFromPeer(bytes, sizeof(bytes));
         }
+
         bool onSignal([[maybe_unused]] int signal) override {
             return true;
         }
     };
+
     class Factory final : public core::socket::stream::SocketContextFactory {
     public:
         ~Factory() override;
@@ -57,6 +65,7 @@ namespace {
             return context;
         }
     };
+
     Factory::~Factory() = default;
     class FailingPhysical : public net::stdio::phy::stream::PhysicalSocket {
     public:
@@ -64,15 +73,19 @@ namespace {
         int getReadFd() const {
             return mode == "first" ? -1 : PhysicalSocket::getReadFd();
         }
+
         int getWriteFd() const {
             return -1;
         }
     };
+
     using Endpoint = net::stdio::stream::SocketEndpoint<Factory>;
+
 } // namespace
 int main(int argc, char* argv[]) {
     mode = argc > 1 ? argv[1] : "success";
-    char file[] = "--config-file=/dev/null", quiet[] = "--quiet";
+    char file[] = "--config-file=/dev/null";
+    char quiet[] = "--quiet";
     char* arguments[] = {argv[0], file, quiet};
     if (mode == "network") {
         net::in::stream::legacy::SocketServer<Factory> server("server");

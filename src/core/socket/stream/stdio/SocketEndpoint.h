@@ -46,11 +46,18 @@ namespace core::socket::stream::stdio {
     private:
         struct Context {
             std::shared_ptr<Factory> factory;
-            std::function<void(SocketConnection*)> onConnect, onConnected, onDisconnect;
+            std::function<void(SocketConnection*)> onConnect;
+            std::function<void(SocketConnection*)> onConnected;
+            std::function<void(SocketConnection*)> onDisconnect;
             std::uint64_t connections = 0;
         };
+        static void setCallback(std::function<void(SocketConnection*)>& current,
+                                const std::function<void(SocketConnection*)>& callback,
+                                bool initialize);
+
         void queue(const std::optional<SocketAddress>& address, const StatusCallback& onStatus) const;
         std::shared_ptr<Context> sharedContext;
     };
+
 } // namespace core::socket::stream::stdio
 #endif // CORE_SOCKET_STREAM_STDIO_SOCKETENDPOINT_H

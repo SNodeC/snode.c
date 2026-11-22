@@ -161,6 +161,7 @@ namespace core::socket::stream {
                           this->log().sysError(logger::LogLevel::Trace, errnum, "OnReadError");
                       }
                   }
+
                   SocketReader::disable();
 
                   onReadError(errnum);
@@ -176,6 +177,7 @@ namespace core::socket::stream {
                       const utils::PreserveErrno pe(errnum);
                       this->log().sysError(logger::LogLevel::Trace, errnum, "OnWriteError");
                   }
+
                   SocketWriter::disable();
 
                   onWriteError(errnum);

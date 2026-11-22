@@ -123,6 +123,7 @@ namespace {
         void unobservedEvent() override {
         }
     };
+
 } // namespace
 
 int main(int argc, char* argv[]) {

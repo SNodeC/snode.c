@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef CORE_SOCKET_STREAM_STDIO_SOCKETENDPOINT_HPP
 #define CORE_SOCKET_STREAM_STDIO_SOCKETENDPOINT_HPP
+
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/Socket.hpp"
@@ -13,23 +14,27 @@
 #include <utility>
 
 namespace core::socket::stream::stdio {
+
     template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
     SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::SocketEndpoint(const std::string& name, Args&&... args)
         : Super(name)
         , sharedContext(std::make_shared<Context>(std::make_shared<Factory>(std::forward<Args>(args)...), nullptr, nullptr, nullptr, 0)) {
     }
+
     template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
     void SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::attach(const StatusCallback& onStatus) const {
         queue(std::nullopt, onStatus);
     }
+
     template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
     void SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::attach(const SocketAddress& address,
                                                                           const StatusCallback& onStatus) const {
         queue(address, onStatus);
     }
+
     template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
     void SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::queue(const std::optional<SocketAddress>& address,
@@ -107,17 +112,29 @@ namespace core::socket::stream::stdio {
 
     template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
         requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
+    void SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::setCallback(std::function<void(SocketConnection*)>& current,
+                                                                               const std::function<void(SocketConnection*)>& callback,
+                                                                               bool initialize) {
+        if (initialize) {
+            current = callback;
+        } else {
+            current = [previous = current, callback](SocketConnection* connection) {
+                if (previous) {
+                    previous(connection);
+                }
+                if (callback) {
+                    callback(connection);
+                }
+            };
+        }
+    }
+
+    template <typename PhysicalSocket, typename Config, typename Factory, typename... Args>
+        requires std::is_base_of_v<core::socket::stream::SocketContextFactory, Factory>
     const SocketEndpoint<PhysicalSocket, Config, Factory, Args...>&
     SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::setOnConnect(const std::function<void(SocketConnection*)>& callback,
                                                                            bool initialize) const {
-        sharedContext->onConnect = initialize ? callback : [previous = sharedContext->onConnect, callback](SocketConnection* connection) {
-            if (previous) {
-                previous(connection);
-            }
-            if (callback) {
-                callback(connection);
-            }
-        };
+        setCallback(sharedContext->onConnect, callback, initialize);
         return *this;
     }
 
@@ -126,15 +143,7 @@ namespace core::socket::stream::stdio {
     const SocketEndpoint<PhysicalSocket, Config, Factory, Args...>&
     SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::setOnConnected(const std::function<void(SocketConnection*)>& callback,
                                                                              bool initialize) const {
-        sharedContext->onConnected =
-            initialize ? callback : [previous = sharedContext->onConnected, callback](SocketConnection* connection) {
-                if (previous) {
-                    previous(connection);
-                }
-                if (callback) {
-                    callback(connection);
-                }
-            };
+        setCallback(sharedContext->onConnected, callback, initialize);
         return *this;
     }
 
@@ -143,15 +152,7 @@ namespace core::socket::stream::stdio {
     const SocketEndpoint<PhysicalSocket, Config, Factory, Args...>&
     SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::setOnDisconnect(const std::function<void(SocketConnection*)>& callback,
                                                                               bool initialize) const {
-        sharedContext->onDisconnect =
-            initialize ? callback : [previous = sharedContext->onDisconnect, callback](SocketConnection* connection) {
-                if (previous) {
-                    previous(connection);
-                }
-                if (callback) {
-                    callback(connection);
-                }
-            };
+        setCallback(sharedContext->onDisconnect, callback, initialize);
         return *this;
     }
 
@@ -160,6 +161,7 @@ namespace core::socket::stream::stdio {
     std::shared_ptr<Factory> SocketEndpoint<PhysicalSocket, Config, Factory, Args...>::getSocketContextFactory() const {
         return sharedContext->factory;
     }
+
 } // namespace core::socket::stream::stdio
 
 #endif // CORE_SOCKET_STREAM_STDIO_SOCKETENDPOINT_HPP

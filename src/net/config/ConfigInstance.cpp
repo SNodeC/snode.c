@@ -162,6 +162,7 @@ namespace net::config {
     CLI::App* ConfigInstance::getShowConfigTriggerApp() {
         return utils::ConfigRoot::getShowConfigTriggerApp();
     }
+
     CLI::App* ConfigInstance::getCommandlineTriggerApp() {
         return utils::ConfigRoot::getCommandlineTriggerApp();
     }

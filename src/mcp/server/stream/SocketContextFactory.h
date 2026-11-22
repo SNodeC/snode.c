@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef MCP_SERVER_STREAM_SOCKETCONTEXTFACTORY_H
 #define MCP_SERVER_STREAM_SOCKETCONTEXTFACTORY_H
+
 #include "core/socket/stream/SocketContextFactory.h"
 namespace mcp::server {
+
     class Server;
     class Config;
+
 } // namespace mcp::server
 namespace mcp::server::stream {
+
     /// Original stream factory for newline MCP; independent of descriptor/network transport selection.
     class SocketContextFactory final : public core::socket::stream::SocketContextFactory {
     public:
@@ -21,5 +25,6 @@ namespace mcp::server::stream {
         Server& server;
         Config& config;
     };
+
 } // namespace mcp::server::stream
 #endif // MCP_SERVER_STREAM_SOCKETCONTEXTFACTORY_H

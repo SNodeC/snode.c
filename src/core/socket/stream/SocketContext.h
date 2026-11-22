@@ -46,10 +46,12 @@
 #include "log/LogScopeOwner.h"
 
 namespace core::pipe {
+
     class Source;
 }
 
 namespace core::socket::stream {
+
     class SocketConnection;
 
 } // namespace core::socket::stream

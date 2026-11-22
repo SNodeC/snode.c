@@ -46,10 +46,12 @@
 #include "utils/SubCommand.h" // IWYU pragma: export
 
 namespace net::config {
+
     class ConfigSection;
 }
 
 namespace core::socket::stream {
+
     class SocketConnection;
 }
 

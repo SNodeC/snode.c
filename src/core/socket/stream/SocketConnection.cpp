@@ -200,6 +200,7 @@ namespace core::socket::stream {
         if (days > 0) {
             oss << days << " day" << (days == 1 ? "" : "s") << ", ";
         }
+
         oss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2)
             << std::setfill('0') << seconds;
 

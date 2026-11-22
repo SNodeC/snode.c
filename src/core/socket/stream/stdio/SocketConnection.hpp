@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 #ifndef CORE_SOCKET_STREAM_STDIO_SOCKETCONNECTION_HPP
 #define CORE_SOCKET_STREAM_STDIO_SOCKETCONNECTION_HPP
+
 #include "core/socket/stream/SocketConnection.hpp"
 #include "core/socket/stream/stdio/SocketConnection.h"
 

@@ -9,6 +9,7 @@
 #include "net/stdio/SocketAddress.h"
 
 namespace net::config {
+
     class ConfigInstance;
 }
 
@@ -48,7 +49,9 @@ namespace net::stdio::config {
 
     private:
         SocketAddress* init() final;
-        CLI::Option *inputFdOpt, *outputFdOpt, *ownershipOpt;
+        CLI::Option* inputFdOpt;
+        CLI::Option* outputFdOpt;
+        CLI::Option* ownershipOpt;
     };
 
     /// Raw remote-address reconstruction only; never registers a CLI section or options.
