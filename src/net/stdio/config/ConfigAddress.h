@@ -62,4 +62,8 @@ namespace net::stdio::config {
 
 } // namespace net::stdio::config
 
+extern template class net::config::ConfigAddressBase<net::stdio::SocketAddress>;
+extern template class net::config::ConfigAddress<net::stdio::SocketAddress>;
+extern template class net::config::ConfigAddressLocal<net::stdio::SocketAddress>;
+
 #endif // NET_STDIO_CONFIG_CONFIGADDRESS_H

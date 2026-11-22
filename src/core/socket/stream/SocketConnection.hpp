@@ -194,7 +194,7 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate() {
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate(std::function<void(int)> onFailure) {
         bool active = false;
         bool prepared = true;
         if constexpr (requires { physicalSocket.prepare(); }) {
@@ -202,10 +202,17 @@ namespace core::socket::stream {
         }
         if (!prepared || !SocketReader::enable(detail::readFd(physicalSocket))) {
             const utils::PreserveErrno preserveErrno;
+            const int error = errno;
             delete this;
+            if (onFailure) {
+                onFailure(error);
+            }
         } else if (!SocketWriter::enable(detail::writeFd(physicalSocket))) {
             const utils::PreserveErrno preserveErrno;
-            onDisconnect = [] {
+            onDisconnect = [onFailure, error = errno] {
+                if (onFailure) {
+                    onFailure(error);
+                }
             };
             SocketReader::disable();
         } else {

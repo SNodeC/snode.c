@@ -6,6 +6,10 @@
 #include "core/socket/stream/stdio/SocketReader.h"
 #include "core/socket/stream/stdio/SocketWriter.h"
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+
 namespace core::socket::stream::stdio {
 
     /// Original stream connection engine composed with descriptor read/write hooks.
@@ -22,6 +26,10 @@ namespace core::socket::stream::stdio {
                          const std::shared_ptr<Config>& config);
         /// Attach the original factory/context after successful activation; original connection owns the result.
         using Super::setSocketContext;
+        /// Inspect establishment on this loop turn; a close request immediately makes this false.
+        bool isActive() const {
+            return stdio::SocketReader::isEnabled() && stdio::SocketWriter::isEnabled();
+        }
     };
 
 } // namespace core::socket::stream::stdio

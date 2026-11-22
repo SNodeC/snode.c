@@ -747,3 +747,31 @@ foreach(mode IN ITEMS pipes duplex epipe)
                                            "component;net;stdio"
     )
 endforeach()
+
+add_executable(StdioEndpointTest StdioEndpointTest.cpp)
+target_link_libraries(
+    StdioEndpointTest PRIVATE snodec-test-support snodec::net-stdio-stream
+                              snodec::net-in-stream-legacy
+)
+foreach(
+    mode IN
+    ITEMS success
+          destroy
+          stop
+          disabled
+          invalid
+          lifecycle
+          stopping
+          null
+          throw
+          close
+          network
+          retry
+          first
+)
+    add_test(NAME StdioEndpoint-${mode} COMMAND StdioEndpointTest ${mode})
+    set_tests_properties(
+        StdioEndpoint-${mode} PROPERTIES TIMEOUT 5 LABELS
+                                         "component;net;stdio;endpoint"
+    )
+endforeach()

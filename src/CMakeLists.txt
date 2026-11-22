@@ -155,6 +155,10 @@ set(SUPPORTED_COMPONENTS
     core
     core-socket-stream-legacy
     core-socket-stream-tls
+    core-socket-stream-stdio
+    net-stdio
+    net-stdio-phy-stream
+    net-stdio-stream
     net
     net-in-stream-legacy
     net-in6-stream-legacy

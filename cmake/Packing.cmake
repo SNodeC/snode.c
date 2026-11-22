@@ -198,6 +198,9 @@ cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
 cpack_add_component(net DEPENDS core-socket)
 cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)
 cpack_add_component(net-stdio-phy-stream DEPENDS net-stdio)
+cpack_add_component(
+    net-stdio-stream DEPENDS net-stdio-phy-stream core-socket-stream-stdio
+)
 
 foreach(family IN ITEMS in in6 l2 rc un)
     cpack_add_component(net-${family} DEPENDS net)

@@ -197,7 +197,8 @@ namespace core::socket::stream {
     public:
         // Call once after construction; true permits connection callbacks.
         // false: the connection is released or being released; the caller must not use the pointer again.
-        bool activate();
+        // Optional failure report: after release; deferred for a published reader. Must not throw.
+        bool activate(std::function<void(int)> onFailure = {});
 
         int getFd() const final;
 

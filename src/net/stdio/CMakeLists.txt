@@ -25,6 +25,7 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "phy" EXCLUDE
+    PATTERN "stream" EXCLUDE
 )
 install(
     EXPORT snodec_net-stdio_Targets
@@ -34,3 +35,5 @@ install(
     COMPONENT net-stdio
 )
 add_subdirectory(phy)
+
+add_subdirectory(stream)

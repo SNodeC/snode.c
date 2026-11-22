@@ -12,6 +12,7 @@ find_package(
                mcp-server-stdio
                mcp-server-http
                core
+               net-stdio-stream
                net-in-stream-legacy
                net-un-stream-legacy
                http-server-express-legacy-in
@@ -25,6 +26,7 @@ target_link_libraries(
             snodec::mcp-server-stdio
             snodec::mcp-server-http
             snodec::core
+            snodec::net-stdio-stream
             snodec::net-in-stream-legacy
             snodec::net-un-stream-legacy
             snodec::http-server-express-legacy-in
