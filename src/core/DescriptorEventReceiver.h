@@ -47,7 +47,9 @@
 #include "log/LogScopeOwner.h"
 
 namespace core {
+
     class DescriptorEventPublisher;
+
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -132,6 +134,8 @@ namespace core {
         virtual void timeoutEvent() = 0;
         virtual void signalEvent(int signum) = 0;
         virtual void shutdownEvent(const ShutdownContext& context);
+        // Called after this publisher interest is removed, before possible deletion.
+        virtual void releasedEvent();
 
         DescriptorEventPublisher& descriptorEventPublisher;
         logger::LogScopeOwner logScope;

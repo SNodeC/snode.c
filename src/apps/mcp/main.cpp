@@ -10,35 +10,90 @@
 #include "mcp/server/Server.h"
 
 #ifdef MCP_STDIO
-#include "mcp/server/stdio/Transport.h"
+// IWYU pragma: no_include "core/socket/Socket.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+#include "core/SNodeC.h"
+#include "core/socket/State.h"
+#include "mcp/server/Config.h"
+#include "mcp/server/stream/SocketContextFactory.h"
+#include "net/config/ConfigConnection.h"
+#include "net/stdio/SocketAddress.h"
+#include "net/stdio/stream/SocketEndpoint.h"
+#include "net/stdio/stream/config/ConfigSocketEndpoint.h"
+#include "utils/CLI11.hpp"
 #include "utils/Config.h"
 
+#include <exception>
+#include <fcntl.h>
+#include <functional>
 #include <memory>
 #include <string>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #else
 #include "core/SNodeC.h"
-#include <exception>
 #include "express/legacy/in/WebApp.h"
 #include "mcp/server/http/Router.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
-#endif
 
+#include <exception>
+#endif
 
 int main(int argc, char* argv[]) {
     int result = 1;
     mcp::server::Server server("snodec-dev", SNODEC_DEV_VERSION, apps::mcp::instructions());
 #ifdef MCP_STDIO
-    auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
-    result = mcp::server::stdio::Transport::run(argc, argv, server, *config, [&] {
-        server.tool(std::make_shared<apps::mcp::FindTool>(*config));
-        server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
-        server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
-        server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
-        server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
-        snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
-    });
+    int protocolFd = ::fcntl(STDOUT_FILENO, F_DUPFD_CLOEXEC, 3);
+    struct stat protocol{};
+    struct stat diagnostics{};
+    const bool shared = protocolFd >= 0 && ::fstat(protocolFd, &protocol) == 0 && ::fstat(STDERR_FILENO, &diagnostics) == 0 &&
+                        protocol.st_dev == diagnostics.st_dev && protocol.st_ino == diagnostics.st_ino;
+    if (protocolFd >= 0 && ::dup2(STDERR_FILENO, STDOUT_FILENO) >= 0) {
+        auto* config = utils::Config::configRoot.newSubCommand<apps::mcp::DevelopmentConfig>();
+        using Endpoint =
+            net::stdio::stream::SocketEndpoint<mcp::server::stream::SocketContextFactory, mcp::server::Server&, mcp::server::Config&>;
+        const Endpoint endpoint("mcp-stdio", server, *config);
+        endpoint.getConfig()->Instance::forceUnrequired();
+        endpoint.getConfig()->Connection::setReadTimeout(0)->setWriteTimeout(0);
+        try {
+            core::SNodeC::init(argc, argv);
+            if (!utils::Config::configRoot.getOption("--daemonize")->as<bool>() &&
+                (!shared || utils::Config::configRoot.getOption("--quiet")->as<bool>())) {
+                utils::Config::configRoot.getOption("--daemonize")->check(CLI::IsMember({"false"}));
+                server.tool(std::make_shared<apps::mcp::FindTool>(*config));
+                server.tool(std::make_shared<apps::mcp::ReadTool>(*config));
+                server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
+                server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
+                server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
+                snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
+                endpoint.setOnConnect([&protocolFd](auto*) {
+                    protocolFd = -1;
+                });
+                int failure = 0;
+                endpoint.attach(net::stdio::SocketAddress(STDIN_FILENO, protocolFd), [&failure](const auto&, auto state) {
+                    if (state != core::socket::State::OK) {
+                        failure = state == core::socket::State::DISABLED ? 0 : 1;
+                        core::SNodeC::stop();
+                    }
+                });
+                const int loop = core::SNodeC::start();
+                result = loop != 0 ? loop : failure;
+            } else {
+                core::SNodeC::free();
+            }
+        } catch (const std::exception& error) {
+            snode::log::application("mcp.development").error() << error.what();
+            core::SNodeC::free();
+        } catch (...) {
+            snode::log::application("mcp.development").error() << "MCP stdio startup failed";
+            core::SNodeC::free();
+        }
+    }
+    if (protocolFd >= 0) {
+        ::close(protocolFd);
+    }
 #else
     using WebApp = express::legacy::in::WebApp;
     const WebApp app("mcp-http");

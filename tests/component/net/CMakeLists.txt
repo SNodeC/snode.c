@@ -733,3 +733,47 @@ elseif(SNODEC_IO_MULTIPLEXER STREQUAL "epoll")
         endforeach()
     endforeach()
 endif()
+
+add_executable(StdioConnectionTest StdioConnectionTest.cpp)
+target_link_libraries(
+    StdioConnectionTest
+    PRIVATE snodec-test-support snodec::core-socket-stream-stdio
+            snodec::net-stdio-phy-stream
+)
+foreach(mode IN ITEMS pipes duplex epipe)
+    add_test(NAME StdioConnection-${mode} COMMAND StdioConnectionTest ${mode})
+    set_tests_properties(
+        StdioConnection-${mode} PROPERTIES TIMEOUT 5 LABELS
+                                           "component;net;stdio"
+    )
+endforeach()
+
+add_executable(StdioEndpointTest StdioEndpointTest.cpp)
+target_link_libraries(
+    StdioEndpointTest PRIVATE snodec-test-support snodec::net-stdio-stream
+                              snodec::net-in-stream-legacy
+)
+foreach(
+    mode IN
+    ITEMS success
+          destroy
+          stop
+          disabled
+          invalid
+          lifecycle
+          stopping
+          null
+          throw
+          close
+          network
+          retry
+          first
+          halt
+          borrow
+)
+    add_test(NAME StdioEndpoint-${mode} COMMAND StdioEndpointTest ${mode})
+    set_tests_properties(
+        StdioEndpoint-${mode} PROPERTIES TIMEOUT 5 LABELS
+                                         "component;net;stdio;endpoint"
+    )
+endforeach()

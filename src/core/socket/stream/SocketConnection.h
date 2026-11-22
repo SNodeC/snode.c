@@ -45,6 +45,7 @@
 #include "log/LogScopeOwner.h"
 
 namespace core {
+
     struct ShutdownContext;
 
     namespace pipe {
@@ -57,15 +58,19 @@ namespace core {
             class SocketContext;
         } // namespace stream
     } // namespace socket
+
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
+
     class ConfigInstance;
+
 } // namespace net::config
 
 namespace utils {
+
     class Timeval;
 }
 
@@ -197,7 +202,8 @@ namespace core::socket::stream {
     public:
         // Call once after construction; true permits connection callbacks.
         // false: the connection is released or being released; the caller must not use the pointer again.
-        bool activate();
+        // Optional failure report: after release; deferred for a published reader. Must not throw.
+        bool activate(std::function<void(int)> onFailure = {});
 
         int getFd() const final;
 
@@ -236,6 +242,8 @@ namespace core::socket::stream {
         void onDrain() override;
         void onWriteError(int errnum);
         void onReadError(int errnum);
+        void onReadReleased() final;
+        void onWriteReleased() final;
 
     private:
         void shutdownEvent(const core::ShutdownContext& context) final;

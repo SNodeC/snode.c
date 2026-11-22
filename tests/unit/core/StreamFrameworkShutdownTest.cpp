@@ -42,6 +42,8 @@ namespace {
         int contextDetached = 0;
         int activeContextDestroyed = 0;
         int pendingContextDestroyed = 0;
+        int protocolShutdowns = 0;
+        bool signalBeforeShutdown = false;
         int signals = 0;
         int lastSignal = 0;
         int disconnects = 0;
@@ -371,7 +373,12 @@ namespace {
             return readFromPeer(bytes, sizeof(bytes));
         }
 
+        void onShutdown() override {
+            ++state.protocolShutdowns;
+        }
+
         bool onSignal(int signum) override {
+            state.signalBeforeShutdown = state.protocolShutdowns != 1;
             ++state.signals;
             state.lastSignal = signum;
 
@@ -636,6 +643,9 @@ namespace {
         result.expectEqual(0, fixture.lifecycle.invalidContextVisibility, "context visibility matches each lifecycle boundary");
 
         result.expectEqual(0, fixture.lifecycle.unexpectedReentrantAttaches, "a context requested during active detach is not attached");
+
+        result.expectEqual(1, fixture.lifecycle.protocolShutdowns, "only the active context receives framework shutdown, exactly once");
+        result.expectTrue(!fixture.lifecycle.signalBeforeShutdown, "protocol shutdown precedes signal notification");
 
         result.expectEqual(trigger == Trigger::Signal ? 1 : 0, fixture.lifecycle.signals, "signal callback count matches trigger");
 

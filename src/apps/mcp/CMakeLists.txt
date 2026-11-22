@@ -19,15 +19,17 @@ target_include_directories(snodec-dev-tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(snodec-dev-tools PUBLIC snodec::mcp-server)
 foreach(transport IN ITEMS stdio http)
     add_executable(snodec-dev-${transport} main.cpp)
-    target_link_libraries(
-        snodec-dev-${transport} PRIVATE snodec::mcp-server-${transport}
-                                        snodec-dev-tools
-    )
+    target_link_libraries(snodec-dev-${transport} PRIVATE snodec-dev-tools)
     if(transport STREQUAL "stdio")
         target_compile_definitions(snodec-dev-${transport} PRIVATE MCP_STDIO=1)
+        target_link_libraries(
+            snodec-dev-${transport} PRIVATE snodec::mcp-server-stream
+                                            snodec::net-stdio-stream
+        )
     else()
         target_link_libraries(
-            snodec-dev-${transport} PRIVATE snodec::net-in-stream-legacy
+            snodec-dev-${transport} PRIVATE snodec::mcp-server-http
+                                            snodec::net-in-stream-legacy
         )
     endif()
     set_target_properties(

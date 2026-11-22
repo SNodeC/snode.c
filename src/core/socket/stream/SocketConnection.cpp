@@ -72,10 +72,7 @@ namespace core::socket::stream {
                    logger::LogBoundary::Connection,
                    "core.socket.stream",
                    instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                   config != nullptr
-                       ? std::optional<logger::LogRole>(config->role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server
-                                                                                                                  : logger::LogRole::Client)
-                       : std::nullopt,
+                   config != nullptr ? config->getLogRole() : std::nullopt,
                    std::to_string(connectionId))
         , onlineSinceTimePoint(std::chrono::system_clock::now())
         , config(config) {
@@ -203,6 +200,7 @@ namespace core::socket::stream {
         if (days > 0) {
             oss << days << " day" << (days == 1 ? "" : "s") << ", ";
         }
+
         oss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2)
             << std::setfill('0') << seconds;
 

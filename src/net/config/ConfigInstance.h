@@ -46,16 +46,19 @@
 #include "utils/SubCommand.h" // IWYU pragma: export
 
 namespace net::config {
+
     class ConfigSection;
 }
 
 namespace core::socket::stream {
+
     class SocketConnection;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <optional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -66,7 +69,7 @@ namespace net::config {
     public:
         using Instance = ConfigInstance;
 
-        enum class Role { SERVER, CLIENT };
+        enum class Role { SERVER, CLIENT, ENDPOINT };
 
     protected:
         explicit ConfigInstance(const std::string& instanceName, Role role);
@@ -87,6 +90,17 @@ namespace net::config {
         logger::BoundaryLogger log(logger::BoundaryLogger::Sink sink,
                                    logger::LogLevel threshold = logger::LogLevel::Trace,
                                    logger::BoundaryLogger::Clock clock = {}) const;
+
+        /// Shared role mapping for configuration and connection logs; endpoints have no logging role.
+        std::optional<logger::LogRole> getLogRole() const {
+            std::optional<logger::LogRole> value;
+            if (role == Role::SERVER) {
+                value = logger::LogRole::Server;
+            } else if (role == Role::CLIENT) {
+                value = logger::LogRole::Client;
+            }
+            return value;
+        }
 
         bool getDisabled() const;
         ConfigInstance* setDisabled(bool disabled = true);

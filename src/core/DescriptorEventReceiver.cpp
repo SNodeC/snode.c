@@ -227,4 +227,7 @@ namespace core {
         unObserved();
     }
 
+    void DescriptorEventReceiver::releasedEvent() {
+    }
+
 } // namespace core

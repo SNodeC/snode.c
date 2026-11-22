@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 find_program(MCP_PYTHON NAMES python3 REQUIRED)
 add_executable(McpStdioFixture StdioFixture.cpp)
-target_link_libraries(McpStdioFixture PRIVATE snodec::mcp-server-stdio)
+target_link_libraries(
+    McpStdioFixture PRIVATE snodec::mcp-server-stream snodec::net-stdio-stream
+)
 add_test(NAME McpStdioTest
          COMMAND ${MCP_PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/stdio_test.py
                  $<TARGET_FILE:McpStdioFixture>
@@ -94,3 +96,22 @@ if(TARGET snodec-dev-stdio AND TARGET snodec-dev-http)
                    StagedInstalledConsumerTest TIMEOUT 120
     )
 endif()
+
+add_test(
+    NAME McpStdioBootstrapTest
+    COMMAND
+        ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap_test.py
+        $<TARGET_FILE:McpStdioFixture> $<TARGET_FILE:snodec-dev-stdio>
+        ${CMAKE_SOURCE_DIR}/src
+)
+set_tests_properties(
+    McpStdioBootstrapTest PROPERTIES LABELS "mcp;component;stdio;startup"
+                                     TIMEOUT 40
+)
+add_test(NAME McpStdioIdleTest
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/idle_test.py
+                 $<TARGET_FILE:McpStdioFixture>
+)
+set_tests_properties(
+    McpStdioIdleTest PROPERTIES LABELS "mcp;component;stdio;idle" TIMEOUT 80
+)

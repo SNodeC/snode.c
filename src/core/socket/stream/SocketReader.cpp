@@ -88,6 +88,13 @@ namespace core::socket::stream {
         return core::system::recv(this->getRegisteredFd(), chunk, chunkLen, 0);
     }
 
+    void SocketReader::releasedEvent() {
+        onReadReleased();
+    }
+
+    void SocketReader::onReadReleased() {
+    }
+
     std::size_t SocketReader::doRead() {
         errno = 0;
 

@@ -54,6 +54,14 @@ snodec_add_test(
 )
 snodec_add_test(UnixPeerCredentialsTest UnixPeerCredentialsTest.cpp)
 snodec_add_test(SocketAddressFormattingTest SocketAddressFormattingTest.cpp)
+snodec_add_test(StdioDescriptorTest StdioDescriptorTest.cpp)
+target_link_libraries(
+    StdioDescriptorTest PRIVATE snodec-test-support
+                                snodec::net-stdio-phy-stream
+)
+set_tests_properties(
+    StdioDescriptorTest PROPERTIES LABELS "unit;net;stdio;ownership" TIMEOUT 5
+)
 
 target_link_libraries(
     InetSocketAddressTest PRIVATE snodec-test-support snodec::net-in

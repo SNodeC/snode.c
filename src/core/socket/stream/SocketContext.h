@@ -46,10 +46,12 @@
 #include "log/LogScopeOwner.h"
 
 namespace core::pipe {
+
     class Source;
 }
 
 namespace core::socket::stream {
+
     class SocketConnection;
 
 } // namespace core::socket::stream
@@ -111,6 +113,9 @@ namespace core::socket::stream {
         enum class DetachReason { ContextSwitch, ConnectionClose };
 
         DetachReason getDetachReason() const noexcept;
+
+        /// Called once on the event-loop thread before signal handling and output drain; must not throw.
+        virtual void onShutdown();
 
         virtual void onDrain();
 

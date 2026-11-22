@@ -169,6 +169,7 @@ namespace core::socket::stream {
     std::string SocketContext::getOnlineSince() const {
         return timePointToString(onlineSinceTimePoint);
     }
+
     std::string SocketContext::getOnlineDuration() const {
         return durationToString(onlineSinceTimePoint);
     }
@@ -179,6 +180,9 @@ namespace core::socket::stream {
 
     void SocketContext::shutdownWrite() {
         socketConnection->shutdownWrite();
+    }
+
+    void SocketContext::onShutdown() {
     }
 
     void SocketContext::onDrain() {
@@ -265,6 +269,7 @@ namespace core::socket::stream {
         if (days > 0) {
             oss << days << " day" << (days == 1 ? "" : "s") << ", ";
         }
+
         oss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2)
             << std::setfill('0') << seconds;
 

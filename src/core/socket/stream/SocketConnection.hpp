@@ -57,6 +57,24 @@ namespace core::socket::stream {
 
     namespace detail {
 
+        template <typename PhysicalSocket>
+        int readFd(const PhysicalSocket& physicalSocket) {
+            int fd = physicalSocket.getFd();
+            if constexpr (requires { physicalSocket.getReadFd(); }) {
+                fd = physicalSocket.getReadFd();
+            }
+            return fd;
+        }
+
+        template <typename PhysicalSocket>
+        int writeFd(const PhysicalSocket& physicalSocket) {
+            int fd = physicalSocket.getFd();
+            if constexpr (requires { physicalSocket.getWriteFd(); }) {
+                fd = physicalSocket.getWriteFd();
+            }
+            return fd;
+        }
+
         template <typename Config>
         std::size_t maximumWriteQueueBytes(const Config& config) {
             if constexpr (requires { config.getMaximumWriteQueueBytes(); }) {
@@ -143,6 +161,7 @@ namespace core::socket::stream {
                           this->log().sysError(logger::LogLevel::Trace, errnum, "OnReadError");
                       }
                   }
+
                   SocketReader::disable();
 
                   onReadError(errnum);
@@ -158,6 +177,7 @@ namespace core::socket::stream {
                       const utils::PreserveErrno pe(errnum);
                       this->log().sysError(logger::LogLevel::Trace, errnum, "OnWriteError");
                   }
+
                   SocketWriter::disable();
 
                   onWriteError(errnum);
@@ -176,18 +196,32 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate() {
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate(std::function<void(int)> onFailure) {
         bool active = false;
-        if (!SocketReader::enable(physicalSocket.getFd())) {
+        bool prepared = true;
+        if constexpr (requires { physicalSocket.prepare(); }) {
+            prepared = physicalSocket.prepare();
+        }
+        if (!prepared || !SocketReader::enable(detail::readFd(physicalSocket))) {
             const utils::PreserveErrno preserveErrno;
+            const int error = errno;
             delete this;
-        } else if (!SocketWriter::enable(physicalSocket.getFd())) {
+            if (onFailure) {
+                onFailure(error);
+            }
+        } else if (!SocketWriter::enable(detail::writeFd(physicalSocket))) {
             const utils::PreserveErrno preserveErrno;
-            onDisconnect = [] {
+            onDisconnect = [onFailure, error = errno] {
+                if (onFailure) {
+                    onFailure(error);
+                }
             };
             SocketReader::disable();
         } else {
             SocketWriter::suspend();
+            if constexpr (requires { physicalSocket.commit(); }) {
+                physicalSocket.commit();
+            }
             active = true;
         }
         return active;
@@ -195,6 +229,20 @@ namespace core::socket::stream {
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
     SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::~SocketConnectionT() {
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onReadReleased() {
+        if constexpr (requires { physicalSocket.release(PhysicalSocket::SHUT::RD); }) {
+            physicalSocket.release(PhysicalSocket::SHUT::RD);
+        }
+    }
+
+    template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
+    void SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::onWriteReleased() {
+        if constexpr (requires { physicalSocket.release(PhysicalSocket::SHUT::WR); }) {
+            physicalSocket.release(PhysicalSocket::SHUT::WR);
+        }
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
@@ -352,6 +400,10 @@ namespace core::socket::stream {
             return;
         }
         frameworkShutdownProcessed = true;
+
+        if (Super::socketContext != nullptr) {
+            Super::socketContext->onShutdown();
+        }
 
         if (context.reason == core::ShutdownReason::Signal) {
             static_cast<void>(SocketConnectionT::onSignal(context.signal));

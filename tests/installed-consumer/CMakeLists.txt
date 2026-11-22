@@ -9,9 +9,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(
     snodec CONFIG REQUIRED
     COMPONENTS mcp-server
-               mcp-server-stdio
+               mcp-server-stream
                mcp-server-http
                core
+               net-stdio-stream
                net-in-stream-legacy
                net-un-stream-legacy
                http-server-express-legacy-in
@@ -22,9 +23,10 @@ target_compile_features(consumer PRIVATE cxx_std_20)
 target_link_libraries(
     consumer
     PRIVATE snodec::mcp-server
-            snodec::mcp-server-stdio
+            snodec::mcp-server-stream
             snodec::mcp-server-http
             snodec::core
+            snodec::net-stdio-stream
             snodec::net-in-stream-legacy
             snodec::net-un-stream-legacy
             snodec::http-server-express-legacy-in

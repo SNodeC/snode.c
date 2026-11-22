@@ -147,6 +147,7 @@ namespace core {
                     }
                 }
 
+                disabledDescriptorEventReceiver->releasedEvent();
                 disabledDescriptorEventReceiver->setDisabled();
             }
         }

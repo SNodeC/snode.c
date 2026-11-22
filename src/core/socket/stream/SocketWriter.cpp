@@ -56,6 +56,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace core::socket::stream {
+
     SocketWriter::SocketWriter(const std::string& name,
                                logger::LogScope logScope,
                                const std::function<void(int)>& onStatus,
@@ -103,6 +104,13 @@ namespace core::socket::stream {
 
     ssize_t SocketWriter::write(const char* chunk, std::size_t chunkLen) {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
+    }
+
+    void SocketWriter::releasedEvent() {
+        onWriteReleased();
+    }
+
+    void SocketWriter::onWriteReleased() {
     }
 
     void SocketWriter::doWrite() {

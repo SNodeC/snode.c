@@ -193,8 +193,15 @@ cpack_add_component(core-socket DEPENDS core)
 cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
+cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
+cpack_add_component(mcp-server-stream DEPENDS mcp-server core-socket-stream)
 
 cpack_add_component(net DEPENDS core-socket)
+cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)
+cpack_add_component(net-stdio-phy-stream DEPENDS net-stdio)
+cpack_add_component(
+    net-stdio-stream DEPENDS net-stdio-phy-stream core-socket-stream-stdio
+)
 
 foreach(family IN ITEMS in in6 l2 rc un)
     cpack_add_component(net-${family} DEPENDS net)
@@ -246,7 +253,8 @@ cpack_add_component(
     apps
     DISPLAY_NAME "Applications"
     DESCRIPTION "We install Applications"
-    DEPENDS http-server-express
+    DEPENDS net-stdio-stream
+            http-server-express
             http-client
             net-in-stream-tls
             net-in6-stream-tls

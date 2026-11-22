@@ -54,12 +54,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace {
-    logger::LogRole toLogRole(net::config::ConfigInstance::Role role) {
-        return role == net::config::ConfigInstance::Role::SERVER ? logger::LogRole::Server : logger::LogRole::Client;
-    }
-} // namespace
-
 namespace net::config {
 
     const std::string ConfigInstance::nameAnonymous = "<anonymous>";
@@ -67,7 +61,9 @@ namespace net::config {
     ConfigInstance::ConfigInstance(const std::string& instanceName, Role role)
         : utils::SubCommand(!instanceName.empty() ? &utils::Config::configRoot : nullptr,
                             std::make_shared<utils::AppWithPtr>(std::string("Configuration for ")
-                                                                    .append(role == Role::SERVER ? "server" : "client")
+                                                                    .append(role == Role::SERVER   ? "server"
+                                                                            : role == Role::CLIENT ? "client"
+                                                                                                   : "endpoint")
                                                                     .append(" instance '")
                                                                     .append(instanceName)
                                                                     .append("'"),
@@ -80,7 +76,7 @@ namespace net::config {
                    logger::LogBoundary::Configuration,
                    "configuration",
                    instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                   toLogRole(role),
+                   getLogRole(),
                    std::nullopt)
         , disableOpt(setConfigurable(addFlagFunction(
                                          "--disabled{true}",
@@ -112,7 +108,7 @@ namespace net::config {
                                          logger::LogBoundary::Configuration,
                                          "configuration",
                                          instanceName.empty() ? std::nullopt : std::optional<std::string>(instanceName),
-                                         toLogRole(role),
+                                         getLogRole(),
                                          std::nullopt);
 
         return this;
@@ -166,6 +162,7 @@ namespace net::config {
     CLI::App* ConfigInstance::getShowConfigTriggerApp() {
         return utils::ConfigRoot::getShowConfigTriggerApp();
     }
+
     CLI::App* ConfigInstance::getCommandlineTriggerApp() {
         return utils::ConfigRoot::getCommandlineTriggerApp();
     }

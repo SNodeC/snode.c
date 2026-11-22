@@ -801,9 +801,13 @@ namespace utils {
         pid_t pid = 0;
         if (pidFile >> pid && getpid() == pid) {
             Daemon::erasePidFile(pidDirectory + "/" + applicationName + ".pid");
-        } else if (fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) >= 0) {
-            char buf[1024];
-            while (read(STDIN_FILENO, buf, 1024) > 0) {
+        } else if (isatty(STDIN_FILENO)) {
+            const int flags = fcntl(STDIN_FILENO, F_GETFL);
+            if (flags >= 0 && fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK) >= 0) {
+                char buf[1024];
+                while (read(STDIN_FILENO, buf, 1024) > 0) {
+                }
+                static_cast<void>(fcntl(STDIN_FILENO, F_SETFL, flags));
             }
         }
 
