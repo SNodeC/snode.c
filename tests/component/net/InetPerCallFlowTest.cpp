@@ -75,12 +75,14 @@ namespace {
             if (client)
                 sendToPeer("x", 1);
         }
+
         void onDisconnected() override {
             if (client)
                 ++state.clientsDisconnected;
             if (++state.disconnected == 4)
                 core::SNodeC::stop();
         }
+
         std::size_t onReceivedFromPeer() override {
             char data;
             const auto size = readFromPeer(&data, 1);
@@ -93,9 +95,11 @@ namespace {
             }
             return size;
         }
+
         bool onSignal(int) override {
             return true;
         }
+
         State& state;
         bool client;
     };
@@ -106,6 +110,7 @@ namespace {
             : state(state)
             , client(client) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {
             return new Context(connection, state, client);
         }

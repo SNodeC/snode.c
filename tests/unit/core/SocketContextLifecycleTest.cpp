@@ -1,5 +1,6 @@
 #include "net/in/stream/legacy/SocketServer.h"
 #include "tests/support/NetworkTest.h"
+
 int main() {
     using namespace tests::support;
     TestResult result;

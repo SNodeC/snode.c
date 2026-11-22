@@ -78,6 +78,7 @@ namespace net::in6::stream {
 
             return listen(onStatus);
         }
+
         typename Super::FlowHandle
         listen(uint16_t port, int backlog, const std::function<void(const SocketAddress&, core::socket::State)>& onStatus) const {
             Super::getConfig()->Local::setPort(port);

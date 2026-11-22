@@ -181,6 +181,7 @@ namespace {
         explicit TestServerSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.serverFactoryCreateCount;
             core::socket::stream::SocketContext* socketContext = new TestServerSocketContext(socketConnection, testState);
@@ -196,6 +197,7 @@ namespace {
         explicit TestClientSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.clientFactoryCreateCount;
             core::socket::stream::SocketContext* socketContext = new TestClientSocketContext(socketConnection, testState);

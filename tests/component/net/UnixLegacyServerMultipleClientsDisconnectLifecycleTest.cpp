@@ -69,6 +69,7 @@ namespace {
     std::string makeSocketPath() {
         return "/tmp/snodec-unix-multi-disconnect-" + std::to_string(getpid()) + ".sock";
     }
+
     bool socketPathExists(const std::string& socketPath) {
         return access(socketPath.c_str(), F_OK) == 0;
     }
@@ -96,11 +97,13 @@ namespace {
         int unexpectedStateCount = 0;
         int unexpectedPayloadCount = 0;
     };
+
     void stopWhenMultipleClientDisconnectLifecycleIsComplete(TestState& s) {
         if (s.serverDisconnectedCount == 2 && s.clientADisconnectedCount == 1 && s.clientBDisconnectedCount == 1) {
             core::SNodeC::stop();
         }
     }
+
     class TestServerSocketContext : public core::socket::stream::SocketContext {
     public:
         TestServerSocketContext(core::socket::stream::SocketConnection* c, TestState& s)
@@ -112,10 +115,12 @@ namespace {
         void onConnected() override {
             ++testState.serverConnectedCount;
         }
+
         void onDisconnected() override {
             ++testState.serverDisconnectedCount;
             stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t n = readFromPeer(chunk, sizeof(chunk));
@@ -134,11 +139,14 @@ namespace {
             }
             return n;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         TestState& testState;
     };
+
     class TestClientASocketContext : public core::socket::stream::SocketContext {
     public:
         TestClientASocketContext(core::socket::stream::SocketConnection* c, TestState& s)
@@ -151,10 +159,12 @@ namespace {
             ++testState.clientAConnectedCount;
             sendToPeer(clientAPayload.data(), clientAPayload.size());
         }
+
         void onDisconnected() override {
             ++testState.clientADisconnectedCount;
             stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t n = readFromPeer(chunk, sizeof(chunk));
@@ -171,9 +181,11 @@ namespace {
             }
             return n;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         TestState& testState;
     };
 
@@ -189,10 +201,12 @@ namespace {
             ++testState.clientBConnectedCount;
             sendToPeer(clientBPayload.data(), clientBPayload.size());
         }
+
         void onDisconnected() override {
             ++testState.clientBDisconnectedCount;
             stopWhenMultipleClientDisconnectLifecycleIsComplete(testState);
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t n = readFromPeer(chunk, sizeof(chunk));
@@ -209,16 +223,20 @@ namespace {
             }
             return n;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         TestState& testState;
     };
+
     class TestServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         explicit TestServerSocketContextFactory(TestState& s)
             : testState(s) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(c, testState);
@@ -227,11 +245,13 @@ namespace {
     private:
         TestState& testState;
     };
+
     class TestClientASocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         explicit TestClientASocketContextFactory(TestState& s)
             : testState(s) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
             ++testState.clientAFactoryCreateCount;
             return new TestClientASocketContext(c, testState);
@@ -246,6 +266,7 @@ namespace {
         explicit TestClientBSocketContextFactory(TestState& s)
             : testState(s) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
             ++testState.clientBFactoryCreateCount;
             return new TestClientBSocketContext(c, testState);
@@ -255,6 +276,7 @@ namespace {
         TestState& testState;
     };
 } // namespace
+
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;

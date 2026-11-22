@@ -17,6 +17,7 @@ namespace {
         PromotionApp(utils::SubCommand* parent = nullptr, const std::string& name = "promotion")
             : SubCommand(parent, std::make_shared<utils::AppWithPtr>("Promotion", name, this), "") {
         }
+
         using SubCommand::parse;
     };
 

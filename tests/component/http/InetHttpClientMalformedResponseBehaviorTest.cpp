@@ -40,9 +40,11 @@ namespace {
         void onConnected() override {
             ++state.rawServerConnectedCount;
         }
+
         void onDisconnected() override {
             ++state.rawServerDisconnectedCount;
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -57,9 +59,11 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         State& state;
         std::string requestBuffer;
     };
@@ -69,6 +73,7 @@ namespace {
         explicit RawServerFactory(State& state)
             : state(state) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++state.serverFactoryCreateCount;
             return new RawServerContext(socketConnection, state);

@@ -63,6 +63,7 @@ namespace core {
 
     class DescriptorEventPublisher {
     public:
+
     protected:
         DescriptorEventPublisher(std::string name);
 

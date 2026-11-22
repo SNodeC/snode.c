@@ -56,6 +56,7 @@ namespace {
             logger::Logger::setDisableColor(true);
             logger::Logger::logToFile(logFile.string());
         }
+
         ~LoggerStateGuard() {
             logger::Logger::disableLogToFile();
             logger::Logger::init();

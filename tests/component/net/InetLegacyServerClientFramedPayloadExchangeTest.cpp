@@ -134,8 +134,10 @@ namespace {
         void onConnected() override {
             ++testState.serverConnectedCount;
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -157,9 +159,11 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         void handleFrame(const std::string& framePayload) {
             if (testState.serverFirstFrameReceivedCount == 0 && framePayload == firstClientPayload) {
                 ++testState.serverFirstFrameReceivedCount;
@@ -174,6 +178,7 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void sendNextReplyFragment() {
             if (nextReplyFragmentIndex < replyFragments.size()) {
                 const std::string& fragment = replyFragments[nextReplyFragmentIndex++];
@@ -188,6 +193,7 @@ namespace {
                 }
             }
         }
+
         TestState& testState;
         std::string receiveBuffer;
         std::vector<std::string> replyFragments;
@@ -209,8 +215,10 @@ namespace {
             requestFragments = makeFragmentPlan(requestStream);
             sendNextRequestFragment();
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -232,9 +240,11 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         void handleFrame(const std::string& framePayload) {
             if (testState.clientFirstReplyFrameReceivedCount == 0 && framePayload == firstServerReply) {
                 ++testState.clientFirstReplyFrameReceivedCount;
@@ -247,6 +257,7 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void sendNextRequestFragment() {
             if (nextRequestFragmentIndex < requestFragments.size()) {
                 const std::string& fragment = requestFragments[nextRequestFragmentIndex++];
@@ -261,6 +272,7 @@ namespace {
                 }
             }
         }
+
         TestState& testState;
         std::string receiveBuffer;
         std::vector<std::string> requestFragments;
@@ -273,6 +285,7 @@ namespace {
         explicit TestServerSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(socketConnection, testState);
@@ -287,6 +300,7 @@ namespace {
         explicit TestClientSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.clientFactoryCreateCount;
             return new TestClientSocketContext(socketConnection, testState);

@@ -134,6 +134,7 @@ namespace iot::mqtt::server::broker {
 
         return *this;
     }
+
     void RetainTree::TopicLevel::retain(const Message& message, std::string topic) {
         const auto& log = this->log();
         if (topic.empty()) {

@@ -125,6 +125,7 @@ namespace web::http::client {
             KEEPALIVE = 0b00000100,
             CLOSE = 0b00001000
         };
+
         int flags = Flags::NONE;
 
         bool httpClose = false;

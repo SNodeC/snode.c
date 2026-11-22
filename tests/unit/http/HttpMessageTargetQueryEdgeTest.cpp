@@ -40,12 +40,15 @@ namespace {
         int getFd() const override {
             return -1;
         }
+
         bool sendToPeer(const char*, std::size_t) override {
             return true;
         }
+
         bool streamToPeer(core::pipe::Source*) override {
             return false;
         }
+
         void streamEof() override {
         }
 
@@ -61,34 +64,46 @@ namespace {
 
         void shutdownRead() override {
         }
+
         void shutdownWrite() override {
         }
+
         const core::socket::SocketAddress& getBindAddress() const override {
             return address;
         }
+
         const core::socket::SocketAddress& getLocalAddress() const override {
             return address;
         }
+
         const core::socket::SocketAddress& getRemoteAddress() const override {
             return address;
         }
+
         void close() override {
         }
+
         void setTimeout(const utils::Timeval&) override {
         }
+
         void setReadTimeout(const utils::Timeval&) override {
         }
+
         void setWriteTimeout(const utils::Timeval&) override {
         }
+
         std::size_t getTotalSent() const override {
             return 0;
         }
+
         std::size_t getTotalQueued() const override {
             return 0;
         }
+
         std::size_t getTotalRead() const override {
             return offset;
         }
+
         std::size_t getTotalProcessed() const override {
             return offset;
         }
@@ -108,11 +123,14 @@ namespace {
     private:
         void onConnected() override {
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             return 0;
         }
+
         bool onSignal(int) override {
             return false;
         }

@@ -130,13 +130,16 @@ namespace tests::component::websocket::behavior {
             ++state.messageErrorCount;
             core::SNodeC::stop();
         }
+
         void onDisconnected() override {
             ++state.serverWsDisconnectedCount;
         }
+
         bool onSignal(int) override {
             sendClose();
             return false;
         }
+
         State& state;
     };
 
@@ -204,18 +207,22 @@ namespace tests::component::websocket::behavior {
             ++state.messageErrorCount;
             core::SNodeC::stop();
         }
+
         void onPongReceived() override {
             ++state.clientPongReceivedCount;
             sendClose();
         }
+
         void onDisconnected() override {
             ++state.clientWsDisconnectedCount;
             core::SNodeC::stop();
         }
+
         bool onSignal(int) override {
             sendClose();
             return false;
         }
+
         State& state;
     };
 
@@ -231,6 +238,7 @@ namespace tests::component::websocket::behavior {
         web::websocket::server::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
             return new ServerSubProtocol(context, state);
         }
+
         State& state;
     };
 
@@ -246,13 +254,16 @@ namespace tests::component::websocket::behavior {
         web::websocket::client::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
             return new ClientSubProtocol(context, state);
         }
+
         State& state;
     };
 
     inline State* linkedState = nullptr;
+
     inline web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* createServerFactory() {
         return new ServerFactory(*linkedState);
     }
+
     inline web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* createClientFactory() {
         return new ClientFactory(*linkedState);
     }

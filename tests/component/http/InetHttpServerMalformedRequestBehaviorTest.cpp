@@ -42,10 +42,12 @@ namespace {
             ++state.rawClientConnectedCount;
             sendToPeer(malformedRequest.data(), malformedRequest.size());
         }
+
         void onDisconnected() override {
             ++state.rawClientDisconnectedCount;
             core::SNodeC::stop();
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -58,9 +60,11 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         State& state;
     };
 
@@ -69,6 +73,7 @@ namespace {
         explicit RawClientFactory(State& state)
             : state(state) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++state.clientFactoryCreateCount;
             return new RawClientContext(socketConnection, state);

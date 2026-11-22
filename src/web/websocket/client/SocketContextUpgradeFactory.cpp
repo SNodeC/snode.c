@@ -71,6 +71,7 @@ namespace web::websocket::client {
 
 #if !defined(HAVE_GETENTROPY)
     int getentropy(void* buf, size_t buflen);
+
     int getentropy(void* buf, size_t buflen) {
 #ifdef SYS_GETRANDOM
         const ssize_t ret = syscall(SYS_getrandom, buf, buflen, 0);

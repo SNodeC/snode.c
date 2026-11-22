@@ -138,6 +138,7 @@ namespace {
     class TestSocketConnection {
     public:
         using Self = TestSocketConnection<PhysicalSocket, Config>;
+
         bool activate() const {
             return true;
         }

@@ -22,14 +22,18 @@ namespace {
         DummyMqtt()
             : iot::mqtt::Mqtt("test") {
         }
+
         bool onSignal(int) override {
             return true;
         }
+
         iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader&) const override {
             return nullptr;
         }
+
         void deliverPacket(iot::mqtt::ControlPacketDeserializer*) override {
         }
+
         void distributePublish(const iot::mqtt::packets::Publish&) override {
         }
     };
@@ -51,11 +55,14 @@ namespace {
 
         void send(const char*, std::size_t) override {
         }
+
         core::socket::stream::SocketConnection* getSocketConnection() const override {
             return nullptr;
         }
+
         void end() override {
         }
+
         void close() override {
             closed = true;
         }

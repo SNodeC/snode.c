@@ -80,12 +80,14 @@ namespace {
             file = ::fopen(this->path.c_str(), "w+");
             ::dup2(::fileno(file), STDOUT_FILENO);
         }
+
         ~StdoutCapture() {
             ::fflush(stdout);
             ::dup2(saved, STDOUT_FILENO);
             ::close(saved);
             ::fclose(file);
         }
+
         std::string read() const {
             ::fflush(stdout);
             return readFile(path);

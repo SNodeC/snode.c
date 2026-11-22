@@ -26,10 +26,13 @@ namespace {
                 ++validations;
             });
         }
+
         ~Endpoint() override = default;
+
         int value() const {
             return valueOption->as<int>();
         }
+
         int validations = 0;
         int rejectedValue = 13;
 

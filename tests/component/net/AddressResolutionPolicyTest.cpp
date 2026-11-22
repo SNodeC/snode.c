@@ -145,15 +145,19 @@ namespace {
     private:
         void onConnected() override {
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             return 0;
         }
+
         bool onSignal(int) override {
             return true;
         }
     };
+
     class Factory : public core::socket::stream::SocketContextFactory {
     public:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {

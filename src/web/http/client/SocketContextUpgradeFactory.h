@@ -43,6 +43,7 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
+
 // IWYU pragma: no_include "web/http/SocketContextUpgradeFactory.hpp"
 
 namespace web::http::client {

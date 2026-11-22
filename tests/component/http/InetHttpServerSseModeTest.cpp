@@ -22,27 +22,34 @@ namespace {
     class EventSource final : public core::pipe::Source {
     public:
         ~EventSource() override;
+
         bool isOpen() override {
             return open;
         }
+
         void start() override {
             send("data: abc\n\n", 11);
             if (!hold) {
                 eof();
             }
         }
+
         void suspend() override {
         }
+
         void resume() override {
         }
+
         void stop() override {
             open = false;
             ++stopped;
         }
+
         bool open = true;
         bool hold = false;
         int stopped = 0;
     };
+
     EventSource::~EventSource() = default;
 
     std::string request(bool close, bool acceptSse) {

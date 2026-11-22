@@ -177,54 +177,68 @@ namespace {
         explicit TestServerConfig(const std::string& instanceName)
             : ConfigInstance(instanceName, Role::SERVER) {
         }
+
         ~TestServerConfig() override = default;
 
         TestServerConfig* setRetry(bool enabled = true) {
             retry = enabled;
             return this;
         }
+
         bool getRetry() const {
             return retry;
         }
+
         TestServerConfig* setRetryOnFatal(bool enabled = true) {
             retryOnFatal = enabled;
             return this;
         }
+
         bool getRetryOnFatal() const {
             return retryOnFatal;
         }
+
         TestServerConfig* setRetryTimeout(double value) {
             retryTimeout = value;
             return this;
         }
+
         double getRetryTimeout() const {
             return retryTimeout;
         }
+
         TestServerConfig* setRetryTries(unsigned int value = 0) {
             retryTries = value;
             return this;
         }
+
         unsigned int getRetryTries() const {
             return retryTries;
         }
+
         TestServerConfig* setRetryBase(double value) {
             retryBase = value;
             return this;
         }
+
         double getRetryBase() const {
             return retryBase;
         }
+
         TestServerConfig* setRetryLimit(unsigned int value) {
             retryLimit = value;
             return this;
         }
+
         double getRetryLimit() const {
             return retryLimit;
         }
+
         TestServerConfig* setRetryJitter(double value) {
             retryJitter = value;
             return this;
         }
+
         double getRetryJitter() const {
             return retryJitter;
         }
@@ -245,19 +259,23 @@ namespace {
             : TestServerConfig(instanceName) {
             setInstanceName(instanceName);
         }
+
         ~TestClientConfig() override = default;
 
         TestClientConfig* setReconnect(bool enabled = true) {
             reconnect = enabled;
             return this;
         }
+
         bool getReconnect() const {
             return reconnect;
         }
+
         TestClientConfig* setReconnectTime(double value) {
             reconnectTime = value;
             return this;
         }
+
         double getReconnectTime() const {
             return reconnectTime;
         }

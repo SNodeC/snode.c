@@ -54,6 +54,7 @@ namespace web {
         class Request;
         class Response;
     } // namespace http::client
+
     namespace websocket {
         template <typename SubProtocolT>
         class SubProtocolFactory;
