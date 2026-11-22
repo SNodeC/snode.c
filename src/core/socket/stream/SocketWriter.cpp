@@ -105,6 +105,13 @@ namespace core::socket::stream {
         return core::system::send(this->getRegisteredFd(), chunk, chunkLen, MSG_NOSIGNAL);
     }
 
+    void SocketWriter::releasedEvent() {
+        onWriteReleased();
+    }
+
+    void SocketWriter::onWriteReleased() {
+    }
+
     void SocketWriter::doWrite() {
         if (!writePuffer.empty()) {
             const std::size_t writeLen = (writePuffer.size() < blockSize) ? writePuffer.size() : blockSize;

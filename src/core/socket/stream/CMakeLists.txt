@@ -103,6 +103,7 @@ install(
     PATTERN "." EXCLUDE
     PATTERN "legacy" EXCLUDE
     PATTERN "tls" EXCLUDE
+    PATTERN "stdio" EXCLUDE
     PATTERN "pu" EXCLUDE
 )
 
@@ -116,3 +117,4 @@ install(
 
 add_subdirectory(legacy)
 add_subdirectory(tls)
+add_subdirectory(stdio)

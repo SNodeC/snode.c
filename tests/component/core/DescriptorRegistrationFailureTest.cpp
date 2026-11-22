@@ -24,9 +24,10 @@
 namespace {
     class RejectingPublisher final : public core::DescriptorEventPublisher {
     public:
-        explicit RejectingPublisher(bool throwOnAdd)
+        explicit RejectingPublisher(bool throwOnAdd, bool accept = false)
             : core::DescriptorEventPublisher("rejecting test publisher")
-            , throwOnAdd(throwOnAdd) {
+            , throwOnAdd(throwOnAdd)
+            , accept(accept) {
         }
 
         int deleteCount = 0;
@@ -36,7 +37,7 @@ namespace {
             if (throwOnAdd) {
                 throw std::runtime_error("injected muxAdd failure");
             }
-            return false;
+            return accept;
         }
 
         void muxDel([[maybe_unused]] int fd) override {
@@ -53,12 +54,14 @@ namespace {
         }
 
         bool throwOnAdd;
+        bool accept;
     };
 
     class PublisherProbe final : public core::DescriptorEventReceiver {
     public:
-        explicit PublisherProbe(core::DescriptorEventPublisher& publisher)
-            : core::DescriptorEventReceiver("publisher registration probe", publisher, TIMEOUT::DISABLE) {
+        explicit PublisherProbe(RejectingPublisher& publisher)
+            : core::DescriptorEventReceiver("publisher registration probe", publisher, TIMEOUT::DISABLE)
+            , publisher(publisher) {
         }
 
         ~PublisherProbe() override = default;
@@ -66,6 +69,9 @@ namespace {
         bool registerFd(int fd) {
             return enable(fd);
         }
+
+        using DescriptorEventReceiver::disable;
+        int released = 0;
 
     private:
         void dispatchEvent() override {
@@ -78,7 +84,13 @@ namespace {
         }
 
         void unobservedEvent() override {
+            released += 10;
         }
+
+        void releasedEvent() override {
+            released = 1 + 100 * publisher.deleteCount;
+        }
+        RejectingPublisher& publisher;
     };
 
     class RealPublisherProbe final : public core::eventreceiver::ReadEventReceiver {
@@ -134,6 +146,18 @@ int main(int argc, char* argv[]) {
     testResult.expectTrue(!throwingProbe.registerFd(43), "muxAdd exceptions are converted into observable registration failure");
     testResult.expectEqual(
         0, throwingPublisher.getObservedEventReceiverCount(), "publisher bookkeeping is rolled back after a muxAdd exception");
+
+    RejectingPublisher stack(false, true);
+    PublisherProbe lower(stack), upper(stack);
+    testResult.expectTrue(lower.registerFd(44) && upper.registerFd(44), "stacked receivers register");
+    upper.disable();
+    testResult.expectEqual(0, upper.released, "disable does not synchronously release publisher interest");
+    stack.releaseDisabledEvents({});
+    testResult.expectTrue(upper.released == 11 && lower.isEnabled() && stack.deleteCount == 0,
+                          "hook precedes unobserved; handover retains fd");
+    lower.disable();
+    stack.releaseDisabledEvents({});
+    testResult.expectTrue(lower.released == 111 && stack.deleteCount == 1, "final hook follows removal and precedes deletion");
 
     core::SNodeC::init(argc, argv);
     core::DescriptorEventPublisher& readPublisher =

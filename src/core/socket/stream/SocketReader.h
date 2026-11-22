@@ -84,6 +84,8 @@ namespace core::socket::stream {
 
         std::size_t doRead();
         void signalEvent(int sigNum) final;
+        void releasedEvent() final;
+        virtual void onReadReleased();
 
     protected:
         virtual ssize_t read(char* chunk, std::size_t chunkLen);

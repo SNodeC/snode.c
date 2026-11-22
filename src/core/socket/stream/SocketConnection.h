@@ -236,6 +236,8 @@ namespace core::socket::stream {
         void onDrain() override;
         void onWriteError(int errnum);
         void onReadError(int errnum);
+        void onReadReleased() final;
+        void onWriteReleased() final;
 
     private:
         void shutdownEvent(const core::ShutdownContext& context) final;

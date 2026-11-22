@@ -86,6 +86,8 @@ namespace core::socket::stream {
 
     private:
         void writeEvent() final;
+        void releasedEvent() final;
+        virtual void onWriteReleased();
 
         void doWrite();
 
