@@ -150,7 +150,6 @@ get_all_targets_dependencies(SNODEC_LIST_OF_ALL_TARGETS_DEPENDENCIES mcp)
 
 set(SUPPORTED_COMPONENTS
     mcp-server
-    mcp-server-stream
     mcp-server-http
     core
     core-socket-stream-legacy

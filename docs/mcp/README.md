@@ -4,7 +4,7 @@ The in-tree MCP module provides one registry and dispatcher with stdio and Strea
 
 ## Stability
 
-The MCP libraries (`mcp-server`, `mcp-server-stream`, and `mcp-server-http`), their installed headers under `mcp/server`, and the `snodec-dev` applications are EXPERIMENTAL. Their API and ABI may change in a minor SNode.C release. The MCP libraries have their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C core; their VERSION continues to follow the SNode.C release version. MCP changes alone never require a major SNode.C release. The compatibility policy for all other SNode.C libraries is unchanged.
+The MCP libraries (`mcp-server` and `mcp-server-http`), their installed headers under `mcp/server`, and the `snodec-dev` applications are EXPERIMENTAL. Their API and ABI may change in a minor SNode.C release. The MCP libraries have their own SOVERSION, incremented on every MCP ABI break independently of the SNode.C core; their VERSION continues to follow the SNode.C release version. MCP changes alone never require a major SNode.C release. The compatibility policy for all other SNode.C libraries is unchanged.
 
 ## Build and consume
 
@@ -16,7 +16,14 @@ cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug \
 cmake --build "$BUILD_DIR" --target snodec-dev-stdio snodec-dev-http
 ```
 
-The module follows the MQTT layout under `src/mcp/server`; the applications live in `src/apps/mcp`. The transport-independent newline protocol is `mcp-server-stream`; attach its original stream factory to a stdio endpoint or another stream connection. Installed components and exported targets are `mcp-server`, `mcp-server-stream`, and `mcp-server-http`, with `snodec::` target names. The existing package installation procedure installs these components; no additional JSON or MCP SDK dependency is introduced. Consumers can use:
+The module follows the MQTT layout under `src/mcp/server`; the applications live in `src/apps/mcp`. The transport-independent newline protocol is part of `mcp-server`, which links `core-socket-stream` publicly, like `mqtt`; attach its `mcp::server::stream::SocketContextFactory` to a stdio endpoint or another stream connection. Its headers are installed under `snode.c/mcp/server/stream`. Installed components and exported targets are `mcp-server` and `mcp-server-http`, with `snodec::` target names; only the web-dependent HTTP binding has a separate component. The existing package installation procedure installs these components; no additional JSON or MCP SDK dependency is introduced. Consumers can use:
+
+```cmake
+find_package(snodec CONFIG REQUIRED COMPONENTS mcp-server)
+target_link_libraries(my-stream-protocol PRIVATE snodec::mcp-server)
+```
+
+For the HTTP binding:
 
 ```cmake
 find_package(snodec CONFIG REQUIRED COMPONENTS mcp-server-http)

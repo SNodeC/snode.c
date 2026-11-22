@@ -4,6 +4,7 @@
 #include <core/socket/stream/SocketContextFactory.h>
 #include <core/socket/stream/SocketServer.h>
 #include <express/legacy/in/Server.h>
+#include <mcp/server/Config.h>
 #include <mcp/server/Server.h>
 #include <mcp/server/Tool.h>
 #include <mcp/server/http/Router.h>
@@ -17,6 +18,7 @@
 #include <sys/socket.h>
 #include <type_traits>
 #include <unistd.h>
+#include <utils/Config.h>
 
 namespace {
     class InstalledContext final : public core::socket::stream::SocketContext {
@@ -78,6 +80,8 @@ int main([[maybe_unused]] int argc, char* argv[]) {
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
     mcp::server::Server server("installed-consumer", "test-version");
     server.tool(std::make_shared<InstalledTool>());
+    auto* config = utils::Config::configRoot.newSubCommand<mcp::server::Config>();
+    const mcp::server::stream::SocketContextFactory protocolFactory(server, *config);
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, pair) == 0) {
         const net::stdio::stream::SocketEndpoint<InstalledFactory> endpoint("installed-endpoint");
         endpoint.getConfig()->Instance::forceUnrequired();
