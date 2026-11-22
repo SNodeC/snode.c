@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "mcp/server/Server.h"
 
 #include "Log.h"
@@ -8,6 +48,8 @@
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <cmath>
@@ -28,18 +70,25 @@
 #include <variant>
 #include <vector>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace mcp::server {
+
     using namespace detail;
+
     namespace {
+
         bool validId(const Json& id) {
             return id.is_string() || id.is_number_integer();
         }
+
         bool isType(const Json& value, const std::string& type) {
             const bool result = (type == "object" && value.is_object()) || (type == "array" && value.is_array()) ||
                                 (type == "string" && value.is_string()) || (type == "number" && value.is_number()) ||
                                 (type == "integer" && value.is_number() && std::isfinite(value.get<double>()) &&
                                  std::floor(value.get<double>()) >= value.get<double>()) ||
                                 (type == "boolean" && value.is_boolean()) || (type == "null" && value.is_null());
+
             return result;
         }
 
@@ -115,11 +164,13 @@ namespace mcp::server {
                             }
                         }
                     }
+
                     if (!good && error.empty()) {
                         error = "unsupported or malformed schema keyword: " + key;
                     }
                 }
             }
+
             return good;
         }
 
@@ -134,16 +185,20 @@ namespace mcp::server {
                         return isType(value, type.get<std::string>());
                     });
                 }
+
                 if (schema.contains("enum")) {
                     good = good && std::find(schema["enum"].begin(), schema["enum"].end(), value) != schema["enum"].end();
                 }
+
                 if (schema.contains("const")) {
                     good = good && value == schema["const"];
                 }
+
                 if (value.is_number()) {
                     good = good && (!schema.contains("minimum") || value >= schema["minimum"]) &&
                            (!schema.contains("maximum") || value <= schema["maximum"]);
                 }
+
                 if (value.is_string()) {
                     const std::string& text = value.get_ref<const std::string&>();
                     const auto length = static_cast<std::size_t>(std::count_if(text.begin(), text.end(), [](char c) {
@@ -152,6 +207,7 @@ namespace mcp::server {
                     good = good && (!schema.contains("minLength") || Json(length) >= schema["minLength"]) &&
                            (!schema.contains("maxLength") || Json(length) <= schema["maxLength"]);
                 }
+
                 if (value.is_array()) {
                     good = good && (!schema.contains("minItems") || Json(value.size()) >= schema["minItems"]) &&
                            (!schema.contains("maxItems") || Json(value.size()) <= schema["maxItems"]);
@@ -159,10 +215,12 @@ namespace mcp::server {
                         good = matches(schema["items"], *item, error, depth + 1);
                     }
                 }
+
                 if (value.is_object()) {
                     for (const auto& required : schema.value("required", Json::array())) {
                         good = good && value.contains(required.get<std::string>());
                     }
+
                     const Json properties = schema.value("properties", Json::object());
                     for (auto item = value.begin(); item != value.end() && good; ++item) {
                         if (properties.contains(item.key())) {
@@ -173,11 +231,14 @@ namespace mcp::server {
                     }
                 }
             }
+
             if (!good && error.empty()) {
                 error = "arguments do not satisfy the registered schema";
             }
+
             return good;
         }
+
     } // namespace
 
     detail::Response::Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout)
@@ -187,20 +248,24 @@ namespace mcp::server {
         , output(std::move(output))
         , deadline(utils::Timeval::currentTime() + timeout) {
     }
+
     detail::Response::~Response() {
         timer.cancel();
     }
+
     void detail::Response::expire() {
         if (!done && utils::Timeval::currentTime() >= deadline && !subscription) {
             cancel(CancelReason::Deadline);
         }
     }
+
     Completion detail::Response::result(Json value) {
         Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         if (!cancellation) {
             expire();
         }
+
         if (!done) {
             std::string validationError;
             if (!outputSchema.is_null() && value.value("isError", Json()) != true &&
@@ -208,10 +273,12 @@ namespace mcp::server {
                  !Access::Registry::validate(outputSchema, value["structuredContent"], validationError))) {
                 value = {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Tool output failed its registered schema"}}}}};
             }
+
             if (era == ProtocolEra::Initialization20251125 && value.contains("structuredContent") &&
                 !value["structuredContent"].is_object()) {
                 value.erase("structuredContent");
             }
+
             if (era == ProtocolEra::PerRequest20260728) {
                 value["resultType"] = "complete";
                 if (cachePolicy == CachePolicy::Private) {
@@ -219,48 +286,59 @@ namespace mcp::server {
                     value["cacheScope"] = "private";
                 }
             }
+
             done = true;
             completion = Completion::Accepted;
             timer.cancel();
             observers.clear();
             output(Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(value)}}, true);
         }
+
         return completion;
     }
+
     Completion detail::Response::error(int code, const std::string& message, Json data) {
         Completion completion = Completion::Inactive;
         const auto keep = weak_from_this().lock();
         if (!cancellation) {
             expire();
         }
+
         if (!done) {
             Json response{{"jsonrpc", "2.0"}, {"error", {{"code", code}, {"message", message}}}};
             if (!id.is_null() || era == ProtocolEra::Initialization20251125) {
                 response["id"] = id;
             }
+
             if (!data.is_null()) {
                 response["error"]["data"] = std::move(data);
             }
+
             done = true;
             completion = Completion::Accepted;
             timer.cancel();
             observers.clear();
             output(response, true);
         }
+
         return completion;
     }
+
     void detail::Response::notify(const std::string& method, Json params) {
         if (!done) {
             if (subscription) {
                 params["_meta"][subscriptionKey] = id;
             }
+
             output(Json{{"jsonrpc", "2.0"}, {"method", method}, {"params", std::move(params)}}, false);
         }
     }
+
     void detail::Response::listen() {
         subscription = true;
         notify("notifications/subscriptions/acknowledged", {{"notifications", Json::object()}});
     }
+
     void detail::Response::observe(RequestContext::OnCancel callback) {
         if (callback) {
             if (cancellation) {
@@ -274,6 +352,7 @@ namespace mcp::server {
             }
         }
     }
+
     void detail::Response::cancel(CancelReason reason) {
         const auto keep = weak_from_this().lock();
         if (!done) {
@@ -289,24 +368,31 @@ namespace mcp::server {
                 if (reason == CancelReason::Shutdown && subscription) {
                     notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
                 }
+
                 done = true;
                 timer.cancel();
                 output(nullptr, true);
             }
+
             for (auto& callback : callbacks) {
                 observe(std::move(callback));
             }
         }
     }
+
     bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
         std::size_t nodes = 0;
         error.clear();
+
         return schema.dump().size() <= 16384 && schemaShape(schema, error, 0, nodes);
     }
+
     bool Server::Impl::validate(const Json& schema, const Json& value, std::string& error) {
         error.clear();
+
         return matches(schema, value, error, 0);
     }
+
     void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
         const std::string keyName = kind == Kind::Resource ? "uri" : "name";
         const std::string identifier = description.value(keyName, std::string());
@@ -327,15 +413,18 @@ namespace mcp::server {
         } else if (entries.size() >= 128 || entries.contains(key)) {
             throw reject(keyName, entries.contains(key) ? "duplicate registration" : "128-registration limit exceeded");
         }
+
         if (kind == Kind::Tool) {
             std::string error;
             if (description.contains("annotations") && !description["annotations"].is_object()) {
                 throw reject("annotations", "must be an object");
             }
+
             const Json& input = description["inputSchema"];
             if (!input.is_object() || input.value("type", Json()) != "object" || !checkSchema(input, error)) {
                 throw reject("inputSchema", error.empty() ? "supported object schema required" : error);
             }
+
             if (description.contains("outputSchema") && !checkSchema(description["outputSchema"], error)) {
                 throw reject("outputSchema", error.empty() ? "supported schema required" : error);
             }
@@ -348,24 +437,30 @@ namespace mcp::server {
                 }
             }
         }
+
         entries.emplace(key, Entry{kind, std::move(description), std::move(handler)});
     }
+
     void Server::Impl::seal() {
         sealed = true;
     }
+
     bool Server::Impl::validRequest(const Json& request) {
         const Json method = request.is_object() ? request.value("method", Json()) : Json();
         return request.is_object() && request.value("jsonrpc", Json()) == "2.0" && method.is_string() && method != "" &&
                (!request.contains("id") || validId(request["id"])) && (!request.contains("params") || request["params"].is_object());
     }
+
     Json Server::Impl::capabilities() const {
         Json result = Json::object();
         for (const auto& [key, entry] : entries) {
             static_cast<void>(key);
             result[entry.kind == Kind::Tool ? "tools" : entry.kind == Kind::Resource ? "resources" : "prompts"] = Json::object();
         }
+
         return result;
     }
+
     std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
                                                                      ProtocolEra era,
                                                                      detail::Access::Response::Output output,
@@ -394,6 +489,7 @@ namespace mcp::server {
                 },
                 timeout);
         }
+
         try {
             if (!validRequest(request)) {
                 reply->error(-32600, "Invalid Request");
@@ -413,6 +509,7 @@ namespace mcp::server {
                 } else if (validToken && !token.is_null()) {
                     reply->progressToken = token.get<std::int64_t>();
                 }
+
                 if (era == ProtocolEra::PerRequest20260728 &&
                     (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                     reply->error(-32602, "Missing or malformed per-request metadata");
@@ -438,9 +535,11 @@ namespace mcp::server {
                         value["supportedVersions"] = {protocolVersion2026, protocolVersion2025};
                         value["_meta"]["io.modelcontextprotocol/serverInfo"] = serverInfo;
                     }
+
                     if (!instructions.empty()) {
                         value["instructions"] = instructions;
                     }
+
                     reply->result(std::move(value));
                 } else if (era == ProtocolEra::Initialization20251125 && method == "ping") {
                     reply->result(Json::object());
@@ -464,9 +563,11 @@ namespace mcp::server {
                                  description["outputSchema"].value("type", Json()) != "object")) {
                                 description.erase("outputSchema");
                             }
+
                             list.push_back(std::move(description));
                         }
                     }
+
                     reply->result({{method.substr(0, method.find('/')), std::move(list)}});
                 } else if (method == "tools/call" || method == "resources/read" || method == "prompts/get") {
                     const Kind kind = method == "tools/call" ? Kind::Tool : method == "resources/read" ? Kind::Resource : Kind::Prompt;
@@ -495,9 +596,11 @@ namespace mcp::server {
                                     }
                                 }
                             }
+
                             if (entry->second.description.contains("outputSchema")) {
                                 reply->outputSchema = entry->second.description["outputSchema"];
                             }
+
                             if (kind == Kind::Tool) {
                                 std::get<std::shared_ptr<Tool>>(entry->second.handler)
                                     ->call(ToolCall{Access::context(reply), arguments}, Access::wrap<ToolResult>(reply));
@@ -520,18 +623,22 @@ namespace mcp::server {
             reply->error(-32603, "Internal error");
         }
         reply->expire();
+
         return reply;
     }
+
     int Server::Impl::httpStatus(const Json& message) {
         int status = 200;
         if (message.contains("error")) {
             const int code = message["error"]["code"].get<int>();
             status = code == -32601 ? 404 : code == -32603 ? 500 : 400;
         }
+
         return status;
     }
 
     namespace {
+
         Json encode(const ResourceContents& contents) {
             return std::visit(
                 [](const auto& resource) -> Json {
@@ -541,10 +648,12 @@ namespace mcp::server {
                     } else {
                         value["blob"] = resource.base64;
                     }
+
                     return value;
                 },
                 contents);
         }
+
         Json encode(const Content& content) {
             return std::visit(
                 [](const auto& block) -> Json {
@@ -568,6 +677,7 @@ namespace mcp::server {
                                  {"data", block.base64},
                                  {"mimeType", block.mimeType}};
                     }
+
                     const auto& annotations = block.annotations;
                     if (!annotations.audience.empty()) {
                         value["annotations"]["audience"] = Json::array();
@@ -575,47 +685,62 @@ namespace mcp::server {
                             value["annotations"]["audience"].push_back(role == Role::User ? "user" : "assistant");
                         }
                     }
+
                     if (annotations.priority) {
                         value["annotations"]["priority"] = *annotations.priority;
                     }
+
                     if (annotations.lastModified) {
                         value["annotations"]["lastModified"] = *annotations.lastModified;
                     }
+
                     return value;
                 },
                 content);
         }
+
     } // namespace
+
     ToolResult::ToolResult(Json value)
         : value(std::move(value)) {
     }
+
     ToolResult ToolResult::text(std::string text) {
         return content({TextContent{std::move(text), {}}});
     }
+
     ToolResult ToolResult::json(Json value) {
         ToolResult result = text(value.dump());
         result.value["structuredContent"] = std::move(value);
+
         return result;
     }
+
     ToolResult ToolResult::content(std::vector<Content> content) {
         Json blocks = Json::array();
         for (const auto& block : content) {
             blocks.push_back(encode(block));
         }
+
         return ToolResult({{"content", std::move(blocks)}});
     }
+
     ToolResult ToolResult::toolError(std::string message) {
         return toolError({TextContent{std::move(message), {}}});
     }
+
     ToolResult ToolResult::toolError(std::vector<Content> content) {
         ToolResult result = ToolResult::content(std::move(content));
         result.value["isError"] = true;
+
         return result;
     }
+
     template <class Result>
     Reply<Result>::Reply(std::shared_ptr<detail::Response> impl)
         : impl(std::move(impl)) {
     }
+
     template <class Result>
     Completion Reply<Result>::result(Result result) {
         Json value;
@@ -631,17 +756,21 @@ namespace mcp::server {
             if (result.description) {
                 value["description"] = *result.description;
             }
+
             for (const auto& message : result.messages) {
                 value["messages"].push_back(
                     {{"role", message.role == Role::User ? "user" : "assistant"}, {"content", encode(message.content)}});
             }
         }
+
         return impl->result(std::move(value));
     }
+
     template <class Result>
     Completion Reply<Result>::error(ErrorCode code, std::string message, Json data) {
         return impl->error(static_cast<int>(code), message, std::move(data));
     }
+
     template <class Result>
     void Reply<Result>::progress(Progress progress) {
         const auto request = impl;
@@ -659,21 +788,27 @@ namespace mcp::server {
             if (progress.total) {
                 params["total"] = *progress.total;
             }
+
             if (!progress.message.empty()) {
                 params["message"] = std::move(progress.message);
             }
+
             request->notify("notifications/progress", std::move(params));
         }
     }
+
     RequestContext::RequestContext(std::shared_ptr<detail::Response> impl)
         : impl(std::move(impl)) {
     }
+
     const std::optional<Principal>& RequestContext::getPrincipal() const {
         return impl->principal;
     }
+
     const std::optional<ProgressToken>& RequestContext::getProgressToken() const {
         return impl->progressToken;
     }
+
     void RequestContext::onCancel(OnCancel callback) const {
         impl->observe(std::move(callback));
     }
@@ -682,8 +817,10 @@ namespace mcp::server {
     template class Reply<PromptResult>;
 
     namespace {
+
         struct FunctionTool final : Tool {
             Server::ToolHandler handler;
+
             FunctionTool(ToolDefinition definition, Server::ToolHandler handler)
                 : Tool(std::move(definition))
                 , handler(std::move(handler)) {
@@ -691,12 +828,15 @@ namespace mcp::server {
                     throw RegistrationError(RegistrationKind::Tool, getDefinition().name, "handler", "must be callable");
                 }
             }
+
             void call(const ToolCall& request, const std::shared_ptr<ToolReply>& reply) override {
                 handler(request, reply);
             }
         };
+
         struct FunctionResource final : Resource {
             Server::ResourceHandler handler;
+
             FunctionResource(ResourceDefinition definition, Server::ResourceHandler handler)
                 : Resource(std::move(definition))
                 , handler(std::move(handler)) {
@@ -704,12 +844,15 @@ namespace mcp::server {
                     throw RegistrationError(RegistrationKind::Resource, getDefinition().uri, "handler", "must be callable");
                 }
             }
+
             void read(const ResourceRead& request, const std::shared_ptr<ResourceReply>& reply) override {
                 handler(request, reply);
             }
         };
+
         struct FunctionPrompt final : Prompt {
             Server::PromptHandler handler;
+
             FunctionPrompt(PromptDefinition definition, Server::PromptHandler handler)
                 : Prompt(std::move(definition))
                 , handler(std::move(handler)) {
@@ -717,66 +860,89 @@ namespace mcp::server {
                     throw RegistrationError(RegistrationKind::Prompt, getDefinition().name, "handler", "must be callable");
                 }
             }
+
             void get(const PromptGet& request, const std::shared_ptr<PromptReply>& reply) override {
                 handler(request, reply);
             }
         };
+
     } // namespace
+
     Tool::Tool(ToolDefinition definition)
         : definition(std::move(definition)) {
     }
+
     Tool::~Tool() = default;
+
     const ToolDefinition& Tool::getDefinition() const {
         return definition;
     }
+
     Resource::Resource(ResourceDefinition definition)
         : definition(std::move(definition)) {
     }
+
     Resource::~Resource() = default;
+
     const ResourceDefinition& Resource::getDefinition() const {
         return definition;
     }
+
     Prompt::Prompt(PromptDefinition definition)
         : definition(std::move(definition)) {
     }
+
     Prompt::~Prompt() = default;
+
     const PromptDefinition& Prompt::getDefinition() const {
         return definition;
     }
+
     RegistrationError::RegistrationError(RegistrationKind kind, std::string identifier, std::string field, std::string reason)
         : std::invalid_argument(std::string(kind == RegistrationKind::Tool       ? "tool "
                                             : kind == RegistrationKind::Resource ? "resource "
                                                                                  : "prompt ") +
                                 (identifier.empty() ? "<unnamed>" : identifier) + ": " + field + ": registration rejected: " + reason) {
     }
+
     RegistrationError::~RegistrationError() = default;
+
     Server::Server(std::string name, std::string version, std::string instructions)
         : impl(std::make_unique<Impl>()) {
         impl->serverInfo = {{"name", std::move(name)}, {"version", std::move(version)}};
         impl->instructions = std::move(instructions);
     }
+
     Server::~Server() = default;
+
     Server* Server::tool(ToolDefinition definition, ToolHandler handler) {
         return tool(std::make_shared<FunctionTool>(std::move(definition), std::move(handler)));
     }
+
     Server* Server::tool(std::shared_ptr<Tool> handler) {
         const auto definition = handler ? handler->getDefinition() : ToolDefinition{};
         Json description{{"name", definition.name}, {"description", definition.description}, {"inputSchema", definition.inputSchema}};
         if (definition.outputSchema) {
             description["outputSchema"] = *definition.outputSchema;
         }
+
         if (definition.title) {
             description["title"] = *definition.title;
         }
+
         if (!definition.annotations.is_null()) {
             description["annotations"] = std::move(definition.annotations);
         }
+
         impl->add(RegistrationKind::Tool, std::move(description), std::move(handler));
+
         return this;
     }
+
     Server* Server::resource(ResourceDefinition definition, ResourceHandler handler) {
         return resource(std::make_shared<FunctionResource>(std::move(definition), std::move(handler)));
     }
+
     Server* Server::resource(std::shared_ptr<Resource> handler) {
         const auto definition = handler ? handler->getDefinition() : ResourceDefinition{};
         Json description{
@@ -784,12 +950,16 @@ namespace mcp::server {
         if (definition.title) {
             description["title"] = *definition.title;
         }
+
         impl->add(RegistrationKind::Resource, std::move(description), std::move(handler));
+
         return this;
     }
+
     Server* Server::prompt(PromptDefinition definition, PromptHandler handler) {
         return prompt(std::make_shared<FunctionPrompt>(std::move(definition), std::move(handler)));
     }
+
     Server* Server::prompt(std::shared_ptr<Prompt> handler) {
         const auto definition = handler ? handler->getDefinition() : PromptDefinition{};
         Json description{{"name", definition.name}, {"description", definition.description}, {"arguments", Json::array()}};
@@ -798,13 +968,18 @@ namespace mcp::server {
                                                 {"description", argument.description},
                                                 {"required", argument.requirement == Requirement::Required}});
         }
+
         if (definition.title) {
             description["title"] = *definition.title;
         }
+
         impl->add(RegistrationKind::Prompt, std::move(description), std::move(handler));
+
         return this;
     }
+
     detail::Access::Registry& detail::Access::registry(const Server& server) {
         return *server.impl;
     }
+
 } // namespace mcp::server

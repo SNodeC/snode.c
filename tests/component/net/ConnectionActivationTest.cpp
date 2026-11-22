@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "core/DescriptorEventPublisher.h"
 #include "core/EventLoop.h"
 #include "core/EventMultiplexer.h"
@@ -12,6 +52,8 @@
 #include "net/in/stream/tls/SocketServer.h"
 #include "support/TestResult.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <arpa/inet.h>
 #include <cerrno>
 #include <dlfcn.h>
@@ -23,20 +65,30 @@
 #include <unistd.h>
 #include <vector>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace {
+
     std::string mode;
-    int targetFd = -1, closed = 0, injections = 0, contexts = 0;
+    int targetFd = -1;
+    int closed = 0;
+    int injections = 0;
+    int contexts = 0;
     bool readerAdded = false;
+
     bool serverCase() {
         return mode.find("accept") != std::string::npos;
     }
+
     class Factory : public core::socket::stream::SocketContextFactory {
     public:
         core::socket::stream::SocketContext* create([[maybe_unused]] core::socket::stream::SocketConnection* connection) override {
             ++contexts;
+
             return nullptr;
         }
     };
+
 } // namespace
 
 // The existing AddressResolutionPolicyTest uses this libc interposition seam.
@@ -55,16 +107,20 @@ extern "C" int epoll_ctl(int epfd, int op, int fd, epoll_event* event) noexcept 
             readerAdded = true;
         }
     }
+
     return result;
 }
+
 extern "C" int accept4(int fd, sockaddr* address, socklen_t* length, int flags) {
     static const auto real = reinterpret_cast<decltype(&accept4)>(dlsym(RTLD_NEXT, "accept4"));
     const int result = real(fd, address, length, flags);
     if (serverCase() && result >= 0) {
         targetFd = result;
     }
+
     return result;
 }
+
 extern "C" int connect(int fd, const sockaddr* address, socklen_t length) {
     static const auto real = reinterpret_cast<decltype(&connect)>(dlsym(RTLD_NEXT, "connect"));
     int result = real(fd, address, length);
@@ -75,22 +131,27 @@ extern "C" int connect(int fd, const sockaddr* address, socklen_t length) {
             errno = result == 0 ? 0 : EINPROGRESS;
         }
     }
+
     return result;
 }
+
 extern "C" int close(int fd) {
     static const auto real = reinterpret_cast<decltype(&close)>(dlsym(RTLD_NEXT, "close"));
     if (fd == targetFd) {
         ++closed;
     }
+
     return real(fd);
 }
 
 namespace {
+
     template <class Endpoint>
     void run(tests::support::TestResult& result, char* program) {
         Endpoint endpoint("activation");
         endpoint.getConfig()->Instance::forceUnrequired();
-        int callbacks = 0, failures = 0;
+        int callbacks = 0;
+        int failures = 0;
         std::string failure;
         endpoint.setOnConnect([&](auto*) {
             ++callbacks;
@@ -111,7 +172,9 @@ namespace {
             socklen_t length = sizeof(address);
             result.expectEqual(0, ::getsockname(peer, reinterpret_cast<sockaddr*>(&address), &length), "listener port");
         }
-        char config[] = "--config-file=/dev/null", quiet[] = "--quiet";
+
+        char config[] = "--config-file=/dev/null";
+        char quiet[] = "--quiet";
         char* arguments[] = {program, config, quiet};
         core::SNodeC::init(3, arguments);
         std::vector<int> held;
@@ -125,8 +188,10 @@ namespace {
                         fd = ::fcntl(peer, F_DUPFD_CLOEXEC, 0);
                         held.push_back(fd);
                     }
+
                     result.expectTrue(fd >= FD_SETSIZE, "low descriptor slots filled before real accept");
                 }
+
                 const int connected = ::connect(peer, reinterpret_cast<sockaddr*>(&address), sizeof(address));
                 result.expectTrue(connected == 0 || errno == EINPROGRESS, "raw peer connects");
             } else if (state != core::socket::State::OK) {
@@ -139,6 +204,7 @@ namespace {
         } else {
             flow = endpoint.connect(net::in::SocketAddress("127.0.0.1", ntohs(address.sin_port)), onStatus);
         }
+
         core::EventReceiver::atNextTick([&] {
             core::timer::Timer::singleshotTimer(
                 [&] {
@@ -162,9 +228,11 @@ namespace {
         } else {
             result.expectEqual(1, injections, "requested first/second registration failure was exercised");
         }
+
         if (!serverCase()) {
             result.expectTrue(failure.find("[28]") != std::string::npos, "activation errno ENOSPC survives deletion and status reporting");
         }
+
         auto& mux = core::EventLoop::instance().getEventMultiplexer();
         result.expectEqual(
             0, mux.getDescriptorEventPublisher(core::EventMultiplexer::RD).getObservedEventReceiverCount(), "no stale reader");
@@ -175,9 +243,12 @@ namespace {
                 ::close(fd);
             }
         }
+
         ::close(peer);
     }
+
 } // namespace
+
 int main(int argc, char* argv[]) {
     tests::support::TestResult result;
     mode = argc > 1 ? argv[1] : "accept-second";
@@ -189,9 +260,11 @@ int main(int argc, char* argv[]) {
             limit.rlim_cur = limit.rlim_max;
             ready = ::setrlimit(RLIMIT_NOFILE, &limit) == 0;
         }
+
         std::cout << "RLIMIT_NOFILE=" << limit.rlim_cur << std::endl;
         result.expectTrue(ready, "prerequisite: RLIMIT_NOFILE raised above FD_SETSIZE");
     }
+
     if (ready) {
         if (mode.starts_with("tls-accept")) {
             run<net::in::stream::tls::SocketServer<Factory>>(result, argv[0]);
@@ -203,5 +276,6 @@ int main(int argc, char* argv[]) {
             run<net::in::stream::legacy::SocketClient<Factory>>(result, argv[0]);
         }
     }
+
     return result.processResult();
 }

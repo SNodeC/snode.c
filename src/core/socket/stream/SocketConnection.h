@@ -51,12 +51,16 @@ namespace core {
     namespace pipe {
         class Source;
     }
+
     namespace socket {
+
         class SocketAddress;
+
         namespace stream {
             class SocketContextFactory;
             class SocketContext;
         } // namespace stream
+
     } // namespace socket
 
 } // namespace core
@@ -64,13 +68,10 @@ namespace core {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::config {
-
     class ConfigInstance;
-
 } // namespace net::config
 
 namespace utils {
-
     class Timeval;
 }
 
@@ -90,6 +91,7 @@ namespace core::socket::stream {
     class SocketConnection {
     public:
         SocketConnection(int fd, std::uint64_t connectionId, const std::string& instanceName, const net::config::ConfigInstance* config);
+
         SocketConnection(const SocketConnection&) = delete;
 
         virtual int getFd() const = 0;

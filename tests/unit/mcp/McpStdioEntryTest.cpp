@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "core/SNodeC.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Server.h"
@@ -7,6 +47,8 @@
 #include "tests/support/TestResult.h"
 #include "utils/Config.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <cerrno>
 #include <fcntl.h>
 #include <string>
@@ -14,10 +56,13 @@
 #include <type_traits>
 #include <unistd.h>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 static_assert(!std::is_copy_constructible_v<mcp::server::Server> && !std::is_move_constructible_v<mcp::server::Server>);
 static_assert(!std::is_copy_assignable_v<mcp::server::Server> && !std::is_move_assignable_v<mcp::server::Server>);
 static_assert(!std::is_copy_constructible_v<mcp::server::Config> && !std::is_move_constructible_v<mcp::server::Config>);
 static_assert(!std::is_copy_assignable_v<mcp::server::Config> && !std::is_move_assignable_v<mcp::server::Config>);
+
 int main(int argc, char* argv[]) {
     tests::support::TestResult test;
     auto* config = utils::Config::configRoot.newSubCommand<mcp::server::Config>();
@@ -58,10 +103,12 @@ int main(int argc, char* argv[]) {
         test.expectEqual(0, core::SNodeC::start(), "ordered entry drains EOF successfully");
         test.expectTrue(::fcntl(input[0], F_GETFD) < 0 && ::fcntl(output[1], F_GETFD) < 0, "ordered entry releases owned protocol handles");
     }
+
     ::close(output[0]);
     test.expectEqual(0, ::fstat(STDOUT_FILENO, &after), "capture stdout after endpoint activation");
     test.expectTrue(before.st_dev == after.st_dev && before.st_ino == after.st_ino && flags == ::fcntl(STDOUT_FILENO, F_GETFL),
                     "the endpoint never redirects stdout or changes its flags");
     test.expectEqual(1, completions, "one completion per executed attempt");
+
     return test.processResult();
 }

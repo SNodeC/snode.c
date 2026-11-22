@@ -75,7 +75,9 @@ namespace core {
             if (inserted && eventReceivers != observedEventReceiverLists.end()) {
                 observedEventReceiverLists.erase(eventReceivers);
             }
+
             errno = ENOMEM;
+
             return false;
         }
 
@@ -91,16 +93,20 @@ namespace core {
             if (eventReceivers->second.empty()) {
                 observedEventReceiverLists.erase(eventReceivers);
             }
+
             if (errno == 0) {
                 errno = EIO;
             }
+
             return false;
         }
 
         if (descriptorEventReceiver->isSuspended()) {
             muxOff(descriptorEventReceiver);
         }
+
         descriptorEventReceiver->setEnabled(utils::Timeval::currentTime());
+
         return true;
     }
 

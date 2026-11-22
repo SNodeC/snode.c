@@ -139,6 +139,7 @@ namespace core::socket::stream {
                 cachedLogGeneration_ = generation;
                 cachedLog_.emplace(logScope.logger(logger::Logger::semanticSink()));
             }
+
             return *cachedLog_;
         }
 

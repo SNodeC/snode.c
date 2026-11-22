@@ -106,6 +106,7 @@ namespace core::socket::stream {
                 const std::size_t readLen = blockSize - size;
                 retRead = read(readBuffer.data() + size, readLen);
             }
+
             if (retRead > 0) {
                 totalRead += static_cast<std::size_t>(retRead);
 
@@ -114,6 +115,7 @@ namespace core::socket::stream {
                 if (!isSuspended()) {
                     suspend();
                 }
+
                 span();
             } else if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
                 if (isSuspended()) {

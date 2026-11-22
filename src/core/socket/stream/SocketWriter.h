@@ -45,12 +45,10 @@
 #include "core/eventreceiver/WriteEventReceiver.h"
 
 namespace logger {
-
     struct LogScope;
 }
 
 namespace core::pipe {
-
     class Source;
 }
 

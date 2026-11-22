@@ -1,21 +1,69 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "core/SNodeC.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 using mcp::server::Json;
 using mcp::server::ToolResult;
+
 namespace {
+
     Json request(const std::string& method, Json params = Json::object()) {
         params["_meta"] = {{mcp::server::detail::versionKey, mcp::server::detail::protocolVersion2026},
                            {mcp::server::detail::capabilitiesKey, Json::object()}};
         return {{"jsonrpc", "2.0"}, {"id", 7}, {"method", method}, {"params", params}};
     }
+
 } // namespace
+
 int main(int argc, char* argv[]) {
     const auto objectSchema = nlohmann::ordered_json::parse(R"json(
 {
@@ -75,12 +123,14 @@ int main(int argc, char* argv[]) {
                                           {{"word", "a"}, {"list", {1, 2, 1}}}})) {
         test.expectTrue(!Access::Registry::validate(schema, value, error), "invalid value rejected: " + value.dump());
     }
+
     for (const std::string keyword :
          {"$ref", "$defs", "anyOf", "oneOf", "allOf", "not", "if", "then", "else", "patternProperties", "format"}) {
         Json unsupported = schema;
         unsupported["properties"]["word"][keyword] = Json::object();
         test.expectTrue(!Access::Registry::checkSchema(unsupported, error), "unsupported nested keyword rejected: " + keyword);
     }
+
     for (const Json& malformed : Json::array({nlohmann::ordered_json::parse(R"json(
 {
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -146,6 +196,7 @@ int main(int argc, char* argv[]) {
 )json")})) {
         test.expectTrue(!Access::Registry::checkSchema(malformed, error), "malformed schema rejected: " + malformed.dump());
     }
+
     test.expectTrue(Access::Registry::validate(nlohmann::ordered_json::parse(R"json(
 {
     "const": null
@@ -228,6 +279,7 @@ false
         Access::registry(server).dispatch(request(method), mcp::server::detail::ProtocolEra::PerRequest20260728, output);
         test.expectEqual(code, response["error"]["code"].get<int>(), "protocol error mapping");
     }
+
     Json noMeta = request("tools/list");
     noMeta["params"].erase("_meta");
     Access::registry(server).dispatch(noMeta, mcp::server::detail::ProtocolEra::PerRequest20260728, output);
@@ -246,6 +298,7 @@ false
         Access::registry(server).dispatch(malformed, mcp::server::detail::ProtocolEra::PerRequest20260728, output);
         test.expectEqual(-32600, response["error"]["code"].get<int>(), "invalid envelopes");
     }
+
     const Json initialize{
         {"jsonrpc", "2.0"},
         {"method", "initialize"},
@@ -330,5 +383,6 @@ false
     }
     test.expectTrue(rejected, "duplicate registration rejected immediately");
     core::SNodeC::free();
+
     return test.processResult();
 }
