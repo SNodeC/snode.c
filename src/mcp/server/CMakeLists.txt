@@ -1,10 +1,20 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(MCP_JSON REQUIRED nlohmann_json>=3.11)
-add_library(mcp-server SHARED Server.cpp Server.h Config.cpp Config.h)
+add_library(
+    mcp-server SHARED
+    Server.cpp
+    Server.h
+    Config.cpp
+    Config.h
+    stream/SocketContext.cpp
+    stream/SocketContext.h
+    stream/SocketContextFactory.cpp
+    stream/SocketContextFactory.h
+)
 add_library(snodec::mcp-server ALIAS mcp-server)
 target_compile_features(mcp-server PUBLIC cxx_std_20)
-target_link_libraries(mcp-server PUBLIC core)
+target_link_libraries(mcp-server PUBLIC core-socket-stream)
 target_include_directories(
     mcp-server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -36,13 +46,16 @@ install(
     COMPONENT mcp-server
 )
 install(
+    FILES stream/SocketContext.h stream/SocketContextFactory.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server/stream
+    COMPONENT mcp-server
+)
+install(
     EXPORT snodec_mcp-server_Targets
     FILE snodec_mcp-server_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     COMPONENT mcp-server
 )
-
-add_subdirectory(stream)
 
 add_subdirectory(http)
