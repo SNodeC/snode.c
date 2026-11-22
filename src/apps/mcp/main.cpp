@@ -33,13 +33,13 @@
 
 #else
 #include "core/SNodeC.h"
-#include <exception>
 #include "express/legacy/in/WebApp.h"
 #include "mcp/server/http/Router.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
-#endif
 
+#include <exception>
+#endif
 
 int main(int argc, char* argv[]) {
     int result = 1;
@@ -79,6 +79,8 @@ int main(int argc, char* argv[]) {
                 });
                 const int loop = core::SNodeC::start();
                 result = loop != 0 ? loop : failure;
+            } else {
+                core::SNodeC::free();
             }
         } catch (const std::exception& error) {
             snode::log::application("mcp.development").error() << error.what();

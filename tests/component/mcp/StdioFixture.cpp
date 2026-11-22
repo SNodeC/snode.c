@@ -98,6 +98,8 @@ int main(int argc, char* argv[]) {
                 });
                 const int loop = core::SNodeC::start();
                 result = loop != 0 ? loop : failure;
+            } else {
+                core::SNodeC::free();
             }
         } catch (const std::exception& error) {
             snode::log::application("mcp.fixture").error() << error.what();
