@@ -209,9 +209,9 @@ namespace core::socket::stream {
                                     SocketConnection* socketConnection =
                                         new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                                    const auto activation = socketConnection->activate();
+                                    const bool active = socketConnection->activate();
                                     const int activationError = errno;
-                                    if (activation == SocketConnection::Activation::ACTIVE) {
+                                    if (active) {
                                         snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                                             << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
                                         snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
@@ -225,9 +225,6 @@ namespace core::socket::stream {
                                         onConnect(socketConnection);
                                         onConnected(socketConnection);
                                     } else {
-                                        if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
-                                            delete socketConnection;
-                                        }
                                         finishAttempt("connection attempt failed", *remoteAddress, connectErrorState(activationError));
                                     }
                                 }
@@ -278,9 +275,9 @@ namespace core::socket::stream {
                 SocketConnection* socketConnection =
                     new SocketConnection(std::move(physicalClientSocket), onDisconnect, allocateConnectionId(), config);
 
-                const auto activation = socketConnection->activate();
+                const bool active = socketConnection->activate();
                 const int activationError = errno;
-                if (activation == SocketConnection::Activation::ACTIVE) {
+                if (active) {
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
                         << config->getInstanceName() << " connect " << remoteAddress->toString() << ": success";
                     snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
@@ -294,9 +291,6 @@ namespace core::socket::stream {
                     onConnect(socketConnection);
                     onConnected(socketConnection);
                 } else {
-                    if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
-                        delete socketConnection;
-                    }
                     finishAttempt("connection attempt failed", *remoteAddress, connectErrorState(activationError));
                 }
 

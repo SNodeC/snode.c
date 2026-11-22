@@ -253,9 +253,9 @@ namespace core::socket::stream {
                     SocketConnection* socketConnection =
                         new SocketConnection(std::move(connectedPhysicalSocket), onDisconnect, connectionId, config);
 
-                    const auto activation = socketConnection->activate();
+                    const bool active = socketConnection->activate();
                     const int activationError = errno;
-                    if (activation == SocketConnection::Activation::ACTIVE) {
+                    if (active) {
                         socketConnection->log().info("transport connected");
 
                         snode::log::framework("core.socket", snode::log::Boundary::Connection).debug()
@@ -267,9 +267,6 @@ namespace core::socket::stream {
                         onConnect(socketConnection);
                         onConnected(socketConnection);
                     } else {
-                        if (activation == SocketConnection::Activation::FAILED_UNOBSERVED) {
-                            delete socketConnection;
-                        }
                         snode::log::framework("core.socket", snode::log::Boundary::Connection)
                                 .systemError(snode::log::Level::Warning, activationError)
                             << config->getInstanceName() << " connection activation failed";

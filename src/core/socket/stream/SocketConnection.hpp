@@ -176,21 +176,21 @@ namespace core::socket::stream {
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>
-    typename SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::Activation
-    SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate() {
-        Activation activation = Activation::ACTIVE;
+    bool SocketConnectionT<PhysicalSocket, SocketReader, SocketWriter, Config>::activate() {
+        bool active = false;
         if (!SocketReader::enable(physicalSocket.getFd())) {
-            activation = Activation::FAILED_UNOBSERVED;
+            const utils::PreserveErrno preserveErrno;
+            delete this;
         } else if (!SocketWriter::enable(physicalSocket.getFd())) {
             const utils::PreserveErrno preserveErrno;
             onDisconnect = [] {
             };
             SocketReader::disable();
-            activation = Activation::FAILED_RELEASING;
         } else {
             SocketWriter::suspend();
+            active = true;
         }
-        return activation;
+        return active;
     }
 
     template <typename PhysicalSocket, typename SocketReader, typename SocketWriter, typename Config>

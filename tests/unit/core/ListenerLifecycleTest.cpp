@@ -138,9 +138,8 @@ namespace {
     class TestSocketConnection {
     public:
         using Self = TestSocketConnection<PhysicalSocket, Config>;
-        enum class Activation { ACTIVE, FAILED_UNOBSERVED, FAILED_RELEASING };
-        Activation activate() const {
-            return Activation::ACTIVE;
+        bool activate() const {
+            return true;
         }
 
         TestSocketConnection(PhysicalSocket&&, const std::function<void(Self*)>&, std::uint64_t, const std::shared_ptr<Config>&) {

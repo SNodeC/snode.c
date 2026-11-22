@@ -519,11 +519,7 @@ namespace {
                 config,
                 lifecycle);
 
-            const auto activation = connection->activate();
-            if (activation != TestConnection::Activation::ACTIVE) {
-                if (activation == TestConnection::Activation::FAILED_UNOBSERVED) {
-                    delete connection;
-                }
+            if (!connection->activate()) {
                 core::SNodeC::free();
                 throw std::runtime_error("shutdown fixture activation failed");
             }
