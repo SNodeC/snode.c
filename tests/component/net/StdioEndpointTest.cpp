@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/socket/stream/SocketContext.h"
@@ -8,6 +48,8 @@
 #include "net/stdio/stream/SocketEndpoint.h"
 #include "support/TestResult.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <fcntl.h>
 #include <map>
 #include <memory>
@@ -15,7 +57,10 @@
 #include <string>
 #include <unistd.h>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace {
+
     tests::support::TestResult test;
     std::string mode;
     std::string order;
@@ -24,6 +69,7 @@ namespace {
     int disconnected = 0;
     int factories = 0;
     int protocols = 0;
+
     class Context final : public core::socket::stream::SocketContext {
     public:
         explicit Context(core::socket::stream::SocketConnection* connection)
@@ -42,6 +88,7 @@ namespace {
 
         std::size_t onReceivedFromPeer() override {
             char bytes[16];
+
             return readFromPeer(bytes, sizeof(bytes));
         }
 
@@ -53,6 +100,7 @@ namespace {
     class Factory final : public core::socket::stream::SocketContextFactory {
     public:
         ~Factory() override;
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {
             ++factories;
             order += "f";
@@ -62,14 +110,17 @@ namespace {
             } else if (mode != "null") {
                 context = new Context(connection);
             }
+
             return context;
         }
     };
 
     Factory::~Factory() = default;
+
     class FailingPhysical : public net::stdio::phy::stream::PhysicalSocket {
     public:
         using PhysicalSocket::PhysicalSocket;
+
         int getReadFd() const {
             return mode == "first" ? -1 : PhysicalSocket::getReadFd();
         }
@@ -82,6 +133,7 @@ namespace {
     using Endpoint = net::stdio::stream::SocketEndpoint<Factory>;
 
 } // namespace
+
 int main(int argc, char* argv[]) {
     mode = argc > 1 ? argv[1] : "success";
     char file[] = "--config-file=/dev/null";
@@ -120,10 +172,12 @@ int main(int argc, char* argv[]) {
             test.expectTrue(payload == std::string(received, count > 0 ? static_cast<std::size_t>(count) : 0),
                             "stdin borrower receives its exact unread payload after teardown");
         }
+
         if (saved >= 0) {
             test.expectTrue(::dup2(saved, STDIN_FILENO) >= 0, "restore the test process stdin");
             ::close(saved);
         }
+
         for (int descriptor : descriptors) {
             if (descriptor >= 0) {
                 ::close(descriptor);
@@ -200,6 +254,7 @@ int main(int argc, char* argv[]) {
                     core::SNodeC::stop();
                 });
             }
+
             if (mode == "retry" || mode == "first") {
                 using FailingEndpoint = core::socket::stream::stdio::SocketEndpoint<FailingPhysical, Endpoint::Config, Factory>;
                 const FailingEndpoint failure("failure");
@@ -218,6 +273,7 @@ int main(int argc, char* argv[]) {
             } else {
                 endpoint.attach(status);
             }
+
             test.expectTrue(statuses == 0 && ::fcntl(handles[0], F_GETFL) == flags, "attachment is queued without touching flags");
             if (mode == "lifecycle") {
                 static_cast<void>(core::SNodeC::tick());
@@ -229,9 +285,11 @@ int main(int argc, char* argv[]) {
         if (mode == "destroy") {
             test.expectEqual(0, core::SNodeC::start(), "queued state outlives facade");
         }
+
         if (mode == "halt") {
             test.expectEqual(0, factories, "shutdown from onConnect prevents protocol construction");
         }
+
         test.expectEqual(mode == "retry" || mode == "first" ? 2 : 1, statuses, "exactly one completion per attempt");
         if (mode == "success" || mode == "destroy" || mode == "stop" || mode == "retry" || mode == "first") {
             test.expectTrue(order == (mode == "retry" || mode == "first" ? "rcCfpsd" : "cCfpsd") && protocols == 1 && disconnected == 1,
@@ -241,12 +299,15 @@ int main(int argc, char* argv[]) {
         } else {
             test.expectEqual(0, disconnected, "no application disconnect without onConnect");
         }
+
         test.expectTrue(connectionStates.empty(), "all per-connection state is released after teardown");
         if (mode == "disabled" || mode == "invalid" || (mode == "lifecycle" || mode == "stopping")) {
             test.expectTrue(::fcntl(handles[0], F_GETFL) == flags && factories == 0, "rejected attachment leaves caller binding untouched");
             ::close(handles[0]);
         }
+
         ::close(handles[1]);
     }
+
     return test.processResult();
 }

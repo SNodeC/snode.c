@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "mcp/server/http/Router.h"
 
 #include "Log.h"
@@ -14,47 +54,61 @@
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
+namespace core {
+    struct ShutdownContext;
+}
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
 #include <nlohmann/json.hpp>
-#include <regex>
 #include <optional>
-#include <variant>
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
-namespace core {
-    struct ShutdownContext;
-}
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server::http {
+
     using namespace mcp::server::detail;
     using WireReply = Access::Response;
     using WireServer = Access::Registry;
+
     namespace {
+
         enum class StreamMode { Json, Sse };
+
         std::string lower(std::string value) {
             std::transform(value.begin(), value.end(), value.begin(), [](char c) {
                 return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
             });
+
             return value;
         }
+
         bool accepts(const std::string& header, const std::string& type) {
             const auto tokens = httputils::splitCommaSeparatedTokens(header);
+
             return std::any_of(tokens.begin(), tokens.end(), [&type](std::string token) {
                 token = httputils::str_split(token, ';').first;
+
                 return httputils::tokenEquals(httputils::str_trimm(token), type);
             });
         }
+
         bool headerMatches(const std::string& header, const Json& value, bool encoded) {
             std::string decoded = header;
             bool valid = !header.empty() && std::all_of(header.begin(), header.end(), [](char c) {
                 const auto byte = static_cast<unsigned char>(c);
+
                 return byte == 9 || (byte >= 32 && byte <= 126);
             });
             if (valid && encoded && header.starts_with("=?base64?") && header.ends_with("?=")) {
@@ -62,8 +116,10 @@ namespace mcp::server::http {
                 decoded = base64::base64_decode(payload);
                 valid = base64::base64_encode(reinterpret_cast<const unsigned char*>(decoded.data()), decoded.size()) == payload;
             }
+
             return valid && value.is_string() && decoded == value.get_ref<const std::string&>();
         }
+
         void
         fail(const std::shared_ptr<express::Response>& response, const Json& request, ProtocolEra era, int code, const std::string& text) {
             const Json id = request.is_object() ? request.value("id", Json()) : Json();
@@ -77,6 +133,7 @@ namespace mcp::server::http {
                 utils::Timeval(30))
                 .error(code, text);
         }
+
         struct Operation
             : core::pipe::Source
             , std::enable_shared_from_this<Operation> {
@@ -94,6 +151,7 @@ namespace mcp::server::http {
             bool paused = false;
             bool ended = false;
             bool closed = false;
+
             Operation(Server& server,
                       Config& config,
                       Json request,
@@ -109,17 +167,22 @@ namespace mcp::server::http {
                 , era(era)
                 , mode(mode) {
             }
+
             ~Operation() override;
+
             bool isOpen() override {
                 return !closed;
             }
+
             void suspend() override {
                 paused = true;
             }
+
             void resume() override {
                 paused = false;
                 pump();
             }
+
             void stop() override {
                 auto keep = shared_from_this();
                 if (!closed) {
@@ -128,9 +191,11 @@ namespace mcp::server::http {
                     if (reply) {
                         reply->cancel(CancelReason::Disconnected);
                     }
+
                     owner.reset();
                 }
             }
+
             void feed(const Json& value, bool terminal) {
                 if (!closed) {
                     ended = terminal;
@@ -138,6 +203,7 @@ namespace mcp::server::http {
                         if (!value.is_null()) {
                             queue += "event: message\ndata: " + value.dump() + "\n\n";
                         }
+
                         if (queue.size() > config.getMaximumOutputBytes()) {
                             snode::log::framework("mcp.server", snode::log::Boundary::Context).error() << "HTTP output limit exceeded";
                             error(EMSGSIZE);
@@ -151,10 +217,12 @@ namespace mcp::server::http {
                                 response->status(WireServer::httpStatus(value)).type("application/json").send(bytes);
                             }
                         }
+
                         stop();
                     }
                 }
             }
+
             void pump() {
                 auto keep = shared_from_this();
                 std::size_t chunks = 0;
@@ -164,10 +232,12 @@ namespace mcp::server::http {
                     static_cast<void>(send(chunk.data(), chunk.size()));
                     ++chunks;
                 }
+
                 if (!closed && ended && queue.empty()) {
                     eof();
                 }
             }
+
             void shutdown() {
                 if (!closed && reply) {
                     reply->cancel(CancelReason::Shutdown);
@@ -178,6 +248,7 @@ namespace mcp::server::http {
                     }
                 }
             }
+
             void start() override {
                 const std::weak_ptr<Operation> weak = shared_from_this();
                 reply = Access::registry(server).dispatch(
@@ -193,6 +264,7 @@ namespace mcp::server::http {
                 if (mode == StreamMode::Sse) {
                     pump();
                 }
+
                 if (!closed) {
                     timer = core::timer::Timer::intervalTimer(
                         [weak] {
@@ -200,6 +272,7 @@ namespace mcp::server::http {
                                 if (current->era == ProtocolEra::PerRequest20260728 && !current->response->isConnected()) {
                                     current->stop();
                                 }
+
                                 if (current->mode == StreamMode::Sse) {
                                     current->pump();
                                 }
@@ -209,7 +282,9 @@ namespace mcp::server::http {
                 }
             }
         };
+
         Operation::~Operation() = default;
+
         struct State : std::enable_shared_from_this<State> {
             Server& server;
             Config& config;
@@ -218,18 +293,22 @@ namespace mcp::server::http {
             core::pipe::PipeSource* writer = nullptr;
             std::vector<std::weak_ptr<Operation>> operations;
             bool stopping = false;
+
             State(Server& server, Config& config)
                 : server(server)
                 , config(config) {
             }
+
             ~State() {
                 if (reader) {
                     reader->close();
                 }
+
                 if (writer) {
                     writer->close();
                 }
             }
+
             void shutdown() {
                 if (!stopping) {
                     stopping = true;
@@ -238,14 +317,17 @@ namespace mcp::server::http {
                             operation->shutdown();
                         }
                     }
+
                     if (reader) {
                         reader->close();
                     }
+
                     if (writer) {
                         writer->close();
                     }
                 }
             }
+
             void observe() {
                 const std::weak_ptr<State> weak = shared_from_this();
                 reader = lifecycle.releaseReadAsSink(1, utils::Timeval(0));
@@ -253,6 +335,7 @@ namespace mcp::server::http {
                 if (!reader || !writer) {
                     throw std::runtime_error("MCP HTTP lifecycle registration failed");
                 }
+
                 reader->setOnClosed([weak] {
                     if (const auto state = weak.lock()) {
                         state->reader = nullptr;
@@ -275,7 +358,9 @@ namespace mcp::server::http {
                 });
             }
         };
+
     } // namespace
+
     Router::Router(Server& server, Config& config, Authorize authorize) {
         auto state = std::make_shared<State>(server, config);
         state->observe();
@@ -400,4 +485,5 @@ namespace mcp::server::http {
             }
         });
     }
+
 } // namespace mcp::server::http

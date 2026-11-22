@@ -120,6 +120,7 @@ namespace core {
     bool DescriptorEventReceiver::enable(int fd) {
         if (enabled) {
             log().warn("{} descriptor: Double enable", descriptorEventPublisher.getName());
+
             return false;
         }
 
@@ -127,6 +128,7 @@ namespace core {
         if (descriptorEventPublisher.enable(this)) {
             enabled = true;
             log().trace("{} descriptor enabled", descriptorEventPublisher.getName());
+
             return true;
         }
 
@@ -134,6 +136,7 @@ namespace core {
         observedFd = -1;
         log().error("{} descriptor registration failed: fd={}", descriptorEventPublisher.getName(), fd);
         errno = registrationError;
+
         return false;
     }
 

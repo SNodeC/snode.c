@@ -91,6 +91,7 @@ namespace core::socket::stream {
                 applicationLogGeneration_ = generation;
                 applicationLog_.emplace(applicationLogScope.logger(logger::Logger::semanticSink()));
             }
+
             return *applicationLog_;
         }
 
@@ -111,6 +112,7 @@ namespace core::socket::stream {
                 frameworkLogGeneration_ = generation;
                 frameworkLog_.emplace(frameworkLogScope.logger(logger::Logger::semanticSink()));
             }
+
             return *frameworkLog_;
         }
 
@@ -203,6 +205,7 @@ namespace core::socket::stream {
         } else {
             frameworkLog().sysError(logger::LogLevel::Debug, errnum, "SocketContext: onReadError");
         }
+
         shutdownWrite();
     }
 

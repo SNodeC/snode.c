@@ -1,43 +1,96 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #ifndef MCP_SERVER_RESULTS_H
 #define MCP_SERVER_RESULTS_H
+
 #include "mcp/server/Types.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <optional>
 #include <string>
 #include <variant>
 #include <vector>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace mcp::server {
+
     /// Owned UTF-8 resource contents; the URI identifies the resource.
     struct TextResource {
         std::string uri;      ///< Owned resource URI.
         std::string mimeType; ///< Owned MIME media type.
         std::string text;     ///< Owned UTF-8 text.
     };
+
     /// Owned binary resource contents encoded as base64.
     struct BlobResource {
         std::string uri;      ///< Owned resource URI.
         std::string mimeType; ///< Owned MIME media type.
         std::string base64;   ///< Owned base64 data, encoded by the application.
     };
+
     using ResourceContents = std::variant<TextResource, BlobResource>; ///< Owned text or binary resource value.
+
     /// Owned UTF-8 tool or prompt content.
     struct TextContent {
         std::string text;        ///< Owned UTF-8 text.
         Annotations annotations; ///< Owned optional annotations for this block.
     };
+
     /// Owned base64 image with an explicit media type.
     struct ImageContent {
         std::string base64;      ///< Owned base64 data, encoded by the application.
         std::string mimeType;    ///< Owned MIME media type.
         Annotations annotations; ///< Owned optional annotations for this block.
     };
+
     /// Owned base64 audio with an explicit media type.
     struct AudioContent {
         std::string base64;      ///< Owned base64 data, encoded by the application.
         std::string mimeType;    ///< Owned MIME media type.
         Annotations annotations; ///< Owned optional annotations for this block.
     };
+
     /// Owned resource reference; reading it requires a separate resource request.
     struct ResourceLink {
         std::string uri;                   ///< Owned resource URI.
@@ -47,19 +100,23 @@ namespace mcp::server {
         std::optional<std::uint64_t> size; ///< Optional resource size in bytes.
         Annotations annotations;           ///< Owned optional annotations for this block.
     };
+
     /// Owned resource data embedded directly in tool or prompt content.
     struct EmbeddedResource {
         ResourceContents resource; ///< Owned embedded text or binary resource.
         Annotations annotations;   ///< Owned optional annotations for this block.
     };
+
     using Content =
         std::variant<TextContent, ImageContent, AudioContent, ResourceLink, EmbeddedResource>; ///< Owned protocol content block, serialized
                                                                                                ///< by the module.
+
     /// Prompt messages accept content, not a prebuilt protocol envelope.
     struct PromptMessage {
         Role role;       ///< Sender of this prompt message.
         Content content; ///< Owned message content.
     };
+
     /// Owned tool completion; factories derive all wire fields from one value.
     class ToolResult {
     public:
@@ -75,18 +132,24 @@ namespace mcp::server {
 
     private:
         explicit ToolResult(Json value);
+
         template <class Result>
         friend class Reply;
+
         Json value;
     };
+
     /// Owned resources returned by one successful resource read.
     struct ResourceResult {
         std::vector<ResourceContents> contents; ///< Owned resource contents in response order.
     };
+
     /// Owned ordered messages returned by one successful prompt expansion.
     struct PromptResult {
         std::optional<std::string> description; ///< Owned optional human-readable description.
         std::vector<PromptMessage> messages;    ///< Owned prompt messages in presentation order.
     };
+
 } // namespace mcp::server
+
 #endif

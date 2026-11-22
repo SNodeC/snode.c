@@ -78,6 +78,7 @@ namespace core::socket::stream {
         if (writeQueueLowWatermark > effectiveWriteQueueHighWatermark) {
             throw std::invalid_argument("write queue low watermark exceeds high watermark");
         }
+
         if (maximumWriteQueueBytes != 0 && configuredWriteQueueHighWatermark != 0 &&
             configuredWriteQueueHighWatermark > maximumWriteQueueBytes) {
             throw std::invalid_argument("write queue high watermark exceeds maximum queue size");
@@ -97,8 +98,10 @@ namespace core::socket::stream {
             if (isEnabled() && !isSuspended()) {
                 suspend();
             }
+
             return;
         }
+
         doWrite();
     }
 

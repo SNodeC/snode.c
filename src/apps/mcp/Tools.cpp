@@ -1,4 +1,44 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later OR MIT
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "Tools.h"
 
 #include "core/system/unistd.h"
@@ -11,6 +51,8 @@
 #include "mcp/server/Server.h"
 #include "mcp/server/Types.h"
 #include "utils/CLI11.hpp"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <array>
@@ -30,13 +72,18 @@
 #include <utility>
 #include <vector>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace apps::mcp {
+
     using ::mcp::server::Json;
     using ::mcp::server::ToolReply;
     using ::mcp::server::ToolResult;
+
     bool header(const std::string& path) {
         return path.ends_with(".h") || path.ends_with(".hpp");
     }
+
     class Headers {
     public:
         explicit Headers(const std::string& path)
@@ -45,11 +92,14 @@ namespace apps::mcp {
                 throw std::runtime_error("Cannot open installed header root");
             }
         }
+
         Headers(const Headers&) = delete;
         Headers& operator=(const Headers&) = delete;
+
         ~Headers() {
             ::close(root);
         }
+
         int open(const std::string& path, bool directory) const {
             std::vector<std::string> parts;
             std::size_t position = 0;
@@ -61,6 +111,7 @@ namespace apps::mcp {
                 parts.push_back(part);
                 position = slash == std::string::npos ? path.size() : slash + 1;
             }
+
             valid = valid && (path.empty() || path.back() != '/');
             int fd = valid ? ::openat(root, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW) : -1;
             for (std::size_t i = 0; fd >= 0 && i < parts.size(); ++i) {
@@ -69,18 +120,22 @@ namespace apps::mcp {
                 ::close(fd);
                 fd = next;
             }
+
             struct stat info{};
             if (fd >= 0 && !directory && (::fstat(fd, &info) != 0 || !S_ISREG(info.st_mode))) {
                 ::close(fd);
                 fd = -1;
             }
+
             return fd;
         }
 
     private:
         int root;
     };
+
     namespace {
+
         class Lookup final : public std::enable_shared_from_this<Lookup> {
         public:
             Lookup(std::shared_ptr<Headers> headers,
@@ -99,7 +154,9 @@ namespace apps::mcp {
                     this->args.value(mode == LookupMode::Read ? "bytes" : "limit", std::size_t{mode == LookupMode::Read ? 16384U : 20U});
                 query = this->args.value("query", std::string());
             }
+
             ~Lookup();
+
             void start(const ::mcp::server::RequestContext& context) {
                 const std::weak_ptr<Lookup> weak = shared_from_this();
                 context.onCancel([weak](::mcp::server::CancelReason) {
@@ -135,13 +192,27 @@ namespace apps::mcp {
             std::shared_ptr<ToolReply> reply;
             Json args;
             LookupMode mode;
-            std::size_t maximumFiles, maximumBytes, limit = 0, files = 0, bytes = 0, entries = 0, offset = 0, lines = 0;
-            std::string query, path, folder, tail, text, failure;
+            std::size_t maximumFiles;
+            std::size_t maximumBytes;
+            std::size_t limit = 0;
+            std::size_t files = 0;
+            std::size_t bytes = 0;
+            std::size_t entries = 0;
+            std::size_t offset = 0;
+            std::size_t lines = 0;
+            std::string query;
+            std::string path;
+            std::string folder;
+            std::string tail;
+            std::string text;
+            std::string failure;
             std::deque<std::string> directories{std::string()};
             DIR* directory = nullptr;
             int file = -1;
             Json matches = Json::array();
-            bool done = false, truncated = false;
+            bool done = false;
+            bool truncated = false;
+
             void collect(const char* chunk, std::size_t length) {
                 if (!done) {
                     bytes += length;
@@ -161,6 +232,7 @@ namespace apps::mcp {
                                                                window.begin(), window.begin() + static_cast<std::ptrdiff_t>(at), '\n'))}});
                             at = window.find(query, at + 1);
                         }
+
                         lines += static_cast<std::size_t>(std::count(chunk, chunk + length, '\n'));
                         offset += length;
                         tail = window.substr(window.size() - std::min(window.size(), query.size() - 1));
@@ -169,12 +241,14 @@ namespace apps::mcp {
                     }
                 }
             }
+
             void closeFile() {
                 if (file >= 0) {
                     ::close(file);
                     file = -1;
                 }
             }
+
             void readChunk() {
                 std::array<char, 16384> chunk{};
                 const std::size_t remaining = mode == LookupMode::Read ? limit - text.size() : maximumBytes - bytes;
@@ -192,6 +266,7 @@ namespace apps::mcp {
                     done = true;
                 }
             }
+
             void attach() {
                 int fd = headers->open(path, false);
                 if (fd >= 0 && mode == LookupMode::Read &&
@@ -199,6 +274,7 @@ namespace apps::mcp {
                     ::close(fd);
                     fd = -1;
                 }
+
                 if (fd >= 0) {
                     ++files;
                     tail.clear();
@@ -210,6 +286,7 @@ namespace apps::mcp {
                     done = true;
                 }
             }
+
             void traverse() {
                 if (directory == nullptr && !directories.empty()) {
                     folder = std::move(directories.front());
@@ -222,6 +299,7 @@ namespace apps::mcp {
                         }
                     }
                 }
+
                 for (std::size_t i = 0; i < 8 && directory != nullptr && file < 0 && !done; ++i) {
                     dirent* entry = ::readdir(directory);
                     if (entry == nullptr) {
@@ -242,14 +320,17 @@ namespace apps::mcp {
                                 attach();
                             }
                         }
+
                         if (entries >= 8192 || directories.size() >= 512) {
                             truncated = true;
                             done = true;
                         }
                     }
                 }
+
                 done = done || (directory == nullptr && directories.empty() && file < 0);
             }
+
             void finish() {
                 closeFile();
                 if (!failure.empty()) {
@@ -274,6 +355,7 @@ namespace apps::mcp {
                         truncated = true;
                         done = true;
                     }
+
                     if (!done && file >= 0) {
                         readChunk();
                     } else if (!done && mode == LookupMode::Read) {
@@ -282,6 +364,7 @@ namespace apps::mcp {
                     } else if (!done) {
                         traverse();
                     }
+
                     if (done) {
                         finish();
                     } else {
@@ -293,17 +376,21 @@ namespace apps::mcp {
                 }
             }
         };
+
         Lookup::~Lookup() {
             closeFile();
             if (directory != nullptr) {
                 ::closedir(directory);
             }
         }
+
         constexpr const char* style = "SNode.C: use one event loop; configure named instances before init; listen, then start. "
                                       "Use semantic logging, express routing and existing CLI11 instance options. "
                                       "Keep protocol code independent of transports. Bound every handler's work. "
                                       "Stream with Response::pipe and finish through Source EOF. Never mix send/json with an open stream.";
+
     } // namespace
+
     DevelopmentConfig::DevelopmentConfig(utils::SubCommand* parent)
         : ::mcp::server::Config(parent) {
         headerRoot = addOption("--header-root", "Installed SNode.C header root", "directory", CLI::ExistingDirectory);
@@ -311,21 +398,27 @@ namespace apps::mcp {
         searchFiles = addOption("--search-files", "Maximum headers per search", "count", std::size_t{4096}, CLI::Range(1, 8192));
         searchBytes = addOption("--search-bytes", "Maximum bytes read per search", "bytes", std::size_t{8388608}, CLI::Range(1, 67108864));
     }
+
     std::string DevelopmentConfig::getHeaderRoot() const {
         return headerRoot->as<std::string>();
     }
+
     std::size_t DevelopmentConfig::getSearchFiles() const {
         return searchFiles->as<std::size_t>();
     }
+
     std::size_t DevelopmentConfig::getSearchBytes() const {
         return searchBytes->as<std::size_t>();
     }
+
     std::string instructions() {
         return style;
     }
+
     std::shared_ptr<Headers> openHeaders(const std::string& root) {
         return std::make_shared<Headers>(root);
     }
+
     void lookup(const std::shared_ptr<Headers>& headers,
                 const ::mcp::server::ToolCall& call,
                 const std::shared_ptr<::mcp::server::ToolReply>& reply,
@@ -334,6 +427,7 @@ namespace apps::mcp {
                 std::size_t bytes) {
         std::make_shared<Lookup>(headers, reply, call.arguments, mode, files, bytes)->start(call.context);
     }
+
     ::mcp::server::Json parseSchema(const std::string& name, const char* text, const char* field) {
         ::mcp::server::Json schema;
         try {
@@ -341,6 +435,8 @@ namespace apps::mcp {
         } catch (const ::mcp::server::Json::parse_error& error) {
             throw ::mcp::server::RegistrationError(::mcp::server::RegistrationKind::Tool, name, field, error.what());
         }
+
         return schema;
     }
+
 } // namespace apps::mcp

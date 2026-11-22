@@ -45,7 +45,6 @@
 #include "core/eventreceiver/ReadEventReceiver.h"
 
 namespace logger {
-
     struct LogScope;
 }
 

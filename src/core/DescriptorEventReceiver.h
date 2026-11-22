@@ -47,9 +47,7 @@
 #include "log/LogScopeOwner.h"
 
 namespace core {
-
     class DescriptorEventPublisher;
-
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -65,6 +63,7 @@ namespace core {
     class Observer {
     public:
         Observer() = default;
+
         Observer(Observer&) = delete;
         Observer(Observer&&) = delete;
 

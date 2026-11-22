@@ -63,6 +63,7 @@ namespace core::socket::stream {
             if constexpr (requires { physicalSocket.getReadFd(); }) {
                 fd = physicalSocket.getReadFd();
             }
+
             return fd;
         }
 
@@ -72,6 +73,7 @@ namespace core::socket::stream {
             if constexpr (requires { physicalSocket.getWriteFd(); }) {
                 fd = physicalSocket.getWriteFd();
             }
+
             return fd;
         }
 
@@ -80,6 +82,7 @@ namespace core::socket::stream {
             if constexpr (requires { config.getMaximumWriteQueueBytes(); }) {
                 return config.getMaximumWriteQueueBytes();
             }
+
             return 0;
         }
 
@@ -88,6 +91,7 @@ namespace core::socket::stream {
             if constexpr (requires { config.getWriteQueueHighWatermark(); }) {
                 return config.getWriteQueueHighWatermark();
             }
+
             return 0;
         }
 
@@ -96,6 +100,7 @@ namespace core::socket::stream {
             if constexpr (requires { config.getWriteQueueLowWatermark(); }) {
                 return config.getWriteQueueLowWatermark();
             }
+
             return 0;
         }
 
@@ -202,6 +207,7 @@ namespace core::socket::stream {
         if constexpr (requires { physicalSocket.prepare(); }) {
             prepared = physicalSocket.prepare();
         }
+
         if (!prepared || !SocketReader::enable(detail::readFd(physicalSocket))) {
             const utils::PreserveErrno preserveErrno;
             const int error = errno;
@@ -222,8 +228,10 @@ namespace core::socket::stream {
             if constexpr (requires { physicalSocket.commit(); }) {
                 physicalSocket.commit();
             }
+
             active = true;
         }
+
         return active;
     }
 
@@ -345,6 +353,7 @@ namespace core::socket::stream {
         if (SocketWriter::isEnabled()) {
             SocketWriter::disable();
         }
+
         if (SocketReader::isEnabled()) {
             SocketReader::disable();
         }
@@ -399,6 +408,7 @@ namespace core::socket::stream {
         if (frameworkShutdownProcessed) {
             return;
         }
+
         frameworkShutdownProcessed = true;
 
         if (Super::socketContext != nullptr) {
