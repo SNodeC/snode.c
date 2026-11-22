@@ -769,6 +769,7 @@ foreach(
           retry
           first
           halt
+          borrow
 )
     add_test(NAME StdioEndpoint-${mode} COMMAND StdioEndpointTest ${mode})
     set_tests_properties(

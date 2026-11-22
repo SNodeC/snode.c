@@ -87,7 +87,49 @@ int main(int argc, char* argv[]) {
     char file[] = "--config-file=/dev/null";
     char quiet[] = "--quiet";
     char* arguments[] = {argv[0], file, quiet};
-    if (mode == "network") {
+    if (mode == "borrow") {
+        const int saved = ::fcntl(STDIN_FILENO, F_DUPFD_CLOEXEC, 3);
+        int descriptors[4] = {-1, -1, -1, -1};
+        const bool pipes = ::pipe(descriptors) == 0 && ::pipe(descriptors + 2) == 0;
+        test.expectTrue(saved >= 0 && pipes, "create borrowed stdin and output pipes");
+        if (saved >= 0 && pipes && ::dup2(descriptors[0], STDIN_FILENO) >= 0) {
+            const int inputFlags = ::fcntl(STDIN_FILENO, F_GETFL);
+            const int outputFlags = ::fcntl(descriptors[3], F_GETFL);
+            test.expectEqual(0, ::fcntl(STDIN_FILENO, F_SETFL, inputFlags | O_NONBLOCK | O_APPEND), "prepare borrowed input flags");
+            test.expectEqual(0, ::fcntl(descriptors[3], F_SETFL, outputFlags | O_NONBLOCK), "prepare borrowed output flags");
+            const int expectedFlags = ::fcntl(STDIN_FILENO, F_GETFL);
+            const std::string payload = "borrowed stdin survives cleanup";
+            test.expectEqual(static_cast<ssize_t>(payload.size()),
+                             ::write(descriptors[1], payload.data(), payload.size()),
+                             "queue data owned by the stdin borrower");
+            const Endpoint endpoint("borrowed-stdin");
+            endpoint.getConfig()->Instance::forceUnrequired();
+            endpoint.getConfig()->Local::setDescriptorOwnership(net::stdio::config::DescriptorOwnership::BORROW);
+            core::SNodeC::init(3, arguments);
+            endpoint.attach(net::stdio::SocketAddress(STDIN_FILENO, descriptors[3]), [](const auto&, auto state) {
+                ++statuses;
+                test.expectTrue(state == core::socket::State::OK, "borrowed stdin attaches successfully");
+            });
+            test.expectEqual(0, core::SNodeC::start(), "borrowed connection closes without consuming input");
+            test.expectEqual(1, statuses, "borrowed connection reports one attachment");
+            test.expectEqual(1, protocols, "borrowed context was attached and closed");
+            test.expectEqual(expectedFlags, ::fcntl(STDIN_FILENO, F_GETFL), "global cleanup preserves borrowed stdin flags");
+            char received[64]{};
+            const auto count = ::read(STDIN_FILENO, received, sizeof(received));
+            test.expectEqual(static_cast<ssize_t>(payload.size()), count, "global cleanup preserves unread pipe bytes");
+            test.expectTrue(payload == std::string(received, count > 0 ? static_cast<std::size_t>(count) : 0),
+                            "stdin borrower receives its exact unread payload after teardown");
+        }
+        if (saved >= 0) {
+            test.expectTrue(::dup2(saved, STDIN_FILENO) >= 0, "restore the test process stdin");
+            ::close(saved);
+        }
+        for (int descriptor : descriptors) {
+            if (descriptor >= 0) {
+                ::close(descriptor);
+            }
+        }
+    } else if (mode == "network") {
         net::in::stream::legacy::SocketServer<Factory> server("server");
         const net::in::stream::legacy::SocketClient<Factory> client("client");
         server.getConfig()->Instance::forceUnrequired();
