@@ -89,6 +89,7 @@ namespace utils {
         OptionView* operator->() {
             return this;
         }
+
         // Keep the API default as a result when parsing supplies no value.
         void promoteDefault();
     };
@@ -301,6 +302,7 @@ namespace utils {
             bool needed = false;
             bool promoted = false;
         };
+
         std::map<CLI::Option*, OptionState, std::less<>> options;
         std::map<SubCommand*, bool> neededSubCommands;
         unsigned suppressions = 0;

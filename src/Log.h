@@ -215,22 +215,27 @@ namespace snode::log {
         void trace(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Trace, pattern, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void debug(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Debug, pattern, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void info(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Info, pattern, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void warn(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Warning, pattern, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void error(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Error, pattern, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void critical(std::string_view pattern, Args&&... args) const {
             writeFormatted(Level::Critical, pattern, std::forward<Args>(args)...);
@@ -264,6 +269,7 @@ namespace snode::log {
 
         explicit Logger(std::shared_ptr<const Impl> impl);
         Stream stream(Level level) const;
+
         template <class... Args>
         void writeFormatted(Level level, std::string_view pattern, Args&&... args) const {
             if (enabled(level)) {
@@ -272,6 +278,7 @@ namespace snode::log {
                 writeDeferred(level, std::string(pattern), std::move(arguments));
             }
         }
+
         void write(Level level, std::string message) const;
         void writeDeferred(Level level, std::string pattern, std::vector<std::string> arguments) const;
         void writeEventDeferred(Level level, std::string eventName, std::string pattern, std::vector<std::string> arguments) const;

@@ -233,30 +233,30 @@ int main(int argc, char* argv[]) {
 
         core::SNodeC::init(argc, argv);
 
-        net::un::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("unix-multi-message-client", testState);
-        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-multi-message-server", testState);
+        net::un::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("unix-multi-message-client",
+                                                                                                       testState);
+        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-multi-message-server",
+                                                                                                             testState);
 
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(socketPath,
-                            [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
-                                    socketClient.connect(socketPath,
-                                                         [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
-                                                             if (connectState == core::socket::State::OK) {
-                                                                 ++testState.clientConnectOkCount;
-                                                             } else {
-                                                                 ++testState.unexpectedStateCount;
-                                                                 core::SNodeC::stop();
-                                                             }
-                                                         });
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+        socketServer.listen(socketPath, [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
+            if (state == core::socket::State::OK) {
+                ++testState.serverListenOkCount;
+                socketClient.connect(socketPath, [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
+                    if (connectState == core::socket::State::OK) {
+                        ++testState.clientConnectOkCount;
+                    } else {
+                        ++testState.unexpectedStateCount;
+                        core::SNodeC::stop();
+                    }
+                });
+            } else {
+                ++testState.unexpectedStateCount;
+                core::SNodeC::stop();
+            }
+        });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 
@@ -271,11 +271,16 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(1, testState.clientFactoryCreateCount, "client socket context factory creates exactly one context");
         testResult.expectEqual(1, testState.serverConnectedCount, "server socket context reaches onConnected exactly once");
         testResult.expectEqual(1, testState.clientConnectedCount, "client socket context reaches onConnected exactly once");
-        testResult.expectEqual(1, testState.serverFirstPayloadReceivedCount, "server receives and verifies the first client payload exactly once");
-        testResult.expectEqual(1, testState.serverSecondPayloadReceivedCount, "server receives and verifies the second client payload exactly once");
-        testResult.expectEqual(1, testState.clientFirstReplyReceivedCount, "client receives and verifies the first server reply exactly once");
-        testResult.expectEqual(1, testState.clientSecondReplyReceivedCount, "client receives and verifies the second server reply exactly once");
-        testResult.expectEqual(1, testState.clientSecondPayloadSentCount, "client sends the second payload after verifying the first reply exactly once");
+        testResult.expectEqual(
+            1, testState.serverFirstPayloadReceivedCount, "server receives and verifies the first client payload exactly once");
+        testResult.expectEqual(
+            1, testState.serverSecondPayloadReceivedCount, "server receives and verifies the second client payload exactly once");
+        testResult.expectEqual(
+            1, testState.clientFirstReplyReceivedCount, "client receives and verifies the first server reply exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondReplyReceivedCount, "client receives and verifies the second server reply exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondPayloadSentCount, "client sends the second payload after verifying the first reply exactly once");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
         testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected payloads");
         testResult.expectTrue(socketPathAbsentAfterCleanup, "Unix-domain socket path is absent after cleanup");

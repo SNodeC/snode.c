@@ -195,35 +195,36 @@ int main(int argc, char* argv[]) {
         socketClientB.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(net::in::SocketAddress("127.0.0.1", 0),
-                            [&socketClientA, &socketClientB, &testState](const net::in::SocketAddress& socketAddress, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
+        socketServer.listen(
+            net::in::SocketAddress("127.0.0.1", 0),
+            [&socketClientA, &socketClientB, &testState](const net::in::SocketAddress& socketAddress, core::socket::State state) {
+                if (state == core::socket::State::OK) {
+                    ++testState.serverListenOkCount;
 
-                                    const std::uint16_t effectivePort = socketAddress.getPort();
-                                    if (effectivePort != 0) {
-                                        ++testState.effectiveListenPortOkCount;
-                                        const auto connectCallback = [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
-                                            if (connectState == core::socket::State::OK) {
-                                                ++testState.clientConnectOkCount;
-                                            } else {
-                                                ++testState.unexpectedStateCount;
-                                                core::SNodeC::stop();
-                                            }
-                                        };
+                    const std::uint16_t effectivePort = socketAddress.getPort();
+                    if (effectivePort != 0) {
+                        ++testState.effectiveListenPortOkCount;
+                        const auto connectCallback = [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
+                            if (connectState == core::socket::State::OK) {
+                                ++testState.clientConnectOkCount;
+                            } else {
+                                ++testState.unexpectedStateCount;
+                                core::SNodeC::stop();
+                            }
+                        };
 
-                                        socketClientA.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
-                                        socketClientB.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
-                                    } else {
-                                        ++testState.zeroEffectiveListenPortCount;
-                                        ++testState.unexpectedStateCount;
-                                        core::SNodeC::stop();
-                                    }
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+                        socketClientA.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
+                        socketClientB.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
+                    } else {
+                        ++testState.zeroEffectiveListenPortCount;
+                        ++testState.unexpectedStateCount;
+                        core::SNodeC::stop();
+                    }
+                } else {
+                    ++testState.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

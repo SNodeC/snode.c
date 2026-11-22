@@ -286,8 +286,10 @@ int main(int argc, char* argv[]) {
 
         core::SNodeC::init(argc, argv);
 
-        net::in::stream::legacy::SocketClient<TestClientASocketContextFactory, TestState&> socketClientA("ipv4-multi-payload-client-a", testState);
-        net::in::stream::legacy::SocketClient<TestClientBSocketContextFactory, TestState&> socketClientB("ipv4-multi-payload-client-b", testState);
+        net::in::stream::legacy::SocketClient<TestClientASocketContextFactory, TestState&> socketClientA("ipv4-multi-payload-client-a",
+                                                                                                         testState);
+        net::in::stream::legacy::SocketClient<TestClientBSocketContextFactory, TestState&> socketClientB("ipv4-multi-payload-client-b",
+                                                                                                         testState);
         const net::in::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv4-multi-payload-server",
                                                                                                              testState);
 
@@ -295,35 +297,36 @@ int main(int argc, char* argv[]) {
         socketClientB.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(net::in::SocketAddress("127.0.0.1", 0),
-                            [&socketClientA, &socketClientB, &testState](const net::in::SocketAddress& socketAddress, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
+        socketServer.listen(
+            net::in::SocketAddress("127.0.0.1", 0),
+            [&socketClientA, &socketClientB, &testState](const net::in::SocketAddress& socketAddress, core::socket::State state) {
+                if (state == core::socket::State::OK) {
+                    ++testState.serverListenOkCount;
 
-                                    const std::uint16_t effectivePort = socketAddress.getPort();
-                                    if (effectivePort != 0) {
-                                        ++testState.effectiveListenPortOkCount;
-                                        const auto connectCallback = [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
-                                            if (connectState == core::socket::State::OK) {
-                                                ++testState.clientConnectOkCount;
-                                            } else {
-                                                ++testState.unexpectedStateCount;
-                                                core::SNodeC::stop();
-                                            }
-                                        };
+                    const std::uint16_t effectivePort = socketAddress.getPort();
+                    if (effectivePort != 0) {
+                        ++testState.effectiveListenPortOkCount;
+                        const auto connectCallback = [&testState](const net::in::SocketAddress&, core::socket::State connectState) {
+                            if (connectState == core::socket::State::OK) {
+                                ++testState.clientConnectOkCount;
+                            } else {
+                                ++testState.unexpectedStateCount;
+                                core::SNodeC::stop();
+                            }
+                        };
 
-                                        socketClientA.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
-                                        socketClientB.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
-                                    } else {
-                                        ++testState.zeroEffectiveListenPortCount;
-                                        ++testState.unexpectedStateCount;
-                                        core::SNodeC::stop();
-                                    }
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+                        socketClientA.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
+                        socketClientB.connect(net::in::SocketAddress("127.0.0.1", effectivePort), connectCallback);
+                    } else {
+                        ++testState.zeroEffectiveListenPortCount;
+                        ++testState.unexpectedStateCount;
+                        core::SNodeC::stop();
+                    }
+                } else {
+                    ++testState.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 
@@ -338,8 +341,10 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(2, testState.serverConnectedCount, "server socket context reaches onConnected exactly twice");
         testResult.expectEqual(1, testState.clientAConnectedCount, "client-A socket context reaches onConnected exactly once");
         testResult.expectEqual(1, testState.clientBConnectedCount, "client-B socket context reaches onConnected exactly once");
-        testResult.expectEqual(1, testState.serverClientAPayloadReceivedCount, "server receives and verifies client A payload exactly once");
-        testResult.expectEqual(1, testState.serverClientBPayloadReceivedCount, "server receives and verifies client B payload exactly once");
+        testResult.expectEqual(
+            1, testState.serverClientAPayloadReceivedCount, "server receives and verifies client A payload exactly once");
+        testResult.expectEqual(
+            1, testState.serverClientBPayloadReceivedCount, "server receives and verifies client B payload exactly once");
         testResult.expectEqual(1, testState.clientAReplyReceivedCount, "client A receives and verifies its reply exactly once");
         testResult.expectEqual(1, testState.clientBReplyReceivedCount, "client B receives and verifies its reply exactly once");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");

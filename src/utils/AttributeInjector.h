@@ -56,6 +56,7 @@ namespace utils {
     template <unsigned N>
     struct fixed_string {
         char buf[N + 1]{};
+
         constexpr fixed_string(char const* s) { // cppcheck-suppress noExplicitConstructor
             for (unsigned i = 0; i != N; ++i) {
                 buf[i] = s[i];
@@ -68,6 +69,7 @@ namespace utils {
 
         auto operator<=>(const fixed_string&) const = default;
     };
+
     template <unsigned N>
     fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
 

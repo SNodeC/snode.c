@@ -264,10 +264,8 @@ namespace tests::component::websocket {
             });
     }
 
-    inline void expectTextEcho(tests::support::TestResult& testResult,
-                               const EchoState& state,
-                               const std::string& transportName,
-                               int startResult) {
+    inline void
+    expectTextEcho(tests::support::TestResult& testResult, const EchoState& state, const std::string& transportName, int startResult) {
         testResult.expectEqual(0, startResult, "event loop stops successfully after " + transportName + " WebSocket text echo");
         testResult.expectEqual(1, state.listenOkCount, transportName + " WebSocket server listen callback reports OK exactly once");
         testResult.expectEqual(1, state.effectiveListenEndpointOkCount, transportName + " WebSocket server reports one effective endpoint");

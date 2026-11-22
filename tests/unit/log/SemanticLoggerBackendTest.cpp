@@ -18,7 +18,8 @@
 #include <vector>
 
 namespace {
-    logger::BoundaryLogger makeLogger(logger::LogScope scope, logger::BoundaryLogger::Sink sink,
+    logger::BoundaryLogger makeLogger(logger::LogScope scope,
+                                      logger::BoundaryLogger::Sink sink,
                                       logger::LogLevel threshold = logger::LogLevel::Trace,
                                       logger::BoundaryLogger::Clock clock = {}) {
         return logger::LogScopeOwner::fromScope(scope).logger(std::move(sink), threshold, std::move(clock));
@@ -83,6 +84,7 @@ namespace {
         explicit TestConfigInstance(const std::string& instanceName)
             : ConfigInstance(instanceName, Role::SERVER) {
         }
+
         ~TestConfigInstance() override = default;
     };
 
@@ -91,52 +93,70 @@ namespace {
         explicit TestSocketConnection(const std::string& instanceName)
             : SocketConnection(7, 7, instanceName, nullptr) {
         }
+
         ~TestSocketConnection() override = default;
 
         int getFd() const override {
             return 7;
         }
+
         bool sendToPeer(const char*, std::size_t) override {
             return true;
         }
+
         bool streamToPeer(core::pipe::Source*) override {
             return false;
         }
+
         void streamEof() override {
         }
+
         std::size_t readFromPeer(char*, std::size_t) override {
             return 0;
         }
+
         void shutdownRead() override {
         }
+
         void shutdownWrite() override {
         }
+
         const core::socket::SocketAddress& getBindAddress() const override {
             return unusableAddress();
         }
+
         const core::socket::SocketAddress& getLocalAddress() const override {
             return unusableAddress();
         }
+
         const core::socket::SocketAddress& getRemoteAddress() const override {
             return unusableAddress();
         }
+
         void close() override {
         }
+
         void setTimeout(const utils::Timeval&) override {
         }
+
         void setReadTimeout(const utils::Timeval&) override {
         }
+
         void setWriteTimeout(const utils::Timeval&) override {
         }
+
         std::size_t getTotalSent() const override {
             return 0;
         }
+
         std::size_t getTotalQueued() const override {
             return 0;
         }
+
         std::size_t getTotalRead() const override {
             return 0;
         }
+
         std::size_t getTotalProcessed() const override {
             return 0;
         }
@@ -152,17 +172,21 @@ namespace {
         explicit TestSocketContext(core::socket::stream::SocketConnection* socketConnection)
             : SocketContext(socketConnection) {
         }
+
         ~TestSocketContext() override = default;
 
     private:
         std::size_t onReceivedFromPeer() override {
             return 0;
         }
+
         bool onSignal(int) override {
             return false;
         }
+
         void onConnected() override {
         }
+
         void onDisconnected() override {
         }
     };

@@ -11,12 +11,11 @@ int main(int argc, char* argv[]) {
 
     const EchoSocketClient client("echoclient");
 
-    client.connect(
-        [log = client.log()](const EchoSocketClient::SocketAddress& socketAddress, core::socket::State state) {
-            if (state == core::socket::State::OK) {
-                log.info("Connected to {}", socketAddress.toString());
-            }
-        });
+    client.connect([log = client.log()](const EchoSocketClient::SocketAddress& socketAddress, core::socket::State state) {
+        if (state == core::socket::State::OK) {
+            log.info("Connected to {}", socketAddress.toString());
+        }
+    });
 
     return core::SNodeC::start();
 }

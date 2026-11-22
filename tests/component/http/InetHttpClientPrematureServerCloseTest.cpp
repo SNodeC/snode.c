@@ -35,37 +35,42 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 
         tests::component::http::configureHttpBehaviorTest(server, client, state);
 
-        server.listen(net::in::SocketAddress("127.0.0.1", 0), [&client, &state](const auto& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    client.connect(net::in::SocketAddress("127.0.0.1", effectivePort), [&state](const auto&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) {
-                            ++state.clientConnectOkCount;
-                        } else {
-                            ++state.unexpectedStateCount;
-                            core::SNodeC::stop();
-                        }
-                    });
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++state.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        server.listen(net::in::SocketAddress("127.0.0.1", 0),
+                      [&client, &state](const auto& socketAddress, core::socket::State listenState) {
+                          if (listenState == core::socket::State::OK) {
+                              ++state.listenOkCount;
+                              const std::uint16_t effectivePort = socketAddress.getPort();
+                              if (effectivePort != 0) {
+                                  ++state.effectiveListenEndpointOkCount;
+                                  client.connect(net::in::SocketAddress("127.0.0.1", effectivePort),
+                                                 [&state](const auto&, core::socket::State connectState) {
+                                                     if (connectState == core::socket::State::OK) {
+                                                         ++state.clientConnectOkCount;
+                                                     } else {
+                                                         ++state.unexpectedStateCount;
+                                                         core::SNodeC::stop();
+                                                     }
+                                                 });
+                              } else {
+                                  ++state.unexpectedStateCount;
+                                  core::SNodeC::stop();
+                              }
+                          } else {
+                              ++state.unexpectedStateCount;
+                              core::SNodeC::stop();
+                          }
+                      });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         tests::component::http::expectBehaviorCommon(testResult, state, "premature server close", startResult);
         testResult.expectEqual(1, state.serverRequestCount, "IPv4 legacy HTTP server observes one premature-close request");
         testResult.expectEqual(1, state.clientResponseCount, "IPv4 legacy HTTP client observes connection-loss response");
-        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/premature-close"}), "IPv4 legacy HTTP server observes premature-close target");
-        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"0"}), "IPv4 legacy HTTP client maps premature close to status 0");
-        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"Connection loss"}), "IPv4 legacy HTTP client reports connection-loss reason");
+        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/premature-close"}),
+                              "IPv4 legacy HTTP server observes premature-close target");
+        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"0"}),
+                              "IPv4 legacy HTTP client maps premature close to status 0");
+        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"Connection loss"}),
+                              "IPv4 legacy HTTP client reports connection-loss reason");
         core::SNodeC::free();
         const auto records = capture.finish();
         constexpr std::string_view component = "web.http.client";

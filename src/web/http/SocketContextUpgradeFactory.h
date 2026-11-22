@@ -46,6 +46,7 @@
 
 namespace core::socket::stream {
     class SocketConnection;
+
     namespace stream {
         class SocketContext;
     }

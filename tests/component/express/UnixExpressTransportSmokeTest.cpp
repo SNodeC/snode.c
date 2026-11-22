@@ -11,24 +11,24 @@
 
 namespace {
 
-struct State {
-    int listenOkCount = 0;
-    int effectiveListenEndpointOkCount = 0;
-    int clientConnectOkCount = 0;
-    int httpConnectedCount = 0;
-    int clientResponseCount = 0;
-    int parseErrorCount = 0;
-    int unexpectedStateCount = 0;
-    int handlerCount = 0;
-};
+    struct State {
+        int listenOkCount = 0;
+        int effectiveListenEndpointOkCount = 0;
+        int clientConnectOkCount = 0;
+        int httpConnectedCount = 0;
+        int clientResponseCount = 0;
+        int parseErrorCount = 0;
+        int unexpectedStateCount = 0;
+        int handlerCount = 0;
+    };
 
-std::string makeSocketPath() {
-    return "/tmp/snodec-express-component-" + std::to_string(::getpid()) + ".sock";
-}
+    std::string makeSocketPath() {
+        return "/tmp/snodec-express-component-" + std::to_string(::getpid()) + ".sock";
+    }
 
-std::string toString(const std::vector<char>& bytes) {
-    return std::string(bytes.begin(), bytes.end());
-}
+    std::string toString(const std::vector<char>& bytes) {
+        return std::string(bytes.begin(), bytes.end());
+    }
 
 } // namespace
 

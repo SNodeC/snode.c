@@ -63,8 +63,7 @@ int main() {
 
         core::socket::stream::tls::ssl_log_error("SSL/TLS: OpenSSL helper failed");
 
-        result.expectEqual(static_cast<unsigned long>(0), ERR_peek_error(),
-                           "an emitted ssl_log_error drains the OpenSSL error queue");
+        result.expectEqual(static_cast<unsigned long>(0), ERR_peek_error(), "an emitted ssl_log_error drains the OpenSSL error queue");
     }
     const std::string emittedLog = readFile(emittedPath);
     result.expectTrue(emittedLog.find("SSL/TLS: OpenSSL helper failed") != std::string::npos &&

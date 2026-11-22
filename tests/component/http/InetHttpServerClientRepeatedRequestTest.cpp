@@ -1,5 +1,4 @@
 #include "HttpServerClientBehaviorTest.h"
-
 #include "net/in/SocketAddress.h"
 #include "web/http/legacy/in/Client.h"
 #include "web/http/legacy/in/Server.h"
@@ -32,38 +31,43 @@ int main(int argc, char* argv[]) {
 
         tests::component::http::configureHttpBehaviorTest(server, client, state);
 
-        server.listen(net::in::SocketAddress("127.0.0.1", 0), [&client, &state](const auto& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    client.connect(net::in::SocketAddress("127.0.0.1", effectivePort), [&state](const auto&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) {
-                            ++state.clientConnectOkCount;
-                        } else {
-                            ++state.unexpectedStateCount;
-                            core::SNodeC::stop();
-                        }
-                    });
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++state.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        server.listen(net::in::SocketAddress("127.0.0.1", 0),
+                      [&client, &state](const auto& socketAddress, core::socket::State listenState) {
+                          if (listenState == core::socket::State::OK) {
+                              ++state.listenOkCount;
+                              const std::uint16_t effectivePort = socketAddress.getPort();
+                              if (effectivePort != 0) {
+                                  ++state.effectiveListenEndpointOkCount;
+                                  client.connect(net::in::SocketAddress("127.0.0.1", effectivePort),
+                                                 [&state](const auto&, core::socket::State connectState) {
+                                                     if (connectState == core::socket::State::OK) {
+                                                         ++state.clientConnectOkCount;
+                                                     } else {
+                                                         ++state.unexpectedStateCount;
+                                                         core::SNodeC::stop();
+                                                     }
+                                                 });
+                              } else {
+                                  ++state.unexpectedStateCount;
+                                  core::SNodeC::stop();
+                              }
+                          } else {
+                              ++state.unexpectedStateCount;
+                              core::SNodeC::stop();
+                          }
+                      });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         tests::component::http::expectBehaviorCommon(testResult, state, "repeated request", startResult);
         testResult.expectEqual(2, state.queuedRequestCount, "IPv4 legacy HTTP queues both keep-alive requests");
         testResult.expectEqual(2, state.serverRequestCount, "IPv4 legacy HTTP server observes both repeated requests");
         testResult.expectEqual(2, state.clientResponseCount, "IPv4 legacy HTTP client observes both repeated responses");
-        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/first", "/second"}), "IPv4 legacy HTTP server observes repeated targets in order");
-        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"200", "200"}), "IPv4 legacy HTTP client observes repeated status codes in order");
-        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"first-response", "second-response"}), "IPv4 legacy HTTP client observes repeated bodies in order");
+        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/first", "/second"}),
+                              "IPv4 legacy HTTP server observes repeated targets in order");
+        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"200", "200"}),
+                              "IPv4 legacy HTTP client observes repeated status codes in order");
+        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"first-response", "second-response"}),
+                              "IPv4 legacy HTTP client observes repeated bodies in order");
         result = testResult.processResult();
         core::SNodeC::free();
     }

@@ -87,7 +87,8 @@ namespace tests::component::http {
     }
 
     template <typename Request, typename Response>
-    void handleStatusVariantRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BodyStatusState& state) {
+    void
+    handleStatusVariantRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BodyStatusState& state) {
         ++state.serverRequestCount;
         state.serverSawMethod = request->method == "GET";
         state.serverSawUrl = request->url == "/component/status?transport=legacy";

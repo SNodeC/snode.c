@@ -22,17 +22,22 @@ namespace {
         bool isOpen() override {
             return open;
         }
+
         void start() override {
             send("abc", 3);
         }
+
         void suspend() override {
         }
+
         void resume() override {
         }
+
         void stop() override {
             open = false;
             ++stopped;
         }
+
         bool open = true;
         int stopped = 0;
     };

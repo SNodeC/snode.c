@@ -218,26 +218,27 @@ int main(int argc, char* argv[]) {
         socketClientB.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(socketPath,
-                            [&socketClientA, &socketClientB, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
-                                    const auto connectCallback = [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
-                                        if (connectState == core::socket::State::OK) {
-                                            ++testState.clientConnectOkCount;
-                                        } else {
-                                            ++testState.unexpectedStateCount;
-                                            core::SNodeC::stop();
-                                        }
-                                    };
+        socketServer.listen(
+            socketPath,
+            [&socketClientA, &socketClientB, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
+                if (state == core::socket::State::OK) {
+                    ++testState.serverListenOkCount;
+                    const auto connectCallback = [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
+                        if (connectState == core::socket::State::OK) {
+                            ++testState.clientConnectOkCount;
+                        } else {
+                            ++testState.unexpectedStateCount;
+                            core::SNodeC::stop();
+                        }
+                    };
 
-                                    socketClientA.connect(socketPath, connectCallback);
-                                    socketClientB.connect(socketPath, connectCallback);
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+                    socketClientA.connect(socketPath, connectCallback);
+                    socketClientB.connect(socketPath, connectCallback);
+                } else {
+                    ++testState.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

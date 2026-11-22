@@ -32,6 +32,7 @@ namespace {
             });
             logger::Logger::logToFile(logFile);
         }
+
         ~LoggerStateGuard() {
             logger::Logger::disableLogToFile();
             logger::Logger::setTickResolver({});
@@ -73,6 +74,7 @@ namespace {
         explicit TestConfigInstance(const std::string& instanceName)
             : ConfigInstance(instanceName, Role::SERVER) {
         }
+
         ~TestConfigInstance() override = default;
     };
 } // namespace

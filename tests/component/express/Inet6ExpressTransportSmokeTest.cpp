@@ -11,20 +11,20 @@
 
 namespace {
 
-struct State {
-    int listenOkCount = 0;
-    int effectiveListenEndpointOkCount = 0;
-    int clientConnectOkCount = 0;
-    int httpConnectedCount = 0;
-    int clientResponseCount = 0;
-    int parseErrorCount = 0;
-    int unexpectedStateCount = 0;
-    int handlerCount = 0;
-};
+    struct State {
+        int listenOkCount = 0;
+        int effectiveListenEndpointOkCount = 0;
+        int clientConnectOkCount = 0;
+        int httpConnectedCount = 0;
+        int clientResponseCount = 0;
+        int parseErrorCount = 0;
+        int unexpectedStateCount = 0;
+        int handlerCount = 0;
+    };
 
-std::string toString(const std::vector<char>& bytes) {
-    return std::string(bytes.begin(), bytes.end());
-}
+    std::string toString(const std::vector<char>& bytes) {
+        return std::string(bytes.begin(), bytes.end());
+    }
 
 } // namespace
 
@@ -72,29 +72,31 @@ int main(int argc, char* argv[]) {
         app.getConfig()->Instance::forceUnrequired();
         client.getConfig()->Instance::forceUnrequired();
 
-        app.listen(net::in6::SocketAddress("::1", 0), [&client, &state](const net::in6::SocketAddress& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    client.connect(net::in6::SocketAddress("::1", effectivePort), [&state](const net::in6::SocketAddress&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) {
-                            ++state.clientConnectOkCount;
-                        } else {
-                            ++state.unexpectedStateCount;
-                            core::SNodeC::stop();
-                        }
-                    });
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++state.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        app.listen(net::in6::SocketAddress("::1", 0),
+                   [&client, &state](const net::in6::SocketAddress& socketAddress, core::socket::State listenState) {
+                       if (listenState == core::socket::State::OK) {
+                           ++state.listenOkCount;
+                           const std::uint16_t effectivePort = socketAddress.getPort();
+                           if (effectivePort != 0) {
+                               ++state.effectiveListenEndpointOkCount;
+                               client.connect(net::in6::SocketAddress("::1", effectivePort),
+                                              [&state](const net::in6::SocketAddress&, core::socket::State connectState) {
+                                                  if (connectState == core::socket::State::OK) {
+                                                      ++state.clientConnectOkCount;
+                                                  } else {
+                                                      ++state.unexpectedStateCount;
+                                                      core::SNodeC::stop();
+                                                  }
+                                              });
+                           } else {
+                               ++state.unexpectedStateCount;
+                               core::SNodeC::stop();
+                           }
+                       } else {
+                           ++state.unexpectedStateCount;
+                           core::SNodeC::stop();
+                       }
+                   });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

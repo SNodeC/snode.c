@@ -25,17 +25,21 @@ namespace tests::support {
         if (!ok)
             throw std::runtime_error(message);
     }
+
     struct Runtime {
         char name[32] = "public-api-test";
         char quiet[8] = "--quiet";
         char* argv[3] = {name, quiet, nullptr};
+
         Runtime() {
             core::SNodeC::init(2, argv);
         }
+
         ~Runtime() {
             core::SNodeC::free();
         }
     };
+
     inline bool runUntil(const std::function<bool()>& done, const std::function<void()>& step = {}) {
         bool completed = false;
         auto poll = core::timer::Timer::intervalTimer(
@@ -56,6 +60,7 @@ namespace tests::support {
         core::SNodeC::start();
         return completed;
     }
+
     inline bool installCertificate(SSL_CTX* ctx) {
         EVP_PKEY_CTX* generator = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
         EVP_PKEY* key = nullptr;
@@ -79,17 +84,20 @@ namespace tests::support {
         EVP_PKEY_free(key);
         return ok;
     }
+
     struct Peer {
         int fd = -1;
         SSL_CTX* ctx = nullptr;
         SSL* ssl = nullptr;
         bool ready = false;
+
         ~Peer() {
             SSL_free(ssl);
             SSL_CTX_free(ctx);
             if (fd >= 0)
                 ::close(fd);
         }
+
         void connect(unsigned short port, bool tls = false) {
             fd = ::socket(AF_INET, SOCK_STREAM, 0);
             require(fd >= 0, "peer socket");
@@ -110,10 +118,12 @@ namespace tests::support {
             } else
                 ready = true;
         }
+
         void handshake() {
             if (ssl && !ready)
                 ready = SSL_connect(ssl) == 1;
         }
+
         void close(bool reset = false) {
             if (fd < 0)
                 return;
@@ -124,14 +134,17 @@ namespace tests::support {
             ::close(fd);
             fd = -1;
         }
+
         int write(const std::string& bytes) {
             return ssl ? SSL_write(ssl, bytes.data(), static_cast<int>(bytes.size()))
                        : static_cast<int>(::send(fd, bytes.data(), bytes.size(), MSG_NOSIGNAL));
         }
+
         int read(char* bytes, int size) {
             return ssl ? SSL_read(ssl, bytes, size) : static_cast<int>(::recv(fd, bytes, static_cast<std::size_t>(size), 0));
         }
     };
+
     struct Session {
         int connected = 0, disconnected = 0, errors = 0;
         std::string received;
@@ -139,6 +152,7 @@ namespace tests::support {
         std::function<void(core::socket::stream::SocketContext*)> onConnect;
         std::function<void(core::socket::stream::SocketContext*)> onData;
     };
+
     class Context : public core::socket::stream::SocketContext {
     public:
         Context(core::socket::stream::SocketConnection* connection, Session& session)
@@ -153,10 +167,12 @@ namespace tests::support {
             if (session.onConnect)
                 session.onConnect(this);
         }
+
         void onDisconnected() override {
             ++session.disconnected;
             session.context = nullptr;
         }
+
         std::size_t onReceivedFromPeer() override {
             char data[4096];
             auto count = readFromPeer(data, sizeof(data));
@@ -165,26 +181,32 @@ namespace tests::support {
                 session.onData(this);
             return count;
         }
+
         void onReadError(int error) override {
             if (error)
                 ++session.errors;
             SocketContext::onReadError(error);
         }
+
         void onWriteError(int error) override {
             if (error)
                 ++session.errors;
             SocketContext::onWriteError(error);
         }
+
         bool onSignal(int) override {
             return true;
         }
+
         Session& session;
     };
+
     class Factory : public core::socket::stream::SocketContextFactory {
     public:
         explicit Factory(Session& session)
             : session(session) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {
             return new Context(connection, session);
         }

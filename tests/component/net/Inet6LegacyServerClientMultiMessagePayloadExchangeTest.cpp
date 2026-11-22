@@ -122,7 +122,9 @@ namespace {
             return chunkLen;
         }
 
-        bool onSignal([[maybe_unused]] int signum) override { return true; }
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
 
         TestState& testState;
     };
@@ -167,31 +169,41 @@ namespace {
             return chunkLen;
         }
 
-        bool onSignal([[maybe_unused]] int signum) override { return true; }
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
 
         TestState& testState;
     };
 
     class TestServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
-        explicit TestServerSocketContextFactory(TestState& testState) : testState(testState) {}
+        explicit TestServerSocketContextFactory(TestState& testState)
+            : testState(testState) {
+        }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.serverFactoryCreateCount;
             core::socket::stream::SocketContext* socketContext = new TestServerSocketContext(socketConnection, testState);
             return socketContext;
         }
+
     private:
         TestState& testState;
     };
 
     class TestClientSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
-        explicit TestClientSocketContextFactory(TestState& testState) : testState(testState) {}
+        explicit TestClientSocketContextFactory(TestState& testState)
+            : testState(testState) {
+        }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.clientFactoryCreateCount;
             core::socket::stream::SocketContext* socketContext = new TestClientSocketContext(socketConnection, testState);
             return socketContext;
         }
+
     private:
         TestState& testState;
     };
@@ -208,8 +220,10 @@ int main(int argc, char* argv[]) {
         TestState testState;
         core::SNodeC::init(argc, argv);
 
-        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-multi-message-client", testState);
-        const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-multi-message-server", testState);
+        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-multi-message-client",
+                                                                                                        testState);
+        const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-multi-message-server",
+                                                                                                              testState);
 
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
@@ -221,15 +235,16 @@ int main(int argc, char* argv[]) {
                                     const std::uint16_t effectivePort = socketAddress.getPort();
                                     if (effectivePort != 0) {
                                         ++testState.effectiveListenPortOkCount;
-                                        socketClient.connect(net::in6::SocketAddress("::1", effectivePort),
-                                                             [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
-                                                                 if (connectState == core::socket::State::OK) {
-                                                                     ++testState.clientConnectOkCount;
-                                                                 } else {
-                                                                     ++testState.unexpectedStateCount;
-                                                                     core::SNodeC::stop();
-                                                                 }
-                                                             });
+                                        socketClient.connect(
+                                            net::in6::SocketAddress("::1", effectivePort),
+                                            [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
+                                                if (connectState == core::socket::State::OK) {
+                                                    ++testState.clientConnectOkCount;
+                                                } else {
+                                                    ++testState.unexpectedStateCount;
+                                                    core::SNodeC::stop();
+                                                }
+                                            });
                                     } else {
                                         ++testState.zeroEffectiveListenPortCount;
                                         ++testState.unexpectedStateCount;
@@ -252,11 +267,16 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(1, testState.clientFactoryCreateCount, "client socket context factory creates exactly one context");
         testResult.expectEqual(1, testState.serverConnectedCount, "server socket context reaches onConnected exactly once");
         testResult.expectEqual(1, testState.clientConnectedCount, "client socket context reaches onConnected exactly once");
-        testResult.expectEqual(1, testState.serverFirstPayloadReceivedCount, "server receives and verifies the first client payload exactly once");
-        testResult.expectEqual(1, testState.serverSecondPayloadReceivedCount, "server receives and verifies the second client payload exactly once");
-        testResult.expectEqual(1, testState.clientFirstReplyReceivedCount, "client receives and verifies the first server reply exactly once");
-        testResult.expectEqual(1, testState.clientSecondReplyReceivedCount, "client receives and verifies the second server reply exactly once");
-        testResult.expectEqual(1, testState.clientSecondPayloadSentCount, "client sends the second payload after verifying the first reply exactly once");
+        testResult.expectEqual(
+            1, testState.serverFirstPayloadReceivedCount, "server receives and verifies the first client payload exactly once");
+        testResult.expectEqual(
+            1, testState.serverSecondPayloadReceivedCount, "server receives and verifies the second client payload exactly once");
+        testResult.expectEqual(
+            1, testState.clientFirstReplyReceivedCount, "client receives and verifies the first server reply exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondReplyReceivedCount, "client receives and verifies the second server reply exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondPayloadSentCount, "client sends the second payload after verifying the first reply exactly once");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
         testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected payloads");
 

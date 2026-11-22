@@ -28,14 +28,7 @@ int main() {
     tests::support::TestResult testResult;
 
     {
-        const std::string formatted = httputils::toString("GET",
-                                                         "/index.html",
-                                                         "HTTP/1.1",
-                                                         {},
-                                                         {{"Host", "example.test"}},
-                                                         {},
-                                                         {},
-                                                         {});
+        const std::string formatted = httputils::toString("GET", "/index.html", "HTTP/1.1", {}, {{"Host", "example.test"}}, {}, {}, {});
 
         testResult.expectTrue(contains(formatted, "Request"), "request formatter seam identifies request messages");
         testResult.expectTrue(contains(formatted, "Method : GET"), "request formatter seam preserves the GET method");
@@ -46,14 +39,15 @@ int main() {
 
     {
         const std::vector<char> body = {'h', 'e', 'l', 'l', 'o'};
-        const std::string formatted = httputils::toString("POST",
-                                                         "/submit",
-                                                         "HTTP/1.1",
-                                                         {},
-                                                         {{"Content-Length", "5"}, {"Content-Type", "text/plain"}, {"Host", "example.test"}},
-                                                         {},
-                                                         {},
-                                                         body);
+        const std::string formatted =
+            httputils::toString("POST",
+                                "/submit",
+                                "HTTP/1.1",
+                                {},
+                                {{"Content-Length", "5"}, {"Content-Type", "text/plain"}, {"Host", "example.test"}},
+                                {},
+                                {},
+                                body);
 
         testResult.expectTrue(contains(formatted, "Method : POST"), "request formatter seam preserves the POST method");
         testResult.expectTrue(contains(formatted, "Url : /submit"), "request formatter seam preserves the POST target");

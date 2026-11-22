@@ -91,6 +91,7 @@ namespace apps::http {
         void onConnected() override {
             snode::log::application().debug() << "SimpleSocketProtocol connected";
         }
+
         void onDisconnected() override {
             snode::log::application().debug() << "SimpleSocketProtocol disconnected";
         }

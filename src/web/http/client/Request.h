@@ -50,6 +50,7 @@ namespace web::http::client {
     class RequestCommand;
     class Response;
     class SocketContext;
+
     namespace commands {
         class SendFileCommand;
         class SendFragmentCommand;
@@ -58,6 +59,7 @@ namespace web::http::client {
         class EndCommand;
         class SseCommand;
     } // namespace commands
+
     namespace tools {
         template <typename Client>
         class EventSourceT; // IWYU pragma: keep

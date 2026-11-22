@@ -39,12 +39,14 @@ namespace {
             }
             fcntl(reader, F_SETFL, O_NONBLOCK);
         }
+
         ~Capture() {
             if (writer != reader) {
                 close(writer);
             }
             close(reader);
         }
+
         std::string read() const {
             lseek(reader, 0, SEEK_SET);
             std::string value;
@@ -58,6 +60,7 @@ namespace {
             }
             return value;
         }
+
         int reader = -1;
         int writer = -1;
     };

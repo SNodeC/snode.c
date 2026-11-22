@@ -37,7 +37,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
 function(snodec_add_test target)
     add_executable(${target} ${ARGN})
     add_test(NAME ${target} COMMAND ${target})

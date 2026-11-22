@@ -19,7 +19,7 @@ namespace {
         }
         return value;
     }
-}
+} // namespace
 
 int main() {
     tests::support::TestResult result;

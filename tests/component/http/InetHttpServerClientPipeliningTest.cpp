@@ -110,29 +110,31 @@ int main(int argc, char* argv[]) {
         client.getConfig()->Instance::forceUnrequired();
         client.getConfig()->Instance::getSubCommand<web::http::client::ConfigHTTP>()->setPipelinedRequests(true);
 
-        server.listen(net::in::SocketAddress("127.0.0.1", 0), [&client, &state](const auto& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    client.connect(net::in::SocketAddress("127.0.0.1", effectivePort), [&state](const auto&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) {
-                            ++state.clientConnectOkCount;
-                        } else {
-                            ++state.unexpectedStateCount;
-                            core::SNodeC::stop();
-                        }
-                    });
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++state.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        server.listen(net::in::SocketAddress("127.0.0.1", 0),
+                      [&client, &state](const auto& socketAddress, core::socket::State listenState) {
+                          if (listenState == core::socket::State::OK) {
+                              ++state.listenOkCount;
+                              const std::uint16_t effectivePort = socketAddress.getPort();
+                              if (effectivePort != 0) {
+                                  ++state.effectiveListenEndpointOkCount;
+                                  client.connect(net::in::SocketAddress("127.0.0.1", effectivePort),
+                                                 [&state](const auto&, core::socket::State connectState) {
+                                                     if (connectState == core::socket::State::OK) {
+                                                         ++state.clientConnectOkCount;
+                                                     } else {
+                                                         ++state.unexpectedStateCount;
+                                                         core::SNodeC::stop();
+                                                     }
+                                                 });
+                              } else {
+                                  ++state.unexpectedStateCount;
+                                  core::SNodeC::stop();
+                              }
+                          } else {
+                              ++state.unexpectedStateCount;
+                              core::SNodeC::stop();
+                          }
+                      });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         testResult.expectEqual(0, startResult, "event loop stops successfully after IPv4 legacy HTTP pipelining");
@@ -145,9 +147,12 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(2, state.clientResponseCount, "client observes two pipelined responses");
         testResult.expectEqual(0, state.parseErrorCount, "no response parse errors");
         testResult.expectEqual(0, state.unexpectedStateCount, "no unexpected states");
-        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/pipeline-first", "/pipeline-second"}), "server observes pipelined targets in order");
-        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"200", "200"}), "client observes pipelined statuses in order");
-        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"pipeline-first-response", "pipeline-second-response"}), "client observes pipelined bodies in order");
+        testResult.expectTrue(state.serverUrls == std::vector<std::string>({"/pipeline-first", "/pipeline-second"}),
+                              "server observes pipelined targets in order");
+        testResult.expectTrue(state.clientStatuses == std::vector<std::string>({"200", "200"}),
+                              "client observes pipelined statuses in order");
+        testResult.expectTrue(state.clientBodies == std::vector<std::string>({"pipeline-first-response", "pipeline-second-response"}),
+                              "client observes pipelined bodies in order");
         result = testResult.processResult();
         core::SNodeC::free();
     }

@@ -16,9 +16,9 @@ namespace {
         core::socket::stream::tls::TLSHandshake::doHandshake(name, ssl, onSuccess, onTimeout, onStatus, timeout);
         core::socket::stream::tls::TLSShutdown::doShutdown(name, ssl, onSuccess, onTimeout, onStatus, timeout);
     }
-}
+} // namespace
 
 int main() {
-    (void)&compileSixArgumentCalls;
+    (void) &compileSixArgumentCalls;
     return 0;
 }

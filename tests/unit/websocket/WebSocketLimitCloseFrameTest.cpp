@@ -3,28 +3,37 @@
 #include "web/http/ConfigWebSocket.h"
 #include "web/http/SocketContextUpgradeFactory.hpp"
 #include "web/websocket/SocketContextUpgrade.hpp"
+
 namespace {
     struct DummyRequest {};
+
     struct DummyResponse {};
 
     struct DummySubProtocol {
         void attach() {
         }
+
         void detach() {
         }
+
         void onMessageStart(int) {
             ++messageStarts;
         }
+
         void onMessageData(const char*, std::size_t) {
         }
+
         void onMessageEnd() {
         }
+
         void onMessageError(uint16_t status) {
             ++messageErrors;
             lastError = status;
         }
+
         void onPongReceived() {
         }
+
         bool onSignal(int) {
             return true;
         }
@@ -60,12 +69,14 @@ namespace {
             subProtocol = &protocol;
         }
     };
+
     class Factory : public core::socket::stream::SocketContextFactory {
     public:
         Factory(TestUpgradeFactory& factory, DummySubProtocol& protocol)
             : factory(factory)
             , protocol(protocol) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {
             return new Context(connection, factory, protocol);
         }
@@ -75,6 +86,7 @@ namespace {
         DummySubProtocol& protocol;
     };
 } // namespace
+
 int main() {
     using tests::support::require;
     tests::support::TestResult result;

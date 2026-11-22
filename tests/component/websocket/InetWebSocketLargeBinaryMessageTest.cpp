@@ -35,6 +35,7 @@ namespace {
         }
         return message;
     }
+
     const std::string largeBinaryReply = "large-binary-ok";
 
     struct State {
@@ -79,6 +80,7 @@ namespace {
         void onConnected() override {
             ++state.serverWsConnectedCount;
         }
+
         void onMessageStart(int opCode) override {
             ++state.serverMessageStartCount;
             state.currentServerMessage.clear();
@@ -88,11 +90,13 @@ namespace {
             if (opCode == 2)
                 ++state.serverBinaryOpcodeCount;
         }
+
         void onMessageData(const char* chunk, std::size_t chunkLen) override {
             state.currentServerMessage.append(chunk, chunkLen);
             const auto* begin = reinterpret_cast<const unsigned char*>(chunk);
             state.serverBinary.insert(state.serverBinary.end(), begin, begin + chunkLen);
         }
+
         void onMessageEnd() override {
             ++state.serverMessageEndCount;
             if (state.serverBinary == largeBinaryMessage())
@@ -102,17 +106,21 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void onMessageError(uint16_t) override {
             ++state.messageErrorCount;
             core::SNodeC::stop();
         }
+
         void onDisconnected() override {
             ++state.serverWsDisconnectedCount;
         }
+
         bool onSignal(int) override {
             sendClose();
             return false;
         }
+
         State& state;
     };
 
@@ -129,6 +137,7 @@ namespace {
             const auto message = largeBinaryMessage();
             sendMessage(reinterpret_cast<const char*>(message.data()), message.size());
         }
+
         void onMessageStart(int opCode) override {
             ++state.clientMessageStartCount;
             state.currentClientMessage.clear();
@@ -138,11 +147,13 @@ namespace {
             if (opCode == 2)
                 ++state.clientBinaryOpcodeCount;
         }
+
         void onMessageData(const char* chunk, std::size_t chunkLen) override {
             state.currentClientMessage.append(chunk, chunkLen);
             const auto* begin = reinterpret_cast<const unsigned char*>(chunk);
             state.clientBinary.insert(state.clientBinary.end(), begin, begin + chunkLen);
         }
+
         void onMessageEnd() override {
             ++state.clientMessageEndCount;
             if (state.currentClientMessage == largeBinaryReply)
@@ -152,18 +163,22 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void onMessageError(uint16_t) override {
             ++state.messageErrorCount;
             core::SNodeC::stop();
         }
+
         void onDisconnected() override {
             ++state.clientWsDisconnectedCount;
             core::SNodeC::stop();
         }
+
         bool onSignal(int) override {
             sendClose();
             return false;
         }
+
         State& state;
     };
 
@@ -178,8 +193,10 @@ namespace {
         web::websocket::server::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
             return new ServerSubProtocol(context, state);
         }
+
         State& state;
     };
+
     class ClientFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
     public:
         explicit ClientFactory(State& state)
@@ -191,13 +208,16 @@ namespace {
         web::websocket::client::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
             return new ClientSubProtocol(context, state);
         }
+
         State& state;
     };
 
     State* linkedState = nullptr;
+
     web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* createServerFactory() {
         return new ServerFactory(*linkedState);
     }
+
     web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* createClientFactory() {
         return new ClientFactory(*linkedState);
     }

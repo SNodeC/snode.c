@@ -10,11 +10,13 @@ int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
     tests::support::Runtime runtime;
     tests::support::Peer peer;
+
     struct Case {
         std::string body;
         std::string expected;
         std::string contentType;
     };
+
     std::vector<Case> cases{{"{\"value\":42}", "{\"value\":42}", "text/plain"},
                             {"{bad", "absent", "application/json"},
                             {"", "absent", "application/json"},

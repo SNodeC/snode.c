@@ -4,29 +4,37 @@
 #include "web/http/server/Response.h"
 
 #include <cerrno>
+
 class FailingSource : public core::pipe::Source {
 public:
     bool isOpen() override {
         return open;
     }
+
     void start() override {
         ++started;
         send("partial", 7);
     }
+
     void fail() {
         error(EIO);
     }
+
     void suspend() override {
     }
+
     void resume() override {
     }
+
     void stop() override {
         open = false;
         ++stopped;
     }
+
     bool open = true;
     int started = 0, stopped = 0;
 };
+
 int main() {
     using namespace tests::support;
     TestResult result;

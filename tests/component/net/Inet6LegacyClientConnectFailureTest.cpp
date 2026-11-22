@@ -124,7 +124,8 @@ int main(int argc, char* argv[]) {
 
         core::SNodeC::init(argc, argv);
 
-        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-connect-failure-client", testState);
+        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-connect-failure-client",
+                                                                                                        testState);
 
         socketClient.getConfig()->Instance::forceUnrequired();
 

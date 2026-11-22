@@ -52,10 +52,8 @@ namespace {
     }
 
     logger::LogRecord record(std::string message) {
-        return logger::materialize({logger::LogOrigin::Framework, logger::LogBoundary::System, "core.log-drain"},
-                                   logger::LogLevel::Info,
-                                   std::move(message),
-                                   {});
+        return logger::materialize(
+            {logger::LogOrigin::Framework, logger::LogBoundary::System, "core.log-drain"}, logger::LogLevel::Info, std::move(message), {});
     }
 } // namespace
 

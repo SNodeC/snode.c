@@ -40,8 +40,8 @@ int main() {
     net::un::SocketAddress longestValidSocketAddress(longestValidPath);
     longestValidSocketAddress.init();
 
-    const auto longestValidSockAddrLen = static_cast<net::un::SocketAddress::SockLen>(
-        offsetof(sockaddr_un, sun_path) + longestValidPath.length() + 1);
+    const auto longestValidSockAddrLen =
+        static_cast<net::un::SocketAddress::SockLen>(offsetof(sockaddr_un, sun_path) + longestValidPath.length() + 1);
     testResult.expectTrue(longestValidSocketAddress.getSunPath() == longestValidPath, "longest valid Unix-domain path remains configured");
     testResult.expectTrue(longestValidSocketAddress.toString() == longestValidPath, "longest valid Unix-domain path formats exactly");
     testResult.expectTrue(longestValidSocketAddress.getSockAddrLen() == longestValidSockAddrLen,

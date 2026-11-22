@@ -56,6 +56,7 @@ namespace net::config {
                                                 const std::string& addressOptionDescription)
         : Super(instance, addressOptionName, addressOptionDescription) {
     }
+
     template <typename SocketAddress>
     ConfigAddress<SocketAddress>::ConfigAddress(net::config::ConfigSection* section)
         : Super(section) {

@@ -16,7 +16,8 @@
 #include <vector>
 
 namespace {
-    logger::BoundaryLogger makeLogger(logger::LogScope scope, logger::BoundaryLogger::Sink sink,
+    logger::BoundaryLogger makeLogger(logger::LogScope scope,
+                                      logger::BoundaryLogger::Sink sink,
                                       logger::LogLevel threshold = logger::LogLevel::Trace,
                                       logger::BoundaryLogger::Clock clock = {}) {
         return logger::LogScopeOwner::fromScope(scope).logger(std::move(sink), threshold, std::move(clock));
@@ -79,12 +80,14 @@ namespace {
             file = ::fopen(this->path.c_str(), "w+");
             ::dup2(::fileno(file), STDOUT_FILENO);
         }
+
         ~StdoutCapture() {
             ::fflush(stdout);
             ::dup2(saved, STDOUT_FILENO);
             ::close(saved);
             ::fclose(file);
         }
+
         std::string read() const {
             ::fflush(stdout);
             return readFile(path);

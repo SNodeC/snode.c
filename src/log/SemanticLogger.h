@@ -246,22 +246,27 @@ namespace logger {
         void trace(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Trace, format, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void debug(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Debug, format, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void info(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Info, format, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void warn(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Warn, format, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void error(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Error, format, std::forward<Args>(args)...);
         }
+
         template <class... Args>
         void critical(std::string_view format, Args&&... args) const {
             emitFormatted(LogLevel::Critical, format, std::forward<Args>(args)...);
@@ -317,6 +322,7 @@ namespace logger {
             out << std::forward<T>(value);
             return out.str();
         }
+
         template <class... Args>
         static std::vector<std::string> collectArgs(Args&&... args) {
             std::vector<std::string> values;

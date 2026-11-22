@@ -145,18 +145,23 @@ namespace snode::log {
     Stream Logger::trace() const {
         return stream(Level::Trace);
     }
+
     Stream Logger::debug() const {
         return stream(Level::Debug);
     }
+
     Stream Logger::info() const {
         return stream(Level::Info);
     }
+
     Stream Logger::warn() const {
         return stream(Level::Warning);
     }
+
     Stream Logger::error() const {
         return stream(Level::Error);
     }
+
     Stream Logger::critical() const {
         return stream(Level::Critical);
     }

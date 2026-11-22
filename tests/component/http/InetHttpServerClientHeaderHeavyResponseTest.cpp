@@ -16,19 +16,23 @@
 
 namespace {
     constexpr int headerCount = 32;
+
     std::string headerName(int i) {
         std::ostringstream os;
         os << "X-Test-Header-" << std::setw(3) << std::setfill('0') << i;
         return os.str();
     }
+
     std::string headerValue(int i) {
         std::ostringstream os;
         os << "value-" << std::setw(3) << std::setfill('0') << i;
         return os.str();
     }
+
     std::string toString(const std::vector<char>& bytes) {
         return {bytes.begin(), bytes.end()};
     }
+
     struct State {
         int listenOkCount = 0, effectiveListenEndpointOkCount = 0, clientConnectOkCount = 0, httpConnectedCount = 0, serverRequestCount = 0,
             clientResponseCount = 0, httpDisconnectedCount = 0, unexpectedStateCount = 0, parseErrorCount = 0;

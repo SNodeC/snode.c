@@ -211,10 +211,9 @@ int main(int argc, char* argv[]) {
 
         core::SNodeC::init(argc, argv);
 
-        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-payload-client",
-                                                                                                       testState);
+        net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-payload-client", testState);
         const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-payload-server",
-                                                                                                             testState);
+                                                                                                              testState);
 
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
@@ -227,15 +226,16 @@ int main(int argc, char* argv[]) {
                                     const std::uint16_t effectivePort = socketAddress.getPort();
                                     if (effectivePort != 0) {
                                         ++testState.effectiveListenPortOkCount;
-                                        socketClient.connect(net::in6::SocketAddress("::1", effectivePort),
-                                                             [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
-                                                                 if (connectState == core::socket::State::OK) {
-                                                                     ++testState.clientConnectOkCount;
-                                                                 } else {
-                                                                     ++testState.unexpectedStateCount;
-                                                                     core::SNodeC::stop();
-                                                                 }
-                                                             });
+                                        socketClient.connect(
+                                            net::in6::SocketAddress("::1", effectivePort),
+                                            [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
+                                                if (connectState == core::socket::State::OK) {
+                                                    ++testState.clientConnectOkCount;
+                                                } else {
+                                                    ++testState.unexpectedStateCount;
+                                                    core::SNodeC::stop();
+                                                }
+                                            });
                                     } else {
                                         ++testState.zeroEffectiveListenPortCount;
                                         ++testState.unexpectedStateCount;

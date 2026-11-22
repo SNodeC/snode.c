@@ -145,15 +145,19 @@ namespace {
     private:
         void onConnected() override {
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             return 0;
         }
+
         bool onSignal(int) override {
             return true;
         }
     };
+
     class Factory : public core::socket::stream::SocketContextFactory {
     public:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* connection) override {
@@ -244,7 +248,8 @@ namespace {
                 } else if (state == core::socket::State::OK) {
                     auto copy = address;
                     result.expectTrue(numericHost(&copy.getSockAddr()) == "127.0.0.1", "second address supplies the listener");
-                    client.connect(net::in::SocketAddress("127.0.0.1", address.getPort()), [](const auto&, auto) {});
+                    client.connect(net::in::SocketAddress("127.0.0.1", address.getPort()), [](const auto&, auto) {
+                    });
                 } else {
                     core::SNodeC::stop();
                 }

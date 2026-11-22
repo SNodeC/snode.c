@@ -56,6 +56,7 @@ namespace logger {
         int rank(LogLevel level) {
             return static_cast<int>(level);
         }
+
         std::string escapeJson(const std::string& value) {
             std::ostringstream out;
             for (const char rawCh : value) {
@@ -93,10 +94,12 @@ namespace logger {
             }
             return out.str();
         }
+
         void appendField(std::ostringstream& out, bool& first, std::string_view name, const std::string& value) {
             out << (first ? "" : ",") << "\"" << name << "\":\"" << escapeJson(value) << "\"";
             first = false;
         }
+
         void appendInt(std::ostringstream& out, bool& first, std::string_view name, int value) {
             out << (first ? "" : ",") << "\"" << name << "\":" << value;
             first = false;
@@ -474,9 +477,11 @@ namespace logger {
         }
         return "off";
     }
+
     std::string toString(LogOrigin origin) {
         return origin == LogOrigin::Framework ? "framework" : "application";
     }
+
     std::string toString(LogBoundary boundary) {
         switch (boundary) {
             case LogBoundary::Application:
@@ -494,6 +499,7 @@ namespace logger {
         }
         return "system";
     }
+
     std::optional<std::string_view> toString(LogRole role) {
         if (role == LogRole::Server)
             return "server";
@@ -645,6 +651,7 @@ namespace logger {
         , enabled(logger != nullptr && logger->enabled(level))
         , flushed(false) {
     }
+
     LogStream::LogStream(LogStream&& other) noexcept
         : logger(other.logger)
         , level(other.level)
@@ -653,6 +660,7 @@ namespace logger {
         , stream(std::move(other.stream)) {
         other.flushed = true;
     }
+
     LogStream& LogStream::operator=(LogStream&& other) noexcept {
         if (this != &other) {
             if (!flushed && enabled && logger != nullptr)
@@ -666,6 +674,7 @@ namespace logger {
         }
         return *this;
     }
+
     LogStream::~LogStream() {
         if (!flushed && enabled && logger != nullptr)
             logger->emit(level, stream.str());
@@ -701,27 +710,35 @@ namespace logger {
         , threshold(threshold)
         , clock(std::move(clock)) {
     }
+
     bool BoundaryLogger::enabled(LogLevel level) const noexcept {
         return level != LogLevel::Off && rank(level) >= rank(threshold) && threshold != LogLevel::Off;
     }
+
     LogStream BoundaryLogger::trace() const {
         return {this, LogLevel::Trace};
     }
+
     LogStream BoundaryLogger::debug() const {
         return {this, LogLevel::Debug};
     }
+
     LogStream BoundaryLogger::info() const {
         return {this, LogLevel::Info};
     }
+
     LogStream BoundaryLogger::warn() const {
         return {this, LogLevel::Warn};
     }
+
     LogStream BoundaryLogger::error() const {
         return {this, LogLevel::Error};
     }
+
     LogStream BoundaryLogger::critical() const {
         return {this, LogLevel::Critical};
     }
+
     void BoundaryLogger::hexDump(LogLevel level, std::string_view label, std::span<const std::byte> bytes) const {
         if (!enabled(level) || !sink)
             return;

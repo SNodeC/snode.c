@@ -24,10 +24,9 @@ namespace echo {
     void EchoSocketContext::onDisconnected() {
         const char* roleName = role == Role::CLIENT ? "client" : "server";
 
-        log().info(
-            "Echo {} context detached: {}",
-            roleName,
-            getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
+        log().info("Echo {} context detached: {}",
+                   roleName,
+                   getDetachReason() == DetachReason::ContextSwitch ? "context switch" : "connection close");
     }
 
     bool EchoSocketContext::onSignal([[maybe_unused]] int signum) {
@@ -48,13 +47,11 @@ namespace echo {
         return chunklen;
     }
 
-    core::socket::stream::SocketContext*
-    EchoServerSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+    core::socket::stream::SocketContext* EchoServerSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::SERVER);
     }
 
-    core::socket::stream::SocketContext*
-    EchoClientSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+    core::socket::stream::SocketContext* EchoClientSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
         return new EchoSocketContext(socketConnection, EchoSocketContext::Role::CLIENT);
     }
 

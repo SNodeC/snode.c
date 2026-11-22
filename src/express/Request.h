@@ -88,6 +88,7 @@ namespace express {
         friend class Response;
 
         // Facade to web::http::server::Request (requestBase)
+
     public:
         const std::string& get(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;

@@ -69,11 +69,7 @@ namespace {
     constexpr std::string_view firstServerReply = "snodec-unix-framed-reply-one";
     constexpr std::string_view secondServerReply = "snodec-unix-framed-reply-two";
 
-    enum class FrameParseResult {
-        Incomplete,
-        Complete,
-        Malformed
-    };
+    enum class FrameParseResult { Incomplete, Complete, Malformed };
 
     std::string encodeFrame(std::string_view payload) {
         return std::to_string(payload.size()) + "\n" + std::string(payload);
@@ -137,8 +133,10 @@ namespace {
         void onConnected() override {
             ++testState.serverConnectedCount;
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -160,13 +158,16 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         void handleFrame(const std::string& framePayload) {
             if (testState.serverFirstFrameReceivedCount == 0 && framePayload == firstClientPayload) {
                 ++testState.serverFirstFrameReceivedCount;
-            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 && framePayload == secondClientPayload) {
+            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 &&
+                       framePayload == secondClientPayload) {
                 ++testState.serverSecondFrameReceivedCount;
                 const std::string replyStream = encodeFrame(firstServerReply) + encodeFrame(secondServerReply);
                 replyFragments = makeFragmentPlan(replyStream);
@@ -176,16 +177,22 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void sendNextReplyFragment() {
             if (nextReplyFragmentIndex < replyFragments.size()) {
                 const std::string& fragment = replyFragments[nextReplyFragmentIndex++];
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.serverReplyFragmentSentCount;
                 if (nextReplyFragmentIndex < replyFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextReplyFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextReplyFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
+
         TestState& testState;
         std::string receiveBuffer;
         std::vector<std::string> replyFragments;
@@ -207,8 +214,10 @@ namespace {
             requestFragments = makeFragmentPlan(requestStream);
             sendNextRequestFragment();
         }
+
         void onDisconnected() override {
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -230,13 +239,16 @@ namespace {
             }
             return chunkLen;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         void handleFrame(const std::string& framePayload) {
             if (testState.clientFirstReplyFrameReceivedCount == 0 && framePayload == firstServerReply) {
                 ++testState.clientFirstReplyFrameReceivedCount;
-            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 && framePayload == secondServerReply) {
+            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 &&
+                       framePayload == secondServerReply) {
                 ++testState.clientSecondReplyFrameReceivedCount;
                 core::SNodeC::stop();
             } else {
@@ -244,16 +256,22 @@ namespace {
                 core::SNodeC::stop();
             }
         }
+
         void sendNextRequestFragment() {
             if (nextRequestFragmentIndex < requestFragments.size()) {
                 const std::string& fragment = requestFragments[nextRequestFragmentIndex++];
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.clientRequestFragmentSentCount;
                 if (nextRequestFragmentIndex < requestFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextRequestFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextRequestFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
+
         TestState& testState;
         std::string receiveBuffer;
         std::vector<std::string> requestFragments;
@@ -266,10 +284,12 @@ namespace {
         explicit TestServerSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -279,10 +299,12 @@ namespace {
         explicit TestClientSocketContextFactory(TestState& testState)
             : testState(testState) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++testState.clientFactoryCreateCount;
             return new TestClientSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -309,7 +331,8 @@ int main(int argc, char* argv[]) {
         const bool socketPathAbsentBeforeListen = !socketPathExists(socketPath);
         core::SNodeC::init(argc, argv);
         net::un::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("unix-framed-client", testState);
-        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-framed-server", testState);
+        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-framed-server",
+                                                                                                             testState);
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
         socketServer.listen(socketPath, [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
@@ -343,8 +366,10 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(4, testState.serverReplyFragmentSentCount, "server sends reply stream in four staged fragments");
         testResult.expectEqual(1, testState.serverFirstFrameReceivedCount, "server reconstructs the first client frame exactly once");
         testResult.expectEqual(1, testState.serverSecondFrameReceivedCount, "server reconstructs the second client frame exactly once");
-        testResult.expectEqual(1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
-        testResult.expectEqual(1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
         testResult.expectEqual(0, testState.malformedFrameCount, "framed parser reports no malformed frames");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
         testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected framed payloads");

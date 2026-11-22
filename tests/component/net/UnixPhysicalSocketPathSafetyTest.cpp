@@ -214,6 +214,7 @@ int main() {
                           "owned stale Unix socket fixture is a socket node");
 
     int ownedStaleBindResult = -1;
+
     struct stat recoveredStatus = {};
     {
         net::un::phy::stream::PhysicalSocketServer socket;

@@ -37,12 +37,20 @@ namespace {
             , input(std::move(input)) {
         }
 
-        int getFd() const override { return -1; }
+        int getFd() const override {
+            return -1;
+        }
+
         bool sendToPeer(const char*, std::size_t) override {
             return true;
         }
-        bool streamToPeer(core::pipe::Source*) override { return false; }
-        void streamEof() override {}
+
+        bool streamToPeer(core::pipe::Source*) override {
+            return false;
+        }
+
+        void streamEof() override {
+        }
 
         std::size_t readFromPeer(char* chunk, std::size_t chunkLen) override {
             const std::size_t available = input.size() - offset;
@@ -54,19 +62,51 @@ namespace {
             return toRead;
         }
 
-        void shutdownRead() override {}
-        void shutdownWrite() override {}
-        const core::socket::SocketAddress& getBindAddress() const override { return address; }
-        const core::socket::SocketAddress& getLocalAddress() const override { return address; }
-        const core::socket::SocketAddress& getRemoteAddress() const override { return address; }
-        void close() override {}
-        void setTimeout(const utils::Timeval&) override {}
-        void setReadTimeout(const utils::Timeval&) override {}
-        void setWriteTimeout(const utils::Timeval&) override {}
-        std::size_t getTotalSent() const override { return 0; }
-        std::size_t getTotalQueued() const override { return 0; }
-        std::size_t getTotalRead() const override { return offset; }
-        std::size_t getTotalProcessed() const override { return offset; }
+        void shutdownRead() override {
+        }
+
+        void shutdownWrite() override {
+        }
+
+        const core::socket::SocketAddress& getBindAddress() const override {
+            return address;
+        }
+
+        const core::socket::SocketAddress& getLocalAddress() const override {
+            return address;
+        }
+
+        const core::socket::SocketAddress& getRemoteAddress() const override {
+            return address;
+        }
+
+        void close() override {
+        }
+
+        void setTimeout(const utils::Timeval&) override {
+        }
+
+        void setReadTimeout(const utils::Timeval&) override {
+        }
+
+        void setWriteTimeout(const utils::Timeval&) override {
+        }
+
+        std::size_t getTotalSent() const override {
+            return 0;
+        }
+
+        std::size_t getTotalQueued() const override {
+            return 0;
+        }
+
+        std::size_t getTotalRead() const override {
+            return offset;
+        }
+
+        std::size_t getTotalProcessed() const override {
+            return offset;
+        }
 
     private:
         std::string input;
@@ -81,10 +121,19 @@ namespace {
         }
 
     private:
-        void onConnected() override {}
-        void onDisconnected() override {}
-        std::size_t onReceivedFromPeer() override { return 0; }
-        bool onSignal(int) override { return false; }
+        void onConnected() override {
+        }
+
+        void onDisconnected() override {
+        }
+
+        std::size_t onReceivedFromPeer() override {
+            return 0;
+        }
+
+        bool onSignal(int) override {
+            return false;
+        }
     };
 
     struct ParsedTarget {
@@ -104,12 +153,14 @@ namespace {
 
         web::http::server::RequestParser parser(
             &context,
-            []() {},
+            []() {
+            },
             [&parsedTarget](web::http::server::Request&& request) {
                 parsedTarget.url = request.url;
                 parsedTarget.queries = std::move(request.queries);
             },
-            [](int, const std::string&) {});
+            [](int, const std::string&) {
+            });
 
         parser.parse();
         return parsedTarget;

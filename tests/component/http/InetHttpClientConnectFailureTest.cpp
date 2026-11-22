@@ -15,6 +15,7 @@ namespace {
         int clientConnectFailureCount = 0, unexpectedConnectOkCount = 0, httpConnectedCount = 0, httpDisconnectedCount = 0,
             clientResponseCount = 0, parseErrorCount = 0;
     };
+
     std::uint16_t reserveAndReleaseLocalPort() {
         const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
         sockaddr_in addr{};

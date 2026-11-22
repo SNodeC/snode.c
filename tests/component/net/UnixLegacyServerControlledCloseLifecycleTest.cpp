@@ -68,6 +68,7 @@ namespace {
     std::string makeSocketPath() {
         return "/tmp/snodec-unix-server-close-" + std::to_string(getpid()) + ".sock";
     }
+
     bool socketPathExists(const std::string& socketPath) {
         return access(socketPath.c_str(), F_OK) == 0;
     }
@@ -89,11 +90,13 @@ namespace {
         int unexpectedStateCount = 0;
         int unexpectedPayloadCount = 0;
     };
+
     void stopWhenServerCloseLifecycleIsComplete(TestState& testState) {
         if (testState.serverDisconnectedCount == 1 && testState.clientDisconnectedCount == 1) {
             core::SNodeC::stop();
         }
     }
+
     class TestServerSocketContext : public core::socket::stream::SocketContext {
     public:
         TestServerSocketContext(core::socket::stream::SocketConnection* c, TestState& s)
@@ -105,10 +108,12 @@ namespace {
         void onConnected() override {
             ++testState.serverConnectedCount;
         }
+
         void onDisconnected() override {
             ++testState.serverDisconnectedCount;
             stopWhenServerCloseLifecycleIsComplete(testState);
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t n = readFromPeer(chunk, sizeof(chunk));
@@ -130,12 +135,15 @@ namespace {
             }
             return n;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         TestState& testState;
         core::timer::Timer closeTimer;
     };
+
     class TestClientSocketContext : public core::socket::stream::SocketContext {
     public:
         TestClientSocketContext(core::socket::stream::SocketConnection* c, TestState& s)
@@ -148,10 +156,12 @@ namespace {
             ++testState.clientConnectedCount;
             sendToPeer(clientPayload.data(), clientPayload.size());
         }
+
         void onDisconnected() override {
             ++testState.clientDisconnectedCount;
             stopWhenServerCloseLifecycleIsComplete(testState);
         }
+
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t n = readFromPeer(chunk, sizeof(chunk));
@@ -166,16 +176,20 @@ namespace {
             }
             return n;
         }
+
         bool onSignal([[maybe_unused]] int signum) override {
             return true;
         }
+
         TestState& testState;
     };
+
     class TestServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         explicit TestServerSocketContextFactory(TestState& s)
             : testState(s) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(c, testState);
@@ -184,11 +198,13 @@ namespace {
     private:
         TestState& testState;
     };
+
     class TestClientSocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         explicit TestClientSocketContextFactory(TestState& s)
             : testState(s) {
         }
+
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* c) override {
             ++testState.clientFactoryCreateCount;
             return new TestClientSocketContext(c, testState);
@@ -198,6 +214,7 @@ namespace {
         TestState& testState;
     };
 } // namespace
+
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
     int result = tests::support::cTestSkipReturnCode;

@@ -1,6 +1,7 @@
 #include "net/in/stream/legacy/SocketClient.h"
 #include "net/in/stream/legacy/SocketServer.h"
 #include "tests/support/NetworkTest.h"
+
 int main(int argc, char** argv) {
     using namespace tests::support;
     const bool cancel = argc > 1 && std::string(argv[1]) == "cancel";

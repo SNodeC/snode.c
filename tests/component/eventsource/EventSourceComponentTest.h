@@ -123,15 +123,20 @@ namespace tests::component::eventsource {
                           State& state,
                           const std::vector<ExpectedEvent>& events,
                           bool multiLineData = false) {
-        handleSseRequest(request, response, state, events, multiLineData, [multiLineData](const auto&, const auto& response, State&, const auto& events) {
-            if (multiLineData) {
-                sendSseMultiLineDataEvent(response, events.front().type, events.front().id);
-            } else {
-                for (const ExpectedEvent& event : events) {
-                    sendSseEvent(response, event);
-                }
-            }
-        });
+        handleSseRequest(request,
+                         response,
+                         state,
+                         events,
+                         multiLineData,
+                         [multiLineData](const auto&, const auto& response, State&, const auto& events) {
+                             if (multiLineData) {
+                                 sendSseMultiLineDataEvent(response, events.front().type, events.front().id);
+                             } else {
+                                 for (const ExpectedEvent& event : events) {
+                                     sendSseEvent(response, event);
+                                 }
+                             }
+                         });
     }
 
     inline void recordEvent(State& state, const web::http::client::tools::EventSource::MessageEvent& message) {
@@ -190,43 +195,47 @@ namespace tests::component::eventsource {
 
             server.getConfig()->Instance::forceUnrequired();
 
-            server.listen(net::in::SocketAddress("127.0.0.1", 0), [&state, &events](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
-                if (listenState == core::socket::State::OK) {
-                    ++state.listenOkCount;
-                    const std::uint16_t effectivePort = socketAddress.getPort();
-                    if (effectivePort != 0) {
-                        ++state.effectiveListenEndpointOkCount;
-                        state.eventSource = web::http::legacy::in::EventSource("127.0.0.1", effectivePort, "/events");
-                        if (!state.eventSource) {
-                            ++state.unexpectedStateCount;
-                            core::SNodeC::stop();
-                            return;
-                        }
-                        state.eventSource->onOpen([&state]() { ++state.eventSourceOpenCount; });
-                        state.eventSource->onError([&state]() {
-                            if (!state.stoppedAfterExpectedEvents && !state.allowReconnect) {
-                                ++state.parseErrorCount;
-                                core::SNodeC::stop();
-                            }
-                        });
-                        std::set<std::string> registeredEventTypes;
-                        for (const ExpectedEvent& event : events) {
-                            if (registeredEventTypes.insert(event.type).second) {
-                                state.eventSource->addEventListener(event.type, [&state, expectedEventCount = events.size()](const auto& message) {
-                                    recordEvent(state, message);
-                                    maybeStopAfterExpectedEvents(state, expectedEventCount);
-                                });
-                            }
-                        }
-                    } else {
-                        ++state.unexpectedStateCount;
-                        core::SNodeC::stop();
-                    }
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            });
+            server.listen(net::in::SocketAddress("127.0.0.1", 0),
+                          [&state, &events](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
+                              if (listenState == core::socket::State::OK) {
+                                  ++state.listenOkCount;
+                                  const std::uint16_t effectivePort = socketAddress.getPort();
+                                  if (effectivePort != 0) {
+                                      ++state.effectiveListenEndpointOkCount;
+                                      state.eventSource = web::http::legacy::in::EventSource("127.0.0.1", effectivePort, "/events");
+                                      if (!state.eventSource) {
+                                          ++state.unexpectedStateCount;
+                                          core::SNodeC::stop();
+                                          return;
+                                      }
+                                      state.eventSource->onOpen([&state]() {
+                                          ++state.eventSourceOpenCount;
+                                      });
+                                      state.eventSource->onError([&state]() {
+                                          if (!state.stoppedAfterExpectedEvents && !state.allowReconnect) {
+                                              ++state.parseErrorCount;
+                                              core::SNodeC::stop();
+                                          }
+                                      });
+                                      std::set<std::string> registeredEventTypes;
+                                      for (const ExpectedEvent& event : events) {
+                                          if (registeredEventTypes.insert(event.type).second) {
+                                              state.eventSource->addEventListener(
+                                                  event.type, [&state, expectedEventCount = events.size()](const auto& message) {
+                                                      recordEvent(state, message);
+                                                      maybeStopAfterExpectedEvents(state, expectedEventCount);
+                                                  });
+                                          }
+                                      }
+                                  } else {
+                                      ++state.unexpectedStateCount;
+                                      core::SNodeC::stop();
+                                  }
+                              } else {
+                                  ++state.unexpectedStateCount;
+                                  core::SNodeC::stop();
+                              }
+                          });
 
             const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
             expect(testResult, state, events, startResult);
@@ -263,24 +272,23 @@ namespace tests::component::eventsource {
                                const std::vector<ExpectedEvent>& events,
                                bool multiLineData,
                                Expect expect) {
-        return runInetEventSourceTest(
-            argc,
-            argv,
-            testName,
-            serverName,
-            state,
-            events,
-            multiLineData,
-            expect,
-            [multiLineData](const auto&, const auto& response, State&, const auto& events) {
-                if (multiLineData) {
-                    sendSseMultiLineDataEvent(response, events.front().type, events.front().id);
-                } else {
-                    for (const ExpectedEvent& event : events) {
-                        sendSseEvent(response, event);
-                    }
-                }
-            });
+        return runInetEventSourceTest(argc,
+                                      argv,
+                                      testName,
+                                      serverName,
+                                      state,
+                                      events,
+                                      multiLineData,
+                                      expect,
+                                      [multiLineData](const auto&, const auto& response, State&, const auto& events) {
+                                          if (multiLineData) {
+                                              sendSseMultiLineDataEvent(response, events.front().type, events.front().id);
+                                          } else {
+                                              for (const ExpectedEvent& event : events) {
+                                                  sendSseEvent(response, event);
+                                              }
+                                          }
+                                      });
     }
 
     inline void expectCommon(tests::support::TestResult& testResult, const State& state, int startResult) {
@@ -292,19 +300,26 @@ namespace tests::component::eventsource {
         testResult.expectTrue(state.serverSawPath, "IPv4 SSE server observes /events request path");
         testResult.expectTrue(state.serverSawAccept, "IPv4 SSE server observes Accept: text/event-stream");
         testResult.expectEqual(0, state.parseErrorCount, "IPv4 EventSource reports no parse errors");
-        testResult.expectEqual(0, state.unexpectedDisconnectCount, "IPv4 EventSource reports no unexpected disconnects before expected events");
+        testResult.expectEqual(
+            0, state.unexpectedDisconnectCount, "IPv4 EventSource reports no unexpected disconnects before expected events");
         testResult.expectEqual(0, state.unexpectedStateCount, "IPv4 EventSource reports no unexpected states");
         testResult.expectTrue(state.stoppedAfterExpectedEvents, "IPv4 EventSource stops deterministically after expected events");
     }
 
     inline void expectEvents(tests::support::TestResult& testResult, const State& state, const std::vector<ExpectedEvent>& expectedEvents) {
-        testResult.expectEqual(static_cast<int>(expectedEvents.size()), state.clientEventCount, "IPv4 EventSource receives exact event count");
-        testResult.expectEqual(static_cast<int>(expectedEvents.size()), static_cast<int>(state.receivedEvents.size()), "IPv4 EventSource records exact event count");
+        testResult.expectEqual(
+            static_cast<int>(expectedEvents.size()), state.clientEventCount, "IPv4 EventSource receives exact event count");
+        testResult.expectEqual(static_cast<int>(expectedEvents.size()),
+                               static_cast<int>(state.receivedEvents.size()),
+                               "IPv4 EventSource records exact event count");
         const std::size_t comparableCount = std::min(expectedEvents.size(), state.receivedEvents.size());
         for (std::size_t i = 0; i < comparableCount; ++i) {
-            testResult.expectTrue(state.receivedEvents[i].type == expectedEvents[i].type, "IPv4 EventSource receives expected event type at index " + std::to_string(i));
-            testResult.expectTrue(state.receivedEvents[i].id == expectedEvents[i].id, "IPv4 EventSource receives expected event id at index " + std::to_string(i));
-            testResult.expectTrue(state.receivedEvents[i].data == expectedEvents[i].data, "IPv4 EventSource receives expected event data at index " + std::to_string(i));
+            testResult.expectTrue(state.receivedEvents[i].type == expectedEvents[i].type,
+                                  "IPv4 EventSource receives expected event type at index " + std::to_string(i));
+            testResult.expectTrue(state.receivedEvents[i].id == expectedEvents[i].id,
+                                  "IPv4 EventSource receives expected event id at index " + std::to_string(i));
+            testResult.expectTrue(state.receivedEvents[i].data == expectedEvents[i].data,
+                                  "IPv4 EventSource receives expected event data at index " + std::to_string(i));
         }
     }
 
@@ -330,7 +345,8 @@ namespace tests::component::eventsource {
                 expectEvents(testResult, observedState, expectedEvents);
                 testResult.expectEqual(0, startResult, "IPv4 EventSource exits cleanly after client close");
                 testResult.expectEqual(1, observedState.serverRequestCount, "IPv4 EventSource receives the close-after-event message");
-                testResult.expectTrue(observedState.closeInvoked, "IPv4 EventSource close is invoked by the client after receiving the expected event");
+                testResult.expectTrue(observedState.closeInvoked,
+                                      "IPv4 EventSource close is invoked by the client after receiving the expected event");
             },
             [](const auto&, const auto& response, CloseState&, const auto&) {
                 sendSseEvent(response, {"measurement", "1", "close-now"});

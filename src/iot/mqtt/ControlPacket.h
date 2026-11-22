@@ -82,6 +82,7 @@
 #define MQTT_PINGREQ_FLAGS 0x00
 #define MQTT_PINGRESP_FLAGS 0x00
 #define MQTT_DISCONNECT_FLAGS 0x00
+
 // no flags for MQTT_RESERVED_0F
 
 namespace iot::mqtt {

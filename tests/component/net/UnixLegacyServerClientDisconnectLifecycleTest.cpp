@@ -242,24 +242,22 @@ int main(int argc, char* argv[]) {
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(socketPath,
-                            [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
-                                    socketClient.connect(socketPath,
-                                                         [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
-                                                             if (connectState == core::socket::State::OK) {
-                                                                 ++testState.clientConnectOkCount;
-                                                             } else {
-                                                                 ++testState.unexpectedStateCount;
-                                                                 core::SNodeC::stop();
-                                                             }
-                                                         });
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+        socketServer.listen(socketPath, [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
+            if (state == core::socket::State::OK) {
+                ++testState.serverListenOkCount;
+                socketClient.connect(socketPath, [&testState](const net::un::SocketAddress&, core::socket::State connectState) {
+                    if (connectState == core::socket::State::OK) {
+                        ++testState.clientConnectOkCount;
+                    } else {
+                        ++testState.unexpectedStateCount;
+                        core::SNodeC::stop();
+                    }
+                });
+            } else {
+                ++testState.unexpectedStateCount;
+                core::SNodeC::stop();
+            }
+        });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

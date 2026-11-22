@@ -1,5 +1,6 @@
 #include "net/in/stream/tls/SocketServer.h"
 #include "tests/support/NetworkTest.h"
+
 int main(int argc, char** argv) {
     using namespace tests::support;
     const bool plaintext = argc > 1 && std::string(argv[1]) == "plaintext";
