@@ -117,9 +117,8 @@ int main() {
         if (message == "Upgrade request has gone away") {
             ++errorRecordCount;
             errorIdentityMatches = record.value("level", "") == "error" && record.value("origin", "") == "framework" &&
-                                   record.value("boundary", "") == "connection" &&
-                                   record.value("component", "") == "web.http.server" && record.value("role", "") == "server" &&
-                                   record.value("instance", "") == "http-upgrade-server" &&
+                                   record.value("boundary", "") == "connection" && record.value("component", "") == "web.http.server" &&
+                                   record.value("role", "") == "server" && record.value("instance", "") == "http-upgrade-server" &&
                                    record.value("connection", "") == "314";
         }
         if (message.find("SocketContextUpgrade") != std::string::npos || message.find("upgrade plugin") != std::string::npos) {

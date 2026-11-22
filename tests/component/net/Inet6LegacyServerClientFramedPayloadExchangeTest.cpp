@@ -68,11 +68,7 @@ namespace {
     constexpr std::string_view firstServerReply = "snodec-ipv6-framed-reply-one";
     constexpr std::string_view secondServerReply = "snodec-ipv6-framed-reply-two";
 
-    enum class FrameParseResult {
-        Incomplete,
-        Complete,
-        Malformed
-    };
+    enum class FrameParseResult { Incomplete, Complete, Malformed };
 
     std::string encodeFrame(std::string_view payload) {
         return std::to_string(payload.size()) + "\n" + std::string(payload);
@@ -167,7 +163,8 @@ namespace {
         void handleFrame(const std::string& framePayload) {
             if (testState.serverFirstFrameReceivedCount == 0 && framePayload == firstClientPayload) {
                 ++testState.serverFirstFrameReceivedCount;
-            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 && framePayload == secondClientPayload) {
+            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 &&
+                       framePayload == secondClientPayload) {
                 ++testState.serverSecondFrameReceivedCount;
                 const std::string replyStream = encodeFrame(firstServerReply) + encodeFrame(secondServerReply);
                 replyFragments = makeFragmentPlan(replyStream);
@@ -183,7 +180,11 @@ namespace {
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.serverReplyFragmentSentCount;
                 if (nextReplyFragmentIndex < replyFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextReplyFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextReplyFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
@@ -237,7 +238,8 @@ namespace {
         void handleFrame(const std::string& framePayload) {
             if (testState.clientFirstReplyFrameReceivedCount == 0 && framePayload == firstServerReply) {
                 ++testState.clientFirstReplyFrameReceivedCount;
-            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 && framePayload == secondServerReply) {
+            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 &&
+                       framePayload == secondServerReply) {
                 ++testState.clientSecondReplyFrameReceivedCount;
                 core::SNodeC::stop();
             } else {
@@ -251,7 +253,11 @@ namespace {
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.clientRequestFragmentSentCount;
                 if (nextRequestFragmentIndex < requestFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextRequestFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextRequestFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
@@ -271,6 +277,7 @@ namespace {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -284,6 +291,7 @@ namespace {
             ++testState.clientFactoryCreateCount;
             return new TestClientSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -299,33 +307,37 @@ int main(int argc, char* argv[]) {
         TestState testState;
         core::SNodeC::init(argc, argv);
         net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv6-framed-client", testState);
-        const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-framed-server", testState);
+        const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-framed-server",
+                                                                                                              testState);
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
-        socketServer.listen(net::in6::SocketAddress("::1", 0), [&socketClient, &testState](const net::in6::SocketAddress& socketAddress, core::socket::State state) {
-            if (state == core::socket::State::OK) {
-                ++testState.serverListenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++testState.effectiveListenPortOkCount;
-                    socketClient.connect(net::in6::SocketAddress("::1", effectivePort), [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) {
-                            ++testState.clientConnectOkCount;
-                        } else {
-                            ++testState.unexpectedStateCount;
-                            core::SNodeC::stop();
-                        }
-                    });
-                } else {
-                    ++testState.zeroEffectiveListenPortCount;
-                    ++testState.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++testState.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        socketServer.listen(net::in6::SocketAddress("::1", 0),
+                            [&socketClient, &testState](const net::in6::SocketAddress& socketAddress, core::socket::State state) {
+                                if (state == core::socket::State::OK) {
+                                    ++testState.serverListenOkCount;
+                                    const std::uint16_t effectivePort = socketAddress.getPort();
+                                    if (effectivePort != 0) {
+                                        ++testState.effectiveListenPortOkCount;
+                                        socketClient.connect(
+                                            net::in6::SocketAddress("::1", effectivePort),
+                                            [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
+                                                if (connectState == core::socket::State::OK) {
+                                                    ++testState.clientConnectOkCount;
+                                                } else {
+                                                    ++testState.unexpectedStateCount;
+                                                    core::SNodeC::stop();
+                                                }
+                                            });
+                                    } else {
+                                        ++testState.zeroEffectiveListenPortCount;
+                                        ++testState.unexpectedStateCount;
+                                        core::SNodeC::stop();
+                                    }
+                                } else {
+                                    ++testState.unexpectedStateCount;
+                                    core::SNodeC::stop();
+                                }
+                            });
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         testResult.expectEqual(0, startResult, "event loop stops successfully after framed IPv6 request/reply exchange");
         testResult.expectEqual(1, testState.serverListenOkCount, "IPv6 legacy server listen callback reports OK exactly once");
@@ -340,8 +352,10 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(4, testState.serverReplyFragmentSentCount, "server sends reply stream in four staged fragments");
         testResult.expectEqual(1, testState.serverFirstFrameReceivedCount, "server reconstructs the first client frame exactly once");
         testResult.expectEqual(1, testState.serverSecondFrameReceivedCount, "server reconstructs the second client frame exactly once");
-        testResult.expectEqual(1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
-        testResult.expectEqual(1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
         testResult.expectEqual(0, testState.malformedFrameCount, "framed parser reports no malformed frames");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
         testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected framed payloads");

@@ -136,8 +136,7 @@ int main() {
     {
         LoggerStateGuard guard(helperPath);
         snode::semantic::appLog().info() << "semantic info works";
-        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, EACCES)
-            << "semantic system error works";
+        snode::semantic::sysError(snode::semantic::appLog(), logger::LogLevel::Error, EACCES) << "semantic system error works";
     }
     const auto helperLines = readLines(helperPath);
     std::ostringstream helperLog;

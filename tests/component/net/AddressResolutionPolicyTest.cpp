@@ -244,7 +244,8 @@ namespace {
                 } else if (state == core::socket::State::OK) {
                     auto copy = address;
                     result.expectTrue(numericHost(&copy.getSockAddr()) == "127.0.0.1", "second address supplies the listener");
-                    client.connect(net::in::SocketAddress("127.0.0.1", address.getPort()), [](const auto&, auto) {});
+                    client.connect(net::in::SocketAddress("127.0.0.1", address.getPort()), [](const auto&, auto) {
+                    });
                 } else {
                     core::SNodeC::stop();
                 }

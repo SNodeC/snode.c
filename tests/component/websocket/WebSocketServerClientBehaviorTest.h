@@ -82,14 +82,18 @@ namespace tests::component::websocket::behavior {
         }
 
     private:
-        void onConnected() override { ++state.serverWsConnectedCount; }
+        void onConnected() override {
+            ++state.serverWsConnectedCount;
+        }
 
         void onMessageStart(int opCode) override {
             ++state.serverMessageStartCount;
             state.currentServerMessage.clear();
             state.serverBinary.clear();
-            if (opCode == 1) ++state.serverTextOpcodeCount;
-            if (opCode == 2) ++state.serverBinaryOpcodeCount;
+            if (opCode == 1)
+                ++state.serverTextOpcodeCount;
+            if (opCode == 2)
+                ++state.serverBinaryOpcodeCount;
         }
 
         void onMessageData(const char* chunk, std::size_t chunkLen) override {
@@ -122,9 +126,17 @@ namespace tests::component::websocket::behavior {
             }
         }
 
-        void onMessageError(uint16_t) override { ++state.messageErrorCount; core::SNodeC::stop(); }
-        void onDisconnected() override { ++state.serverWsDisconnectedCount; }
-        bool onSignal(int) override { sendClose(); return false; }
+        void onMessageError(uint16_t) override {
+            ++state.messageErrorCount;
+            core::SNodeC::stop();
+        }
+        void onDisconnected() override {
+            ++state.serverWsDisconnectedCount;
+        }
+        bool onSignal(int) override {
+            sendClose();
+            return false;
+        }
         State& state;
     };
 
@@ -138,18 +150,24 @@ namespace tests::component::websocket::behavior {
     private:
         void onConnected() override {
             ++state.clientWsConnectedCount;
-            if (state.scenario == Scenario::MultiText) sendMessage(textMessages.front());
-            if (state.scenario == Scenario::BinaryEcho) sendMessage(reinterpret_cast<const char*>(binaryRequest.data()), binaryRequest.size());
-            if (state.scenario == Scenario::CloseHandshake) sendClose(1000, "done", 4);
-            if (state.scenario == Scenario::PingPong) sendPing("ping", 4);
+            if (state.scenario == Scenario::MultiText)
+                sendMessage(textMessages.front());
+            if (state.scenario == Scenario::BinaryEcho)
+                sendMessage(reinterpret_cast<const char*>(binaryRequest.data()), binaryRequest.size());
+            if (state.scenario == Scenario::CloseHandshake)
+                sendClose(1000, "done", 4);
+            if (state.scenario == Scenario::PingPong)
+                sendPing("ping", 4);
         }
 
         void onMessageStart(int opCode) override {
             ++state.clientMessageStartCount;
             state.currentClientMessage.clear();
             state.clientBinary.clear();
-            if (opCode == 1) ++state.clientTextOpcodeCount;
-            if (opCode == 2) ++state.clientBinaryOpcodeCount;
+            if (opCode == 1)
+                ++state.clientTextOpcodeCount;
+            if (opCode == 2)
+                ++state.clientBinaryOpcodeCount;
         }
 
         void onMessageData(const char* chunk, std::size_t chunkLen) override {
@@ -172,39 +190,72 @@ namespace tests::component::websocket::behavior {
                     sendClose();
                 }
             } else if (state.scenario == Scenario::BinaryEcho) {
-                if (state.clientBinary == binaryReply) sendClose(); else ++state.unexpectedStateCount;
+                if (state.clientBinary == binaryReply)
+                    sendClose();
+                else
+                    ++state.unexpectedStateCount;
             } else {
                 ++state.unexpectedStateCount;
                 core::SNodeC::stop();
             }
         }
 
-        void onMessageError(uint16_t) override { ++state.messageErrorCount; core::SNodeC::stop(); }
-        void onPongReceived() override { ++state.clientPongReceivedCount; sendClose(); }
-        void onDisconnected() override { ++state.clientWsDisconnectedCount; core::SNodeC::stop(); }
-        bool onSignal(int) override { sendClose(); return false; }
+        void onMessageError(uint16_t) override {
+            ++state.messageErrorCount;
+            core::SNodeC::stop();
+        }
+        void onPongReceived() override {
+            ++state.clientPongReceivedCount;
+            sendClose();
+        }
+        void onDisconnected() override {
+            ++state.clientWsDisconnectedCount;
+            core::SNodeC::stop();
+        }
+        bool onSignal(int) override {
+            sendClose();
+            return false;
+        }
         State& state;
     };
 
     class ServerFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
     public:
-        explicit ServerFactory(State& state) : web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>(tests::component::websocket::behavior::subProtocolName), state(state) {}
+        explicit ServerFactory(State& state)
+            : web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>(
+                  tests::component::websocket::behavior::subProtocolName)
+            , state(state) {
+        }
+
     private:
-        web::websocket::server::SubProtocol* create(web::websocket::SubProtocolContext* context) override { return new ServerSubProtocol(context, state); }
+        web::websocket::server::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
+            return new ServerSubProtocol(context, state);
+        }
         State& state;
     };
 
     class ClientFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
     public:
-        explicit ClientFactory(State& state) : web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>(tests::component::websocket::behavior::subProtocolName), state(state) {}
+        explicit ClientFactory(State& state)
+            : web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>(
+                  tests::component::websocket::behavior::subProtocolName)
+            , state(state) {
+        }
+
     private:
-        web::websocket::client::SubProtocol* create(web::websocket::SubProtocolContext* context) override { return new ClientSubProtocol(context, state); }
+        web::websocket::client::SubProtocol* create(web::websocket::SubProtocolContext* context) override {
+            return new ClientSubProtocol(context, state);
+        }
         State& state;
     };
 
     inline State* linkedState = nullptr;
-    inline web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* createServerFactory() { return new ServerFactory(*linkedState); }
-    inline web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* createClientFactory() { return new ClientFactory(*linkedState); }
+    inline web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>* createServerFactory() {
+        return new ServerFactory(*linkedState);
+    }
+    inline web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>* createClientFactory() {
+        return new ClientFactory(*linkedState);
+    }
 
     template <typename Server, typename Client>
     void configure(Server& server, Client& client, State& state) {
@@ -222,19 +273,49 @@ namespace tests::component::websocket::behavior {
         ++state.serverRequestCount;
         if (request->url == path && request->get("upgrade") == "websocket") {
             response->upgrade(request, [&state, response](const std::string& selectedProtocol) {
-                if (selectedProtocol == "websocket") { ++state.serverUpgradeOkCount; response->end(); }
-                else { ++state.unexpectedStateCount; response->sendStatus(400); core::SNodeC::stop(); }
+                if (selectedProtocol == "websocket") {
+                    ++state.serverUpgradeOkCount;
+                    response->end();
+                } else {
+                    ++state.unexpectedStateCount;
+                    response->sendStatus(400);
+                    core::SNodeC::stop();
+                }
             });
-        } else { ++state.unexpectedStateCount; response->sendStatus(404); core::SNodeC::stop(); }
+        } else {
+            ++state.unexpectedStateCount;
+            response->sendStatus(404);
+            core::SNodeC::stop();
+        }
     }
 
     template <typename MasterRequest>
     void startUpgrade(const std::shared_ptr<MasterRequest>& request, State& state) {
         ++state.clientHttpConnectedCount;
         request->set("Sec-WebSocket-Protocol", subProtocolName);
-        request->upgrade(path, "websocket", [&state](bool success) { if (success) ++state.clientUpgradeInitiatedCount; else { ++state.unexpectedStateCount; core::SNodeC::stop(); } },
-                         [&state](const auto&, const auto& response, bool success) { if (success && response->get("upgrade") == "websocket") ++state.clientUpgradeResponseCount; else { ++state.unexpectedStateCount; core::SNodeC::stop(); } },
-                         [&state](const auto&, const std::string&) { ++state.parseErrorCount; core::SNodeC::stop(); });
+        request->upgrade(
+            path,
+            "websocket",
+            [&state](bool success) {
+                if (success)
+                    ++state.clientUpgradeInitiatedCount;
+                else {
+                    ++state.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            },
+            [&state](const auto&, const auto& response, bool success) {
+                if (success && response->get("upgrade") == "websocket")
+                    ++state.clientUpgradeResponseCount;
+                else {
+                    ++state.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            },
+            [&state](const auto&, const std::string&) {
+                ++state.parseErrorCount;
+                core::SNodeC::stop();
+            });
     }
 
     inline void expectCommon(tests::support::TestResult& testResult, const State& state, const std::string& name, int startResult) {

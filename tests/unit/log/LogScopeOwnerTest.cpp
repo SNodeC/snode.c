@@ -1,4 +1,5 @@
 #include "log/LogScopeOwner.h"
+
 #include "tests/support/TestResult.h"
 
 #include <chrono>

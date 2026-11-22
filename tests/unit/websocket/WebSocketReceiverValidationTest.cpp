@@ -94,7 +94,7 @@ namespace {
         result.expectEqual(1, receiver.errors, name + " is rejected");
         result.expectEqual(1009, receiver.lastError, name + " uses message-too-big status");
     }
-}
+} // namespace
 
 int main() {
     tests::support::TestResult result;
@@ -104,7 +104,11 @@ int main() {
         r.feed(frame);
         expectProtocolError(result, "RSV bit", r);
     }
-    { BufferReceiver r(true); r.feed(mask({0x81, 0x82}, "hi")); expectAccepted(result, "normal masked text", r); }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x81, 0x82}, "hi"));
+        expectAccepted(result, "normal masked text", r);
+    }
 
     for (uint8_t opcode : {0x03, 0x07, 0x0B, 0x0F}) {
         BufferReceiver r(true);
@@ -122,7 +126,11 @@ int main() {
         r.feed(mask({opcode, 0x80}));
         expectProtocolError(result, "fragmented control", r);
     }
-    { BufferReceiver r(true); r.feed(mask({0x89, 0xFD}, std::string(125, 'x'))); expectAccepted(result, "ping length 125", r); }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x89, 0xFD}, std::string(125, 'x')));
+        expectAccepted(result, "ping length 125", r);
+    }
     for (uint8_t opcode : {0x08, 0x09, 0x0A}) {
         BufferReceiver r(true);
         std::vector<uint8_t> frame = mask({static_cast<uint8_t>(0x80 | opcode), 0xFE, 0x00, 0x7E}, std::string(126, 'x'));
@@ -130,12 +138,58 @@ int main() {
         expectProtocolError(result, "control extended length", r);
     }
 
-    { BufferReceiver r(true); r.feed(mask({0x80, 0x80})); expectProtocolError(result, "continuation without start", r); }
-    { BufferReceiver r(true); auto a = mask({0x01, 0x81}, "a"); auto b = mask({0x81, 0x81}, "b"); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectProtocolError(result, "new text while fragmented", r); }
-    { BufferReceiver r(true); auto a = mask({0x01, 0x81}, "a"); auto b = mask({0x82, 0x81}, "b"); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectProtocolError(result, "new binary while fragmented", r); }
-    { BufferReceiver r(true); auto a = mask({0x01, 0x82}, "he"); auto b = mask({0x80, 0x83}, "llo"); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectAccepted(result, "fragmented text", r); result.expectTrue(r.data == "hello", "fragmented text is delivered once in order"); }
-    { BufferReceiver r(true); auto a = mask({0x02, 0x81}, "a"); auto b = mask({0x00, 0x81}, "b"); auto c = mask({0x80, 0x81}, "c"); a.insert(a.end(), b.begin(), b.end()); a.insert(a.end(), c.begin(), c.end()); r.feed(a); expectAccepted(result, "multi-continuation binary", r); result.expectTrue(r.data == "abc", "binary fragments are delivered once in order"); }
-    { BufferReceiver r(true); auto a = mask({0x01, 0x81}, "a"); auto p = mask({0x89, 0x80}); auto b = mask({0x80, 0x81}, "b"); a.insert(a.end(), p.begin(), p.end()); a.insert(a.end(), b.begin(), b.end()); r.feed(a); expectAccepted(result, "ping during fragmented message", r, 2); result.expectTrue(r.data == "ab", "fragmented message continues after ping"); }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x80, 0x80}));
+        expectProtocolError(result, "continuation without start", r);
+    }
+    {
+        BufferReceiver r(true);
+        auto a = mask({0x01, 0x81}, "a");
+        auto b = mask({0x81, 0x81}, "b");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectProtocolError(result, "new text while fragmented", r);
+    }
+    {
+        BufferReceiver r(true);
+        auto a = mask({0x01, 0x81}, "a");
+        auto b = mask({0x82, 0x81}, "b");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectProtocolError(result, "new binary while fragmented", r);
+    }
+    {
+        BufferReceiver r(true);
+        auto a = mask({0x01, 0x82}, "he");
+        auto b = mask({0x80, 0x83}, "llo");
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectAccepted(result, "fragmented text", r);
+        result.expectTrue(r.data == "hello", "fragmented text is delivered once in order");
+    }
+    {
+        BufferReceiver r(true);
+        auto a = mask({0x02, 0x81}, "a");
+        auto b = mask({0x00, 0x81}, "b");
+        auto c = mask({0x80, 0x81}, "c");
+        a.insert(a.end(), b.begin(), b.end());
+        a.insert(a.end(), c.begin(), c.end());
+        r.feed(a);
+        expectAccepted(result, "multi-continuation binary", r);
+        result.expectTrue(r.data == "abc", "binary fragments are delivered once in order");
+    }
+    {
+        BufferReceiver r(true);
+        auto a = mask({0x01, 0x81}, "a");
+        auto p = mask({0x89, 0x80});
+        auto b = mask({0x80, 0x81}, "b");
+        a.insert(a.end(), p.begin(), p.end());
+        a.insert(a.end(), b.begin(), b.end());
+        r.feed(a);
+        expectAccepted(result, "ping during fragmented message", r, 2);
+        result.expectTrue(r.data == "ab", "fragmented message continues after ping");
+    }
     {
         BufferReceiver r(true, {.maximumMessageBytes = 4});
         auto a = mask({0x01, 0x82}, "ab");
@@ -181,16 +235,52 @@ int main() {
         expectAccepted(result, "control frame excluded from message limits", r, 2);
     }
 
-    { BufferReceiver r(true); r.feed(mask({0x81, 0x82}, "hi")); expectAccepted(result, "server accepts masked client text", r); }
-    { BufferReceiver r(true); r.feed(unmasked({0x81, 0x02}, "hi")); expectProtocolError(result, "server rejects unmasked client text", r); }
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x02}, "hi")); expectAccepted(result, "client accepts unmasked server text", r); }
-    { BufferReceiver r(false); r.feed(mask({0x81, 0x82}, "hi")); expectProtocolError(result, "client rejects masked server text", r); }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x81, 0x82}, "hi"));
+        expectAccepted(result, "server accepts masked client text", r);
+    }
+    {
+        BufferReceiver r(true);
+        r.feed(unmasked({0x81, 0x02}, "hi"));
+        expectProtocolError(result, "server rejects unmasked client text", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x02}, "hi"));
+        expectAccepted(result, "client accepts unmasked server text", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(mask({0x81, 0x82}, "hi"));
+        expectProtocolError(result, "client rejects masked server text", r);
+    }
 
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7D}, std::string(125, 'x'))); expectAccepted(result, "text length 125 direct", r); }
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7E, 0x00, 0x7D}, std::string(125, 'x'))); expectProtocolError(result, "text length 125 encoded as 126", r); }
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7E, 0x00, 0x7E}, std::string(126, 'x'))); expectAccepted(result, "text length 126 encoded as 126", r); }
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E}, std::string(126, 'x'))); expectProtocolError(result, "text length 126 encoded as 127", r); }
-    { BufferReceiver r(false); r.feed(unmasked({0x81, 0x7F, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})); expectProtocolError(result, "64-bit length MSB set", r); }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7D}, std::string(125, 'x')));
+        expectAccepted(result, "text length 125 direct", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7E, 0x00, 0x7D}, std::string(125, 'x')));
+        expectProtocolError(result, "text length 125 encoded as 126", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7E, 0x00, 0x7E}, std::string(126, 'x')));
+        expectAccepted(result, "text length 126 encoded as 126", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E}, std::string(126, 'x')));
+        expectProtocolError(result, "text length 126 encoded as 127", r);
+    }
+    {
+        BufferReceiver r(false);
+        r.feed(unmasked({0x81, 0x7F, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}));
+        expectProtocolError(result, "64-bit length MSB set", r);
+    }
     {
         BufferReceiver r(false, {.maximumFrameBytes = 3});
         r.feed(unmasked({0x81, 0x03}, "abc"));
@@ -216,8 +306,16 @@ int main() {
         expectAccepted(result, "unlimited default accepts larger frame", r);
     }
 
-    { BufferReceiver r(true); r.feed(mask({0x88, 0x80})); expectAccepted(result, "close length 0", r); }
-    { BufferReceiver r(true); r.feed(mask({0x88, 0x81}, "x")); expectProtocolError(result, "close length 1", r); }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x88, 0x80}));
+        expectAccepted(result, "close length 0", r);
+    }
+    {
+        BufferReceiver r(true);
+        r.feed(mask({0x88, 0x81}, "x"));
+        expectProtocolError(result, "close length 1", r);
+    }
     for (uint16_t code : {uint16_t(1000), uint16_t(3000), uint16_t(4000)}) {
         BufferReceiver r(true);
         std::string payload{static_cast<char>(code >> 8), static_cast<char>(code & 0xff)};

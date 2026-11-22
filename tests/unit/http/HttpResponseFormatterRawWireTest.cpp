@@ -39,12 +39,8 @@ int main() {
 
     {
         const std::vector<char> body = {'n', 'o', 't', ' ', 'f', 'o', 'u', 'n', 'd'};
-        const std::string formatted = httputils::toString("HTTP/1.1",
-                                                         "404",
-                                                         "Not Found",
-                                                         {{"Content-Length", "9"}, {"Content-Type", "text/plain"}},
-                                                         {},
-                                                         body);
+        const std::string formatted =
+            httputils::toString("HTTP/1.1", "404", "Not Found", {{"Content-Length", "9"}, {"Content-Type", "text/plain"}}, {}, body);
 
         testResult.expectTrue(contains(formatted, "Status : 404"), "response formatter seam preserves non-200 status codes");
         testResult.expectTrue(contains(formatted, "Reason : Not Found"), "response formatter seam preserves non-200 reason phrases");

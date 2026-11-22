@@ -13,97 +13,98 @@
 
 namespace {
 
-struct Case {
-    std::string name;
-    std::string url;
-    std::string headerValue;
-    std::string body;
-};
+    struct Case {
+        std::string name;
+        std::string url;
+        std::string headerValue;
+        std::string body;
+    };
 
-struct State {
-    int listenOkCount = 0;
-    int effectiveListenEndpointOkCount = 0;
-    int clientConnectOkCount = 0;
-    int httpConnectedCount = 0;
-    int clientResponseCount = 0;
-    int parseErrorCount = 0;
-    int unexpectedStateCount = 0;
-    int strictRouteCount = 0;
-    int caseRouteCount = 0;
-};
+    struct State {
+        int listenOkCount = 0;
+        int effectiveListenEndpointOkCount = 0;
+        int clientConnectOkCount = 0;
+        int httpConnectedCount = 0;
+        int clientResponseCount = 0;
+        int parseErrorCount = 0;
+        int unexpectedStateCount = 0;
+        int strictRouteCount = 0;
+        int caseRouteCount = 0;
+    };
 
-std::string toString(const std::vector<char>& bytes) {
-    return std::string(bytes.begin(), bytes.end());
-}
-
-class CaseClientRunner {
-public:
-    explicit CaseClientRunner(State& state)
-        : state(state)
-        , cases({{"non-strict trailing slash", "/express/strict/", "strict-default", "non-strict trailing slash ok"},
-                 {"case-insensitive route", "/Express/Case", "case-default", "case-insensitive route ok"}}) {
+    std::string toString(const std::vector<char>& bytes) {
+        return std::string(bytes.begin(), bytes.end());
     }
 
-    void run(std::uint16_t port) {
-        this->port = port;
-        dispatchNext();
-    }
-
-private:
-    using Client = web::http::legacy::in::Client;
-    using MasterRequest = Client::MasterRequest;
-
-    void dispatchNext() {
-        if (cases.empty()) {
-            core::SNodeC::stop();
-            return;
+    class CaseClientRunner {
+    public:
+        explicit CaseClientRunner(State& state)
+            : state(state)
+            , cases({{"non-strict trailing slash", "/express/strict/", "strict-default", "non-strict trailing slash ok"},
+                     {"case-insensitive route", "/Express/Case", "case-default", "case-insensitive route ok"}}) {
         }
 
-        const std::size_t clientIndex = clients.size();
-        const Case current = cases.front();
-        cases.pop_front();
+        void run(std::uint16_t port) {
+            this->port = port;
+            dispatchNext();
+        }
 
-        clients.emplace_back(std::make_shared<Client>(
-            "ipv4-express-routing-edge-basics-client-" + std::to_string(clientIndex),
-            [this, current](const std::shared_ptr<MasterRequest>& request) {
-                ++state.httpConnectedCount;
-                request->method = "GET";
-                request->url = current.url;
-                request->set("Connection", "close");
-                request->end(
-                    [this, current](const auto&, const auto& response) {
-                        ++state.clientResponseCount;
-                        if (response->statusCode != "200" || response->get("X-Express-Routing-Edge") != current.headerValue ||
-                            toString(response->body) != current.body) {
-                            ++state.unexpectedStateCount;
-                        }
-                        dispatchNext();
-                    },
-                    [this](const auto&, const std::string&) {
-                        ++state.parseErrorCount;
-                        dispatchNext();
-                    });
-            },
-            [](const std::shared_ptr<MasterRequest>&) {
-            }));
+    private:
+        using Client = web::http::legacy::in::Client;
+        using MasterRequest = Client::MasterRequest;
 
-        const std::shared_ptr<Client>& client = clients.back();
-        client->getConfig()->Instance::forceUnrequired();
-        client->connect(net::in::SocketAddress("127.0.0.1", port), [this](const net::in::SocketAddress&, core::socket::State connectState) {
-            if (connectState == core::socket::State::OK) {
-                ++state.clientConnectOkCount;
-            } else {
-                ++state.unexpectedStateCount;
+        void dispatchNext() {
+            if (cases.empty()) {
                 core::SNodeC::stop();
+                return;
             }
-        });
-    }
 
-    State& state;
-    std::uint16_t port = 0;
-    std::deque<Case> cases;
-    std::vector<std::shared_ptr<Client>> clients;
-};
+            const std::size_t clientIndex = clients.size();
+            const Case current = cases.front();
+            cases.pop_front();
+
+            clients.emplace_back(std::make_shared<Client>(
+                "ipv4-express-routing-edge-basics-client-" + std::to_string(clientIndex),
+                [this, current](const std::shared_ptr<MasterRequest>& request) {
+                    ++state.httpConnectedCount;
+                    request->method = "GET";
+                    request->url = current.url;
+                    request->set("Connection", "close");
+                    request->end(
+                        [this, current](const auto&, const auto& response) {
+                            ++state.clientResponseCount;
+                            if (response->statusCode != "200" || response->get("X-Express-Routing-Edge") != current.headerValue ||
+                                toString(response->body) != current.body) {
+                                ++state.unexpectedStateCount;
+                            }
+                            dispatchNext();
+                        },
+                        [this](const auto&, const std::string&) {
+                            ++state.parseErrorCount;
+                            dispatchNext();
+                        });
+                },
+                [](const std::shared_ptr<MasterRequest>&) {
+                }));
+
+            const std::shared_ptr<Client>& client = clients.back();
+            client->getConfig()->Instance::forceUnrequired();
+            client->connect(net::in::SocketAddress("127.0.0.1", port),
+                            [this](const net::in::SocketAddress&, core::socket::State connectState) {
+                                if (connectState == core::socket::State::OK) {
+                                    ++state.clientConnectOkCount;
+                                } else {
+                                    ++state.unexpectedStateCount;
+                                    core::SNodeC::stop();
+                                }
+                            });
+        }
+
+        State& state;
+        std::uint16_t port = 0;
+        std::deque<Case> cases;
+        std::vector<std::shared_ptr<Client>> clients;
+    };
 
 } // namespace
 
@@ -135,22 +136,23 @@ int main(int argc, char* argv[]) {
         app.getConfig()->Instance::forceUnrequired();
 
         CaseClientRunner caseClientRunner(state);
-        app.listen(net::in::SocketAddress("127.0.0.1", 0), [&caseClientRunner, &state](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    caseClientRunner.run(effectivePort);
-                } else {
-                    ++state.unexpectedStateCount;
-                    core::SNodeC::stop();
-                }
-            } else {
-                ++state.unexpectedStateCount;
-                core::SNodeC::stop();
-            }
-        });
+        app.listen(net::in::SocketAddress("127.0.0.1", 0),
+                   [&caseClientRunner, &state](const net::in::SocketAddress& socketAddress, core::socket::State listenState) {
+                       if (listenState == core::socket::State::OK) {
+                           ++state.listenOkCount;
+                           const std::uint16_t effectivePort = socketAddress.getPort();
+                           if (effectivePort != 0) {
+                               ++state.effectiveListenEndpointOkCount;
+                               caseClientRunner.run(effectivePort);
+                           } else {
+                               ++state.unexpectedStateCount;
+                               core::SNodeC::stop();
+                           }
+                       } else {
+                           ++state.unexpectedStateCount;
+                           core::SNodeC::stop();
+                       }
+                   });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

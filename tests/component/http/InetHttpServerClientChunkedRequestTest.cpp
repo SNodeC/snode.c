@@ -18,22 +18,23 @@
 #include <vector>
 
 namespace {
-    std::string toString(const std::vector<char>& bytes) { return {bytes.begin(), bytes.end()}; }
+    std::string toString(const std::vector<char>& bytes) {
+        return {bytes.begin(), bytes.end()};
+    }
 
-    constexpr std::string_view chunkedRequest =
-        "POST /chunked-request HTTP/1.1\r\n"
-        "Host: 127.0.0.1\r\n"
-        "Transfer-Encoding: chunked\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "6\r\n"
-        "hello \r\n"
-        "8\r\n"
-        "chunked \r\n"
-        "7\r\n"
-        "request\r\n"
-        "0\r\n"
-        "\r\n";
+    constexpr std::string_view chunkedRequest = "POST /chunked-request HTTP/1.1\r\n"
+                                                "Host: 127.0.0.1\r\n"
+                                                "Transfer-Encoding: chunked\r\n"
+                                                "Connection: close\r\n"
+                                                "\r\n"
+                                                "6\r\n"
+                                                "hello \r\n"
+                                                "8\r\n"
+                                                "chunked \r\n"
+                                                "7\r\n"
+                                                "request\r\n"
+                                                "0\r\n"
+                                                "\r\n";
 
     struct State {
         int listenOkCount = 0, effectiveListenEndpointOkCount = 0, clientConnectOkCount = 0;
@@ -46,14 +47,18 @@ namespace {
     class RawClientContext : public core::socket::stream::SocketContext {
     public:
         RawClientContext(core::socket::stream::SocketConnection* socketConnection, State& state)
-            : core::socket::stream::SocketContext(socketConnection), state(state) {}
+            : core::socket::stream::SocketContext(socketConnection)
+            , state(state) {
+        }
 
     private:
         void onConnected() override {
             ++state.rawClientConnectedCount;
             sendToPeer(chunkedRequest.data(), chunkedRequest.size());
         }
-        void onDisconnected() override { ++state.rawClientDisconnectedCount; }
+        void onDisconnected() override {
+            ++state.rawClientDisconnectedCount;
+        }
         std::size_t onReceivedFromPeer() override {
             char chunk[4096];
             const std::size_t chunkLen = readFromPeer(chunk, sizeof(chunk));
@@ -61,14 +66,17 @@ namespace {
                 responseBuffer.append(chunk, chunkLen);
                 if (responseBuffer.find("chunked-request-ok") != std::string::npos) {
                     ++state.rawClientResponseCount;
-                    state.rawClientSawStatus = responseBuffer.find("HTTP/1.1 200") != std::string::npos || responseBuffer.find("HTTP/1.0 200") != std::string::npos;
+                    state.rawClientSawStatus = responseBuffer.find("HTTP/1.1 200") != std::string::npos ||
+                                               responseBuffer.find("HTTP/1.0 200") != std::string::npos;
                     state.rawClientSawBody = true;
                     core::SNodeC::stop();
                 }
             }
             return chunkLen;
         }
-        bool onSignal([[maybe_unused]] int signum) override { return true; }
+        bool onSignal([[maybe_unused]] int signum) override {
+            return true;
+        }
 
         State& state;
         std::string responseBuffer;
@@ -76,15 +84,18 @@ namespace {
 
     class RawClientFactory : public core::socket::stream::SocketContextFactory {
     public:
-        explicit RawClientFactory(State& state) : state(state) {}
+        explicit RawClientFactory(State& state)
+            : state(state) {
+        }
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             ++state.clientFactoryCreateCount;
             return new RawClientContext(socketConnection, state);
         }
+
     private:
         State& state;
     };
-}
+} // namespace
 
 int main(int argc, char* argv[]) {
     tests::support::TestResult testResult;
@@ -106,18 +117,31 @@ int main(int argc, char* argv[]) {
         net::in::stream::legacy::SocketClient<RawClientFactory, State&> client("ipv4-http-raw-chunked-request-client", state);
         server.getConfig()->Instance::forceUnrequired();
         client.getConfig()->Instance::forceUnrequired();
-        server.listen(net::in::SocketAddress("127.0.0.1", 0), [&client, &state](const auto& socketAddress, core::socket::State listenState) {
-            if (listenState == core::socket::State::OK) {
-                ++state.listenOkCount;
-                const std::uint16_t effectivePort = socketAddress.getPort();
-                if (effectivePort != 0) {
-                    ++state.effectiveListenEndpointOkCount;
-                    client.connect(net::in::SocketAddress("127.0.0.1", effectivePort), [&state](const auto&, core::socket::State connectState) {
-                        if (connectState == core::socket::State::OK) ++state.clientConnectOkCount; else { ++state.unexpectedStateCount; core::SNodeC::stop(); }
-                    });
-                } else { ++state.unexpectedStateCount; core::SNodeC::stop(); }
-            } else { ++state.unexpectedStateCount; core::SNodeC::stop(); }
-        });
+        server.listen(net::in::SocketAddress("127.0.0.1", 0),
+                      [&client, &state](const auto& socketAddress, core::socket::State listenState) {
+                          if (listenState == core::socket::State::OK) {
+                              ++state.listenOkCount;
+                              const std::uint16_t effectivePort = socketAddress.getPort();
+                              if (effectivePort != 0) {
+                                  ++state.effectiveListenEndpointOkCount;
+                                  client.connect(net::in::SocketAddress("127.0.0.1", effectivePort),
+                                                 [&state](const auto&, core::socket::State connectState) {
+                                                     if (connectState == core::socket::State::OK)
+                                                         ++state.clientConnectOkCount;
+                                                     else {
+                                                         ++state.unexpectedStateCount;
+                                                         core::SNodeC::stop();
+                                                     }
+                                                 });
+                              } else {
+                                  ++state.unexpectedStateCount;
+                                  core::SNodeC::stop();
+                              }
+                          } else {
+                              ++state.unexpectedStateCount;
+                              core::SNodeC::stop();
+                          }
+                      });
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
         testResult.expectEqual(0, startResult, "event loop stops after raw chunked request response");
         testResult.expectEqual(1, state.listenOkCount, "listen OK once");

@@ -32,9 +32,12 @@ int main() {
         headers.emplace("X-Trace", "one");
         headers.insert_or_assign("x-trace", "two");
 
-        testResult.expectEqual(1, static_cast<int>(headers.size()), "duplicate non-cookie header names with different casing share one map entry");
-        testResult.expectTrue(headers["X-TRACE"] == "two", "insert_or_assign replaces duplicate non-cookie header values case-insensitively");
-        testResult.expectTrue(headers.begin()->first == "X-Trace", "original casing from the first inserted header name is preserved by the map key");
+        testResult.expectEqual(
+            1, static_cast<int>(headers.size()), "duplicate non-cookie header names with different casing share one map entry");
+        testResult.expectTrue(headers["X-TRACE"] == "two",
+                              "insert_or_assign replaces duplicate non-cookie header values case-insensitively");
+        testResult.expectTrue(headers.begin()->first == "X-Trace",
+                              "original casing from the first inserted header name is preserved by the map key");
     }
 
     {

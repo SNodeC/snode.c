@@ -22,8 +22,7 @@ int main() {
 
     testResult.expectTrue(physicalServerSocket.open({}, net::in::phy::stream::PhysicalSocketServer::Flags::NONBLOCK) >= 0,
                           "IPv4 physical server socket opens");
-    testResult.expectTrue(physicalServerSocket.bind(configuredAddress) == 0,
-                          "IPv4 physical server socket binds to loopback port zero");
+    testResult.expectTrue(physicalServerSocket.bind(configuredAddress) == 0, "IPv4 physical server socket binds to loopback port zero");
     testResult.expectTrue(physicalServerSocket.getBindAddress().getPort() != 0,
                           "IPv4 physical server socket reports kernel-selected bind port");
 

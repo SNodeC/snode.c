@@ -147,7 +147,8 @@ namespace tests::component::http {
     }
 
     template <typename Request, typename Response>
-    void handlePrematureCloseRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
+    void
+    handlePrematureCloseRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
         ++state.serverRequestCount;
         state.serverUrls.push_back(request->url);
         response->getSocketContext()->close();
@@ -176,7 +177,8 @@ namespace tests::component::http {
     }
 
     template <typename Request, typename Response>
-    void handleLargeResponseRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
+    void
+    handleLargeResponseRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
         ++state.serverRequestCount;
         state.serverUrls.push_back(request->url);
         const std::string body = makePatternBody(boundedBodySize);
@@ -207,7 +209,8 @@ namespace tests::component::http {
     }
 
     template <typename Request, typename Response>
-    void handleLargeRequestRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
+    void
+    handleLargeRequestRequest(const std::shared_ptr<Request>& request, const std::shared_ptr<Response>& response, BehaviorState& state) {
         ++state.serverRequestCount;
         state.serverUrls.push_back(request->url);
         state.serverBody = toString(request->body);
@@ -242,10 +245,14 @@ namespace tests::component::http {
                                      const std::string& behaviorName,
                                      int startResult) {
         testResult.expectEqual(0, startResult, "event loop stops successfully after IPv4 legacy HTTP " + behaviorName);
-        testResult.expectEqual(1, state.listenOkCount, "IPv4 legacy HTTP server listen callback reports OK exactly once for " + behaviorName);
-        testResult.expectEqual(1, state.effectiveListenEndpointOkCount, "IPv4 legacy HTTP server reports one effective endpoint for " + behaviorName);
-        testResult.expectEqual(1, state.clientConnectOkCount, "IPv4 legacy HTTP client connect callback reports OK exactly once for " + behaviorName);
-        testResult.expectEqual(1, state.httpConnectedCount, "IPv4 legacy HTTP client reaches HTTP-connected callback exactly once for " + behaviorName);
+        testResult.expectEqual(
+            1, state.listenOkCount, "IPv4 legacy HTTP server listen callback reports OK exactly once for " + behaviorName);
+        testResult.expectEqual(
+            1, state.effectiveListenEndpointOkCount, "IPv4 legacy HTTP server reports one effective endpoint for " + behaviorName);
+        testResult.expectEqual(
+            1, state.clientConnectOkCount, "IPv4 legacy HTTP client connect callback reports OK exactly once for " + behaviorName);
+        testResult.expectEqual(
+            1, state.httpConnectedCount, "IPv4 legacy HTTP client reaches HTTP-connected callback exactly once for " + behaviorName);
         testResult.expectEqual(0, state.parseErrorCount, "IPv4 legacy HTTP client reports no response parse errors for " + behaviorName);
         testResult.expectEqual(0, state.unexpectedStateCount, "IPv4 legacy HTTP reports no unexpected socket states for " + behaviorName);
     }

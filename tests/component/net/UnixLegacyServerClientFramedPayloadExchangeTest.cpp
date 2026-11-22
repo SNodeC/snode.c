@@ -69,11 +69,7 @@ namespace {
     constexpr std::string_view firstServerReply = "snodec-unix-framed-reply-one";
     constexpr std::string_view secondServerReply = "snodec-unix-framed-reply-two";
 
-    enum class FrameParseResult {
-        Incomplete,
-        Complete,
-        Malformed
-    };
+    enum class FrameParseResult { Incomplete, Complete, Malformed };
 
     std::string encodeFrame(std::string_view payload) {
         return std::to_string(payload.size()) + "\n" + std::string(payload);
@@ -166,7 +162,8 @@ namespace {
         void handleFrame(const std::string& framePayload) {
             if (testState.serverFirstFrameReceivedCount == 0 && framePayload == firstClientPayload) {
                 ++testState.serverFirstFrameReceivedCount;
-            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 && framePayload == secondClientPayload) {
+            } else if (testState.serverFirstFrameReceivedCount == 1 && testState.serverSecondFrameReceivedCount == 0 &&
+                       framePayload == secondClientPayload) {
                 ++testState.serverSecondFrameReceivedCount;
                 const std::string replyStream = encodeFrame(firstServerReply) + encodeFrame(secondServerReply);
                 replyFragments = makeFragmentPlan(replyStream);
@@ -182,7 +179,11 @@ namespace {
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.serverReplyFragmentSentCount;
                 if (nextReplyFragmentIndex < replyFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextReplyFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextReplyFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
@@ -236,7 +237,8 @@ namespace {
         void handleFrame(const std::string& framePayload) {
             if (testState.clientFirstReplyFrameReceivedCount == 0 && framePayload == firstServerReply) {
                 ++testState.clientFirstReplyFrameReceivedCount;
-            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 && framePayload == secondServerReply) {
+            } else if (testState.clientFirstReplyFrameReceivedCount == 1 && testState.clientSecondReplyFrameReceivedCount == 0 &&
+                       framePayload == secondServerReply) {
                 ++testState.clientSecondReplyFrameReceivedCount;
                 core::SNodeC::stop();
             } else {
@@ -250,7 +252,11 @@ namespace {
                 sendToPeer(fragment.data(), fragment.size());
                 ++testState.clientRequestFragmentSentCount;
                 if (nextRequestFragmentIndex < requestFragments.size()) {
-                    sendTimer = core::timer::Timer::singleshotTimer([this]() { sendNextRequestFragment(); }, utils::Timeval({0, 1000}));
+                    sendTimer = core::timer::Timer::singleshotTimer(
+                        [this]() {
+                            sendNextRequestFragment();
+                        },
+                        utils::Timeval({0, 1000}));
                 }
             }
         }
@@ -270,6 +276,7 @@ namespace {
             ++testState.serverFactoryCreateCount;
             return new TestServerSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -283,6 +290,7 @@ namespace {
             ++testState.clientFactoryCreateCount;
             return new TestClientSocketContext(socketConnection, testState);
         }
+
     private:
         TestState& testState;
     };
@@ -309,7 +317,8 @@ int main(int argc, char* argv[]) {
         const bool socketPathAbsentBeforeListen = !socketPathExists(socketPath);
         core::SNodeC::init(argc, argv);
         net::un::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("unix-framed-client", testState);
-        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-framed-server", testState);
+        const net::un::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("unix-framed-server",
+                                                                                                             testState);
         socketClient.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
         socketServer.listen(socketPath, [&socketClient, &socketPath, &testState](const net::un::SocketAddress&, core::socket::State state) {
@@ -343,8 +352,10 @@ int main(int argc, char* argv[]) {
         testResult.expectEqual(4, testState.serverReplyFragmentSentCount, "server sends reply stream in four staged fragments");
         testResult.expectEqual(1, testState.serverFirstFrameReceivedCount, "server reconstructs the first client frame exactly once");
         testResult.expectEqual(1, testState.serverSecondFrameReceivedCount, "server reconstructs the second client frame exactly once");
-        testResult.expectEqual(1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
-        testResult.expectEqual(1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientFirstReplyFrameReceivedCount, "client reconstructs the first server reply frame exactly once");
+        testResult.expectEqual(
+            1, testState.clientSecondReplyFrameReceivedCount, "client reconstructs the second server reply frame exactly once");
         testResult.expectEqual(0, testState.malformedFrameCount, "framed parser reports no malformed frames");
         testResult.expectEqual(0, testState.unexpectedStateCount, "listen and connect callbacks report no unexpected states");
         testResult.expectEqual(0, testState.unexpectedPayloadCount, "server and client receive no unexpected framed payloads");

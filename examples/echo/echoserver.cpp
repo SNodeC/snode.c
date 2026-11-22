@@ -11,12 +11,11 @@ int main(int argc, char* argv[]) {
 
     const EchoSocketServer server("echoserver");
 
-    server.listen(
-        [log = server.log()](const EchoSocketServer::SocketAddress& socketAddress, core::socket::State state) {
-            if (state == core::socket::State::OK) {
-                log.info("Listening on {}", socketAddress.toString());
-            }
-        });
+    server.listen([log = server.log()](const EchoSocketServer::SocketAddress& socketAddress, core::socket::State state) {
+        if (state == core::socket::State::OK) {
+            log.info("Listening on {}", socketAddress.toString());
+        }
+    });
 
     return core::SNodeC::start();
 }

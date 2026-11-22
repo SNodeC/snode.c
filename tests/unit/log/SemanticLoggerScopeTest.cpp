@@ -262,8 +262,7 @@ int main() {
                       "SocketContext logs use context component");
     result.expectTrue(contextRecords[0].instance && *contextRecords[0].instance == "scope-instance",
                       "SocketContext log owns instance identity");
-    result.expectTrue(contextRecords[0].connection && *contextRecords[0].connection == "23",
-                      "SocketContext log owns connection identity");
+    result.expectTrue(contextRecords[0].connection && *contextRecords[0].connection == "23", "SocketContext log owns connection identity");
 
     TestSocketConnection anonymousConnection("<anonymous>");
     std::vector<logger::LogRecord> anonymousRecords;
@@ -306,14 +305,11 @@ int main() {
     }).info("acceptor endpoint");
 
     result.expectEqual(4, static_cast<int>(endpointRecords.size()), "all four endpoint owners emit one structured record");
-    const auto expectEndpoint = [&](std::size_t index,
-                                    std::string_view instance,
-                                    logger::LogRole role,
-                                    const std::string& label) {
+    const auto expectEndpoint = [&](std::size_t index, std::string_view instance, logger::LogRole role, const std::string& label) {
         const auto& record = endpointRecords[index];
         result.expectTrue(record.origin == logger::LogOrigin::Framework && record.boundary == logger::LogBoundary::Instance &&
-                              record.component == "core.socket.stream" && record.instance && *record.instance == instance &&
-                              record.role && *record.role == role && !record.connection,
+                              record.component == "core.socket.stream" && record.instance && *record.instance == instance && record.role &&
+                              *record.role == role && !record.connection,
                           label + " carries framework/instance component, role, and instance without connection identity");
     };
     expectEndpoint(0, "scope-server", logger::LogRole::Server, "SocketServer");

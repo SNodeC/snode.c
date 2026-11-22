@@ -143,7 +143,8 @@ int main(int argc, char* argv[]) {
         char* logArgs[] = {arg0, arg1, arg2, arg3, nullptr};
         core::SNodeC::init(4, logArgs);
 
-        net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv4-connect-failure-client", testState);
+        net::in::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClient("ipv4-connect-failure-client",
+                                                                                                       testState);
 
         socketClient.getConfig()->Instance::forceUnrequired();
 

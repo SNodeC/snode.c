@@ -17,7 +17,8 @@
 #include <vector>
 
 namespace {
-    logger::BoundaryLogger makeLogger(logger::LogScope scope, logger::BoundaryLogger::Sink sink,
+    logger::BoundaryLogger makeLogger(logger::LogScope scope,
+                                      logger::BoundaryLogger::Sink sink,
                                       logger::LogLevel threshold = logger::LogLevel::Trace,
                                       logger::BoundaryLogger::Clock clock = {}) {
         return logger::LogScopeOwner::fromScope(scope).logger(std::move(sink), threshold, std::move(clock));

@@ -37,41 +37,64 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
-    if (DEFINED ${CONFIG_OPTION})
-        if (NOT "${${CONFIG_OPTION}}" STREQUAL "")
+function(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION
+         DEFAULT_VALUE
+)
+    if(DEFINED ${CONFIG_OPTION})
+        if(NOT "${${CONFIG_OPTION}}" STREQUAL "")
             set(VALUE "${${CONFIG_OPTION}}")
-        else (NOT "${${CONFIG_OPTION}}" STREQUAL "")
-            if ("${DEFAULT_VALUE}" STREQUAL "true")
-                set (VALUE false)
-            else ("${DEFAULT_VALUE}" STREQUAL "true")
+        else(NOT "${${CONFIG_OPTION}}" STREQUAL "")
+            if("${DEFAULT_VALUE}" STREQUAL "true")
+                set(VALUE false)
+            else("${DEFAULT_VALUE}" STREQUAL "true")
                 set(VALUE "${DEFAULT_VALUE}")
-            endif ("${DEFAULT_VALUE}" STREQUAL "true")
-        endif (NOT "${${CONFIG_OPTION}}" STREQUAL "")
-    else (DEFINED ${CONFIG_OPTION})
+            endif("${DEFAULT_VALUE}" STREQUAL "true")
+        endif(NOT "${${CONFIG_OPTION}}" STREQUAL "")
+    else(DEFINED ${CONFIG_OPTION})
         set(VALUE "${DEFAULT_VALUE}")
-    endif (DEFINED ${CONFIG_OPTION})
+    endif(DEFINED ${CONFIG_OPTION})
 
-    if ("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false")
-        if ("${VALUE}" STREQUAL "y")
+    if("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL
+                                             "false"
+    )
+        if("${VALUE}" STREQUAL "y")
             set(VALUE "true")
-        elseif ("${VALUE}" STREQUAL "n")
+        elseif("${VALUE}" STREQUAL "n")
             set(VALUE "false")
-        endif ("${VALUE}" STREQUAL "y")
-    endif ("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL "false")
+        endif("${VALUE}" STREQUAL "y")
+    endif("${DEFAULT_VALUE}" STREQUAL "true" OR "${DEFAULT_VALUE}" STREQUAL
+                                                "false"
+    )
 
-    set (SNODEC_${CONFIG_OPTION}
+    set(SNODEC_${CONFIG_OPTION}
         "${VALUE}"
         CACHE STRING "${DESCRIPTION}"
     )
 
-    if ("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true" OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false")
-        set_property(CACHE SNODEC_${CONFIG_OPTION} PROPERTY STRINGS "true" "false")
-    endif("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true" OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false")
-
-    message (STATUS "Adding compile definition '" ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}} "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'")
-    set_property (
-      SOURCE ${SOURCE_FILE}
-      APPEND PROPERTY COMPILE_DEFINITIONS ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
+    if("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true"
+       OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false"
     )
-endfunction(append_source_file_config SOURCE_FILE CONFIG_OPTION DESCRIPTION DEFAULT_VALUE)
+        set_property(
+            CACHE SNODEC_${CONFIG_OPTION} PROPERTY STRINGS "true" "false"
+        )
+    endif("${SNODEC_${CONFIG_OPTION}}" STREQUAL "true"
+          OR "${SNODEC_${CONFIG_OPTION}}" STREQUAL "false"
+    )
+
+    message(STATUS "Adding compile definition '"
+                   ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
+                   "' for '${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}'"
+    )
+    set_property(
+        SOURCE ${SOURCE_FILE}
+        APPEND
+        PROPERTY COMPILE_DEFINITIONS
+                 ${CONFIG_OPTION}=${SNODEC_${CONFIG_OPTION}}
+    )
+endfunction(
+    append_source_file_config
+    SOURCE_FILE
+    CONFIG_OPTION
+    DESCRIPTION
+    DEFAULT_VALUE
+)

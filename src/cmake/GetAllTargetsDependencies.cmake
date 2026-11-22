@@ -39,7 +39,11 @@
 
 # Collect all currently added targets in all subdirectories
 function(get_all_targets_dependencies RESULT DIR)
-    get_property(SUBDIRECTORIES DIRECTORY "${DIR}" PROPERTY SUBDIRECTORIES)
+    get_property(
+        SUBDIRECTORIES
+        DIRECTORY "${DIR}"
+        PROPERTY SUBDIRECTORIES
+    )
 
     foreach(SUBDIRECTORIE IN LISTS SUBDIRECTORIES)
         get_all_targets_dependencies(${RESULT} "${SUBDIRECTORIE}")
@@ -49,39 +53,67 @@ function(get_all_targets_dependencies RESULT DIR)
     foreach(TARGET IN LISTS TARGETS)
         unset(LIBRARY_DEPENDENCIES)
         get_target_property(TARGET_TYPE "${TARGET}" TYPE)
-        if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-            get_target_property(TARGET_LIBRARY_DEPENDENCIES ${TARGET} INTERFACE_LINK_LIBRARIES)
+        if(${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+            get_target_property(
+                TARGET_LIBRARY_DEPENDENCIES ${TARGET} INTERFACE_LINK_LIBRARIES
+            )
         else(${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-            get_target_property(TARGET_LIBRARY_DEPENDENCIES ${TARGET} LINK_LIBRARIES)
+            get_target_property(
+                TARGET_LIBRARY_DEPENDENCIES ${TARGET} LINK_LIBRARIES
+            )
         endif(${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
-        if (NOT "${TARGET_LIBRARY_DEPENDENCIES}" STREQUAL "TARGET_LIBRARY_DEPENDENCIES-NOTFOUND")
-            foreach(TARGET_LIBRARY_DEPENDENCY IN LISTS TARGET_LIBRARY_DEPENDENCIES)
-                if (TARGET "${TARGET_LIBRARY_DEPENDENCY}")
-                    get_target_property(TARGET_LIBRARY_DEPENDENCY_type "${TARGET_LIBRARY_DEPENDENCY}" TYPE)
-                    get_target_property(TARGET_LIBRARY_DEPENDENCY_imported "${TARGET_LIBRARY_DEPENDENCY}" IMPORTED)
-                    if(NOT "${TARGET_LIBRARY_DEPENDENCY_type}" STREQUAL "STATIC_LIBRARY"
+        if(NOT "${TARGET_LIBRARY_DEPENDENCIES}" STREQUAL
+           "TARGET_LIBRARY_DEPENDENCIES-NOTFOUND"
+        )
+            foreach(TARGET_LIBRARY_DEPENDENCY IN
+                    LISTS TARGET_LIBRARY_DEPENDENCIES
+            )
+                if(TARGET "${TARGET_LIBRARY_DEPENDENCY}")
+                    get_target_property(
+                        TARGET_LIBRARY_DEPENDENCY_type
+                        "${TARGET_LIBRARY_DEPENDENCY}" TYPE
+                    )
+                    get_target_property(
+                        TARGET_LIBRARY_DEPENDENCY_imported
+                        "${TARGET_LIBRARY_DEPENDENCY}" IMPORTED
+                    )
+                    if(NOT "${TARGET_LIBRARY_DEPENDENCY_type}" STREQUAL
+                       "STATIC_LIBRARY"
                        AND NOT TARGET_LIBRARY_DEPENDENCY_imported
-                       AND NOT "${TARGET_LIBRARY_DEPENDENCY}" MATCHES "::")
-                        list(APPEND LIBRARY_DEPENDENCIES ${TARGET_LIBRARY_DEPENDENCY})
+                       AND NOT "${TARGET_LIBRARY_DEPENDENCY}" MATCHES "::"
+                    )
+                        list(APPEND LIBRARY_DEPENDENCIES
+                             ${TARGET_LIBRARY_DEPENDENCY}
+                        )
                     endif()
                 endif(TARGET "${TARGET_LIBRARY_DEPENDENCY}")
             endforeach()
-            if (LIBRARY_DEPENDENCIES)
-                if (NOT LIBRARY_DEPENDENCIES_LINES)
-                    set(LIBRARY_DEPENDENCIES_LINES "set(${TARGET}_DEPENDENCIES ${LIBRARY_DEPENDENCIES})")
+            if(LIBRARY_DEPENDENCIES)
+                if(NOT LIBRARY_DEPENDENCIES_LINES)
+                    set(LIBRARY_DEPENDENCIES_LINES
+                        "set(${TARGET}_DEPENDENCIES ${LIBRARY_DEPENDENCIES})"
+                    )
                 else(NOT LIBRARY_DEPENDENCIES_LINES)
-                    string(APPEND LIBRARY_DEPENDENCIES_LINES "\nset(${TARGET}_DEPENDENCIES ${LIBRARY_DEPENDENCIES})")
+                    string(
+                        APPEND LIBRARY_DEPENDENCIES_LINES
+                        "\nset(${TARGET}_DEPENDENCIES ${LIBRARY_DEPENDENCIES})"
+                    )
                 endif(NOT LIBRARY_DEPENDENCIES_LINES)
             endif(LIBRARY_DEPENDENCIES)
-        endif(NOT "${TARGET_LIBRARY_DEPENDENCIES}" STREQUAL "TARGET_LIBRARY_DEPENDENCIES-NOTFOUND")
+        endif(NOT "${TARGET_LIBRARY_DEPENDENCIES}" STREQUAL
+              "TARGET_LIBRARY_DEPENDENCIES-NOTFOUND"
+        )
     endforeach(TARGET IN LISTS TARGETS)
 
-    if (LIBRARY_DEPENDENCIES_LINES)
-        if (${RESULT})
+    if(LIBRARY_DEPENDENCIES_LINES)
+        if(${RESULT})
             string(APPEND ${RESULT} "\n")
         endif(${RESULT})
         string(APPEND ${RESULT} "${LIBRARY_DEPENDENCIES_LINES}")
     endif()
 
-    set(${RESULT} "${${RESULT}}" PARENT_SCOPE)
+    set(${RESULT}
+        "${${RESULT}}"
+        PARENT_SCOPE
+    )
 endfunction()

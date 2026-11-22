@@ -189,41 +189,42 @@ int main(int argc, char* argv[]) {
         net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClientA("ipv6-multi-client-a", testState);
         net::in6::stream::legacy::SocketClient<TestClientSocketContextFactory, TestState&> socketClientB("ipv6-multi-client-b", testState);
         const net::in6::stream::legacy::SocketServer<TestServerSocketContextFactory, TestState&> socketServer("ipv6-multi-server",
-                                                                                                             testState);
+                                                                                                              testState);
 
         socketClientA.getConfig()->Instance::forceUnrequired();
         socketClientB.getConfig()->Instance::forceUnrequired();
         socketServer.getConfig()->Instance::forceUnrequired();
 
-        socketServer.listen(net::in6::SocketAddress("::1", 0),
-                            [&socketClientA, &socketClientB, &testState](const net::in6::SocketAddress& socketAddress, core::socket::State state) {
-                                if (state == core::socket::State::OK) {
-                                    ++testState.serverListenOkCount;
+        socketServer.listen(
+            net::in6::SocketAddress("::1", 0),
+            [&socketClientA, &socketClientB, &testState](const net::in6::SocketAddress& socketAddress, core::socket::State state) {
+                if (state == core::socket::State::OK) {
+                    ++testState.serverListenOkCount;
 
-                                    const std::uint16_t effectivePort = socketAddress.getPort();
-                                    if (effectivePort != 0) {
-                                        ++testState.effectiveListenPortOkCount;
-                                        const auto connectCallback = [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
-                                            if (connectState == core::socket::State::OK) {
-                                                ++testState.clientConnectOkCount;
-                                            } else {
-                                                ++testState.unexpectedStateCount;
-                                                core::SNodeC::stop();
-                                            }
-                                        };
+                    const std::uint16_t effectivePort = socketAddress.getPort();
+                    if (effectivePort != 0) {
+                        ++testState.effectiveListenPortOkCount;
+                        const auto connectCallback = [&testState](const net::in6::SocketAddress&, core::socket::State connectState) {
+                            if (connectState == core::socket::State::OK) {
+                                ++testState.clientConnectOkCount;
+                            } else {
+                                ++testState.unexpectedStateCount;
+                                core::SNodeC::stop();
+                            }
+                        };
 
-                                        socketClientA.connect(net::in6::SocketAddress("::1", effectivePort), connectCallback);
-                                        socketClientB.connect(net::in6::SocketAddress("::1", effectivePort), connectCallback);
-                                    } else {
-                                        ++testState.zeroEffectiveListenPortCount;
-                                        ++testState.unexpectedStateCount;
-                                        core::SNodeC::stop();
-                                    }
-                                } else {
-                                    ++testState.unexpectedStateCount;
-                                    core::SNodeC::stop();
-                                }
-                            });
+                        socketClientA.connect(net::in6::SocketAddress("::1", effectivePort), connectCallback);
+                        socketClientB.connect(net::in6::SocketAddress("::1", effectivePort), connectCallback);
+                    } else {
+                        ++testState.zeroEffectiveListenPortCount;
+                        ++testState.unexpectedStateCount;
+                        core::SNodeC::stop();
+                    }
+                } else {
+                    ++testState.unexpectedStateCount;
+                    core::SNodeC::stop();
+                }
+            });
 
         const int startResult = core::SNodeC::start(utils::Timeval({1, 0}));
 

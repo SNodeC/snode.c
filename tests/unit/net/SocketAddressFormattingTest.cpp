@@ -50,7 +50,8 @@ int main() {
     net::un::SocketAddress unixSocketAddress("/tmp/snodec-format-test.sock");
     unixSocketAddress.init();
     testResult.expectTrue(unixSocketAddress.toString() == "/tmp/snodec-format-test.sock", "Unix-domain address formats as path");
-    testResult.expectTrue(unixSocketAddress.toString(false) == "/tmp/snodec-format-test.sock", "compact Unix-domain address formats as path");
+    testResult.expectTrue(unixSocketAddress.toString(false) == "/tmp/snodec-format-test.sock",
+                          "compact Unix-domain address formats as path");
 
     const int result = testResult.processResult();
 

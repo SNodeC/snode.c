@@ -17,89 +17,103 @@
 
 namespace {
 
-class DummyMqtt : public iot::mqtt::Mqtt {
-public:
-    DummyMqtt() : iot::mqtt::Mqtt("test") {}
-    bool onSignal(int) override { return true; }
-    iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader&) const override { return nullptr; }
-    void deliverPacket(iot::mqtt::ControlPacketDeserializer*) override {}
-    void distributePublish(const iot::mqtt::packets::Publish&) override {}
-};
-
-class BufferContext : public iot::mqtt::MqttContext {
-public:
-    explicit BufferContext(const std::vector<char>& input)
-        : iot::mqtt::MqttContext(new DummyMqtt())
-        , input(input) {
-    }
-
-    std::size_t recv(char* chunk, std::size_t chunklen) override {
-        const std::size_t available = input.size() - offset;
-        const std::size_t count = std::min(chunklen, available);
-        std::copy_n(input.data() + offset, count, chunk);
-        offset += count;
-        return count;
-    }
-
-    void send(const char*, std::size_t) override {}
-    core::socket::stream::SocketConnection* getSocketConnection() const override { return nullptr; }
-    void end() override {}
-    void close() override { closed = true; }
-
-    bool closed = false;
-
-private:
-    std::vector<char> input;
-    std::size_t offset = 0;
-};
-
-void appendString(std::vector<char>& data, const std::string& value) {
-    data.push_back(static_cast<char>((value.size() >> 8) & 0xff));
-    data.push_back(static_cast<char>(value.size() & 0xff));
-    data.insert(data.end(), value.begin(), value.end());
-}
-
-std::vector<char> connectVp(uint8_t level, uint8_t flags) {
-    std::vector<char> data;
-    appendString(data, "MQTT");
-    data.push_back(static_cast<char>(level));
-    data.push_back(static_cast<char>(flags));
-    data.push_back(0);
-    data.push_back(60);
-    appendString(data, "client");
-    return data;
-}
-
-std::vector<char> subscribeVp(std::initializer_list<std::pair<std::string, uint8_t>> topics) {
-    std::vector<char> data{0, 1};
-    for (const auto& [topic, qos] : topics) {
-        appendString(data, topic);
-        data.push_back(static_cast<char>(qos));
-    }
-    return data;
-}
-
-std::vector<char> publishVp(const std::string& topic, const std::string& payload, bool includePacketId = false, uint16_t pid = 1) {
-    std::vector<char> data;
-    appendString(data, topic);
-    if (includePacketId) {
-        data.push_back(static_cast<char>((pid >> 8) & 0xff));
-        data.push_back(static_cast<char>(pid & 0xff));
-    }
-    data.insert(data.end(), payload.begin(), payload.end());
-    return data;
-}
-
-template <typename Packet>
-bool deserializePacket(Packet& packet, const std::vector<char>& data) {
-    BufferContext context(data);
-    while (!packet.isComplete() && !packet.isError()) {
-        if (packet.deserialize(&context) == 0) {
-            break;
+    class DummyMqtt : public iot::mqtt::Mqtt {
+    public:
+        DummyMqtt()
+            : iot::mqtt::Mqtt("test") {
         }
+        bool onSignal(int) override {
+            return true;
+        }
+        iot::mqtt::ControlPacketDeserializer* createControlPacketDeserializer(iot::mqtt::FixedHeader&) const override {
+            return nullptr;
+        }
+        void deliverPacket(iot::mqtt::ControlPacketDeserializer*) override {
+        }
+        void distributePublish(const iot::mqtt::packets::Publish&) override {
+        }
+    };
+
+    class BufferContext : public iot::mqtt::MqttContext {
+    public:
+        explicit BufferContext(const std::vector<char>& input)
+            : iot::mqtt::MqttContext(new DummyMqtt())
+            , input(input) {
+        }
+
+        std::size_t recv(char* chunk, std::size_t chunklen) override {
+            const std::size_t available = input.size() - offset;
+            const std::size_t count = std::min(chunklen, available);
+            std::copy_n(input.data() + offset, count, chunk);
+            offset += count;
+            return count;
+        }
+
+        void send(const char*, std::size_t) override {
+        }
+        core::socket::stream::SocketConnection* getSocketConnection() const override {
+            return nullptr;
+        }
+        void end() override {
+        }
+        void close() override {
+            closed = true;
+        }
+
+        bool closed = false;
+
+    private:
+        std::vector<char> input;
+        std::size_t offset = 0;
+    };
+
+    void appendString(std::vector<char>& data, const std::string& value) {
+        data.push_back(static_cast<char>((value.size() >> 8) & 0xff));
+        data.push_back(static_cast<char>(value.size() & 0xff));
+        data.insert(data.end(), value.begin(), value.end());
     }
-    return packet.isComplete() && !packet.isError();
-}
+
+    std::vector<char> connectVp(uint8_t level, uint8_t flags) {
+        std::vector<char> data;
+        appendString(data, "MQTT");
+        data.push_back(static_cast<char>(level));
+        data.push_back(static_cast<char>(flags));
+        data.push_back(0);
+        data.push_back(60);
+        appendString(data, "client");
+        return data;
+    }
+
+    std::vector<char> subscribeVp(std::initializer_list<std::pair<std::string, uint8_t>> topics) {
+        std::vector<char> data{0, 1};
+        for (const auto& [topic, qos] : topics) {
+            appendString(data, topic);
+            data.push_back(static_cast<char>(qos));
+        }
+        return data;
+    }
+
+    std::vector<char> publishVp(const std::string& topic, const std::string& payload, bool includePacketId = false, uint16_t pid = 1) {
+        std::vector<char> data;
+        appendString(data, topic);
+        if (includePacketId) {
+            data.push_back(static_cast<char>((pid >> 8) & 0xff));
+            data.push_back(static_cast<char>(pid & 0xff));
+        }
+        data.insert(data.end(), payload.begin(), payload.end());
+        return data;
+    }
+
+    template <typename Packet>
+    bool deserializePacket(Packet& packet, const std::vector<char>& data) {
+        BufferContext context(data);
+        while (!packet.isComplete() && !packet.isError()) {
+            if (packet.deserialize(&context) == 0) {
+                break;
+            }
+        }
+        return packet.isComplete() && !packet.isError();
+    }
 
 } // namespace
 

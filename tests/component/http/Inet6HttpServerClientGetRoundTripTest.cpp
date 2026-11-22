@@ -1,5 +1,4 @@
 #include "HttpServerClientRoundTripTest.h"
-
 #include "net/in6/SocketAddress.h"
 #include "web/http/legacy/in6/Client.h"
 #include "web/http/legacy/in6/Server.h"
