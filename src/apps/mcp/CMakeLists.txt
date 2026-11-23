@@ -52,6 +52,12 @@ add_library(
     HouseStyleResource.h
     ReviewPrompt.cpp
     ReviewPrompt.h
+    StyleTemplate.cpp
+    StyleTemplate.h
+    ReviewLabelResource.cpp
+    ReviewLabelResource.h
+    ReviewLabelTool.cpp
+    ReviewLabelTool.h
 )
 target_include_directories(snodec-dev-tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(snodec-dev-tools PUBLIC snodec::mcp-server)

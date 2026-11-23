@@ -696,19 +696,54 @@ This is the implemented registration function. Schemas, confinement, bounded sli
         auto headers = std::make_shared<Headers>(config.getHeaderRoot());
         const auto files = config.getSearchFiles();
         const auto bytes = config.getSearchBytes();
-        const Json find{{"type", "object"},
-                        {"properties",
-                         {{"query", {{"type", "string"}, {"minLength", 1}, {"maxLength", 128}}},
-                          {"limit", {{"type", "integer"}, {"minimum", 1}, {"maximum", 100}, {"default", 20}}}}},
-                        {"required", {"query"}},
-                        {"additionalProperties", false}};
-        const Json read{{"type", "object"},
-                        {"properties",
-                         {{"path", {{"type", "string"}, {"minLength", 1}, {"maxLength", 512}}},
-                          {"offset", {{"type", "integer"}, {"minimum", 0}, {"maximum", 67108864}}},
-                          {"bytes", {{"type", "integer"}, {"minimum", 1}, {"maximum", 65536}}}}},
-                        {"required", {"path"}},
-                        {"additionalProperties", false}};
+        const Json find = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+        },
+        "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+        }
+    },
+    "required": [
+        "query"
+    ],
+    "additionalProperties": false
+}
+)json");
+        const Json read = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+        },
+        "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+        },
+        "bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536
+        }
+    },
+    "required": [
+        "path"
+    ],
+    "additionalProperties": false
+}
+)json");
         server.tool({"api.find", "Literal search of confined installed headers; returns relative paths, lines and byte offsets.", find},
                     [headers, files, bytes](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
@@ -721,9 +756,21 @@ This is the implemented registration function. Schemas, confinement, bounded sli
                     });
         server.tool({"skeleton.preview",
                      "Preview an express application or router module. Does not write files.",
-                     {{"type", "object"},
-                      {"properties", {{"kind", {{"enum", {"application", "module"}}, {"default", "application"}}}}},
-                      {"additionalProperties", false}}},
+                     nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "kind": {
+            "enum": [
+                "application",
+                "module"
+            ],
+            "default": "application"
+        }
+    },
+    "additionalProperties": false
+}
+)json")},
                     [](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
                         const bool module = args.value("kind", std::string("application")) == "module";
@@ -857,3 +904,35 @@ Approved decisions (settled by A1–A6): process-owning stdio is the sole public
 During implementation, strict ASan identified a demo timer-handle lifetime error: replacing the member handle before the firing receiver is destroyed leaves its backlink targeting the successor's handle. Each firing callback now moves its handle into its callback scope before scheduling a successor; the framework detaches that receiver before the callback scope ends. The three direct-dispatch unit tests also use the framework's init/free lifecycle to drain deadline timers. No core change or timer workaround is introduced.
 
 SOVERSION 3, unchanged core, immediate named registration failure, mirrored JSON tool results, onCancel, existing CLI spellings and named HTTP authorization outcomes are approved requirements. The implementation stops at the local verification gate; no push, merge, release or live-system installation is authorized.
+
+
+## Completion of the server module
+
+This addendum extends the experimental API without changing SNode.C core. The registry remains sealed at attachment. All callbacks and mutation run on the event-loop thread; the server and configuration outlive their transports. Features excluded by the owner remain excluded: sampling, roots, protocol logging, tasks, 2025 server-initiated elicitation, dynamic registration and an MCP client role.
+
+- `ResourceTemplateDefinition` owns URI template, display metadata and variable completers. `ResourceTemplate` follows `Resource`: owned immutable definition, out-of-line virtual destructor, `getDefinition()` and `read(const ResourceRead&, const std::shared_ptr<ResourceReply>&)`. `Server::resourceTemplate` accepts either a shared subclass or definition plus handler and returns `Server*`. Registration validates the supported RFC 6570 simple/reserved scalar expansions (`{var}`, `{+var}`); unsupported operators/modifiers and ambiguous expressions are named registration errors. Exact resource registrations take precedence; templates are matched in registration order. `ResourceRead::variables` owns decoded variables. See [2025 resources](https://modelcontextprotocol.io/specification/2025-11-25/server/resources) and [2026 resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources).
+- `CompletionRequest` owns argument name/value, previous `context.arguments` and the ordinary request context. `CompletionResult` owns at most 100 ranked values, optional total and hasMore. `CompletionReply` is `Reply<CompletionResult>`; a `CompletionHandler` can retain it for asynchronous completion. Prompt arguments and template variables carry these callbacks; only registered completers cause the completions capability to be advertised. See [completion](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/completion).
+- `Server::resourceUpdated(uri)` sends resource change notifications to live, explicitly subscribed consumers only. Modern subscriptions are request-scoped, acknowledged before updates, correlated by the original ID and bounded; legacy subscriptions are scoped to an initialized transport/session. Legacy HTTP requires an authenticated session-correlated GET notification stream; modern HTTP remains per-request. Disconnect, cancellation and shutdown release subscriptions. See [2026 subscription mechanics](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions) and [2025 transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports).
+- `Reply<Result>::inputRequired` completes tools/resources/prompts with typed form/URL elicitation requests and optional opaque string state. `RequestContext` exposes owned retry inputs and state. Modern capability checks run before emission; unsupported 2025 use produces an explicit error. Application state is attacker-controlled on retry: integrity protection is required when it affects authorization or business logic. See [MRTR](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr).
+- The schema adapter stays internal and nlohmann-only at the public boundary. jsoncons must first pass the owner dependency gate (Boost licence review, pinned header-only/system-package integration and required official draft2020-12 suite). Metaschema validation, local/static/dynamic references, unknown annotations and bounded evaluation replace the existing restricted validator only if that gate passes. No automatic network fetching. If unsuitable, retain and explicitly document the existing limitation; do not substitute a partial validator. See [schema implementation requirements](https://modelcontextprotocol.io/specification/2026-07-28/basic#implementation-requirements).
+- Definitions/results gain schema-defined optional icons, annotations, metadata and implementation display fields without exposing protocol internals. Modern result kinds and caching fields remain era-specific; legacy structured output remains object-only.
+- HTTP `Router` options describe protected-resource metadata and its canonical resource URI, authorization-server issuers and supported scopes. Metadata routes are explicitly mounted outside the protected endpoint. Unauthorized and insufficient-scope results produce the corresponding Bearer challenge. Applications remain responsible for token signature/expiry, audience/resource and scope validation; no authorization server is added. See [authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization).
+
+Implementation and qualification follow separate commits for resource templates, completion, notifications, MRTR, schema validation (subject to gate), metadata, authorization, demo/docs and verification. SDK/Inspector and native limitations are reported explicitly; implementation is not considered verified until the final revision passes the requested checks.
+
+
+### Wire decisions and implementation qualification
+
+| Decision | Authority |
+| --- | --- |
+| Exact resources before registration-ordered scalar templates; percent decoding preserves UTF-8 and does not treat `+` as a form-space | [2025 resource templates](https://modelcontextprotocol.io/specification/2025-11-25/server/resources#resource-templates), [2026 resource templates](https://modelcontextprotocol.io/specification/2026-07-28/server/resources#resource-templates), [RFC 6570](https://www.rfc-editor.org/rfc/rfc6570) |
+| Missing resources: legacy -32002, modern -32602 | [2025 resource errors](https://modelcontextprotocol.io/specification/2025-11-25/server/resources#error-handling), [2026 resource errors](https://modelcontextprotocol.io/specification/2026-07-28/server/resources#error-handling) |
+| Completion references/context, 100 values, total/hasMore, advertised capability and bounded rate | [2025 completion](https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/completion), [2026 completion](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/completion) |
+| Modern URI filter, first acknowledgment, original-ID correlation, cancellation | [2026 subscriptions](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions) |
+| Legacy subscribe/unsubscribe and session-correlated HTTP GET channel; no legacy state used for modern requests | [2025 subscriptions](https://modelcontextprotocol.io/specification/2025-11-25/server/resources#subscriptions), [2025 Streamable HTTP](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http), [2026 statelessness](https://modelcontextprotocol.io/specification/2026-07-28/basic#statelessness) |
+| HTTP graceful subscription completion; stdio's permitted cancellation notification | [2026 subscription closure](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions#graceful-closure), [2026 cancellation](https://modelcontextprotocol.io/specification/2026-07-28/basic/utilities/cancellation) |
+| input_required only for tools/call, resources/read, prompts/get; form/URL modes and per-request capability errors; opaque retry state | [MRTR](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr), [elicitation](https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation), [capability errors](https://modelcontextprotocol.io/specification/2026-07-28/basic#meta) |
+| Metadata, icons, annotations, resultType, private/public cache hints, object-only legacy structured results | [2025 schema.ts](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/schema/2025-11-25/schema.ts), [2026 schema.ts](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/schema/2026-07-28/schema.ts), [2026 caching](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/caching) |
+| Public path-specific/root resource metadata; Bearer 401 challenge and insufficient-scope 403; app-owned token audience/resource validation | [2025 authorization](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization), [2026 authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization), [RFC 9728](https://www.rfc-editor.org/rfc/rfc9728), [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750), [RFC 8707](https://www.rfc-editor.org/rfc/rfc8707) |
+
+The JSON Schema dependency gate failed for jsoncons 1.10.0; Step 5 is excluded under the owner's explicit exception. The pre-existing restricted validator is retained, not relabeled conformant. See [gate findings](SCHEMA-VALIDATOR.md). Limits of 16 template variables, 128 URIs per subscription/channel, 1,024 live registry subscriptions/channels, 64 HTTP legacy sessions, a 30-minute legacy inactivity lifetime and 128 completions/second are implementation resource bounds, not constants prescribed by MCP. URI inversion is deterministic (first following delimiter, with final suffix anchored), without regex backtracking; applications should avoid inherently ambiguous templates.

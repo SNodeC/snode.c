@@ -70,6 +70,10 @@ namespace mcp::server {
         const std::optional<Principal>& getPrincipal() const;
         /// Borrow the original typed progress token while this context remains alive.
         const std::optional<ProgressToken>& getProgressToken() const;
+        /// Borrow untrusted retry responses for this context's lifetime; event-loop access only.
+        const std::map<std::string, InputResponse>& getInputResponses() const;
+        /// Borrow opaque untrusted state; verify integrity before using it for access/business decisions.
+        const std::optional<std::string>& getRequestState() const;
         /// Register on the event loop; late observers run immediately after cancellation.
         /// Observer exceptions are contained and logged; captures live until termination.
         void onCancel(OnCancel callback) const;
@@ -82,6 +86,14 @@ namespace mcp::server {
         friend class detail::Access;
     };
 
+    /// Owned completion input; all strings and context live for this value's lifetime.
+    struct CompletionRequest {
+        RequestContext context;                         ///< Shared event-loop request context.
+        std::string name;                               ///< Argument or template variable being completed.
+        std::string value;                              ///< Current partial input, not a fully validated argument.
+        std::map<std::string, std::string> arguments{}; ///< Already-resolved contextual arguments.
+    };
+
     /// Owned tool input; arguments have passed the registered schema.
     struct ToolCall {
         RequestContext context; ///< Shared event-loop request context.
@@ -90,8 +102,9 @@ namespace mcp::server {
 
     /// Owned resource input, independent of the protocol envelope.
     struct ResourceRead {
-        RequestContext context; ///< Shared event-loop request context.
-        std::string uri;        ///< Owned requested resource URI.
+        RequestContext context;                         ///< Shared event-loop request context.
+        std::string uri;                                ///< Owned requested resource URI.
+        std::map<std::string, std::string> variables{}; ///< Owned decoded template variables; empty for exact resources.
     };
 
     /// Owned prompt input; all argument values are protocol strings.

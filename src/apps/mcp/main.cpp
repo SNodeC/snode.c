@@ -43,8 +43,11 @@
 #include "HouseStyleResource.h"
 #include "Log.h"
 #include "ReadTool.h"
+#include "ReviewLabelResource.h"
+#include "ReviewLabelTool.h"
 #include "ReviewPrompt.h"
 #include "SkeletonPreviewTool.h"
+#include "StyleTemplate.h"
 #include "Tools.h"
 #include "mcp-config.h"
 #include "mcp/server/Server.h"
@@ -116,6 +119,10 @@ int main(int argc, char* argv[]) {
                 server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
                 server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
                 server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
+                server.resourceTemplate(std::make_shared<apps::mcp::StyleTemplate>());
+                const auto label = std::make_shared<apps::mcp::ReviewLabelResource>(server);
+                server.resource(label);
+                server.tool(std::make_shared<apps::mcp::ReviewLabelTool>(label));
                 snode::log::application("mcp.development").info() << "SNode.C development stdio ready";
                 endpoint.setOnConnect([&protocolFd](auto*) {
                     protocolFd = -1;
@@ -166,6 +173,10 @@ int main(int argc, char* argv[]) {
             server.tool(std::make_shared<apps::mcp::SkeletonPreviewTool>());
             server.resource(std::make_shared<apps::mcp::HouseStyleResource>());
             server.prompt(std::make_shared<apps::mcp::ReviewPrompt>());
+            server.resourceTemplate(std::make_shared<apps::mcp::StyleTemplate>());
+            const auto label = std::make_shared<apps::mcp::ReviewLabelResource>(server);
+            server.resource(label);
+            server.tool(std::make_shared<apps::mcp::ReviewLabelTool>(label));
             app.use("/mcp", mcp::server::http::Router(server, *config));
             app.listen([&listenFailure](const auto& address, const auto& state) {
                 if (state == core::socket::State::OK) {

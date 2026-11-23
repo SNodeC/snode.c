@@ -65,6 +65,8 @@ namespace mcp::server {
         std::string name;                                ///< Owned argument name.
         std::string description{};                       ///< Owned human-readable description.
         Requirement requirement = Requirement::Optional; ///< Required arguments are checked before dispatch.
+        CompletionHandler complete{};                    ///< Optional event-loop completer; never serialized into metadata.
+        std::optional<std::string> title{};              ///< Optional owned display title.
     };
 
     /// Owned prompt metadata; its handler receives only string-valued arguments.
@@ -73,6 +75,8 @@ namespace mcp::server {
         std::string description{};               ///< Owned human-readable description.
         std::vector<PromptArgument> arguments{}; ///< Owned ordered argument declarations.
         std::optional<std::string> title{};      ///< Optional owned display title.
+        std::vector<Icon> icons{};               ///< Owned optional icons; never fetched by the module.
+        Json meta{};                             ///< Owned optional metadata object; null omits the field.
     };
 
     /// Application subclass; the server retains shared ownership until its destruction.

@@ -54,27 +54,32 @@
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
-namespace core {
-    struct ShutdownContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <regex>
+#include <set>
 #include <stdexcept>
 #include <string>
+#include <sys/random.h>
+#include <sys/types.h>
 #include <utility>
 #include <variant>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace core {
+    struct ShutdownContext;
+}
 
 namespace mcp::server::http {
 
@@ -85,6 +90,52 @@ namespace mcp::server::http {
     namespace {
 
         enum class StreamMode { Json, Sse };
+
+        std::string quoted(const std::string& value) {
+            std::string result = "\"";
+            for (const char byte : value) {
+                const auto c = static_cast<unsigned char>(byte);
+                if (c < 32 || c > 126) {
+                    throw std::invalid_argument("Authentication parameter is not header-safe");
+                }
+
+                if (c == '"' || c == '\\') {
+                    result += '\\';
+                }
+
+                result += static_cast<char>(c);
+            }
+
+            result += '"';
+
+            return result;
+        }
+
+        std::string metadataUrl(const ProtectedResource& resource) {
+            static const std::regex shape(R"((https?://[^/?#@\s]+)(/[^?#\s]*)?)");
+            std::smatch parts;
+            if (!std::regex_match(resource.resource, parts, shape) || resource.authorizationServers.empty()) {
+                throw std::invalid_argument("Protected resource requires an absolute canonical URI and authorization server");
+            }
+
+            for (const auto& issuer : resource.authorizationServers) {
+                if (!issuer.starts_with("https://") || issuer.find_first_of("\r\n\"#") != std::string::npos) {
+                    throw std::invalid_argument("Authorization server must be an HTTPS issuer URI");
+                }
+            }
+
+            return parts[1].str() + "/.well-known/oauth-protected-resource" + parts[2].str();
+        }
+
+        std::string
+        challenge(const ProtectedResource& resource, const std::optional<std::string>& scope, const std::string& base = "Bearer") {
+            std::string result = base + (base == "Bearer" ? " " : ", ") + "resource_metadata=" + quoted(metadataUrl(resource));
+            if (scope) {
+                result += ", scope=" + quoted(*scope);
+            }
+
+            return result;
+        }
 
         std::string lower(std::string value) {
             std::transform(value.begin(), value.end(), value.begin(), [](char c) {
@@ -144,6 +195,7 @@ namespace mcp::server::http {
             std::shared_ptr<express::Response> response;
             std::shared_ptr<Operation> owner;
             std::shared_ptr<WireReply> reply;
+            std::shared_ptr<Channel> channel;
             core::timer::Timer timer;
             std::string queue;
             ProtocolEra era;
@@ -190,6 +242,12 @@ namespace mcp::server::http {
                     timer.cancel();
                     if (reply) {
                         reply->cancel(CancelReason::Disconnected);
+                    }
+
+                    if (request.is_null() && channel) {
+                        channel->active = false;
+                        channel->resources.clear();
+                        channel->output = {};
                     }
 
                     owner.reset();
@@ -239,8 +297,12 @@ namespace mcp::server::http {
             }
 
             void shutdown() {
-                if (!closed && reply) {
-                    reply->cancel(CancelReason::Shutdown);
+                if (!closed && (reply || request.is_null())) {
+                    if (reply) {
+                        reply->cancel(CancelReason::Shutdown);
+                    } else {
+                        ended = true;
+                    }
                     if (mode == StreamMode::Sse) {
                         pump();
                     } else {
@@ -251,16 +313,30 @@ namespace mcp::server::http {
 
             void start() override {
                 const std::weak_ptr<Operation> weak = shared_from_this();
-                reply = Access::registry(server).dispatch(
-                    request,
-                    era,
-                    [weak](const Json& value, bool terminal) {
+                if (request.is_null()) {
+                    channel->output = [weak](const Json& value) {
                         if (const auto current = weak.lock()) {
-                            current->feed(value, terminal);
+                            if (value.is_null()) {
+                                current->ended = true;
+                            } else {
+                                current->feed(value, false);
+                            }
                         }
-                    },
-                    config.getDeadline(),
-                    std::move(principal));
+                    };
+                    queue = ": connected\n\n";
+                } else {
+                    reply = Access::registry(server).dispatch(
+                        request,
+                        era,
+                        [weak](const Json& value, bool terminal) {
+                            if (const auto current = weak.lock()) {
+                                current->feed(value, terminal);
+                            }
+                        },
+                        config.getDeadline(),
+                        std::move(principal),
+                        channel);
+                }
                 if (mode == StreamMode::Sse) {
                     pump();
                 }
@@ -269,7 +345,7 @@ namespace mcp::server::http {
                     timer = core::timer::Timer::intervalTimer(
                         [weak] {
                             if (const auto current = weak.lock(); current && !current->closed) {
-                                if (current->era == ProtocolEra::PerRequest20260728 && !current->response->isConnected()) {
+                                if (!current->response->isConnected()) {
                                     current->stop();
                                 }
 
@@ -293,10 +369,84 @@ namespace mcp::server::http {
             core::pipe::PipeSource* writer = nullptr;
             std::vector<std::weak_ptr<Operation>> operations;
             bool stopping = false;
+            RouterOptions options;
 
-            State(Server& server, Config& config)
+            struct Session {
+                std::shared_ptr<Channel> channel;
+                utils::Timeval touched;
+            };
+
+            std::map<std::string, Session> sessions;
+
+            State(Server& server, Config& config, RouterOptions options)
                 : server(server)
-                , config(config) {
+                , config(config)
+                , options(std::move(options)) {
+            }
+
+            std::shared_ptr<Channel> findSession(const std::shared_ptr<express::Request>& req) {
+                const auto now = utils::Timeval::currentTime();
+                std::erase_if(sessions, [&now](const auto& item) {
+                    return !item.second.channel->active || item.second.touched + utils::Timeval(1800) < now;
+                });
+                std::shared_ptr<Channel> result;
+                const auto found = sessions.find(req->get("Mcp-Session-Id"));
+                if (found != sessions.end() && found->second.channel->credential == req->get("Authorization")) {
+                    found->second.touched = now;
+                    result = found->second.channel;
+                }
+
+                return result;
+            }
+
+            std::shared_ptr<Channel> newSession(const std::shared_ptr<express::Request>& req,
+                                                const std::shared_ptr<express::Response>& res) {
+                static_cast<void>(findSession(req));
+                std::shared_ptr<Channel> result;
+                std::array<unsigned char, 24> bytes{};
+                if (sessions.size() < 64 && ::getrandom(bytes.data(), bytes.size(), 0) == static_cast<ssize_t>(bytes.size())) {
+                    std::string token;
+                    for (const auto byte : bytes) {
+                        token += "0123456789abcdef"[byte >> 4U];
+                        token += "0123456789abcdef"[byte & 15U];
+                    }
+
+                    result = std::make_shared<Channel>();
+                    result->credential = req->get("Authorization");
+                    sessions.emplace(token, Session{result, utils::Timeval::currentTime()});
+                    res->set("Mcp-Session-Id", token);
+                }
+
+                return result;
+            }
+
+            void legacy(const std::shared_ptr<express::Request>& req, const std::shared_ptr<express::Response>& res) {
+                const auto channel = findSession(req);
+                if (!channel) {
+                    res->status(req->get("Mcp-Session-Id").empty() ? 400 : 404).end();
+                } else if (req->method == "DELETE") {
+                    if (channel->output) {
+                        channel->output(nullptr);
+                    }
+
+                    channel->active = false;
+                    channel->resources.clear();
+                    res->status(204).end();
+                } else if (!accepts(lower(req->get("Accept")), "text/event-stream")) {
+                    res->status(406).end();
+                } else if (channel->output || stopping) {
+                    res->status(409).end();
+                } else {
+                    auto operation = std::make_shared<Operation>(
+                        server, config, nullptr, res, ProtocolEra::Initialization20251125, StreamMode::Sse, std::nullopt);
+                    operation->owner = operation;
+                    operation->channel = channel;
+                    operations.push_back(operation);
+                    res->status(200).set("Content-Type", "text/event-stream").set("Cache-Control", "no-cache");
+                    if (!res->pipe(operation.get())) {
+                        operation->stop();
+                    }
+                }
             }
 
             ~State() {
@@ -361,8 +511,13 @@ namespace mcp::server::http {
 
     } // namespace
 
-    Router::Router(Server& server, Config& config, Authorize authorize) {
-        auto state = std::make_shared<State>(server, config);
+    Router::Router(Server& server, Config& config, Authorize authorize, RouterOptions options)
+        : protectedResource(options.protectedResource) {
+        if (protectedResource) {
+            static_cast<void>(metadataUrl(*protectedResource));
+        }
+
+        auto state = std::make_shared<State>(server, config, std::move(options));
         state->observe();
         Access::registry(server).seal();
         use("/", [state, authorize](const auto& req, const auto& res, auto& next) {
@@ -379,11 +534,19 @@ namespace mcp::server::http {
                 try {
                     authorization = authorize ? authorize(req) : Authorized{};
                     if (const auto* denied = std::get_if<Unauthorized>(&*authorization);
-                        denied && (denied->wwwAuthenticate.empty() ||
+                        denied && ((!state->options.protectedResource && denied->wwwAuthenticate.empty()) ||
                                    !std::all_of(denied->wwwAuthenticate.begin(), denied->wwwAuthenticate.end(), [](unsigned char c) {
                                        return c >= 32 && c <= 126;
                                    }))) {
                         throw std::invalid_argument("Invalid authentication challenge");
+                    }
+
+                    if (const auto* denied = std::get_if<Unauthorized>(&*authorization); denied && denied->scope) {
+                        static_cast<void>(quoted(*denied->scope));
+                    }
+
+                    if (const auto* denied = std::get_if<InsufficientScope>(&*authorization)) {
+                        static_cast<void>(quoted(denied->scope));
                     }
                 } catch (...) {
                     authorization.reset();
@@ -392,11 +555,29 @@ namespace mcp::server::http {
                 }
                 if (authorization) {
                     if (const auto* denied = std::get_if<Unauthorized>(&*authorization)) {
-                        res->status(401).set("WWW-Authenticate", denied->wwwAuthenticate).end();
+                        std::string header = denied->wwwAuthenticate;
+                        if (state->options.protectedResource) {
+                            header = challenge(
+                                *state->options.protectedResource, denied->scope, header.starts_with("Bearer") ? header : "Bearer");
+                        }
+
+                        res->status(401).set("WWW-Authenticate", header).end();
+                    } else if (const auto* denied = std::get_if<InsufficientScope>(&*authorization)) {
+                        std::string header = "Bearer error=\"insufficient_scope\", scope=" + quoted(denied->scope);
+                        if (state->options.protectedResource) {
+                            header += ", resource_metadata=" + quoted(metadataUrl(*state->options.protectedResource));
+                        }
+
+                        res->status(403).set("WWW-Authenticate", header).end();
                     } else if (std::holds_alternative<Forbidden>(*authorization)) {
                         res->status(403).end();
                     } else if (req->method != "POST") {
-                        res->status(405).set("Allow", "POST").end();
+                        if (state->options.legacySubscriptions == LegacySubscriptions::Enabled &&
+                            req->get("MCP-Protocol-Version") == protocolVersion2025 && (req->method == "GET" || req->method == "DELETE")) {
+                            state->legacy(req, res);
+                        } else {
+                            res->status(405).set("Allow", "POST").end();
+                        }
                     } else if (contentType != "application/json") {
                         res->status(415).end();
                     } else if (req->body.size() > state->config.getMaximumMessageBytes()) {
@@ -466,6 +647,14 @@ namespace mcp::server::http {
                             });
                             auto operation =
                                 std::make_shared<Operation>(state->server, state->config, request, res, era, mode, std::move(principal));
+                            if (era == ProtocolEra::Initialization20251125 &&
+                                state->options.legacySubscriptions == LegacySubscriptions::Enabled) {
+                                operation->channel = method == "initialize" && params.contains("capabilities") &&
+                                                             params.contains("clientInfo") && params.contains("protocolVersion")
+                                                         ? state->newSession(req, res)
+                                                         : state->findSession(req);
+                            }
+
                             operation->owner = operation;
                             state->operations.push_back(operation);
                             if (mode == StreamMode::Sse) {
@@ -484,6 +673,39 @@ namespace mcp::server::http {
                 }
             }
         });
+    }
+
+    const Router& Router::mountMetadata(const express::Router& root) const {
+        if (protectedResource) {
+            const auto& resource = *protectedResource;
+            const std::string url = metadataUrl(resource);
+            const auto start = url.find('/', url.find("://") + 3);
+            const std::string path = url.substr(start);
+            Json metadata{{"resource", resource.resource},
+                          {"authorization_servers", resource.authorizationServers},
+                          {"bearer_methods_supported", {"header"}}};
+            if (!resource.scopesSupported.empty()) {
+                metadata["scopes_supported"] = resource.scopesSupported;
+            }
+
+            if (resource.resourceName) {
+                metadata["resource_name"] = *resource.resourceName;
+            }
+
+            if (resource.documentation) {
+                metadata["resource_documentation"] = *resource.documentation;
+            }
+
+            const auto respond = [metadata](const auto&, const auto& response) {
+                response->json(metadata);
+            };
+            root.get(path, respond);
+            if (path != "/.well-known/oauth-protected-resource") {
+                root.get("/.well-known/oauth-protected-resource", respond);
+            }
+        }
+
+        return *this;
     }
 
 } // namespace mcp::server::http

@@ -39,13 +39,24 @@
  * THE SOFTWARE.
  */
 
+// IWYU pragma: no_include "core/socket/Socket.hpp"
+// IWYU pragma: no_include "core/socket/stream/SocketConnection.hpp"
+
+#include "Features.h"
 #include "Log.h"
 #include "core/SNodeC.h"
+#include "core/socket/State.h"
 #include "core/timer/Timer.h"
 #include "mcp/server/Config.h"
+#include "mcp/server/Reply.h"
+#include "mcp/server/Results.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/stream/SocketContextFactory.h"
+#include "net/config/ConfigConnection.h"
+#include "net/config/ConfigSection.h"
+#include "net/stdio/SocketAddress.h"
 #include "net/stdio/stream/SocketEndpoint.h"
+#include "net/stdio/stream/config/ConfigSocketEndpoint.h"
 #include "utils/Config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -53,12 +64,16 @@
 #include <exception>
 #include <fcntl.h>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <map>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -129,6 +144,7 @@ int main(int argc, char* argv[]) {
                     throw 42;
                 }
 
+                tests::mcp::registerFeatures(server);
                 snode::log::application("mcp.fixture").info() << "MCP fixture ready";
                 std::cout << "fixture direct stdout diagnostic" << std::endl;
                 const auto path = config->getOption("--fixture-reparse-config")->as<std::string>();

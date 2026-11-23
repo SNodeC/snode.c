@@ -45,8 +45,9 @@
 #include "mcp/server/Prompt.h" // IWYU pragma: export
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
-#include "mcp/server/Resource.h" // IWYU pragma: export
-#include "mcp/server/Tool.h"     // IWYU pragma: export
+#include "mcp/server/Resource.h"         // IWYU pragma: export
+#include "mcp/server/ResourceTemplate.h" // IWYU pragma: export
+#include "mcp/server/Tool.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,13 +59,14 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server {
+    struct Implementation;
 
     namespace detail {
         class Access; ///< Module-private registry access.
     }
 
     /// Registration category used in immediate validation diagnostics.
-    enum class RegistrationKind { Tool, Resource, Prompt };
+    enum class RegistrationKind { Tool, Resource, Prompt, ResourceTemplate };
 
     /// Immediate registration failure; what() owns kind, identifier, field and reason.
     class RegistrationError : public std::invalid_argument {
@@ -88,10 +90,17 @@ namespace mcp::server {
         /// Construct before attachment; owns its name and registration data.
         explicit Server(std::string name, std::string version, std::string instructions = {});
 
+        /// Own full implementation metadata before attachment; same event-loop/lifetime contract.
+        explicit Server(Implementation implementation, std::string instructions = {});
+
         /// Destroy only after attached transports have drained.
         ~Server();
 
         Server(const Server&) = delete; ///< Stable owner identity; share through a reference instead.
+
+        /// Report a URI change on the event loop; only explicitly subscribed live consumers are notified.
+        /// Safe inside handlers; the call does not retain the URI and does not read the resource.
+        Server* resourceUpdated(const std::string& uri);
 
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* tool(ToolDefinition definition, ToolHandler handler);
@@ -101,6 +110,10 @@ namespace mcp::server {
         Server* resource(ResourceDefinition definition, ResourceHandler handler);
         /// Retain shared ownership and validate transactionally before attachment; returns this.
         Server* resource(std::shared_ptr<Resource> handler);
+        /// Validate and retain a template subclass before attachment; named errors are transactional.
+        Server* resourceTemplate(std::shared_ptr<ResourceTemplate> handler);
+        /// Convenience adapter over the same template registry; callbacks run on the event loop.
+        Server* resourceTemplate(ResourceTemplateDefinition definition, ResourceHandler handler);
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* prompt(PromptDefinition definition, PromptHandler handler);
         /// Retain shared ownership and validate transactionally before attachment; returns this.

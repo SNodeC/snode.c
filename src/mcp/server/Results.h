@@ -46,6 +46,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <variant>
@@ -55,11 +56,20 @@
 
 namespace mcp::server {
 
+    /// Owned completion suggestions; Reply enforces the wire limit of 100 values.
+    struct CompletionResult {
+        std::vector<std::string> values;    ///< Ranked suggestions, owned until completion.
+        std::optional<std::size_t> total{}; ///< Optional total match count, at least the returned count.
+        bool hasMore = false;               ///< True when additional matching values exist.
+        Json meta{};                        ///< Optional owned metadata object; null omits it.
+    };
+
     /// Owned UTF-8 resource contents; the URI identifies the resource.
     struct TextResource {
         std::string uri;      ///< Owned resource URI.
         std::string mimeType; ///< Owned MIME media type.
         std::string text;     ///< Owned UTF-8 text.
+        Json meta{};          ///< Optional owned metadata object; null omits it.
     };
 
     /// Owned binary resource contents encoded as base64.
@@ -67,6 +77,7 @@ namespace mcp::server {
         std::string uri;      ///< Owned resource URI.
         std::string mimeType; ///< Owned MIME media type.
         std::string base64;   ///< Owned base64 data, encoded by the application.
+        Json meta{};          ///< Optional owned metadata object; null omits it.
     };
 
     using ResourceContents = std::variant<TextResource, BlobResource>; ///< Owned text or binary resource value.
@@ -75,6 +86,7 @@ namespace mcp::server {
     struct TextContent {
         std::string text;        ///< Owned UTF-8 text.
         Annotations annotations; ///< Owned optional annotations for this block.
+        Json meta{};             ///< Optional owned metadata object; null omits it.
     };
 
     /// Owned base64 image with an explicit media type.
@@ -82,6 +94,7 @@ namespace mcp::server {
         std::string base64;      ///< Owned base64 data, encoded by the application.
         std::string mimeType;    ///< Owned MIME media type.
         Annotations annotations; ///< Owned optional annotations for this block.
+        Json meta{};             ///< Optional owned metadata object; null omits it.
     };
 
     /// Owned base64 audio with an explicit media type.
@@ -89,22 +102,27 @@ namespace mcp::server {
         std::string base64;      ///< Owned base64 data, encoded by the application.
         std::string mimeType;    ///< Owned MIME media type.
         Annotations annotations; ///< Owned optional annotations for this block.
+        Json meta{};             ///< Optional owned metadata object; null omits it.
     };
 
     /// Owned resource reference; reading it requires a separate resource request.
     struct ResourceLink {
-        std::string uri;                   ///< Owned resource URI.
-        std::string name;                  ///< Owned human-readable resource name.
-        std::string description;           ///< Owned optional human-readable description.
-        std::string mimeType;              ///< Owned MIME media type.
-        std::optional<std::uint64_t> size; ///< Optional resource size in bytes.
-        Annotations annotations;           ///< Owned optional annotations for this block.
+        std::string uri;                    ///< Owned resource URI.
+        std::string name;                   ///< Owned human-readable resource name.
+        std::string description;            ///< Owned optional human-readable description.
+        std::string mimeType;               ///< Owned MIME media type.
+        std::optional<std::uint64_t> size;  ///< Optional resource size in bytes.
+        Annotations annotations;            ///< Owned optional annotations for this block.
+        Json meta{};                        ///< Optional owned metadata object; null omits it.
+        std::optional<std::string> title{}; ///< Optional display title.
+        std::vector<Icon> icons{};          ///< Optional display icons.
     };
 
     /// Owned resource data embedded directly in tool or prompt content.
     struct EmbeddedResource {
         ResourceContents resource; ///< Owned embedded text or binary resource.
         Annotations annotations;   ///< Owned optional annotations for this block.
+        Json meta{};               ///< Optional owned metadata object; null omits it.
     };
 
     using Content =
@@ -130,6 +148,9 @@ namespace mcp::server {
         static ToolResult toolError(std::string message);
         static ToolResult toolError(std::vector<Content> content); ///< Owned mixed failure content; event-loop completion reports isError.
 
+        /// Own an optional metadata object; throws invalid_argument for non-object/non-null values.
+        ToolResult& setMeta(Json meta);
+
     private:
         explicit ToolResult(Json value);
 
@@ -142,12 +163,15 @@ namespace mcp::server {
     /// Owned resources returned by one successful resource read.
     struct ResourceResult {
         std::vector<ResourceContents> contents; ///< Owned resource contents in response order.
+        Json meta{};                            ///< Optional owned metadata object; null omits it.
+        std::optional<CacheHints> cache{};      ///< Optional modern cache policy; omitted in the 2025 era.
     };
 
     /// Owned ordered messages returned by one successful prompt expansion.
     struct PromptResult {
         std::optional<std::string> description; ///< Owned optional human-readable description.
         std::vector<PromptMessage> messages;    ///< Owned prompt messages in presentation order.
+        Json meta{};                            ///< Optional owned metadata object; null omits it.
     };
 
 } // namespace mcp::server

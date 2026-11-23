@@ -39,27 +39,35 @@
  * THE SOFTWARE.
  */
 
+#include "Features.h"
 #include "core/timer/Timer.h"
-#include "express/Request.h"
 #include "mcp/server/Config.h"
+#include "mcp/server/Reply.h"
+#include "mcp/server/Results.h"
 #include "mcp/server/Server.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/http/Router.h"
 #include "web/http/ConfigHttpParser.h"
 #include "web/http/server/ConfigHttpServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <initializer_list>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <stdexcept>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifdef MCP_TLS
 #include "express/tls/in/WebApp.h"
+
 using WebApp = express::tls::in::WebApp;
 #else
 #include "express/legacy/in/WebApp.h"
+
 using WebApp = express::legacy::in::WebApp;
 #endif
 using mcp::server::ToolResult;
@@ -105,24 +113,36 @@ int main(int argc, char* argv[]) {
         reply->result(ToolResult::json(principal ? mcp::server::Json{{"subject", principal->subject}, {"claims", principal->claims}}
                                                  : mcp::server::Json{{"anonymous", true}}));
     });
-    app.use("/mcp", mcp::server::http::Router(server, *config, [](const auto& request) -> mcp::server::http::Authorization {
-                using namespace mcp::server::http;
-                const std::string credential = request->get("Authorization");
-                Authorization result = Unauthorized{"Bearer realm=\"fixture\""};
-                if (credential == "Bearer fixture") {
-                    result = Authorized{mcp::server::Principal{"fixture-user", {{"scope", "test"}}}};
-                } else if (credential == "Bearer anonymous") {
-                    result = Authorized{};
-                } else if (credential == "Bearer forbidden") {
-                    result = Forbidden{};
-                } else if (credential == "Bearer malformed") {
-                    result = Unauthorized{"invalid\r\nchallenge"};
-                } else if (credential == "Bearer throw") {
-                    throw std::runtime_error("authorization failed");
-                }
+    tests::mcp::registerFeatures(server);
+    mcp::server::http::RouterOptions routerOptions;
+    routerOptions.protectedResource =
+        mcp::server::http::ProtectedResource{"https://example.com/mcp", {"https://auth.example.com"}, {"test"}};
+    const mcp::server::http::Router router(
+        server,
+        *config,
+        [](const auto& request) -> mcp::server::http::Authorization {
+            using namespace mcp::server::http;
+            const std::string credential = request->get("Authorization");
+            Authorization result = Unauthorized{"Bearer realm=\"fixture\""};
+            if (credential == "Bearer fixture") {
+                result = Authorized{mcp::server::Principal{"fixture-user", {{"scope", "test"}}}};
+            } else if (credential == "Bearer anonymous") {
+                result = Authorized{};
+            } else if (credential == "Bearer forbidden") {
+                result = Forbidden{};
+            } else if (credential == "Bearer insufficient") {
+                result = InsufficientScope{"test"};
+            } else if (credential == "Bearer malformed") {
+                result = Unauthorized{"invalid\r\nchallenge"};
+            } else if (credential == "Bearer throw") {
+                throw std::runtime_error("authorization failed");
+            }
 
-                return result;
-            }));
+            return result;
+        },
+        routerOptions);
+    router.mountMetadata(app);
+    app.use("/mcp", router);
     app.listen([](const auto&, const auto&) {
     });
 

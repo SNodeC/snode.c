@@ -178,14 +178,14 @@ def legacy_qualification(server):
     init = legacy("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}})
     status, head, body = server.curl(init, dict(fields, **{"MCP-Protocol-Version": None}))
     assert status == 200 and json.loads(body)["result"]["protocolVersion"] == "2025-11-25"
-    assert b"mcp-session-id" not in head.lower()
+    assert b"mcp-session-id" in head.lower(), "legacy initialization establishes a bounded notification session"
     bad = legacy("initialize", {"protocolVersion": "2025-11-25"})
     assert json.loads(server.curl(bad, fields)[2])["error"]["code"] == -32602
     assert server.curl(legacy("ping"), fields)[0] == 200
     status, _, body = server.curl(legacy("tools/call", {"name": "overflow"}), fields)
     assert status == 500 and json.loads(body)["error"]["code"] == -32603, "JSON output is bounded too"
     for method in ["GET", "DELETE"]:
-        assert server.curl(overrides=fields, method=method)[0] == 405
+        assert server.curl(overrides=fields, method=method)[0] == 404, "unknown legacy session rejected"
     for method in ["server/discover", "subscriptions/listen"]:
         assert server.curl(legacy(method), fields)[0] == 404
     connection = server.connection()
@@ -223,6 +223,16 @@ def run():
                 assert actual == expected, (origin, actual, expected)
             status, headers, _ = server.curl(value, {"Authorization": "Bearer wrong"})
             assert status == 401 and b'WWW-Authenticate: Bearer realm="fixture"'.lower() in headers.lower()
+            assert b'resource_metadata="https://example.com/.well-known/oauth-protected-resource/mcp"' in headers
+            status, headers, _ = server.curl(value, {"Authorization": "Bearer insufficient"})
+            assert status == 403 and b'error="insufficient_scope"' in headers and b'scope="test"' in headers
+            for path in ["/.well-known/oauth-protected-resource/mcp", "/.well-known/oauth-protected-resource"]:
+                original = server.url
+                server.url = original[:-4] + path
+                status, _, document = server.curl(overrides={"Authorization": None}, method="GET")
+                server.url = original
+                metadata = json.loads(document)
+                assert status == 200 and metadata["resource"] == "https://example.com/mcp" and metadata["authorization_servers"] == ["https://auth.example.com"]
             status, headers, _ = server.curl(value, {"Authorization": "Bearer forbidden"})
             assert status == 403 and b"www-authenticate" not in headers.lower()
             for credential in ["Bearer malformed", "Bearer throw"]:
@@ -300,7 +310,7 @@ def run():
             while data:
                 remainder += data
                 data = subscription.recv(8192)
-            assert b"notifications/cancelled" in remainder, (first, remainder)
+            assert b'"resultType":"complete"' in remainder and b"notifications/cancelled" not in remainder, (first, remainder)
             subscription.close()
             server.process.wait(timeout=4)
         finally:

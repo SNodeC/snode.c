@@ -40,14 +40,29 @@
  */
 
 #include "core/SNodeC.h"
+#include "mcp/server/Reply.h"
+#include "mcp/server/Request.h"
+#include "mcp/server/Results.h"
+#include "mcp/server/Server.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cmath>
+#include <initializer_list>
+#include <map>
+#include <memory>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -257,8 +272,8 @@ false
                         Json::array({mcp::server::detail::protocolVersion2026, mcp::server::detail::protocolVersion2025}),
                     "versions");
     test.expectTrue(response["result"]["capabilities"] ==
-                        Json({{"tools", Json::object()}, {"resources", Json::object()}, {"prompts", Json::object()}}),
-                    "capabilities derived without subscribe/listChanged");
+                        Json({{"tools", Json::object()}, {"resources", {{"subscribe", true}}}, {"prompts", Json::object()}}),
+                    "capabilities advertise subscriptions and omit listChanged");
     test.expectTrue(response["result"]["resultType"] == "complete" && response["result"]["ttlMs"] == 0 &&
                         response["result"]["cacheScope"] == "private",
                     "modern result/cache contract");
@@ -356,8 +371,9 @@ false
             shutdown.push_back(value);
         });
     ending->cancel(mcp::server::CancelReason::Shutdown);
-    test.expectTrue(shutdown.size() == 3 && shutdown[1]["method"] == "notifications/cancelled" && shutdown.back().is_null(),
-                    "subscription teardown cancellation");
+    test.expectTrue(shutdown.size() == 2 && shutdown.back()["result"]["resultType"] == "complete" &&
+                        shutdown.back()["result"]["_meta"][mcp::server::detail::subscriptionKey] == 7,
+                    "HTTP subscription teardown completes with correlated result");
     subscription->cancel();
     Server invalid("invalid", "test-version");
     bool rejected = false;

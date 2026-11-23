@@ -43,9 +43,11 @@
 
 #include "core/timer/Timer.h"
 #include "mcp/server/Server.h"
+#include "mcp/server/detail/UriTemplate.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <set>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -54,11 +56,19 @@ namespace mcp::server::detail {
 
     enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
     enum class CachePolicy { None, Private };
+    enum class SubscriptionClosure { Complete, Cancel };
     inline constexpr const char* protocolVersion2026 = "2026-07-28";
     inline constexpr const char* protocolVersion2025 = "2025-11-25";
     inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
     inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
     inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
+
+    struct Channel {
+        std::set<std::string> resources;
+        std::function<void(const Json&)> output;
+        std::string credential;
+        bool active = true;
+    };
 
     struct Response : std::enable_shared_from_this<Response> {
         using Output = std::function<void(const Json&, bool)>;
@@ -68,12 +78,13 @@ namespace mcp::server::detail {
         ~Response();
 
         Completion result(Json value);
+        Completion inputRequired(InputRequired input);
         Completion error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
         void cancel(CancelReason reason = CancelReason::Client);
         void observe(RequestContext::OnCancel callback);
         void expire();
-        void listen();
+        void listen(Json notifications = Json::object());
 
         std::optional<Principal> principal;
         std::optional<ProgressToken> progressToken;
@@ -82,12 +93,18 @@ namespace mcp::server::detail {
         core::timer::Timer timer;
         std::optional<double> lastProgress;
         Json outputSchema;
+        Json clientCapabilities;
+        Json serverInfo;
+        std::map<std::string, InputResponse> inputResponses;
+        std::optional<std::string> requestState;
         Json id;
         ProtocolEra era;
         CachePolicy cachePolicy;
         bool toolRequest = false;
         bool done = false;
         bool subscription = false;
+        SubscriptionClosure closure = SubscriptionClosure::Complete;
+        Json notifications;
         Output output;
         utils::Timeval deadline;
     };
@@ -119,7 +136,8 @@ namespace mcp::server::detail {
 namespace mcp::server {
 
     struct Server::Impl {
-        using Handler = std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>>;
+        using Handler =
+            std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>, std::shared_ptr<ResourceTemplate>>;
 
         void seal();
         void add(RegistrationKind kind, Json description, Handler handler);
@@ -127,7 +145,9 @@ namespace mcp::server {
                                                            detail::ProtocolEra era,
                                                            detail::Access::Response::Output output,
                                                            const utils::Timeval& timeout = utils::Timeval(30),
-                                                           std::optional<Principal> principal = {}) const;
+                                                           std::optional<Principal> principal = {},
+                                                           std::shared_ptr<detail::Channel> channel = {}) const;
+        void resourceUpdated(const std::string& uri);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);
@@ -142,14 +162,21 @@ namespace mcp::server {
             Kind kind;
             Json description;
             Handler handler;
+            std::optional<detail::UriTemplate> matcher{};
         };
 
         Json capabilities() const;
+        const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
         Json serverInfo;
         std::string instructions;
         bool sealed = false;
+        mutable utils::Timeval completionReset;
+        mutable std::size_t completionCount = 0;
         std::map<std::string, Entry> entries;
+        std::vector<std::string> templates;
+        mutable std::vector<std::weak_ptr<detail::Response>> subscriptions;
+        mutable std::vector<std::weak_ptr<detail::Channel>> channels;
     };
 
 } // namespace mcp::server
