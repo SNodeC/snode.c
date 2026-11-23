@@ -153,3 +153,15 @@ add_test(NAME McpStdioIdleTest
 set_tests_properties(
     McpStdioIdleTest PROPERTIES LABELS "mcp;component;stdio;idle" TIMEOUT 80
 )
+
+add_test(
+    NAME McpFeaturesTest
+    COMMAND
+        ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/features_test.py
+        $<TARGET_FILE:McpStdioFixture> $<TARGET_FILE:McpHttpFixture>
+        ${MCP_CURL}
+)
+set_tests_properties(
+    McpFeaturesTest
+    PROPERTIES LABELS "component;mcp;completion;subscriptions;mrtr" TIMEOUT 90
+)

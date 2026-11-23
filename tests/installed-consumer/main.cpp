@@ -46,6 +46,8 @@
 #include <core/socket/stream/SocketServer.h>
 #include <express/legacy/in/Server.h>
 #include <mcp/server/Config.h>
+#include <mcp/server/Request.h>
+#include <mcp/server/ResourceTemplate.h>
 #include <mcp/server/Server.h>
 #include <mcp/server/Tool.h>
 #include <mcp/server/http/Router.h>
@@ -104,6 +106,22 @@ namespace {
 
     InstalledFactory::~InstalledFactory() = default;
 
+    class InstalledTemplate final : public mcp::server::ResourceTemplate {
+    public:
+        InstalledTemplate()
+            : ResourceTemplate(
+                  {"installed://{name}", "installed-template", {}, "text/plain", {}, {{"name", [](const auto&, const auto& reply) {
+                                                                                           reply->result(mcp::server::CompletionResult{
+                                                                                               {"example"}, 1, false});
+                                                                                       }}}}) {
+        }
+
+        void read(const mcp::server::ResourceRead& request, const std::shared_ptr<mcp::server::ResourceReply>& reply) override {
+            reply->result(
+                mcp::server::ResourceResult{{mcp::server::TextResource{request.uri, "text/plain", request.variables.at("name")}}});
+        }
+    };
+
     class InstalledTool final : public mcp::server::Tool {
     public:
         InstalledTool();
@@ -132,6 +150,7 @@ int main([[maybe_unused]] int argc, char* argv[]) {
     static_assert(sizeof(mcp::server::http::Router) >= sizeof(express::Router));
     mcp::server::Server server("installed-consumer", "test-version");
     server.tool(std::make_shared<InstalledTool>());
+    server.resourceTemplate(std::make_shared<InstalledTemplate>());
     auto* config = utils::Config::configRoot.newSubCommand<mcp::server::Config>();
     const mcp::server::stream::SocketContextFactory protocolFactory(server, *config);
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, pair) == 0) {

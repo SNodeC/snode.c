@@ -141,20 +141,37 @@ endif()
 
 snodec_add_test(McpTemplateTest McpTemplateTest.cpp)
 target_include_directories(McpTemplateTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(McpTemplateTest PRIVATE snodec::mcp-server snodec-test-support)
+target_link_libraries(
+    McpTemplateTest PRIVATE snodec::mcp-server snodec-test-support
+)
 set_tests_properties(McpTemplateTest PROPERTIES LABELS "unit;mcp;templates")
 
 snodec_add_test(McpCompletionTest McpCompletionTest.cpp)
 target_include_directories(McpCompletionTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(McpCompletionTest PRIVATE snodec::mcp-server snodec-test-support)
+target_link_libraries(
+    McpCompletionTest PRIVATE snodec::mcp-server snodec-test-support
+)
 set_tests_properties(McpCompletionTest PROPERTIES LABELS "unit;mcp;completion")
 
 snodec_add_test(McpSubscriptionTest McpSubscriptionTest.cpp)
 target_include_directories(McpSubscriptionTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(McpSubscriptionTest PRIVATE snodec::mcp-server snodec-test-support)
-set_tests_properties(McpSubscriptionTest PROPERTIES LABELS "unit;mcp;subscriptions")
+target_link_libraries(
+    McpSubscriptionTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(
+    McpSubscriptionTest PROPERTIES LABELS "unit;mcp;subscriptions"
+)
 
 snodec_add_test(McpInputTest McpInputTest.cpp)
 target_include_directories(McpInputTest PRIVATE ${PROJECT_SOURCE_DIR})
-target_link_libraries(McpInputTest PRIVATE snodec::mcp-server snodec-test-support)
+target_link_libraries(
+    McpInputTest PRIVATE snodec::mcp-server snodec-test-support
+)
 set_tests_properties(McpInputTest PROPERTIES LABELS "unit;mcp;mrtr")
+
+snodec_add_test(McpMetadataTest McpMetadataTest.cpp)
+target_include_directories(McpMetadataTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpMetadataTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpMetadataTest PROPERTIES LABELS "unit;mcp;metadata")
