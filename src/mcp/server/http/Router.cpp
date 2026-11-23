@@ -89,6 +89,52 @@ namespace mcp::server::http {
 
         enum class StreamMode { Json, Sse };
 
+        std::string quoted(const std::string& value) {
+            std::string result = "\"";
+            for (const char byte : value) {
+                const auto c = static_cast<unsigned char>(byte);
+                if (c < 32 || c > 126) {
+                    throw std::invalid_argument("Authentication parameter is not header-safe");
+                }
+
+                if (c == '"' || c == '\\') {
+                    result += '\\';
+                }
+
+                result += static_cast<char>(c);
+            }
+
+            result += '"';
+
+            return result;
+        }
+
+        std::string metadataUrl(const ProtectedResource& resource) {
+            static const std::regex shape(R"((https?://[^/?#@\s]+)(/[^?#\s]*)?)");
+            std::smatch parts;
+            if (!std::regex_match(resource.resource, parts, shape) || resource.authorizationServers.empty()) {
+                throw std::invalid_argument("Protected resource requires an absolute canonical URI and authorization server");
+            }
+
+            for (const auto& issuer : resource.authorizationServers) {
+                if (!issuer.starts_with("https://") || issuer.find_first_of("\r\n\"#") != std::string::npos) {
+                    throw std::invalid_argument("Authorization server must be an HTTPS issuer URI");
+                }
+            }
+
+            return parts[1].str() + "/.well-known/oauth-protected-resource" + parts[2].str();
+        }
+
+        std::string
+        challenge(const ProtectedResource& resource, const std::optional<std::string>& scope, const std::string& base = "Bearer") {
+            std::string result = base + (base == "Bearer" ? " " : ", ") + "resource_metadata=" + quoted(metadataUrl(resource));
+            if (scope) {
+                result += ", scope=" + quoted(*scope);
+            }
+
+            return result;
+        }
+
         std::string lower(std::string value) {
             std::transform(value.begin(), value.end(), value.begin(), [](char c) {
                 return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
@@ -463,7 +509,12 @@ namespace mcp::server::http {
 
     } // namespace
 
-    Router::Router(Server& server, Config& config, Authorize authorize, RouterOptions options) {
+    Router::Router(Server& server, Config& config, Authorize authorize, RouterOptions options)
+        : protectedResource(options.protectedResource) {
+        if (protectedResource) {
+            static_cast<void>(metadataUrl(*protectedResource));
+        }
+
         auto state = std::make_shared<State>(server, config, std::move(options));
         state->observe();
         Access::registry(server).seal();
@@ -481,11 +532,19 @@ namespace mcp::server::http {
                 try {
                     authorization = authorize ? authorize(req) : Authorized{};
                     if (const auto* denied = std::get_if<Unauthorized>(&*authorization);
-                        denied && (denied->wwwAuthenticate.empty() ||
+                        denied && ((!state->options.protectedResource && denied->wwwAuthenticate.empty()) ||
                                    !std::all_of(denied->wwwAuthenticate.begin(), denied->wwwAuthenticate.end(), [](unsigned char c) {
                                        return c >= 32 && c <= 126;
                                    }))) {
                         throw std::invalid_argument("Invalid authentication challenge");
+                    }
+
+                    if (const auto* denied = std::get_if<Unauthorized>(&*authorization); denied && denied->scope) {
+                        static_cast<void>(quoted(*denied->scope));
+                    }
+
+                    if (const auto* denied = std::get_if<InsufficientScope>(&*authorization)) {
+                        static_cast<void>(quoted(denied->scope));
                     }
                 } catch (...) {
                     authorization.reset();
@@ -494,7 +553,20 @@ namespace mcp::server::http {
                 }
                 if (authorization) {
                     if (const auto* denied = std::get_if<Unauthorized>(&*authorization)) {
-                        res->status(401).set("WWW-Authenticate", denied->wwwAuthenticate).end();
+                        std::string header = denied->wwwAuthenticate;
+                        if (state->options.protectedResource) {
+                            header = challenge(
+                                *state->options.protectedResource, denied->scope, header.starts_with("Bearer") ? header : "Bearer");
+                        }
+
+                        res->status(401).set("WWW-Authenticate", header).end();
+                    } else if (const auto* denied = std::get_if<InsufficientScope>(&*authorization)) {
+                        std::string header = "Bearer error=\"insufficient_scope\", scope=" + quoted(denied->scope);
+                        if (state->options.protectedResource) {
+                            header += ", resource_metadata=" + quoted(metadataUrl(*state->options.protectedResource));
+                        }
+
+                        res->status(403).set("WWW-Authenticate", header).end();
                     } else if (std::holds_alternative<Forbidden>(*authorization)) {
                         res->status(403).end();
                     } else if (req->method != "POST") {
@@ -599,6 +671,39 @@ namespace mcp::server::http {
                 }
             }
         });
+    }
+
+    const Router& Router::mountMetadata(const express::Router& root) const {
+        if (protectedResource) {
+            const auto& resource = *protectedResource;
+            const std::string url = metadataUrl(resource);
+            const auto start = url.find('/', url.find("://") + 3);
+            const std::string path = url.substr(start);
+            Json metadata{{"resource", resource.resource},
+                          {"authorization_servers", resource.authorizationServers},
+                          {"bearer_methods_supported", {"header"}}};
+            if (!resource.scopesSupported.empty()) {
+                metadata["scopes_supported"] = resource.scopesSupported;
+            }
+
+            if (resource.resourceName) {
+                metadata["resource_name"] = *resource.resourceName;
+            }
+
+            if (resource.documentation) {
+                metadata["resource_documentation"] = *resource.documentation;
+            }
+
+            const auto respond = [metadata](const auto&, const auto& response) {
+                response->json(metadata);
+            };
+            root.get(path, respond);
+            if (path != "/.well-known/oauth-protected-resource") {
+                root.get("/.well-known/oauth-protected-resource", respond);
+            }
+        }
+
+        return *this;
     }
 
 } // namespace mcp::server::http

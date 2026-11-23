@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "Features.h"
 #include "Log.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
@@ -129,6 +130,7 @@ int main(int argc, char* argv[]) {
                     throw 42;
                 }
 
+                tests::mcp::registerFeatures(server);
                 snode::log::application("mcp.fixture").info() << "MCP fixture ready";
                 std::cout << "fixture direct stdout diagnostic" << std::endl;
                 const auto path = config->getOption("--fixture-reparse-config")->as<std::string>();

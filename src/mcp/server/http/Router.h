@@ -66,18 +66,35 @@ namespace mcp::server {
 
         /// Authentication required; emit 401 with the supplied nonempty, header-safe challenge.
         struct Unauthorized {
-            std::string wwwAuthenticate; ///< Owned WWW-Authenticate value; CR/LF and control bytes are rejected.
+            std::string wwwAuthenticate;        ///< Owned WWW-Authenticate value; CR/LF and control bytes are rejected.
+            std::optional<std::string> scope{}; ///< Optional scopes for this operation; encoded into the Bearer challenge.
         };
 
         struct Forbidden {}; ///< Deliberate 403 denial without an authentication challenge.
 
-        using Authorization = std::variant<Authorized, Unauthorized, Forbidden>; ///< Owned admission decision for one HTTP request.
+        /// A valid token lacks the scope needed for this operation; emit the RFC 6750 challenge.
+        struct InsufficientScope {
+            std::string scope; ///< Owned space-delimited required scopes, validated as header-safe.
+        };
+
+        using Authorization =
+            std::variant<Authorized, Unauthorized, Forbidden, InsufficientScope>; ///< Owned admission decision for one HTTP request.
 
         /// Legacy notification-channel policy; modern requests never use legacy sessions.
         enum class LegacySubscriptions { Disabled, Enabled };
 
+        /// OAuth protected-resource discovery; token validation remains the application's responsibility.
+        struct ProtectedResource {
+            std::string resource;                          ///< Canonical absolute resource URI; no fragment, userinfo or query.
+            std::vector<std::string> authorizationServers; ///< At least one HTTPS issuer URI.
+            std::vector<std::string> scopesSupported{};    ///< Optional advertised scope names.
+            std::optional<std::string> resourceName{};     ///< Optional user-facing name.
+            std::optional<std::string> documentation{};    ///< Optional documentation URI.
+        };
+
         /// Owned HTTP binding policy, copied into the router at construction.
         struct RouterOptions {
+            std::optional<ProtectedResource> protectedResource{};                   ///< Optional RFC 9728 metadata/challenge configuration.
             LegacySubscriptions legacySubscriptions = LegacySubscriptions::Enabled; ///< Enable bounded 2025 session/GET channels.
         };
 
@@ -90,6 +107,13 @@ namespace mcp::server {
             /// Attach on the event loop after init; seals registration; empty authorize permits anonymous access.
             /// Retain server and config until this router and its operations have drained.
             Router(Server& server, Config& config, Authorize authorize = {}, RouterOptions options = {});
+
+            /// Mount public discovery routes on the application's root router, outside the MCP endpoint.
+            /// Call on the event loop before listen; copies immutable metadata into route handlers.
+            const Router& mountMetadata(const express::Router& root) const;
+
+        private:
+            std::optional<ProtectedResource> protectedResource;
         };
 
     } // namespace http
