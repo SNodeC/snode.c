@@ -257,8 +257,8 @@ false
                         Json::array({mcp::server::detail::protocolVersion2026, mcp::server::detail::protocolVersion2025}),
                     "versions");
     test.expectTrue(response["result"]["capabilities"] ==
-                        Json({{"tools", Json::object()}, {"resources", Json::object()}, {"prompts", Json::object()}}),
-                    "capabilities derived without subscribe/listChanged");
+                        Json({{"tools", Json::object()}, {"resources", {{"subscribe", true}}}, {"prompts", Json::object()}}),
+                    "capabilities advertise subscriptions and omit listChanged");
     test.expectTrue(response["result"]["resultType"] == "complete" && response["result"]["ttlMs"] == 0 &&
                         response["result"]["cacheScope"] == "private",
                     "modern result/cache contract");

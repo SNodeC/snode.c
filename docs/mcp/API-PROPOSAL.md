@@ -696,19 +696,54 @@ This is the implemented registration function. Schemas, confinement, bounded sli
         auto headers = std::make_shared<Headers>(config.getHeaderRoot());
         const auto files = config.getSearchFiles();
         const auto bytes = config.getSearchBytes();
-        const Json find{{"type", "object"},
-                        {"properties",
-                         {{"query", {{"type", "string"}, {"minLength", 1}, {"maxLength", 128}}},
-                          {"limit", {{"type", "integer"}, {"minimum", 1}, {"maximum", 100}, {"default", 20}}}}},
-                        {"required", {"query"}},
-                        {"additionalProperties", false}};
-        const Json read{{"type", "object"},
-                        {"properties",
-                         {{"path", {{"type", "string"}, {"minLength", 1}, {"maxLength", 512}}},
-                          {"offset", {{"type", "integer"}, {"minimum", 0}, {"maximum", 67108864}}},
-                          {"bytes", {{"type", "integer"}, {"minimum", 1}, {"maximum", 65536}}}}},
-                        {"required", {"path"}},
-                        {"additionalProperties", false}};
+        const Json find = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+        },
+        "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+        }
+    },
+    "required": [
+        "query"
+    ],
+    "additionalProperties": false
+}
+)json");
+        const Json read = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+        },
+        "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+        },
+        "bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536
+        }
+    },
+    "required": [
+        "path"
+    ],
+    "additionalProperties": false
+}
+)json");
         server.tool({"api.find", "Literal search of confined installed headers; returns relative paths, lines and byte offsets.", find},
                     [headers, files, bytes](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
@@ -721,9 +756,21 @@ This is the implemented registration function. Schemas, confinement, bounded sli
                     });
         server.tool({"skeleton.preview",
                      "Preview an express application or router module. Does not write files.",
-                     {{"type", "object"},
-                      {"properties", {{"kind", {{"enum", {"application", "module"}}, {"default", "application"}}}}},
-                      {"additionalProperties", false}}},
+                     nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "properties": {
+        "kind": {
+            "enum": [
+                "application",
+                "module"
+            ],
+            "default": "application"
+        }
+    },
+    "additionalProperties": false
+}
+)json")},
                     [](const ::mcp::server::ToolCall& call, const auto& reply) {
                         const auto& args = call.arguments;
                         const bool module = args.value("kind", std::string("application")) == "module";
