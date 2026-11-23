@@ -93,6 +93,7 @@ namespace mcp::server::detail {
         std::optional<double> lastProgress;
         Json outputSchema;
         Json clientCapabilities;
+        Json serverInfo;
         std::map<std::string, InputResponse> inputResponses;
         std::optional<std::string> requestState;
         Json id;

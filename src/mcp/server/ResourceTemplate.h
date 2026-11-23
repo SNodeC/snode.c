@@ -67,6 +67,9 @@ namespace mcp::server {
         std::string mimeType{};                    ///< Owned optional MIME type.
         std::optional<std::string> title{};        ///< Owned optional display title.
         std::vector<TemplateVariable> variables{}; ///< Owned completers, validated transactionally at registration.
+        std::vector<Icon> icons{};                 ///< Owned optional icons; never fetched by the module.
+        Json meta{};                               ///< Owned optional metadata object; null omits the field.
+        Annotations annotations{};                 ///< Optional resource usage annotations.
     };
 
     /// Subclass retained by Server; construct and access only on the event-loop thread.

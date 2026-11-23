@@ -134,6 +134,36 @@ namespace mcp::server {
             requestState{}; ///< Opaque state echoed untrusted on retry; protect integrity if it affects access or business logic.
     };
 
+    /// Preferred icon background; no rendering or fetching is performed by the server.
+    enum class IconTheme { Light, Dark };
+
+    /// Owned display icon; consumers treat its URI/content as untrusted.
+    struct Icon {
+        std::string src;                       ///< Owned icon URI, normally HTTPS or data.
+        std::optional<std::string> mimeType{}; ///< Optional advisory MIME type.
+        std::vector<std::string> sizes{};      ///< Optional dimensions or "any".
+        std::optional<IconTheme> theme{};      ///< Optional preferred background.
+    };
+
+    /// Owned implementation metadata, copied by Server before transport attachment.
+    struct Implementation {
+        std::string name;                         ///< Owned programmatic name.
+        std::string version;                      ///< Owned implementation version.
+        std::optional<std::string> title{};       ///< Optional owned display title.
+        std::optional<std::string> description{}; ///< Optional human-readable description.
+        std::optional<std::string> websiteUrl{};  ///< Optional website URI.
+        std::vector<Icon> icons{};                ///< Optional display icons; never fetched.
+    };
+
+    /// Cache authorization boundary for modern cacheable results.
+    enum class CacheScope { Private, Public };
+
+    /// Owned modern cache hint; private and immediately stale by default.
+    struct CacheHints {
+        std::uint64_t ttlMs = 0;                ///< Freshness interval in milliseconds; never negative.
+        CacheScope scope = CacheScope::Private; ///< Public permits cross-authorization reuse; choose deliberately.
+    };
+
     /// Owned progress update; send only on the event-loop thread.
     struct Progress {
         double value;                ///< Monotonically increasing completed work.

@@ -66,6 +66,8 @@ namespace mcp::server {
         std::optional<Json> outputSchema{}; ///< Optional owned successful-output schema.
         std::optional<std::string> title{}; ///< Optional owned display title.
         Json annotations{};                 ///< Optional protocol tool annotations; null omits them.
+        std::vector<Icon> icons{};          ///< Owned optional icons; never fetched by the module.
+        Json meta{};                        ///< Owned optional metadata object; null omits the field.
     };
 
     /// Application subclass; the server retains shared ownership until its destruction.

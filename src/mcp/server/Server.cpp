@@ -285,9 +285,15 @@ namespace mcp::server {
                     value["resultType"] = "complete";
                 }
                 if (cachePolicy == CachePolicy::Private) {
-                    value["ttlMs"] = 0;
-                    value["cacheScope"] = "private";
+                    if (!value.contains("ttlMs")) {
+                        value["ttlMs"] = 0;
+                        value["cacheScope"] = "private";
+                    }
                 }
+            }
+
+            if (era == ProtocolEra::PerRequest20260728 && !serverInfo.is_null()) {
+                value["_meta"]["io.modelcontextprotocol/serverInfo"] = serverInfo;
             }
 
             done = true;
@@ -588,6 +594,7 @@ namespace mcp::server {
             std::move(output),
             timeout);
         reply->toolRequest = method == "tools/call";
+        reply->serverInfo = serverInfo;
         reply->principal = std::move(principal);
         if (era == ProtocolEra::Initialization20251125 || method != "subscriptions/listen") {
             const std::weak_ptr<Response> weak = reply;
@@ -951,10 +958,71 @@ namespace mcp::server {
 
     namespace {
 
+        Json encode(const Annotations& annotations) {
+            Json value = Json::object();
+            if (!annotations.audience.empty()) {
+                value["audience"] = Json::array();
+                for (const auto role : annotations.audience) {
+                    value["audience"].push_back(role == Role::User ? "user" : "assistant");
+                }
+            }
+
+            if (annotations.priority) {
+                if (!std::isfinite(*annotations.priority) || *annotations.priority < 0 || *annotations.priority > 1) {
+                    throw std::invalid_argument("annotation priority must be in [0,1]");
+                }
+
+                value["priority"] = *annotations.priority;
+            }
+
+            if (annotations.lastModified) {
+                value["lastModified"] = *annotations.lastModified;
+            }
+
+            return value;
+        }
+
+        void metadata(Json& value, const Json& meta) {
+            if (!meta.is_null()) {
+                if (!meta.is_object()) {
+                    throw std::invalid_argument("metadata must be an object");
+                }
+
+                value["_meta"] = meta;
+            }
+        }
+
+        void display(Json& value, const std::optional<std::string>& title, const std::vector<Icon>& icons) {
+            if (title) {
+                value["title"] = *title;
+            }
+
+            if (!icons.empty()) {
+                value["icons"] = Json::array();
+                for (const auto& icon : icons) {
+                    Json item{{"src", icon.src}};
+                    if (icon.mimeType) {
+                        item["mimeType"] = *icon.mimeType;
+                    }
+
+                    if (!icon.sizes.empty()) {
+                        item["sizes"] = icon.sizes;
+                    }
+
+                    if (icon.theme) {
+                        item["theme"] = *icon.theme == IconTheme::Light ? "light" : "dark";
+                    }
+
+                    value["icons"].push_back(std::move(item));
+                }
+            }
+        }
+
         Json encode(const ResourceContents& contents) {
             return std::visit(
                 [](const auto& resource) -> Json {
                     Json value{{"uri", resource.uri}, {"mimeType", resource.mimeType}};
+                    metadata(value, resource.meta);
                     if constexpr (std::is_same_v<std::decay_t<decltype(resource)>, TextResource>) {
                         value["text"] = resource.text;
                     } else {
@@ -981,6 +1049,7 @@ namespace mcp::server {
                                  {"name", block.name},
                                  {"description", block.description},
                                  {"mimeType", block.mimeType}};
+                        display(value, block.title, block.icons);
                         if (block.size) {
                             value["size"] = *block.size;
                         }
@@ -990,22 +1059,12 @@ namespace mcp::server {
                                  {"mimeType", block.mimeType}};
                     }
 
-                    const auto& annotations = block.annotations;
-                    if (!annotations.audience.empty()) {
-                        value["annotations"]["audience"] = Json::array();
-                        for (Role role : annotations.audience) {
-                            value["annotations"]["audience"].push_back(role == Role::User ? "user" : "assistant");
-                        }
+                    const auto annotations = encode(block.annotations);
+                    if (!annotations.empty()) {
+                        value["annotations"] = annotations;
                     }
 
-                    if (annotations.priority) {
-                        value["annotations"]["priority"] = *annotations.priority;
-                    }
-
-                    if (annotations.lastModified) {
-                        value["annotations"]["lastModified"] = *annotations.lastModified;
-                    }
-
+                    metadata(value, block.meta);
                     return value;
                 },
                 content);
@@ -1035,6 +1094,12 @@ namespace mcp::server {
         }
 
         return ToolResult({{"content", std::move(blocks)}});
+    }
+
+    ToolResult& ToolResult::setMeta(Json meta) {
+        metadata(value, meta);
+
+        return *this;
     }
 
     ToolResult ToolResult::toolError(std::string message) {
@@ -1083,6 +1148,17 @@ namespace mcp::server {
             for (const auto& message : result.messages) {
                 value["messages"].push_back(
                     {{"role", message.role == Role::User ? "user" : "assistant"}, {"content", encode(message.content)}});
+            }
+        }
+
+        if constexpr (!std::is_same_v<Result, ToolResult>) {
+            metadata(value, result.meta);
+        }
+
+        if constexpr (std::is_same_v<Result, ResourceResult>) {
+            if (result.cache && impl->era == ProtocolEra::PerRequest20260728) {
+                value["ttlMs"] = result.cache->ttlMs;
+                value["cacheScope"] = result.cache->scope == CacheScope::Public ? "public" : "private";
             }
         }
 
@@ -1243,8 +1319,12 @@ namespace mcp::server {
                          {"name", definition.name},
                          {"description", definition.description},
                          {"mimeType", definition.mimeType}};
-        if (definition.title) {
-            description["title"] = *definition.title;
+        display(description, definition.title, definition.icons);
+        metadata(description, definition.meta);
+
+        const auto annotations = encode(definition.annotations);
+        if (!annotations.empty()) {
+            description["annotations"] = annotations;
         }
 
         impl->add(RegistrationKind::ResourceTemplate, std::move(description), std::move(handler));
@@ -1293,8 +1373,21 @@ namespace mcp::server {
     RegistrationError::~RegistrationError() = default;
 
     Server::Server(std::string name, std::string version, std::string instructions)
+        : Server(Implementation{std::move(name), std::move(version)}, std::move(instructions)) {
+    }
+
+    Server::Server(Implementation implementation, std::string instructions)
         : impl(std::make_unique<Impl>()) {
-        impl->serverInfo = {{"name", std::move(name)}, {"version", std::move(version)}};
+        impl->serverInfo = {{"name", std::move(implementation.name)}, {"version", std::move(implementation.version)}};
+        display(impl->serverInfo, implementation.title, implementation.icons);
+        if (implementation.description) {
+            impl->serverInfo["description"] = *implementation.description;
+        }
+
+        if (implementation.websiteUrl) {
+            impl->serverInfo["websiteUrl"] = *implementation.websiteUrl;
+        }
+
         impl->instructions = std::move(instructions);
     }
 
@@ -1311,9 +1404,8 @@ namespace mcp::server {
             description["outputSchema"] = *definition.outputSchema;
         }
 
-        if (definition.title) {
-            description["title"] = *definition.title;
-        }
+        display(description, definition.title, definition.icons);
+        metadata(description, definition.meta);
 
         if (!definition.annotations.is_null()) {
             description["annotations"] = std::move(definition.annotations);
@@ -1332,8 +1424,16 @@ namespace mcp::server {
         const auto definition = handler ? handler->getDefinition() : ResourceDefinition{};
         Json description{
             {"uri", definition.uri}, {"name", definition.name}, {"description", definition.description}, {"mimeType", definition.mimeType}};
-        if (definition.title) {
-            description["title"] = *definition.title;
+        display(description, definition.title, definition.icons);
+        metadata(description, definition.meta);
+
+        const auto annotations = encode(definition.annotations);
+        if (!annotations.empty()) {
+            description["annotations"] = annotations;
+        }
+
+        if (definition.size) {
+            description["size"] = *definition.size;
         }
 
         impl->add(RegistrationKind::Resource, std::move(description), std::move(handler));
@@ -1352,11 +1452,13 @@ namespace mcp::server {
             description["arguments"].push_back({{"name", argument.name},
                                                 {"description", argument.description},
                                                 {"required", argument.requirement == Requirement::Required}});
+            if (argument.title) {
+                description["arguments"].back()["title"] = *argument.title;
+            }
         }
 
-        if (definition.title) {
-            description["title"] = *definition.title;
-        }
+        display(description, definition.title, definition.icons);
+        metadata(description, definition.meta);
 
         impl->add(RegistrationKind::Prompt, std::move(description), std::move(handler));
 

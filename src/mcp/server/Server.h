@@ -89,6 +89,9 @@ namespace mcp::server {
         /// Construct before attachment; owns its name and registration data.
         explicit Server(std::string name, std::string version, std::string instructions = {});
 
+        /// Own full implementation metadata before attachment; same event-loop/lifetime contract.
+        explicit Server(Implementation implementation, std::string instructions = {});
+
         /// Destroy only after attached transports have drained.
         ~Server();
 

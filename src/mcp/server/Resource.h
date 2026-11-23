@@ -58,11 +58,15 @@ namespace mcp::server {
 
     /// Owned resource metadata; the URI is the registration key.
     struct ResourceDefinition {
-        std::string uri;                    ///< Nonempty owned resource URI.
-        std::string name;                   ///< Nonempty owned protocol name.
-        std::string description{};          ///< Owned human-readable description.
-        std::string mimeType{};             ///< Owned resource MIME type.
-        std::optional<std::string> title{}; ///< Optional owned display title.
+        std::string uri;                     ///< Nonempty owned resource URI.
+        std::string name;                    ///< Nonempty owned protocol name.
+        std::string description{};           ///< Owned human-readable description.
+        std::string mimeType{};              ///< Owned resource MIME type.
+        std::optional<std::string> title{};  ///< Optional owned display title.
+        std::vector<Icon> icons{};           ///< Owned optional icons; never fetched by the module.
+        Json meta{};                         ///< Owned optional metadata object; null omits the field.
+        Annotations annotations{};           ///< Optional resource usage annotations.
+        std::optional<std::uint64_t> size{}; ///< Optional content size in bytes.
     };
 
     /// Application subclass; the server retains shared ownership until its destruction.
