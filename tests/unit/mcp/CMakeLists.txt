@@ -153,3 +153,8 @@ snodec_add_test(McpSubscriptionTest McpSubscriptionTest.cpp)
 target_include_directories(McpSubscriptionTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(McpSubscriptionTest PRIVATE snodec::mcp-server snodec-test-support)
 set_tests_properties(McpSubscriptionTest PROPERTIES LABELS "unit;mcp;subscriptions")
+
+snodec_add_test(McpInputTest McpInputTest.cpp)
+target_include_directories(McpInputTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpInputTest PRIVATE snodec::mcp-server snodec-test-support)
+set_tests_properties(McpInputTest PROPERTIES LABELS "unit;mcp;mrtr")

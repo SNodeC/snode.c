@@ -268,7 +268,8 @@ namespace mcp::server {
 
         if (!done) {
             std::string validationError;
-            if (!outputSchema.is_null() && value.value("isError", Json()) != true &&
+            if (value.value("resultType", Json()) != "input_required" && !outputSchema.is_null() &&
+                value.value("isError", Json()) != true &&
                 (!value.contains("structuredContent") ||
                  !Access::Registry::validate(outputSchema, value["structuredContent"], validationError))) {
                 value = {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Tool output failed its registered schema"}}}}};
@@ -280,7 +281,9 @@ namespace mcp::server {
             }
 
             if (era == ProtocolEra::PerRequest20260728) {
-                value["resultType"] = "complete";
+                if (!value.contains("resultType")) {
+                    value["resultType"] = "complete";
+                }
                 if (cachePolicy == CachePolicy::Private) {
                     value["ttlMs"] = 0;
                     value["cacheScope"] = "private";
@@ -292,6 +295,73 @@ namespace mcp::server {
             timer.cancel();
             observers.clear();
             output(Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", std::move(value)}}, true);
+        }
+
+        return completion;
+    }
+
+    Completion detail::Response::inputRequired(InputRequired input) {
+        Completion completion = Completion::Inactive;
+        if (!done) {
+            if (era != ProtocolEra::PerRequest20260728) {
+                completion = error(-32602, "input_required requires protocol 2026-07-28");
+            } else if (input.requests.size() > 16 || (input.requests.empty() && !input.requestState) ||
+                       (input.requestState && input.requestState->size() > 16384)) {
+                completion = error(-32603, "Invalid continuation size or missing input/state");
+            } else {
+                Json value{{"resultType", "input_required"}};
+                Json missing = Json::object();
+                bool valid = true;
+                const auto capability = clientCapabilities.value("elicitation", Json());
+                for (const auto& [key, request] : input.requests) {
+                    std::visit(
+                        [&](const auto& item) {
+                            using Input = std::decay_t<decltype(item)>;
+                            const bool form = std::is_same_v<Input, FormInput>;
+                            const auto mode = form ? "form" : "url";
+                            if (!capability.is_object() || (!capability.contains(mode) && !(form && capability.empty()))) {
+                                missing["elicitation"][mode] = Json::object();
+                            }
+
+                            Json params{{"mode", mode}, {"message", item.message}};
+                            valid = valid && !key.empty() && key.size() <= 256;
+                            if constexpr (std::is_same_v<Input, FormInput>) {
+                                valid = valid && item.requestedSchema.is_object() &&
+                                        item.requestedSchema.value("type", Json()) == "object" &&
+                                        item.requestedSchema.value("properties", Json()).is_object() &&
+                                        item.requestedSchema.dump().size() <= 16384;
+                                if (valid) {
+                                    for (const auto& property : item.requestedSchema["properties"]) {
+                                        const auto type = property.is_object() ? property.value("type", Json()) : Json();
+                                        valid = valid && (type == "string" || type == "number" || type == "integer" || type == "boolean" ||
+                                                          type == "array");
+                                    }
+                                }
+
+                                params["requestedSchema"] = item.requestedSchema;
+                            } else {
+                                valid = valid && (item.url.starts_with("https://") || item.url.starts_with("http://")) &&
+                                        item.url.size() <= 16384;
+                                params["url"] = item.url;
+                            }
+
+                            value["inputRequests"][key] = {{"method", "elicitation/create"}, {"params", std::move(params)}};
+                        },
+                        request);
+                }
+
+                if (!missing.empty()) {
+                    completion = error(-32021, "Missing required client capability", {{"requiredCapabilities", std::move(missing)}});
+                } else if (!valid) {
+                    completion = error(-32603, "Malformed elicitation request");
+                } else {
+                    if (input.requestState) {
+                        value["requestState"] = std::move(*input.requestState);
+                    }
+
+                    completion = result(std::move(value));
+                }
+            }
         }
 
         return completion;
@@ -539,6 +609,30 @@ namespace mcp::server {
                 const Json params = request.value("params", Json::object());
                 const Json meta = params.value("_meta", Json::object());
                 const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
+                reply->clientCapabilities = meta.is_object() ? meta.value(capabilitiesKey, Json::object()) : Json::object();
+                const Json retry = params.value("inputResponses", Json::object());
+                bool validRetry =
+                    retry.is_object() && retry.size() <= 16 &&
+                    (!params.contains("requestState") ||
+                     (params["requestState"].is_string() && params["requestState"].get_ref<const std::string&>().size() <= 16384));
+                for (auto input = retry.begin(); input != retry.end() && validRetry; ++input) {
+                    const auto action = input.value().is_object() ? input.value().value("action", Json()) : Json();
+                    const auto content = input.value().is_object() ? input.value().value("content", Json()) : Json();
+                    validRetry =
+                        (action == "accept" || action == "decline" || action == "cancel") && (content.is_null() || content.is_object());
+                    if (validRetry) {
+                        reply->inputResponses.emplace(input.key(),
+                                                      InputResponse{action == "accept"    ? ElicitationAction::Accept
+                                                                    : action == "decline" ? ElicitationAction::Decline
+                                                                                          : ElicitationAction::Cancel,
+                                                                    content});
+                    }
+                }
+
+                if (validRetry && params.contains("requestState")) {
+                    reply->requestState = params["requestState"].get<std::string>();
+                }
+
                 const Json client = params.value("clientInfo", Json());
                 const Json token = meta.is_object() ? meta.value("progressToken", Json()) : Json();
                 const bool validToken =
@@ -553,6 +647,8 @@ namespace mcp::server {
                 if (era == ProtocolEra::PerRequest20260728 &&
                     (!meta.is_object() || !version.is_string() || !meta.contains(capabilitiesKey) || !meta[capabilitiesKey].is_object())) {
                     reply->error(-32602, "Missing or malformed per-request metadata");
+                } else if (!validRetry) {
+                    reply->error(-32602, "Malformed retry input or state");
                 } else if (!validToken) {
                     reply->error(-32602, "Progress token must be a string or signed integer");
                 } else if (era == ProtocolEra::PerRequest20260728 && version != protocolVersion2026) {
@@ -994,6 +1090,13 @@ namespace mcp::server {
     }
 
     template <class Result>
+    Completion Reply<Result>::inputRequired(InputRequired input)
+        requires(!std::is_same_v<Result, CompletionResult>)
+    {
+        return impl->inputRequired(std::move(input));
+    }
+
+    template <class Result>
     Completion Reply<Result>::error(ErrorCode code, std::string message, Json data) {
         return impl->error(static_cast<int>(code), message, std::move(data));
     }
@@ -1034,6 +1137,14 @@ namespace mcp::server {
 
     const std::optional<ProgressToken>& RequestContext::getProgressToken() const {
         return impl->progressToken;
+    }
+
+    const std::map<std::string, InputResponse>& RequestContext::getInputResponses() const {
+        return impl->inputResponses;
+    }
+
+    const std::optional<std::string>& RequestContext::getRequestState() const {
+        return impl->requestState;
     }
 
     void RequestContext::onCancel(OnCancel callback) const {

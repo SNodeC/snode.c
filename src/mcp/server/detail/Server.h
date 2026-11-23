@@ -77,6 +77,7 @@ namespace mcp::server::detail {
         ~Response();
 
         Completion result(Json value);
+        Completion inputRequired(InputRequired input);
         Completion error(int code, const std::string& message, Json data = nullptr);
         void notify(const std::string& method, Json params);
         void cancel(CancelReason reason = CancelReason::Client);
@@ -91,6 +92,9 @@ namespace mcp::server::detail {
         core::timer::Timer timer;
         std::optional<double> lastProgress;
         Json outputSchema;
+        Json clientCapabilities;
+        std::map<std::string, InputResponse> inputResponses;
+        std::optional<std::string> requestState;
         Json id;
         ProtocolEra era;
         CachePolicy cachePolicy;

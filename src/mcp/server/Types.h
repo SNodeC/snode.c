@@ -46,6 +46,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -103,6 +104,34 @@ namespace mcp::server {
         std::vector<Role> audience;              ///< Empty omits the audience annotation.
         std::optional<double> priority;          ///< Optional priority in the protocol's [0,1] range.
         std::optional<std::string> lastModified; ///< Optional ISO 8601 timestamp.
+    };
+
+    /// User's explicit elicitation disposition; never an authorization assertion.
+    enum class ElicitationAction { Accept, Decline, Cancel };
+
+    /// Owned retry input; content must be validated by the application against the requested form.
+    struct InputResponse {
+        ElicitationAction action; ///< Explicit client choice, delivered on the event loop.
+        Json content{};           ///< Owned untrusted form data; null when absent.
+    };
+
+    /// Form elicitation for non-sensitive data only; raw schema uses MCP's flat primitive dialect.
+    struct FormInput {
+        std::string message;  ///< Owned user-facing explanation; never request credentials here.
+        Json requestedSchema; ///< Owned flat object schema as specified by elicitation/create.
+    };
+
+    /// URL elicitation; application must bind completion to the verified initiating principal.
+    struct UrlInput {
+        std::string message; ///< Owned user-facing explanation.
+        std::string url;     ///< Owned absolute HTTP(S) URL; never fetched by this module.
+    };
+
+    /// Owned multi-round-trip continuation; requests are uniquely keyed, at most 16 per result.
+    struct InputRequired {
+        std::map<std::string, std::variant<FormInput, UrlInput>> requests; ///< Owned elicitation requests.
+        std::optional<std::string>
+            requestState{}; ///< Opaque state echoed untrusted on retry; protect integrity if it affects access or business logic.
     };
 
     /// Owned progress update; send only on the event-loop thread.

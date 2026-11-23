@@ -48,6 +48,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -71,6 +72,10 @@ namespace mcp::server {
         Completion result(Result result);
         /// Complete once with an application error on the event-loop thread.
         Completion error(ErrorCode code, std::string message, Json data = nullptr);
+        /// Complete once with a modern continuation; checks per-request client capabilities.
+        /// Legacy requests receive InvalidParams; the original request ends and retries are independent.
+        Completion inputRequired(InputRequired input)
+            requires(!std::is_same_v<Result, CompletionResult>);
         /// Send progress on the event loop with the original typed token; no token is a no-op.
         void progress(Progress progress);
 
