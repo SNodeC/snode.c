@@ -56,6 +56,7 @@ namespace mcp::server::detail {
 
     enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
     enum class CachePolicy { None, Private };
+    enum class SubscriptionClosure { Complete, Cancel };
     inline constexpr const char* protocolVersion2026 = "2026-07-28";
     inline constexpr const char* protocolVersion2025 = "2025-11-25";
     inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
@@ -102,6 +103,7 @@ namespace mcp::server::detail {
         bool toolRequest = false;
         bool done = false;
         bool subscription = false;
+        SubscriptionClosure closure = SubscriptionClosure::Complete;
         Json notifications;
         Output output;
         utils::Timeval deadline;
@@ -164,10 +166,13 @@ namespace mcp::server {
         };
 
         Json capabilities() const;
+        const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
         Json serverInfo;
         std::string instructions;
         bool sealed = false;
+        mutable utils::Timeval completionReset;
+        mutable std::size_t completionCount = 0;
         std::map<std::string, Entry> entries;
         std::vector<std::string> templates;
         mutable std::vector<std::weak_ptr<detail::Response>> subscriptions;

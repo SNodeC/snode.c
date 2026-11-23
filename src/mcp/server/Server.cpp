@@ -48,6 +48,7 @@
 #include "mcp/server/Results.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
+#include "mcp/server/detail/UriTemplate.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,6 +57,7 @@
 #include <compare>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <nlohmann/detail/iterators/iter_impl.hpp>
@@ -284,7 +286,7 @@ namespace mcp::server {
                 if (!value.contains("resultType")) {
                     value["resultType"] = "complete";
                 }
-                if (cachePolicy == CachePolicy::Private) {
+                if (cachePolicy == CachePolicy::Private && value["resultType"] == "complete") {
                     if (!value.contains("ttlMs")) {
                         value["ttlMs"] = 0;
                         value["cacheScope"] = "private";
@@ -325,7 +327,8 @@ namespace mcp::server {
                             using Input = std::decay_t<decltype(item)>;
                             const bool form = std::is_same_v<Input, FormInput>;
                             const auto mode = form ? "form" : "url";
-                            if (!capability.is_object() || (!capability.contains(mode) && !(form && capability.empty()))) {
+                            if (!capability.is_object() ||
+                                (!(capability.contains(mode) && capability[mode].is_object()) && !(form && capability.empty()))) {
                                 missing["elicitation"][mode] = Json::object();
                             }
 
@@ -441,6 +444,8 @@ namespace mcp::server {
                 } else {
                     error(-32603, "Request deadline exceeded");
                 }
+            } else if (reason == CancelReason::Shutdown && subscription && closure == SubscriptionClosure::Complete) {
+                result({{"_meta", {{subscriptionKey, id}}}});
             } else {
                 if (reason == CancelReason::Shutdown && subscription) {
                     notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
@@ -576,6 +581,24 @@ namespace mcp::server {
         return result;
     }
 
+    const Server::Impl::Entry* Server::Impl::resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const {
+        const Entry* result = nullptr;
+        const auto exact = entries.find(std::to_string(static_cast<int>(Kind::Resource)) + ":" + uri);
+        if (exact != entries.end()) {
+            result = &exact->second;
+        } else {
+            for (auto candidate = templates.begin(); candidate != templates.end() && result == nullptr; ++candidate) {
+                const auto& entry = entries.at(*candidate);
+                if (auto matched = entry.matcher->match(uri)) {
+                    result = &entry;
+                    variables = std::move(*matched);
+                }
+            }
+        }
+
+        return result;
+    }
+
     std::shared_ptr<detail::Access::Response> Server::Impl::dispatch(const Json& request,
                                                                      ProtocolEra era,
                                                                      detail::Access::Response::Output output,
@@ -595,6 +618,7 @@ namespace mcp::server {
             timeout);
         reply->toolRequest = method == "tools/call";
         reply->serverInfo = serverInfo;
+        reply->closure = channel && era == ProtocolEra::PerRequest20260728 ? SubscriptionClosure::Cancel : SubscriptionClosure::Complete;
         reply->principal = std::move(principal);
         if (era == ProtocolEra::Initialization20251125 || method != "subscriptions/listen") {
             const std::weak_ptr<Response> weak = reply;
@@ -620,6 +644,7 @@ namespace mcp::server {
                 const Json retry = params.value("inputResponses", Json::object());
                 bool validRetry =
                     retry.is_object() && retry.size() <= 16 &&
+                    (era == ProtocolEra::PerRequest20260728 || (!params.contains("inputResponses") && !params.contains("requestState"))) &&
                     (!params.contains("requestState") ||
                      (params["requestState"].is_string() && params["requestState"].get_ref<const std::string&>().size() <= 16384));
                 for (auto input = retry.begin(); input != retry.end() && validRetry; ++input) {
@@ -727,6 +752,7 @@ namespace mcp::server {
                 } else if (era == ProtocolEra::Initialization20251125 &&
                            (method == "resources/subscribe" || method == "resources/unsubscribe")) {
                     const auto uri = params.value("uri", Json());
+                    std::map<std::string, std::string> variables;
                     if (!channel || !channel->active) {
                         reply->error(-32601, "Transport has no legacy notification channel");
                     } else if (!uri.is_string() || uri.get_ref<const std::string&>().size() > 16384) {
@@ -734,6 +760,8 @@ namespace mcp::server {
                     } else if (method == "resources/unsubscribe") {
                         channel->resources.erase(uri.get<std::string>());
                         reply->result(Json::object());
+                    } else if (!resolveResource(uri.get<std::string>(), variables)) {
+                        reply->error(-32002, "Unknown resource subscription URI");
                     } else if (channel->resources.size() >= 128 && !channel->resources.contains(uri.get<std::string>())) {
                         reply->error(-32602, "128-resource subscription limit exceeded");
                     } else {
@@ -755,54 +783,75 @@ namespace mcp::server {
                         }
                     }
                 } else if (method == "completion/complete") {
-                    const Json reference = params.value("ref", Json());
-                    const Json argument = params.value("argument", Json());
-                    const Json context = params.value("context", Json::object());
-                    const Json arguments = context.is_object() ? context.value("arguments", Json::object()) : Json();
-                    if (!reference.is_object() || !argument.is_object() || !argument.value("name", Json()).is_string() ||
-                        !argument.value("value", Json()).is_string() || !arguments.is_object() ||
-                        !std::all_of(arguments.begin(), arguments.end(), [](const Json& item) {
-                            return item.is_string();
-                        })) {
-                        reply->error(-32602, "Malformed completion parameters");
+                    const auto now = utils::Timeval::currentTime();
+                    if (completionReset < now) {
+                        completionReset = now + utils::Timeval(1);
+                        completionCount = 0;
+                    }
+
+                    if (!capabilities().contains("completions")) {
+                        reply->error(-32601, "Completion capability not supported");
+                    } else if (++completionCount > 128) {
+                        reply->error(-32000, "Completion rate limit exceeded");
                     } else {
-                        CompletionHandler complete;
-                        bool found = false;
-                        const auto referenceType = reference.value("type", Json());
-                        const auto identifier = reference.value(referenceType == "ref/prompt" ? "name" : "uri", Json());
-                        if (identifier.is_string() && (referenceType == "ref/prompt" || referenceType == "ref/resource")) {
-                            const auto kind = referenceType == "ref/prompt" ? Kind::Prompt : Kind::ResourceTemplate;
-                            const auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + identifier.get<std::string>());
-                            if (entry != entries.end()) {
-                                found = true;
-                                if (kind == Kind::Prompt) {
-                                    for (const auto& candidate :
-                                         std::get<std::shared_ptr<Prompt>>(entry->second.handler)->getDefinition().arguments) {
-                                        if (candidate.name == argument["name"].get<std::string>()) {
-                                            complete = candidate.complete;
-                                        }
+                        const Json reference = params.value("ref", Json());
+                        const Json argument = params.value("argument", Json());
+                        const Json context = params.value("context", Json::object());
+                        const Json arguments = context.is_object() ? context.value("arguments", Json::object()) : Json();
+                        if (!reference.is_object() || !argument.is_object() || !argument.value("name", Json()).is_string() ||
+                            !argument.value("value", Json()).is_string() || !arguments.is_object() ||
+                            !std::all_of(arguments.begin(), arguments.end(), [](const Json& item) {
+                                return item.is_string();
+                            })) {
+                            reply->error(-32602, "Malformed completion parameters");
+                        } else {
+                            CompletionHandler complete;
+                            bool found = false;
+                            const auto referenceType = reference.value("type", Json());
+                            const auto identifier = reference.value(referenceType == "ref/prompt" ? "name" : "uri", Json());
+                            if (identifier.is_string() && (referenceType == "ref/prompt" || referenceType == "ref/resource")) {
+                                const auto kind = referenceType == "ref/prompt" ? Kind::Prompt : Kind::ResourceTemplate;
+                                auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + identifier.get<std::string>());
+                                if (entry == entries.end() && kind == Kind::ResourceTemplate) {
+                                    std::map<std::string, std::string> variables;
+                                    const auto* matched = resolveResource(identifier.get<std::string>(), variables);
+                                    if (matched && matched->kind == Kind::ResourceTemplate) {
+                                        entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" +
+                                                             matched->description["uriTemplate"].get<std::string>());
                                     }
-                                } else {
-                                    for (const auto& candidate :
-                                         std::get<std::shared_ptr<ResourceTemplate>>(entry->second.handler)->getDefinition().variables) {
-                                        if (candidate.name == argument["name"].get<std::string>()) {
-                                            complete = candidate.complete;
+                                }
+                                if (entry != entries.end()) {
+                                    found = true;
+                                    if (kind == Kind::Prompt) {
+                                        for (const auto& candidate :
+                                             std::get<std::shared_ptr<Prompt>>(entry->second.handler)->getDefinition().arguments) {
+                                            if (candidate.name == argument["name"].get<std::string>()) {
+                                                complete = candidate.complete;
+                                            }
+                                        }
+                                    } else {
+                                        for (const auto& candidate : std::get<std::shared_ptr<ResourceTemplate>>(entry->second.handler)
+                                                                         ->getDefinition()
+                                                                         .variables) {
+                                            if (candidate.name == argument["name"].get<std::string>()) {
+                                                complete = candidate.complete;
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        if (!found) {
-                            reply->error(-32602, "Unknown completion reference");
-                        } else if (complete) {
-                            complete(CompletionRequest{Access::context(reply),
-                                                       argument["name"],
-                                                       argument["value"],
-                                                       arguments.get<std::map<std::string, std::string>>()},
-                                     Access::wrap<CompletionResult>(reply));
-                        } else {
-                            Access::wrap<CompletionResult>(reply)->result(CompletionResult{});
+                            if (!found) {
+                                reply->error(-32602, "Unknown completion reference");
+                            } else if (complete) {
+                                complete(CompletionRequest{Access::context(reply),
+                                                           argument["name"],
+                                                           argument["value"],
+                                                           arguments.get<std::map<std::string, std::string>>()},
+                                         Access::wrap<CompletionResult>(reply));
+                            } else {
+                                Access::wrap<CompletionResult>(reply)->result(CompletionResult{});
+                            }
                         }
                     }
                 } else if (method == "resources/templates/list") {
@@ -836,56 +885,48 @@ namespace mcp::server {
                     if (!params.contains(argument) || !params[argument].is_string()) {
                         reply->error(-32602, "Missing name or uri");
                     } else {
-                        auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + params[argument].get<std::string>());
+                        const auto exact = entries.find(std::to_string(static_cast<int>(kind)) + ":" + params[argument].get<std::string>());
                         std::map<std::string, std::string> variables;
-                        if (kind == Kind::Resource && entry == entries.end()) {
-                            for (auto candidate = templates.begin(); candidate != templates.end() && entry == entries.end(); ++candidate) {
-                                const auto found = entries.find(*candidate);
-                                if (auto matched = found->second.matcher->match(params["uri"].get<std::string>())) {
-                                    entry = found;
-                                    variables = std::move(*matched);
-                                }
-                            }
-                        }
+                        const Entry* entry = kind == Kind::Resource   ? resolveResource(params["uri"].get<std::string>(), variables)
+                                             : exact == entries.end() ? nullptr
+                                                                      : &exact->second;
                         const Json arguments = params.value("arguments", Json::object());
                         std::string error;
-                        if (entry == entries.end() || !arguments.is_object() ||
+                        if (entry == nullptr || !arguments.is_object() ||
                             (kind == Kind::Prompt && !std::all_of(arguments.begin(), arguments.end(), [](const Json& value) {
                                  return value.is_string();
                              }))) {
-                            reply->error(era == ProtocolEra::Initialization20251125 && kind == Kind::Resource && entry == entries.end()
-                                             ? -32002
-                                             : -32602,
+                            reply->error(era == ProtocolEra::Initialization20251125 && kind == Kind::Resource && entry == nullptr ? -32002
+                                                                                                                                  : -32602,
                                          "Unknown registration or malformed arguments");
-                        } else if (kind == Kind::Tool && !validate(entry->second.description["inputSchema"], arguments, error)) {
+                        } else if (kind == Kind::Tool && !validate(entry->description["inputSchema"], arguments, error)) {
                             reply->result({{"isError", true}, {"content", {{{"type", "text"}, {"text", error}}}}});
                         } else {
                             if (kind == Kind::Prompt) {
-                                for (const auto& argument : entry->second.description["arguments"]) {
+                                for (const auto& argument : entry->description["arguments"]) {
                                     if (argument.value("required", false) && !arguments.contains(argument["name"].get<std::string>())) {
                                         reply->error(-32602, "Missing required prompt argument: " + argument["name"].get<std::string>());
                                     }
                                 }
                             }
 
-                            if (entry->second.description.contains("outputSchema")) {
-                                reply->outputSchema = entry->second.description["outputSchema"];
+                            if (entry->description.contains("outputSchema")) {
+                                reply->outputSchema = entry->description["outputSchema"];
                             }
 
                             if (kind == Kind::Tool) {
-                                std::get<std::shared_ptr<Tool>>(entry->second.handler)
+                                std::get<std::shared_ptr<Tool>>(entry->handler)
                                     ->call(ToolCall{Access::context(reply), arguments}, Access::wrap<ToolResult>(reply));
                             } else if (kind == Kind::Resource) {
                                 const ResourceRead input{Access::context(reply), params["uri"], std::move(variables)};
-                                if (entry->second.kind == Kind::ResourceTemplate) {
-                                    std::get<std::shared_ptr<ResourceTemplate>>(entry->second.handler)
+                                if (entry->kind == Kind::ResourceTemplate) {
+                                    std::get<std::shared_ptr<ResourceTemplate>>(entry->handler)
                                         ->read(input, Access::wrap<ResourceResult>(reply));
                                 } else {
-                                    std::get<std::shared_ptr<Resource>>(entry->second.handler)
-                                        ->read(input, Access::wrap<ResourceResult>(reply));
+                                    std::get<std::shared_ptr<Resource>>(entry->handler)->read(input, Access::wrap<ResourceResult>(reply));
                                 }
                             } else if (!reply->done) {
-                                std::get<std::shared_ptr<Prompt>>(entry->second.handler)
+                                std::get<std::shared_ptr<Prompt>>(entry->handler)
                                     ->get(PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
                                           Access::wrap<PromptResult>(reply));
                             }
@@ -950,7 +991,7 @@ namespace mcp::server {
         int status = 200;
         if (message.contains("error")) {
             const int code = message["error"]["code"].get<int>();
-            status = code == -32601 ? 404 : code == -32603 ? 500 : 400;
+            status = code == -32000 ? 429 : code == -32601 ? 404 : code == -32603 ? 500 : 400;
         }
 
         return status;
@@ -1016,6 +1057,25 @@ namespace mcp::server {
                     value["icons"].push_back(std::move(item));
                 }
             }
+        }
+
+        void registrationMetadata(Json& value, const Json& meta, RegistrationKind kind, const std::string& identifier) {
+            try {
+                metadata(value, meta);
+            } catch (const std::invalid_argument& error) {
+                throw RegistrationError(kind, identifier, "_meta", error.what());
+            }
+        }
+
+        Json registrationAnnotations(const Annotations& annotations, RegistrationKind kind, const std::string& identifier) {
+            Json value;
+            try {
+                value = encode(annotations);
+            } catch (const std::invalid_argument& error) {
+                throw RegistrationError(kind, identifier, "annotations", error.what());
+            }
+
+            return value;
         }
 
         Json encode(const ResourceContents& contents) {
@@ -1320,9 +1380,10 @@ namespace mcp::server {
                          {"description", definition.description},
                          {"mimeType", definition.mimeType}};
         display(description, definition.title, definition.icons);
-        metadata(description, definition.meta);
+        registrationMetadata(description, definition.meta, RegistrationKind::ResourceTemplate, definition.uriTemplate);
 
-        const auto annotations = encode(definition.annotations);
+        const auto annotations =
+            registrationAnnotations(definition.annotations, RegistrationKind::ResourceTemplate, definition.uriTemplate);
         if (!annotations.empty()) {
             description["annotations"] = annotations;
         }
@@ -1405,7 +1466,7 @@ namespace mcp::server {
         }
 
         display(description, definition.title, definition.icons);
-        metadata(description, definition.meta);
+        registrationMetadata(description, definition.meta, RegistrationKind::Tool, definition.name);
 
         if (!definition.annotations.is_null()) {
             description["annotations"] = std::move(definition.annotations);
@@ -1425,9 +1486,9 @@ namespace mcp::server {
         Json description{
             {"uri", definition.uri}, {"name", definition.name}, {"description", definition.description}, {"mimeType", definition.mimeType}};
         display(description, definition.title, definition.icons);
-        metadata(description, definition.meta);
+        registrationMetadata(description, definition.meta, RegistrationKind::Resource, definition.uri);
 
-        const auto annotations = encode(definition.annotations);
+        const auto annotations = registrationAnnotations(definition.annotations, RegistrationKind::Resource, definition.uri);
         if (!annotations.empty()) {
             description["annotations"] = annotations;
         }
@@ -1458,7 +1519,7 @@ namespace mcp::server {
         }
 
         display(description, definition.title, definition.icons);
-        metadata(description, definition.meta);
+        registrationMetadata(description, definition.meta, RegistrationKind::Prompt, definition.name);
 
         impl->add(RegistrationKind::Prompt, std::move(description), std::move(handler));
 

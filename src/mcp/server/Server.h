@@ -59,6 +59,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server {
+    struct Implementation;
 
     namespace detail {
         class Access; ///< Module-private registry access.

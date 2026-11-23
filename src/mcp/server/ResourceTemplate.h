@@ -42,16 +42,21 @@
 #ifndef MCP_SERVER_RESOURCETEMPLATE_H
 #define MCP_SERVER_RESOURCETEMPLATE_H
 
-#include "mcp/server/Resource.h"
+#include "mcp/server/Reply.h"
+#include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
+#include <optional>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server {
+
+    struct ResourceRead; ///< Borrowed request declared in Request.h.
 
     /// Owned variable declaration; must name a variable present in the URI template.
     struct TemplateVariable {

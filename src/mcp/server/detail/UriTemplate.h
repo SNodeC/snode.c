@@ -46,7 +46,6 @@
 
 #include <map>
 #include <optional>
-#include <regex>
 #include <string>
 #include <vector>
 
@@ -62,7 +61,8 @@ namespace mcp::server::detail {
         const std::vector<std::string>& getVariables() const;
 
     private:
-        std::regex expression;
+        std::vector<std::string> literals;
+        std::vector<bool> reserved;
         std::vector<std::string> variables;
     };
 

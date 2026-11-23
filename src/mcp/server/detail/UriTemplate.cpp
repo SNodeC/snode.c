@@ -45,15 +45,18 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server::detail {
 
     UriTemplate::UriTemplate(const std::string& text) {
-        std::string pattern = "^";
+        std::string literal;
         bool previousVariable = false;
         if (text.empty() || text.size() > 4096) {
             throw std::invalid_argument("template size must be 1..4096 bytes");
@@ -63,8 +66,8 @@ namespace mcp::server::detail {
             const char c = text[position];
             if (c == '{') {
                 const auto end = text.find('}', position + 1);
-                const bool reserved = position + 1 < text.size() && text[position + 1] == '+';
-                const auto start = position + (reserved ? 2 : 1);
+                const bool expansion = position + 1 < text.size() && text[position + 1] == '+';
+                const auto start = position + (expansion ? 2 : 1);
                 const auto name = text.substr(start, end == std::string::npos ? 0 : end - start);
                 if (end == std::string::npos || previousVariable || variables.size() >= 16 || name.empty() ||
                     !std::all_of(name.begin(), name.end(), [](unsigned char byte) {
@@ -74,7 +77,9 @@ namespace mcp::server::detail {
                 }
 
                 variables.push_back(name);
-                pattern += reserved ? "(.*?)" : "([^/?#]*?)";
+                literals.push_back(std::move(literal));
+                literal.clear();
+                reserved.push_back(expansion);
                 previousVariable = true;
                 position = end;
             } else {
@@ -82,16 +87,12 @@ namespace mcp::server::detail {
                     throw std::invalid_argument("invalid URI template literal");
                 }
 
-                if (std::string(".\\^$|()[]*+?{}").find(c) != std::string::npos) {
-                    pattern += '\\';
-                }
-
-                pattern += c;
+                literal += c;
                 previousVariable = false;
             }
         }
 
-        expression = std::regex(pattern + "$", std::regex::ECMAScript);
+        literals.push_back(std::move(literal));
     }
 
     const std::vector<std::string>& UriTemplate::getVariables() const {
@@ -100,23 +101,29 @@ namespace mcp::server::detail {
 
     std::optional<std::map<std::string, std::string>> UriTemplate::match(const std::string& uri) const {
         std::optional<std::map<std::string, std::string>> result;
-        std::smatch captures;
-        if (uri.size() <= 16384 && std::regex_match(uri, captures, expression)) {
+        if (uri.size() <= 16384 && uri.starts_with(literals.front())) {
             std::map<std::string, std::string> values;
             bool valid = true;
+            std::size_t position = literals.front().size();
             for (std::size_t i = 0; i < variables.size() && valid; ++i) {
-                const auto raw = captures[i + 1].str();
+                const auto& following = literals[i + 1];
+                const auto end = i + 1 == variables.size() ? (uri.ends_with(following) ? uri.size() - following.size() : std::string::npos)
+                                                           : uri.find(following, position);
+                valid = end != std::string::npos && end >= position;
                 std::string decoded;
-                for (std::size_t j = 0; j < raw.size() && valid; ++j) {
-                    if (raw[j] == '%') {
-                        valid = j + 2 < raw.size() && std::isxdigit(static_cast<unsigned char>(raw[j + 1])) &&
-                                std::isxdigit(static_cast<unsigned char>(raw[j + 2]));
+                for (std::size_t j = position; valid && j < end; ++j) {
+                    const auto c = static_cast<unsigned char>(uri[j]);
+                    if (c == '%') {
+                        valid = j + 2 < end && std::isxdigit(static_cast<unsigned char>(uri[j + 1])) &&
+                                std::isxdigit(static_cast<unsigned char>(uri[j + 2]));
                         if (valid) {
-                            decoded += static_cast<char>(std::stoi(raw.substr(j + 1, 2), nullptr, 16));
+                            decoded += static_cast<char>(std::stoi(uri.substr(j + 1, 2), nullptr, 16));
                             j += 2;
                         }
                     } else {
-                        decoded += raw[j];
+                        valid = (c < 128 && std::isalnum(c)) || std::string("-._~").find(static_cast<char>(c)) != std::string::npos ||
+                                (reserved[i] && std::string(":/?#[]@!$&'()*+,;=").find(static_cast<char>(c)) != std::string::npos);
+                        decoded += static_cast<char>(c);
                     }
                 }
 
@@ -125,13 +132,14 @@ namespace mcp::server::detail {
                         static_cast<void>(nlohmann::json(decoded).dump());
                         valid = !values.contains(variables[i]) || values.at(variables[i]) == decoded;
                         values[variables[i]] = std::move(decoded);
+                        position = end + following.size();
                     } catch (const nlohmann::json::exception&) {
                         valid = false;
                     }
                 }
             }
 
-            if (valid) {
+            if (valid && position == uri.size()) {
                 result = std::move(values);
             }
         }

@@ -11,7 +11,7 @@ Failures:
 - `pattern.json`: `pattern with Unicode property escape`.
 - `patternProperties.json`: `patternProperties with Unicode property escape`.
 
-The three compilation failures report `Invalid range in '{}' in regular expression`. No tests or expectations were changed to make the dependency pass.
+These four cases have no optional tags in the suite and are compatible with 2020-12 (the dynamic-reference case is explicitly `=2020`). jsoncons defaults to the 2020-12 dialect. The three compilation failures report `Invalid range in '{}' in regular expression`. No tests or expectations were changed to make the dependency pass.
 
 The owner gate therefore excludes Step 5: no jsoncons production dependency, no substitute dependency and no partial new validator. **The existing restricted validator remains a known conformance limitation.** Completing the other server features does not establish full JSON Schema or complete MCP conformance.
 

@@ -56,6 +56,8 @@
 #include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <optional>
+#include <set>
 #include <string>
 #include <utility>
 

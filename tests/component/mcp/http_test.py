@@ -310,7 +310,7 @@ def run():
             while data:
                 remainder += data
                 data = subscription.recv(8192)
-            assert b"notifications/cancelled" in remainder, (first, remainder)
+            assert b'"resultType":"complete"' in remainder and b"notifications/cancelled" not in remainder, (first, remainder)
             subscription.close()
             server.process.wait(timeout=4)
         finally:

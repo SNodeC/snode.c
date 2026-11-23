@@ -44,11 +44,13 @@
 
 #include "express/Router.h"
 #include "mcp/server/Types.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -64,7 +66,7 @@ namespace mcp::server {
             std::optional<Principal> principal; ///< Owned authenticated identity, copied into the request context.
         };
 
-        /// Authentication required; emit 401 with the supplied nonempty, header-safe challenge.
+        /// Authentication required; emit 401 with a header-safe challenge or configured resource metadata.
         struct Unauthorized {
             std::string wwwAuthenticate;        ///< Owned WWW-Authenticate value; CR/LF and control bytes are rejected.
             std::optional<std::string> scope{}; ///< Optional scopes for this operation; encoded into the Bearer challenge.

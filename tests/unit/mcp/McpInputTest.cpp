@@ -95,6 +95,10 @@ int main(int argc, char* argv[]) {
                     "missing mode capability rejected");
     test.expectTrue(dispatch(detail::ProtocolEra::Initialization20251125, Json::object())["error"]["code"] == -32602,
                     "legacy continuation explicitly unsupported");
+    test.expectTrue(dispatch(detail::ProtocolEra::Initialization20251125,
+                             {{"inputResponses", {{"choice", {{"action", "accept"}}}}}, {"requestState", "injected"}})["error"]["code"] ==
+                        -32602,
+                    "legacy requests cannot inject modern continuation fields");
     core::SNodeC::free();
 
     return test.processResult();

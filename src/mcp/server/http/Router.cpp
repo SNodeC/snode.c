@@ -54,10 +54,6 @@
 #include "utils/base64.h"
 #include "web/http/http_utils.h"
 
-namespace core {
-    struct ShutdownContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
@@ -66,18 +62,24 @@ namespace core {
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
-#include <map>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <regex>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <sys/random.h>
+#include <sys/types.h>
 #include <utility>
 #include <variant>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace core {
+    struct ShutdownContext;
+}
 
 namespace mcp::server::http {
 

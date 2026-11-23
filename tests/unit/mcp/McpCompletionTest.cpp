@@ -67,11 +67,11 @@ int main(int argc, char* argv[]) {
         reply->result(ResourceResult{});
     });
     for (const auto era : {detail::ProtocolEra::Initialization20251125, detail::ProtocolEra::PerRequest20260728}) {
-        for (const std::string type : {"ref/prompt", "ref/resource"}) {
-            Json params{
-                {"ref", {{"type", type}, {type == "ref/prompt" ? "name" : "uri", type == "ref/prompt" ? "review" : "test://{header}"}}},
-                {"argument", {{"name", "header"}, {"value", "Soc"}}},
-                {"context", {{"arguments", {{"language", "C++"}}}}}};
+        for (const std::string identifier : {"review", "test://{header}", "test://SocketContext"}) {
+            const std::string type = identifier == "review" ? "ref/prompt" : "ref/resource";
+            Json params{{"ref", {{"type", type}, {type == "ref/prompt" ? "name" : "uri", identifier}}},
+                        {"argument", {{"name", "header"}, {"value", "Soc"}}},
+                        {"context", {{"arguments", {{"language", "C++"}}}}}};
             if (era == detail::ProtocolEra::PerRequest20260728) {
                 params["_meta"] = {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}};
             }

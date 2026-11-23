@@ -356,8 +356,9 @@ false
             shutdown.push_back(value);
         });
     ending->cancel(mcp::server::CancelReason::Shutdown);
-    test.expectTrue(shutdown.size() == 3 && shutdown[1]["method"] == "notifications/cancelled" && shutdown.back().is_null(),
-                    "subscription teardown cancellation");
+    test.expectTrue(shutdown.size() == 2 && shutdown.back()["result"]["resultType"] == "complete" &&
+                        shutdown.back()["result"]["_meta"][mcp::server::detail::subscriptionKey] == 7,
+                    "HTTP subscription teardown completes with correlated result");
     subscription->cancel();
     Server invalid("invalid", "test-version");
     bool rejected = false;
