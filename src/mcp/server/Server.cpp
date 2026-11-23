@@ -334,9 +334,10 @@ namespace mcp::server {
         }
     }
 
-    void detail::Response::listen() {
+    void detail::Response::listen(Json filter) {
         subscription = true;
-        notify("notifications/subscriptions/acknowledged", {{"notifications", Json::object()}});
+        notifications = std::move(filter);
+        notify("notifications/subscriptions/acknowledged", {{"notifications", notifications}});
     }
 
     void detail::Response::observe(RequestContext::OnCancel callback) {
@@ -503,7 +504,8 @@ namespace mcp::server {
                                                                      ProtocolEra era,
                                                                      detail::Access::Response::Output output,
                                                                      const utils::Timeval& timeout,
-                                                                     std::optional<Principal> principal) const {
+                                                                     std::optional<Principal> principal,
+                                                                     std::shared_ptr<detail::Channel> channel) const {
         const Json id = request.is_object() ? request.value("id", Json()) : Json();
         const std::string method = request.is_object() && request.contains("method") && request["method"].is_string()
                                        ? request["method"].get<std::string>()
@@ -565,7 +567,12 @@ namespace mcp::server {
                     reply->error(-32602, "Malformed initialize parameters");
                 } else if ((era == ProtocolEra::PerRequest20260728 && method == "server/discover") ||
                            (era == ProtocolEra::Initialization20251125 && method == "initialize")) {
-                    Json value{{"capabilities", capabilities()}};
+                    Json advertised = capabilities();
+                    if (advertised.contains("resources") && (era == ProtocolEra::PerRequest20260728 || channel)) {
+                        advertised["resources"]["subscribe"] = true;
+                    }
+
+                    Json value{{"capabilities", std::move(advertised)}};
                     if (era == ProtocolEra::Initialization20251125) {
                         value["protocolVersion"] = protocolVersion2025;
                         value["serverInfo"] = serverInfo;
@@ -585,7 +592,64 @@ namespace mcp::server {
                     if (params.contains("notifications") && !params["notifications"].is_object()) {
                         reply->error(-32602, "Invalid subscription filter");
                     } else {
-                        reply->listen();
+                        const Json filter = params.value("notifications", Json::object());
+                        const Json uris = filter.value("resourceSubscriptions", Json::array());
+                        bool valid = uris.is_array() && uris.size() <= 128;
+                        for (const auto& uri : uris) {
+                            valid = valid && uri.is_string() && uri.get_ref<const std::string&>().size() <= 16384;
+                        }
+
+                        for (const std::string name : {"toolsListChanged", "promptsListChanged", "resourcesListChanged"}) {
+                            valid = valid && (!filter.contains(name) || filter[name].is_boolean());
+                        }
+
+                        std::erase_if(subscriptions, [](const auto& weak) {
+                            const auto current = weak.lock();
+                            return !current || current->done;
+                        });
+                        if (!valid) {
+                            reply->error(-32602, "Malformed resource subscription filter or 128-URI limit exceeded");
+                        } else if (subscriptions.size() >= 1024) {
+                            reply->error(-32603, "Subscription capacity exceeded");
+                        } else {
+                            subscriptions.push_back(reply);
+                            Json honored = Json::object();
+                            if (!uris.empty()) {
+                                honored["resourceSubscriptions"] = uris;
+                            }
+
+                            reply->listen(std::move(honored));
+                        }
+                    }
+                } else if (era == ProtocolEra::Initialization20251125 &&
+                           (method == "resources/subscribe" || method == "resources/unsubscribe")) {
+                    const auto uri = params.value("uri", Json());
+                    if (!channel || !channel->active) {
+                        reply->error(-32601, "Transport has no legacy notification channel");
+                    } else if (!uri.is_string() || uri.get_ref<const std::string&>().size() > 16384) {
+                        reply->error(-32602, "Invalid resource subscription URI");
+                    } else if (method == "resources/unsubscribe") {
+                        channel->resources.erase(uri.get<std::string>());
+                        reply->result(Json::object());
+                    } else if (channel->resources.size() >= 128 && !channel->resources.contains(uri.get<std::string>())) {
+                        reply->error(-32602, "128-resource subscription limit exceeded");
+                    } else {
+                        std::erase_if(channels, [](const auto& weak) {
+                            return weak.expired();
+                        });
+                        const bool registered = std::any_of(channels.begin(), channels.end(), [&channel](const auto& weak) {
+                            return weak.lock() == channel;
+                        });
+                        if (!registered && channels.size() >= 1024) {
+                            reply->error(-32603, "Subscription capacity exceeded");
+                        } else {
+                            if (!registered) {
+                                channels.push_back(channel);
+                            }
+
+                            channel->resources.insert(uri.get<std::string>());
+                            reply->result(Json::object());
+                        }
                     }
                 } else if (method == "completion/complete") {
                     const Json reference = params.value("ref", Json());
@@ -735,6 +799,48 @@ namespace mcp::server {
         reply->expire();
 
         return reply;
+    }
+
+    Server* Server::resourceUpdated(const std::string& uri) {
+        impl->resourceUpdated(uri);
+
+        return this;
+    }
+
+    void Server::Impl::resourceUpdated(const std::string& uri) {
+        std::vector<std::shared_ptr<detail::Response>> requests;
+        std::vector<std::shared_ptr<detail::Channel>> clients;
+        std::erase_if(subscriptions, [](const auto& weak) {
+            const auto current = weak.lock();
+            return !current || current->done;
+        });
+        std::erase_if(channels, [](const auto& weak) {
+            return weak.expired();
+        });
+        for (const auto& weak : subscriptions) {
+            if (const auto current = weak.lock(); current && !current->done) {
+                const auto filter = current->notifications.value("resourceSubscriptions", Json::array());
+                if (std::find(filter.begin(), filter.end(), Json(uri)) != filter.end()) {
+                    requests.push_back(current);
+                }
+            }
+        }
+
+        for (const auto& weak : channels) {
+            if (const auto channel = weak.lock(); channel && channel->active && channel->resources.contains(uri)) {
+                clients.push_back(channel);
+            }
+        }
+
+        for (const auto& request : requests) {
+            request->notify("notifications/resources/updated", {{"uri", uri}});
+        }
+
+        for (const auto& client : clients) {
+            if (client->active && client->output) {
+                client->output({{"jsonrpc", "2.0"}, {"method", "notifications/resources/updated"}, {"params", {{"uri", uri}}}});
+            }
+        }
     }
 
     int Server::Impl::httpStatus(const Json& message) {

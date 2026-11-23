@@ -77,6 +77,7 @@ namespace mcp::server::stream {
         bool closing = false;
         bool failed = false;
         bool scheduled = false;
+        std::shared_ptr<Channel> channel = std::make_shared<Channel>();
         ProtocolEra era = ProtocolEra::PerRequest20260728;
 
         State(SocketContext* owner, Server& server, Config& config)
@@ -116,6 +117,9 @@ namespace mcp::server::stream {
             }
 
             pending.clear();
+            channel->active = false;
+            channel->resources.clear();
+            channel->output = {};
             if (owner != nullptr) {
                 if (failed) {
                     owner->close();
@@ -181,6 +185,11 @@ namespace mcp::server::stream {
                         .error(-32600, "Duplicate id or in-flight limit");
                 } else {
                     const std::weak_ptr<State> weak = shared_from_this();
+                    channel->output = [weak](const Json& value) {
+                        if (const auto current = weak.lock()) {
+                            current->send(value);
+                        }
+                    };
                     auto reply = Access::registry(server).dispatch(
                         request,
                         requestEra,
@@ -193,7 +202,9 @@ namespace mcp::server::stream {
                                 owner->send(value);
                             }
                         },
-                        config.getDeadline());
+                        config.getDeadline(),
+                        {},
+                        channel);
                     if (!reply->done) {
                         pending[key] = std::move(reply);
                     }

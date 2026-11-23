@@ -47,6 +47,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <set>
 #include <variant>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -61,6 +62,13 @@ namespace mcp::server::detail {
     inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
     inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
+    struct Channel {
+        std::set<std::string> resources;
+        std::function<void(const Json&)> output;
+        std::string credential;
+        bool active = true;
+    };
+
     struct Response : std::enable_shared_from_this<Response> {
         using Output = std::function<void(const Json&, bool)>;
 
@@ -74,7 +82,7 @@ namespace mcp::server::detail {
         void cancel(CancelReason reason = CancelReason::Client);
         void observe(RequestContext::OnCancel callback);
         void expire();
-        void listen();
+        void listen(Json notifications = Json::object());
 
         std::optional<Principal> principal;
         std::optional<ProgressToken> progressToken;
@@ -89,6 +97,7 @@ namespace mcp::server::detail {
         bool toolRequest = false;
         bool done = false;
         bool subscription = false;
+        Json notifications;
         Output output;
         utils::Timeval deadline;
     };
@@ -129,7 +138,9 @@ namespace mcp::server {
                                                            detail::ProtocolEra era,
                                                            detail::Access::Response::Output output,
                                                            const utils::Timeval& timeout = utils::Timeval(30),
-                                                           std::optional<Principal> principal = {}) const;
+                                                           std::optional<Principal> principal = {},
+                                                           std::shared_ptr<detail::Channel> channel = {}) const;
+        void resourceUpdated(const std::string& uri);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);
@@ -154,6 +165,8 @@ namespace mcp::server {
         bool sealed = false;
         std::map<std::string, Entry> entries;
         std::vector<std::string> templates;
+        mutable std::vector<std::weak_ptr<detail::Response>> subscriptions;
+        mutable std::vector<std::weak_ptr<detail::Channel>> channels;
     };
 
 } // namespace mcp::server

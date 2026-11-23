@@ -73,6 +73,14 @@ namespace mcp::server {
 
         using Authorization = std::variant<Authorized, Unauthorized, Forbidden>; ///< Owned admission decision for one HTTP request.
 
+        /// Legacy notification-channel policy; modern requests never use legacy sessions.
+        enum class LegacySubscriptions { Disabled, Enabled };
+
+        /// Owned HTTP binding policy, copied into the router at construction.
+        struct RouterOptions {
+            LegacySubscriptions legacySubscriptions = LegacySubscriptions::Enabled; ///< Enable bounded 2025 session/GET channels.
+        };
+
         /// Express router; copy/mount it while the borrowed registry and config remain alive.
         class Router : public express::Router {
         public:
@@ -81,7 +89,7 @@ namespace mcp::server {
 
             /// Attach on the event loop after init; seals registration; empty authorize permits anonymous access.
             /// Retain server and config until this router and its operations have drained.
-            Router(Server& server, Config& config, Authorize authorize = {});
+            Router(Server& server, Config& config, Authorize authorize = {}, RouterOptions options = {});
         };
 
     } // namespace http

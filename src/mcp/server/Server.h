@@ -94,6 +94,10 @@ namespace mcp::server {
 
         Server(const Server&) = delete; ///< Stable owner identity; share through a reference instead.
 
+        /// Report a URI change on the event loop; only explicitly subscribed live consumers are notified.
+        /// Safe inside handlers; the call does not retain the URI and does not read the resource.
+        Server* resourceUpdated(const std::string& uri);
+
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* tool(ToolDefinition definition, ToolHandler handler);
         /// Retain shared ownership and validate transactionally before attachment; returns this.
