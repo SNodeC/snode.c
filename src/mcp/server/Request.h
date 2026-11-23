@@ -90,8 +90,9 @@ namespace mcp::server {
 
     /// Owned resource input, independent of the protocol envelope.
     struct ResourceRead {
-        RequestContext context; ///< Shared event-loop request context.
-        std::string uri;        ///< Owned requested resource URI.
+        RequestContext context;                         ///< Shared event-loop request context.
+        std::string uri;                                ///< Owned requested resource URI.
+        std::map<std::string, std::string> variables{}; ///< Owned decoded template variables; empty for exact resources.
     };
 
     /// Owned prompt input; all argument values are protocol strings.

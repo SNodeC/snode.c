@@ -43,6 +43,7 @@ add_library(
     mcp-server SHARED
     Server.cpp
     Server.h
+    detail/UriTemplate.cpp
     Config.cpp
     Config.h
     stream/SocketContext.cpp
@@ -79,6 +80,7 @@ install(
           Request.h
           Tool.h
           Resource.h
+          ResourceTemplate.h
           Prompt.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/mcp/server
     COMPONENT mcp-server

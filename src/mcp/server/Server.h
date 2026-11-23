@@ -45,8 +45,9 @@
 #include "mcp/server/Prompt.h" // IWYU pragma: export
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
-#include "mcp/server/Resource.h" // IWYU pragma: export
-#include "mcp/server/Tool.h"     // IWYU pragma: export
+#include "mcp/server/Resource.h"         // IWYU pragma: export
+#include "mcp/server/ResourceTemplate.h" // IWYU pragma: export
+#include "mcp/server/Tool.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -64,7 +65,7 @@ namespace mcp::server {
     }
 
     /// Registration category used in immediate validation diagnostics.
-    enum class RegistrationKind { Tool, Resource, Prompt };
+    enum class RegistrationKind { Tool, Resource, Prompt, ResourceTemplate };
 
     /// Immediate registration failure; what() owns kind, identifier, field and reason.
     class RegistrationError : public std::invalid_argument {
@@ -101,6 +102,10 @@ namespace mcp::server {
         Server* resource(ResourceDefinition definition, ResourceHandler handler);
         /// Retain shared ownership and validate transactionally before attachment; returns this.
         Server* resource(std::shared_ptr<Resource> handler);
+        /// Validate and retain a template subclass before attachment; named errors are transactional.
+        Server* resourceTemplate(std::shared_ptr<ResourceTemplate> handler);
+        /// Convenience adapter over the same template registry; callbacks run on the event loop.
+        Server* resourceTemplate(ResourceTemplateDefinition definition, ResourceHandler handler);
         /// Register transactionally before attachment on the event loop; throws RegistrationError; returns this.
         Server* prompt(PromptDefinition definition, PromptHandler handler);
         /// Retain shared ownership and validate transactionally before attachment; returns this.

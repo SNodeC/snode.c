@@ -43,6 +43,7 @@
 
 #include "core/timer/Timer.h"
 #include "mcp/server/Server.h"
+#include "mcp/server/detail/UriTemplate.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
@@ -119,7 +120,8 @@ namespace mcp::server::detail {
 namespace mcp::server {
 
     struct Server::Impl {
-        using Handler = std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>>;
+        using Handler =
+            std::variant<std::shared_ptr<Tool>, std::shared_ptr<Resource>, std::shared_ptr<Prompt>, std::shared_ptr<ResourceTemplate>>;
 
         void seal();
         void add(RegistrationKind kind, Json description, Handler handler);
@@ -142,6 +144,7 @@ namespace mcp::server {
             Kind kind;
             Json description;
             Handler handler;
+            std::optional<detail::UriTemplate> matcher{};
         };
 
         Json capabilities() const;
@@ -150,6 +153,7 @@ namespace mcp::server {
         std::string instructions;
         bool sealed = false;
         std::map<std::string, Entry> entries;
+        std::vector<std::string> templates;
     };
 
 } // namespace mcp::server

@@ -138,3 +138,8 @@ if(TARGET snodec-dev-tools)
     )
     set_tests_properties(McpSchemaTest PROPERTIES LABELS "unit;mcp;schema")
 endif()
+
+snodec_add_test(McpTemplateTest McpTemplateTest.cpp)
+target_include_directories(McpTemplateTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpTemplateTest PRIVATE snodec::mcp-server snodec-test-support)
+set_tests_properties(McpTemplateTest PROPERTIES LABELS "unit;mcp;templates")

@@ -394,7 +394,7 @@ namespace mcp::server {
     }
 
     void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
-        const std::string keyName = kind == Kind::Resource ? "uri" : "name";
+        const std::string keyName = kind == Kind::Resource ? "uri" : kind == Kind::ResourceTemplate ? "uriTemplate" : "name";
         const std::string identifier = description.value(keyName, std::string());
         const std::string key = std::to_string(static_cast<int>(kind)) + ":" + identifier;
         const auto reject = [&](const std::string& field, const std::string& reason) {
@@ -438,7 +438,19 @@ namespace mcp::server {
             }
         }
 
-        entries.emplace(key, Entry{kind, std::move(description), std::move(handler)});
+        std::optional<UriTemplate> matcher;
+        if (kind == Kind::ResourceTemplate) {
+            try {
+                matcher.emplace(identifier);
+            } catch (const std::invalid_argument& error) {
+                throw reject("uriTemplate", error.what());
+            }
+        }
+
+        entries.emplace(key, Entry{kind, std::move(description), std::move(handler), std::move(matcher)});
+        if (kind == Kind::ResourceTemplate) {
+            templates.push_back(key);
+        }
     }
 
     void Server::Impl::seal() {
@@ -455,7 +467,9 @@ namespace mcp::server {
         Json result = Json::object();
         for (const auto& [key, entry] : entries) {
             static_cast<void>(key);
-            result[entry.kind == Kind::Tool ? "tools" : entry.kind == Kind::Resource ? "resources" : "prompts"] = Json::object();
+            result[entry.kind == Kind::Tool                                                 ? "tools"
+                   : (entry.kind == Kind::Resource || entry.kind == Kind::ResourceTemplate) ? "resources"
+                                                                                            : "prompts"] = Json::object();
         }
 
         return result;
@@ -550,7 +564,12 @@ namespace mcp::server {
                         reply->listen();
                     }
                 } else if (method == "resources/templates/list") {
-                    reply->result({{"resourceTemplates", Json::array()}});
+                    Json list = Json::array();
+                    for (const auto& key : templates) {
+                        list.push_back(entries.at(key).description);
+                    }
+
+                    reply->result({{"resourceTemplates", std::move(list)}});
                 } else if (method == "tools/list" || method == "resources/list" || method == "prompts/list") {
                     const Kind kind = method == "tools/list" ? Kind::Tool : method == "resources/list" ? Kind::Resource : Kind::Prompt;
                     Json list = Json::array();
@@ -575,7 +594,17 @@ namespace mcp::server {
                     if (!params.contains(argument) || !params[argument].is_string()) {
                         reply->error(-32602, "Missing name or uri");
                     } else {
-                        const auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + params[argument].get<std::string>());
+                        auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + params[argument].get<std::string>());
+                        std::map<std::string, std::string> variables;
+                        if (kind == Kind::Resource && entry == entries.end()) {
+                            for (auto candidate = templates.begin(); candidate != templates.end() && entry == entries.end(); ++candidate) {
+                                const auto found = entries.find(*candidate);
+                                if (auto matched = found->second.matcher->match(params["uri"].get<std::string>())) {
+                                    entry = found;
+                                    variables = std::move(*matched);
+                                }
+                            }
+                        }
                         const Json arguments = params.value("arguments", Json::object());
                         std::string error;
                         if (entry == entries.end() || !arguments.is_object() ||
@@ -605,8 +634,14 @@ namespace mcp::server {
                                 std::get<std::shared_ptr<Tool>>(entry->second.handler)
                                     ->call(ToolCall{Access::context(reply), arguments}, Access::wrap<ToolResult>(reply));
                             } else if (kind == Kind::Resource) {
-                                std::get<std::shared_ptr<Resource>>(entry->second.handler)
-                                    ->read(ResourceRead{Access::context(reply), params["uri"]}, Access::wrap<ResourceResult>(reply));
+                                const ResourceRead input{Access::context(reply), params["uri"], std::move(variables)};
+                                if (entry->second.kind == Kind::ResourceTemplate) {
+                                    std::get<std::shared_ptr<ResourceTemplate>>(entry->second.handler)
+                                        ->read(input, Access::wrap<ResourceResult>(reply));
+                                } else {
+                                    std::get<std::shared_ptr<Resource>>(entry->second.handler)
+                                        ->read(input, Access::wrap<ResourceResult>(reply));
+                                }
                             } else if (!reply->done) {
                                 std::get<std::shared_ptr<Prompt>>(entry->second.handler)
                                     ->get(PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
@@ -868,6 +903,51 @@ namespace mcp::server {
 
     } // namespace
 
+    ResourceTemplate::ResourceTemplate(ResourceTemplateDefinition definition)
+        : definition(std::move(definition)) {
+    }
+
+    ResourceTemplate::~ResourceTemplate() = default;
+
+    const ResourceTemplateDefinition& ResourceTemplate::getDefinition() const {
+        return definition;
+    }
+
+    Server* Server::resourceTemplate(ResourceTemplateDefinition definition, ResourceHandler handler) {
+        struct FunctionTemplate final : ResourceTemplate {
+            ResourceHandler handler;
+
+            FunctionTemplate(ResourceTemplateDefinition definition, ResourceHandler handler)
+                : ResourceTemplate(std::move(definition))
+                , handler(std::move(handler)) {
+                if (!this->handler) {
+                    throw RegistrationError(RegistrationKind::ResourceTemplate, getDefinition().uriTemplate, "handler", "must be callable");
+                }
+            }
+
+            void read(const ResourceRead& request, const std::shared_ptr<ResourceReply>& reply) override {
+                handler(request, reply);
+            }
+        };
+
+        return resourceTemplate(std::make_shared<FunctionTemplate>(std::move(definition), std::move(handler)));
+    }
+
+    Server* Server::resourceTemplate(std::shared_ptr<ResourceTemplate> handler) {
+        const auto definition = handler ? handler->getDefinition() : ResourceTemplateDefinition{};
+        Json description{{"uriTemplate", definition.uriTemplate},
+                         {"name", definition.name},
+                         {"description", definition.description},
+                         {"mimeType", definition.mimeType}};
+        if (definition.title) {
+            description["title"] = *definition.title;
+        }
+
+        impl->add(RegistrationKind::ResourceTemplate, std::move(description), std::move(handler));
+
+        return this;
+    }
+
     Tool::Tool(ToolDefinition definition)
         : definition(std::move(definition)) {
     }
@@ -899,9 +979,10 @@ namespace mcp::server {
     }
 
     RegistrationError::RegistrationError(RegistrationKind kind, std::string identifier, std::string field, std::string reason)
-        : std::invalid_argument(std::string(kind == RegistrationKind::Tool       ? "tool "
-                                            : kind == RegistrationKind::Resource ? "resource "
-                                                                                 : "prompt ") +
+        : std::invalid_argument(std::string(kind == RegistrationKind::Tool               ? "tool "
+                                            : kind == RegistrationKind::ResourceTemplate ? "resource template "
+                                            : kind == RegistrationKind::Resource         ? "resource "
+                                                                                         : "prompt ") +
                                 (identifier.empty() ? "<unnamed>" : identifier) + ": " + field + ": registration rejected: " + reason) {
     }
 
