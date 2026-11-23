@@ -82,7 +82,7 @@ def run():
         assert cli.returncode == 2 and cli.stdout == b"" and cli.stderr
         current = client()
         current.send(request("tools/list", 1))
-        assert {tool["name"] for tool in current.receive()["result"]["tools"]} == {"api.find", "api.read", "skeleton.preview"}
+        assert {tool["name"] for tool in current.receive()["result"]["tools"]} == {"api.find", "api.read", "skeleton.preview", "review.label"}
 
         def call(name, arguments, ident=2):
             current.send(request("tools/call", ident, {"name": name, "arguments": arguments}))
