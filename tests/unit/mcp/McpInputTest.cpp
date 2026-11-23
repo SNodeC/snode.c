@@ -46,18 +46,22 @@
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cmath>
 #include <initializer_list>
 #include <map>
+#include <memory>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
+#include <utility>
 #include <variant>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -85,6 +89,25 @@ int main(int argc, char* argv[]) {
     server.prompt({"input"}, [](const auto&, const auto& reply) {
         reply->inputRequired(InputRequired{{}, "prompt-state"});
     });
+    const Json form = {{"type", "object"}, {"properties", {{"label", {{"type", "string"}}}}}};
+    int resumes = 0;
+    server.tool({"form", {}, schema}, [&resumes, form](const auto& request, const auto& reply) {
+        if (request.context.getInputResponses().empty()) {
+            InputRequired input{{{"label", FormInput{"Label", form}}}, "saved"};
+            if (request.arguments.value("batch", false)) {
+                input.requests.emplace("url", UrlInput{"Choose", "https://example.com/choice"});
+            }
+
+            reply->inputRequired(std::move(input));
+        } else {
+            ++resumes;
+            if (request.arguments.value("throw", false)) {
+                throw 1;
+            }
+
+            reply->result(ToolResult::text(*request.context.getRequestState()));
+        }
+    });
     const auto dispatch = [&](detail::ProtocolEra era, Json params) {
         params["name"] = "input";
         Json result;
@@ -111,8 +134,8 @@ int main(int argc, char* argv[]) {
     params["_meta"][detail::capabilitiesKey] = Json::object();
     test.expectTrue(dispatch(detail::ProtocolEra::PerRequest20260728, params)["error"]["code"] == -32021,
                     "missing mode capability rejected");
-    test.expectTrue(dispatch(detail::ProtocolEra::Initialization20251125, Json::object())["error"]["code"] == -32602,
-                    "legacy continuation explicitly unsupported");
+    test.expectTrue(dispatch(detail::ProtocolEra::Initialization20251125, Json::object())["result"]["isError"] == true,
+                    "legacy client without elicitation gets a tool error");
     test.expectTrue(dispatch(detail::ProtocolEra::Initialization20251125,
                              {{"inputResponses", {{"choice", {{"action", "accept"}}}}}, {"requestState", "injected"}})["error"]["code"] ==
                         -32602,
@@ -135,6 +158,77 @@ int main(int argc, char* argv[]) {
                             "resource and prompt continuation handles respect the protocol era");
         }
     }
+    auto channel = std::make_shared<detail::Channel>();
+    std::vector<Json> output;
+    int identifier = 10;
+    const auto legacy = [&](const std::string& method, Json parameters, const utils::Timeval& timeout = utils::Timeval(30)) {
+        return detail::Access::registry(server).dispatch(
+            {{"jsonrpc", "2.0"}, {"id", ++identifier}, {"method", method}, {"params", parameters}},
+            detail::ProtocolEra::Initialization20251125,
+            [&output](const Json& value, bool) {
+                output.push_back(value);
+            },
+            timeout,
+            {},
+            channel);
+    };
+    legacy("initialize",
+           {{"protocolVersion", "2025-11-25"},
+            {"clientInfo", {{"name", "input-test"}, {"version", "1"}}},
+            {"capabilities", {{"elicitation", Json::object()}}}});
+    test.expectTrue(channel->capabilities["elicitation"].empty(), "initialize retains form-only capabilities");
+    for (const std::string action : {"accept", "decline", "cancel"}) {
+        output.clear();
+        const auto pending = legacy("tools/call", {{"name", "form"}});
+        test.expectTrue(!pending->done && output.size() == 1 && output[0]["method"] == "elicitation/create" &&
+                            output[0]["params"]["mode"] == "form",
+                        "legacy emits a nested form request");
+        const Json response = {
+            {"jsonrpc", "2.0"}, {"id", output[0]["id"]}, {"result", {{"action", action}, {"content", {{"label", "safe"}}}}}};
+        test.expectTrue(channel->respond(response) && pending->done && output.back()["id"] == identifier &&
+                            output.back()["result"]["content"][0]["text"] == "saved",
+                        "legacy action resumes the original request with server-held state");
+        test.expectTrue(!channel->respond(response), "duplicate elicitation reply is ignored");
+    }
+    channel->capabilities["elicitation"]["url"] = Json::object();
+    channel->capabilities["elicitation"]["form"] = Json::object();
+    output.clear();
+    auto batch = legacy("tools/call", {{"name", "form"}, {"arguments", {{"batch", true}}}});
+    test.expectTrue(output.size() == 2 && output[1]["params"]["elicitationId"].is_string(), "URL requests include a legacy elicitationId");
+    const auto answer = [](const Json& id) {
+        return Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", {{"action", "accept"}}}};
+    };
+    const Json first = output[0]["id"];
+    const Json second = output[1]["id"];
+    const int before = resumes;
+    test.expectTrue(channel->respond(answer(second)) && !batch->done && resumes == before, "out-of-order partial batch does not resume");
+    test.expectTrue(channel->respond(answer(first)) && batch->done && resumes == before + 1 && channel->inputs.empty(),
+                    "batch resumes exactly once");
+    output.clear();
+    auto cancelled = legacy("tools/call", {{"name", "form"}});
+    const Json late = answer(output[0]["id"]);
+    test.expectTrue(!channel->respond({{"jsonrpc", "2.0"}, {"id", output[0]["id"]}, {"result", {{"action", "invalid"}}}}) &&
+                        !cancelled->done,
+                    "malformed action cannot resume a handler");
+    cancelled->cancel();
+    test.expectTrue(!channel->respond(late) && channel->inputs.empty() && resumes == before + 1,
+                    "cancellation releases correlations and rejects late replies");
+    output.clear();
+    auto failed = legacy("tools/call", {{"name", "form"}});
+    test.expectTrue(
+        channel->respond({{"jsonrpc", "2.0"}, {"id", output[0]["id"]}, {"error", {{"code", -32602}, {"message", "unsupported"}}}}) &&
+            failed->done && output.back()["result"]["isError"] == true,
+        "client RPC error becomes an ordinary tool error");
+    output.clear();
+    auto throwing = legacy("tools/call", {{"name", "form"}, {"arguments", {{"throw", true}}}});
+    test.expectTrue(channel->respond(answer(output[0]["id"])) && throwing->done && output.back()["error"]["code"] == -32603,
+                    "resumed handler exceptions are contained");
+    output.clear();
+    auto deadline = legacy("tools/call", {{"name", "form"}});
+    const Json expired = answer(output[0]["id"]);
+    deadline->deadline = utils::Timeval(0);
+    test.expectTrue(!channel->respond(expired) && deadline->done && output.back()["result"]["isError"] == true && channel->inputs.empty(),
+                    "deadline expires before a late client reply can resume");
     core::SNodeC::free();
 
     return test.processResult();

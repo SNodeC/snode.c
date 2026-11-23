@@ -166,8 +166,12 @@ namespace mcp::server::stream {
             const ProtocolEra requestEra = (era == ProtocolEra::Initialization20251125 || initializing) && !hasMeta
                                                ? ProtocolEra::Initialization20251125
                                                : ProtocolEra::PerRequest20260728;
-            if (method == "notifications/cancelled" && WireServer::validRequest(request) && !request.contains("id") &&
-                request.value("params", Json()).is_object()) {
+            if (request.is_object() && !request.contains("method") && (request.contains("result") || request.contains("error"))) {
+                if (requestEra == ProtocolEra::Initialization20251125) {
+                    static_cast<void>(channel->respond(request));
+                }
+            } else if (method == "notifications/cancelled" && WireServer::validRequest(request) && !request.contains("id") &&
+                       request.value("params", Json()).is_object()) {
                 const std::string key = request["params"].value("requestId", Json()).dump();
                 if (pending.contains(key)) {
                     pending[key]->cancel();

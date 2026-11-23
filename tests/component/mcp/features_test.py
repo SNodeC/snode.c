@@ -76,8 +76,19 @@ def check_calls(call, modern):
         assert response['inputRequests']['choice']['params']['mode'] == 'url'
         retry = call('tools/call', {'name': 'ask', 'inputResponses': {'choice': {'action': 'accept'}}, 'requestState': 'echo'}, {'elicitation': {'url': {}}})
         assert retry['result']['content'][0]['text'] == 'echo'
+        for method, parameters, key in (('resources/read', {'uri': 'test://ask'}, 'contents'), ('prompts/get', {'name': 'ask'}, 'messages')):
+            pending = call(method, parameters, {'elicitation': {}})['result']
+            assert pending['resultType'] == 'input_required'
+            resumed = call(method, dict(parameters, inputResponses={'choice': {'action': 'accept'}}, requestState='echo'), {'elicitation': {}})['result']
+            assert resumed[key]
+        form = call('tools/call', {'name': 'ask', 'arguments': {'mode': 'form'}}, {'elicitation': {}})['result']
+        assert form['inputRequests']['choice']['params']['mode'] == 'form'
+        for action in ('accept', 'decline', 'cancel'):
+            resumed = call('tools/call', {'name': 'ask', 'inputResponses': {'choice': {'action': action, 'content': {'label': 'safe'}}},
+                                        'requestState': 'echo'}, {'elicitation': {}})
+            assert resumed['result']['content'][0]['text'] == 'echo'
     else:
-        assert call('tools/call', {'name': 'ask'})['error']['code'] == -32602
+        assert call('tools/call', {'name': 'ask'})['result']['isError'] is True
 
 
 @contextmanager

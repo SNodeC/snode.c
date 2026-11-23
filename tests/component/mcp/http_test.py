@@ -56,7 +56,7 @@ def request(method, params=None, ident=1):
 
 
 def headers(value):
-    method = value["method"]
+    method = value.get("method", "")
     fields = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "Authorization": "Bearer fixture",
               "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": method}
     if method in ("tools/call", "prompts/get", "resources/read"):

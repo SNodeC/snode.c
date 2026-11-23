@@ -70,7 +70,7 @@ namespace mcp::server {
         const std::optional<Principal>& getPrincipal() const;
         /// Borrow the original typed progress token while this context remains alive.
         const std::optional<ProgressToken>& getProgressToken() const;
-        /// Borrow untrusted retry responses for this context's lifetime; event-loop access only.
+        /// Borrow untrusted elicitation responses until the next input round; event-loop access only.
         const std::map<std::string, InputResponse>& getInputResponses() const;
         /// Borrow opaque untrusted state; verify integrity before using it for access/business decisions.
         const std::optional<std::string>& getRequestState() const;

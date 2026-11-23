@@ -165,3 +165,15 @@ set_tests_properties(
     McpFeaturesTest
     PROPERTIES LABELS "component;mcp;completion;subscriptions;mrtr" TIMEOUT 90
 )
+
+add_test(
+    NAME McpElicitationTest
+    COMMAND
+        ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/elicitation_test.py
+        $<TARGET_FILE:McpStdioFixture> $<TARGET_FILE:McpHttpFixture>
+        ${MCP_CURL}
+)
+set_tests_properties(
+    McpElicitationTest PROPERTIES LABELS "component;mcp;elicitation;stdio;http"
+                                  TIMEOUT 45
+)
