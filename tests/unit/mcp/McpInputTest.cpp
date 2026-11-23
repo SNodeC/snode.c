@@ -67,6 +67,12 @@ int main(int argc, char* argv[]) {
             reply->result(ToolResult::text(*request.context.getRequestState()));
         }
     });
+    server.resource({"test://input", "input"}, [](const auto&, const auto& reply) {
+        reply->inputRequired(InputRequired{{}, "resource-state"});
+    });
+    server.prompt({"input"}, [](const auto&, const auto& reply) {
+        reply->inputRequired(InputRequired{{}, "prompt-state"});
+    });
     const auto dispatch = [&](detail::ProtocolEra era, Json params) {
         params["name"] = "input";
         Json result;
@@ -99,6 +105,24 @@ int main(int argc, char* argv[]) {
                              {{"inputResponses", {{"choice", {{"action", "accept"}}}}}, {"requestState", "injected"}})["error"]["code"] ==
                         -32602,
                     "legacy requests cannot inject modern continuation fields");
+    for (const auto era : {detail::ProtocolEra::Initialization20251125, detail::ProtocolEra::PerRequest20260728}) {
+        for (const std::string method : {"resources/read", "prompts/get"}) {
+            Json response;
+            const Json parameters = method == "resources/read" ? Json{{"uri", "test://input"}} : Json{{"name", "input"}};
+            Json request{{"jsonrpc", "2.0"}, {"id", 2}, {"method", method}, {"params", parameters}};
+            if (era == detail::ProtocolEra::PerRequest20260728) {
+                request["params"]["_meta"] = {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}};
+            }
+
+            detail::Access::registry(server).dispatch(request, era, [&](const Json& value, bool) {
+                response = value;
+            });
+            test.expectTrue(era == detail::ProtocolEra::PerRequest20260728
+                                ? response["result"]["resultType"] == "input_required" && response["result"]["requestState"].is_string()
+                                : response["error"]["code"] == -32602,
+                            "resource and prompt continuation handles respect the protocol era");
+        }
+    }
     core::SNodeC::free();
 
     return test.processResult();
