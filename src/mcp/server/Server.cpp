@@ -442,6 +442,13 @@ namespace mcp::server {
         if (kind == Kind::ResourceTemplate) {
             try {
                 matcher.emplace(identifier);
+                std::set<std::string> seen;
+                const auto& names = matcher->getVariables();
+                for (const auto& variable : std::get<std::shared_ptr<ResourceTemplate>>(handler)->getDefinition().variables) {
+                    if (!seen.insert(variable.name).second || std::find(names.begin(), names.end(), variable.name) == names.end()) {
+                        throw std::invalid_argument("completer variable must be unique and present in template");
+                    }
+                }
             } catch (const std::invalid_argument& error) {
                 throw reject("uriTemplate", error.what());
             }
@@ -470,6 +477,23 @@ namespace mcp::server {
             result[entry.kind == Kind::Tool                                                 ? "tools"
                    : (entry.kind == Kind::Resource || entry.kind == Kind::ResourceTemplate) ? "resources"
                                                                                             : "prompts"] = Json::object();
+        }
+
+        for (const auto& [key, entry] : entries) {
+            static_cast<void>(key);
+            if (entry.kind == Kind::Prompt) {
+                for (const auto& argument : std::get<std::shared_ptr<Prompt>>(entry.handler)->getDefinition().arguments) {
+                    if (argument.complete) {
+                        result["completions"] = Json::object();
+                    }
+                }
+            } else if (entry.kind == Kind::ResourceTemplate) {
+                for (const auto& variable : std::get<std::shared_ptr<ResourceTemplate>>(entry.handler)->getDefinition().variables) {
+                    if (variable.complete) {
+                        result["completions"] = Json::object();
+                    }
+                }
+            }
         }
 
         return result;
@@ -562,6 +586,57 @@ namespace mcp::server {
                         reply->error(-32602, "Invalid subscription filter");
                     } else {
                         reply->listen();
+                    }
+                } else if (method == "completion/complete") {
+                    const Json reference = params.value("ref", Json());
+                    const Json argument = params.value("argument", Json());
+                    const Json context = params.value("context", Json::object());
+                    const Json arguments = context.is_object() ? context.value("arguments", Json::object()) : Json();
+                    if (!reference.is_object() || !argument.is_object() || !argument.value("name", Json()).is_string() ||
+                        !argument.value("value", Json()).is_string() || !arguments.is_object() ||
+                        !std::all_of(arguments.begin(), arguments.end(), [](const Json& item) {
+                            return item.is_string();
+                        })) {
+                        reply->error(-32602, "Malformed completion parameters");
+                    } else {
+                        CompletionHandler complete;
+                        bool found = false;
+                        const auto referenceType = reference.value("type", Json());
+                        const auto identifier = reference.value(referenceType == "ref/prompt" ? "name" : "uri", Json());
+                        if (identifier.is_string() && (referenceType == "ref/prompt" || referenceType == "ref/resource")) {
+                            const auto kind = referenceType == "ref/prompt" ? Kind::Prompt : Kind::ResourceTemplate;
+                            const auto entry = entries.find(std::to_string(static_cast<int>(kind)) + ":" + identifier.get<std::string>());
+                            if (entry != entries.end()) {
+                                found = true;
+                                if (kind == Kind::Prompt) {
+                                    for (const auto& candidate :
+                                         std::get<std::shared_ptr<Prompt>>(entry->second.handler)->getDefinition().arguments) {
+                                        if (candidate.name == argument["name"].get<std::string>()) {
+                                            complete = candidate.complete;
+                                        }
+                                    }
+                                } else {
+                                    for (const auto& candidate :
+                                         std::get<std::shared_ptr<ResourceTemplate>>(entry->second.handler)->getDefinition().variables) {
+                                        if (candidate.name == argument["name"].get<std::string>()) {
+                                            complete = candidate.complete;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!found) {
+                            reply->error(-32602, "Unknown completion reference");
+                        } else if (complete) {
+                            complete(CompletionRequest{Access::context(reply),
+                                                       argument["name"],
+                                                       argument["value"],
+                                                       arguments.get<std::map<std::string, std::string>>()},
+                                     Access::wrap<CompletionResult>(reply));
+                        } else {
+                            Access::wrap<CompletionResult>(reply)->result(CompletionResult{});
+                        }
                     }
                 } else if (method == "resources/templates/list") {
                     Json list = Json::array();
@@ -786,6 +861,17 @@ namespace mcp::server {
             for (const auto& resource : result.contents) {
                 value["contents"].push_back(encode(resource));
             }
+        } else if constexpr (std::is_same_v<Result, CompletionResult>) {
+            const auto count = result.values.size();
+            if (count > 100) {
+                result.values.resize(100);
+                result.hasMore = true;
+            }
+
+            value = {{"completion", {{"values", std::move(result.values)}, {"hasMore", result.hasMore}}}};
+            if (result.total) {
+                value["completion"]["total"] = std::max(*result.total, count);
+            }
         } else {
             value = {{"messages", Json::array()}};
             if (result.description) {
@@ -847,6 +933,7 @@ namespace mcp::server {
     void RequestContext::onCancel(OnCancel callback) const {
         impl->observe(std::move(callback));
     }
+    template class Reply<CompletionResult>;
     template class Reply<ToolResult>;
     template class Reply<ResourceResult>;
     template class Reply<PromptResult>;

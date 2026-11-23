@@ -143,3 +143,8 @@ snodec_add_test(McpTemplateTest McpTemplateTest.cpp)
 target_include_directories(McpTemplateTest PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(McpTemplateTest PRIVATE snodec::mcp-server snodec-test-support)
 set_tests_properties(McpTemplateTest PROPERTIES LABELS "unit;mcp;templates")
+
+snodec_add_test(McpCompletionTest McpCompletionTest.cpp)
+target_include_directories(McpCompletionTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpCompletionTest PRIVATE snodec::mcp-server snodec-test-support)
+set_tests_properties(McpCompletionTest PROPERTIES LABELS "unit;mcp;completion")

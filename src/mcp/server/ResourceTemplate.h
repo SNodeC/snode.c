@@ -53,13 +53,20 @@
 
 namespace mcp::server {
 
+    /// Owned variable declaration; must name a variable present in the URI template.
+    struct TemplateVariable {
+        std::string name;             ///< Owned variable name, unique within this template.
+        CompletionHandler complete{}; ///< Optional event-loop completer; never serialized.
+    };
+
     /// Owned scalar RFC 6570 template metadata; registration validates its expressions.
     struct ResourceTemplateDefinition {
-        std::string uriTemplate;            ///< Owned URI template supporting {var} and {+var}.
-        std::string name;                   ///< Nonempty owned protocol name.
-        std::string description{};          ///< Owned human-readable description.
-        std::string mimeType{};             ///< Owned optional MIME type.
-        std::optional<std::string> title{}; ///< Owned optional display title.
+        std::string uriTemplate;                   ///< Owned URI template supporting {var} and {+var}.
+        std::string name;                          ///< Nonempty owned protocol name.
+        std::string description{};                 ///< Owned human-readable description.
+        std::string mimeType{};                    ///< Owned optional MIME type.
+        std::optional<std::string> title{};        ///< Owned optional display title.
+        std::vector<TemplateVariable> variables{}; ///< Owned completers, validated transactionally at registration.
     };
 
     /// Subclass retained by Server; construct and access only on the event-loop thread.

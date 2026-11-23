@@ -82,6 +82,11 @@ namespace mcp::server {
         friend class detail::Access;
     };
 
+    /// Completion handle instantiated by the library; event-loop lifetime and call-once rules apply.
+    using CompletionReply = Reply<CompletionResult>;
+    /// Instantiation supplied by the MCP library.
+    extern template class Reply<CompletionResult>;
+
     /// Typed tool completion handle; ownership is shared by asynchronous handlers.
     using ToolReply = Reply<ToolResult>;
     /// Typed resource completion handle; ownership is shared by asynchronous handlers.

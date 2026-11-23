@@ -65,6 +65,7 @@ namespace mcp::server {
         std::string name;                                ///< Owned argument name.
         std::string description{};                       ///< Owned human-readable description.
         Requirement requirement = Requirement::Optional; ///< Required arguments are checked before dispatch.
+        CompletionHandler complete{};                    ///< Optional event-loop completer; never serialized into metadata.
     };
 
     /// Owned prompt metadata; its handler receives only string-valued arguments.

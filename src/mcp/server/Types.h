@@ -45,6 +45,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <functional>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -54,6 +56,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace mcp::server {
+
+    struct CompletionRequest; ///< Request declared in Request.h; borrowed by completers.
+    struct CompletionResult;  ///< Result declared in Results.h; owned by the completion reply.
+    template <class Result>
+    class Reply; ///< Shared typed reply defined in Reply.h.
+    /// Event-loop completer; retain its reply for async completion, never retain the request reference.
+    using CompletionHandler = std::function<void(const CompletionRequest&, const std::shared_ptr<Reply<CompletionResult>>&)>;
 
     /// Owned JSON value using the library's configured JSON implementation.
     using Json = nlohmann::json;

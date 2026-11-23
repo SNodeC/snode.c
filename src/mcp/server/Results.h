@@ -56,6 +56,13 @@
 namespace mcp::server {
 
     /// Owned UTF-8 resource contents; the URI identifies the resource.
+    /// Owned completion suggestions; Reply enforces the wire limit of 100 values.
+    struct CompletionResult {
+        std::vector<std::string> values;    ///< Ranked suggestions, owned until completion.
+        std::optional<std::size_t> total{}; ///< Optional total match count, at least the returned count.
+        bool hasMore = false;               ///< True when additional matching values exist.
+    };
+
     struct TextResource {
         std::string uri;      ///< Owned resource URI.
         std::string mimeType; ///< Owned MIME media type.

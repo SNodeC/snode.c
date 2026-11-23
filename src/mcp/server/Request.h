@@ -82,6 +82,14 @@ namespace mcp::server {
         friend class detail::Access;
     };
 
+    /// Owned completion input; all strings and context live for this value's lifetime.
+    struct CompletionRequest {
+        RequestContext context;                         ///< Shared event-loop request context.
+        std::string name;                               ///< Argument or template variable being completed.
+        std::string value;                              ///< Current partial input, not a fully validated argument.
+        std::map<std::string, std::string> arguments{}; ///< Already-resolved contextual arguments.
+    };
+
     /// Owned tool input; arguments have passed the registered schema.
     struct ToolCall {
         RequestContext context; ///< Shared event-loop request context.
