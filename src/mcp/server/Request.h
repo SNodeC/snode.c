@@ -72,6 +72,9 @@ namespace mcp::server {
         const std::optional<ProgressToken>& getProgressToken() const;
         /// Borrow untrusted elicitation responses until the next input round; event-loop access only.
         const std::map<std::string, InputResponse>& getInputResponses() const;
+        /// Borrow one response; validate accepted content against the server-owned form schema.
+        /// Throws invalid_argument on schema/content failure; null means the key is absent.
+        const InputResponse* getInputResponse(const std::string& key, const Json& requestedSchema) const;
         /// Borrow opaque untrusted state; verify integrity before using it for access/business decisions.
         const std::optional<std::string>& getRequestState() const;
         /// Register on the event loop; late observers run immediately after cancellation.

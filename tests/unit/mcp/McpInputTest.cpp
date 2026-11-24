@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) {
 
             reply->inputRequired(std::move(input));
         } else {
+            static_cast<void>(request.context.getInputResponse("label", form));
             ++resumes;
             if (request.arguments.value("throw", false)) {
                 throw 1;
@@ -190,18 +191,50 @@ int main(int argc, char* argv[]) {
                         "legacy action resumes the original request with server-held state");
         test.expectTrue(!channel->respond(response), "duplicate elicitation reply is ignored");
     }
+    output.clear();
+    const int beforeInvalid = resumes;
+    auto invalidContent = legacy("tools/call", {{"name", "form"}});
+    test.expectTrue(
+        channel->respond(
+            {{"jsonrpc", "2.0"}, {"id", output.front()["id"]}, {"result", {{"action", "accept"}, {"content", {{"label", 42}}}}}}) &&
+            invalidContent->done && output.back()["result"]["isError"] == true && resumes == beforeInvalid && channel->inputs.empty(),
+        "legacy form content is schema-validated before resume and releases its correlation");
+    for (const Json& content : Json::array({Json{{"label", "safe"}}, Json{{"label", 42}}})) {
+        Json modern;
+        const int prior = resumes;
+        detail::Access::registry(server).dispatch({{"jsonrpc", "2.0"},
+                                                   {"id", 9},
+                                                   {"method", "tools/call"},
+                                                   {"params",
+                                                    {{"name", "form"},
+                                                     {"requestState", "saved"},
+                                                     {"inputResponses", {{"label", {{"action", "accept"}, {"content", content}}}}},
+                                                     {"_meta",
+                                                      {{detail::versionKey, detail::protocolVersion2026},
+                                                       {detail::capabilitiesKey, {{"elicitation", {{"form", Json::object()}}}}}}}}}},
+                                                  detail::ProtocolEra::PerRequest20260728,
+                                                  [&modern](const Json& value, bool) {
+                                                      modern = value;
+                                                  });
+        const bool valid = content["label"].is_string();
+        test.expectTrue(valid ? modern["result"]["content"][0]["text"] == "saved" && resumes == prior + 1
+                              : modern["error"]["code"] == -32602 && resumes == prior,
+                        "stateless retry validates accepted content against server-owned schema");
+    }
     channel->capabilities["elicitation"]["url"] = Json::object();
     channel->capabilities["elicitation"]["form"] = Json::object();
     output.clear();
     auto batch = legacy("tools/call", {{"name", "form"}, {"arguments", {{"batch", true}}}});
     test.expectTrue(output.size() == 2 && output[1]["params"]["elicitationId"].is_string(), "URL requests include a legacy elicitationId");
     const auto answer = [](const Json& id) {
-        return Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", {{"action", "accept"}}}};
+        return Json{{"jsonrpc", "2.0"}, {"id", id}, {"result", {{"action", "accept"}, {"content", Json::object()}}}};
     };
     const Json first = output[0]["id"];
     const Json second = output[1]["id"];
     const int before = resumes;
-    test.expectTrue(channel->respond(answer(second)) && !batch->done && resumes == before, "out-of-order partial batch does not resume");
+    Json urlAnswer = answer(second);
+    urlAnswer["result"].erase("content");
+    test.expectTrue(channel->respond(urlAnswer) && !batch->done && resumes == before, "out-of-order partial batch does not resume");
     test.expectTrue(channel->respond(answer(first)) && batch->done && resumes == before + 1 && channel->inputs.empty(),
                     "batch resumes exactly once");
     output.clear();

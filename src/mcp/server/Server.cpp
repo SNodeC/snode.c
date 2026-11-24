@@ -54,12 +54,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <compare>
-#include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <initializer_list>
 #include <map>
 #include <memory>
+#include <nlohmann/json-schema.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <set>
@@ -86,161 +86,46 @@ namespace mcp::server {
             return id.is_string() || id.is_number_integer();
         }
 
-        bool isType(const Json& value, const std::string& type) {
-            const bool result = (type == "object" && value.is_object()) || (type == "array" && value.is_array()) ||
-                                (type == "string" && value.is_string()) || (type == "number" && value.is_number()) ||
-                                (type == "integer" && value.is_number() && std::isfinite(value.get<double>()) &&
-                                 std::floor(value.get<double>()) >= value.get<double>()) ||
-                                (type == "boolean" && value.is_boolean()) || (type == "null" && value.is_null());
+        nlohmann::json_schema::json_validator schemaValidator() {
+            nlohmann::json_schema::json_validator validator(
+                nullptr,
+                [](const std::string&, const std::string&) {
+                },
+                [](const std::string&, const std::string&, const Json&) {
+                });
+            validator.set_default_dialect(nlohmann::json_schema::schema_dialect::draft2020_12);
+            nlohmann::json_schema::validation_limits limits;
+            limits.max_schemas = 1024;
+            validator.set_validation_limits(limits);
 
-            return result;
+            return validator;
         }
 
-        bool nonnegative(const Json& value) {
-            return value.is_number_integer() && (value.is_number_unsigned() || value.get<std::int64_t>() >= 0);
+        class InputValidationError final : public std::invalid_argument {
+        public:
+            using std::invalid_argument::invalid_argument;
+            ~InputValidationError() final;
+        };
+
+        InputValidationError::~InputValidationError() = default;
+
+        class SchemaError final : public nlohmann::json_schema::error_handler {
+        public:
+            explicit SchemaError(std::string& message);
+            void error(const Json::json_pointer& pointer, const Json&, const std::string& reason) final;
+
+        private:
+            std::string& message;
+        };
+
+        SchemaError::SchemaError(std::string& message)
+            : message(message) {
         }
 
-        bool schemaShape(const Json& schema, std::string& error, std::size_t depth, std::size_t& nodes) {
-            static const std::set<std::string> keywords = {"$schema",
-                                                           "type",
-                                                           "properties",
-                                                           "required",
-                                                           "additionalProperties",
-                                                           "items",
-                                                           "enum",
-                                                           "const",
-                                                           "minimum",
-                                                           "maximum",
-                                                           "minLength",
-                                                           "maxLength",
-                                                           "minItems",
-                                                           "maxItems",
-                                                           "title",
-                                                           "description",
-                                                           "default"};
-            static const std::set<std::string> types = {"object", "array", "string", "number", "integer", "boolean", "null"};
-            ++nodes;
-            bool good = depth <= 16 && nodes <= 256 && (schema.is_object() || schema.is_boolean());
-            if (!good) {
-                error = "schema shape/depth/node limit";
-            } else if (schema.is_object()) {
-                for (auto item = schema.begin(); item != schema.end() && good; ++item) {
-                    const std::string& key = item.key();
-                    const Json& value = item.value();
-                    good = keywords.contains(key);
-                    if (good && key == "$schema") {
-                        good = value == "https://json-schema.org/draft/2020-12/schema" ||
-                               value == "https://json-schema.org/draft/2020-12/schema#";
-                    } else if (good && key == "type") {
-                        Json alternatives = value.is_array() ? value : Json::array({value});
-                        std::set<std::string> seen;
-                        good = !alternatives.empty();
-                        for (const auto& type : alternatives) {
-                            good = good && type.is_string() && types.contains(type.get<std::string>()) &&
-                                   seen.insert(type.get<std::string>()).second;
-                        }
-                    } else if (good && key == "properties") {
-                        good = value.is_object();
-                        for (auto property = value.begin(); property != value.end() && good; ++property) {
-                            good = schemaShape(property.value(), error, depth + 1, nodes);
-                        }
-                    } else if (good && key == "items") {
-                        good = schemaShape(value, error, depth + 1, nodes);
-                    } else if (good && key == "required") {
-                        good = value.is_array();
-                        std::set<std::string> seen;
-                        for (const auto& property : value) {
-                            good = good && property.is_string() && seen.insert(property.get<std::string>()).second;
-                        }
-                    } else if (good && key == "additionalProperties") {
-                        good = value.is_boolean();
-                    } else if (good && (key == "minimum" || key == "maximum")) {
-                        good = value.is_number() && std::isfinite(value.get<double>());
-                    } else if (good && (key == "minLength" || key == "maxLength" || key == "minItems" || key == "maxItems")) {
-                        good = nonnegative(value);
-                    } else if (good && (key == "title" || key == "description")) {
-                        good = value.is_string();
-                    } else if (good && key == "enum") {
-                        good = value.is_array() && !value.empty();
-                        for (std::size_t i = 0; i < value.size() && good; ++i) {
-                            for (std::size_t j = 0; j < i && good; ++j) {
-                                good = value[i] != value[j];
-                            }
-                        }
-                    }
-
-                    if (!good && error.empty()) {
-                        error = "unsupported or malformed schema keyword: " + key;
-                    }
-                }
+        void SchemaError::error(const Json::json_pointer& pointer, const Json&, const std::string& reason) {
+            if (message.empty()) {
+                message = pointer.to_string() + ": " + reason;
             }
-
-            return good;
-        }
-
-        bool matches(const Json& schema, const Json& value, std::string& error, std::size_t depth) {
-            bool good = depth <= 64;
-            if (schema.is_boolean()) {
-                good = good && schema.get<bool>();
-            } else if (good) {
-                if (schema.contains("type")) {
-                    const Json alternatives = schema["type"].is_array() ? schema["type"] : Json::array({schema["type"]});
-                    good = std::any_of(alternatives.begin(), alternatives.end(), [&value](const Json& type) {
-                        return isType(value, type.get<std::string>());
-                    });
-                }
-
-                if (schema.contains("enum")) {
-                    good = good && std::find(schema["enum"].begin(), schema["enum"].end(), value) != schema["enum"].end();
-                }
-
-                if (schema.contains("const")) {
-                    good = good && value == schema["const"];
-                }
-
-                if (value.is_number()) {
-                    good = good && (!schema.contains("minimum") || value >= schema["minimum"]) &&
-                           (!schema.contains("maximum") || value <= schema["maximum"]);
-                }
-
-                if (value.is_string()) {
-                    const std::string& text = value.get_ref<const std::string&>();
-                    const auto length = static_cast<std::size_t>(std::count_if(text.begin(), text.end(), [](char c) {
-                        return (static_cast<unsigned char>(c) & 0xc0U) != 0x80U;
-                    }));
-                    good = good && (!schema.contains("minLength") || Json(length) >= schema["minLength"]) &&
-                           (!schema.contains("maxLength") || Json(length) <= schema["maxLength"]);
-                }
-
-                if (value.is_array()) {
-                    good = good && (!schema.contains("minItems") || Json(value.size()) >= schema["minItems"]) &&
-                           (!schema.contains("maxItems") || Json(value.size()) <= schema["maxItems"]);
-                    for (auto item = value.begin(); item != value.end() && good && schema.contains("items"); ++item) {
-                        good = matches(schema["items"], *item, error, depth + 1);
-                    }
-                }
-
-                if (value.is_object()) {
-                    for (const auto& required : schema.value("required", Json::array())) {
-                        good = good && value.contains(required.get<std::string>());
-                    }
-
-                    const Json properties = schema.value("properties", Json::object());
-                    for (auto item = value.begin(); item != value.end() && good; ++item) {
-                        if (properties.contains(item.key())) {
-                            good = matches(properties[item.key()], item.value(), error, depth + 1);
-                        } else {
-                            good = schema.value("additionalProperties", true);
-                        }
-                    }
-                }
-            }
-
-            if (!good && error.empty()) {
-                error = "arguments do not satisfy the registered schema";
-            }
-
-            return good;
         }
 
     } // namespace
@@ -254,13 +139,18 @@ namespace mcp::server {
                 const auto response = found->second.response.lock();
                 const std::string key = found->second.key;
                 if (response) {
-                    response->expire();
                     const Json result = message.value("result", Json());
                     const Json failure = message.value("error", Json());
                     const Json action = result.is_object() ? result.value("action", Json()) : Json();
                     const Json content = result.is_object() ? result.value("content", Json()) : Json();
-                    const bool failed = failure.is_object() && failure.value("code", Json()).is_number_integer() &&
-                                        failure.value("message", Json()).is_string();
+                    bool failed = failure.is_object() && failure.value("code", Json()).is_number_integer() &&
+                                  failure.value("message", Json()).is_string();
+                    std::string validationError;
+                    if (action == "accept" && !found->second.requestedSchema.is_null()) {
+                        failed = !Access::Registry::validate(found->second.requestedSchema, content, validationError) || failed;
+                    }
+
+                    response->expire();
                     if (!response->done && (failed || ((action == "accept" || action == "decline" || action == "cancel") &&
                                                        (content.is_null() || content.is_object())))) {
                         accepted = true;
@@ -396,6 +286,7 @@ namespace mcp::server {
                 Json value{{"resultType", "input_required"}};
                 Json missing = Json::object();
                 bool valid = true;
+                std::string validationError;
                 const auto capability = clientCapabilities.value("elicitation", Json());
                 for (const auto& [key, request] : input.requests) {
                     std::visit(
@@ -414,7 +305,7 @@ namespace mcp::server {
                                 valid = valid && item.requestedSchema.is_object() &&
                                         item.requestedSchema.value("type", Json()) == "object" &&
                                         item.requestedSchema.value("properties", Json()).is_object() &&
-                                        item.requestedSchema.dump().size() <= 16384;
+                                        Access::Registry::checkSchema(item.requestedSchema, validationError);
                                 if (valid) {
                                     for (const auto& property : item.requestedSchema["properties"]) {
                                         const auto type = property.is_object() ? property.value("type", Json()) : Json();
@@ -472,7 +363,8 @@ namespace mcp::server {
                                     request["params"]["elicitationId"] = requestId;
                                 }
 
-                                current->inputs.emplace(requestId.dump(), Channel::Input{keep, key});
+                                current->inputs.emplace(requestId.dump(),
+                                                        Channel::Input{keep, key, request["params"].value("requestedSchema", Json())});
                                 messages.push_back({{"jsonrpc", "2.0"},
                                                     {"id", requestId},
                                                     {"method", "elicitation/create"},
@@ -591,16 +483,38 @@ namespace mcp::server {
     }
 
     bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
-        std::size_t nodes = 0;
+        bool good = false;
         error.clear();
+        try {
+            if (schema.dump().size() <= 16384) {
+                auto validator = schemaValidator();
+                validator.validate_schema(schema);
+                validator.set_root_schema(schema);
+                good = true;
+            } else {
+                error = "schema exceeds 16384-byte limit";
+            }
+        } catch (const std::exception& exception) {
+            error = exception.what();
+        }
 
-        return schema.dump().size() <= 16384 && schemaShape(schema, error, 0, nodes);
+        return good;
     }
 
     bool Server::Impl::validate(const Json& schema, const Json& value, std::string& error) {
+        bool good = false;
         error.clear();
+        try {
+            auto validator = schemaValidator();
+            validator.set_root_schema(schema);
+            SchemaError handler(error);
+            validator.validate(value, handler);
+            good = error.empty();
+        } catch (const std::exception& exception) {
+            error = exception.what();
+        }
 
-        return matches(schema, value, error, 0);
+        return good;
     }
 
     void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
@@ -1075,6 +989,8 @@ namespace mcp::server {
                                                 PromptGet{Access::context(current), arguments.get<std::map<std::string, std::string>>()},
                                                 Access::wrap<PromptResult>(current));
                                         }
+                                    } catch (const InputValidationError& error) {
+                                        current->error(-32602, error.what());
                                     } catch (...) {
                                         snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "handler failed";
                                         current->error(-32603, "Internal error");
@@ -1430,6 +1346,23 @@ namespace mcp::server {
 
     const std::map<std::string, InputResponse>& RequestContext::getInputResponses() const {
         return impl->inputResponses;
+    }
+
+    const InputResponse* RequestContext::getInputResponse(const std::string& key, const Json& requestedSchema) const {
+        const InputResponse* result = nullptr;
+        const auto found = impl->inputResponses.find(key);
+        if (found != impl->inputResponses.end()) {
+            std::string error;
+            if (found->second.action == ElicitationAction::Accept &&
+                (!Access::Registry::checkSchema(requestedSchema, error) ||
+                 !Access::Registry::validate(requestedSchema, found->second.content, error))) {
+                throw InputValidationError("Invalid elicitation response " + key + ": " + error);
+            }
+
+            result = &found->second;
+        }
+
+        return result;
     }
 
     const std::optional<std::string>& RequestContext::getRequestState() const {

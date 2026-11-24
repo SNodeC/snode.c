@@ -63,7 +63,7 @@ namespace mcp::server {
     struct ToolDefinition {
         std::string name;                   ///< Nonempty owned protocol identifier.
         std::string description{};          ///< Owned human-readable description.
-        Json inputSchema{};                 ///< Owned supported object-input schema.
+        Json inputSchema{};                 ///< Owned object-input schema; 2020-12 default, explicit draft-07 supported.
         std::optional<Json> outputSchema{}; ///< Optional owned successful-output schema.
         std::optional<std::string> title{}; ///< Optional owned display title.
         Json annotations{};                 ///< Optional protocol tool annotations; null omits them.
