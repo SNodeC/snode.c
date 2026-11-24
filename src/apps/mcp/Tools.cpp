@@ -64,13 +64,14 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
