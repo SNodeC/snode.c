@@ -69,6 +69,7 @@ if(CLANG_FORMAT)
     endfunction(filter_items)
 
     filter_items(CHECK_CXX_SOURCE_FILES "/build/")
+    filter_items(CHECK_CXX_SOURCE_FILES "/json-schema-validator/")
 
     add_custom_command(
         OUTPUT format-cmds

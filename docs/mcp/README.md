@@ -8,7 +8,7 @@ The MCP libraries (`mcp-server` and `mcp-server-http`), their installed headers 
 
 ## Build and consume
 
-Configure the canonical checkout with an external build directory. Set `BUILD_DIR` and `HEADER_ROOT` for your environment; `HEADER_ROOT` must name the actual installed SNode.C header directory, whose children include `core/` and `express/`.
+Initialize dependencies with `git submodule update --init --recursive` (or clone with `--recurse-submodules`) and install the PCRE2 development package providing pkg-config `libpcre2-8` (for example, `libpcre2-dev` on Debian/Ubuntu). MCP configuration fails explicitly if PCRE2 is unavailable. Configure the canonical checkout with an external build directory. Set `BUILD_DIR` and `HEADER_ROOT` for your environment; `HEADER_ROOT` must name the actual installed SNode.C header directory, whose children include `core/` and `express/`.
 
 ```sh
 cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE=Debug \
