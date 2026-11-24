@@ -26,7 +26,7 @@ Alternatives, not implemented:
 
 ## Owner-approved replacement
 
-The owner selected the existing MIT-licensed `VolkerChristian/json-schema-validator` fork, rebased on upstream `pboettch/json-schema-validator` commit `d5199551f758ba067612979ae32ec35693640ccf`. The standalone development branch `draft-2020-12` ends at `1712437`; SNode.C pins that commit as a private static/PIC submodule dependency. No public MCP header exposes the validator. PCRE2 (`libpcre2-8`, BSD-3-Clause) is required; the validator is not installed separately. The fork's release version is 2.5.0: additive dialect APIs/features, with draft-07 still its library default. SNode.C selects 2020-12 explicitly.
+The owner selected the existing MIT-licensed `VolkerChristian/json-schema-validator` fork, rebased on upstream `pboettch/json-schema-validator` commit `d5199551f758ba067612979ae32ec35693640ccf`. The standalone development branch `draft-2020-12` ends at `f032e8f`; SNode.C pins that commit as a private static/PIC submodule dependency. No public MCP header exposes the validator. PCRE2 (`libpcre2-8`, BSD-3-Clause) is required; the validator is not installed separately. The fork's release version is 2.5.0: additive dialect APIs/features, with draft-07 still its library default. SNode.C selects 2020-12 explicitly.
 
 The official test suite is vendored at commit `e2a68a15cd490750fd6b95e604e4054d7d978d1f`, using its dialect compatibility algorithm and inline external fixtures. Required tests, optional tests and optional format assertions are separate CTests. No network tests are silently counted as passing and no expected results were changed.
 
@@ -48,3 +48,5 @@ A 2025 live elicitation channel retains its server-owned pending schema and vali
 Downstream qualification exposed a 2020-12 reference-wrapper default regression: MQTT bridge startup lacked a referenced `mqtt` default. Default lookup is now one cycle-bounded traversal shared by reference and sibling-schema nodes; the validator regression covers inherited defaults and cycles. MQTTSuite requires no production workaround.
 
 The MCP adapter explicitly supplies annotation-only format/content callbacks for both supported dialects. This prevents the library's legacy draft-07 missing-checker policy from rejecting otherwise valid declared schemas; the standalone library's default and opt-in checker behavior remain unchanged. Tests cover invalid format/content strings in both dialects.
+
+An additional dialect regression applies `$ref` and `$dynamicRef` simultaneously in one schema object. Both reference applicators now contribute validation through the existing applicator list; neither replaces the other. This combination is not in the pinned required snapshot; see [2020-12 reference semantics](https://json-schema.org/draft/2020-12/json-schema-core#section-8.2.3).
