@@ -206,8 +206,7 @@ define BuildSNodeCModule
   
   define Package/snodec-$(1)/install
 	$(INSTALL_DIR) $$(1)$(3)
-	$(CP) $(PKG_INSTALL_DIR)$(3)/libsnodec-$(1).so.$(SO_VERSION) $$(1)$(3)/
-	$(CP) $(PKG_INSTALL_DIR)$(3)/libsnodec-$(1).so.$(PKG_VERSION) $$(1)$(3)/
+	$(CP) $(PKG_INSTALL_DIR)$(3)/libsnodec-$(1).so.* $$(1)$(3)/
   endef
 
   $$(eval $$(call BuildPackage,snodec-$(1)))
@@ -276,7 +275,8 @@ define Package/snodec-apps
            +snodec-websocket-client \
            +snodec-mqtt-server \
            +snodec-mqtt-client \
-           +snodec-db-mariadb
+           +snodec-db-mariadb \
+           +snodec-mcp-server-http +snodec-net-stdio-stream
 endef
 
 define Package/snodec-apps/description
@@ -285,6 +285,8 @@ define Package/snodec-apps/description
 endef
 
 define Package/snodec-apps/install
+	$(INSTALL_DIR) $(1)/usr/share/snode.c/skills
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/snode.c/skills/snodec-development $(1)/usr/share/snode.c/skills/
 	$(INSTALL_DIR) $(1)/usr/bin
 	find $(PKG_INSTALL_DIR)/usr/bin -mindepth 1 -maxdepth 1 ! -name snodec-control -exec $(CP) {} $(1)/usr/bin/ \;
 	$(INSTALL_DIR) $(1)/usr/lib/snode.c/web/http/upgrade/websocket
@@ -318,6 +320,7 @@ $(eval $(call BuildSNodeCModule,core,+snodec-utils +libatomic +SNODEC_EPOLL:snod
 $(eval $(call BuildSNodeCModule,core-socket,+snodec-core,/usr/lib))
 $(eval $(call BuildSNodeCModule,core-socket-stream,+snodec-core-socket,/usr/lib))
 $(eval $(call BuildSNodeCModule,core-socket-stream-legacy,+snodec-core-socket-stream,/usr/lib))
+$(eval $(call BuildSNodeCModule,core-socket-stream-stdio,+snodec-core-socket-stream,/usr/lib))
 $(eval $(call BuildSNodeCModule,core-socket-stream-tls,+snodec-core-socket-stream +libopenssl,/usr/lib))
 $(eval $(call BuildSNodeCModule,db-mariadb,+snodec-core +libmariadb,/usr/lib))
 $(eval $(call BuildSNodeCModule,net,+snodec-core-socket,/usr/lib))
@@ -352,6 +355,9 @@ $(eval $(call BuildSNodeCModule,net-un-stream,+snodec-net-un-phy-stream,/usr/lib
 $(eval $(call BuildSNodeCModule,net-un-stream-legacy,+snodec-net-un-stream +snodec-core-socket-stream-legacy,/usr/lib))
 $(eval $(call BuildSNodeCModule,net-un-stream-tls,+snodec-net-un-stream +snodec-core-socket-stream-tls,/usr/lib))
 $(eval $(call BuildSNodeCModule,net-un-dgram,+snodec-net-un-phy +snodec-net-un,/usr/lib))
+$(eval $(call BuildSNodeCModule,net-stdio,+snodec-net,/usr/lib))
+$(eval $(call BuildSNodeCModule,net-stdio-phy-stream,+snodec-net-stdio,/usr/lib))
+$(eval $(call BuildSNodeCModule,net-stdio-stream,+snodec-net-stdio-phy-stream +snodec-core-socket-stream-stdio,/usr/lib))
 $(eval $(call BuildSNodeCModule,http,+snodec-core-socket-stream +libmagic,/usr/lib/snode.c/web/http))
 $(eval $(call BuildSNodeCModule,http-server,+snodec-http,/usr/lib/snode.c/web/http))
 $(eval $(call BuildSNodeCModule,http-client,+snodec-http,/usr/lib/snode.c/web/http))
@@ -372,3 +378,6 @@ $(eval $(call BuildSNodeCModule,mqtt-server,+snodec-mqtt,/usr/lib/snode.c/iot/mq
 $(eval $(call BuildSNodeCModule,mqtt-client,+snodec-mqtt,/usr/lib/snode.c/iot/mqtt))
 $(eval $(call BuildSNodeCModule,mqtt-server-websocket,+snodec-mqtt-server +snodec-websocket-server,/usr/lib/snode.c/iot/mqtt))
 $(eval $(call BuildSNodeCModule,mqtt-client-websocket,+snodec-mqtt-client +snodec-websocket-client,/usr/lib/snode.c/iot/mqtt))
+
+$(eval $(call BuildSNodeCModule,mcp-server,+snodec-core-socket-stream,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp-server-http,+snodec-mcp-server +snodec-http-server-express,/usr/lib/snode.c/mcp))
