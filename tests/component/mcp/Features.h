@@ -80,9 +80,29 @@ namespace tests::mcp {
             server.resourceUpdated("test://updates");
             reply->result(ToolResult::text(*current));
         });
+        const Json form{{"type", "object"}, {"properties", {{"label", {{"type", "string"}}}}}};
+        server.resource({"test://ask", "ask"}, [form](const auto& request, const auto& reply) {
+            if (request.context.getInputResponses().empty()) {
+                reply->inputRequired(InputRequired{{{"choice", FormInput{"Label", form}}}, "resource-state"});
+            } else {
+                reply->result(ResourceResult{{TextResource{request.uri, "text/plain", *request.context.getRequestState()}}});
+            }
+        });
+        server.prompt({"ask"}, [form](const auto& request, const auto& reply) {
+            if (request.context.getInputResponses().empty()) {
+                reply->inputRequired(InputRequired{{{"choice", FormInput{"Label", form}}}, "prompt-state"});
+            } else {
+                reply->result(PromptResult{{}, {PromptMessage{Role::User, TextContent{*request.context.getRequestState()}}}});
+            }
+        });
         server.tool({"ask", {}, schema}, [](const auto& request, const auto& reply) {
             if (request.context.getInputResponses().empty()) {
-                reply->inputRequired(InputRequired{{{"choice", UrlInput{"Choose", "https://example.com/choice"}}}, "opaque"});
+                InputRequired input{{{"choice", UrlInput{"Choose", "https://example.com/choice"}}}, "opaque"};
+                if (request.arguments.value("mode", std::string()) == "form") {
+                    input.requests["choice"] = FormInput{"Label", {{"type", "object"}, {"properties", {{"label", {{"type", "string"}}}}}}};
+                }
+
+                reply->inputRequired(std::move(input));
             } else {
                 reply->result(ToolResult::text(*request.context.getRequestState()));
             }

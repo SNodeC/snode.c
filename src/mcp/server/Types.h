@@ -85,7 +85,7 @@ namespace mcp::server {
     };
     /// Whether a once-only completion was accepted on the event-loop thread.
     enum class Completion {
-        Accepted, ///< This call completed the live request.
+        Accepted, ///< This call completed the request or accepted an input request.
         Inactive  ///< The request had already completed or been cancelled.
     };
     /// Application errors valid in both protocol eras; envelope errors stay private.
@@ -109,7 +109,7 @@ namespace mcp::server {
     /// User's explicit elicitation disposition; never an authorization assertion.
     enum class ElicitationAction { Accept, Decline, Cancel };
 
-    /// Owned retry input; content must be validated by the application against the requested form.
+    /// Owned elicitation input; content must be validated by the application against the requested form.
     struct InputResponse {
         ElicitationAction action; ///< Explicit client choice, delivered on the event loop.
         Json content{};           ///< Owned untrusted form data; null when absent.
@@ -127,7 +127,7 @@ namespace mcp::server {
         std::string url;     ///< Owned absolute HTTP(S) URL; never fetched by this module.
     };
 
-    /// Owned multi-round-trip continuation; requests are uniquely keyed, at most 16 per result.
+    /// Owned elicitation round; modern retry or legacy handler resumption, at most 16 requests.
     struct InputRequired {
         std::map<std::string, std::variant<FormInput, UrlInput>> requests; ///< Owned elicitation requests.
         std::optional<std::string>

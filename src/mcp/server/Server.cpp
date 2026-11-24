@@ -61,6 +61,7 @@
 #include <map>
 #include <memory>
 #include <nlohmann/detail/iterators/iter_impl.hpp>
+#include <nlohmann/detail/iterators/iteration_proxy.hpp>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -243,6 +244,76 @@ namespace mcp::server {
 
     } // namespace
 
+    bool detail::Channel::respond(const Json& message) {
+        bool accepted = false;
+        if (active && message.is_object() && message.value("jsonrpc", Json()) == "2.0" && !message.contains("method") &&
+            validId(message.value("id", Json())) && message.contains("result") != message.contains("error")) {
+            const auto found = inputs.find(message["id"].dump());
+            if (found != inputs.end()) {
+                const auto response = found->second.response.lock();
+                const std::string key = found->second.key;
+                if (response) {
+                    response->expire();
+                    const Json result = message.value("result", Json());
+                    const Json failure = message.value("error", Json());
+                    const Json action = result.is_object() ? result.value("action", Json()) : Json();
+                    const Json content = result.is_object() ? result.value("content", Json()) : Json();
+                    const bool failed = failure.is_object() && failure.value("code", Json()).is_number_integer() &&
+                                        failure.value("message", Json()).is_string();
+                    if (!response->done && (failed || ((action == "accept" || action == "decline" || action == "cancel") &&
+                                                       (content.is_null() || content.is_object())))) {
+                        accepted = true;
+                        inputs.erase(message["id"].dump());
+                        if (failed) {
+                            if (response->toolRequest) {
+                                response->result(
+                                    {{"isError", true}, {"content", {{{"type", "text"}, {"text", "Client elicitation failed"}}}}});
+                            } else {
+                                response->error(-32603, "Client elicitation failed");
+                            }
+                        } else {
+                            response->inputResponses[key] = InputResponse{action == "accept"    ? ElicitationAction::Accept
+                                                                          : action == "decline" ? ElicitationAction::Decline
+                                                                                                : ElicitationAction::Cancel,
+                                                                          content};
+                            if (std::none_of(inputs.begin(), inputs.end(), [&response](const auto& item) {
+                                    return item.second.response.lock() == response;
+                                })) {
+                                const auto resume = response->resume;
+                                resume();
+                            }
+                        }
+                    }
+                } else {
+                    inputs.erase(found);
+                }
+            }
+        }
+
+        return accepted;
+    }
+
+    void detail::Channel::forget(const Response& response) {
+        std::vector<Json> ids;
+        std::erase_if(inputs, [&response, &ids](const auto& item) {
+            const auto current = item.second.response.lock();
+            const bool remove = !current || current.get() == &response;
+            if (current && remove) {
+                ids.push_back(Json::parse(item.first));
+            }
+
+            return remove;
+        });
+        if (active) {
+            for (const auto& id : ids) {
+                response.output({{"jsonrpc", "2.0"},
+                                 {"method", "notifications/cancelled"},
+                                 {"params", {{"requestId", id}, {"reason", "Originating request ended"}}}},
+                                false);
+            }
+        }
+    }
+
     detail::Response::Response(Json id, ProtocolEra era, CachePolicy cachePolicy, Output output, const utils::Timeval& timeout)
         : id(validId(id) ? std::move(id) : Json())
         , era(era)
@@ -298,6 +369,10 @@ namespace mcp::server {
                 value["_meta"]["io.modelcontextprotocol/serverInfo"] = serverInfo;
             }
 
+            if (const auto current = channel.lock()) {
+                current->forget(*this);
+            }
+
             done = true;
             completion = Completion::Accepted;
             timer.cancel();
@@ -310,11 +385,11 @@ namespace mcp::server {
 
     Completion detail::Response::inputRequired(InputRequired input) {
         Completion completion = Completion::Inactive;
+        const auto keep = weak_from_this().lock();
+        expire();
         if (!done) {
-            if (era != ProtocolEra::PerRequest20260728) {
-                completion = error(-32602, "input_required requires protocol 2026-07-28");
-            } else if (input.requests.size() > 16 || (input.requests.empty() && !input.requestState) ||
-                       (input.requestState && input.requestState->size() > 16384)) {
+            if (input.requests.size() > 16 || (input.requests.empty() && !input.requestState) ||
+                (input.requestState && input.requestState->size() > 16384)) {
                 completion = error(-32603, "Invalid continuation size or missing input/state");
             } else {
                 Json value{{"resultType", "input_required"}};
@@ -360,15 +435,59 @@ namespace mcp::server {
                 }
 
                 if (!missing.empty()) {
-                    completion = error(-32021, "Missing required client capability", {{"requiredCapabilities", std::move(missing)}});
+                    if (era == ProtocolEra::Initialization20251125 && toolRequest) {
+                        completion =
+                            result({{"isError", true},
+                                    {"content", {{{"type", "text"}, {"text", "Client does not support the requested elicitation mode"}}}}});
+                    } else {
+                        completion = error(era == ProtocolEra::PerRequest20260728 ? -32021 : -32602,
+                                           "Missing required client capability",
+                                           {{"requiredCapabilities", std::move(missing)}});
+                    }
                 } else if (!valid) {
                     completion = error(-32603, "Malformed elicitation request");
                 } else {
-                    if (input.requestState) {
+                    if (input.requestState && era == ProtocolEra::PerRequest20260728) {
                         value["requestState"] = std::move(*input.requestState);
                     }
 
-                    completion = result(std::move(value));
+                    if (era == ProtocolEra::PerRequest20260728) {
+                        completion = result(std::move(value));
+                    } else if (const auto current = channel.lock(); current && current->active && resume && !input.requests.empty()) {
+                        const bool waiting = std::any_of(current->inputs.begin(), current->inputs.end(), [this](const auto& item) {
+                            const auto owner = item.second.response.lock();
+                            return owner.get() == this;
+                        });
+                        if (waiting || current->inputs.size() + input.requests.size() > 1024 ||
+                            current->nextInput > UINT64_MAX - input.requests.size()) {
+                            completion = error(-32603, "Elicitation already pending or capacity exceeded");
+                        } else {
+                            inputResponses.clear();
+                            requestState = std::move(input.requestState);
+                            std::vector<Json> messages;
+                            for (auto& [key, request] : value["inputRequests"].items()) {
+                                const Json requestId = "snodec.elicitation." + std::to_string(++current->nextInput);
+                                if (request["params"]["mode"] == "url") {
+                                    request["params"]["elicitationId"] = requestId;
+                                }
+
+                                current->inputs.emplace(requestId.dump(), Channel::Input{keep, key});
+                                messages.push_back({{"jsonrpc", "2.0"},
+                                                    {"id", requestId},
+                                                    {"method", "elicitation/create"},
+                                                    {"params", std::move(request["params"])}});
+                            }
+
+                            completion = Completion::Accepted;
+                            for (const auto& message : messages) {
+                                if (!done) {
+                                    output(message, false);
+                                }
+                            }
+                        }
+                    } else {
+                        completion = error(-32602, "Legacy elicitation requires a live initialized channel and input requests");
+                    }
                 }
             }
         }
@@ -391,6 +510,10 @@ namespace mcp::server {
 
             if (!data.is_null()) {
                 response["error"]["data"] = std::move(data);
+            }
+
+            if (const auto current = channel.lock()) {
+                current->forget(*this);
             }
 
             done = true;
@@ -449,6 +572,10 @@ namespace mcp::server {
             } else {
                 if (reason == CancelReason::Shutdown && subscription) {
                     notify("notifications/cancelled", {{"requestId", id}, {"reason", "subscription closed"}});
+                }
+
+                if (const auto current = channel.lock()) {
+                    current->forget(*this);
                 }
 
                 done = true;
@@ -620,6 +747,7 @@ namespace mcp::server {
         reply->serverInfo = serverInfo;
         reply->closure = channel && era == ProtocolEra::PerRequest20260728 ? SubscriptionClosure::Cancel : SubscriptionClosure::Complete;
         reply->principal = std::move(principal);
+        reply->channel = channel;
         if (era == ProtocolEra::Initialization20251125 || method != "subscriptions/listen") {
             const std::weak_ptr<Response> weak = reply;
             reply->timer = core::timer::Timer::singleshotTimer(
@@ -640,7 +768,9 @@ namespace mcp::server {
                 const Json params = request.value("params", Json::object());
                 const Json meta = params.value("_meta", Json::object());
                 const Json version = meta.is_object() ? meta.value(versionKey, Json()) : Json();
-                reply->clientCapabilities = meta.is_object() ? meta.value(capabilitiesKey, Json::object()) : Json::object();
+                reply->clientCapabilities = era == ProtocolEra::Initialization20251125 && channel ? channel->capabilities
+                                            : meta.is_object() ? meta.value(capabilitiesKey, Json::object())
+                                                               : Json::object();
                 const Json retry = params.value("inputResponses", Json::object());
                 bool validRetry =
                     retry.is_object() && retry.size() <= 16 &&
@@ -695,8 +825,13 @@ namespace mcp::server {
                     reply->error(-32602, "Malformed initialize parameters");
                 } else if ((era == ProtocolEra::PerRequest20260728 && method == "server/discover") ||
                            (era == ProtocolEra::Initialization20251125 && method == "initialize")) {
+                    if (era == ProtocolEra::Initialization20251125 && channel) {
+                        channel->capabilities = params["capabilities"];
+                    }
+
                     Json advertised = capabilities();
-                    if (advertised.contains("resources") && (era == ProtocolEra::PerRequest20260728 || channel)) {
+                    if (advertised.contains("resources") &&
+                        (era == ProtocolEra::PerRequest20260728 || (channel && channel->resourceSubscriptions))) {
                         advertised["resources"]["subscribe"] = true;
                     }
 
@@ -753,7 +888,7 @@ namespace mcp::server {
                            (method == "resources/subscribe" || method == "resources/unsubscribe")) {
                     const auto uri = params.value("uri", Json());
                     std::map<std::string, std::string> variables;
-                    if (!channel || !channel->active) {
+                    if (!channel || !channel->active || !channel->resourceSubscriptions) {
                         reply->error(-32601, "Transport has no legacy notification channel");
                     } else if (!uri.is_string() || uri.get_ref<const std::string&>().size() > 16384) {
                         reply->error(-32602, "Invalid resource subscription URI");
@@ -914,22 +1049,39 @@ namespace mcp::server {
                                 reply->outputSchema = entry->description["outputSchema"];
                             }
 
-                            if (kind == Kind::Tool) {
-                                std::get<std::shared_ptr<Tool>>(entry->handler)
-                                    ->call(ToolCall{Access::context(reply), arguments}, Access::wrap<ToolResult>(reply));
-                            } else if (kind == Kind::Resource) {
-                                const ResourceRead input{Access::context(reply), params["uri"], std::move(variables)};
-                                if (entry->kind == Kind::ResourceTemplate) {
-                                    std::get<std::shared_ptr<ResourceTemplate>>(entry->handler)
-                                        ->read(input, Access::wrap<ResourceResult>(reply));
-                                } else {
-                                    std::get<std::shared_ptr<Resource>>(entry->handler)->read(input, Access::wrap<ResourceResult>(reply));
+                            const std::weak_ptr<Response> weak = reply;
+                            reply->resume = [weak,
+                                             kind,
+                                             handler = entry->handler,
+                                             arguments,
+                                             uri = kind == Kind::Resource ? params["uri"].get<std::string>() : std::string(),
+                                             variables] {
+                                if (const auto current = weak.lock(); current && !current->done) {
+                                    try {
+                                        if (kind == Kind::Tool) {
+                                            std::get<std::shared_ptr<Tool>>(handler)->call(ToolCall{Access::context(current), arguments},
+                                                                                           Access::wrap<ToolResult>(current));
+                                        } else if (kind == Kind::Resource) {
+                                            const ResourceRead input{Access::context(current), uri, variables};
+                                            if (const auto* resource = std::get_if<std::shared_ptr<Resource>>(&handler)) {
+                                                (*resource)->read(input, Access::wrap<ResourceResult>(current));
+                                            } else {
+                                                std::get<std::shared_ptr<ResourceTemplate>>(handler)->read(
+                                                    input, Access::wrap<ResourceResult>(current));
+                                            }
+                                        } else {
+                                            std::get<std::shared_ptr<Prompt>>(handler)->get(
+                                                PromptGet{Access::context(current), arguments.get<std::map<std::string, std::string>>()},
+                                                Access::wrap<PromptResult>(current));
+                                        }
+                                    } catch (...) {
+                                        snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "handler failed";
+                                        current->error(-32603, "Internal error");
+                                    }
                                 }
-                            } else if (!reply->done) {
-                                std::get<std::shared_ptr<Prompt>>(entry->handler)
-                                    ->get(PromptGet{Access::context(reply), arguments.get<std::map<std::string, std::string>>()},
-                                          Access::wrap<PromptResult>(reply));
-                            }
+                            };
+                            const auto invoke = reply->resume;
+                            invoke();
                         }
                     }
                 } else {

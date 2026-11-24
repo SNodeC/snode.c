@@ -245,7 +245,6 @@ namespace mcp::server::http {
                     }
 
                     if (request.is_null() && channel) {
-                        channel->active = false;
                         channel->resources.clear();
                         channel->output = {};
                     }
@@ -413,6 +412,7 @@ namespace mcp::server::http {
 
                     result = std::make_shared<Channel>();
                     result->credential = req->get("Authorization");
+                    result->resourceSubscriptions = options.legacySubscriptions == LegacySubscriptions::Enabled;
                     sessions.emplace(token, Session{result, utils::Timeval::currentTime()});
                     res->set("Mcp-Session-Id", token);
                 }
@@ -431,6 +431,12 @@ namespace mcp::server::http {
 
                     channel->active = false;
                     channel->resources.clear();
+                    for (const auto& weak : operations) {
+                        if (const auto current = weak.lock(); current && current->channel == channel) {
+                            current->shutdown();
+                        }
+                    }
+
                     res->status(204).end();
                 } else if (!accepts(lower(req->get("Accept")), "text/event-stream")) {
                     res->status(406).end();
@@ -600,7 +606,15 @@ namespace mcp::server::http {
                 req->template getAttribute<Json>([&request](const Json& body) {
                     request = body;
                 });
-                if (!WireServer::validRequest(request)) {
+                if (request.is_object() && !request.contains("method") && (request.contains("result") || request.contains("error"))) {
+                    const auto channel = state->findSession(req);
+                    const bool accepted = headerEra == ProtocolEra::Initialization20251125 && channel && channel->respond(request);
+                    if (accepted) {
+                        res->status(202).end();
+                    } else {
+                        fail(res, request, headerEra, -32600, "Invalid Request");
+                    }
+                } else if (!WireServer::validRequest(request)) {
                     Access::registry(state->server).dispatch(request, headerEra, [res](const Json& value, bool) {
                         res->status(WireServer::httpStatus(value)).json(value);
                     });
@@ -628,6 +642,16 @@ namespace mcp::server::http {
                                 (needsName && !headerMatches(req->get("Mcp-Name"), name, true)))) {
                         fail(res, request, ProtocolEra::PerRequest20260728, -32020, "Header mismatch");
                     } else if (notification) {
+                        if (era == ProtocolEra::Initialization20251125 && method == "notifications/cancelled") {
+                            const auto channel = state->findSession(req);
+                            for (const auto& weak : state->operations) {
+                                if (const auto current = weak.lock(); current && channel && current->channel == channel && current->reply &&
+                                                                      current->reply->id == params.value("requestId", Json())) {
+                                    current->reply->cancel();
+                                }
+                            }
+                        }
+
                         res->status(202).end();
                     } else {
                         std::erase_if(state->operations, [](const auto& weak) {
@@ -636,9 +660,11 @@ namespace mcp::server::http {
                         if (state->stopping || state->operations.size() >= 64) {
                             res->status(429).end();
                         } else {
+                            const auto channel = era == ProtocolEra::Initialization20251125 ? state->findSession(req) : nullptr;
+                            const bool elicit = channel && channel->capabilities.contains("elicitation") && needsName;
                             const StreamMode mode =
-                                era == ProtocolEra::PerRequest20260728 &&
-                                        (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1))
+                                elicit || (era == ProtocolEra::PerRequest20260728 &&
+                                           (method == "subscriptions/listen" || (method == "tools/call" && req->httpMinor >= 1)))
                                     ? StreamMode::Sse
                                     : StreamMode::Json;
                             std::optional<Principal> principal;
@@ -647,12 +673,11 @@ namespace mcp::server::http {
                             });
                             auto operation =
                                 std::make_shared<Operation>(state->server, state->config, request, res, era, mode, std::move(principal));
-                            if (era == ProtocolEra::Initialization20251125 &&
-                                state->options.legacySubscriptions == LegacySubscriptions::Enabled) {
+                            if (era == ProtocolEra::Initialization20251125) {
                                 operation->channel = method == "initialize" && params.contains("capabilities") &&
                                                              params.contains("clientInfo") && params.contains("protocolVersion")
                                                          ? state->newSession(req, res)
-                                                         : state->findSession(req);
+                                                         : channel;
                             }
 
                             operation->owner = operation;

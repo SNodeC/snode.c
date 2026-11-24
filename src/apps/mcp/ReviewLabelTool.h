@@ -59,7 +59,7 @@ namespace apps::mcp {
 
 namespace apps::mcp {
 
-    /// Non-sensitive MRTR example; it changes only the shared demonstration label.
+    /// Non-sensitive elicitation example; it changes only the shared demonstration label.
     class ReviewLabelTool final : public ::mcp::server::Tool {
     public:
         /// Retain the resource through all requests; construct on the event loop before attachment.

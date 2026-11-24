@@ -63,11 +63,25 @@ namespace mcp::server::detail {
     inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
     inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
+    struct Response;
+
     struct Channel {
+        struct Input {
+            std::weak_ptr<Response> response;
+            std::string key;
+        };
+
+        bool respond(const Json& message);
+        void forget(const Response& response);
+
+        Json capabilities = Json::object();
+        std::map<std::string, Input> inputs;
+        std::uint64_t nextInput = 0;
         std::set<std::string> resources;
         std::function<void(const Json&)> output;
         std::string credential;
         bool active = true;
+        bool resourceSubscriptions = true;
     };
 
     struct Response : std::enable_shared_from_this<Response> {
@@ -97,6 +111,8 @@ namespace mcp::server::detail {
         Json serverInfo;
         std::map<std::string, InputResponse> inputResponses;
         std::optional<std::string> requestState;
+        std::weak_ptr<Channel> channel;
+        std::function<void()> resume;
         Json id;
         ProtocolEra era;
         CachePolicy cachePolicy;

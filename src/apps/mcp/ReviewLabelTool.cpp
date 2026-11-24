@@ -60,7 +60,7 @@ namespace apps::mcp {
 
     ReviewLabelTool::ReviewLabelTool(std::shared_ptr<ReviewLabelResource> resource)
         : Tool({"review.label",
-                "Choose a non-sensitive review label through elicitation (2026 protocol only). Does not modify files.",
+                "Choose a non-sensitive review label through elicitation. Does not modify files.",
                 parseSchema("review.label", R"json(
 {
     "type": "object",
