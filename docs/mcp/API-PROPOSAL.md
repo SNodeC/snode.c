@@ -956,7 +956,7 @@ and [schema requirements](https://modelcontextprotocol.io/specification/2026-07-
 
 Both eras validate registration schemas against offline metaschemas, tool inputs
 before dispatch, and structured outputs before emission. Unknown extension
-keywords remain annotations; 2020-12 format is annotation-only. Supported declared
+keywords remain annotations; format and content keywords are annotation-only in both supported dialects. Supported declared
 dialects are draft-07 and 2020-12; other dialects and unresolved external references
 fail explicitly. No network loader is installed. Bounds are 16 KiB per schema,
 1,024 compiled subschemas, depth 256 and 100,000 validation evaluations. The existing

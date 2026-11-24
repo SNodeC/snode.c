@@ -87,7 +87,12 @@ namespace mcp::server {
         }
 
         nlohmann::json_schema::json_validator schemaValidator() {
-            nlohmann::json_schema::json_validator validator;
+            nlohmann::json_schema::json_validator validator(
+                nullptr,
+                [](const std::string&, const std::string&) {
+                },
+                [](const std::string&, const std::string&, const Json&) {
+                });
             validator.set_default_dialect(nlohmann::json_schema::schema_dialect::draft2020_12);
             nlohmann::json_schema::validation_limits limits;
             limits.max_schemas = 1024;

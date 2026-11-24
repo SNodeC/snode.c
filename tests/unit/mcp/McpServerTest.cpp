@@ -350,6 +350,17 @@ int main(int argc, char* argv[]) {
                     "dynamic scope overrides recursion");
     test.expectTrue(Access::Registry::checkSchema(annotations, error) && Access::Registry::validate(annotations, "not-an-email", error),
                     "format and unknown extension keywords remain annotations");
+    Json declaredAnnotations = annotations;
+    declaredAnnotations["$schema"] = "http://json-schema.org/draft-07/schema#";
+    declaredAnnotations["contentEncoding"] = "base64";
+    declaredAnnotations["contentMediaType"] = "application/json";
+    test.expectTrue(Access::Registry::checkSchema(declaredAnnotations, error) &&
+                        Access::Registry::validate(declaredAnnotations, "not-an-email-or-base64-json", error),
+                    "declared draft-07 format and content are annotations, without missing-checker errors");
+    declaredAnnotations["$schema"] = "https://json-schema.org/draft/2020-12/schema";
+    test.expectTrue(Access::Registry::checkSchema(declaredAnnotations, error) &&
+                        Access::Registry::validate(declaredAnnotations, "not-an-email-or-base64-json", error),
+                    "2020-12 format and content annotations follow the same adapter policy");
     test.expectTrue(Access::Registry::checkSchema({{"enum", {1, 1}}, {"additionalProperties", Json::object()}}, error),
                     "2020-12 metaschema permits duplicate enum values and schema-valued additionalProperties");
     test.expectTrue(!Access::Registry::checkSchema({{"$ref", "https://example.invalid/not-fetched"}}, error) &&
