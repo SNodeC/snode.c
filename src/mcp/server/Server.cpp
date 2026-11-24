@@ -58,8 +58,6 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <nlohmann/detail/iterators/iter_impl.hpp>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <set>
@@ -69,6 +67,9 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+// IWYU pragma: no_include <nlohmann/detail/iterators/iter_impl.hpp>
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

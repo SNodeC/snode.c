@@ -50,9 +50,10 @@
 
 #include <map>
 #include <memory>
-#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
+
+// IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
