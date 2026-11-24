@@ -9,12 +9,14 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/SNodeC/snode.c.git
 PKG_SOURCE_VERSION:=$(or $(SNODEC_SOURCE_TAG),v$(PKG_VERSION))
+# Fetch only the pinned build dependency, not documentation/feed submodules.
+PKG_SOURCE_SUBMODULES:=src/mcp/server/json-schema-validator
 
 PKG_MAINTAINER:=Volker Christian <me@vchrist.at>
 PKG_LICENSE:=LGPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_DEPENDS:=nlohmannjson openssl file bluez libmariadb
+PKG_BUILD_DEPENDS:=nlohmannjson openssl file bluez libmariadb pcre2
 PKG_BUILD_PARALLEL:=1
 PKG_CONFIG_DEPENDS:=CONFIG_SNODEC_GROUP_NAME \
   CONFIG_SNODEC_EPOLL \
@@ -379,5 +381,5 @@ $(eval $(call BuildSNodeCModule,mqtt-client,+snodec-mqtt,/usr/lib/snode.c/iot/mq
 $(eval $(call BuildSNodeCModule,mqtt-server-websocket,+snodec-mqtt-server +snodec-websocket-server,/usr/lib/snode.c/iot/mqtt))
 $(eval $(call BuildSNodeCModule,mqtt-client-websocket,+snodec-mqtt-client +snodec-websocket-client,/usr/lib/snode.c/iot/mqtt))
 
-$(eval $(call BuildSNodeCModule,mcp-server,+snodec-core-socket-stream,/usr/lib/snode.c/mcp))
+$(eval $(call BuildSNodeCModule,mcp-server,+snodec-core-socket-stream +libpcre2,/usr/lib/snode.c/mcp))
 $(eval $(call BuildSNodeCModule,mcp-server-http,+snodec-mcp-server +snodec-http-server-express,/usr/lib/snode.c/mcp))
