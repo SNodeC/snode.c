@@ -209,6 +209,10 @@ define BuildSNodeCModule
   define Package/snodec-$(1)/install
 	$(INSTALL_DIR) $$(1)$(3)
 	$(CP) $(PKG_INSTALL_DIR)$(3)/libsnodec-$(1).so.* $$(1)$(3)/
+$(if $(filter mcp-server,$(1)),
+	$(INSTALL_DIR) $$(1)/usr/share/doc/snodec/mcp-server
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/doc/snodec/mcp-server/* $$(1)/usr/share/doc/snodec/mcp-server/
+)
   endef
 
   $$(eval $$(call BuildPackage,snodec-$(1)))
