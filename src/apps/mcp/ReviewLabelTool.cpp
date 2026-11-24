@@ -88,13 +88,14 @@ namespace apps::mcp {
 
     void ReviewLabelTool::call(const ::mcp::server::ToolCall& request, const std::shared_ptr<::mcp::server::ToolReply>& reply) {
         const auto& inputs = request.context.getInputResponses();
+        const auto* input = request.context.getInputResponse("label", formSchema);
         if (inputs.empty()) {
             reply->inputRequired(::mcp::server::InputRequired{
                 {{"label", ::mcp::server::FormInput{"Choose a non-sensitive review label.", formSchema}}}, {}});
-        } else if (!inputs.contains("label") || inputs.at("label").action != ::mcp::server::ElicitationAction::Accept) {
+        } else if (input == nullptr || input->action != ::mcp::server::ElicitationAction::Accept) {
             reply->result(::mcp::server::ToolResult::text("No label selected."));
         } else {
-            const auto& content = inputs.at("label").content;
+            const auto& content = input->content;
             const auto value = content.is_object() ? content.value("label", ::mcp::server::Json()) : ::mcp::server::Json();
             if (!value.is_string() || value.get_ref<const std::string&>().size() > 128) {
                 reply->error(::mcp::server::ErrorCode::InvalidParams, "label must be a string of at most 128 bytes");

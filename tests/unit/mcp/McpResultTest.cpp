@@ -40,13 +40,25 @@
  */
 
 #include "core/SNodeC.h"
+#include "mcp/server/Reply.h"
+#include "mcp/server/Results.h"
+#include "mcp/server/Server.h"
+#include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "tests/support/TestResult.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cmath>
+#include <initializer_list>
+#include <map>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
+#include <string>
+#include <variant>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -132,6 +144,60 @@ int main(int argc, char* argv[]) {
                                                   response = value;
                                               });
     test.expectTrue(response["result"]["isError"] == true, "legacy validates canonical value before content-only encoding");
+    const Json referenceSchema = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "$defs": {
+        "word": {
+            "type": "string",
+            "pattern": "^\\p{Letter}+$"
+        }
+    },
+    "properties": {
+        "word": {
+            "$ref": "#/$defs/word"
+        }
+    },
+    "required": [
+        "word"
+    ],
+    "unevaluatedProperties": false
+}
+)json");
+    Server references("references", "test-version");
+    Json output = {{"word", "π"}};
+    int calls = 0;
+    references.tool({"reference", {}, referenceSchema, std::optional<Json>(referenceSchema)},
+                    [&output, &calls](const auto&, const auto& reply) {
+                        ++calls;
+                        reply->result(ToolResult::json(output));
+                    });
+    for (bool legacy : {false, true}) {
+        for (bool validInput : {true, false}) {
+            for (bool validOutput : {true, false}) {
+                output["word"] = validOutput ? "π" : "123";
+                Json params{{"name", "reference"}, {"arguments", {{"word", validInput ? "π" : "123"}}}};
+                if (!legacy) {
+                    params["_meta"] = {{detail::versionKey, detail::protocolVersion2026}, {detail::capabilitiesKey, Json::object()}};
+                }
+
+                const int before = calls;
+                detail::Access::registry(references)
+                    .dispatch({{"jsonrpc", "2.0"}, {"id", 3}, {"method", "tools/call"}, {"params", params}},
+                              legacy ? detail::ProtocolEra::Initialization20251125 : detail::ProtocolEra::PerRequest20260728,
+                              [&response](const Json& value, bool) {
+                                  response = value;
+                              });
+                test.expectTrue(calls == before + (validInput ? 1 : 0), "reference validation runs before the handler in both eras");
+                test.expectTrue(response.contains("result") && response["result"].value("isError", false) == !(validInput && validOutput),
+                                "input and structured output validation report tool errors in both eras");
+                if (validInput && validOutput) {
+                    test.expectTrue(response["result"]["structuredContent"] == output, "validated structured output is preserved");
+                }
+            }
+        }
+    }
+
     core::SNodeC::free();
 
     return test.processResult();

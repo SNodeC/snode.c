@@ -69,6 +69,7 @@ namespace mcp::server::detail {
         struct Input {
             std::weak_ptr<Response> response;
             std::string key;
+            Json requestedSchema;
         };
 
         bool respond(const Json& message);

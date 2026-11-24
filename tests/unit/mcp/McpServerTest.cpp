@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     "additionalProperties": false
 }
 )json");
-    test.expectTrue(Access::Registry::checkSchema(schema, error), "supported dialect/subset accepted");
+    test.expectTrue(Access::Registry::checkSchema(schema, error), "2020-12 schema accepted");
     test.expectTrue(Access::Registry::validate(schema, {{"word", "é日"}, {"number", 2.0}, {"list", {1, 2}}}, error),
                     "Unicode code points, integral numbers, array items");
     for (const auto& value : Json::array({Json::object(),
@@ -142,13 +142,13 @@ int main(int argc, char* argv[]) {
     for (const std::string keyword :
          {"$ref", "$defs", "anyOf", "oneOf", "allOf", "not", "if", "then", "else", "patternProperties", "format"}) {
         Json unsupported = schema;
-        unsupported["properties"]["word"][keyword] = Json::object();
-        test.expectTrue(!Access::Registry::checkSchema(unsupported, error), "unsupported nested keyword rejected: " + keyword);
+        unsupported["properties"]["word"][keyword] = 1;
+        test.expectTrue(!Access::Registry::checkSchema(unsupported, error), "malformed keyword rejected: " + keyword);
     }
 
     for (const Json& malformed : Json::array({nlohmann::ordered_json::parse(R"json(
 {
-    "$schema": "http://json-schema.org/draft-07/schema#"
+    "$schema": "https://example.invalid/unsupported-dialect"
 }
 )json"),
                                               nlohmann::ordered_json::parse(R"json(
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
 )json"),
                                               nlohmann::ordered_json::parse(R"json(
 {
-    "additionalProperties": {}
+    "additionalProperties": 1
 }
 )json"),
                                               nlohmann::ordered_json::parse(R"json(
@@ -198,10 +198,7 @@ int main(int argc, char* argv[]) {
 )json"),
                                               nlohmann::ordered_json::parse(R"json(
 {
-    "enum": [
-        1,
-        1
-    ]
+    "enum": "not-an-array"
 }
 )json"),
                                               nlohmann::ordered_json::parse(R"json(
@@ -211,6 +208,161 @@ int main(int argc, char* argv[]) {
 )json")})) {
         test.expectTrue(!Access::Registry::checkSchema(malformed, error), "malformed schema rejected: " + malformed.dump());
     }
+
+    const Json composed = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "object",
+    "$defs": {
+        "word": {
+            "$anchor": "word",
+            "type": "string",
+            "pattern": "^\\p{Letter}+$"
+        }
+    },
+    "properties": {
+        "word": {
+            "$ref": "#word"
+        },
+        "tuple": {
+            "type": "array",
+            "prefixItems": [
+                {
+                    "type": "integer"
+                }
+            ],
+            "items": false
+        }
+    },
+    "anyOf": [
+        {
+            "properties": {
+                "a": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "a"
+            ]
+        },
+        {
+            "properties": {
+                "b": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "b"
+            ]
+        }
+    ],
+    "dependentRequired": {
+        "word": [
+            "tuple"
+        ]
+    },
+    "unevaluatedProperties": false,
+    "x-vendor-extension": {
+        "preserved": true
+    }
+}
+)json");
+    const Json draft7 = nlohmann::ordered_json::parse(R"json(
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "tuple": {
+            "items": [
+                {
+                    "type": "integer"
+                }
+            ],
+            "additionalItems": false
+        }
+    }
+}
+)json");
+    const Json contains = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "array",
+    "contains": {
+        "type": "integer"
+    },
+    "minContains": 2,
+    "maxContains": 2,
+    "unevaluatedItems": false
+}
+)json");
+    const Json dynamic = nlohmann::ordered_json::parse(R"json(
+{
+    "$id": "https://example.test/strict",
+    "$dynamicAnchor": "node",
+    "properties": {
+        "value": {
+            "type": "integer"
+        }
+    },
+    "$ref": "tree",
+    "$defs": {
+        "tree": {
+            "$id": "tree",
+            "$dynamicAnchor": "node",
+            "properties": {
+                "children": {
+                    "items": {
+                        "$dynamicRef": "#node"
+                    }
+                }
+            }
+        }
+    }
+}
+)json");
+    const Json annotations = nlohmann::ordered_json::parse(R"json(
+{
+    "type": "string",
+    "format": "email",
+    "x-unknown": {
+        "anything": [
+            1,
+            2,
+            3
+        ]
+    }
+}
+)json");
+    test.expectTrue(Access::Registry::checkSchema(composed, error), "refs, anchors, compositions, and unknown annotations register");
+    test.expectTrue(Access::Registry::validate(composed, {{"a", 1}, {"b", "x"}, {"word", "π"}, {"tuple", {2}}}, error),
+                    "all successful anyOf branches contribute evaluated properties");
+    test.expectTrue(!Access::Registry::validate(composed, {{"a", 1}, {"word", "123"}, {"tuple", {2}}}, error), "Unicode pattern enforced");
+    test.expectTrue(!Access::Registry::validate(composed, {{"a", 1}, {"word", "π"}}, error), "dependentRequired enforced");
+    test.expectTrue(!Access::Registry::validate(composed, {{"a", 1}, {"unknown", 2}}, error), "unevaluatedProperties enforced");
+    test.expectTrue(Access::Registry::checkSchema(draft7, error) && Access::Registry::validate(draft7, {{"tuple", {1}}}, error) &&
+                        !Access::Registry::validate(draft7, {{"tuple", {1, 2}}}, error),
+                    "declared draft-07 tuple semantics honored");
+    test.expectTrue(Access::Registry::checkSchema(contains, error) && Access::Registry::validate(contains, {1, 2}, error) &&
+                        !Access::Registry::validate(contains, {1, 2, 3}, error) &&
+                        !Access::Registry::validate(contains, {1, 2, "x"}, error),
+                    "contains bounds and evaluated indexes");
+    test.expectTrue(Access::Registry::checkSchema(dynamic, error) &&
+                        Access::Registry::validate(dynamic, {{"children", {{{"value", 1}}}}}, error) &&
+                        !Access::Registry::validate(dynamic, {{"children", {{{"value", "bad"}}}}}, error),
+                    "dynamic scope overrides recursion");
+    test.expectTrue(Access::Registry::checkSchema(annotations, error) && Access::Registry::validate(annotations, "not-an-email", error),
+                    "format and unknown extension keywords remain annotations");
+    test.expectTrue(Access::Registry::checkSchema({{"enum", {1, 1}}, {"additionalProperties", Json::object()}}, error),
+                    "2020-12 metaschema permits duplicate enum values and schema-valued additionalProperties");
+    test.expectTrue(!Access::Registry::checkSchema({{"$ref", "https://example.invalid/not-fetched"}}, error) &&
+                        error.find("no loader") != std::string::npos,
+                    "external refs are rejected without network access");
+    Json expensive = {{"allOf", Json::array()}};
+    for (int i = 0; i < 1025; ++i) {
+        expensive["allOf"].push_back(true);
+    }
+    test.expectTrue(!Access::Registry::checkSchema(expensive, error) && error.find("limit") != std::string::npos,
+                    "composition compilation bounded");
+    test.expectTrue(!Access::Registry::validate({{"$ref", "#"}}, 1, error) && error.find("limit") != std::string::npos,
+                    "cyclic references bounded at validation");
 
     test.expectTrue(Access::Registry::validate(nlohmann::ordered_json::parse(R"json(
 {
