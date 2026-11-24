@@ -134,7 +134,6 @@ namespace mcp::server {
                 const auto response = found->second.response.lock();
                 const std::string key = found->second.key;
                 if (response) {
-                    response->expire();
                     const Json result = message.value("result", Json());
                     const Json failure = message.value("error", Json());
                     const Json action = result.is_object() ? result.value("action", Json()) : Json();
@@ -146,6 +145,7 @@ namespace mcp::server {
                         failed = !Access::Registry::validate(found->second.requestedSchema, content, validationError) || failed;
                     }
 
+                    response->expire();
                     if (!response->done && (failed || ((action == "accept" || action == "decline" || action == "cancel") &&
                                                        (content.is_null() || content.is_object())))) {
                         accepted = true;
