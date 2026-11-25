@@ -115,8 +115,12 @@ namespace mcp {
     };
     /// Application errors valid in both protocol eras; envelope errors stay private.
     enum class ErrorCode : int {
-        InvalidParams = -32602, ///< The supplied application parameters are invalid.
-        InternalError = -32603  ///< Application processing failed internally.
+        InvalidParams = -32602,             ///< The supplied application parameters are invalid.
+        InternalError = -32603,             ///< Application processing failed internally.
+        ResourceNotFound = -32002,          ///< Legacy resource lookup failure.
+        HeaderMismatch = -32020,            ///< Modern HTTP headers disagree with the envelope.
+        MissingClientCapability = -32021,   ///< A request requires an unadvertised capability.
+        UnsupportedProtocolVersion = -32022 ///< Modern revision is unsupported.
     };
     /// Sender or intended audience of a content block.
     enum class Role {

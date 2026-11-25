@@ -194,10 +194,14 @@ cpack_add_component(core-socket-stream DEPENDS core-socket)
 cpack_add_component(core-socket-stream-legacy DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-tls DEPENDS core-socket-stream)
 cpack_add_component(core-socket-stream-stdio DEPENDS core-socket-stream)
-cpack_add_component(mcp)
+cpack_add_component(mcp DEPENDS utils)
 cpack_add_component(mcp-server DEPENDS mcp jsonrpc core-socket-stream)
 cpack_add_component(mcp-server-http DEPENDS mcp-server http-server-express)
-cpack_add_component(mcp-client DEPENDS mcp jsonrpc)
+cpack_add_component(mcp-client DEPENDS mcp jsonrpc net-stdio-stream)
+cpack_add_component(
+    mcp-client-http DEPENDS mcp-client http-client net-in-stream-legacy
+                            net-in-stream-tls
+)
 
 cpack_add_component(net DEPENDS core-socket)
 cpack_add_component(net-stdio DEPENDS net core-socket-stream-stdio)
@@ -258,6 +262,7 @@ cpack_add_component(
     DESCRIPTION "We install Applications"
     DEPENDS net-stdio-stream
             mcp-server-http
+            mcp-client-http
             http-server-express
             http-client
             net-in-stream-tls

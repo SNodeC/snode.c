@@ -162,6 +162,12 @@ namespace mcp::client {
         return state->serverCapabilities;
     }
 
+    void Mcp::setNegotiation(Negotiation negotiation) {
+        if (!state->ready && state->operations.empty()) {
+            state->options.negotiation = negotiation;
+        }
+    }
+
     void Mcp::setClientCapabilities(Json capabilities) {
         if (state->ready || !capabilities.is_object()) {
             throw std::invalid_argument("Capabilities must be configured before connection");
@@ -309,8 +315,13 @@ namespace mcp::client {
             Super::onRequest(request);
         } else {
             try {
-                const Json result =
+                Json result =
                     inputs({{request.id.dump(), {{"method", request.method}, {"params", request.params.value_or(Json::object())}}}});
+                const auto metadata = request.params.value_or(Json::object()).value("_meta", Json::object());
+                if (metadata.contains("io.modelcontextprotocol/related-task")) {
+                    result[request.id.dump()]["_meta"]["io.modelcontextprotocol/related-task"] =
+                        metadata["io.modelcontextprotocol/related-task"];
+                }
                 sendResult(request.id, result.at(request.id.dump()));
             } catch (const std::exception&) {
                 sendError(request.id, -32602, "Invalid elicitation request or answer");
@@ -322,6 +333,7 @@ namespace mcp::client {
         const auto found = state->operations.find(response.id);
         if (found != state->operations.end()) {
             auto operation = std::move(found->second);
+            const Id root = operation.root;
             state->operations.erase(found);
             try {
                 const auto& value = response.result;
@@ -420,7 +432,7 @@ namespace mcp::client {
                     }
                 }
             } catch (const std::exception&) {
-                invalid(operation.root, "Invalid MCP result or application hook failure");
+                invalid(root, "Invalid MCP result or application hook failure");
             }
         }
     }
@@ -699,9 +711,11 @@ namespace mcp::client {
                             static_cast<void>(id);
                             accept(operation);
                         }
-                        for (auto& [id, watch] : state->tasks) {
-                            static_cast<void>(id);
-                            accept(watch.origin);
+                        if (state->era == ProtocolEra::Initialization20251125) {
+                            for (auto& [id, watch] : state->tasks) {
+                                static_cast<void>(id);
+                                accept(watch.origin);
+                            }
                         }
                         if (correlated && (token.is_string() || token.is_number_integer())) {
                             const ProgressToken parsed =

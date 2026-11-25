@@ -13,6 +13,7 @@ find_package(
                jsonrpc-client-websocket
                mcp
                mcp-client
+               mcp-client-http
                mcp-server
                mcp-server-http
                core
@@ -35,6 +36,7 @@ target_link_libraries(
             snodec::jsonrpc-client-websocket
             snodec::mcp
             snodec::mcp-client
+            snodec::mcp-client-http
             snodec::mcp-server
             snodec::mcp-server-http
             snodec::core

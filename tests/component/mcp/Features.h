@@ -42,6 +42,7 @@
 #ifndef TESTS_COMPONENT_MCP_FEATURES_H
 #define TESTS_COMPONENT_MCP_FEATURES_H
 
+#include "core/timer/Timer.h"
 #include "mcp/server/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -94,6 +95,42 @@ namespace tests::mcp {
             } else {
                 reply->result(PromptResult{{}, {PromptMessage{Role::User, TextContent{*request.context.getRequestState()}}}});
             }
+        });
+        const Json headerSchema{
+            {"type", "object"},
+            {"properties",
+             {{"nested", {{"type", "object"}, {"properties", {{"region", {{"type", "string"}, {"x-mcp-header", "Region"}}}}}}}}}};
+        server.tool({"headers", {}, headerSchema}, [](const auto& call, const auto& reply) {
+            reply->result(ToolResult::text(call.arguments.at("nested").at("region")));
+        });
+        ToolDefinition background{"background", {}, schema};
+        background.taskSupport = TaskSupport::Optional;
+        server.tool(background, [](const auto&, const auto& reply) {
+            reply->startTask(TaskOptions{5000, 10});
+            core::timer::Timer::singleshotTimer(
+                [reply]() {
+                    reply->result(ToolResult::text("background complete"));
+                },
+                utils::Timeval(0.05));
+        });
+        server.tool({"mutate", {}, schema}, [&server, schema](const auto& call, const auto& reply) {
+            for (unsigned index = 0; index < 3; ++index) {
+                server.tool({"ephemeral", {}, schema}, [](const auto&, const auto& answer) {
+                    answer->result(ToolResult::text("temporary"));
+                });
+                server.resource({"test://ephemeral", "ephemeral"}, [](const auto&, const auto& answer) {
+                    answer->result(ResourceResult{});
+                });
+                server.prompt({"ephemeral"}, [](const auto&, const auto& answer) {
+                    answer->result(PromptResult{});
+                });
+                server.remove(RegistrationKind::Tool, "ephemeral");
+                server.remove(RegistrationKind::Resource, "test://ephemeral");
+                server.remove(RegistrationKind::Prompt, "ephemeral");
+            }
+            server.resourceUpdated("test://updates");
+            call.context.log(LogLevel::Info, "fixture log", "fixture");
+            reply->result(ToolResult::text("mutated"));
         });
         server.tool({"ask", {}, schema}, [](const auto& request, const auto& reply) {
             if (request.context.getInputResponses().empty()) {

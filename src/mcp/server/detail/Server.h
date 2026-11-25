@@ -200,6 +200,7 @@ namespace mcp::server {
                                                                   std::shared_ptr<detail::Channel> channel = {},
                                                                   Mcp* protocol = nullptr,
                                                                   std::size_t pageSize = 128) const;
+        Json toolInputSchema(const std::string& name) const;
         void resourceUpdated(const std::string& uri);
         void log(LogLevel level, const Json& data, const std::string& logger);
         static bool checkSchema(const Json& schema, std::string& error);

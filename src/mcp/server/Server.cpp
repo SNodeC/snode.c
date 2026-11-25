@@ -50,6 +50,7 @@
 #include "mcp/Protocol.h"
 #include "mcp/Schema.h"
 #include "mcp/Types.h"
+#include "mcp/detail/Headers.h"
 #include "mcp/detail/Serialization.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Reply.h"
@@ -432,6 +433,11 @@ namespace mcp::server {
         return Schema::validate(schema, value, error);
     }
 
+    Json Server::Impl::toolInputSchema(const std::string& name) const {
+        const auto found = entries.find(std::to_string(static_cast<int>(Kind::Tool)) + ":" + name);
+        return found == entries.end() ? Json() : found->second.description.at("inputSchema");
+    }
+
     void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
         const std::string keyName = kind == Kind::Resource ? "uri" : kind == Kind::ResourceTemplate ? "uriTemplate" : "name";
         const std::string identifier = description.value(keyName, std::string());
@@ -462,6 +468,9 @@ namespace mcp::server {
                 throw reject("inputSchema", error.empty() ? "supported object schema required" : error);
             }
 
+            if (!mcp::detail::headerParameters(input)) {
+                throw reject("inputSchema", "invalid x-mcp-header annotation");
+            }
             if (description.contains("outputSchema") && !checkSchema(description["outputSchema"], error)) {
                 throw reject("outputSchema", error.empty() ? "supported schema required" : error);
             }

@@ -54,6 +54,8 @@
 #include <mcp/Results.h>
 #include <mcp/Schema.h>
 #include <mcp/client/Mcp.h>
+#include <mcp/client/Stdio.h>
+#include <mcp/client/http/Client.h>
 #include <mcp/server/Config.h>
 #include <mcp/server/Request.h>
 #include <mcp/server/ResourceTemplate.h>
@@ -185,6 +187,10 @@ static_assert(std::is_base_of_v<web::websocket::server::SubProtocol, jsonrpc::se
 static_assert(std::is_base_of_v<web::websocket::client::SubProtocol, jsonrpc::client::SubProtocol>);
 
 int main([[maybe_unused]] int argc, char* argv[]) {
+    mcp::client::Stdio child("installed-child", []() {
+        return new mcp::client::Mcp();
+    });
+    mcp::client::http::Http http("installed-http-client", new mcp::client::Mcp());
     mcp::client::Mcp client;
     const bool mcpClientReady = client.getProtocolEra() == mcp::ProtocolEra::PerRequest20260728;
     InstalledRpcContext rpc;

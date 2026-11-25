@@ -1,0 +1,86 @@
+/*
+ * SNode.C - A Slim Toolkit for Network Communication
+ * Copyright (C) Volker Christian <me@vchrist.at>
+ *               2020, 2021, 2022, 2023, 2024, 2025, 2026
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+#pragma once
+#include "web/http/legacy/in/Client.h"
+#include "web/http/tls/in/Client.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <cmath>
+#endif
+namespace mcp::client {
+    class Mcp;
+}
+
+namespace mcp::client::http {
+    struct Options {
+        std::string path = "/mcp";
+        std::function<std::string()> bearerToken{};
+        std::function<void(const std::string&)> onError{};
+    };
+
+    /// A protocol-specific HTTP binding; owns the engine, one exchange per connection.
+    template <typename Transport>
+    class Client final {
+    public:
+        using SocketAddress = typename Transport::SocketAddress;
+        using Config = typename Transport::Config;
+        Client(const std::string& name, Mcp* protocol, Options options = {});
+        ~Client();
+        Client(const Client&) = delete;
+        Client& operator=(const Client&) = delete;
+        Client(Client&&) = delete;
+        Client& operator=(Client&&) = delete;
+        Config* getConfig() const;
+        void setPath(const std::string& path);
+        void start(const SocketAddress& address);
+        void stop();
+
+    private:
+        struct State;
+        std::shared_ptr<State> state;
+    };
+
+    using Http = Client<web::http::legacy::in::Client>;
+    using Https = Client<web::http::tls::in::Client>;
+} // namespace mcp::client::http
+extern template class mcp::client::http::Client<web::http::legacy::in::Client>;
+extern template class mcp::client::http::Client<web::http::tls::in::Client>;

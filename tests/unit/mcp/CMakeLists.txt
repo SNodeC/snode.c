@@ -222,3 +222,8 @@ target_link_libraries(
                           snodec-test-support
 )
 set_tests_properties(McpClientTest PROPERTIES LABELS "unit;mcp;client")
+
+snodec_add_test(McpHeadersTest McpHeadersTest.cpp)
+target_include_directories(McpHeadersTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(McpHeadersTest PRIVATE mcp snodec-test-support)
+set_tests_properties(McpHeadersTest PROPERTIES LABELS "unit;mcp;http;headers")

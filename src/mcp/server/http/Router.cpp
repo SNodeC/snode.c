@@ -51,22 +51,22 @@
 #include "jsonrpc/JsonRpc.h"
 #include "jsonrpc/messages/Id.h"
 #include "mcp/Protocol.h"
+#include "mcp/detail/Headers.h"
 #include "mcp/detail/Utilities.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "mcp/server/http/detail/Replay.h"
-#include "utils/base64.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -159,19 +159,8 @@ namespace mcp::server::http {
         }
 
         bool headerMatches(const std::string& header, const Json& value, bool encoded) {
-            std::string decoded = header;
-            bool valid = !header.empty() && std::all_of(header.begin(), header.end(), [](char c) {
-                const auto byte = static_cast<unsigned char>(c);
-
-                return byte == 9 || (byte >= 32 && byte <= 126);
-            });
-            if (valid && encoded && header.starts_with("=?base64?") && header.ends_with("?=")) {
-                const std::string payload = header.substr(9, header.size() - 11);
-                decoded = base64::base64_decode(payload);
-                valid = base64::base64_encode(reinterpret_cast<const unsigned char*>(decoded.data()), decoded.size()) == payload;
-            }
-
-            return valid && value.is_string() && decoded == value.get_ref<const std::string&>();
+            const auto decoded = encoded ? mcp::detail::decodeHeader(header) : std::optional<std::string>(header);
+            return decoded && value.is_string() && *decoded == value.get_ref<const std::string&>();
         }
 
         void
@@ -756,11 +745,32 @@ namespace mcp::server::http {
                     const bool taskMethod = method == "tasks/get" || method == "tasks/update" || method == "tasks/cancel";
                     const bool needsName = method == "tools/call" || method == "prompts/get" || method == "resources/read" || taskMethod;
                     const Json name = params.value(method == "resources/read" ? "uri" : taskMethod ? "taskId" : "name", Json());
+                    bool customHeadersMatch = true;
+                    if (era == ProtocolEra::PerRequest20260728 && method == "tools/call" && name.is_string()) {
+                        const Json schema = Access::registry(state->server).toolInputSchema(name.get<std::string>());
+                        if (const auto annotations = mcp::detail::headerParameters(schema); annotations && schema.is_object()) {
+                            try {
+                                const auto expected =
+                                    mcp::detail::parameterHeaders(*annotations, params.value("arguments", Json::object()));
+                                for (const auto& [path, suffix] : *annotations) {
+                                    static_cast<void>(path);
+                                    const std::string field = "Mcp-Param-" + suffix;
+                                    const auto found = expected.find(field);
+                                    customHeadersMatch =
+                                        customHeadersMatch && (found == expected.end() ? !req->headers.contains(field)
+                                                                                       : mcp::detail::decodeHeader(req->get(field)) ==
+                                                                                             mcp::detail::decodeHeader(found->second));
+                                }
+                            } catch (const std::exception&) {
+                                customHeadersMatch = false;
+                            }
+                        }
+                    }
                     const bool notification = !request.contains("id");
                     if (!accepts(accept, "application/json") || !accepts(accept, "text/event-stream")) {
                         res->status(406).end();
                     } else if (era == ProtocolEra::PerRequest20260728 && !notification &&
-                               (req->get("MCP-Protocol-Version").empty() ||
+                               (!customHeadersMatch || req->get("MCP-Protocol-Version").empty() ||
                                 (version.is_string() && !headerMatches(req->get("MCP-Protocol-Version"), version, false)) ||
                                 !headerMatches(req->get("Mcp-Method"), method, false) ||
                                 (needsName && !headerMatches(req->get("Mcp-Name"), name, true)))) {

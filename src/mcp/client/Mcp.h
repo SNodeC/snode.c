@@ -121,6 +121,7 @@ namespace mcp::client {
 
     protected:
         void setClientCapabilities(Json capabilities);
+        void setNegotiation(Negotiation negotiation);
         virtual void onReady(ProtocolEra era, const Json& capabilities);
         virtual void onTools(const jsonrpc::messages::Id& id, const ToolsListResult& result);
         virtual void onResources(const jsonrpc::messages::Id& id, const ResourcesListResult& result);

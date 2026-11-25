@@ -158,6 +158,7 @@ set(SUPPORTED_COMPONENTS
     mcp-server
     mcp-server-http
     mcp-client
+    mcp-client-http
     core
     core-socket-stream-legacy
     core-socket-stream-tls
