@@ -45,6 +45,10 @@
 #include <core/socket/stream/SocketContextFactory.h>
 #include <core/socket/stream/SocketServer.h>
 #include <express/legacy/in/Server.h>
+#include <jsonrpc/JsonRpc.h>
+#include <jsonrpc/SocketContext.h>
+#include <jsonrpc/client/SubProtocol.h>
+#include <jsonrpc/server/SubProtocol.h>
 #include <mcp/server/Config.h>
 #include <mcp/server/Request.h>
 #include <mcp/server/ResourceTemplate.h>
@@ -142,6 +146,10 @@ namespace {
     }
 
 } // namespace
+
+static_assert(std::is_base_of_v<core::socket::stream::SocketContext, jsonrpc::SocketContext>);
+static_assert(std::is_base_of_v<web::websocket::server::SubProtocol, jsonrpc::server::SubProtocol>);
+static_assert(std::is_base_of_v<web::websocket::client::SubProtocol, jsonrpc::client::SubProtocol>);
 
 int main([[maybe_unused]] int argc, char* argv[]) {
     int result = 1;

@@ -220,6 +220,7 @@ Not working? See [first-program troubleshooting](docs/guides/deployment.md#troub
 - **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
 - **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
 - **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
+- **JSON-RPC 2.0:** symmetric peers, asynchronous requests and batches over stream or WebSocket adapters. See the [JSON-RPC guide](docs/jsonrpc/README.md).
 - **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#banner).
 - **Custom protocols:** `SocketContext` and `SocketContextFactory` provide per-connection framing, messages and behavior.
 - **MariaDB:** event-driven database integration for queries and persistence.
