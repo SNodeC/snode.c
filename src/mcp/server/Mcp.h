@@ -58,7 +58,7 @@ namespace mcp::server {
         using Super = jsonrpc::JsonRpc;
 
     public:
-        Mcp(const Server::Impl& registry,
+        Mcp(const detail::Access::Registry& registry,
             const utils::Timeval& timeout,
             std::shared_ptr<detail::Channel> channel = {},
             std::optional<detail::ProtocolEra> era = {},
@@ -66,6 +66,7 @@ namespace mcp::server {
             std::size_t maximumMessageSize = 1024 * 1024);
         ~Mcp() final;
 
+        void onConnected() final;
         void onDisconnected() final;
         bool onSignal(int sig) final;
         std::shared_ptr<detail::Response> receive(const Json& request, detail::Response::Output output);
@@ -74,6 +75,7 @@ namespace mcp::server {
         bool respond(const Json& message);
         void forget(const Json& id);
         static bool validRequest(const Json& request);
+        static Json errorResponse(const Json& id, detail::ProtocolEra era, int code, const std::string& message, Json data);
 
     private:
         void onRequest(const jsonrpc::messages::Request& request) final;

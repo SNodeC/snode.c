@@ -49,6 +49,7 @@
 #include "core/timer/Timer.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "mcp/server/Config.h"
+#include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "utils/base64.h"
@@ -606,7 +607,7 @@ namespace mcp::server::http {
                 req->template getAttribute<Json>([&request](const Json& body) {
                     request = body;
                 });
-                if (request.is_object() && !request.contains("method") && (request.contains("result") || request.contains("error"))) {
+                if (jsonrpc::JsonRpc::isResponse(request)) {
                     const auto channel = state->findSession(req);
                     const bool accepted = headerEra == ProtocolEra::Initialization20251125 && channel && channel->respond(request);
                     if (accepted) {
@@ -614,7 +615,7 @@ namespace mcp::server::http {
                     } else {
                         fail(res, request, headerEra, -32600, "Invalid Request");
                     }
-                } else if (!WireServer::validRequest(request)) {
+                } else if (!Mcp::validRequest(request)) {
                     Access::registry(state->server).dispatch(request, headerEra, [res](const Json& value, bool) {
                         res->status(WireServer::httpStatus(value)).json(value);
                     });

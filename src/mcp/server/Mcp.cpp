@@ -60,7 +60,7 @@ namespace mcp::server {
 
     struct Mcp::State {
         Mcp* owner;
-        const Server::Impl& registry;
+        const detail::Access::Registry& registry;
         utils::Timeval timeout;
         std::shared_ptr<Channel> channel;
         std::optional<ProtocolEra> fixedEra;
@@ -106,7 +106,7 @@ namespace mcp::server {
 
     } // namespace
 
-    Mcp::Mcp(const Server::Impl& registry,
+    Mcp::Mcp(const detail::Access::Registry& registry,
              const utils::Timeval& timeout,
              std::shared_ptr<Channel> channel,
              std::optional<ProtocolEra> era,
@@ -116,7 +116,7 @@ namespace mcp::server {
         , state(std::make_shared<State>(State{this,
                                               registry,
                                               timeout,
-                                              channel ? std::move(channel) : std::make_shared<Channel>(),
+                                              channel ? std::move(channel) : (!era ? std::make_shared<Channel>() : nullptr),
                                               era,
                                               era.value_or(ProtocolEra::PerRequest20260728),
                                               std::move(principal),
@@ -145,6 +145,16 @@ namespace mcp::server {
         }
     }
 
+    void Mcp::onConnected() {
+        Super::onConnected();
+        const std::weak_ptr<State> weak = state;
+        state->channel->output = [weak](const Json& value) {
+            if (const auto current = weak.lock(); current && current->owner != nullptr && !current->closing && !value.is_null()) {
+                current->owner->sendNotification(value["method"].get<std::string>(), value.value("params", Json::object()));
+            }
+        };
+    }
+
     void Mcp::onDisconnected() {
         finish();
         if (!state->fixedEra) {
@@ -163,6 +173,19 @@ namespace mcp::server {
     bool Mcp::validRequest(const Json& request) {
         return Super::isRequest(request) && request["method"] != "" && (!request.contains("id") || !request["id"].is_null()) &&
                (!request.contains("params") || request["params"].is_object());
+    }
+
+    Json Mcp::errorResponse(const Json& id, ProtocolEra era, int code, const std::string& message, Json data) {
+        Json value =
+            jsonrpc::messages::Error{id, code, message, data.is_null() ? std::nullopt : std::optional<Json>(std::move(data))}.toJson();
+        if (id.is_null() && era == ProtocolEra::PerRequest20260728) {
+            value.erase("id");
+        }
+        return value;
+    }
+
+    bool Server::Impl::validRequest(const Json& request) {
+        return Mcp::validRequest(request);
     }
 
     Json Mcp::wire(Json value) const {
@@ -245,7 +268,7 @@ namespace mcp::server {
                       error["message"].get<std::string>(),
                       error.contains("data") ? std::optional<Json>(error["data"]) : std::nullopt);
         } else if (value.contains("id")) {
-            sendRequest(jsonrpc::messages::Request{value["id"], value["method"].get<std::string>(), value["params"]});
+            sendRequest(jsonrpc::messages::Request{value["id"], value["method"].get<std::string>(), std::optional<Json>(value["params"])});
         } else {
             sendNotification(value["method"].get<std::string>(), value.value("params", Json::object()));
         }
@@ -266,11 +289,11 @@ namespace mcp::server {
     }
 
     void Mcp::onResult(const jsonrpc::messages::Result& result) {
-        state->accepted = state->channel->complete(result.toJson());
+        state->accepted = state->channel && state->channel->complete(result.toJson());
     }
 
     void Mcp::onError(const jsonrpc::messages::Error& error) {
-        state->accepted = state->channel->complete(error.toJson());
+        state->accepted = state->channel && state->channel->complete(error.toJson());
     }
 
     bool Mcp::respond(const Json& message) {
@@ -365,6 +388,31 @@ namespace mcp::server {
         }
 
         return accepted;
+    }
+
+    void detail::Channel::forget(const Response& response) {
+        std::vector<Json> ids;
+        std::erase_if(inputs, [&response, &ids](const auto& item) {
+            const auto current = item.second.response.lock();
+            const bool remove = !current || current.get() == &response;
+            if (current && remove) {
+                ids.push_back(Json::parse(item.first));
+            }
+
+            return remove;
+        });
+        if (active) {
+            for (const auto& id : ids) {
+                if (response.protocol != nullptr) {
+                    response.protocol->forget(id);
+                }
+                response.output(
+                    jsonrpc::messages::Notification{"notifications/cancelled",
+                                                    std::optional<Json>(Json{{"requestId", id}, {"reason", "Originating request ended"}})}
+                        .toJson(),
+                    false);
+            }
+        }
     }
 
 } // namespace mcp::server

@@ -42,49 +42,37 @@
 #ifndef MCP_SERVER_STREAM_SOCKETCONTEXT_H
 #define MCP_SERVER_STREAM_SOCKETCONTEXT_H
 
-#include "core/socket/stream/SocketContext.h"
-
-namespace core::socket::stream {
-    class SocketConnection;
-}
+#include "jsonrpc/SocketContext.h"
 
 namespace mcp::server {
     class Server;
     class Config;
+    class Mcp;
 } // namespace mcp::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstddef>
-#include <memory>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <string>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace mcp::server::stream {
 
-    /// Newline-framed MCP over the original stream engine; server/config must outlive the connection.
-    class SocketContext final : public core::socket::stream::SocketContext {
-    public:
-        /// Construct on the event-loop thread; the original connection owns and attaches this context.
-        SocketContext(core::socket::stream::SocketConnection* connection, Server& server, Config& config);
+    /// MCP output policy on the reusable newline adapter; server/config outlive the connection.
+    class SocketContext final : public jsonrpc::SocketContext {
+    private:
+        using Super = jsonrpc::SocketContext;
 
-        /// Destroy through the original detach path after pending requests are cancelled.
-        ~SocketContext() override;
+    public:
+        SocketContext(core::socket::stream::SocketConnection* connection, Server& server, Config& config);
+        ~SocketContext() final;
 
     private:
-        void onConnected() override;
-        void onDisconnected() override;
-        std::size_t onReceivedFromPeer() override;
-        void onReadError(int error) override;
-        void onWriteError(int error) override;
-        bool onSignal(int signal) override;
-        void onShutdown() override;
+        SocketContext(core::socket::stream::SocketConnection* connection, Config& config, Mcp* protocol);
+        void sendMessage(const std::string& message) final;
 
-        struct State;
-
-        std::shared_ptr<State> state;
+        Config& config;
+        Mcp* protocol;
+        bool failed = false;
     };
 
 } // namespace mcp::server::stream
-
 #endif // MCP_SERVER_STREAM_SOCKETCONTEXT_H
