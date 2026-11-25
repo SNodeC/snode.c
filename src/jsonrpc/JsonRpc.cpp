@@ -240,7 +240,7 @@ namespace jsonrpc {
             onRequest(request);
         } else {
             log().warn() << "duplicate incoming request id: " << request.id;
-            emit(messages::Error{request.id, messages::InvalidRequest, "Duplicate id or in-flight limit"}.toJson(), batch);
+            emit(messages::Error{request.id, messages::InvalidRequest, "Duplicate id"}.toJson(), batch);
         }
     }
 

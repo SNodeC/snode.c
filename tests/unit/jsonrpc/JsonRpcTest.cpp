@@ -284,7 +284,8 @@ namespace {
                         "batch combines automatic errors and asynchronous replies");
         context.onMessage(R"({"jsonrpc":"2.0","id":"duplicate","method":"defer"})");
         context.onMessage(R"({"jsonrpc":"2.0","id":"duplicate","method":"defer"})");
-        test.expectTrue(context.output.back()["error"]["code"] == -32600, "duplicate unanswered incoming id is rejected");
+        test.expectTrue(context.output.back()["error"] == json({{"code", -32600}, {"message", "Duplicate id"}}),
+                        "duplicate unanswered incoming id is rejected without claiming an in-flight limit");
         peer->sendResult("duplicate", 4);
         const auto before = context.output.size();
         peer->sendResult("a", 9);
