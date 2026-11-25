@@ -475,8 +475,12 @@ namespace mcp::server::http {
 
             std::shared_ptr<Channel> findSession(const std::shared_ptr<express::Request>& req) {
                 const auto now = utils::Timeval::currentTime();
-                std::erase_if(sessions, [&now](const auto& item) {
-                    return !item.second.channel->active || item.second.touched + utils::Timeval(1800) < now;
+                std::erase_if(sessions, [this, &now](const auto& item) {
+                    const bool expired = !item.second.channel->active || item.second.touched + utils::Timeval(1800) < now;
+                    if (expired) {
+                        Access::registry(server).endChannel(item.second.channel);
+                    }
+                    return expired;
                 });
                 std::shared_ptr<Channel> result;
                 const auto found = sessions.find(req->get("Mcp-Session-Id"));
@@ -523,8 +527,7 @@ namespace mcp::server::http {
                         channel->output(nullptr);
                     }
 
-                    channel->active = false;
-                    channel->resources.clear();
+                    Access::registry(server).endChannel(channel);
                     for (const auto& weak : operations) {
                         if (const auto current = weak.lock(); current && current->channel == channel) {
                             current->shutdown();
@@ -569,6 +572,11 @@ namespace mcp::server::http {
                 if (!stopping) {
                     stopping = true;
                     replayTimer.cancel();
+                    for (const auto& [id, session] : sessions) {
+                        static_cast<void>(id);
+                        Access::registry(server).endChannel(session.channel);
+                    }
+                    sessions.clear();
                     for (const auto& weak : operations) {
                         if (const auto operation = weak.lock()) {
                             operation->shutdown();

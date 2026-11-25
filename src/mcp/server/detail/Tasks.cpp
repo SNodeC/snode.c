@@ -127,10 +127,19 @@ namespace mcp::server::detail {
                 execution->error(-32021,
                                  "Missing required client capability",
                                  {{"requiredCapabilities", {{"extensions", {{"io.modelcontextprotocol/tasks", Json::object()}}}}}});
-            } else if ((!modern && execution->channel.expired()) || options.ttlMs == 0 || options.ttlMs > 86400000 ||
-                       options.pollIntervalMs == 0 || options.pollIntervalMs > 60000 || entries.size() >= 128 || closing) {
-                execution->error(-32603, "Task limits exceeded or no initialized session");
+            } else if (options.ttlMs == 0 || options.pollIntervalMs == 0 || options.pollIntervalMs > 60000) {
+                execution->error(-32602, "Invalid task parameters");
+            } else if ((!modern && execution->channel.expired()) || closing) {
+                execution->error(-32602, "No active task requestor");
+            } else if (entries.size() >= 128 ||
+                       static_cast<std::size_t>(std::count_if(entries.begin(), entries.end(), [&](const auto& entry) {
+                           const auto& task = entry.second;
+                           return task->execution->era == execution->era &&
+                                  (modern ? task->visible(*execution) : task->execution->channel.lock() == execution->channel.lock());
+                       })) >= perRequestor) {
+                execution->error(-32000, "Task capacity exceeded");
             } else {
+                options.ttlMs = std::min(options.ttlMs, maximumTtlMs);
                 auto task = std::make_shared<Task>();
                 const std::string id = mcp::detail::randomToken();
                 const std::string now = mcp::detail::timestamp();
@@ -179,18 +188,30 @@ namespace mcp::server::detail {
         return accepted;
     }
 
-    void Tasks::expire(const std::string& id) {
+    void Tasks::expire(const std::string& id, CancelReason reason) {
         const auto found = entries.find(id);
         if (found != entries.end()) {
             const auto task = found->second;
             entries.erase(found);
             task->execution->timer.cancel();
-            task->execution->cancel(CancelReason::Deadline);
+            task->execution->cancel(reason);
             for (const auto& weak : task->waiters) {
                 if (const auto waiter = weak.lock()) {
                     waiter->error(-32602, "Task expired");
                 }
             }
+        }
+    }
+
+    void Tasks::release(const std::shared_ptr<Channel>& channel) {
+        std::vector<std::string> owned;
+        for (const auto& [id, task] : entries) {
+            if (task->execution->channel.lock() == channel) {
+                owned.push_back(id);
+            }
+        }
+        for (const auto& id : owned) {
+            expire(id, CancelReason::Disconnected);
         }
     }
 
@@ -393,6 +414,13 @@ namespace mcp::server {
         tasks->notify = [this](const auto& task) {
             taskChanged(task);
         };
+    }
+
+    void Server::Impl::endChannel(const std::shared_ptr<detail::Channel>& channel) const {
+        channel->active = false;
+        channel->resources.clear();
+        channel->output = {};
+        tasks->release(channel);
     }
 
     void Server::Impl::taskChanged(const std::shared_ptr<detail::Task>& task) {

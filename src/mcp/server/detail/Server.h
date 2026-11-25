@@ -183,6 +183,7 @@ namespace mcp::server {
         Impl();
         ~Impl();
         void attach();
+        void endChannel(const std::shared_ptr<detail::Channel>& channel) const;
         bool remove(RegistrationKind kind, const std::string& identifier);
         void add(RegistrationKind kind, Json description, Handler handler);
         std::shared_ptr<detail::Access::Response> dispatch(const Json& request,

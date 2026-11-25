@@ -44,6 +44,7 @@
 #include "utils/Timeval.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <nlohmann/json.hpp>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <functional>
@@ -55,6 +56,7 @@
 #endif
 namespace mcp::server::detail {
     struct Response;
+    struct Channel;
     class Tasks;
 
     struct Task {
@@ -74,6 +76,8 @@ namespace mcp::server::detail {
     class Tasks : public std::enable_shared_from_this<Tasks> {
     public:
         ~Tasks();
+        std::size_t perRequestor = 16;
+        std::uint64_t maximumTtlMs = 86400000;
         std::function<void(const std::shared_ptr<Task>&)> notify;
         static bool negotiated(const Json& capabilities);
         Completion begin(const std::shared_ptr<Response>& execution, TaskOptions options);
@@ -81,11 +85,12 @@ namespace mcp::server::detail {
         void input(const std::shared_ptr<Task>& task, const Json& value);
         void working(const std::shared_ptr<Task>& task);
         void shutdown();
+        void release(const std::shared_ptr<Channel>& channel);
 
     private:
         void output(const std::shared_ptr<Task>& task, const Json& value, bool terminal);
         void publish(const std::shared_ptr<Task>& task);
-        void expire(const std::string& id);
+        void expire(const std::string& id, CancelReason reason = CancelReason::Deadline);
         void result(const std::shared_ptr<Task>& task, const std::shared_ptr<Response>& reply);
         std::map<std::string, std::shared_ptr<Task>> entries;
         bool closing = false;

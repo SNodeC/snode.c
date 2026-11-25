@@ -52,10 +52,12 @@
 #include "utils/Config.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <sys/wait.h> // IWYU pragma: keep - POSIX wait-status macros
 #include <utility>
 #include <variant>
 // IWYU pragma: no_include <nlohmann/detail/json_ref.hpp>
@@ -162,6 +164,13 @@ namespace {
             done(Json{{"method", method}, {"result", result}});
         }
 
+        void onElicitation(const std::string& key,
+                           [[maybe_unused]] const std::variant<mcp::FormInput, mcp::UrlInput>& request,
+                           const std::shared_ptr<mcp::client::ElicitationReply>& reply) final {
+            std::cerr << "Elicitation " << key << ": declined" << std::endl;
+            reply->result(mcp::InputResponse{mcp::ElicitationAction::Decline});
+        }
+
         void onRemoteError(const jsonrpc::messages::Error& error) final {
             std::cerr << error.serialize() << std::endl;
             core::SNodeC::stop();
@@ -252,8 +261,12 @@ int main(int argc, char* argv[]) {
             const auto extra = Json::parse(config.getOption("--server-arguments")->as<std::string>()).get<std::vector<std::string>>();
             arguments.insert(arguments.end(), extra.begin(), extra.end());
             stdio.start(std::move(arguments), [](int status) {
-                if (status != 0) {
-                    std::cerr << "Child exit: " << status << std::endl;
+                if (status < 0) {
+                    std::cerr << "Child spawn error: " << std::strerror(-status) << std::endl;
+                } else if (WIFEXITED(status)) {
+                    std::cerr << "Child exit code: " << WEXITSTATUS(status) << std::endl;
+                } else if (WIFSIGNALED(status)) {
+                    std::cerr << "Child signal: " << ::strsignal(WTERMSIG(status)) << std::endl;
                 }
                 core::SNodeC::stop();
             });

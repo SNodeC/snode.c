@@ -40,6 +40,7 @@
  */
 
 #pragma once
+#include "utils/Timeval.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <functional>
 #include <memory>
@@ -49,12 +50,17 @@
 namespace mcp::client {
     class Mcp;
 
+    struct StdioOptions {
+        utils::Timeval shutdownGrace = utils::Timeval(2);
+        utils::Timeval terminateGrace = utils::Timeval(2);
+    };
+
     /// Construct before SNodeC::init; start/stop and all callbacks run on the event loop.
     class Stdio final {
     public:
         using Creator = std::function<Mcp*()>;
         using ExitHandler = std::function<void(int)>;
-        explicit Stdio(const std::string& name, Creator creator);
+        explicit Stdio(const std::string& name, Creator creator, StdioOptions options = {});
         ~Stdio();
         Stdio(const Stdio&) = delete;
         Stdio& operator=(const Stdio&) = delete;

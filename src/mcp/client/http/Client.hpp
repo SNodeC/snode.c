@@ -104,6 +104,7 @@ namespace mcp::client::http {
             std::string json;
             bool get = false;
             bool sse = false;
+            bool reusable = false;
             bool completed = false;
             std::string status;
 
@@ -138,21 +139,9 @@ namespace mcp::client::http {
             transport = std::make_unique<Transport>(
                 name,
                 [weak](const std::shared_ptr<Request>& request) {
-                    if (const auto self = weak.lock(); self && !self->queue.empty()) {
-                        const auto exchange = self->queue.front();
-                        self->queue.pop_front();
-                        self->active.emplace(request.get(), exchange);
-                        try {
-                            self->deliver(request, exchange);
-                        } catch (const std::exception&) {
-                            exchange->completed = true;
-                            self->report("Invalid HTTP client request configuration");
-                            if (!exchange->id.is_null()) {
-                                self->onMessage(
-                                    jsonrpc::messages::Error{exchange->id, -32602, "Invalid HTTP request configuration"}.serialize());
-                            }
-                            request->getSocketContext()->close();
-                        }
+                    if (const auto self = weak.lock()) {
+                        --self->connecting;
+                        self->assign(request);
                     } else {
                         request->getSocketContext()->close();
                     }
@@ -182,14 +171,69 @@ namespace mcp::client::http {
             });
         }
 
-        void release() {
-            if (!notifications) {
-                notifications = true;
-                const auto count = queue.size();
-                for (std::size_t index = 0; index < count; ++index) {
-                    connect();
+        bool permitted(const Exchange& exchange) const {
+            return protocol().getProtocolEra() != ProtocolEra::Initialization20251125 || notifications || exchange.get ||
+                   exchange.method == "initialize" || exchange.method == "notifications/initialized";
+        }
+
+        void assign(const std::shared_ptr<Request>& request) {
+            if (stopped) {
+                request->getSocketContext()->close();
+            } else if (queue.empty() || !permitted(*queue.front())) {
+                idle.push_back(request);
+            } else {
+                const auto exchange = queue.front();
+                queue.pop_front();
+                active.emplace(request.get(), exchange);
+                try {
+                    deliver(request, exchange);
+                } catch (const std::exception&) {
+                    exchange->completed = true;
+                    report("Invalid HTTP client request configuration");
+                    if (!exchange->id.is_null()) {
+                        onMessage(jsonrpc::messages::Error{exchange->id, -32602, "Invalid HTTP request configuration"}.serialize());
+                    }
+                    request->getSocketContext()->close();
                 }
             }
+        }
+
+        void pump() {
+            while (!stopped && !queue.empty() && permitted(*queue.front()) && !queue.front()->get && !idle.empty()) {
+                auto request = std::move(idle.back());
+                idle.pop_back();
+                if (request->isConnected()) {
+                    assign(request);
+                }
+            }
+            if (!stopped) {
+                const auto count = static_cast<std::size_t>(std::count_if(queue.begin(), queue.end(), [this](const auto& exchange) {
+                    return permitted(*exchange);
+                }));
+                for (std::size_t index = connecting; index < count; ++index) {
+                    if (active.size() + idle.size() + connecting >= 64 && !idle.empty()) {
+                        idle.back()->getSocketContext()->close();
+                        idle.pop_back();
+                    }
+                    if (active.size() + idle.size() + connecting < 64) {
+                        ++connecting;
+                        connect();
+                    }
+                }
+            }
+        }
+
+        void schedule() {
+            core::EventReceiver::atNextTick([weak = this->weak_from_this()] {
+                if (const auto self = weak.lock()) {
+                    self->pump();
+                }
+            });
+        }
+
+        void release() {
+            notifications = true;
+            schedule();
         }
 
         void enqueue(const std::shared_ptr<Exchange>& exchange) {
@@ -201,10 +245,7 @@ namespace mcp::client::http {
                 } else {
                     queue.push_back(exchange);
                 }
-                if (protocol().getProtocolEra() != ProtocolEra::Initialization20251125 || notifications || exchange->get ||
-                    exchange->method == "initialize" || exchange->method == "notifications/initialized") {
-                    connect();
-                }
+                schedule();
             } else {
                 report("MCP HTTP exchange limit or closed client");
             }
@@ -268,6 +309,8 @@ namespace mcp::client::http {
                     if (const auto self = weak.lock()) {
                         exchange->status = response->statusCode;
                         exchange->sse = web::http::ciContains(response->get("Content-Type"), "text/event-stream");
+                        exchange->reusable = !exchange->get && !exchange->sse && response->httpMajor == 1 && response->httpMinor == 1 &&
+                                             !web::http::ciContains(response->get("Connection"), "close");
                         if (!response->get("Mcp-Session-Id").empty()) {
                             self->session = response->get("Mcp-Session-Id");
                         }
@@ -300,7 +343,7 @@ namespace mcp::client::http {
                         }
                     }
                 },
-                [weak, exchange]() {
+                [weak, exchange, request]() {
                     if (const auto self = weak.lock()) {
                         if (!exchange->sse) {
                             if (!exchange->json.empty()) {
@@ -326,7 +369,14 @@ namespace mcp::client::http {
                             }
                         }
                         if (exchange->completed && exchange->active != nullptr) {
-                            exchange->active->getSocketContext()->close();
+                            if (!self->stopped && exchange->reusable && request->isConnected()) {
+                                self->active.erase(request.get());
+                                exchange->active = nullptr;
+                                self->idle.push_back(request);
+                                self->schedule();
+                            } else {
+                                request->getSocketContext()->close();
+                            }
                         }
                     }
                 },
@@ -364,7 +414,7 @@ namespace mcp::client::http {
                 onMessage(value.dump());
                 if (response) {
                     exchange->completed = true;
-                    if (exchange->active != nullptr) {
+                    if (exchange->sse && exchange->active != nullptr) {
                         exchange->active->getSocketContext()->close();
                     }
                 }
@@ -372,6 +422,9 @@ namespace mcp::client::http {
         }
 
         void disconnected(Request* request) {
+            std::erase_if(idle, [request](const auto& connection) {
+                return connection.get() == request;
+            });
             const auto it = active.find(request);
             if (it != active.end()) {
                 const auto exchange = it->second;
@@ -426,6 +479,12 @@ namespace mcp::client::http {
                     exchange->retry.cancel();
                 }
                 queue.clear();
+                for (const auto& request : idle) {
+                    if (request->isConnected()) {
+                        request->getSocketContext()->close();
+                    }
+                }
+                idle.clear();
                 if (connected) {
                     connected = false;
                     onDisconnected();
@@ -450,6 +509,8 @@ namespace mcp::client::http {
         SocketAddress address;
         std::deque<std::shared_ptr<Exchange>> queue;
         std::map<Request*, std::shared_ptr<Exchange>> active;
+        std::deque<std::shared_ptr<Request>> idle;
+        std::size_t connecting = 0;
         std::string session;
         std::map<std::string, mcp::detail::HeaderParameters> toolHeaders;
         bool notifications = false;

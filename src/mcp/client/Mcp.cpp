@@ -76,6 +76,57 @@
 namespace mcp::client {
     using jsonrpc::messages::Id;
 
+    struct ElicitationReply::State {
+        std::function<void(InputResponse)> callback;
+        Json schema;
+        Id origin;
+        bool incoming = false;
+        core::timer::Timer timer;
+
+        ~State() {
+            timer.cancel();
+        }
+
+        Completion complete(InputResponse response) {
+            Completion accepted = Completion::Inactive;
+            std::string error;
+            if (callback && (response.content.is_null() || response.content.is_object()) &&
+                (response.action != ElicitationAction::Accept || schema.is_null() || Schema::validate(schema, response.content, error))) {
+                auto completion = std::exchange(callback, {});
+                timer.cancel();
+                accepted = Completion::Accepted;
+                completion(std::move(response));
+            }
+            return accepted;
+        }
+    };
+
+    ElicitationReply::ElicitationReply(std::function<void(InputResponse)> callback, Json schema, const utils::Timeval& timeout)
+        : state(std::make_shared<State>()) {
+        state->callback = std::move(callback);
+        state->schema = std::move(schema);
+        state->timer = core::timer::Timer::singleshotTimer(
+            [weak = std::weak_ptr<State>(state)] {
+                if (const auto current = weak.lock()) {
+                    current->complete(InputResponse{ElicitationAction::Decline});
+                }
+            },
+            timeout);
+    }
+
+    ElicitationReply::~ElicitationReply() {
+        state->complete(InputResponse{ElicitationAction::Decline});
+    }
+
+    Completion ElicitationReply::result(InputResponse response) {
+        return state->complete(std::move(response));
+    }
+
+    void ElicitationReply::cancel() {
+        state->timer.cancel();
+        state->callback = {};
+    }
+
     struct Mcp::Operation {
         std::string method;
         Json params;
@@ -110,6 +161,7 @@ namespace mcp::client {
         std::map<Id, Json> subscriptions;
         std::set<std::string> resources;
         std::map<std::string, Watch> tasks;
+        std::vector<std::weak_ptr<ElicitationReply>> elicitation;
     };
 
     Mcp::Mcp(Options options, const std::string& connectionName)
@@ -119,6 +171,7 @@ namespace mcp::client {
     }
 
     Mcp::~Mcp() {
+        cancelInputs();
         for (auto& [id, task] : state->tasks) {
             static_cast<void>(id);
             task.timer.cancel();
@@ -136,6 +189,7 @@ namespace mcp::client {
     }
 
     void Mcp::onDisconnected() {
+        cancelInputs();
         for (auto& [id, task] : state->tasks) {
             static_cast<void>(id);
             task.timer.cancel();
@@ -175,6 +229,7 @@ namespace mcp::client {
     }
 
     void Mcp::disconnect() {
+        cancelInputs();
         if (jsonRpcContext) {
             jsonRpcContext->end();
         }
@@ -259,11 +314,34 @@ namespace mcp::client {
         onRemoteError(jsonrpc::messages::Error{id, -32603, message});
     }
 
-    Json Mcp::inputs(const Json& requests) {
-        if (!requests.is_object() || requests.size() > 16) {
-            throw std::invalid_argument("Invalid MRTR inputs");
+    bool Mcp::cancelInputs(const Id* origin, bool incoming) {
+        bool cancelled = false;
+        for (const auto& weak : state->elicitation) {
+            if (const auto reply = weak.lock();
+                reply && reply->state->callback && (!origin || (reply->state->origin == *origin && reply->state->incoming == incoming))) {
+                reply->cancel();
+                cancelled = true;
+            }
         }
-        Json responses = Json::object();
+        if (cancelled && origin && incoming) {
+            discardRequest(*origin);
+        }
+        std::erase_if(state->elicitation, [](const auto& weak) {
+            const auto reply = weak.lock();
+            return !reply || !reply->state->callback;
+        });
+        return cancelled;
+    }
+
+    void Mcp::inputs(const Json& requests, std::function<void(Json)> completion, const Id& origin, bool incoming) {
+        std::erase_if(state->elicitation, [](const auto& weak) {
+            const auto reply = weak.lock();
+            return !reply || !reply->state->callback;
+        });
+        if (!requests.is_object() || requests.size() > 16 || state->elicitation.size() + requests.size() > 128) {
+            throw std::invalid_argument("Invalid or excessive MRTR inputs");
+        }
+        std::vector<std::pair<std::string, std::variant<FormInput, UrlInput>>> parsed;
         for (const auto& [key, request] : requests.items()) {
             if (key.empty() || key.size() > 256 || request.value("method", "") != "elicitation/create") {
                 throw std::invalid_argument("Unsupported input request");
@@ -286,23 +364,47 @@ namespace mcp::client {
             } else {
                 throw std::invalid_argument("Unknown elicitation mode");
             }
-            const auto response = onElicitation(key, input);
-            const std::string action = response.action == ElicitationAction::Accept    ? "accept"
-                                       : response.action == ElicitationAction::Decline ? "decline"
-                                                                                       : "cancel";
-            Json result{{"action", action}};
-            if (response.action == ElicitationAction::Accept && mode == "form") {
-                std::string error;
-                if (!Schema::validate(params.at("requestedSchema"), response.content, error)) {
-                    throw std::invalid_argument("Invalid elicitation answer");
-                }
-            }
-            if (!response.content.is_null()) {
-                result["content"] = response.content;
-            }
-            responses[key] = std::move(result);
+            parsed.emplace_back(key, std::move(input));
         }
-        return responses;
+
+        struct Pending {
+            std::size_t remaining;
+            Json responses;
+            std::function<void(Json)> complete;
+        };
+
+        const auto pending = std::make_shared<Pending>(Pending{parsed.size(), Json::object(), std::move(completion)});
+        if (parsed.empty()) {
+            pending->complete(Json::object());
+        }
+        for (const auto& [key, input] : parsed) {
+            auto reply = std::shared_ptr<ElicitationReply>(new ElicitationReply(
+                [pending, key](InputResponse response) {
+                    const std::string action = response.action == ElicitationAction::Accept    ? "accept"
+                                               : response.action == ElicitationAction::Decline ? "decline"
+                                                                                               : "cancel";
+                    Json value{{"action", action}};
+                    if (!response.content.is_null()) {
+                        value["content"] = std::move(response.content);
+                    }
+                    pending->responses[key] = std::move(value);
+                    if (--pending->remaining == 0) {
+                        auto complete = std::move(pending->complete);
+                        complete(std::move(pending->responses));
+                    }
+                },
+                std::holds_alternative<FormInput>(input) ? std::get<FormInput>(input).requestedSchema : Json(),
+                state->options.elicitationTimeout));
+            reply->state->origin = origin;
+            reply->state->incoming = incoming;
+            state->elicitation.push_back(reply);
+            try {
+                onElicitation(key, input, reply);
+            } catch (const std::exception&) {
+                log().warn() << "Elicitation hook failed; declining input";
+                reply->result(InputResponse{ElicitationAction::Decline});
+            }
+        }
     }
 
     void Mcp::_onRequest(const jsonrpc::messages::Request& request) {
@@ -314,14 +416,18 @@ namespace mcp::client {
             Super::onRequest(request);
         } else {
             try {
-                Json result =
-                    inputs({{request.id.dump(), {{"method", request.method}, {"params", request.params.value_or(Json::object())}}}});
                 const auto metadata = request.params.value_or(Json::object()).value("_meta", Json::object());
-                if (metadata.contains("io.modelcontextprotocol/related-task")) {
-                    result[request.id.dump()]["_meta"]["io.modelcontextprotocol/related-task"] =
-                        metadata["io.modelcontextprotocol/related-task"];
-                }
-                sendResult(request.id, result.at(request.id.dump()));
+                inputs(
+                    {{request.id.dump(), {{"method", request.method}, {"params", request.params.value_or(Json::object())}}}},
+                    [this, id = request.id, metadata](Json responses) {
+                        Json result = responses.at(id.dump());
+                        if (metadata.contains("io.modelcontextprotocol/related-task")) {
+                            result["_meta"]["io.modelcontextprotocol/related-task"] = metadata["io.modelcontextprotocol/related-task"];
+                        }
+                        sendResult(id, result);
+                    },
+                    request.id,
+                    true);
             } catch (const std::exception&) {
                 sendError(request.id, -32602, "Invalid elicitation request or answer");
             }
@@ -371,13 +477,21 @@ namespace mcp::client {
                     }
                     operation.params.erase("inputResponses");
                     operation.params.erase("requestState");
-                    if (value.contains("inputRequests")) {
-                        operation.params["inputResponses"] = inputs(value["inputRequests"]);
-                    }
                     if (value.contains("requestState")) {
                         operation.params["requestState"] = value["requestState"].get<std::string>();
                     }
-                    send(std::move(operation));
+                    if (value.contains("inputRequests")) {
+                        const Id origin = operation.root;
+                        inputs(
+                            value["inputRequests"],
+                            [this, operation = std::move(operation)](Json responses) mutable {
+                                operation.params["inputResponses"] = std::move(responses);
+                                send(std::move(operation));
+                            },
+                            origin);
+                    } else {
+                        send(std::move(operation));
+                    }
                 } else if (operation.method == "tools/call" &&
                            ((state->era == ProtocolEra::PerRequest20260728 && value.value("resultType", "") == "task") ||
                             (state->era == ProtocolEra::Initialization20251125 && value.contains("task")))) {
@@ -594,16 +708,25 @@ namespace mcp::client {
                     throw std::invalid_argument("Task input limit exceeded");
                 }
                 if (!pending.empty()) {
-                    Operation update{"tasks/update",
-                                     {{"taskId", task.taskId}, {"inputResponses", inputs(pending)}},
-                                     {},
-                                     found->second.origin.root,
-                                     {},
-                                     {},
-                                     0,
-                                     task.taskId,
-                                     {}};
-                    send(std::move(update));
+                    const Id origin = found->second.origin.root;
+                    inputs(
+                        pending,
+                        [this, id = task.taskId](Json responses) {
+                            const auto current = state->tasks.find(id);
+                            if (current != state->tasks.end() && current->second.info.status == TaskState::InputRequired) {
+                                Operation update{"tasks/update",
+                                                 {{"taskId", id}, {"inputResponses", std::move(responses)}},
+                                                 {},
+                                                 current->second.origin.root,
+                                                 {},
+                                                 {},
+                                                 0,
+                                                 id,
+                                                 {}};
+                                send(std::move(update));
+                            }
+                        },
+                        origin);
                 } else {
                     scheduleTask(task.taskId);
                 }
@@ -730,7 +853,10 @@ namespace mcp::client {
                         cancelRequest(id);
                         state->operations.erase(operation);
                         state->subscriptions.erase(id);
+                        cancelInputs(&root);
                         onCancelled(root, params.value("reason", std::string()));
+                    } else if (cancelInputs(&id, true)) {
+                        onCancelled(id, params.value("reason", std::string()));
                     }
                 }
             }
@@ -740,6 +866,7 @@ namespace mcp::client {
     }
 
     void Mcp::cancel(const Id& id, const std::string& reason) {
+        cancelInputs(&id);
         std::vector<std::string> jobs;
         for (const auto& [taskId, watch] : state->tasks) {
             if (watch.origin.root == id) {
@@ -955,8 +1082,9 @@ namespace mcp::client {
     Mcp::onOtherResult([[maybe_unused]] const Id& id, [[maybe_unused]] const std::string& method, [[maybe_unused]] const Json& result) {
     }
 
-    InputResponse Mcp::onElicitation([[maybe_unused]] const std::string& key,
-                                     [[maybe_unused]] const std::variant<FormInput, UrlInput>& request) {
-        return InputResponse{ElicitationAction::Decline};
+    void Mcp::onElicitation([[maybe_unused]] const std::string& key,
+                            [[maybe_unused]] const std::variant<FormInput, UrlInput>& request,
+                            const std::shared_ptr<ElicitationReply>& reply) {
+        reply->result(InputResponse{ElicitationAction::Decline});
     }
 } // namespace mcp::client

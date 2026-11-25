@@ -526,6 +526,22 @@ namespace mcp::server {
         return removed;
     }
 
+    Server* Server::setTasksPerRequestor(std::size_t maximum) {
+        if (maximum == 0 || maximum > 128) {
+            throw std::invalid_argument("Tasks per requestor must be in 1..128");
+        }
+        impl->tasks->perRequestor = maximum;
+        return this;
+    }
+
+    Server* Server::setMaximumTaskTtlMs(std::uint64_t milliseconds) {
+        if (milliseconds == 0 || milliseconds > 86400000) {
+            throw std::invalid_argument("Maximum task TTL must be in 1..86400000 milliseconds");
+        }
+        impl->tasks->maximumTtlMs = milliseconds;
+        return this;
+    }
+
     bool Server::remove(RegistrationKind kind, const std::string& identifier) {
         return impl->remove(kind, identifier);
     }
@@ -1053,11 +1069,10 @@ namespace mcp::server {
                                 const auto ttl = metadata.is_object() ? metadata.value("ttl", Json(std::uint64_t(60000))) : Json();
                                 if (support == TaskSupport::Forbidden || !params.contains("task")) {
                                     reply->error(-32601, "Tool task augmentation is forbidden or required");
-                                } else if (!metadata.is_object() || !ttl.is_number_unsigned()) {
+                                } else if (!metadata.is_object() || !ttl.is_number_integer() || ttl <= 0) {
                                     reply->error(-32602, "Invalid task metadata");
                                 } else {
-                                    reply->startTask(
-                                        TaskOptions{std::clamp(ttl.get<std::uint64_t>(), std::uint64_t(1), std::uint64_t(86400000)), 1000});
+                                    reply->startTask(TaskOptions{ttl.get<std::uint64_t>(), 1000});
                                 }
                             } else if (era == ProtocolEra::PerRequest20260728 && support == TaskSupport::Required) {
                                 reply->startTask(TaskOptions{});

@@ -106,7 +106,7 @@ namespace tests::mcp {
         ToolDefinition background{"background", {}, schema};
         background.taskSupport = TaskSupport::Optional;
         server.tool(background, [](const auto& call, const auto& reply) {
-            reply->startTask(TaskOptions{5000, 10});
+            reply->startTask(TaskOptions{call.arguments.value("ttl", std::uint64_t(5000)), 10});
             if (!call.arguments.value("waitForCancel", false)) {
                 core::timer::Timer::singleshotTimer(
                     [reply]() {
