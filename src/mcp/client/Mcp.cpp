@@ -58,6 +58,7 @@
 #include <cstdint>
 #include <exception>
 #include <functional>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
@@ -107,7 +108,6 @@ namespace mcp::client {
         Json serverCapabilities = Json::object();
         std::map<Id, Operation> operations;
         std::map<Id, Json> subscriptions;
-        std::map<std::string, Id> resourceStreams;
         std::set<std::string> resources;
         std::map<std::string, Watch> tasks;
     };
@@ -143,7 +143,6 @@ namespace mcp::client {
         state->tasks.clear();
         state->operations.clear();
         state->subscriptions.clear();
-        state->resourceStreams.clear();
         state->resources.clear();
         state->ready = false;
         Super::onDisconnected();
@@ -814,7 +813,6 @@ namespace mcp::client {
             id = request("resources/subscribe", {{"uri", uri}});
         } else {
             id = listen({{"resourceSubscriptions", {uri}}});
-            state->resourceStreams[uri] = id;
         }
         return id;
     }
@@ -824,10 +822,12 @@ namespace mcp::client {
         if (state->era == ProtocolEra::Initialization20251125) {
             id = request("resources/unsubscribe", {{"uri", uri}});
         } else {
-            const auto found = state->resourceStreams.find(uri);
-            if (found != state->resourceStreams.end()) {
-                id = found->second;
-                state->resourceStreams.erase(found);
+            const auto found = std::find_if(state->operations.rbegin(), state->operations.rend(), [&uri](const auto& entry) {
+                return entry.second.method == "subscriptions/listen" &&
+                       entry.second.params.value("notifications", Json::object()) == Json{{"resourceSubscriptions", {uri}}};
+            });
+            if (found != state->operations.rend()) {
+                id = found->first;
                 cancel(id);
             }
         }

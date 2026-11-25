@@ -113,7 +113,7 @@ namespace mcp {
         Accepted, ///< This call completed the request or accepted an input request.
         Inactive  ///< The request had already completed or been cancelled.
     };
-    /// Application errors valid in both protocol eras; envelope errors stay private.
+    /// Application and era-specific MCP errors; JSON-RPC envelope codes belong to jsonrpc.
     enum class ErrorCode : int {
         InvalidParams = -32602,             ///< The supplied application parameters are invalid.
         InternalError = -32603,             ///< Application processing failed internally.

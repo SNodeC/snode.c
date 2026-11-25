@@ -82,6 +82,8 @@ namespace {
         int statuses = 0;
         int changed = 0;
         int generic = 0;
+        bool cancelOnAcknowledged = false;
+        Json unsubscribed;
         Json lastId;
         std::vector<Json> tools;
         std::vector<std::string> texts;
@@ -141,6 +143,12 @@ namespace {
 
         void onTaskStatus([[maybe_unused]] const mcp::TaskInfo& task) final {
             ++statuses;
+        }
+
+        void onSubscriptionAcknowledged([[maybe_unused]] const Json& id, [[maybe_unused]] const Json& notifications) final {
+            if (cancelOnAcknowledged) {
+                unsubscribed = unsubscribe("test://data");
+            }
         }
 
         void onToolsListChanged([[maybe_unused]] const std::optional<Json>& subscription) final {
@@ -271,6 +279,17 @@ int main(int argc, char* argv[]) {
         test.expectTrue(modern->ready == 1 && legacy->ready == 1 && modern->getProtocolEra() == mcp::ProtocolEra::PerRequest20260728 &&
                             legacy->getProtocolEra() == mcp::ProtocolEra::Initialization20251125,
                         "modern discovery and legacy fallback negotiate before user hooks");
+        modern->cancelOnAcknowledged = true;
+        const auto subscribed = modern->subscribe("test://data");
+        test.expectTrue(modern->unsubscribed == subscribed && !subscribed.is_null() &&
+                            std::any_of(modernContext.output.begin(),
+                                        modernContext.output.end(),
+                                        [&subscribed](const Json& message) {
+                                            return message.value("method", "") == "notifications/cancelled" &&
+                                                   message["params"]["requestId"] == subscribed;
+                                        }),
+                        "acknowledgement hooks can synchronously unsubscribe using the active request authority");
+        modern->cancelOnAcknowledged = false;
         const auto listed = modern->listTools();
         test.expectTrue(modern->lastId == listed && modern->tools.size() == 6 && modern->tools[0]["name"] == "a",
                         "pagination aggregates pages under the original request id");
