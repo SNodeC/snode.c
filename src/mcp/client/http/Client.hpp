@@ -53,6 +53,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <algorithm>
+#include <cstddef>
 #include <deque>
 #include <exception>
 #include <list>
@@ -102,7 +103,12 @@ namespace mcp::client::http {
             bool get = false;
             bool sse = false;
             bool completed = false;
-            bool accepted = false;
+            std::string status;
+
+            bool accepted() const {
+                return status == "200" || status == "202" || status == "204" || (get && status == "405");
+            }
+
             unsigned retries = 0;
             Request* active = nullptr;
             core::timer::Timer retry;
@@ -165,17 +171,38 @@ namespace mcp::client::http {
             }
         }
 
+        void connect() {
+            transport->connect(address, [weak = this->weak_from_this()](const auto&, const core::socket::State& status) {
+                if (const auto self = weak.lock(); self && status != core::socket::State::OK) {
+                    self->report("MCP HTTP connection failed: " + status.what());
+                    self->stop();
+                }
+            });
+        }
+
+        void release() {
+            if (!notifications) {
+                notifications = true;
+                const auto count = queue.size();
+                for (std::size_t index = 0; index < count; ++index) {
+                    connect();
+                }
+            }
+        }
+
         void enqueue(const std::shared_ptr<Exchange>& exchange) {
             if (!stopped && active.size() + queue.size() < 64) {
                 exchange->events.reset();
                 exchange->json.clear();
-                queue.push_back(exchange);
-                transport->connect(address, [weak = this->weak_from_this()](const auto&, const core::socket::State& status) {
-                    if (const auto self = weak.lock(); self && status != core::socket::State::OK) {
-                        self->report("MCP HTTP connection failed: " + status.what());
-                        self->stop();
-                    }
-                });
+                if (exchange->get && !notifications) {
+                    queue.push_front(exchange);
+                } else {
+                    queue.push_back(exchange);
+                }
+                if (protocol().getProtocolEra() != ProtocolEra::Initialization20251125 || notifications || exchange->get ||
+                    exchange->method == "initialize" || exchange->method == "notifications/initialized") {
+                    connect();
+                }
             } else {
                 report("MCP HTTP exchange limit or closed client");
             }
@@ -237,11 +264,18 @@ namespace mcp::client::http {
                 exchange->get ? std::string{} : exchange->body,
                 [weak, exchange](const std::shared_ptr<Response>& response) {
                     if (const auto self = weak.lock()) {
-                        exchange->accepted =
-                            response->statusCode == "200" || response->statusCode == "202" || response->statusCode == "204";
+                        exchange->status = response->statusCode;
                         exchange->sse = web::http::ciContains(response->get("Content-Type"), "text/event-stream");
                         if (!response->get("Mcp-Session-Id").empty()) {
                             self->session = response->get("Mcp-Session-Id");
+                        }
+                        if (exchange->get && !self->notifications) {
+                            if (response->statusCode == "200" || response->statusCode == "405") {
+                                self->release();
+                            } else {
+                                self->report("MCP notification channel rejected");
+                                self->stop();
+                            }
                         }
                         if (response->statusCode == "410" || response->statusCode == "409") {
                             exchange->completed = true;
@@ -269,11 +303,25 @@ namespace mcp::client::http {
                         if (!exchange->sse) {
                             if (!exchange->json.empty()) {
                                 self->message(exchange, exchange->json);
-                            } else if (!exchange->accepted && !exchange->id.is_null()) {
-                                self->onMessage(
-                                    jsonrpc::messages::Error{exchange->id, -32601, "HTTP endpoint rejected request"}.serialize());
+                            } else if (!exchange->accepted() || (!exchange->id.is_null() && !exchange->method.empty())) {
+                                if (exchange->method == "server/discover" && (exchange->status == "404" || exchange->status == "405")) {
+                                    self->onMessage(
+                                        jsonrpc::messages::Error{exchange->id, -32601, "Discovery endpoint unavailable"}.serialize());
+                                } else {
+                                    self->report("MCP HTTP response rejected: " + exchange->status);
+                                    self->stop();
+                                }
                             }
                             exchange->completed = true;
+                        }
+                        if (!self->stopped && exchange->method == "notifications/initialized" && exchange->accepted()) {
+                            if (self->session.empty()) {
+                                self->release();
+                            } else {
+                                const auto stream = std::make_shared<Exchange>();
+                                stream->get = true;
+                                self->enqueue(stream);
+                            }
                         }
                         if (exchange->completed && exchange->active != nullptr) {
                             exchange->active->getSocketContext()->close();
@@ -292,6 +340,7 @@ namespace mcp::client::http {
             Json value = Json::parse(text, nullptr, false);
             if (value.is_discarded()) {
                 report("Invalid MCP HTTP JSON");
+                stop();
             } else {
                 const bool response = value.contains("id") && !value.contains("method") && value["id"] == exchange->id;
                 if (exchange->method == "tools/list" && value.contains("result") && value["result"].contains("tools")) {
@@ -316,13 +365,6 @@ namespace mcp::client::http {
                     if (exchange->active != nullptr) {
                         exchange->active->getSocketContext()->close();
                     }
-                }
-                if (!notifications && protocol().getProtocolEra() == ProtocolEra::Initialization20251125 && !session.empty() &&
-                    exchange->method == "initialize" && value.contains("result")) {
-                    notifications = true;
-                    const auto stream = std::make_shared<Exchange>();
-                    stream->get = true;
-                    enqueue(stream);
                 }
             }
         }

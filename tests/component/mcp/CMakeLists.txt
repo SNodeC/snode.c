@@ -225,3 +225,12 @@ if(SNODEC_MCP_SDK_ROOT)
                                     120
     )
 endif()
+
+add_test(NAME McpClientHandshakeTest
+         COMMAND ${MCP_PYTHON} -B ${CMAKE_CURRENT_SOURCE_DIR}/handshake_test.py
+                 $<TARGET_FILE:snodec-mcp-client> $<TARGET_FILE:McpHttpFixture>
+)
+set_tests_properties(
+    McpClientHandshakeTest
+    PROPERTIES LABELS "component;mcp;client;http;lifecycle" TIMEOUT 20
+)
