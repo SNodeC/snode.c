@@ -43,6 +43,7 @@
 #define MCP_SERVER_HTTP_ROUTER_H
 
 #include "express/Router.h"
+#include "mcp/Types.h"
 #include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

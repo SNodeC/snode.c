@@ -6,5 +6,5 @@
 	url = https://github.com/VolkerChristian/owrt-packages
 	branch = merge
 [submodule "src/mcp/server/json-schema-validator"]
-	path = src/mcp/server/json-schema-validator
+	path = src/mcp/json-schema-validator
 	url = https://github.com/VolkerChristian/json-schema-validator

@@ -37,43 +37,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(MCP_JSON REQUIRED nlohmann_json>=3.11)
-pkg_check_modules(MCP_PCRE2 REQUIRED IMPORTED_TARGET libpcre2-8)
-
-set(MCP_SAVED_IWYU "${CMAKE_CXX_INCLUDE_WHAT_YOU_USE}")
-unset(CMAKE_CXX_INCLUDE_WHAT_YOU_USE)
-set(JSON_VALIDATOR_INSTALL
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(JSON_VALIDATOR_BUILD_TESTS
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(JSON_VALIDATOR_BUILD_EXAMPLES
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(JSON_VALIDATOR_SHARED_LIBS
-    OFF
-    CACHE BOOL "" FORCE
-)
-set(JSON_VALIDATOR_USE_PCRE2
-    ON
-    CACHE BOOL "" FORCE
-)
-add_subdirectory(json-schema-validator)
-set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${MCP_SAVED_IWYU}")
-set_target_properties(
-    nlohmann_json_schema_validator PROPERTIES POSITION_INDEPENDENT_CODE ON
-)
-target_compile_options(
-    nlohmann_json_schema_validator
-    PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-error>
-            $<$<CXX_COMPILER_ID:Clang>:-Wno-error>
-)
-
 add_library(
     mcp-server SHARED
     Mcp.cpp
@@ -90,15 +53,7 @@ add_library(
 )
 add_library(snodec::mcp-server ALIAS mcp-server)
 target_compile_features(mcp-server PUBLIC cxx_std_20)
-target_link_libraries(
-    mcp-server
-    PUBLIC jsonrpc core-socket-stream
-    PRIVATE nlohmann_json_schema_validator PkgConfig::MCP_PCRE2
-)
-target_include_directories(
-    mcp-server SYSTEM
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/json-schema-validator/src"
-)
+target_link_libraries(mcp-server PUBLIC mcp jsonrpc core-socket-stream)
 target_include_directories(
     mcp-server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -108,7 +63,7 @@ set_target_properties(
     mcp-server
     PROPERTIES VERSION ${SNode.C_VERSION}
                SOVERSION ${SNODEC_MCP_SOVERSION}
-               INSTALL_RPATH "$ORIGIN/../jsonrpc"
+               INSTALL_RPATH "$ORIGIN;$ORIGIN/../jsonrpc"
                OUTPUT_NAME snodec-mcp-server
 )
 install(
@@ -137,13 +92,13 @@ install(
     COMPONENT mcp-server
 )
 install(
-    FILES json-schema-validator/LICENSE
+    FILES ../json-schema-validator/LICENSE
     DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp-server
     RENAME json-schema-validator.LICENSE
     COMPONENT mcp-server
 )
 install(
-    FILES json-schema-validator/src/metaschemas/LICENSE
+    FILES ../json-schema-validator/src/metaschemas/LICENSE
     DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/snodec/mcp-server
     RENAME json-schema-metaschemas.LICENSE
     COMPONENT mcp-server

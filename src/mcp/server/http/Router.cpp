@@ -50,6 +50,7 @@
 #include "express/middleware/JsonMiddleware.h"
 #include "jsonrpc/JsonRpc.h"
 #include "jsonrpc/messages/Id.h"
+#include "mcp/Protocol.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"

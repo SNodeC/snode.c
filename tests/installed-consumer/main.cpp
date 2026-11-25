@@ -50,6 +50,9 @@
 #include <jsonrpc/SocketContext.h>
 #include <jsonrpc/client/SubProtocol.h>
 #include <jsonrpc/server/SubProtocol.h>
+#include <mcp/Protocol.h>
+#include <mcp/Results.h>
+#include <mcp/Schema.h>
 #include <mcp/server/Config.h>
 #include <mcp/server/Request.h>
 #include <mcp/server/ResourceTemplate.h>

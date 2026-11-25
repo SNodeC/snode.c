@@ -43,6 +43,7 @@
 #define MCP_SERVER_MCP_H
 
 #include "jsonrpc/JsonRpc.h"
+#include "mcp/Types.h"
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "utils/Timeval.h"
@@ -55,6 +56,10 @@
 #include <optional>
 #include <string>
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+namespace mcp {
+    enum class ProtocolEra;
+}
 
 namespace mcp::server {
 

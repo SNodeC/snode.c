@@ -48,6 +48,7 @@
 #include "mcp/server/Resource.h"         // IWYU pragma: export
 #include "mcp/server/ResourceTemplate.h" // IWYU pragma: export
 #include "mcp/server/Tool.h"             // IWYU pragma: export
+#include "mcp/server/Types.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,8 +59,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace mcp::server {
+namespace mcp {
     struct Implementation;
+}
+
+namespace mcp::server {
 
     namespace detail {
         class Access; ///< Module-private registry access.

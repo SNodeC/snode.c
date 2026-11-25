@@ -11,6 +11,7 @@ find_package(
     COMPONENTS jsonrpc
                jsonrpc-server-websocket
                jsonrpc-client-websocket
+               mcp
                mcp-server
                mcp-server-http
                core
@@ -31,6 +32,7 @@ target_link_libraries(
     PRIVATE snodec::jsonrpc
             snodec::jsonrpc-server-websocket
             snodec::jsonrpc-client-websocket
+            snodec::mcp
             snodec::mcp-server
             snodec::mcp-server-http
             snodec::core

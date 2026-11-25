@@ -44,6 +44,7 @@
 #include "Log.h"
 #include "core/socket/stream/SocketConnection.h"
 #include "core/socket/stream/SocketContext.h"
+#include "mcp/Types.h"
 #include "mcp/server/Config.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Types.h"

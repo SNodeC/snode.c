@@ -42,6 +42,7 @@
 #pragma once
 
 #include "core/timer/Timer.h"
+#include "mcp/Protocol.h"
 #include "mcp/server/Server.h"
 #include "mcp/server/detail/UriTemplate.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -66,14 +67,14 @@ namespace mcp::server {
 
 namespace mcp::server::detail {
 
-    enum class ProtocolEra { Initialization20251125, PerRequest20260728 };
+    using mcp::capabilitiesKey;
+    using mcp::ProtocolEra;
+    using mcp::protocolVersion2025;
+    using mcp::protocolVersion2026;
+    using mcp::subscriptionKey;
+    using mcp::versionKey;
     enum class CachePolicy { None, Private };
     enum class SubscriptionClosure { Complete, Cancel };
-    inline constexpr const char* protocolVersion2026 = "2026-07-28";
-    inline constexpr const char* protocolVersion2025 = "2025-11-25";
-    inline constexpr const char* versionKey = "io.modelcontextprotocol/protocolVersion";
-    inline constexpr const char* capabilitiesKey = "io.modelcontextprotocol/clientCapabilities";
-    inline constexpr const char* subscriptionKey = "io.modelcontextprotocol/subscriptionId";
 
     struct Response;
 

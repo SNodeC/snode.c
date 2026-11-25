@@ -154,6 +154,7 @@ set(SUPPORTED_COMPONENTS
     jsonrpc
     jsonrpc-server-websocket
     jsonrpc-client-websocket
+    mcp
     mcp-server
     mcp-server-http
     core

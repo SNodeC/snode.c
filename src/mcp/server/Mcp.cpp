@@ -47,6 +47,7 @@
 #include "jsonrpc/messages/Notification.h"
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
+#include "mcp/Protocol.h"
 #include "mcp/server/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

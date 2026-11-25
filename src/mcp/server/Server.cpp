@@ -47,6 +47,10 @@
 #include "jsonrpc/messages/Notification.h"
 #include "jsonrpc/messages/Request.h"
 #include "jsonrpc/messages/Result.h"
+#include "mcp/Protocol.h"
+#include "mcp/Schema.h"
+#include "mcp/Types.h"
+#include "mcp/detail/Serialization.h"
 #include "mcp/server/Mcp.h"
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
@@ -60,11 +64,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <exception>
 #include <initializer_list>
 #include <map>
 #include <memory>
-#include <nlohmann/json-schema.hpp>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <set>
@@ -84,23 +86,33 @@
 namespace mcp::server {
 
     using namespace detail;
+    using mcp::detail::display;
+    using mcp::detail::encode;
+    using mcp::detail::metadata;
 
     namespace {
-
-        nlohmann::json_schema::json_validator schemaValidator() {
-            nlohmann::json_schema::json_validator validator(
-                nullptr,
-                [](const std::string&, const std::string&) {
-                },
-                [](const std::string&, const std::string&, const Json&) {
-                });
-            validator.set_default_dialect(nlohmann::json_schema::schema_dialect::draft2020_12);
-            nlohmann::json_schema::validation_limits limits;
-            limits.max_schemas = 1024;
-            validator.set_validation_limits(limits);
-
-            return validator;
+        void registrationMetadata(Json& value, const Json& meta, RegistrationKind kind, const std::string& identifier) {
+            try {
+                metadata(value, meta);
+            } catch (const std::invalid_argument& error) {
+                throw RegistrationError(kind, identifier, "_meta", error.what());
+            }
         }
+
+        Json registrationAnnotations(const Annotations& annotations, RegistrationKind kind, const std::string& identifier) {
+            Json value;
+            try {
+                value = encode(annotations);
+            } catch (const std::invalid_argument& error) {
+                throw RegistrationError(kind, identifier, "annotations", error.what());
+            }
+
+            return value;
+        }
+
+    } // namespace
+
+    namespace {
 
         class InputValidationError final : public std::invalid_argument {
         public:
@@ -109,25 +121,6 @@ namespace mcp::server {
         };
 
         InputValidationError::~InputValidationError() = default;
-
-        class SchemaError final : public nlohmann::json_schema::error_handler {
-        public:
-            explicit SchemaError(std::string& message);
-            void error(const Json::json_pointer& pointer, const Json&, const std::string& reason) final;
-
-        private:
-            std::string& message;
-        };
-
-        SchemaError::SchemaError(std::string& message)
-            : message(message) {
-        }
-
-        void SchemaError::error(const Json::json_pointer& pointer, const Json&, const std::string& reason) {
-            if (message.empty()) {
-                message = pointer.to_string() + ": " + reason;
-            }
-        }
 
     } // namespace
 
@@ -401,38 +394,11 @@ namespace mcp::server {
     }
 
     bool Server::Impl::checkSchema(const Json& schema, std::string& error) {
-        bool good = false;
-        error.clear();
-        try {
-            if (schema.dump().size() <= 16384) {
-                auto validator = schemaValidator();
-                validator.validate_schema(schema);
-                validator.set_root_schema(schema);
-                good = true;
-            } else {
-                error = "schema exceeds 16384-byte limit";
-            }
-        } catch (const std::exception& exception) {
-            error = exception.what();
-        }
-
-        return good;
+        return Schema::check(schema, error);
     }
 
     bool Server::Impl::validate(const Json& schema, const Json& value, std::string& error) {
-        bool good = false;
-        error.clear();
-        try {
-            auto validator = schemaValidator();
-            validator.set_root_schema(schema);
-            SchemaError handler(error);
-            validator.validate(value, handler);
-            good = error.empty();
-        } catch (const std::exception& exception) {
-            error = exception.what();
-        }
-
-        return good;
+        return Schema::validate(schema, value, error);
     }
 
     void Server::Impl::add(RegistrationKind kind, Json description, Handler handler) {
@@ -969,182 +935,6 @@ namespace mcp::server {
         return status;
     }
 
-    namespace {
-
-        Json encode(const Annotations& annotations) {
-            Json value = Json::object();
-            if (!annotations.audience.empty()) {
-                value["audience"] = Json::array();
-                for (const auto role : annotations.audience) {
-                    value["audience"].push_back(role == Role::User ? "user" : "assistant");
-                }
-            }
-
-            if (annotations.priority) {
-                if (!std::isfinite(*annotations.priority) || *annotations.priority < 0 || *annotations.priority > 1) {
-                    throw std::invalid_argument("annotation priority must be in [0,1]");
-                }
-
-                value["priority"] = *annotations.priority;
-            }
-
-            if (annotations.lastModified) {
-                value["lastModified"] = *annotations.lastModified;
-            }
-
-            return value;
-        }
-
-        void metadata(Json& value, const Json& meta) {
-            if (!meta.is_null()) {
-                if (!meta.is_object()) {
-                    throw std::invalid_argument("metadata must be an object");
-                }
-
-                value["_meta"] = meta;
-            }
-        }
-
-        void display(Json& value, const std::optional<std::string>& title, const std::vector<Icon>& icons) {
-            if (title) {
-                value["title"] = *title;
-            }
-
-            if (!icons.empty()) {
-                value["icons"] = Json::array();
-                for (const auto& icon : icons) {
-                    Json item{{"src", icon.src}};
-                    if (icon.mimeType) {
-                        item["mimeType"] = *icon.mimeType;
-                    }
-
-                    if (!icon.sizes.empty()) {
-                        item["sizes"] = icon.sizes;
-                    }
-
-                    if (icon.theme) {
-                        item["theme"] = *icon.theme == IconTheme::Light ? "light" : "dark";
-                    }
-
-                    value["icons"].push_back(std::move(item));
-                }
-            }
-        }
-
-        void registrationMetadata(Json& value, const Json& meta, RegistrationKind kind, const std::string& identifier) {
-            try {
-                metadata(value, meta);
-            } catch (const std::invalid_argument& error) {
-                throw RegistrationError(kind, identifier, "_meta", error.what());
-            }
-        }
-
-        Json registrationAnnotations(const Annotations& annotations, RegistrationKind kind, const std::string& identifier) {
-            Json value;
-            try {
-                value = encode(annotations);
-            } catch (const std::invalid_argument& error) {
-                throw RegistrationError(kind, identifier, "annotations", error.what());
-            }
-
-            return value;
-        }
-
-        Json encode(const ResourceContents& contents) {
-            return std::visit(
-                [](const auto& resource) -> Json {
-                    Json value{{"uri", resource.uri}, {"mimeType", resource.mimeType}};
-                    metadata(value, resource.meta);
-                    if constexpr (std::is_same_v<std::decay_t<decltype(resource)>, TextResource>) {
-                        value["text"] = resource.text;
-                    } else {
-                        value["blob"] = resource.base64;
-                    }
-
-                    return value;
-                },
-                contents);
-        }
-
-        Json encode(const Content& content) {
-            return std::visit(
-                [](const auto& block) -> Json {
-                    using Block = std::decay_t<decltype(block)>;
-                    Json value;
-                    if constexpr (std::is_same_v<Block, TextContent>) {
-                        value = {{"type", "text"}, {"text", block.text}};
-                    } else if constexpr (std::is_same_v<Block, EmbeddedResource>) {
-                        value = {{"type", "resource"}, {"resource", encode(block.resource)}};
-                    } else if constexpr (std::is_same_v<Block, ResourceLink>) {
-                        value = {{"type", "resource_link"},
-                                 {"uri", block.uri},
-                                 {"name", block.name},
-                                 {"description", block.description},
-                                 {"mimeType", block.mimeType}};
-                        display(value, block.title, block.icons);
-                        if (block.size) {
-                            value["size"] = *block.size;
-                        }
-                    } else {
-                        value = {{"type", std::is_same_v<Block, ImageContent> ? "image" : "audio"},
-                                 {"data", block.base64},
-                                 {"mimeType", block.mimeType}};
-                    }
-
-                    const auto annotations = encode(block.annotations);
-                    if (!annotations.empty()) {
-                        value["annotations"] = annotations;
-                    }
-
-                    metadata(value, block.meta);
-                    return value;
-                },
-                content);
-        }
-
-    } // namespace
-
-    ToolResult::ToolResult(Json value)
-        : value(std::move(value)) {
-    }
-
-    ToolResult ToolResult::text(std::string text) {
-        return content({TextContent{std::move(text), {}}});
-    }
-
-    ToolResult ToolResult::json(Json value) {
-        ToolResult result = text(value.dump());
-        result.value["structuredContent"] = std::move(value);
-
-        return result;
-    }
-
-    ToolResult ToolResult::content(std::vector<Content> content) {
-        Json blocks = Json::array();
-        for (const auto& block : content) {
-            blocks.push_back(encode(block));
-        }
-
-        return ToolResult({{"content", std::move(blocks)}});
-    }
-
-    ToolResult& ToolResult::setMeta(Json meta) {
-        metadata(value, meta);
-
-        return *this;
-    }
-
-    ToolResult ToolResult::toolError(std::string message) {
-        return toolError({TextContent{std::move(message), {}}});
-    }
-
-    ToolResult ToolResult::toolError(std::vector<Content> content) {
-        ToolResult result = ToolResult::content(std::move(content));
-        result.value["isError"] = true;
-
-        return result;
-    }
-
     template <class Result>
     Reply<Result>::Reply(std::shared_ptr<detail::Response> impl)
         : impl(std::move(impl)) {
@@ -1154,7 +944,7 @@ namespace mcp::server {
     Completion Reply<Result>::result(Result result) {
         Json value;
         if constexpr (std::is_same_v<Result, ToolResult>) {
-            value = std::move(result.value);
+            value = result.toJson();
         } else if constexpr (std::is_same_v<Result, ResourceResult>) {
             value["contents"] = Json::array();
             for (const auto& resource : result.contents) {
