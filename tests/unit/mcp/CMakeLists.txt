@@ -184,3 +184,10 @@ target_link_libraries(
 set_tests_properties(
     McpRuntimeTest PROPERTIES LABELS "unit;mcp;registration;subscriptions"
 )
+
+snodec_add_test(McpPaginationTest McpPaginationTest.cpp)
+target_include_directories(McpPaginationTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpPaginationTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpPaginationTest PROPERTIES LABELS "unit;mcp;pagination")

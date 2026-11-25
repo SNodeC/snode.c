@@ -75,6 +75,9 @@ namespace mcp::server {
         /// Set the default before init; range 1024..16777216; throws on invalid input; returns this.
         Config* setMaximumOutputBytes(std::size_t bytes);
         std::size_t getMaximumOutputBytes() const; ///< Read the effective output limit on the event loop.
+        /// List page size, range 1..128; configure before init; CLI --page-size overrides it.
+        Config* setPageSize(std::size_t size);
+        std::size_t getPageSize() const;
         /// Set the default before init; range 1..300000 ms; throws on invalid input; returns this.
         Config* setDeadline(const utils::Timeval& deadline);
         utils::Timeval getDeadline() const; ///< Copy the effective timeout; new admissions capture it.

@@ -55,6 +55,7 @@ namespace mcp::server {
         CLI::Option* message;
         CLI::Option* output;
         CLI::Option* deadline;
+        CLI::Option* pageSize;
         CLI::Option* origins;
 
         std::vector<std::string> allowedOrigins;
@@ -63,6 +64,7 @@ namespace mcp::server {
     Config::Config(utils::SubCommand* parent)
         : utils::SubCommand(parent, this, "Applications")
         , impl(std::make_unique<Impl>()) {
+        impl->pageSize = addOption("--page-size", "Maximum entries per MCP list page", "entries", std::size_t{128}, CLI::Range(1, 128));
         impl->message =
             addOption("--maximum-message-bytes", "Maximum MCP message bytes", "bytes", std::size_t{1048576}, CLI::Range(1, 16777216));
         impl->output = addOption(
@@ -106,6 +108,17 @@ namespace mcp::server {
             throw std::invalid_argument("Invalid maximum-output-bytes");
         }
 
+        return this;
+    }
+
+    std::size_t Config::getPageSize() const {
+        return impl->pageSize->as<std::size_t>();
+    }
+
+    Config* Config::setPageSize(std::size_t size) {
+        if (!setDefaultValue(impl->pageSize, size)) {
+            throw std::invalid_argument("Invalid page-size");
+        }
         return this;
     }
 

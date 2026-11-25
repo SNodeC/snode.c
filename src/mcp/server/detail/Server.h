@@ -181,14 +181,16 @@ namespace mcp::server {
                                                            detail::Access::Response::Output output,
                                                            const utils::Timeval& timeout = utils::Timeval(30),
                                                            std::optional<Principal> principal = {},
-                                                           std::shared_ptr<detail::Channel> channel = {}) const;
+                                                           std::shared_ptr<detail::Channel> channel = {},
+                                                           std::size_t pageSize = 128) const;
         std::shared_ptr<detail::Access::Response> dispatchRequest(const jsonrpc::messages::Request& request,
                                                                   detail::ProtocolEra era,
                                                                   detail::Access::Response::Output output,
                                                                   const utils::Timeval& timeout = utils::Timeval(30),
                                                                   std::optional<Principal> principal = {},
                                                                   std::shared_ptr<detail::Channel> channel = {},
-                                                                  Mcp* protocol = nullptr) const;
+                                                                  Mcp* protocol = nullptr,
+                                                                  std::size_t pageSize = 128) const;
         void resourceUpdated(const std::string& uri);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
@@ -208,12 +210,15 @@ namespace mcp::server {
         };
 
         Json capabilities() const;
+        Json
+        paginate(const std::string& method, const Json& params, const Json& list, const std::string& field, std::size_t pageSize) const;
         void changed(RegistrationKind kind);
         void flushChanges();
         const Entry* resolveResource(const std::string& uri, std::map<std::string, std::string>& variables) const;
 
         Json serverInfo;
         std::string instructions;
+        std::uint64_t revision = 0;
         bool attached = false;
         std::set<RegistrationKind> changes;
         core::timer::Timer changeTimer;

@@ -80,6 +80,7 @@ namespace mcp::server {
         Response::Output sink;
         bool accepted = false;
         bool closing = false;
+        std::size_t pageSize;
     };
 
     namespace {
@@ -120,7 +121,8 @@ namespace mcp::server {
              std::shared_ptr<Channel> channel,
              std::optional<ProtocolEra> era,
              std::optional<Principal> principal,
-             std::size_t maximumMessageSize)
+             std::size_t maximumMessageSize,
+             std::size_t pageSize)
         : Super("mcp")
         , state(std::make_shared<State>(State{this,
                                               registry,
@@ -133,7 +135,8 @@ namespace mcp::server {
                                               {},
                                               {},
                                               false,
-                                              false})) {
+                                              false,
+                                              pageSize})) {
         setBatchesEnabled(false);
         setMaximumMessageSize(maximumMessageSize);
     }
@@ -257,7 +260,8 @@ namespace mcp::server {
             reply = std::make_shared<Response>(request.id, era, CachePolicy::None, output, state->timeout);
             reply->error(jsonrpc::messages::InvalidRequest, !valid ? "Invalid Request" : "Duplicate id or in-flight limit");
         } else {
-            reply = state->registry.dispatchRequest(request, era, output, state->timeout, state->principal, state->channel, this);
+            reply = state->registry.dispatchRequest(
+                request, era, output, state->timeout, state->principal, state->channel, this, state->pageSize);
         }
         if (!reply->done) {
             state->pending.emplace(request.id, reply);
@@ -346,8 +350,9 @@ namespace mcp::server {
                                                                      Response::Output output,
                                                                      const utils::Timeval& timeout,
                                                                      std::optional<Principal> principal,
-                                                                     std::shared_ptr<Channel> channel) const {
-        auto* peer = new Mcp(*this, timeout, std::move(channel), era, std::move(principal));
+                                                                     std::shared_ptr<Channel> channel,
+                                                                     std::size_t pageSize) const {
+        auto* peer = new Mcp(*this, timeout, std::move(channel), era, std::move(principal), 1024 * 1024, pageSize);
         const auto context = std::make_shared<Exchange>(peer);
         auto reply = peer->receive(request, std::move(output));
         reply->protocolOwner = context;

@@ -58,6 +58,10 @@
 #include "mcp/server/Types.h"
 #include "mcp/server/detail/Server.h"
 #include "mcp/server/detail/UriTemplate.h"
+#include "utils/base64.h"
+
+#include <compare>
+#include <cstddef>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -490,6 +494,7 @@ namespace mcp::server {
     }
 
     void Server::Impl::changed(RegistrationKind kind) {
+        ++revision;
         if (attached) {
             const bool schedule = changes.empty();
             changes.insert(kind == Kind::ResourceTemplate ? Kind::Resource : kind);
@@ -588,7 +593,8 @@ namespace mcp::server {
                                                                             const utils::Timeval& timeout,
                                                                             std::optional<Principal> principal,
                                                                             std::shared_ptr<detail::Channel> channel,
-                                                                            Mcp* protocol) const {
+                                                                            Mcp* protocol,
+                                                                            std::size_t pageSize) const {
         const Json& id = request.id;
         const std::string& method = request.method;
         auto reply = std::make_shared<detail::Access::Response>(
@@ -855,11 +861,13 @@ namespace mcp::server {
                 }
             } else if (method == "resources/templates/list") {
                 Json list = Json::array();
-                for (const auto& key : templates) {
-                    list.push_back(entries.at(key).description);
+                for (const auto& [key, entry] : entries) {
+                    static_cast<void>(key);
+                    if (entry.kind == Kind::ResourceTemplate) {
+                        list.push_back(entry.description);
+                    }
                 }
-
-                reply->result({{"resourceTemplates", std::move(list)}});
+                reply->result(paginate(method, params, list, "resourceTemplates", pageSize));
             } else if (method == "tools/list" || method == "resources/list" || method == "prompts/list") {
                 const Kind kind = method == "tools/list" ? Kind::Tool : method == "resources/list" ? Kind::Resource : Kind::Prompt;
                 Json list = Json::array();
@@ -876,7 +884,7 @@ namespace mcp::server {
                     }
                 }
 
-                reply->result({{method.substr(0, method.find('/')), std::move(list)}});
+                reply->result(paginate(method, params, list, method.substr(0, method.find('/')), pageSize));
             } else if (method == "tools/call" || method == "resources/read" || method == "prompts/get") {
                 const Kind kind = method == "tools/call" ? Kind::Tool : method == "resources/read" ? Kind::Resource : Kind::Prompt;
                 const std::string argument = kind == Kind::Resource ? "uri" : "name";
@@ -952,6 +960,8 @@ namespace mcp::server {
             } else {
                 reply->error(-32601, "Method not found");
             }
+        } catch (const InputValidationError& error) {
+            reply->error(-32602, error.what());
         } catch (...) {
             snode::log::framework("mcp.server", snode::log::Boundary::Application).error() << "dispatch failed";
             reply->error(-32603, "Internal error");
@@ -959,6 +969,38 @@ namespace mcp::server {
         reply->expire();
 
         return reply;
+    }
+
+    Json Server::Impl::paginate(
+        const std::string& method, const Json& params, const Json& list, const std::string& field, std::size_t pageSize) const {
+        std::size_t offset = 0;
+        if (pageSize == 0 || pageSize > 128) {
+            throw InputValidationError("Invalid page size");
+        }
+        if (params.contains("cursor")) {
+            const auto& cursor = params["cursor"];
+            if (!cursor.is_string() || cursor.get_ref<const std::string&>().size() > 1024) {
+                throw InputValidationError("Invalid cursor");
+            }
+            const Json decoded = Json::parse(base64::base64_decode(cursor.get<std::string>()), nullptr, false);
+            if (!decoded.is_array() || decoded.size() != 5 || decoded[0] != 1 || decoded[1] != revision || decoded[2] != method ||
+                decoded[3] != pageSize || !decoded[4].is_number_unsigned() || decoded[4] == 0 || decoded[4] >= list.size() ||
+                decoded[4].get<std::uint64_t>() % pageSize != 0) {
+                throw InputValidationError("Invalid or expired cursor; restart listing");
+            }
+            offset = decoded[4].get<std::size_t>();
+        }
+        Json page = Json::array();
+        const auto end = std::min(list.size(), offset + pageSize);
+        for (auto index = offset; index < end; ++index) {
+            page.push_back(list[index]);
+        }
+        Json result{{field, std::move(page)}};
+        if (end < list.size()) {
+            const std::string cursor = Json::array({1, revision, method, pageSize, end}).dump();
+            result["nextCursor"] = base64::base64_encode(reinterpret_cast<const unsigned char*>(cursor.data()), cursor.size());
+        }
+        return result;
     }
 
     Server* Server::resourceUpdated(const std::string& uri) {

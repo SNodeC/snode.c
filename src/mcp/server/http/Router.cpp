@@ -338,7 +338,8 @@ namespace mcp::server::http {
                         },
                         config.getDeadline(),
                         std::move(principal),
-                        channel);
+                        channel,
+                        config.getPageSize());
                 }
                 if (mode == StreamMode::Sse) {
                     pump();

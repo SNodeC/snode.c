@@ -74,7 +74,8 @@ namespace mcp::server {
             std::shared_ptr<detail::Channel> channel = {},
             std::optional<detail::ProtocolEra> era = {},
             std::optional<Principal> principal = {},
-            std::size_t maximumMessageSize = 1024 * 1024);
+            std::size_t maximumMessageSize = 1024 * 1024,
+            std::size_t pageSize = 128);
         ~Mcp() final;
 
         void onConnected() final;
