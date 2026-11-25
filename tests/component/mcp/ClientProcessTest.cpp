@@ -39,6 +39,7 @@
  * THE SOFTWARE.
  */
 
+#include "core/EventReceiver.h"
 #include "core/SNodeC.h"
 #include "core/timer/Timer.h"
 #include "mcp/client/Mcp.h"
@@ -48,6 +49,7 @@
 #include <cerrno>
 #include <csignal>
 #include <functional>
+#include <memory>
 #include <sys/wait.h>
 #endif
 int main(int argc, char* argv[]) {
@@ -55,6 +57,15 @@ int main(int argc, char* argv[]) {
     unsigned exits = 0;
     mcp::client::Stdio child("child-lifecycle", []() {
         return new mcp::client::Mcp();
+    });
+    auto transient = std::make_unique<mcp::client::Stdio>("pending-child", []() {
+        return new mcp::client::Mcp();
+    });
+    transient->start({"/bin/sleep", "30"}, [&test](int) {
+        test.expectTrue(false, "destroyed facade suppresses late exit callback");
+    });
+    core::EventReceiver::atNextTick([&transient]() {
+        transient.reset();
     });
     core::SNodeC::init(argc, argv);
     std::function<void(int)> exited;

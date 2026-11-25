@@ -61,6 +61,7 @@
 #include <csignal>
 #include <fcntl.h>
 #include <initializer_list>
+#include <optional>
 #include <spawn.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
@@ -103,31 +104,42 @@ namespace mcp::client {
 
         class Reaper final : public core::eventreceiver::ReadEventReceiver {
         public:
-            Reaper(int fd, std::shared_ptr<State> state)
+            Reaper(int fd, pid_t pid, std::shared_ptr<State> state)
                 : ReadEventReceiver(
                       "mcp-child",
                       logger::LogScope{logger::LogOrigin::Framework, logger::LogBoundary::System, "mcp", "", logger::LogRole::Client, ""},
                       TIMEOUT::DISABLE)
                 , state(std::move(state))
-                , fd(fd) {
+                , fd(fd)
+                , pid(pid) {
                 if (!enable(fd)) {
                     const int error = errno;
                     ::close(fd);
                     throw std::system_error(error, std::generic_category(), "Cannot observe MCP child");
+                }
+                this->state->reaper = this;
+            }
+
+            void terminate(int signal) const {
+                if (pid > 0) {
+                    ::kill(pid, signal);
                 }
             }
 
         private:
             ~Reaper() final {
                 ::close(fd);
-                if (state->pid > 0) {
-                    ::kill(state->pid, SIGKILL);
+                if (pid > 0) {
+                    ::kill(pid, SIGKILL);
                     int status = 0;
                     pid_t result = 0;
                     do {
-                        result = ::waitpid(state->pid, &status, 0);
+                        result = ::waitpid(pid, &status, 0);
                     } while (result < 0 && errno == EINTR);
-                    state->pid = -1;
+                }
+                if (state->reaper == this) {
+                    state->reaper = nullptr;
+                    state->killTimer.cancel();
                 }
             }
 
@@ -147,23 +159,24 @@ namespace mcp::client {
                 int status = 0;
                 pid_t result = 0;
                 do {
-                    result = ::waitpid(state->pid, &status, WNOHANG);
+                    result = ::waitpid(pid, &status, WNOHANG);
                 } while (result < 0 && errno == EINTR);
                 if (result > 0 || (result < 0 && errno == ECHILD)) {
-                    state->pid = -1;
+                    pid = -1;
+                    state->reaper = nullptr;
+                    state->pendingExit = result > 0 ? status : -ECHILD;
                     state->killTimer.cancel();
                     if (state->connection != nullptr) {
                         state->connection->close();
                     }
-                    if (state->onExit) {
-                        state->onExit(result > 0 ? status : -ECHILD);
-                    }
+                    state->notifyExit();
                     disable();
                 }
             }
 
             std::shared_ptr<State> state;
             int fd;
+            pid_t pid;
         };
 
         State(const std::string& name, Creator creator)
@@ -182,15 +195,13 @@ namespace mcp::client {
             if (connection != nullptr) {
                 connection->close();
             }
-            closeFd(input);
-            closeFd(output);
-            if (pid > 0 && !stopping) {
+            if (reaper != nullptr && !stopping) {
                 stopping = true;
-                ::kill(pid, SIGTERM);
+                reaper->terminate(SIGTERM);
                 killTimer = core::timer::Timer::singleshotTimer(
                     [weak = weak_from_this()]() {
-                        if (const auto self = weak.lock(); self && self->pid > 0) {
-                            ::kill(self->pid, SIGKILL);
+                        if (const auto self = weak.lock(); self && self->reaper != nullptr) {
+                            self->reaper->terminate(SIGKILL);
                         }
                     },
                     utils::Timeval{1});
@@ -198,10 +209,22 @@ namespace mcp::client {
             stopping = true;
         }
 
+        void notifyExit() {
+            if (pendingExit && connection == nullptr && input < 0 && output < 0) {
+                const int status = *pendingExit;
+                pendingExit.reset();
+                auto callback = std::move(onExit);
+                if (callback) {
+                    callback(status);
+                }
+            }
+        }
+
         void spawn(std::vector<std::string> arguments, ExitHandler handler) {
+            pid_t pid = -1;
             onExit = std::move(handler);
             std::array<int, 4> fds{-1, -1, -1, -1};
-            int error = arguments.empty() || pid > 0 ? EINVAL : 0;
+            int error = arguments.empty() || reaper != nullptr ? EINVAL : 0;
             if (error == 0 && (::pipe2(fds.data(), O_CLOEXEC) < 0 || ::pipe2(fds.data() + 2, O_CLOEXEC) < 0)) {
                 error = errno;
             }
@@ -274,7 +297,7 @@ namespace mcp::client {
                     pid = -1;
                 } else {
                     try {
-                        new Reaper(pidfd, shared_from_this());
+                        new Reaper(pidfd, pid, shared_from_this());
                     } catch (const std::system_error& failure) {
                         error = failure.code().value();
                         ::kill(pid, SIGKILL);
@@ -295,6 +318,9 @@ namespace mcp::client {
                                     self->connection = active;
                                     self->input = -1;
                                     self->output = -1;
+                                    if (self->stopping) {
+                                        active->close();
+                                    }
                                 }
                             },
                             true);
@@ -303,14 +329,18 @@ namespace mcp::client {
                                 if (const auto self = weak.lock()) {
                                     self->connection = nullptr;
                                     self->stop();
+                                    self->notifyExit();
                                 }
                             },
                             true);
                         endpoint.attach(net::stdio::SocketAddress(input, output),
-                                        [weak = weak_from_this()](const auto&, const auto& status) {
-                                            if (const auto self = weak.lock(); self && status != core::socket::State::OK) {
+                                        [self = shared_from_this()](const auto&, const auto& status) {
+                                            if (status != core::socket::State::OK) {
+                                                closeFd(self->input);
+                                                closeFd(self->output);
                                                 self->stop();
                                             }
+                                            self->notifyExit();
                                         });
                     }
                 }
@@ -325,7 +355,8 @@ namespace mcp::client {
 
         Endpoint endpoint;
         ExitHandler onExit;
-        pid_t pid = -1;
+        Reaper* reaper = nullptr;
+        std::optional<int> pendingExit;
         int input = -1;
         int output = -1;
         core::socket::stream::SocketConnection* connection = nullptr;
@@ -338,6 +369,7 @@ namespace mcp::client {
     }
 
     Stdio::~Stdio() {
+        state->onExit = {};
         stop();
     }
 
