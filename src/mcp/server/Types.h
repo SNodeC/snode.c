@@ -43,6 +43,11 @@
 
 #include "mcp/Results.h" // IWYU pragma: export
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <functional>
+#include <memory>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 namespace mcp::server {
     struct CompletionRequest; ///< Request declared in Request.h; borrowed by completers.
     using mcp::CompletionResult;
@@ -65,6 +70,8 @@ namespace mcp::server {
     using mcp::InputRequired;
     using mcp::InputResponse;
     using mcp::Json;
+    using mcp::LogLevel;
+    using mcp::LogMessage;
     using mcp::Principal;
     using mcp::Progress;
     using mcp::ProgressToken;

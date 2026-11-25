@@ -42,6 +42,7 @@
 #ifndef MCP_SERVER_SERVER_H
 #define MCP_SERVER_SERVER_H
 
+#include "mcp/Types.h"
 #include "mcp/server/Prompt.h" // IWYU pragma: export
 #include "mcp/server/Reply.h"
 #include "mcp/server/Request.h"
@@ -58,10 +59,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace mcp {
-    struct Implementation;
-}
 
 namespace mcp::server {
 
@@ -101,6 +98,10 @@ namespace mcp::server {
         ~Server();
 
         Server(const Server&) = delete; ///< Stable owner identity; share through a reference instead.
+
+        /// Emit bounded legacy-session logging on the event loop; modern peers receive nothing.
+        /// Applications must omit credentials and private data from log payloads.
+        Server* log(LogLevel level, Json data, const std::string& logger = {});
 
         /// Report a URI change on the event loop; only explicitly subscribed live consumers are notified.
         /// Safe inside handlers; the call does not retain the URI and does not read the resource.

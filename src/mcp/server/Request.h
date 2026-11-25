@@ -80,6 +80,8 @@ namespace mcp::server {
         /// Register on the event loop; late observers run immediately after cancellation.
         /// Observer exceptions are contained and logged; captures live until termination.
         void onCancel(OnCancel callback) const;
+        /// Emit on this legacy session, subject to its threshold/rate/size limits.
+        bool log(LogLevel level, Json data, const std::string& logger = {}) const;
 
     private:
         explicit RequestContext(std::shared_ptr<detail::Response> impl);

@@ -85,6 +85,10 @@ namespace mcp::server::detail {
             Json requestedSchema;
         };
 
+        bool log(LogLevel level, Json data, const std::string& logger);
+        LogLevel loggingLevel = LogLevel::Info;
+        utils::Timeval logReset;
+        std::size_t logCount = 0;
         bool respond(const Json& message);
         bool complete(const Json& message);
         void forget(const Response& response);
@@ -192,6 +196,7 @@ namespace mcp::server {
                                                                   Mcp* protocol = nullptr,
                                                                   std::size_t pageSize = 128) const;
         void resourceUpdated(const std::string& uri);
+        void log(LogLevel level, const Json& data, const std::string& logger);
         static bool checkSchema(const Json& schema, std::string& error);
         static bool validate(const Json& schema, const Json& value, std::string& error);
         static bool validRequest(const Json& request);

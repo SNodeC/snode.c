@@ -45,10 +45,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <functional>
 #include <map>
-#include <memory>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #include <variant>
@@ -60,6 +59,17 @@ namespace mcp {
 
     /// Owned JSON value using the library's configured JSON implementation.
     using Json = nlohmann::json;
+
+    /// RFC 5424 severities in increasing importance; protocol logging is legacy-only.
+    enum class LogLevel { Debug, Info, Notice, Warning, Error, Critical, Alert, Emergency };
+    std::string loggingLevelName(LogLevel level);
+    std::optional<LogLevel> parseLoggingLevel(const std::string& name);
+
+    struct LogMessage {
+        LogLevel level;
+        Json data;
+        std::string logger;
+    };
 
     /// Authenticated application identity; never inferred from request arguments.
     struct Principal {

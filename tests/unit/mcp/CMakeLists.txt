@@ -191,3 +191,10 @@ target_link_libraries(
     McpPaginationTest PRIVATE snodec::mcp-server snodec-test-support
 )
 set_tests_properties(McpPaginationTest PROPERTIES LABELS "unit;mcp;pagination")
+
+snodec_add_test(McpLoggingTest McpLoggingTest.cpp)
+target_include_directories(McpLoggingTest PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(
+    McpLoggingTest PRIVATE snodec::mcp-server snodec-test-support
+)
+set_tests_properties(McpLoggingTest PROPERTIES LABELS "unit;mcp;logging")

@@ -701,6 +701,9 @@ namespace mcp::server {
                     advertised["resources"]["subscribe"] = true;
                 }
 
+                if (era == ProtocolEra::Initialization20251125 && channel) {
+                    advertised["logging"] = Json::object();
+                }
                 Json value{{"capabilities", std::move(advertised)}};
                 if (era == ProtocolEra::Initialization20251125) {
                     value["protocolVersion"] = protocolVersion2025;
@@ -715,6 +718,17 @@ namespace mcp::server {
                 }
 
                 reply->result(std::move(value));
+            } else if (era == ProtocolEra::Initialization20251125 && method == "logging/setLevel") {
+                const auto name = params.value("level", Json());
+                const auto level = name.is_string() ? parseLoggingLevel(name.get<std::string>()) : std::nullopt;
+                if (!level) {
+                    reply->error(-32602, "Invalid logging level");
+                } else if (!channel || !channel->active) {
+                    reply->error(-32601, "Transport has no legacy notification channel");
+                } else {
+                    channel->loggingLevel = *level;
+                    reply->result(Json::object());
+                }
             } else if (era == ProtocolEra::Initialization20251125 && method == "ping") {
                 reply->result(Json::object());
             } else if (era == ProtocolEra::PerRequest20260728 && method == "subscriptions/listen") {
@@ -1001,6 +1015,57 @@ namespace mcp::server {
             result["nextCursor"] = base64::base64_encode(reinterpret_cast<const unsigned char*>(cursor.data()), cursor.size());
         }
         return result;
+    }
+
+    bool detail::Channel::log(LogLevel level, Json data, const std::string& logger) {
+        bool accepted = false;
+        const auto now = utils::Timeval::currentTime();
+        if (logReset <= now) {
+            logReset = now + utils::Timeval(1);
+            logCount = 0;
+        }
+        const std::string name = loggingLevelName(level);
+        if (active && output && !name.empty() && level >= loggingLevel && logCount < 128 && logger.size() <= 128 && !data.is_discarded() &&
+            data.dump().size() <= 16384) {
+            ++logCount;
+            Json params{{"level", name}, {"data", std::move(data)}};
+            if (!logger.empty()) {
+                params["logger"] = logger;
+            }
+            accepted = true;
+            output(jsonrpc::messages::Notification{"notifications/message", std::optional<Json>(std::move(params))}.toJson());
+        }
+        return accepted;
+    }
+
+    void Server::Impl::log(LogLevel level, const Json& data, const std::string& logger) {
+        std::vector<std::shared_ptr<Channel>> clients;
+        std::erase_if(channels, [](const auto& weak) {
+            return weak.expired();
+        });
+        for (const auto& weak : channels) {
+            if (const auto current = weak.lock(); current && current->active) {
+                clients.push_back(current);
+            }
+        }
+        for (const auto& client : clients) {
+            client->log(level, data, logger);
+        }
+    }
+
+    Server* Server::log(LogLevel level, Json data, const std::string& logger) {
+        impl->log(level, data, logger);
+        return this;
+    }
+
+    bool RequestContext::log(LogLevel level, Json data, const std::string& logger) const {
+        bool accepted = false;
+        if (impl->era == ProtocolEra::Initialization20251125 && !impl->done) {
+            if (const auto current = impl->channel.lock()) {
+                accepted = current->log(level, std::move(data), logger);
+            }
+        }
+        return accepted;
     }
 
     Server* Server::resourceUpdated(const std::string& uri) {
