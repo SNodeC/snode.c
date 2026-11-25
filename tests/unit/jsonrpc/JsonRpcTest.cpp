@@ -231,6 +231,21 @@ namespace {
                         "optional error data retains explicit null");
     }
 
+    void uncorrelatedErrors(tests::support::TestResult& test) {
+        auto* peer = new Peer;
+        Context context(peer);
+        const auto id = peer->sendRequest("pending");
+        const auto before = context.output.size();
+        context.onMessage(jsonrpc::messages::Error{nullptr, -32700, "Parse error"}.serialize());
+        test.expectTrue(peer->errors == 1 && context.output.size() == before, "null-id error reaches the hook without a reply");
+        context.onMessage(jsonrpc::messages::Result{id, 1}.serialize());
+        test.expectTrue(peer->results == 1, "uncorrelated error preserves outstanding requests");
+        context.onMessage(jsonrpc::messages::Error{id, -32603, "Internal error"}.serialize());
+        test.expectTrue(peer->errors == 1, "unknown non-null error id remains dropped");
+        context.onMessage(jsonrpc::messages::Error{nullptr, -32600, "Invalid Request"}.serialize());
+        test.expectTrue(peer->errors == 2, "each uncorrelated error reaches the protocol");
+    }
+
     void invariants(tests::support::TestResult& test) {
         auto* peer = new Peer;
         Context context(peer);
@@ -324,6 +339,7 @@ int main(int argc, char* argv[]) {
     }
     messages(test);
     examples(test);
+    uncorrelatedErrors(test);
     invariants(test);
     {
         auto* peer = new Peer;

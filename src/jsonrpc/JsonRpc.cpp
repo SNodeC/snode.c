@@ -260,7 +260,7 @@ namespace jsonrpc {
     }
 
     void JsonRpc::_onError(const messages::Error& error) {
-        if (cancelRequest(error.id)) {
+        if (error.id.is_null() || cancelRequest(error.id)) {
             onError(error);
         } else {
             log().warn() << "unknown response id: " << error.id;

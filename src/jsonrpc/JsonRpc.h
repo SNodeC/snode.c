@@ -105,6 +105,7 @@ namespace jsonrpc {
         /// Protocol-specific result validation precedes consuming the outstanding entry.
         virtual bool validateResult(const messages::Result& result) const;
         virtual void onResult(const messages::Result& result);
+        /// Null-id errors are uncorrelated and do not consume an outstanding request.
         virtual void onError(const messages::Error& error);
         virtual void onRequestTimeout(const messages::Id& id);
 
