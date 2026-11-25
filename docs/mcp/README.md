@@ -222,3 +222,48 @@ The process-local task store accepts at most 128 tasks, retains each terminal pa
 The concrete `mcp::client::Mcp` role in `snodec::mcp-client` derives from `jsonrpc::JsonRpc`. Override safe, non-pure hooks such as `onReady`, `onTools`, `onToolResult`, `onResourceResult`, `onPromptResult`, `onRemoteError` and `onTimeout`; command methods return JSON-RPC request ids. There are no per-call continuation callbacks: semantic operation descriptors accompany the engine's single outstanding-request ledger, following the MQTT send/hook style. `Options::negotiation` selects automatic discovery/fallback or an explicit era. Automatic mode uses [2026 discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover), falling back to [2025 initialization](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle) when discovery is unsupported. Sampling and roots are not advertised.
 
 The client follows opaque `nextCursor` values, including empty strings, and aggregates list pages under the original request id; an invalidated cursor restarts once from the beginning. It retries [MRTR](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr) with a fresh wire id, exact opaque requestState and only that operation's inputResponses. Elicitation declines by default. Typed shared result values own their content; typed list results retain descriptors as JSON to preserve schemas and extension fields. Task watches poll using the server's interval, route status/input notifications, and return final results through the original operation's hook. `RequestOptions::task` is the legacy task-augmentation flag; modern task creation remains the server's decision. Pagination, MRTR rounds, task watches and input-key histories are bounded. No result cache is maintained, so each explicit list/read fetch observes the server and list-change hooks have no hidden cache to invalidate.
+
+### Client transports and CLI
+
+`mcp/client/Stdio.h` belongs to `snodec::mcp-client`. Construct the named `Stdio` facade before `SNodeC::init`, then call `start(argv, onExit)` and enter `SNodeC::start`. Its creator returns a connection-owned `mcp::client::Mcp` subclass. The binding uses `posix_spawnp` without a shell, CLOEXEC pipes, the existing `net::stdio` endpoint with TAKE ownership, and newline JSON-RPC framing. stderr is inherited. Child signal masks/defaults are reset before execution. On Linux, a pidfd read receiver and `waitpid` integrate exit handling without replacing application SIGCHLD handlers. `stop` closes the connection, sends SIGTERM, and escalates to SIGKILL after one second; teardown reaps the child. `onExit` receives the raw wait status, or negative errno when spawning fails. Start/stop, creators, hooks and final release belong to the event-loop thread.
+
+`mcp/client/http/Client.h` belongs to `snodec::mcp-client-http`. `http::Http` and `http::Https` are aliases of a template over the existing IPv4 HTTP/TLS clients, with explicit instantiations. Construct it before init with a newly allocated protocol; the binding owns it. `getConfig()` exposes the original transport configuration, including TLS settings. `start(SocketAddress)` begins negotiation; `Options::path` (or `setPath` before start) selects the MCP endpoint. `Options::bearerToken` supplies an access token per exchange; `Options::onError` reports transport failures. OAuth flows, consent, token storage and refresh remain application responsibilities. Credentials are not written to protocol logs.
+
+The HTTP binding implements the [2025 transport](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports) with session headers and its session GET notification stream, and the [2026 transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http) with per-request protocol, method and name headers. Fetch `listTools` before calling tools with `x-mcp-header` annotations: the transport validates the descriptors, excludes invalid declarations, retains bounded header projections, extracts nested primitive arguments and applies the specified base64 sentinel encoding. List-change notifications invalidate these projections. A HeaderMismatch error is delivered to the protocol hook; applications can refresh the tool inventory and retry. The registry also rejects invalid header annotations at registration, and the HTTP router compares recognized custom headers against the current registry schema.
+
+SSE parsing is shared with the HTTP EventSource implementation. HTTP transfer decoding remains in `web::http`, including chunked responses; UTF-8 BOM, CR/LF/CRLF delimiters, event ids, retry values and partial messages are handled by the shared bounded parser. The binding admits at most 64 simultaneous/queued exchanges and 8 MiB JSON response bodies; SSE lines are bounded to 256 KiB and event data to 1 MiB. Legacy interrupted SSE streams retry the same stream via GET and Last-Event-ID, up to eight times, without resending POST. Expired/evicted streams report failure. Modern disconnects cancel the exchange; applications may issue a fresh listen request. Modern streams never use Last-Event-ID.
+
+The `snodec-mcp-client` demonstration lists tools by default and also supports `--command resources`, `templates`, `prompts`, `call`, `read`, `prompt`, `listen`, `log` or an extension method. Use `--name` for a tool/prompt name or resource URI and `--arguments` for a JSON object. `--legacy true` pins 2025; automatic discovery/fallback is the default. `--task true` requests legacy task augmentation. `--watch true` keeps receiving notifications. Typed result hooks print JSON; notifications, task status, logs and progress are displayed. `MCP_BEARER_TOKEN` supplies the demonstration's HTTP access token.
+
+```sh
+snodec-mcp-client --config-file /dev/null --quiet --server snodec-dev-stdio --command tools
+snodec-mcp-client --config-file /dev/null --quiet --host 127.0.0.1 --port 8080 --command tools
+snodec-mcp-client --config-file /dev/null --quiet --host 127.0.0.1 --port 8080 --command call --name api.find --arguments '{"query":"SNodeC","limit":1}'
+snodec-mcp-client --config-file /dev/null --quiet --command listen --arguments '{"toolsListChanged":true,"resourceSubscriptions":["snodec://development/review-label"]}' --watch true
+```
+
+For embedding, derive once and select the binding independently:
+
+```cpp
+#include <core/SNodeC.h>
+#include <mcp/client/Mcp.h>
+#include <mcp/client/Stdio.h>
+
+class Inventory final : public mcp::client::Mcp {
+    void onReady(mcp::ProtocolEra, const mcp::Json&) final {
+        listTools();
+    }
+    void onTools(const jsonrpc::messages::Id&, const mcp::ToolsListResult&) final {
+        disconnect();
+    }
+};
+
+int main(int argc, char* argv[]) {
+    mcp::client::Stdio server("inventory", [] { return new Inventory(); });
+    core::SNodeC::init(argc, argv);
+    server.start({"snodec-dev-stdio", "--config-file", "/dev/null"});
+    return core::SNodeC::start();
+}
+```
+
+Link `snodec::mcp-client` for this example. Applications own their UI, elicitation decisions, retry policy after transport failures and authorization flow. There are no sampling or roots APIs and no modern logging capability. Server/client code is experimental; the unreleased MCP SOVERSION remains 4.

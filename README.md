@@ -220,7 +220,7 @@ Not working? See [first-program troubleshooting](docs/guides/deployment.md#troub
 - **Express-style web API:** routing, middleware, static files, JSON bodies, virtual hosts and HTTP Basic authentication.
 - **WebSockets:** client/server roles, HTTP upgrade and application subprotocols, including MQTT adapters.
 - **Server-Sent Events:** server streams and a native `EventSource` client with named listeners and reconnect handling.
-- **MCP client:** `snodec::mcp-client` provides negotiation, typed result hooks, pagination, elicitation and task polling. See the [MCP guide](docs/mcp/README.md).
+- **MCP client:** `snodec::mcp-client` provides negotiation, typed hooks, pagination, elicitation, tasks and spawned stdio; `snodec::mcp-client-http` provides HTTP/TLS and SSE bindings. See the [MCP guide](docs/mcp/README.md).
 - **MCP shared types:** `snodec::mcp` provides role-neutral content, results, protocol eras and schema validation. See the [MCP guide](docs/mcp/README.md).
 - **JSON-RPC 2.0:** symmetric peers, asynchronous requests and batches over stream or WebSocket adapters. See the [JSON-RPC guide](docs/jsonrpc/README.md).
 - **MQTT 3.1.1:** client/server building blocks, broker functionality and WebSocket adapters. For ready-to-run applications, use [MQTTSuite](https://github.com/SNodeC/mqttsuite#banner).
